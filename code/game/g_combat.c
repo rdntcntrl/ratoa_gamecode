@@ -461,6 +461,15 @@ void CheckAlmostScored( gentity_t *self, gentity_t *attacker ) {
 	}
 }
 
+void rampage_notify(gentity_t *attacker) {
+	int soundIndex;
+
+	if (attacker->client->pers.multiKillCount == 3) {
+		soundIndex = G_SoundIndex( "sound/feedback/frags.wav" );
+		G_Sound(attacker, 0, soundIndex );
+	}
+}
+
 /*
 ==================
 player_die
@@ -717,6 +726,8 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 				attacker->client->ps.eFlags &= ~(EF_AWARD_IMPRESSIVE | EF_AWARD_EXCELLENT | EF_AWARD_GAUNTLET | EF_AWARD_ASSIST | EF_AWARD_DEFEND | EF_AWARD_CAP );
 				attacker->client->ps.eFlags |= EF_AWARD_EXCELLENT;
 				attacker->client->rewardTime = level.time + REWARD_SPRITE_TIME;
+				attacker->client->pers.multiKillCount++;
+				rampage_notify(attacker);
 			} else { 
 			    //KK-OAX Clear multikill count
 			    //Must be 1 so the correct number of kills are displayed to the clients. 
