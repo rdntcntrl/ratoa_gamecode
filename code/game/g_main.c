@@ -937,6 +937,8 @@ PLAYER COUNTING / SCORE SORTING
 ========================================================================
 */
 
+
+#define SPECTATORNUM_PERMANENT -999
 /*
 =============
 AddTournamentPlayer
@@ -975,6 +977,11 @@ void AddTournamentPlayer( void ) {
 			continue;
 		}
 
+		if (client->sess.spectatorNum == SPECTATORNUM_PERMANENT) {
+			// ignore permanent spectators
+			continue;
+		}
+
 		if(!nextInLine || client->sess.spectatorNum > nextInLine->sess.spectatorNum) {
 			nextInLine = client;
 		}
@@ -1006,12 +1013,40 @@ void AddTournamentQueue(gclient_t *client)
         curclient = &level.clients[index];
         if(curclient->pers.connected != CON_DISCONNECTED)
         {
+            if (curclient->sess.spectatorNum == SPECTATORNUM_PERMANENT) {
+	            // ignore permanent spectators
+	            continue;
+	    }
+	
             if(curclient == client)
-            curclient->sess.spectatorNum = 0;
+		    curclient->sess.spectatorNum = 0;
             else if(curclient->sess.sessionTeam == TEAM_SPECTATOR)
-            curclient->sess.spectatorNum++;
+		    curclient->sess.spectatorNum++;
         }
     }
+}
+
+void ClientPermanentSpec(gclient_t *client)
+{
+	if (client->sess.spectatorNum != SPECTATORNUM_PERMANENT) {
+		client->sess.spectatorNum = SPECTATORNUM_PERMANENT;
+		SetTeam( &g_entities[ client->ps.clientNum ], "s" );
+		trap_SendServerCommand( -1, va("print \"%s" S_COLOR_CYAN " permanently moved to spectator mode\n\"", client->pers.netname) );
+	}
+	// show this always to help players
+	trap_SendServerCommand( client->ps.clientNum, 
+			"cp \"" S_COLOR_CYAN "Permanently switched to spectators\n"
+			S_COLOR_CYAN "Run \\playmode to queue again\n\"" );
+
+}
+
+void ClientQueueAgain(gclient_t *client)
+{
+	if (client->sess.spectatorNum == SPECTATORNUM_PERMANENT) {
+		client->sess.spectatorNum = SPECTATORNUM_PERMANENT+1;
+		trap_SendServerCommand( -1, va("print \"%s" S_COLOR_CYAN " queued up to play\n\"", client->pers.netname) );
+		AddTournamentQueue(client);
+	}
 }
 
 /*

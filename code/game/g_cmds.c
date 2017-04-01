@@ -649,6 +649,14 @@ void Cmd_TeamTask_f( gentity_t *ent ) {
 	ClientUserinfoChanged(client);
 }
 
+void Cmd_SpecMode_f( gentity_t *ent ) {
+	ClientPermanentSpec(ent->client);
+}
+
+void Cmd_PlayMode_f( gentity_t *ent ) {
+	ClientQueueAgain(ent->client);
+}
+
 
 
 /*
@@ -2213,7 +2221,10 @@ commands_t cmds[ ] =
   //KK-OAX
   { "freespectator", CMD_NOTEAM, StopFollowing },
   { "getmappage", 0, Cmd_GetMappage_f },
-  { "gc", 0, Cmd_GameCommand_f }
+  { "gc", 0, Cmd_GameCommand_f },
+
+  { "specmode", 0, Cmd_SpecMode_f },
+  { "playmode", 0, Cmd_PlayMode_f }
   
 };
 

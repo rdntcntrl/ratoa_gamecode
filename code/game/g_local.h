@@ -846,6 +846,9 @@ void QDECL G_Error( const char *fmt, ... ) __attribute__((noreturn));
 void LogExit( const char *string ); 
 void CheckTeamVote( int team );
 
+void ClientPermanentSpec(gclient_t *client);
+void ClientQueueAgain(gclient_t *client);
+
 //
 // g_client.c
 //
