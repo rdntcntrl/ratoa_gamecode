@@ -1559,6 +1559,9 @@ void motd_chat (gentity_t *ent)
 		while((p = strchr(motd, '\r'))) //Remove carrier return. 0x0D
 			memmove(p, p + 1, fileLen - (p - motd));
 
+		while((p = strchr(motd, '"'))) //Remove '"'
+			memmove(p, p + 1, fileLen - (p - motd));
+
 		strcpy (chatCmd, "print \"^5>^7 ");
 		cmdLen = strlen(chatCmd);
 		line = motd;
