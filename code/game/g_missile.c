@@ -69,11 +69,11 @@ void G_TeleportMissile( gentity_t *ent, trace_t *trace, gentity_t *portal ) {
 	vec3_t			dir;
 	vec3_t 			velocity;
 	int			hitTime;
-	
-	dest =  G_PickTarget( portal->target );                            
-	if (!dest) {                                                     
-		G_Printf ("Couldn't find teleporter destination\n");     
-		return;                                                  
+
+	dest =  G_PickTarget( portal->target );
+	if (!dest) {
+		G_Printf ("Couldn't find teleporter destination\n");
+		return;
 	}
 
 	//hitTime = level.previousTime + ( level.time - level.previousTime ) * trace->fraction;
@@ -630,7 +630,10 @@ gentity_t *fire_plasma (gentity_t *self, vec3_t start, vec3_t dir) {
 	bolt->splashRadius = 20;
 	bolt->methodOfDeath = MOD_PLASMA;
 	bolt->splashMethodOfDeath = MOD_PLASMA_SPLASH;
-	bolt->clipmask = MASK_SHOT | CONTENTS_TRIGGER;
+	bolt->clipmask = MASK_SHOT;
+	if (g_teleMissiles.integer == 1) {
+		bolt->clipmask |= CONTENTS_TRIGGER;
+	}
 	bolt->target_ent = NULL;
 
 	bolt->s.pos.trType = TR_LINEAR;
@@ -680,7 +683,10 @@ gentity_t *fire_grenade (gentity_t *self, vec3_t start, vec3_t dir) {
 	bolt->splashRadius = 150;
 	bolt->methodOfDeath = MOD_GRENADE;
 	bolt->splashMethodOfDeath = MOD_GRENADE_SPLASH;
-	bolt->clipmask = MASK_SHOT | CONTENTS_TRIGGER;
+	bolt->clipmask = MASK_SHOT;
+	if (g_teleMissiles.integer == 1) {
+		bolt->clipmask |= CONTENTS_TRIGGER;
+	}
 	bolt->target_ent = NULL;
 
 	bolt->s.pos.trType = TR_GRAVITY;
@@ -729,7 +735,10 @@ gentity_t *fire_bfg (gentity_t *self, vec3_t start, vec3_t dir) {
 	bolt->splashRadius = 120;
 	bolt->methodOfDeath = MOD_BFG;
 	bolt->splashMethodOfDeath = MOD_BFG_SPLASH;
-	bolt->clipmask = MASK_SHOT | CONTENTS_TRIGGER;
+	bolt->clipmask = MASK_SHOT;
+	if (g_teleMissiles.integer == 1) {
+		bolt->clipmask |= CONTENTS_TRIGGER;
+	}
 	bolt->target_ent = NULL;
 
 	bolt->s.pos.trType = TR_LINEAR;
@@ -777,7 +786,10 @@ gentity_t *fire_rocket (gentity_t *self, vec3_t start, vec3_t dir) {
 	bolt->splashRadius = 120;
 	bolt->methodOfDeath = MOD_ROCKET;
 	bolt->splashMethodOfDeath = MOD_ROCKET_SPLASH;
-	bolt->clipmask = MASK_SHOT | CONTENTS_TRIGGER;
+	bolt->clipmask = MASK_SHOT;
+	if (g_teleMissiles.integer == 1) {
+		bolt->clipmask |= CONTENTS_TRIGGER;
+	}
 	bolt->target_ent = NULL;
 
 	bolt->s.pos.trType = TR_LINEAR;
@@ -881,7 +893,10 @@ gentity_t *fire_nail( gentity_t *self, vec3_t start, vec3_t forward, vec3_t righ
 	bolt->parent = self;
 	bolt->damage = 20;
 	bolt->methodOfDeath = MOD_NAIL;
-	bolt->clipmask = MASK_SHOT | CONTENTS_TRIGGER;
+	bolt->clipmask = MASK_SHOT;
+	if (g_teleMissiles.integer == 1) {
+		bolt->clipmask |= CONTENTS_TRIGGER;
+	}
 	bolt->target_ent = NULL;
 
 	bolt->s.pos.trType = TR_LINEAR;
