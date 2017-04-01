@@ -377,6 +377,7 @@ struct gclient_s {
 	gentity_t	*hook;				// grapple hook if out
 
 	int			switchTeamTime;		// time the player switched teams
+	int			switchSpecModeTime; 	// time the player may queue up / perm spec again
 
 	// timeResidual is used to handle events that happen every second
 	// like health / armor countdowns and regeneration
@@ -847,6 +848,9 @@ void QDECL G_Error( const char *fmt, ... ) __attribute__((noreturn));
 //KK-OAX Made Accessible for g_admin.c
 void LogExit( const char *string ); 
 void CheckTeamVote( int team );
+
+void ClientPermanentSpec(gclient_t *client);
+void ClientQueueAgain(gclient_t *client);
 
 //
 // g_client.c

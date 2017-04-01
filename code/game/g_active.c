@@ -397,7 +397,8 @@ qboolean ClientInactivityTimer( gclient_t *client ) {
 		     client->sess.sessionTeam != TEAM_SPECTATOR) {
 		if ( level.time > client->inactivityTime ) {
 			//trap_DropClient( client - level.clients, "Dropped due to inactivity" );
-			SetTeam( &g_entities[ client->ps.clientNum ], "s" );
+			//SetTeam( &g_entities[ client->ps.clientNum ], "s" );
+			ClientPermanentSpec(client);
 			return qfalse;
 		}
 		if ( level.time > client->inactivityTime - 10000 && !client->inactivityWarning ) {
