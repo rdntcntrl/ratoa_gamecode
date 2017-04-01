@@ -393,14 +393,16 @@ qboolean ClientInactivityTimer( gclient_t *client ) {
 		(client->pers.cmd.buttons & BUTTON_ATTACK) ) {
 		client->inactivityTime = level.time + g_inactivity.integer * 1000;
 		client->inactivityWarning = qfalse;
-	} else if ( !client->pers.localClient ) {
+	} else if ( !client->pers.localClient &&
+		     client->sess.sessionTeam != TEAM_SPECTATOR) {
 		if ( level.time > client->inactivityTime ) {
-			trap_DropClient( client - level.clients, "Dropped due to inactivity" );
+			//trap_DropClient( client - level.clients, "Dropped due to inactivity" );
+			SetTeam( &g_entities[ client->ps.clientNum ], "s" );
 			return qfalse;
 		}
 		if ( level.time > client->inactivityTime - 10000 && !client->inactivityWarning ) {
 			client->inactivityWarning = qtrue;
-			trap_SendServerCommand( client - level.clients, "cp \"Ten seconds until inactivity drop!\n\"" );
+			trap_SendServerCommand( client - level.clients, "cp \"^3You got ^110s ^3until you are moved to\n^3the spectators due to inactivity!\n\"" );
 		}
 	}
 	return qtrue;
