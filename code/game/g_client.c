@@ -1557,7 +1557,7 @@ void motd_chat (gentity_t *ent)
 		while((p = strchr(motd, '\r'))) //Remove carrier return. 0x0D
 			memmove(p, p + 1, fileLen - (p - motd));
 
-		strcpy (chatCmd, "chat \"^5>^7 ");
+		strcpy (chatCmd, "print \"^5>^7 ");
 		cmdLen = strlen(chatCmd);
 		line = motd;
 		while (*line != '\0' && (p = strchrnul(line, '\n'))) {
@@ -1583,8 +1583,7 @@ void motd (gentity_t *ent)
 	int motdLen;
 	int fileLen;
 
-	//strcpy (motd, "cp \"");
-	strcpy (motd, "chat \"");
+	strcpy (motd, "cp \"");
 	fileLen = trap_FS_FOpenFile(g_motdfile.string, &motdFile, FS_READ);
 	if(motdFile)
 	{
