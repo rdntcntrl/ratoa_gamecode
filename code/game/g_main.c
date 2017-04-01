@@ -2903,29 +2903,68 @@ int start, end;
 		}
 	}
 
-//unlagged - backward reconciliation #2
-	// NOW run the missiles, with all players backward-reconciled
-	// to the positions they were in exactly 50ms ago, at the end
-	// of the last server frame
-	G_TimeShiftAllClients( level.previousTime, NULL );
+	if (g_unlagFlight.integer) {
+		int projectileDelagTime = level.previousTime;
+		if (level.previousTime > MISSILE_PRESTEP_MAX_LATENCY
+				&& msec > 0) {
+			projectileDelagTime -= (MISSILE_PRESTEP_MAX_LATENCY/msec) * msec;
+		}
+		while (projectileDelagTime <= level.previousTime) {
+			int lag = level.previousTime - projectileDelagTime;
 
-	ent = &g_entities[0];
-	for (i=0 ; i<level.num_entities ; i++, ent++) {
-		if ( !ent->inuse ) {
-			continue;
+			ent = &g_entities[0];
+			for (i=0 ; i<level.num_entities ; i++, ent++) {
+				if ( !ent->inuse ) {
+					continue;
+				}
+
+				// temporary entities don't think
+				if ( ent->freeAfterEvent ) {
+					continue;
+				}
+
+				if ( ent->s.eType == ET_MISSILE ) {
+					if (ent->launchLag < lag || ent->launchLag >= lag + msec) {
+						continue;
+					}
+					G_TimeShiftAllClients( projectileDelagTime, ent->parent );
+
+					G_RunMissile( ent );
+
+					G_UnTimeShiftAllClients( ent->parent );
+				}
+			}
+
+			projectileDelagTime += msec;
+			if (msec == 0) {
+				break;
+			}
+		}
+	} else {
+		//unlagged - backward reconciliation #2
+		// NOW run the missiles, with all players backward-reconciled
+		// to the positions they were in exactly 50ms ago, at the end
+		// of the last server frame
+		G_TimeShiftAllClients( level.previousTime, NULL );
+
+		ent = &g_entities[0];
+		for (i=0 ; i<level.num_entities ; i++, ent++) {
+			if ( !ent->inuse ) {
+				continue;
+			}
+
+			// temporary entities don't think
+			if ( ent->freeAfterEvent ) {
+				continue;
+			}
+
+			if ( ent->s.eType == ET_MISSILE ) {
+				G_RunMissile( ent );
+			}
 		}
 
-		// temporary entities don't think
-		if ( ent->freeAfterEvent ) {
-			continue;
-		}
-
-		if ( ent->s.eType == ET_MISSILE ) {
-			G_RunMissile( ent );
-		}
+		G_UnTimeShiftAllClients( NULL );
 	}
-
-	G_UnTimeShiftAllClients( NULL );
 //unlagged - backward reconciliation #2
 
 end = trap_Milliseconds();
