@@ -456,6 +456,12 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 	       ent->target_ent = other;
 	       return;
 	}
+
+	if (other->r.contents == CONTENTS_TRIGGER) {
+		// check for equality, r.contents seems to not contain other FLAGS?
+		ent->target_ent = other;
+		return;
+	}
 	
 	// check for bounce
 	if ( !other->takedamage &&
@@ -465,11 +471,6 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 		return;
 	}
 
-	if (other->r.contents == CONTENTS_TRIGGER) {
-		// check for equality, r.contents seems to not contain other FLAGS?
-		ent->target_ent = other;
-		return;
-	}
 
 	if ( other->takedamage ) {
 		if ( ent->s.weapon != WP_PROX_LAUNCHER ) {
