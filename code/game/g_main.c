@@ -981,8 +981,8 @@ void AddTournamentPlayer( void ) {
 			continue;
 		}
 
-		if ( client->sess.spectatorState == SPECTATOR_AFK ||
-				client->sess.spectatorState == SPECTATOR_NOTREADY) {
+		if ( client->sess.spectatorGroup == SPECTATORGROUP_AFK ||
+				client->sess.spectatorGroup == SPECTATORGROUP_NOTREADY) {
 			continue;
 		}
 
@@ -1122,18 +1122,18 @@ int QDECL SortRanks( const void *a, const void *b ) {
 	}
 
 	// afk spectators
-	if ( ca->sess.spectatorState == SPECTATOR_AFK ) {
+	if ( ca->sess.spectatorGroup == SPECTATORGROUP_AFK ) {
 		return 1;
 	}
-	if ( cb->sess.spectatorState == SPECTATOR_AFK ) {
+	if ( cb->sess.spectatorGroup == SPECTATORGROUP_AFK ) {
 		return -1;
 	}
 
 	// notready spectators
-	if ( ca->sess.spectatorState == SPECTATOR_NOTREADY ) {
+	if ( ca->sess.spectatorGroup == SPECTATORGROUP_NOTREADY ) {
 		return 1;
 	}
-	if ( cb->sess.spectatorState == SPECTATOR_NOTREADY ) {
+	if ( cb->sess.spectatorGroup == SPECTATORGROUP_NOTREADY ) {
 		return -1;
 	}
 

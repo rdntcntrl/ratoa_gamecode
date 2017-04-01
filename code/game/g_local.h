@@ -195,10 +195,14 @@ typedef enum {
 	SPECTATOR_NOT,
 	SPECTATOR_FREE,
 	SPECTATOR_FOLLOW,
-	SPECTATOR_SCOREBOARD,
-	SPECTATOR_NOTREADY,
-	SPECTATOR_AFK
+	SPECTATOR_SCOREBOARD
 } spectatorState_t;
+
+typedef enum {
+	SPECTATORGROUP_QUEUED,
+	SPECTATORGROUP_NOTREADY,
+	SPECTATORGROUP_AFK
+} spectatorGroup_t;
 
 typedef enum {
 	TEAM_BEGIN,		// Beginning a team game, spawn at base
@@ -237,6 +241,7 @@ typedef struct {
 	int			spectatorNum;		// for determining next-in-line to play
 	spectatorState_t	spectatorState;
 	int			spectatorClient;	// for chasecam and follow mode
+	spectatorGroup_t	spectatorGroup;
 	int			wins, losses;		// tournament stats
 	qboolean	teamLeader;			// true when this client is a team leader
 } clientSession_t;

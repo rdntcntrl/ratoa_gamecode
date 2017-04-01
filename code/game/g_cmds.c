@@ -695,7 +695,7 @@ void BroadcastTeamChange( gclient_t *client, int oldTeam )
 	}
 
 	if ( client->sess.sessionTeam == TEAM_SPECTATOR &&
-			client->sess.spectatorState == SPECTATOR_AFK) {
+			client->sess.spectatorGroup == SPECTATORGROUP_AFK) {
 		trap_SendServerCommand( -1, va("print \"%s" S_COLOR_CYAN " is now afk\n\"", client->pers.netname) );
 	}
 }
@@ -711,6 +711,8 @@ void SetTeam( gentity_t *ent, char *s ) {
 	gclient_t			*client;
 	int					clientNum;
 	spectatorState_t	specState;
+	spectatorGroup_t	specGroup;
+	spectatorGroup_t	oldGroup;
 	int					specClient;
 	int					teamLeader;
     char	            userinfo[MAX_INFO_STRING];
@@ -727,6 +729,7 @@ void SetTeam( gentity_t *ent, char *s ) {
         trap_GetUserinfo( clientNum, userinfo, sizeof( userinfo ) );
 	specClient = 0;
 	specState = SPECTATOR_NOT;
+	specGroup = SPECTATORGROUP_QUEUED;
 	if ( Q_strequal( s, "scoreboard" ) || Q_strequal( s, "score" )  ) {
 		team = TEAM_SPECTATOR;
 		specState = SPECTATOR_SCOREBOARD;
@@ -743,10 +746,12 @@ void SetTeam( gentity_t *ent, char *s ) {
 		specState = SPECTATOR_FREE;
 	} else if ( Q_strequal( s, "notready" ) ) {
 		team = TEAM_SPECTATOR;
-		specState = SPECTATOR_NOTREADY;
+		specState = SPECTATOR_FREE;
+		specGroup = SPECTATORGROUP_NOTREADY;
 	} else if ( Q_strequal( s, "afk" ) ) {
 		team = TEAM_SPECTATOR;
-		specState = SPECTATOR_AFK;
+		specState = SPECTATOR_FREE;
+		specGroup = SPECTATORGROUP_AFK;
 	} else if ( g_gametype.integer >= GT_TEAM && g_ffa_gt!=1) {
 		// if running a team game, assign player to one of the teams
 		specState = SPECTATOR_NOT;
@@ -849,8 +854,11 @@ void SetTeam( gentity_t *ent, char *s ) {
             PlayerStore_store(Info_ValueForKey(userinfo,"cl_guid"),client->ps);
         
 	// they go to the end of the line for tournements
+	oldGroup = client->sess.spectatorGroup;
         if(team == TEAM_SPECTATOR) {
-		if (oldTeam != team || specState == SPECTATOR_AFK ) {
+		if (oldTeam != team
+			       	|| specGroup == SPECTATORGROUP_AFK 
+				|| oldGroup == SPECTATORGROUP_AFK) {
 			AddTournamentQueue(client);
 		}
 	}
@@ -858,6 +866,7 @@ void SetTeam( gentity_t *ent, char *s ) {
 
 	client->sess.sessionTeam = team;
 	client->sess.spectatorState = specState;
+	client->sess.spectatorGroup = specGroup;
 	client->sess.spectatorClient = specClient;
 
 	client->sess.teamLeader = qfalse;
