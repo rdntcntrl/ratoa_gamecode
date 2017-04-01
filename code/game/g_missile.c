@@ -426,7 +426,8 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 	int				eFlags;
 	other = &g_entities[trace->entityNum];
 
-	if (other->s.eType == ET_ITEM) {
+	if (other->s.eType == ET_ITEM 
+			|| other->s.eType == ET_MISSILE) {
 		ent->target_ent = other;
 		return;
 	} else if (other->s.eType == ET_PLAYER && ent->r.ownerNum == other->s.number) {
@@ -445,10 +446,15 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 	}
 
 	// check if grenade hit jumppad
-	if (other->s.eType == ET_PUSH_TRIGGER && g_pushGrenades.integer == 1 &&
-		       	other->target && strcmp(ent->classname, "grenade") == 0) {
-		G_PushGrenade( ent, trace, other );
-		return;
+	if (other->s.eType == ET_PUSH_TRIGGER) {
+	       if (g_pushGrenades.integer == 1
+			       && other->target 
+			       && strcmp(ent->classname, "grenade") == 0) {
+		       G_PushGrenade( ent, trace, other );
+		       return;
+	       }
+	       ent->target_ent = other;
+	       return;
 	}
 	
 	// check for bounce
