@@ -2912,6 +2912,7 @@ int start, end;
 		while (projectileDelagTime <= level.previousTime) {
 			int lag = level.previousTime - projectileDelagTime;
 
+			G_TimeShiftAllClients( projectileDelagTime, NULL );
 			ent = &g_entities[0];
 			for (i=0 ; i<level.num_entities ; i++, ent++) {
 				if ( !ent->inuse ) {
@@ -2927,14 +2928,21 @@ int start, end;
 					if (ent->launchLag < lag || ent->launchLag >= lag + msec) {
 						continue;
 					}
-					G_TimeShiftAllClients( projectileDelagTime, ent->parent );
+					//G_TimeShiftAllClients( projectileDelagTime, ent->parent );
+					if ( ent->parent && ent->parent->client && ent->parent->inuse && ent->parent->client->sess.sessionTeam < TEAM_SPECTATOR ) {
+						G_UnTimeShiftClient( ent->parent );
+					}
 
 					G_RunMissile( ent );
 
-					G_UnTimeShiftAllClients( ent->parent );
+					if ( ent->parent && ent->parent->client && ent->parent->inuse && ent->parent->client->sess.sessionTeam < TEAM_SPECTATOR ) {
+						G_TimeShiftClient( ent->parent, projectileDelagTime, qfalse, NULL );
+					}
+					//G_UnTimeShiftAllClients( ent->parent );
 				}
 			}
 
+			G_UnTimeShiftAllClients( NULL );
 			projectileDelagTime += msec;
 			if (msec == 0) {
 				break;
