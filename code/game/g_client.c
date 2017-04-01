@@ -1562,12 +1562,13 @@ void motd_chat (gentity_t *ent)
 		line = motd;
 		while (*line != '\0' && (p = strchrnul(line, '\n'))) {
 			copyLen = p-line;
-			if (cmdLen + copyLen > sizeof(chatCmd) - 2) {
-				copyLen = sizeof(chatCmd) - 2 - cmdLen;
+			if (cmdLen + copyLen > sizeof(chatCmd) - 3) {
+				copyLen = sizeof(chatCmd) - 3 - cmdLen;
 			}
 			strncpy(chatCmd+cmdLen, line, copyLen);
-			chatCmd[cmdLen + copyLen] = '"';
-			chatCmd[cmdLen + copyLen+1] = '\0';
+			chatCmd[cmdLen + copyLen] = '\n';
+			chatCmd[cmdLen + copyLen+1] = '"';
+			chatCmd[cmdLen + copyLen+2] = '\0';
 			trap_SendServerCommand(ent - g_entities, chatCmd);
 			if (p == '\0')
 				break;
