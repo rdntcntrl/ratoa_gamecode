@@ -1540,7 +1540,8 @@ void motd (gentity_t *ent)
 	int motdLen;
 	int fileLen;
 
-	strcpy (motd, "cp \"");
+	//strcpy (motd, "cp \"");
+	strcpy (motd, "chat \"");
 	fileLen = trap_FS_FOpenFile(g_motdfile.string, &motdFile, FS_READ);
 	if(motdFile)
 	{
