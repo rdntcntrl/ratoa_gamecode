@@ -1622,6 +1622,7 @@ void ClientBegin( int clientNum ) {
 	int			flags;
 	int		countRed, countBlue, countFree;
         char		userinfo[MAX_INFO_STRING];
+	clientConnected_t oldConnected;
 
         trap_GetUserinfo( clientNum, userinfo, sizeof( userinfo ) );
 
@@ -1637,6 +1638,7 @@ void ClientBegin( int clientNum ) {
 	ent->pain = 0;
 	ent->client = client;
 
+	oldConnected = client->pers.connected;
 	client->pers.connected = CON_CONNECTED;
 	client->pers.enterTime = level.time;
 	client->pers.teamState.state = TEAM_BEGIN;
@@ -1709,11 +1711,14 @@ void ClientBegin( int clientNum ) {
 	}
         
         //motd ( ent );
-	if (g_doWarmup.integer) {
-		if (level.warmupTime != 0) {
-			motd_chat ( ent );
-		}
-	} else {
+	//if (g_doWarmup.integer) {
+	//	if (level.warmupTime != 0) {
+	//		motd_chat ( ent );
+	//	}
+	//} else {
+	//	motd_chat ( ent );
+	//}
+	if (oldConnected != CON_CONNECTED) {
 		motd_chat ( ent );
 	}
 	trap_SendServerCommand(ent - g_entities, "cp \"\"");
