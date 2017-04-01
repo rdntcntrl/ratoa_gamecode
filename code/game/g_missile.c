@@ -85,11 +85,11 @@ void G_TeleportMissile( gentity_t *ent, trace_t *trace, gentity_t *portal ) {
 	hitTime = level.previousTime + ( level.time - level.previousTime ) * trace->fraction;
         BG_EvaluateTrajectoryDelta( &ent->s.pos, hitTime, velocity );
 
-//
-//	Com_Printf("portal->s.angles2: %f %f %f\n", portal->s.angles2[0], portal->s.angles2[1], portal->s.angles2[2]);
-//	Com_Printf("surface normal: %f %f %f\n", trace->plane.normal[0],
-//						 trace->plane.normal[1],
-//						 trace->plane.normal[2]);
+
+	//Com_Printf("portal->s.angles2: %f %f %f\n", portal->s.angles2[0], portal->s.angles2[1], portal->s.angles2[2]);
+	//Com_Printf("surface normal: %f %f %f\n", trace->plane.normal[0],
+	//					 trace->plane.normal[1],
+	//					 trace->plane.normal[2]);
 	//vectoangles(velocity, velocityAngles);
 	//Com_Printf("velocity angles: %f %f %f\n", velocityAngles[0],
 	//					  velocityAngles[1],
@@ -122,7 +122,7 @@ void G_TeleportMissile( gentity_t *ent, trace_t *trace, gentity_t *portal ) {
 	//					  rotationAngles[1],
 	//					  rotationAngles[2]);
 
-	
+	//
 
 	// create rotation matrix
 	AngleVectors(rotationAngles, rotationMatrix[0], rotationMatrix[1], rotationMatrix[2]);
@@ -426,6 +426,11 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 	int				eFlags;
 	other = &g_entities[trace->entityNum];
 
+	if (other->s.eType == ET_ITEM) {
+		ent->target_ent = other;
+		return;
+	}
+
 	// check if missile hit portal
 	if (other->s.eType == ET_TELEPORT_TRIGGER) {
 		if (g_teleMissiles.integer == 1 && other->target) {
@@ -440,7 +445,6 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 		G_PushGrenade( ent, trace, other );
 		return;
 	}
-	
 	
 	// check for bounce
 	if ( !other->takedamage &&
