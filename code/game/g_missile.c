@@ -89,6 +89,7 @@ void G_TeleportMissile( gentity_t *ent, trace_t *trace, gentity_t *portal ) {
 	AngleVectors( dest->s.angles, ent->s.pos.trDelta, NULL, NULL );
 	VectorScale( ent->s.pos.trDelta, speed, ent->s.pos.trDelta );
 	SnapVector(ent->s.pos.trDelta);
+	ent->s.eFlags ^= EF_TELEPORT_BIT;
 	VectorCopy(dest->s.origin, ent->r.currentOrigin);
 	//ent->r.currentOrigin[2] += 1;
 	VectorCopy(ent->r.currentOrigin, ent->s.pos.trBase);
@@ -364,7 +365,7 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 	other = &g_entities[trace->entityNum];
 
 	// FIXME: find a better way to detect portal
-	if (other->target) {
+	if (other->s.eType == ET_TELEPORT_TRIGGER && other->target) {
 		G_TeleportMissile( ent, trace, other );
 		return;
 	}
