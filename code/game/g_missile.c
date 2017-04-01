@@ -69,6 +69,10 @@ void G_TeleportMissile( gentity_t *ent, trace_t *trace, gentity_t *portal ) {
 	vec3_t			dir;
 	vec3_t 			velocity;
 	int			hitTime;
+	vec3_t			portalInAngles;
+	vec3_t			rotationAngles;
+	vec3_t			rotationMatrix[3];
+	vec3_t			newDirection;
 
 	dest =  G_PickTarget( portal->target );
 	if (!dest) {
@@ -76,20 +80,53 @@ void G_TeleportMissile( gentity_t *ent, trace_t *trace, gentity_t *portal ) {
 		return;
 	}
 
-	//hitTime = level.previousTime + ( level.time - level.previousTime ) * trace->fraction;
-        //BG_EvaluateTrajectoryDelta( &ent->s.pos, hitTime, velocity );
-	//speed = VectorLength( velocity );
-	speed = VectorLength( ent->s.pos.trDelta );
-	//trap_UnlinkEntity(ent);
-	//VectorCopy(portal->s.angles, dir);
-	//VectorNormalize(dir);
-	//VectorScale(dir, speed, ent->s.pos.trDelta );
+	Com_Printf("portal->s.angles2: %f %f %f\n", portal->s.angles2[0], portal->s.angles2[1], portal->s.angles2[2]);
+	Com_Printf("surface normal: %f %f %f\n", trace->plane.normal[0],
+						 trace->plane.normal[1],
+						 trace->plane.normal[2]);
+	vectoangles(trace->plane.normal,portalInAngles);
+	Com_Printf("surface angles: %f %f %f\n", portalInAngles[0],
+						 portalInAngles[1],
+						 portalInAngles[2]);
+	Com_Printf("dest->s.angles: %f %f %f\n", dest->s.angles[0], dest->s.angles[1], dest->s.angles[2]);
+	VectorSubtract(dest->s.angles, portalInAngles, rotationAngles);
+	Com_Printf("rotation angles: %f %f %f\n", rotationAngles[0],
+						  rotationAngles[1],
+						  rotationAngles[2]);
 
-	//VectorScale(portal->s.angles, speed, ent->s.pos.trDelta);
-	AngleVectors( dest->s.angles, ent->s.pos.trDelta, NULL, NULL );
-	VectorScale( ent->s.pos.trDelta, speed, ent->s.pos.trDelta );
+	
+
+	// create rotation matrix
+	AngleVectors(rotationAngles, rotationMatrix[0], rotationMatrix[1], rotationMatrix[2]);
+        VectorInverse(rotationMatrix[1]);
+
+	hitTime = level.previousTime + ( level.time - level.previousTime ) * trace->fraction;
+        BG_EvaluateTrajectoryDelta( &ent->s.pos, hitTime, velocity );
+
+	VectorRotate(velocity, rotationMatrix, newDirection);
+	VectorCopy(newDirection, ent->s.pos.trDelta);
+
+	//VectorRotate(ent->s.pos.trDelta, rotationMatrix, newDirection);
+	//VectorCopy(newDirection, ent->s.pos.trDelta);
+
+	////hitTime = level.previousTime + ( level.time - level.previousTime ) * trace->fraction;
+        ////BG_EvaluateTrajectoryDelta( &ent->s.pos, hitTime, velocity );
+	////speed = VectorLength( velocity );
+	//speed = VectorLength( ent->s.pos.trDelta );
+	////trap_UnlinkEntity(ent);
+	////VectorCopy(portal->s.angles, dir);
+	////VectorNormalize(dir);
+	////VectorScale(dir, speed, ent->s.pos.trDelta );
+
+	////VectorScale(portal->s.angles, speed, ent->s.pos.trDelta);
+	//AngleVectors( dest->s.angles, ent->s.pos.trDelta, NULL, NULL );
+	//VectorScale( ent->s.pos.trDelta, speed, ent->s.pos.trDelta );
+
 	SnapVector(ent->s.pos.trDelta);
+
+
 	ent->s.eFlags ^= EF_TELEPORT_BIT;
+
 	VectorCopy(dest->s.origin, ent->r.currentOrigin);
 	//ent->r.currentOrigin[2] += 1;
 	VectorCopy(ent->r.currentOrigin, ent->s.pos.trBase);
