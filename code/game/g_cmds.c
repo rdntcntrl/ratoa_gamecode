@@ -673,6 +673,15 @@ void Cmd_Kill_f( gentity_t *ent ) {
 
 /*
 =================
+Cmd_Help_f
+=================
+*/
+void Cmd_Help_f( gentity_t *ent ) {
+	motd_chat(ent);
+}
+
+/*
+=================
 BroadCastTeamChange
 
 Let everyone know about a team change
@@ -2242,7 +2251,8 @@ commands_t cmds[ ] =
   //KK-OAX
   { "freespectator", CMD_NOTEAM, StopFollowing },
   { "getmappage", 0, Cmd_GetMappage_f },
-  { "gc", 0, Cmd_GameCommand_f }
+  { "gc", 0, Cmd_GameCommand_f },
+  { "help", 0, Cmd_Help_f }
 };
 
 static int numCmds = sizeof( cmds ) / sizeof( cmds[ 0 ] );

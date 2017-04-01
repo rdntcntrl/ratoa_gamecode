@@ -790,6 +790,7 @@ void player_die (gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 void AddScore( gentity_t *ent, vec3_t origin, int score );
 void CalculateRanks( void );
 qboolean SpotWouldTelefrag( gentity_t *spot );
+void motd_chat (gentity_t *ent);
 
 //
 // g_svcmds.c
