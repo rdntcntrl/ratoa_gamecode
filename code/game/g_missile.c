@@ -67,42 +67,73 @@ void G_TeleportMissile( gentity_t *ent, trace_t *trace, gentity_t *portal ) {
 	gentity_t		*dest;
 	vec3_t 			velocity;
 	int			hitTime;
+	vec3_t			portalInVec;
 	vec3_t			portalInAngles;
 	vec3_t			rotationAngles;
 	vec3_t			rotationMatrix[3];
+	vec_t			length1,length2;
+	vec3_t			tmp;
+	//vec3_t			exitAngles;
+	//vec3_t			velocityAngles;
 
 	dest =  G_PickTarget( portal->target );
 	if (!dest) {
 		G_Printf ("Couldn't find teleporter destination\n");
 		return;
 	}
+	// evaluate velocity vector at portal impact
+	hitTime = level.previousTime + ( level.time - level.previousTime ) * trace->fraction;
+        BG_EvaluateTrajectoryDelta( &ent->s.pos, hitTime, velocity );
+
 //
 //	Com_Printf("portal->s.angles2: %f %f %f\n", portal->s.angles2[0], portal->s.angles2[1], portal->s.angles2[2]);
 //	Com_Printf("surface normal: %f %f %f\n", trace->plane.normal[0],
 //						 trace->plane.normal[1],
 //						 trace->plane.normal[2]);
-	vectoangles(trace->plane.normal,portalInAngles);
-//	Com_Printf("surface angles: %f %f %f\n", portalInAngles[0],
-//						 portalInAngles[1],
-//						 portalInAngles[2]);
-//	Com_Printf("dest->s.angles: %f %f %f\n", dest->s.angles[0], dest->s.angles[1], dest->s.angles[2]);
-	VectorSubtract(dest->s.angles, portalInAngles, rotationAngles);
-//	Com_Printf("rotation angles: %f %f %f\n", rotationAngles[0],
-//						  rotationAngles[1],
-//						  rotationAngles[2]);
-//
-//	
+	//vectoangles(velocity, velocityAngles);
+	//Com_Printf("velocity angles: %f %f %f\n", velocityAngles[0],
+	//					  velocityAngles[1],
+ 	//					  velocityAngles[2]);
+	// check orientation of normal vector
+	VectorAdd(trace->plane.normal, velocity, tmp);
+	length1 = VectorLengthSquared(tmp);
+
+	VectorNegate(trace->plane.normal, portalInVec);
+	VectorAdd(portalInVec, velocity, tmp);
+	length2 = VectorLengthSquared(tmp);
+
+	//Com_Printf("length = %f, length negated = %f\n", length1, length2);
+
+	//if (length1 > length2) {
+	//	VectorCopy(trace->plane.normal, portalInVec);
+	//}
+
+	vectoangles(portalInVec, portalInAngles);
+	//Com_Printf("surface angles: %f %f %f\n", portalInAngles[0],
+	//					 portalInAngles[1],
+	//					 portalInAngles[2]);
+	//Com_Printf("dest->s.angles: %f %f %f\n", dest->s.angles[0], dest->s.angles[1], dest->s.angles[2]);
+	if (length1 > length2) {
+		VectorSubtract(dest->s.angles, portalInAngles, rotationAngles);
+	} else {
+		VectorSubtract(portalInAngles, dest->s.angles, rotationAngles);
+	}
+	//Com_Printf("rotation angles: %f %f %f\n", rotationAngles[0],
+	//					  rotationAngles[1],
+	//					  rotationAngles[2]);
+
+	
 
 	// create rotation matrix
 	AngleVectors(rotationAngles, rotationMatrix[0], rotationMatrix[1], rotationMatrix[2]);
         VectorInverse(rotationMatrix[1]);
 
-	// evaluate velocity vector at portal impact
-	hitTime = level.previousTime + ( level.time - level.previousTime ) * trace->fraction;
-        BG_EvaluateTrajectoryDelta( &ent->s.pos, hitTime, velocity );
-
 	// rotate velocity vector
 	VectorRotate(velocity, rotationMatrix, ent->s.pos.trDelta);
+	//vectoangles(ent->s.pos.trDelta, exitAngles);
+	//Com_Printf("exit angles: %f %f %f\n", exitAngles[0],
+	//					 exitAngles[1],
+	//					 exitAngles[2]);
 	SnapVector(ent->s.pos.trDelta);
 
 	// set flag to indicate missile teleport
