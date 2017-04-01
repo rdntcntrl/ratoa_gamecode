@@ -1798,7 +1798,13 @@ void Cmd_CallVote_f( gentity_t *ent ) {
                 else
                     Com_sprintf( level.voteDisplayString, sizeof( level.voteDisplayString ), "Remove timelimit?" );
         } else if ( !Q_stricmp( arg1, "map_restart" ) ) {
-                Com_sprintf( level.voteString, sizeof( level.voteString ), "map_restart" );
+                char	s[MAX_STRING_CHARS];
+                trap_Cvar_VariableStringBuffer( "nextmap", s, sizeof(s) );
+		if (*s) {
+                    Com_sprintf( level.voteString, sizeof( level.voteString ), "map_restart; set nextmap \"%s\"", s );
+                } else {
+			Com_sprintf( level.voteString, sizeof( level.voteString ), "map_restart" );
+		}
 		Com_sprintf( level.voteDisplayString, sizeof( level.voteDisplayString ), "Restart map?" );
         } else if ( !Q_stricmp( arg1, "g_doWarmup" ) ) {
                 i = atoi(arg2);
