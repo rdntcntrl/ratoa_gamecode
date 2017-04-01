@@ -34,7 +34,7 @@ G_BounceMissile
 void G_BounceMissile( gentity_t *ent, trace_t *trace ) {
 	vec3_t	velocity;
 	float	dot;
-	int		hitTime;
+	int	hitTime;
 
 	// reflect the velocity on the trace plane
 	hitTime = level.previousTime + ( level.time - level.previousTime ) * trace->fraction;
@@ -70,7 +70,6 @@ void G_TeleportMissile( gentity_t *ent, trace_t *trace, gentity_t *portal ) {
 	vec3_t			portalInAngles;
 	vec3_t			rotationAngles;
 	vec3_t			rotationMatrix[3];
-	vec3_t			newDirection;
 
 	dest =  G_PickTarget( portal->target );
 	if (!dest) {
@@ -113,6 +112,18 @@ void G_TeleportMissile( gentity_t *ent, trace_t *trace, gentity_t *portal ) {
 	VectorCopy(dest->s.origin, ent->r.currentOrigin);
 	VectorCopy(ent->r.currentOrigin, ent->s.pos.trBase);
 
+	ent->s.pos.trTime = level.time;
+}
+
+/*
+================
+G_PushGrenade
+
+================
+*/
+void G_PushGrenade( gentity_t *ent, trace_t *trace, gentity_t *jumppad ) {
+	VectorCopy(ent->r.currentOrigin, ent->s.pos.trBase);
+	VectorCopy(jumppad->s.origin2, ent->s.pos.trDelta);
 	ent->s.pos.trTime = level.time;
 }
 
@@ -385,10 +396,20 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 	other = &g_entities[trace->entityNum];
 
 	// check if missile hit portal
-	if (other->s.eType == ET_TELEPORT_TRIGGER && other->target) {
-		G_TeleportMissile( ent, trace, other );
+	if (other->s.eType == ET_TELEPORT_TRIGGER) {
+		if (g_teleMissiles.integer == 1 && other->target) {
+			G_TeleportMissile( ent, trace, other );
+		}
 		return;
 	}
+
+	// check if grenade hit jumppad
+	if (other->s.eType == ET_PUSH_TRIGGER && g_pushGrenades.integer == 1 &&
+		       	other->target && strcmp(ent->classname, "grenade") == 0) {
+		G_PushGrenade( ent, trace, other );
+		return;
+	}
+	
 	
 	// check for bounce
 	if ( !other->takedamage &&
@@ -705,7 +726,7 @@ gentity_t *fire_grenade (gentity_t *self, vec3_t start, vec3_t dir) {
 	bolt->methodOfDeath = MOD_GRENADE;
 	bolt->splashMethodOfDeath = MOD_GRENADE_SPLASH;
 	bolt->clipmask = MASK_SHOT;
-	if (g_teleMissiles.integer == 1) {
+	if (g_teleMissiles.integer == 1 || g_pushGrenades.integer == 1) {
 		bolt->clipmask |= CONTENTS_TRIGGER;
 	}
 	bolt->target_ent = NULL;

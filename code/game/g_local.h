@@ -1124,6 +1124,7 @@ extern	vmCvar_t	sv_fps;
 extern  vmCvar_t        g_lagLightning;
 //unlagged - server options
 extern  vmCvar_t        g_teleMissiles;
+extern  vmCvar_t        g_pushGrenades;
 //KK-OAX Killing Sprees
 extern  vmCvar_t    g_sprees; //Used for specifiying the config file
 extern  vmCvar_t    g_altExcellent; //Turns on Multikills instead of Excellent
