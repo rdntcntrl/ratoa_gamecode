@@ -687,9 +687,11 @@ void G_RunMissile( gentity_t *ent ) {
 			} else if (stuckIn->s.eType == ET_PUSH_TRIGGER) {
 				if (g_pushGrenades.integer == 1 
 						&& stuckIn->target
-						&& strcmp(ent->classname, "grenade") == 0) {
+						&& strcmp(ent->classname, "grenade") == 0
+						&& ent->pushed_at + 200 <= level.time) {
 					G_PushGrenade( ent, &tr2, stuckIn );
-					ent->target_ent = stuckIn;
+					//ent->target_ent = stuckIn;
+					ent->pushed_at = level.time;
 					// make sure we don't impact
 					tr.fraction = 1;
 					telepushed = 1;
