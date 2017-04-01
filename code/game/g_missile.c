@@ -429,6 +429,11 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 	if (other->s.eType == ET_ITEM) {
 		ent->target_ent = other;
 		return;
+	} else if (other->s.eType == ET_PLAYER && ent->r.ownerNum == other->s.number) {
+		ent->target_ent = other;
+		return;
+	} else {
+		ent->target_ent = NULL;
 	}
 
 	// check if missile hit portal
