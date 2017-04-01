@@ -172,6 +172,7 @@ vmCvar_t        g_lagLightning; //Adds a little lag to the lightninggun to make 
 //unlagged - server options
 vmCvar_t        g_teleMissiles;
 vmCvar_t        g_pushGrenades;
+vmCvar_t        g_ambientSound; 
 //KK-OAX
 vmCvar_t        g_sprees;
 vmCvar_t        g_altExcellent;
@@ -311,6 +312,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &sv_fps, "sv_fps", "20", CVAR_SYSTEMINFO | CVAR_ARCHIVE, 0, qfalse },
         { &g_lagLightning, "g_lagLightning", "1", CVAR_ARCHIVE, 0, qtrue },
 //unlagged - server options
+        { &g_ambientSound, "g_ambientSound", "1", CVAR_ARCHIVE, 0, qtrue },
 
         { &g_teleMissiles, "g_teleMissiles", "0", CVAR_ARCHIVE, 0, qtrue },
         { &g_pushGrenades, "g_pushGrenades", "0", CVAR_ARCHIVE, 0, qtrue },
