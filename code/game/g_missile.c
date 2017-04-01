@@ -80,8 +80,6 @@ void G_TeleportMissile( gentity_t *ent, trace_t *trace, gentity_t *portal ) {
         //BG_EvaluateTrajectoryDelta( &ent->s.pos, hitTime, velocity );
 	//speed = VectorLength( velocity );
 	speed = VectorLength( ent->s.pos.trDelta );
-	Com_Printf("Speed = %f\n", speed);
-
 	//trap_UnlinkEntity(ent);
 	//VectorCopy(portal->s.angles, dir);
 	//VectorNormalize(dir);
@@ -365,11 +363,8 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 	int				eFlags;
 	other = &g_entities[trace->entityNum];
 
-	Com_Printf("other = %s, target = %s, tagetname = %s\n", other->classname, other->target, other->targetname);
-	Com_Printf("touch = %p\n", other->touch);
-	//if (other->clipmask & CONTENTS_TRIGGER) {
+	// FIXME: find a better way to detect portal
 	if (other->target) {
-		Com_Printf("trigger = %p\n", other->touch);
 		G_TeleportMissile( ent, trace, other );
 		return;
 	}
