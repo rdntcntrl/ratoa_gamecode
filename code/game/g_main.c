@@ -173,6 +173,8 @@ vmCvar_t        g_lagLightning; //Adds a little lag to the lightninggun to make 
 vmCvar_t        g_teleMissiles;
 vmCvar_t        g_pushGrenades;
 vmCvar_t        g_ambientSound; 
+
+vmCvar_t        sv_allowDuplicateGuid;
 //KK-OAX
 vmCvar_t        g_sprees;
 vmCvar_t        g_altExcellent;
@@ -316,6 +318,8 @@ static cvarTable_t		gameCvarTable[] = {
 
         { &g_teleMissiles, "g_teleMissiles", "0", CVAR_ARCHIVE, 0, qtrue },
         { &g_pushGrenades, "g_pushGrenades", "0", CVAR_ARCHIVE, 0, qtrue },
+
+        { &sv_allowDuplicateGuid, "sv_allowDuplicateGuid", "0", 0, 0, qtrue },
 
 	{ &g_rankings, "g_rankings", "0", 0, 0, qfalse},
         { &g_music, "g_music", "", 0, 0, qfalse},
