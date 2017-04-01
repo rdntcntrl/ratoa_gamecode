@@ -171,6 +171,8 @@ vmCvar_t	sv_fps;
 vmCvar_t        g_lagLightning; //Adds a little lag to the lightninggun to make it less powerfull
 //unlagged - server options
 vmCvar_t        g_ambientSound; 
+vmCvar_t        g_unlagPrestep; 
+vmCvar_t        g_unlagFlight; 
 
 vmCvar_t        sv_allowDuplicateGuid;
 //KK-OAX
@@ -313,6 +315,8 @@ static cvarTable_t		gameCvarTable[] = {
         { &g_lagLightning, "g_lagLightning", "1", CVAR_ARCHIVE, 0, qtrue },
 //unlagged - server options
         { &g_ambientSound, "g_ambientSound", "1", CVAR_ARCHIVE, 0, qtrue },
+        { &g_unlagPrestep, "g_unlagPrestep", "1", CVAR_ARCHIVE, 0, qtrue },
+        { &g_unlagFlight, "g_unlagFlight", "1", CVAR_ARCHIVE, 0, qtrue },
 
         { &sv_allowDuplicateGuid, "sv_allowDuplicateGuid", "0", 0, 0, qtrue },
 

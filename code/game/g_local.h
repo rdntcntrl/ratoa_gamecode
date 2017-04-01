@@ -1139,6 +1139,8 @@ extern	vmCvar_t	sv_fps;
 extern  vmCvar_t        g_lagLightning;
 //unlagged - server options
 extern  vmCvar_t        g_ambientSound;
+extern  vmCvar_t        g_unlagPrestep;
+extern  vmCvar_t        g_unlagFlight;
 
 extern  vmCvar_t        sv_allowDuplicateGuid;
 //KK-OAX Killing Sprees
