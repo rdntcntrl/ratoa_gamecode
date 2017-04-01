@@ -271,6 +271,8 @@ trigger_teleport
 void trigger_teleporter_touch (gentity_t *self, gentity_t *other, trace_t *trace ) {
 	gentity_t	*dest;
 
+	Com_Printf("Teleporter: self: %s, other: %s\n", self->classname, other->classname);
+
 	if ( !other->client ) {
 		return;
 	}
@@ -305,6 +307,8 @@ automatically near doors to allow spectators to move through them
 */
 void SP_trigger_teleport( gentity_t *self ) {
 	InitTrigger (self);
+
+	Com_Printf("SP_trigger_teleport: %s\n", self->classname);
 
 	// unlike other triggers, we need to send this one to the client
 	// unless is a spectator trigger

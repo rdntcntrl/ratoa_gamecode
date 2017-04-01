@@ -80,6 +80,8 @@ void TeleportPlayer( gentity_t *player, vec3_t origin, vec3_t angles ) {
 	gentity_t	*tent;
 	qboolean noAngles;
 
+	Com_Printf("Teleported Player\n");
+
 	noAngles = (angles[0] > 999999.0);
 	// use temp events at source and destination to prevent the effect
 	// from getting dropped by a second player event
@@ -414,6 +416,8 @@ static void PortalTouch( gentity_t *self, gentity_t *other, trace_t *trace) {
 		Drop_Item( other, BG_FindItemForPowerup( PW_BLUEFLAG ), 0 );
 		other->client->ps.powerups[PW_BLUEFLAG] = 0;
 	}
+
+	Com_Printf("PortalTouch: self->count: %d, self: %s, other : %s\n", self->count, self->classname, other->classname);
 
 	// find the destination
 	destination = NULL;

@@ -57,6 +57,48 @@ void G_BounceMissile( gentity_t *ent, trace_t *trace ) {
 	ent->s.pos.trTime = level.time;
 }
 
+/*
+================
+G_TeleportMissile
+
+================
+*/
+void G_TeleportMissile( gentity_t *ent, trace_t *trace, gentity_t *portal ) {
+	gentity_t		*dest;
+	vec_t			speed;
+	vec3_t			dir;
+	vec3_t 			velocity;
+	int			hitTime;
+	
+	dest =  G_PickTarget( portal->target );                            
+	if (!dest) {                                                     
+		G_Printf ("Couldn't find teleporter destination\n");     
+		return;                                                  
+	}
+
+	//hitTime = level.previousTime + ( level.time - level.previousTime ) * trace->fraction;
+        //BG_EvaluateTrajectoryDelta( &ent->s.pos, hitTime, velocity );
+	//speed = VectorLength( velocity );
+	speed = VectorLength( ent->s.pos.trDelta );
+	Com_Printf("Speed = %f\n", speed);
+
+	//trap_UnlinkEntity(ent);
+	//VectorCopy(portal->s.angles, dir);
+	//VectorNormalize(dir);
+	//VectorScale(dir, speed, ent->s.pos.trDelta );
+
+	//VectorScale(portal->s.angles, speed, ent->s.pos.trDelta);
+	AngleVectors( dest->s.angles, ent->s.pos.trDelta, NULL, NULL );
+	VectorScale( ent->s.pos.trDelta, speed, ent->s.pos.trDelta );
+	SnapVector(ent->s.pos.trDelta);
+	VectorCopy(dest->s.origin, ent->r.currentOrigin);
+	//ent->r.currentOrigin[2] += 1;
+	VectorCopy(ent->r.currentOrigin, ent->s.pos.trBase);
+	ent->s.pos.trTime = level.time;
+}
+
+
+
 
 /*
 ================
@@ -323,6 +365,15 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 	int				eFlags;
 	other = &g_entities[trace->entityNum];
 
+	Com_Printf("other = %s, target = %s, tagetname = %s\n", other->classname, other->target, other->targetname);
+	Com_Printf("touch = %p\n", other->touch);
+	//if (other->clipmask & CONTENTS_TRIGGER) {
+	if (other->target) {
+		Com_Printf("trigger = %p\n", other->touch);
+		G_TeleportMissile( ent, trace, other );
+		return;
+	}
+	
 	// check for bounce
 	if ( !other->takedamage &&
 		( ent->s.eFlags & ( EF_BOUNCE | EF_BOUNCE_HALF ) ) ) {
@@ -584,7 +635,7 @@ gentity_t *fire_plasma (gentity_t *self, vec3_t start, vec3_t dir) {
 	bolt->splashRadius = 20;
 	bolt->methodOfDeath = MOD_PLASMA;
 	bolt->splashMethodOfDeath = MOD_PLASMA_SPLASH;
-	bolt->clipmask = MASK_SHOT;
+	bolt->clipmask = MASK_SHOT | CONTENTS_TRIGGER;
 	bolt->target_ent = NULL;
 
 	bolt->s.pos.trType = TR_LINEAR;
@@ -634,7 +685,7 @@ gentity_t *fire_grenade (gentity_t *self, vec3_t start, vec3_t dir) {
 	bolt->splashRadius = 150;
 	bolt->methodOfDeath = MOD_GRENADE;
 	bolt->splashMethodOfDeath = MOD_GRENADE_SPLASH;
-	bolt->clipmask = MASK_SHOT;
+	bolt->clipmask = MASK_SHOT | CONTENTS_TRIGGER;
 	bolt->target_ent = NULL;
 
 	bolt->s.pos.trType = TR_GRAVITY;
@@ -683,7 +734,7 @@ gentity_t *fire_bfg (gentity_t *self, vec3_t start, vec3_t dir) {
 	bolt->splashRadius = 120;
 	bolt->methodOfDeath = MOD_BFG;
 	bolt->splashMethodOfDeath = MOD_BFG_SPLASH;
-	bolt->clipmask = MASK_SHOT;
+	bolt->clipmask = MASK_SHOT | CONTENTS_TRIGGER;
 	bolt->target_ent = NULL;
 
 	bolt->s.pos.trType = TR_LINEAR;
@@ -731,7 +782,7 @@ gentity_t *fire_rocket (gentity_t *self, vec3_t start, vec3_t dir) {
 	bolt->splashRadius = 120;
 	bolt->methodOfDeath = MOD_ROCKET;
 	bolt->splashMethodOfDeath = MOD_ROCKET_SPLASH;
-	bolt->clipmask = MASK_SHOT;
+	bolt->clipmask = MASK_SHOT | CONTENTS_TRIGGER;
 	bolt->target_ent = NULL;
 
 	bolt->s.pos.trType = TR_LINEAR;
@@ -835,7 +886,7 @@ gentity_t *fire_nail( gentity_t *self, vec3_t start, vec3_t forward, vec3_t righ
 	bolt->parent = self;
 	bolt->damage = 20;
 	bolt->methodOfDeath = MOD_NAIL;
-	bolt->clipmask = MASK_SHOT;
+	bolt->clipmask = MASK_SHOT | CONTENTS_TRIGGER;
 	bolt->target_ent = NULL;
 
 	bolt->s.pos.trType = TR_LINEAR;
