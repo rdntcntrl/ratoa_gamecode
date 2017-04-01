@@ -962,6 +962,7 @@ gentity_t *fire_rocket (gentity_t *self, vec3_t start, vec3_t dir) {
 		bolt->s.pos.trTime -= bolt->launchLag;
 		bolt->needsDelag = qtrue;
 		bolt->launchTime = bolt->s.pos.trTime;
+		//Com_Printf("fire_rocket at level.time = %d\n", level.time);
 	}
 	VectorCopy( start, bolt->s.pos.trBase );
 	//VectorScale( dir, 900, bolt->s.pos.trDelta );

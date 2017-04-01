@@ -2896,6 +2896,7 @@ int start, end;
 					level.previousTime = projectileDelagTime;
 
 
+					//Com_Printf("delag prestep running missile, level.time = %d, level.previousTime = %d, launchTime = %d\n", level.time, level.previousTime, ent->launchTime);
 					G_RunMissile( ent );
 
 					level.time = lvlTimeSaved;
@@ -2938,6 +2939,7 @@ int start, end;
 						G_UnTimeShiftClient( ent->parent );
 					}
 
+					//Com_Printf("delag running missile, level.time = %d, level.previousTime = %d, lag = %d\n", level.time, level.previousTime, lag);
 					G_RunMissile( ent );
 
 					if ( ent->parent && ent->parent->client && ent->parent->inuse && ent->parent->client->sess.sessionTeam < TEAM_SPECTATOR ) {
