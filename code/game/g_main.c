@@ -2857,6 +2857,52 @@ int start, end;
 		G_RunThink( ent );
 	}
 
+	if (g_unlagPrestep.integer 
+			&& level.previousTime > MISSILE_PRESTEP_MAX_LATENCY
+			&& msec > 0) {
+		// if we see the missile late due to lag & PRESTEP
+		// compute the flight since it was launched, 
+		// shifting clients back accordingly
+		for (i=0 ; i < level.num_entities ; ++i ) {
+			ent = &g_entities[i];
+			if ( !ent->inuse 
+					|| ent->freeAfterEvent
+					|| ent->s.eType != ET_MISSILE
+					|| !ent->needsDelag ) {
+				continue;
+			}
+
+			int prevTimeSaved = level.previousTime;
+			int lvlTimeSaved = level.time;
+			int projectileDelagTime = level.previousTime - (MISSILE_PRESTEP_MAX_LATENCY/msec) * msec;
+			while (projectileDelagTime < prevTimeSaved) {
+				if (projectileDelagTime >= ent->launchTime) {
+					int shiftTime = projectileDelagTime;
+					if (g_unlagFlight.integer) {
+						// if the whole flight should be
+						// unlagged, shift clients even
+						// further s.t. you can aim
+						// properly locally
+						shiftTime -= ent->launchLag;
+						shiftTime = shiftTime >= 0 ? shiftTime : 0;
+					}
+					G_TimeShiftAllClients( shiftTime, ent->parent );
+					level.time = projectileDelagTime + msec;
+					level.previousTime = projectileDelagTime;
+
+
+					G_RunMissile( ent );
+
+					level.time = lvlTimeSaved;
+					level.previousTime = prevTimeSaved;
+					G_UnTimeShiftAllClients( ent->parent );
+				}
+				projectileDelagTime += msec;
+			}
+			ent->needsDelag = qfalse;
+		}
+	}
+
 //unlagged - backward reconciliation #2
 	// NOW run the missiles, with all players backward-reconciled
 	// to the positions they were in exactly 50ms ago, at the end
