@@ -71,7 +71,7 @@ void G_TeleportMissile( gentity_t *ent, trace_t *trace, gentity_t *portal ) {
 	vec3_t			portalInAngles;
 	vec3_t			rotationAngles;
 	vec3_t			rotationMatrix[3];
-	vec_t			length1,length2;
+	vec_t			length_norm,length_neg_norm;
 	vec3_t			tmp;
 	//vec3_t			exitAngles;
 	//vec3_t			velocityAngles;
@@ -96,11 +96,11 @@ void G_TeleportMissile( gentity_t *ent, trace_t *trace, gentity_t *portal ) {
  	//					  velocityAngles[2]);
 	// check orientation of normal vector
 	VectorAdd(trace->plane.normal, velocity, tmp);
-	length1 = VectorLengthSquared(tmp);
+	length_norm = VectorLengthSquared(tmp);
 
 	VectorNegate(trace->plane.normal, portalInVec);
 	VectorAdd(portalInVec, velocity, tmp);
-	length2 = VectorLengthSquared(tmp);
+	length_neg_norm = VectorLengthSquared(tmp);
 
 	//Com_Printf("length = %f, length negated = %f\n", length1, length2);
 
@@ -113,7 +113,7 @@ void G_TeleportMissile( gentity_t *ent, trace_t *trace, gentity_t *portal ) {
 	//					 portalInAngles[1],
 	//					 portalInAngles[2]);
 	//Com_Printf("dest->s.angles: %f %f %f\n", dest->s.angles[0], dest->s.angles[1], dest->s.angles[2]);
-	if (length1 > length2) {
+	if (length_norm > length_neg_norm) {
 		VectorSubtract(dest->s.angles, portalInAngles, rotationAngles);
 	} else {
 		VectorSubtract(portalInAngles, dest->s.angles, rotationAngles);
