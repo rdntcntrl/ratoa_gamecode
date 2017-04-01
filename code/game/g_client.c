@@ -1707,7 +1707,11 @@ void ClientBegin( int clientNum ) {
 	}
         
         //motd ( ent );
-	if (level.warmupTime != 0) {
+	if (g_doWarmup.integer) {
+		if (level.warmupTime != 0) {
+			motd_chat ( ent );
+		}
+	} else {
 		motd_chat ( ent );
 	}
 	trap_SendServerCommand(ent - g_entities, "cp \"\"");
