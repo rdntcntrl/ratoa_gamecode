@@ -1029,7 +1029,7 @@ void AddTournamentQueue(gclient_t *client)
 void ClientPermanentSpec(gclient_t *client)
 {
 	if (client->sess.spectatorNum != SPECTATORNUM_PERMANENT 
-			&& client->sess.sessionTeam != TEAM_SPECTATOR) {
+			|| client->sess.sessionTeam != TEAM_SPECTATOR) {
 		client->sess.spectatorNum = SPECTATORNUM_PERMANENT;
 		SetTeam( &g_entities[ client->ps.clientNum ], "s" );
 		trap_SendServerCommand( -1, va("print \"%s" S_COLOR_CYAN " permanently moved to spectator mode\n\"", client->pers.netname) );
