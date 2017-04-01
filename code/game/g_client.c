@@ -1568,7 +1568,6 @@ void motd_chat (gentity_t *ent)
 			strncpy(chatCmd+cmdLen, line, copyLen);
 			chatCmd[cmdLen + copyLen] = '"';
 			chatCmd[cmdLen + copyLen+1] = '\0';
-			Com_Printf("cmd: %s\n", chatCmd);
 			trap_SendServerCommand(ent - g_entities, chatCmd);
 			if (p == '\0')
 				break;
