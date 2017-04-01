@@ -65,8 +65,6 @@ G_TeleportMissile
 */
 void G_TeleportMissile( gentity_t *ent, trace_t *trace, gentity_t *portal ) {
 	gentity_t		*dest;
-	vec_t			speed;
-	vec3_t			dir;
 	vec3_t 			velocity;
 	int			hitTime;
 	vec3_t			portalInAngles;
@@ -104,33 +102,17 @@ void G_TeleportMissile( gentity_t *ent, trace_t *trace, gentity_t *portal ) {
 	hitTime = level.previousTime + ( level.time - level.previousTime ) * trace->fraction;
         BG_EvaluateTrajectoryDelta( &ent->s.pos, hitTime, velocity );
 
+	// rotate velocity vector
 	VectorRotate(velocity, rotationMatrix, ent->s.pos.trDelta);
-	//VectorCopy(newDirection, ent->s.pos.trDelta);
-
-	//VectorRotate(ent->s.pos.trDelta, rotationMatrix, newDirection);
-	//VectorCopy(newDirection, ent->s.pos.trDelta);
-
-	////hitTime = level.previousTime + ( level.time - level.previousTime ) * trace->fraction;
-        ////BG_EvaluateTrajectoryDelta( &ent->s.pos, hitTime, velocity );
-	////speed = VectorLength( velocity );
-	//speed = VectorLength( ent->s.pos.trDelta );
-	////trap_UnlinkEntity(ent);
-	////VectorCopy(portal->s.angles, dir);
-	////VectorNormalize(dir);
-	////VectorScale(dir, speed, ent->s.pos.trDelta );
-
-	////VectorScale(portal->s.angles, speed, ent->s.pos.trDelta);
-	//AngleVectors( dest->s.angles, ent->s.pos.trDelta, NULL, NULL );
-	//VectorScale( ent->s.pos.trDelta, speed, ent->s.pos.trDelta );
-
 	SnapVector(ent->s.pos.trDelta);
 
-
+	// set flag to indicate missile teleport
 	ent->s.eFlags ^= EF_TELEPORT_BIT;
 
+	// set new origin
 	VectorCopy(dest->s.origin, ent->r.currentOrigin);
-	//ent->r.currentOrigin[2] += 1;
 	VectorCopy(ent->r.currentOrigin, ent->s.pos.trBase);
+
 	ent->s.pos.trTime = level.time;
 }
 
