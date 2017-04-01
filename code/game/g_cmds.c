@@ -649,12 +649,26 @@ void Cmd_TeamTask_f( gentity_t *ent ) {
 	ClientUserinfoChanged(client);
 }
 
+qboolean CheckSpecSwitchTime( gentity_t *ent ) {
+	if (ent->client->switchSpecModeTime > level.time ) {
+		    trap_SendServerCommand( ent-g_entities, "print \"May not switch spectator mode more than once per 5 seconds.\n\"" );
+		    return qfalse;
+	}
+	return qtrue;
+}
+
 void Cmd_SpecMode_f( gentity_t *ent ) {
-	ClientPermanentSpec(ent->client);
+	if (CheckSpecSwitchTime(ent)) {
+		ClientPermanentSpec(ent->client);
+		ent->client->switchSpecModeTime = level.time + 5000;
+	}
 }
 
 void Cmd_PlayMode_f( gentity_t *ent ) {
-	ClientQueueAgain(ent->client);
+	if (CheckSpecSwitchTime(ent)) {
+		ClientQueueAgain(ent->client);
+		ent->client->switchSpecModeTime = level.time + 5000;
+	}
 }
 
 

@@ -375,6 +375,7 @@ struct gclient_s {
 	gentity_t	*hook;				// grapple hook if out
 
 	int			switchTeamTime;		// time the player switched teams
+	int			switchSpecModeTime; 	// time the player may queue up / perm spec again
 
 	// timeResidual is used to handle events that happen every second
 	// like health / armor countdowns and regeneration
