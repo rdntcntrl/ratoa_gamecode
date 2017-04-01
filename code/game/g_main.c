@@ -938,7 +938,6 @@ PLAYER COUNTING / SCORE SORTING
 */
 
 
-#define SPECTATORNUM_PERMANENT -999
 /*
 =============
 AddTournamentPlayer
@@ -977,8 +976,8 @@ void AddTournamentPlayer( void ) {
 			continue;
 		}
 
-		if (client->sess.spectatorNum == SPECTATORNUM_PERMANENT) {
-			// ignore permanent spectators
+		if ( client->sess.spectatorState == SPECTATOR_AFK ||
+				client->sess.spectatorState == SPECTATOR_NOTREADY) {
 			continue;
 		}
 
@@ -1013,41 +1012,12 @@ void AddTournamentQueue(gclient_t *client)
         curclient = &level.clients[index];
         if(curclient->pers.connected != CON_DISCONNECTED)
         {
-            if (curclient->sess.spectatorNum == SPECTATORNUM_PERMANENT) {
-	            // ignore permanent spectators
-	            continue;
-	    }
-	
             if(curclient == client)
 		    curclient->sess.spectatorNum = 0;
             else if(curclient->sess.sessionTeam == TEAM_SPECTATOR)
 		    curclient->sess.spectatorNum++;
         }
     }
-}
-
-void ClientPermanentSpec(gclient_t *client)
-{
-	if (client->sess.spectatorNum != SPECTATORNUM_PERMANENT 
-			|| client->sess.sessionTeam != TEAM_SPECTATOR) {
-		client->sess.spectatorNum = SPECTATORNUM_PERMANENT;
-		SetTeam( &g_entities[ client->ps.clientNum ], "s" );
-		trap_SendServerCommand( -1, va("print \"%s" S_COLOR_CYAN " permanently moved to spectator mode\n\"", client->pers.netname) );
-	}
-	// show this always to help players
-	trap_SendServerCommand( client->ps.clientNum, 
-			"cp \"" S_COLOR_CYAN "Permanently switched to spectators\n"
-			S_COLOR_CYAN "Run \\playmode to queue again\n\"" );
-
-}
-
-void ClientQueueAgain(gclient_t *client)
-{
-	if (client->sess.spectatorNum == SPECTATORNUM_PERMANENT) {
-		client->sess.spectatorNum = SPECTATORNUM_PERMANENT+1;
-		trap_SendServerCommand( -1, va("print \"%s" S_COLOR_CYAN " queued up to play\n\"", client->pers.netname) );
-		AddTournamentQueue(client);
-	}
 }
 
 /*
@@ -1143,6 +1113,22 @@ int QDECL SortRanks( const void *a, const void *b ) {
 		return 1;
 	}
 	if ( cb->pers.connected == CON_CONNECTING ) {
+		return -1;
+	}
+
+	// afk spectators
+	if ( ca->sess.spectatorState == SPECTATOR_AFK ) {
+		return 1;
+	}
+	if ( cb->sess.spectatorState == SPECTATOR_AFK ) {
+		return -1;
+	}
+
+	// notready spectators
+	if ( ca->sess.spectatorState == SPECTATOR_NOTREADY ) {
+		return 1;
+	}
+	if ( cb->sess.spectatorState == SPECTATOR_NOTREADY ) {
 		return -1;
 	}
 

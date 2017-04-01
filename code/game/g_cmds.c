@@ -649,29 +649,6 @@ void Cmd_TeamTask_f( gentity_t *ent ) {
 	ClientUserinfoChanged(client);
 }
 
-qboolean CheckSpecSwitchTime( gentity_t *ent ) {
-	if (ent->client->switchSpecModeTime > level.time ) {
-		    trap_SendServerCommand( ent-g_entities, "print \"May not switch spectator mode more than once per 5 seconds.\n\"" );
-		    return qfalse;
-	}
-	return qtrue;
-}
-
-void Cmd_SpecMode_f( gentity_t *ent ) {
-	if (CheckSpecSwitchTime(ent)) {
-		ClientPermanentSpec(ent->client);
-		ent->client->switchSpecModeTime = level.time + 5000;
-	}
-}
-
-void Cmd_PlayMode_f( gentity_t *ent ) {
-	if (CheckSpecSwitchTime(ent)) {
-		ClientQueueAgain(ent->client);
-		ent->client->switchSpecModeTime = level.time + 5000;
-	}
-}
-
-
 
 /*
 =================
@@ -716,6 +693,11 @@ void BroadcastTeamChange( gclient_t *client, int oldTeam )
 		trap_SendServerCommand( -1, va("cp \"%s" S_COLOR_WHITE " joined the battle.\n\"",
 		client->pers.netname));
 	}
+
+	if ( client->sess.sessionTeam == TEAM_SPECTATOR &&
+			client->sess.spectatorState == SPECTATOR_AFK) {
+		trap_SendServerCommand( -1, va("print \"%s" S_COLOR_CYAN " is now afk\n\"", client->pers.netname) );
+	}
 }
 
 /*
@@ -759,6 +741,12 @@ void SetTeam( gentity_t *ent, char *s ) {
 	} else if ( Q_strequal( s, "spectator" ) || Q_strequal( s, "s" ) ) {
 		team = TEAM_SPECTATOR;
 		specState = SPECTATOR_FREE;
+	} else if ( Q_strequal( s, "notready" ) ) {
+		team = TEAM_SPECTATOR;
+		specState = SPECTATOR_NOTREADY;
+	} else if ( Q_strequal( s, "afk" ) ) {
+		team = TEAM_SPECTATOR;
+		specState = SPECTATOR_AFK;
 	} else if ( g_gametype.integer >= GT_TEAM && g_ffa_gt!=1) {
 		// if running a team game, assign player to one of the teams
 		specState = SPECTATOR_NOT;
@@ -861,8 +849,12 @@ void SetTeam( gentity_t *ent, char *s ) {
             PlayerStore_store(Info_ValueForKey(userinfo,"cl_guid"),client->ps);
         
 	// they go to the end of the line for tournements
-        if(team == TEAM_SPECTATOR && oldTeam != team)
-                AddTournamentQueue(client);
+        if(team == TEAM_SPECTATOR) {
+		if (oldTeam != team || specState == SPECTATOR_AFK ) {
+			AddTournamentQueue(client);
+		}
+	}
+
 
 	client->sess.sessionTeam = team;
 	client->sess.spectatorState = specState;
@@ -2235,11 +2227,7 @@ commands_t cmds[ ] =
   //KK-OAX
   { "freespectator", CMD_NOTEAM, StopFollowing },
   { "getmappage", 0, Cmd_GetMappage_f },
-  { "gc", 0, Cmd_GameCommand_f },
-
-  { "specmode", 0, Cmd_SpecMode_f },
-  { "playmode", 0, Cmd_PlayMode_f }
-  
+  { "gc", 0, Cmd_GameCommand_f }
 };
 
 static int numCmds = sizeof( cmds ) / sizeof( cmds[ 0 ] );
