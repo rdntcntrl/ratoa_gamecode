@@ -1707,7 +1707,10 @@ void ClientBegin( int clientNum ) {
 	}
         
         //motd ( ent );
-        motd_chat ( ent );
+	if (level.warmupTime != 0) {
+		motd_chat ( ent );
+	}
+	trap_SendServerCommand(ent - g_entities, "cp \"\"");
         
 	G_LogPrintf( "ClientBegin: %i\n", clientNum );
 
@@ -1725,6 +1728,7 @@ void ClientBegin( int clientNum ) {
         //Send the list of custom vote options:
         if(strlen(custom_vote_info))
             SendCustomVoteCommands(clientNum);
+
 }
 
 /*
