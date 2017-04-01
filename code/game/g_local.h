@@ -59,6 +59,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define FL_NO_HUMANS			0x00004000	// spawn point just for bots
 #define FL_FORCE_GESTURE		0x00008000	// force gesture on client
 
+// for delagged projectiles
+#define	MISSILE_PRESTEP_MAX_LATENCY 150
+
 // movers are things like doors, plats, buttons, etc
 typedef enum {
 	MOVER_POS1,
@@ -180,6 +183,11 @@ struct gentity_s {
 	float		random;
 
 	gitem_t		*item;			// for bonus items
+
+	// for delagged projectiles
+	qboolean	needsDelag;
+	int		launchTime;
+	int		launchLag;
 
 	int		pushed_at;
 };
@@ -1135,6 +1143,8 @@ extern  vmCvar_t        g_lagLightning;
 extern  vmCvar_t        g_teleMissiles;
 extern  vmCvar_t        g_pushGrenades;
 extern  vmCvar_t        g_ambientSound;
+extern  vmCvar_t        g_unlagPrestep;
+extern  vmCvar_t        g_unlagFlight;
 
 extern  vmCvar_t        sv_allowDuplicateGuid;
 //KK-OAX Killing Sprees

@@ -173,6 +173,8 @@ vmCvar_t        g_lagLightning; //Adds a little lag to the lightninggun to make 
 vmCvar_t        g_teleMissiles;
 vmCvar_t        g_pushGrenades;
 vmCvar_t        g_ambientSound; 
+vmCvar_t        g_unlagPrestep; 
+vmCvar_t        g_unlagFlight; 
 
 vmCvar_t        sv_allowDuplicateGuid;
 //KK-OAX
@@ -315,6 +317,8 @@ static cvarTable_t		gameCvarTable[] = {
         { &g_lagLightning, "g_lagLightning", "1", CVAR_ARCHIVE, 0, qtrue },
 //unlagged - server options
         { &g_ambientSound, "g_ambientSound", "1", CVAR_ARCHIVE, 0, qtrue },
+        { &g_unlagPrestep, "g_unlagPrestep", "1", CVAR_ARCHIVE, 0, qtrue },
+        { &g_unlagFlight, "g_unlagFlight", "1", CVAR_ARCHIVE, 0, qtrue },
 
         { &g_teleMissiles, "g_teleMissiles", "0", CVAR_ARCHIVE, 0, qtrue },
         { &g_pushGrenades, "g_pushGrenades", "0", CVAR_ARCHIVE, 0, qtrue },
@@ -2858,29 +2862,122 @@ int start, end;
 		G_RunThink( ent );
 	}
 
-//unlagged - backward reconciliation #2
-	// NOW run the missiles, with all players backward-reconciled
-	// to the positions they were in exactly 50ms ago, at the end
-	// of the last server frame
-	G_TimeShiftAllClients( level.previousTime, NULL );
+	if (g_unlagPrestep.integer 
+			&& level.previousTime > MISSILE_PRESTEP_MAX_LATENCY
+			&& msec > 0) {
+		// if we see the missile late due to lag & PRESTEP
+		// compute the flight since it was launched, 
+		// shifting clients back accordingly
+		for (i=0 ; i < level.num_entities ; ++i ) {
+			ent = &g_entities[i];
+			if ( !ent->inuse 
+					|| ent->freeAfterEvent
+					|| ent->s.eType != ET_MISSILE
+					|| !ent->needsDelag ) {
+				continue;
+			}
 
-	ent = &g_entities[0];
-	for (i=0 ; i<level.num_entities ; i++, ent++) {
-		if ( !ent->inuse ) {
-			continue;
-		}
+			int prevTimeSaved = level.previousTime;
+			int lvlTimeSaved = level.time;
+			int projectileDelagTime = level.previousTime - (MISSILE_PRESTEP_MAX_LATENCY/msec) * msec;
+			while (projectileDelagTime < prevTimeSaved) {
+				if (projectileDelagTime >= ent->launchTime) {
+					int shiftTime = projectileDelagTime;
+					if (g_unlagFlight.integer) {
+						// if the whole flight should be
+						// unlagged, shift clients even
+						// further s.t. you can aim
+						// properly locally
+						shiftTime -= ent->launchLag;
+						shiftTime = shiftTime >= 0 ? shiftTime : 0;
+					}
+					G_TimeShiftAllClients( shiftTime, ent->parent );
+					level.time = projectileDelagTime + msec;
+					level.previousTime = projectileDelagTime;
 
-		// temporary entities don't think
-		if ( ent->freeAfterEvent ) {
-			continue;
-		}
 
-		if ( ent->s.eType == ET_MISSILE ) {
-			G_RunMissile( ent );
+					G_RunMissile( ent );
+
+					level.time = lvlTimeSaved;
+					level.previousTime = prevTimeSaved;
+					G_UnTimeShiftAllClients( ent->parent );
+				}
+				projectileDelagTime += msec;
+			}
+			ent->needsDelag = qfalse;
 		}
 	}
 
-	G_UnTimeShiftAllClients( NULL );
+	if (g_unlagFlight.integer) {
+		int projectileDelagTime = level.previousTime;
+		if (level.previousTime > MISSILE_PRESTEP_MAX_LATENCY
+				&& msec > 0) {
+			projectileDelagTime -= (MISSILE_PRESTEP_MAX_LATENCY/msec) * msec;
+		}
+		while (projectileDelagTime <= level.previousTime) {
+			int lag = level.previousTime - projectileDelagTime;
+
+			G_TimeShiftAllClients( projectileDelagTime, NULL );
+			ent = &g_entities[0];
+			for (i=0 ; i<level.num_entities ; i++, ent++) {
+				if ( !ent->inuse ) {
+					continue;
+				}
+
+				// temporary entities don't think
+				if ( ent->freeAfterEvent ) {
+					continue;
+				}
+
+				if ( ent->s.eType == ET_MISSILE ) {
+					if (ent->launchLag < lag || ent->launchLag >= lag + msec) {
+						continue;
+					}
+					//G_TimeShiftAllClients( projectileDelagTime, ent->parent );
+					if ( ent->parent && ent->parent->client && ent->parent->inuse && ent->parent->client->sess.sessionTeam < TEAM_SPECTATOR ) {
+						G_UnTimeShiftClient( ent->parent );
+					}
+
+					G_RunMissile( ent );
+
+					if ( ent->parent && ent->parent->client && ent->parent->inuse && ent->parent->client->sess.sessionTeam < TEAM_SPECTATOR ) {
+						G_TimeShiftClient( ent->parent, projectileDelagTime, qfalse, NULL );
+					}
+					//G_UnTimeShiftAllClients( ent->parent );
+				}
+			}
+
+			G_UnTimeShiftAllClients( NULL );
+			projectileDelagTime += msec;
+			if (msec == 0) {
+				break;
+			}
+		}
+	} else {
+		//unlagged - backward reconciliation #2
+		// NOW run the missiles, with all players backward-reconciled
+		// to the positions they were in exactly 50ms ago, at the end
+		// of the last server frame
+		G_TimeShiftAllClients( level.previousTime, NULL );
+
+		ent = &g_entities[0];
+		for (i=0 ; i<level.num_entities ; i++, ent++) {
+			if ( !ent->inuse ) {
+				continue;
+			}
+
+			// temporary entities don't think
+			if ( ent->freeAfterEvent ) {
+				continue;
+			}
+
+			if ( ent->s.eType == ET_MISSILE ) {
+				G_RunMissile( ent );
+			}
+		}
+
+		G_UnTimeShiftAllClients( NULL );
+	}
 //unlagged - backward reconciliation #2
 
 end = trap_Milliseconds();
