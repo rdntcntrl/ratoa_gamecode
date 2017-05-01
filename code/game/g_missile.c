@@ -23,8 +23,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "g_local.h"
 
 #define	MISSILE_PRESTEP_TIME 50
-#define	MISSILE_PRESTEP_MAX_LATENCY 150
+//#define	MISSILE_PRESTEP_MAX_LATENCY 150
 #define MIN(x,y) (x < y ? x : y)
+#define MISSILE_PRESTEP_VAR(ping) (MIN(MISSILE_PRESTEP_MAX_LATENCY/2, ping/2))
 
 /*
 ================
@@ -792,7 +793,10 @@ gentity_t *fire_plasma (gentity_t *self, vec3_t start, vec3_t dir) {
 	bolt->s.pos.trTime = level.time - MISSILE_PRESTEP_TIME;		// move a bit on the very first frame
 	//bolt->s.pos.trTime = level.time;
 	if (self->client != NULL) {
-		bolt->s.pos.trTime -= MIN(self->client->pers.realPing/2, MISSILE_PRESTEP_MAX_LATENCY/2);
+		bolt->launchLag = MISSILE_PRESTEP_VAR(self->client->pers.realPing);
+		bolt->s.pos.trTime -= bolt->launchLag;
+		bolt->needsDelag = qtrue;
+		bolt->launchTime = bolt->s.pos.trTime;
 	}
 	VectorCopy( start, bolt->s.pos.trBase );
 	VectorScale( dir, 2000, bolt->s.pos.trDelta );
@@ -845,7 +849,10 @@ gentity_t *fire_grenade (gentity_t *self, vec3_t start, vec3_t dir) {
 	bolt->s.pos.trTime = level.time - MISSILE_PRESTEP_TIME;		// move a bit on the very first frame
 	//bolt->s.pos.trTime = level.time;
 	if (self->client != NULL) {
-		bolt->s.pos.trTime -= MIN(self->client->pers.realPing/2, MISSILE_PRESTEP_MAX_LATENCY/2);
+		bolt->launchLag = MISSILE_PRESTEP_VAR(self->client->pers.realPing);
+		bolt->s.pos.trTime -= bolt->launchLag;
+		bolt->needsDelag = qtrue;
+		bolt->launchTime = bolt->s.pos.trTime;
 	}
 	VectorCopy( start, bolt->s.pos.trBase );
 	VectorScale( dir, 700, bolt->s.pos.trDelta );
@@ -897,7 +904,10 @@ gentity_t *fire_bfg (gentity_t *self, vec3_t start, vec3_t dir) {
 	bolt->s.pos.trTime = level.time - MISSILE_PRESTEP_TIME;		// move a bit on the very first frame
 	//bolt->s.pos.trTime = level.time;
 	if (self->client != NULL) {
-		bolt->s.pos.trTime -= MIN(self->client->pers.realPing/2, MISSILE_PRESTEP_MAX_LATENCY/2);
+		bolt->launchLag = MISSILE_PRESTEP_VAR(self->client->pers.realPing);
+		bolt->s.pos.trTime -= bolt->launchLag;
+		bolt->needsDelag = qtrue;
+		bolt->launchTime = bolt->s.pos.trTime;
 	}
 	VectorCopy( start, bolt->s.pos.trBase );
 	VectorScale( dir, 2000, bolt->s.pos.trDelta );
@@ -948,7 +958,11 @@ gentity_t *fire_rocket (gentity_t *self, vec3_t start, vec3_t dir) {
 	bolt->s.pos.trTime = level.time - MISSILE_PRESTEP_TIME;		// move a bit on the very first frame
 	//bolt->s.pos.trTime = level.time;
 	if (self->client != NULL) {
-		bolt->s.pos.trTime -= MIN(self->client->pers.realPing/2, MISSILE_PRESTEP_MAX_LATENCY/2);
+		bolt->launchLag = MISSILE_PRESTEP_VAR(self->client->pers.realPing);
+		bolt->s.pos.trTime -= bolt->launchLag;
+		bolt->needsDelag = qtrue;
+		bolt->launchTime = bolt->s.pos.trTime;
+		//Com_Printf("fire_rocket at level.time = %d\n", level.time);
 	}
 	VectorCopy( start, bolt->s.pos.trBase );
 	//VectorScale( dir, 900, bolt->s.pos.trDelta );
@@ -1116,7 +1130,10 @@ gentity_t *fire_prox( gentity_t *self, vec3_t start, vec3_t dir ) {
 	bolt->s.pos.trTime = level.time - MISSILE_PRESTEP_TIME;		// move a bit on the very first frame
 	//bolt->s.pos.trTime = level.time;
 	if (self->client != NULL) {
-		bolt->s.pos.trTime -= MIN(self->client->pers.realPing/2, MISSILE_PRESTEP_MAX_LATENCY/2);
+		bolt->launchLag = MISSILE_PRESTEP_VAR(self->client->pers.realPing);
+		bolt->s.pos.trTime -= bolt->launchLag;
+		bolt->needsDelag = qtrue;
+		bolt->launchTime = bolt->s.pos.trTime;
 	}
 	VectorCopy( start, bolt->s.pos.trBase );
 	VectorScale( dir, 700, bolt->s.pos.trDelta );
