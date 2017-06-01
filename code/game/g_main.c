@@ -178,6 +178,18 @@ vmCvar_t        g_unlagPrestep;
 vmCvar_t        g_unlagFlight; 
 
 vmCvar_t        sv_allowDuplicateGuid;
+
+// weapon config
+vmCvar_t        g_weaponChangeTime_Dropping;
+vmCvar_t        g_weaponChangeTime_Raising;
+vmCvar_t        g_weaponReloadTime_Shotgun;
+vmCvar_t        g_weaponReloadTime_Railgun;
+vmCvar_t        g_mgDamage;
+vmCvar_t        g_mgTeamDamage;
+vmCvar_t        g_railgunDamage;
+vmCvar_t        g_lgDamage;
+
+
 //KK-OAX
 vmCvar_t        g_sprees;
 vmCvar_t        g_altExcellent;
@@ -326,6 +338,16 @@ static cvarTable_t		gameCvarTable[] = {
         { &g_pushGrenades, "g_pushGrenades", "0", CVAR_ARCHIVE, 0, qtrue },
 
         { &sv_allowDuplicateGuid, "sv_allowDuplicateGuid", "0", 0, 0, qtrue },
+
+// weapon config
+	{ &g_weaponChangeTime_Dropping, "g_weaponChangeTime_Dropping", "200", 0, 0, qtrue },
+	{ &g_weaponChangeTime_Raising,  "g_weaponChangeTime_Raising",  "250", 0, 0, qtrue },
+	{ &g_weaponReloadTime_Shotgun,  "g_weaponReloadTime_Shotgun", "1000", 0, 0, qtrue },
+	{ &g_weaponReloadTime_Railgun,  "g_weaponReloadTime_Railgun", "1500", 0, 0, qtrue },
+	{ &g_mgDamage,			"g_mgDamage", "7", 0, 0, qtrue },
+	{ &g_mgTeamDamage,		"g_mgTeamDamage", "5", 0, 0, qtrue },
+	{ &g_railgunDamage,		"g_railgunDamage", "100", 0, 0, qtrue },
+	{ &g_lgDamage, 			"g_lgDamage", "8", 0, 0, qtrue },
 
 	{ &g_rankings, "g_rankings", "0", 0, 0, qfalse},
         { &g_music, "g_music", "", 0, 0, qfalse},

@@ -186,8 +186,10 @@ void SnapVectorTowards( vec3_t v, vec3_t to ) {
 
 #define CHAINGUN_SPREAD		600.0
 #define MACHINEGUN_SPREAD	200
-#define	MACHINEGUN_DAMAGE	6
-#define	MACHINEGUN_TEAM_DAMAGE	5		// wimpier MG in teamplay
+//#define	MACHINEGUN_DAMAGE	6
+#define	MACHINEGUN_DAMAGE	(g_mgDamage.value)
+//#define	MACHINEGUN_TEAM_DAMAGE	5		// wimpier MG in teamplay
+#define	MACHINEGUN_TEAM_DAMAGE	(g_mgTeamDamage.value)		// wimpier MG in teamplay
 
 void Bullet_Fire (gentity_t *ent, float spread, int damage ) {
 	trace_t		tr;
@@ -536,7 +538,8 @@ void weapon_railgun_fire (gentity_t *ent) {
 	int			passent;
 	gentity_t	*unlinkedEntities[MAX_RAIL_HITS];
 
-	damage = 80 * s_quadFactor;
+	//damage = 80 * s_quadFactor;
+	damage = g_railgunDamage.value * s_quadFactor;
 	if(g_instantgib.integer)
 		damage = 800;
 
@@ -708,7 +711,7 @@ void Weapon_LightningFire( gentity_t *ent ) {
 	gentity_t	*traceEnt, *tent;
 	int			damage, i, passent;
 
-	damage = 7 * s_quadFactor;
+	damage = g_lgDamage.value * s_quadFactor;
 
 	passent = ent->s.number;
 	for (i = 0; i < 10; i++) {

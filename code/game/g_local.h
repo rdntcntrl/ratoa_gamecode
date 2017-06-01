@@ -1149,6 +1149,17 @@ extern  vmCvar_t        g_unlagPrestep;
 extern  vmCvar_t        g_unlagFlight;
 
 extern  vmCvar_t        sv_allowDuplicateGuid;
+
+// weapon config
+extern vmCvar_t        g_weaponChangeTime_Dropping;
+extern vmCvar_t        g_weaponChangeTime_Raising;
+extern vmCvar_t        g_weaponReloadTime_Shotgun;
+extern vmCvar_t        g_weaponReloadTime_Railgun;
+extern vmCvar_t        g_mgDamage;
+extern vmCvar_t        g_mgTeamDamage;
+extern vmCvar_t        g_railgunDamage;
+extern vmCvar_t        g_lgDamage;
+
 //KK-OAX Killing Sprees
 extern  vmCvar_t    g_sprees; //Used for specifiying the config file
 extern  vmCvar_t    g_altExcellent; //Turns on Multikills instead of Excellent
