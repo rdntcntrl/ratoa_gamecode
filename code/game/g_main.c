@@ -2883,6 +2883,11 @@ int start, end;
 			int lvlTimeSaved = level.time;
 			int projectileDelagTime = level.previousTime - (MISSILE_PRESTEP_MAX_LATENCY/msec) * msec;
 			while (projectileDelagTime < prevTimeSaved) {
+				if ( !ent->inuse || ent->freeAfterEvent ) {
+					// make sure we don't run missile again
+					// if it exploded already
+					break;
+				}
 				if (projectileDelagTime >= ent->launchTime) {
 					int shiftTime = projectileDelagTime;
 					if (g_unlagFlight.integer) {
