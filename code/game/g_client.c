@@ -1721,8 +1721,12 @@ void ClientBegin( int clientNum ) {
 	//} else {
 	//	motd_chat ( ent );
 	//}
-	if (oldConnected != CON_CONNECTED) {
-		motd_chat ( ent );
+        //motd ( ent );
+	if (oldConnected != CON_CONNECTED && !(ent->r.svFlags & SVF_BOT)) {
+		if (level.time >= level.startTime + 10000) {
+			// don't print msg on map_restart and such
+			motd_chat ( ent );
+		}
 	}
 	trap_SendServerCommand(ent - g_entities, "cp \"\"");
         
