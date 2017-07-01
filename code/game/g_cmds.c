@@ -772,41 +772,41 @@ void SetTeam( gentity_t *ent, char *s ) {
 			// pick the team with the least number of players
 			team = PickTeam( clientNum );
 		}
-        if ( !force ) {
-		    if ( g_teamForceBalance.integer  ) {
-			    int		counts[TEAM_NUM_TEAMS];
+		if ( !force ) {
+			if ( g_teamForceBalance.integer  ) {
+				int		counts[TEAM_NUM_TEAMS];
 
-			    counts[TEAM_BLUE] = TeamCount( ent->client->ps.clientNum, TEAM_BLUE );
-			    counts[TEAM_RED] = TeamCount( ent->client->ps.clientNum, TEAM_RED );
+				counts[TEAM_BLUE] = TeamCount( ent->client->ps.clientNum, TEAM_BLUE );
+				counts[TEAM_RED] = TeamCount( ent->client->ps.clientNum, TEAM_RED );
 
-			    // We allow a spread of two
-			    if ( team == TEAM_RED && counts[TEAM_RED] - counts[TEAM_BLUE] > 1 ) {
-				    trap_SendServerCommand( ent->client->ps.clientNum, 
-					    "cp \"Red team has too many players.\n\"" );
-				    return; // ignore the request
-			    }
-			    if ( team == TEAM_BLUE && counts[TEAM_BLUE] - counts[TEAM_RED] > 1 ) {
-				    trap_SendServerCommand( ent->client->ps.clientNum, 
-					    "cp \"Blue team has too many players.\n\"" );
-				    return; // ignore the request
-			    }
+				// We allow a spread of two
+				if ( team == TEAM_RED && counts[TEAM_RED] - counts[TEAM_BLUE] > 1 ) {
+					trap_SendServerCommand( ent->client->ps.clientNum, 
+							"cp \"Red team has too many players.\n\"" );
+					return; // ignore the request
+				}
+				if ( team == TEAM_BLUE && counts[TEAM_BLUE] - counts[TEAM_RED] > 1 ) {
+					trap_SendServerCommand( ent->client->ps.clientNum, 
+							"cp \"Blue team has too many players.\n\"" );
+					return; // ignore the request
+				}
 
-			    // It's ok, the team we are switching to has less or same number of players
-		    }
-        }
+				// It's ok, the team we are switching to has less or same number of players
+			}
+		}
 	} else {
 		// force them to spectators if there aren't any spots free
 		team = TEAM_FREE;
 	}
-    if ( !force ) {
-	    // override decision if limiting the players
-	    if ( (g_gametype.integer == GT_TOURNAMENT)
-		    && level.numNonSpectatorClients >= 2 ) {
-		    team = TEAM_SPECTATOR;
-	    } else if ( g_maxGameClients.integer > 0 && 
-		    level.numNonSpectatorClients >= g_maxGameClients.integer ) {
-		    team = TEAM_SPECTATOR;
-	    }
+	if ( !force ) {
+		// override decision if limiting the players
+		if ( (g_gametype.integer == GT_TOURNAMENT)
+				&& level.numNonSpectatorClients >= 2 ) {
+			team = TEAM_SPECTATOR;
+		} else if ( g_maxGameClients.integer > 0 && 
+				level.numNonSpectatorClients >= g_maxGameClients.integer ) {
+			team = TEAM_SPECTATOR;
+		}
 	}
 
 	//
@@ -816,24 +816,25 @@ void SetTeam( gentity_t *ent, char *s ) {
 	if ( team == oldTeam && team != TEAM_SPECTATOR ) {
 		return;
 	}
-    //KK-OAX Check to make sure the team is not locked from Admin
-    if ( !force ) {
-        if ( team == TEAM_RED && level.RedTeamLocked ) {
-            trap_SendServerCommand( ent->client->ps.clientNum,
-            "cp \"The Red Team has been locked by the Admin! \n\"" );
-            return;    
-        }
-        if ( team == TEAM_BLUE && level.BlueTeamLocked ) {
-            trap_SendServerCommand( ent->client->ps.clientNum,
-            "cp \"The Blue Team has been locked by the Admin! \n\"" );
-            return;
-        }
-        if ( team == TEAM_FREE && level.FFALocked ) {
-            trap_SendServerCommand( ent->client->ps.clientNum,
-            "cp \"This Deathmatch has been locked by the Admin! \n\"" );
-            return;
-        }
-    }
+
+	//KK-OAX Check to make sure the team is not locked from Admin
+	if ( !force ) {
+		if ( team == TEAM_RED && level.RedTeamLocked ) {
+			trap_SendServerCommand( ent->client->ps.clientNum,
+					"cp \"The Red Team has been locked by the Admin! \n\"" );
+			return;    
+		}
+		if ( team == TEAM_BLUE && level.BlueTeamLocked ) {
+			trap_SendServerCommand( ent->client->ps.clientNum,
+					"cp \"The Blue Team has been locked by the Admin! \n\"" );
+			return;
+		}
+		if ( team == TEAM_FREE && level.FFALocked ) {
+			trap_SendServerCommand( ent->client->ps.clientNum,
+					"cp \"This Deathmatch has been locked by the Admin! \n\"" );
+			return;
+		}
+	}
 	//
 	// execute the team change
 	//
