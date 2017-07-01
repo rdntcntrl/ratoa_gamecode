@@ -642,6 +642,7 @@ void G_UpdateActionCamera(void) {
 		if (ent->health >= 0) {
 			level.followauto = i;
 			level.followautoTime = level.time;
+			return;
 		}
 	}
 }
