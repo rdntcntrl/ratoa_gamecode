@@ -750,6 +750,10 @@ void SetTeam( gentity_t *ent, char *s ) {
 		team = TEAM_SPECTATOR;
 		specState = SPECTATOR_FOLLOW;
 		specClient = -2;
+	} else if ( Q_strequal( s, "autofollow" ) ) {
+		team = TEAM_SPECTATOR;
+		specState = SPECTATOR_FOLLOW;
+		specClient = -3;
 	} else if ( Q_strequal( s, "spectator" ) || Q_strequal( s, "s" ) ) {
 		team = TEAM_SPECTATOR;
 		specState = SPECTATOR_FREE;

@@ -1211,6 +1211,8 @@ void SpectatorClientEndFrame( gentity_t *ent ) {
 			clientNum = level.follow1;
 		} else if ( clientNum == -2 ) {
 			clientNum = level.follow2;
+		} else if ( clientNum == -3 ) {
+			clientNum = level.followauto;
 		}
 		if ( clientNum >= 0 ) {
 			cl = &level.clients[ clientNum ];

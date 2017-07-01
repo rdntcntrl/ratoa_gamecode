@@ -594,6 +594,58 @@ void G_RemapTeamShaders( void ) {
 #endif
 }
 
+void G_UpdateActionCamera(void) {
+	int i;
+	gclient_t *cl;
+	gentity_t *ent;
+	int clientNum = level.followauto;
+
+	cl = &level.clients[ clientNum ];
+	if ( cl->pers.connected == CON_CONNECTED && cl->sess.sessionTeam != TEAM_SPECTATOR ) {
+		if (cl->ps.powerups[PW_REDFLAG] || cl->ps.powerups[PW_BLUEFLAG]) {
+			return;
+		}
+	}
+	// if the a flag is taken, follow flag carrier
+	for ( i = 0 ; i < level.maxclients ; i++ ) {
+		gclient_t *cl2 = &level.clients[i];
+		if ( cl2->pers.connected != CON_CONNECTED 
+				|| cl2->sess.sessionTeam == TEAM_SPECTATOR )
+			continue;
+		if (cl2->ps.powerups[PW_REDFLAG] || cl2->ps.powerups[PW_BLUEFLAG]) {
+			level.followauto = i;
+			level.followautoTime = level.time;
+			return;
+		}
+	}
+
+	cl = &level.clients[ clientNum ];
+	if ( cl->pers.connected == CON_CONNECTED && cl->sess.sessionTeam != TEAM_SPECTATOR ) {
+		ent = &g_entities[ clientNum ];
+		if (ent->health <= 0) {
+			level.followauto = cl->lasthurt_client;
+			level.followautoTime = level.time;
+			return;
+		}
+		if (level.followautoTime + 60 * 2 * 1000 > level.time) {
+			return;
+		}
+	}
+	for ( i = 0 ; i < level.maxclients ; i++ ) {
+		gclient_t *cl2 = &level.clients[i];
+		if ( cl2->pers.connected != CON_CONNECTED || cl2->sess.sessionTeam == TEAM_SPECTATOR )
+			continue;
+		if (i == clientNum) {
+			continue;
+		}
+		ent = &g_entities[ i ];
+		if (ent->health >= 0) {
+			level.followauto = i;
+			level.followautoTime = level.time;
+		}
+	}
+}
+
 
 /*
 =================
@@ -2815,6 +2867,8 @@ int start, end;
 
 	// get any cvar changes
 	G_UpdateCvars();
+
+	G_UpdateActionCamera();
 
         if( (g_gametype.integer==GT_ELIMINATION || g_gametype.integer==GT_CTF_ELIMINATION) && !(g_elimflags.integer & EF_NO_FREESPEC) && g_elimination_lockspectator.integer>1)
             trap_Cvar_Set("elimflags",va("%i",g_elimflags.integer|EF_NO_FREESPEC));
