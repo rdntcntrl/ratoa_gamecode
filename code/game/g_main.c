@@ -191,6 +191,8 @@ vmCvar_t        g_lgDamage;
 
 vmCvar_t        g_pm_swimScale;
 
+vmCvar_t        g_teamslocked;
+
 
 //KK-OAX
 vmCvar_t        g_sprees;
@@ -352,6 +354,8 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_lgDamage, 			"g_lgDamage", "8", 0, 0, qtrue },
 
 	{ &g_pm_swimScale, 		"g_pm_swimScale", "0.50", 0, 0, qtrue },
+
+	{ &g_teamslocked, 		"g_teamslocked", "0", 0, 0, qfalse },
 
 	{ &g_rankings, "g_rankings", "0", 0, 0, qfalse},
         { &g_music, "g_music", "", 0, 0, qfalse},
@@ -913,6 +917,13 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 
             trap_Cvar_Set("voteflags",va("%i",voteflags));
         }
+
+	if (g_teamslocked.integer > 0 ) {
+		level.RedTeamLocked = qtrue;
+		level.BlueTeamLocked = qtrue;
+		level.FFALocked = qtrue;
+		trap_Cvar_Set("g_teamslocked",va("%i", g_teamslocked.integer - 1));
+	}
 }
 
 

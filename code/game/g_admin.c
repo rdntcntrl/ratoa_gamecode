@@ -113,6 +113,12 @@ g_admin_cmd_t g_admin_cmds[ ] =
       "lock a team to prevent anyone from joining it",
       "[^3a|h^7]"
     },
+
+    {"lockall", G_admin_lockall, "K",
+      "lock all teams to prevent anyone from joining them",
+      ""
+    },
+
     //KK-OAX
     {"map", G_admin_map, "M",
       "load a map",
@@ -199,6 +205,11 @@ g_admin_cmd_t g_admin_cmds[ ] =
     {"unlock", G_admin_unlock, "K",
       "unlock a locked team",
       "[^3a|h^7]"
+    },
+
+    {"unlockall", G_admin_unlockall, "K",
+      "unlock all teams",
+      ""
     },
 
     {"unmute", G_admin_mute, "m",
@@ -2957,6 +2968,28 @@ qboolean G_admin_namelog( gentity_t *ent, int skiparg )
   }
   ADMBP( va( "^3!namelog:^7 %d recent clients found\n", printed ) );
   ADMBP_end();
+  return qtrue;
+}
+
+qboolean G_admin_lockall( gentity_t *ent, int skiparg ) 
+{
+  level.RedTeamLocked = qtrue;
+  level.BlueTeamLocked = qtrue;
+  level.FFALocked = qtrue;
+  trap_Cvar_Set("g_teamslocked", "1");
+  AP( va( "print \"^3!lockall: ^7All teams has been locked by %s\n\"",
+    ( ent ) ? ent->client->pers.netname : "console" ) );
+  return qtrue;
+}
+
+qboolean G_admin_unlockall( gentity_t *ent, int skiparg ) 
+{
+  level.RedTeamLocked = qfalse;
+  level.BlueTeamLocked = qfalse;
+  level.FFALocked = qfalse;
+  trap_Cvar_Set("g_teamslocked", "0");
+  AP( va( "print \"^3!unlockall: ^7All teams has been unlocked by %s\n\"",
+    ( ent ) ? ent->client->pers.netname : "console" ) );
   return qtrue;
 }
 

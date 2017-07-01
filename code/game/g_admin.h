@@ -186,6 +186,8 @@ qboolean G_admin_nextmap( gentity_t *ent, int skiparg );
 qboolean G_admin_namelog( gentity_t *ent, int skiparg );
 qboolean G_admin_lock( gentity_t *ent, int skiparg );
 qboolean G_admin_unlock( gentity_t *ent, int skiparg );
+qboolean G_admin_lockall( gentity_t *ent, int skiparg );
+qboolean G_admin_unlockall( gentity_t *ent, int skiparg );
 //KK-OAX
 qboolean G_admin_disorient( gentity_t *ent, int skiparg );
 qboolean G_admin_orient(gentity_t *ent, int skiparg );
