@@ -189,6 +189,8 @@ vmCvar_t        g_mgTeamDamage;
 vmCvar_t        g_railgunDamage;
 vmCvar_t        g_lgDamage;
 
+vmCvar_t        g_pm_swimScale;
+
 
 //KK-OAX
 vmCvar_t        g_sprees;
@@ -348,6 +350,8 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_mgTeamDamage,		"g_mgTeamDamage", "5", 0, 0, qtrue },
 	{ &g_railgunDamage,		"g_railgunDamage", "100", 0, 0, qtrue },
 	{ &g_lgDamage, 			"g_lgDamage", "8", 0, 0, qtrue },
+
+	{ &g_pm_swimScale, 		"g_pm_swimScale", "0.50", 0, 0, qtrue },
 
 	{ &g_rankings, "g_rankings", "0", 0, 0, qfalse},
         { &g_music, "g_music", "", 0, 0, qfalse},
