@@ -937,11 +937,13 @@ Cmd_Team_f
 */
 void Cmd_Team_f( gentity_t *ent ) {
 	int			oldTeam;
+	int			oldSpecGroup;
 	char		s[MAX_TOKEN_CHARS];
 	qboolean    force;
 
 	if ( trap_Argc() != 2 ) {
 		oldTeam = ent->client->sess.sessionTeam;
+		oldSpecGroup = ent->client->sess.spectatorGroup;
 		switch ( oldTeam ) {
 		case TEAM_BLUE:
 			trap_SendServerCommand( ent-g_entities, "print \"Blue team\n\"" );
@@ -953,7 +955,18 @@ void Cmd_Team_f( gentity_t *ent ) {
 			trap_SendServerCommand( ent-g_entities, "print \"Deathmatch-Playing\n\"" );
 			break;
 		case TEAM_SPECTATOR:
-			trap_SendServerCommand( ent-g_entities, "print \"Spectator team\n\"" );
+			switch ( oldSpecGroup ) {
+				case SPECTATORGROUP_AFK:
+					trap_SendServerCommand( ent-g_entities, "print \"Spectator team (AFK)\n\"" );
+					break;
+				case SPECTATORGROUP_NOTREADY:
+					trap_SendServerCommand( ent-g_entities, "print \"Spectator team (NOTREADY)\n\"" );
+					break;
+				case SPECTATORGROUP_QUEUED:
+				default:
+					trap_SendServerCommand( ent-g_entities, "print \"Spectator team\n\"" );
+					break;
+			}
 			break;
 		}
 		return;
