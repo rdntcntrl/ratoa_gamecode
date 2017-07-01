@@ -96,9 +96,9 @@ vmCvar_t	g_obeliskRegenPeriod;
 vmCvar_t	g_obeliskRegenAmount;
 vmCvar_t	g_obeliskRespawnDelay;
 vmCvar_t	g_cubeTimeout;
-#ifdef MISSIONPACK
 vmCvar_t	g_redteam;
 vmCvar_t	g_blueteam;
+#ifdef MISSIONPACK
 vmCvar_t	g_singlePlayer;
 #endif
 vmCvar_t	g_enableDust;
@@ -314,6 +314,9 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_redteam, "g_redteam", "Stroggs", CVAR_ARCHIVE | CVAR_SERVERINFO | CVAR_USERINFO , 0, qtrue, qtrue },
 	{ &g_blueteam, "g_blueteam", "Pagans", CVAR_ARCHIVE | CVAR_SERVERINFO | CVAR_USERINFO , 0, qtrue, qtrue  },
 	{ &g_singlePlayer, "ui_singlePlayerActive", "", 0, 0, qfalse, qfalse  },
+	#else
+	{ &g_redteam, "g_redteam", "", CVAR_SERVERINFO | CVAR_USERINFO , 0, qtrue, qtrue },
+	{ &g_blueteam, "g_blueteam", "", CVAR_SERVERINFO | CVAR_USERINFO , 0, qtrue, qtrue  },
         #endif
 
 	{ &g_enableDust, "g_enableDust", "0", CVAR_SERVERINFO, 0, qtrue, qfalse },
@@ -581,17 +584,31 @@ void G_FindTeams( void ) {
 }
 
 void G_RemapTeamShaders( void ) {
-#ifdef MISSIONPACK
 	char string[1024];
 	float f = level.time * 0.001;
+	ClearRemaps();
+#ifdef MISSIONPACK
 	Com_sprintf( string, sizeof(string), "team_icon/%s_red", g_redteam.string );
 	AddRemap("textures/ctf2/redteam01", string, f); 
 	AddRemap("textures/ctf2/redteam02", string, f); 
 	Com_sprintf( string, sizeof(string), "team_icon/%s_blue", g_blueteam.string );
 	AddRemap("textures/ctf2/blueteam01", string, f); 
 	AddRemap("textures/ctf2/blueteam02", string, f); 
-	trap_SetConfigstring(CS_SHADERSTATE, BuildShaderStateConfig());
 #endif
+	// RATOA
+	if( g_redteam.string[0] ) {
+		Com_sprintf( string, sizeof(string), "team_icon/ratoa/%s_redflag", g_redteam.string );
+		AddRemap("models/flags/r_flag", string, f); 
+	}  else {
+		AddRemap("models/flags/r_flag", "models/flags/r_flag", f); 
+	}
+	if( g_blueteam.string[0] ) {
+		Com_sprintf( string, sizeof(string), "team_icon/ratoa/%s_blueflag", g_blueteam.string );
+		AddRemap("models/flags/b_flag", string, f); 
+	}  else {
+		AddRemap("models/flags/b_flag", "models/flags/b_flag", f); 
+	}
+	trap_SetConfigstring(CS_SHADERSTATE, BuildShaderStateConfig());
 }
 
 void G_UpdateActionCamera(void) {

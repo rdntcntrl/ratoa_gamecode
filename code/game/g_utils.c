@@ -54,6 +54,10 @@ void AddRemap(const char *oldShader, const char *newShader, float timeOffset) {
 	}
 }
 
+void ClearRemaps() {
+	remapCount = 0;
+}
+
 const char *BuildShaderStateConfig(void) {
 	static char	buff[MAX_STRING_CHARS*4];
 	char out[(MAX_QPATH * 2) + 5];
