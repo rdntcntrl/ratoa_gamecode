@@ -879,6 +879,7 @@ void ClientCommand( int clientNum );
 void ClientThink( int clientNum );
 void ClientEndFrame( gentity_t *ent );
 void G_RunClient( gentity_t *ent );
+void ClientInactivityHeartBeat(gclient_t *client);
 
 //
 // g_team.c
