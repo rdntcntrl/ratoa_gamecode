@@ -60,7 +60,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define FL_FORCE_GESTURE		0x00008000	// force gesture on client
 
 // for delagged projectiles
-#define	MISSILE_PRESTEP_MAX_LATENCY 150
+#define	MISSILE_PRESTEP_MAX_LATENCY 200
 
 // movers are things like doors, plats, buttons, etc
 typedef enum {
