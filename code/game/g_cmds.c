@@ -799,14 +799,15 @@ void SetTeam( gentity_t *ent, char *s ) {
 		team = TEAM_FREE;
 	}
 	if ( !force ) {
-		// override decision if limiting the players
-		if ( (g_gametype.integer == GT_TOURNAMENT)
-				&& level.numNonSpectatorClients >= 2 ) {
-			team = TEAM_SPECTATOR;
-		} else if ( g_maxGameClients.integer > 0 && 
+		if ( g_maxGameClients.integer > 0 && 
 				level.numNonSpectatorClients >= g_maxGameClients.integer ) {
 			team = TEAM_SPECTATOR;
 		}
+	}
+	// override decision if limiting the players
+	if ( (g_gametype.integer == GT_TOURNAMENT)
+			&& level.numNonSpectatorClients >= 2 ) {
+		team = TEAM_SPECTATOR;
 	}
 
 	//
