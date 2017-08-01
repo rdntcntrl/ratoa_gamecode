@@ -2053,7 +2053,8 @@ void CheckExitRules( void ) {
 	}
 
 	if ( g_timelimit.integer > 0 && !level.warmupTime ) {
-		if ( (level.time - level.startTime)/60000 >= g_timelimit.integer ) {
+		//if ( (level.time - level.startTime)/60000 >= g_timelimit.integer ) {
+		if ( (level.time - level.startTime) >= g_timelimit.integer * 60000 + level.timeoutOvertime) {
 			trap_SendServerCommand( -1, "print \"Timelimit hit.\n\"");
 			LogExit( "Timelimit hit." );
 			return;
@@ -2897,6 +2898,10 @@ int start, end;
 	level.previousTime = level.time;
 	level.time = levelTime;
 	msec = level.time - level.previousTime;
+
+	if (level.timeout && level.time >= level.timeoutEnd) {
+		G_Timein();
+	}
 
 	// get any cvar changes
 	G_UpdateCvars();

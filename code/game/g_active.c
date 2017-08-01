@@ -776,8 +776,10 @@ void ClientThink_real( gentity_t *ent ) {
 	int			msec;
 	usercmd_t	*ucmd;
 
-	if (level.timeout)
+	if (level.timeout) {
+		ClientInactivityHeartBeat(ent->client);
 		return;
+	}
 
 	client = ent->client;
 

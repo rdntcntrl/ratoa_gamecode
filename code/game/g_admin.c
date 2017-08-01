@@ -197,6 +197,10 @@ g_admin_cmd_t g_admin_cmds[ ] =
       "show the current local server time",
       ""},
 
+    {"timeout", G_admin_timeout, "t",
+      "call a timeout",
+      ""},
+
     {"unban", G_admin_unban, "b",
       "unbans a player specified by the slot as seen in showbans",
       "[^3ban#^7]"
@@ -564,7 +568,7 @@ static void admin_default_levels( void )
 
   Q_strncpyz( g_admin_levels[ 4 ]->name, "^3Senior Admin",
     sizeof( l->name ) );
-  Q_strncpyz( g_admin_levels[ 4 ]->flags, "iahCpPwrkmfKncN?MVdBbeDS51", sizeof( l->flags ) );
+  Q_strncpyz( g_admin_levels[ 4 ]->flags, "iahCpPwrkmfKncN?MVdBbeDS51t", sizeof( l->flags ) );
 
   Q_strncpyz( g_admin_levels[ 5 ]->name, "^1Server Operator",
     sizeof( l->name ) );
@@ -1335,6 +1339,12 @@ qboolean G_admin_time( gentity_t *ent, int skiparg )
   ADMP( va( "^3!time: ^7local time is %02i:%02i:%02i\n",
     qt.tm_hour, qt.tm_min, qt.tm_sec ) );
   return qtrue;
+}
+
+qboolean G_admin_timeout( gentity_t *ent, int skiparg )
+{
+	G_Timeout(ent);
+	return qtrue;
 }
 
 qboolean G_admin_setlevel( gentity_t *ent, int skiparg )

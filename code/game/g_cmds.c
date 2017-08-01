@@ -1052,14 +1052,6 @@ void Cmd_Follow_f( gentity_t *ent ) {
 	ent->client->sess.spectatorClient = i;
 }
 
-int timeoutend_minutes() {
-	return (level.timeoutEnd-level.startTime)/(60*1000);
-}
-
-int timeoutend_seconds() {
-	return (level.timeoutEnd-level.startTime)/1000 - timeoutend_minutes()*60;
-}
-
 /*
 =================
 Cmd_FollowCycle_f
@@ -1142,14 +1134,75 @@ void Cmd_FollowCycle_f( gentity_t *ent ) {
 	// leave it where it was
 }
 
-void Cmd_Timeout_f( gentity_t *ent ) {
+int timeoutend_minutes() {
+	return (level.timeoutEnd-level.startTime)/(60*1000);
+}
+
+int timeoutend_seconds() {
+	return (level.timeoutEnd-level.startTime)/1000 - timeoutend_minutes()*60;
+}
+
+void G_TimeoutReminder(gentity_t *ent) {
+	trap_SendServerCommand( ent-g_entities, va("cp \"" S_COLOR_CYAN "timeout until %i:%02i\"",
+				timeoutend_minutes(), timeoutend_seconds() ));
+	trap_SendServerCommand( ent-g_entities, va("print \"" S_COLOR_CYAN "timeout until %i:%02i\n\"",
+				timeoutend_minutes(), timeoutend_seconds() ));
+}
+
+void G_Timeout(gentity_t *caller) {
 	int i,j;
-	if ( !g_timeoutAllowed.integer ) {
-		trap_SendServerCommand(ent-g_entities,va("cp \"" S_COLOR_CYAN "timeout not allowed\"" ) );
+	if ( level.timeout ) {
+		G_TimeoutReminder(caller);
 		return;
 	}
 	if ( level.warmupTime ) {
-		trap_SendServerCommand(ent-g_entities,va("cp \"" S_COLOR_CYAN "timeout not allowed during warmup\"" ) );
+		trap_SendServerCommand(caller-g_entities,va("cp \"" S_COLOR_CYAN "timeout not allowed during warmup\"" ) );
+		return;
+	}
+	caller->client->timeouts++;
+
+	level.timeout = qtrue;
+	level.timeoutAdd = g_timeoutTime.integer * 1000;
+	level.timeoutEnd = level.time + level.timeoutAdd;
+	level.timeoutOvertime += level.timeoutAdd;
+
+
+	gentity_t *tent = &g_entities[0];
+	for (i=0 ; i < level.num_entities ; i++, tent++) {
+		if ( tent->inuse ) {
+			if ( tent->nextthink > 0 )
+				tent->nextthink += level.timeoutAdd;
+			if ( tent->eventTime > 0 )
+				tent->eventTime += level.timeoutAdd;
+		}
+	}
+
+	//TODO: POWERUPS
+
+	for ( i = 0; i < level.numConnectedClients ;i++) {
+		for ( j = 0; j < MAX_POWERUPS; j++ ) {
+			if ( level.clients[i].ps.powerups[j] > 0 )
+				level.clients->ps.powerups[j] += level.timeoutAdd;
+		}
+	}
+
+	trap_SendServerCommand(-1,va("cp \"%s" S_COLOR_CYAN " called a %is timeout\nGame continues at %i:%02i\"", 
+				caller->client->pers.netname,
+				level.timeoutAdd/1000,
+				timeoutend_minutes(),
+				timeoutend_seconds()) );
+	trap_SendServerCommand(-1,va("print \"%s" S_COLOR_CYAN " called a %is timeout\nGame continues at %i:%02i, total overtime %is\n\"", 
+				caller->client->pers.netname,
+				level.timeoutAdd/1000,
+				timeoutend_minutes(),
+				timeoutend_seconds(),
+				level.timeoutOvertime/1000 ));
+}
+
+
+void Cmd_Timeout_f( gentity_t *ent ) {
+	if ( !g_timeoutAllowed.integer ) {
+		trap_SendServerCommand(ent-g_entities,va("cp \"" S_COLOR_CYAN "timeout not allowed\"" ) );
 		return;
 	}
 
@@ -1161,50 +1214,14 @@ void Cmd_Timeout_f( gentity_t *ent ) {
 		trap_SendServerCommand(ent-g_entities,va("cp \"" S_COLOR_CYAN "timeout limit reached\"" ) );
 		return;
 	}
+	G_Timeout(ent);
 
-	if ( level.timeout ) {
-		trap_SendServerCommand( ent-g_entities, va("cp \"timeout until %i:%i\"",
-					timeoutend_minutes(), timeoutend_seconds() ));
-		trap_SendServerCommand( ent-g_entities, va("print \"timeout until %i:%i\"",
-					timeoutend_minutes(), timeoutend_seconds() ));
-	} else {
-		level.timeout = qtrue;
-		level.timeoutAdd = g_timeoutTime.integer * 1000;
-		level.timeoutEnd = level.time + level.timeoutAdd;
-		level.timeoutOvertime += level.timeoutAdd;
+}
 
-		ent->client->timeouts++;
-
-		gentity_t *tent = &g_entities[0];
-		for (i=0 ; i < level.num_entities ; i++, tent++) {
-			if ( tent->inuse ) {
-				if ( tent->nextthink > 0 )
-					tent->nextthink += level.timeoutAdd;
-				if ( tent->eventTime > 0 )
-					tent->eventTime += level.timeoutAdd;
-			}
-		}
-
-		//TODO: POWERUPS
-
-		for ( i = 0; i < level.numConnectedClients ;i++) {
-			for ( j = 0; j < MAX_POWERUPS; j++ ) {
-				if ( level.clients[i].ps.powerups[j] > 0 )
-					level.clients->ps.powerups[j] += level.timeoutAdd;
-			}
-		}
-
-		trap_SendServerCommand(-1,va("cp \"%s" S_COLOR_CYAN " called a %is timeout\nGame continues at %i:%i\"", 
-					ent->client->pers.netname,
-				       	level.timeoutAdd/1000,
-					timeoutend_minutes(),
-					timeoutend_seconds()) );
-		trap_SendServerCommand(-1,va("print \"%s" S_COLOR_CYAN " called a %is timeout\nGame continues at %i:%i\"", 
-					ent->client->pers.netname,
-				       	level.timeoutAdd/1000,
-					timeoutend_minutes(),
-					timeoutend_seconds()) );
-	}
+void G_Timein( void ) {
+	level.timeout = qfalse;
+	trap_SendServerCommand(-1,va("print \"" S_COLOR_CYAN "Game continues! Total overtime added: %is\n\"", 
+			       		level.timeoutOvertime/1000	));
 }
 
 /*
