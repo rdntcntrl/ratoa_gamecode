@@ -498,6 +498,10 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 		return;
 	}
 
+	if (self->client) {
+		self->client->deaths += 1;
+	}
+
 //unlagged - backward reconciliation #2
 	// make sure the body shows up in the client's current position
 	G_UnTimeShiftClient( self );
@@ -524,6 +528,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 		killer = attacker->s.number;
 		if ( attacker->client ) {
 			killerName = attacker->client->pers.netname;
+			attacker->client->kills += 1;
 		} else {
 			killerName = "<non-client>";
 		}
@@ -1319,9 +1324,19 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 
 	// do the damage
 	if (take) {
+		int dmgTaken = take + asave;
 		targ->health = targ->health - take;
 		if ( targ->client ) {
 			targ->client->ps.stats[STAT_HEALTH] = targ->health;
+		}
+		if (targ->health < 0) {
+			dmgTaken += targ->health;
+		}
+		if (targ->client) {
+			targ->client->dmgTaken += dmgTaken;
+		}
+		if (attacker && attacker->client) {
+			attacker->client->dmgGiven += dmgTaken;
 		}
 			
 		if ( targ->health <= 0 ) {
