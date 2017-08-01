@@ -1159,18 +1159,20 @@ typedef struct {
 	char *tag;
 	char *tag2;
 	char *tag3;
+	char *tag4;
+	char *tag5;
 	char *displayname;
 	char *name;
 } clan_t;
 
 static clan_t clans[] = {
-	{ "{T-L}", NULL, NULL, "TopLevel", "toplevel" },
-	{ "/N/", "/u/", "/NiN/", "NiN", "nin" },
-	{ "*SoS*", NULL, NULL, "SoS", "sos" },
-	{ "SeXy-", NULL, NULL, "SeXy", "sexy" },
-	{ "Guild", NULL, NULL, "Guild", "guilda" },
-	{ "raGe|", NULL, NULL, "raGe", "rage" },
-	{ "vihmu", NULL, NULL, "vihmu", "vihmu" },
+	{ "{T-L}", NULL, NULL, NULL, NULL, "TopLevel", "toplevel" },
+	{ "/N/", "/n", "dots", "/u/", "/NiN/", "NiN", "nin" },
+	{ "*SoS*", NULL, NULL, NULL, NULL, "SoS", "sos" },
+	{ "SeXy-", NULL, NULL, NULL, NULL, "SeXy", "sexy" },
+	{ "Guild", NULL, NULL, NULL, NULL, "Guild", "guilda" },
+	{ "raGe|", NULL, NULL, NULL, NULL, "raGe", "rage" },
+	{ "vihmu/", NULL, NULL, NULL, NULL, "vihmu", "vihmu" },
 };
 
 #define MAX_CLAN (sizeof(clans)/sizeof(clan_t)) 
@@ -1183,7 +1185,9 @@ int G_ClanForClient( gclient_t *client) {
 	for (j = 0; j < MAX_CLAN; ++j) {
 		if (strstr(name, clans[j].tag) 
 				|| (clans[j].tag2 && strstr(name, clans[j].tag2))
-				|| (clans[j].tag3 && strstr(name, clans[j].tag3))) {
+				|| (clans[j].tag3 && strstr(name, clans[j].tag3))
+				|| (clans[j].tag4 && strstr(name, clans[j].tag4))
+				|| (clans[j].tag5 && strstr(name, clans[j].tag5))) {
 			return j;
 		}
 	}
