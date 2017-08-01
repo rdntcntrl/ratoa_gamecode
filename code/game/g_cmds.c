@@ -24,48 +24,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "../../ui/menudef.h"			// for the voice chats
 
-/*
-==================
-DamageMessage
-
-==================
-*/
-void DamageMessage( gentity_t *ent ) {
-	char		entry[1024];
-	char		string[1400];
-	int			stringlength;
-	int			i, j;
-	gclient_t	*cl;
-	int			numSorted, scoreFlags, accuracy, perfect;
-
-	Com_Printf("DamageMsg\n");
-	// send the latest information on all clients
-	string[0] = 0;
-	stringlength = 0;
-	scoreFlags = 0;
-
-	numSorted = level.numConnectedClients;
-	
-	for (i=0 ; i < numSorted ; i++) {
-		int		ping;
-
-		cl = &level.clients[level.sortedClients[i]];
-
-		Com_sprintf (entry, sizeof(entry), " %i %i %i %i %i",
-				level.sortedClients[i],
-			       	cl->kills, cl->deaths,
-				cl->dmgGiven, cl->dmgTaken);
-
-		j = strlen(entry);
-		if (stringlength + j > 1024)
-			break;
-		strcpy (string + stringlength, entry);
-		stringlength += j;
-	}
-
-	trap_SendServerCommand( ent-g_entities, va("damages %i%s", i, string ) );
-}
-
 
 /*
 ==================
@@ -73,15 +31,13 @@ DeathmatchScoreboardMessage
 
 ==================
 */
-void DeathmatchScoreboardMessage( gentity_t *ent ) {
+void DeathmatchScoreboardMessage( gentity_t *ent, qboolean advanced ) {
 	char		entry[1024];
 	char		string[1400];
 	int			stringlength;
 	int			i, j;
 	gclient_t	*cl;
 	int			numSorted, scoreFlags, accuracy, perfect;
-
-	Com_Printf("DmScoreBoard\n");
 
 	// send the latest information on all clients
 	string[0] = 0;
@@ -112,34 +68,38 @@ void DeathmatchScoreboardMessage( gentity_t *ent ) {
 		}
 		perfect = ( cl->ps.persistant[PERS_RANK] == 0 && cl->ps.persistant[PERS_KILLED] == 0 ) ? 1 : 0;
 
-		if(g_gametype.integer == GT_LMS) {
+		if (advanced) {
 			Com_sprintf (entry, sizeof(entry),
-				" %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i", level.sortedClients[i],
-				cl->ps.persistant[PERS_SCORE], ping, (level.time - cl->pers.enterTime)/60000,
-				scoreFlags, g_entities[level.sortedClients[i]].s.powerups, accuracy, 
-				cl->ps.persistant[PERS_IMPRESSIVE_COUNT],
-				cl->ps.persistant[PERS_EXCELLENT_COUNT],
-				cl->ps.persistant[PERS_GAUNTLET_FRAG_COUNT], 
-				cl->ps.persistant[PERS_DEFEND_COUNT], 
-				cl->ps.persistant[PERS_ASSIST_COUNT], 
-				perfect,
-				cl->ps.persistant[PERS_CAPTURES],
-				cl->pers.livesLeft + (cl->isEliminated?0:1));
-		}
-		else {
+					" %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i", level.sortedClients[i],
+					cl->ps.persistant[PERS_SCORE], ping, (level.time - cl->pers.enterTime)/60000,
+					scoreFlags, g_entities[level.sortedClients[i]].s.powerups, accuracy, 
+					cl->ps.persistant[PERS_IMPRESSIVE_COUNT],
+					cl->ps.persistant[PERS_EXCELLENT_COUNT],
+					cl->ps.persistant[PERS_GAUNTLET_FRAG_COUNT], 
+					cl->ps.persistant[PERS_DEFEND_COUNT], 
+					cl->ps.persistant[PERS_ASSIST_COUNT], 
+					perfect,
+					cl->ps.persistant[PERS_CAPTURES],
+					g_gametype.integer == GT_LMS ? cl->pers.livesLeft + (cl->isEliminated?0:1): cl->isEliminated,
+					cl->kills,
+					cl->deaths,
+					cl->dmgGiven,
+					cl->dmgTaken);
+		} else {
 			Com_sprintf (entry, sizeof(entry),
-				" %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i", level.sortedClients[i],
-				cl->ps.persistant[PERS_SCORE], ping, (level.time - cl->pers.enterTime)/60000,
-				scoreFlags, g_entities[level.sortedClients[i]].s.powerups, accuracy, 
-				cl->ps.persistant[PERS_IMPRESSIVE_COUNT],
-				cl->ps.persistant[PERS_EXCELLENT_COUNT],
-				cl->ps.persistant[PERS_GAUNTLET_FRAG_COUNT], 
-				cl->ps.persistant[PERS_DEFEND_COUNT], 
-				cl->ps.persistant[PERS_ASSIST_COUNT], 
-				perfect,
-				cl->ps.persistant[PERS_CAPTURES],
-				cl->isEliminated);
+					" %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i", level.sortedClients[i],
+					cl->ps.persistant[PERS_SCORE], ping, (level.time - cl->pers.enterTime)/60000,
+					scoreFlags, g_entities[level.sortedClients[i]].s.powerups, accuracy, 
+					cl->ps.persistant[PERS_IMPRESSIVE_COUNT],
+					cl->ps.persistant[PERS_EXCELLENT_COUNT],
+					cl->ps.persistant[PERS_GAUNTLET_FRAG_COUNT], 
+					cl->ps.persistant[PERS_DEFEND_COUNT], 
+					cl->ps.persistant[PERS_ASSIST_COUNT], 
+					perfect,
+					cl->ps.persistant[PERS_CAPTURES],
+					g_gametype.integer == GT_LMS ? cl->pers.livesLeft + (cl->isEliminated?0:1): cl->isEliminated);
 		}
+
 		j = strlen(entry);
 		if (stringlength + j > 1024)
 			break;
@@ -147,7 +107,7 @@ void DeathmatchScoreboardMessage( gentity_t *ent ) {
 		stringlength += j;
 	}
 
-	trap_SendServerCommand( ent-g_entities, va("scores %i %i %i %i%s", i, 
+	trap_SendServerCommand( ent-g_entities, va("%s %i %i %i %i%s", advanced ? "ratscores" : "scores", i, 
 		level.teamScores[TEAM_RED], level.teamScores[TEAM_BLUE], level.roundStartTime,
 		string ) );
 }
@@ -336,25 +296,13 @@ void SendCustomVoteCommands(int clientNum) {
 
 /*
 ==================
-Cmd_Damages_f
-
-Request current damages information
-==================
-*/
-void Cmd_Damages_f( gentity_t *ent ) {
-	DamageMessage( ent );
-}
-
-
-/*
-==================
 Cmd_Score_f
 
 Request current scoreboard information
 ==================
 */
 void Cmd_Score_f( gentity_t *ent ) {
-	DeathmatchScoreboardMessage( ent );
+	DeathmatchScoreboardMessage( ent, trap_Argc() == 2 );
 }
 
 
@@ -2509,7 +2457,6 @@ commands_t cmds[ ] =
 
   { "score", CMD_INTERMISSION, Cmd_Score_f },
   { "acc", CMD_INTERMISSION, Cmd_Acc_f},
-  { "damages", CMD_INTERMISSION, Cmd_Damages_f },
 
   // cheats
   { "give", CMD_CHEAT|CMD_LIVING, Cmd_Give_f },

@@ -852,7 +852,7 @@ void DoubleDominationScoreTimeMessage( gentity_t *ent );
 void YourTeamMessage( gentity_t *ent);
 void AttackingTeamMessage( gentity_t *ent );
 void ObeliskHealthMessage( void );
-void DeathmatchScoreboardMessage (gentity_t *client);
+void DeathmatchScoreboardMessage (gentity_t *client, qboolean advanced);
 void EliminationMessage (gentity_t *client);
 void RespawnTimeMessage(gentity_t *ent, int time);
 void DominationPointNamesMessage (gentity_t *client);
@@ -1180,6 +1180,7 @@ extern  vmCvar_t        g_unlagFlight;
 
 extern  vmCvar_t	g_tournamentMinSpawnDistance;
 
+extern  vmCvar_t        g_usesRatVM;
 extern  vmCvar_t        sv_allowDuplicateGuid;
 
 // weapon config

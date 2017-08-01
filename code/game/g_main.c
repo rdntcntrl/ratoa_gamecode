@@ -186,6 +186,7 @@ vmCvar_t        g_unlagFlight;
 
 vmCvar_t	g_tournamentMinSpawnDistance;
 
+vmCvar_t        g_usesRatVM;
 vmCvar_t        sv_allowDuplicateGuid;
 
 // weapon config
@@ -371,6 +372,7 @@ static cvarTable_t		gameCvarTable[] = {
         { &g_teleMissiles, "g_teleMissiles", "0", CVAR_ARCHIVE, 0, qtrue },
         { &g_pushGrenades, "g_pushGrenades", "0", CVAR_ARCHIVE, 0, qtrue },
 
+        { &g_usesRatVM, "g_usesRatVM", "0", 0, 0, qfalse },
         { &sv_allowDuplicateGuid, "sv_allowDuplicateGuid", "0", 0, 0, qfalse },
 
 // weapon config
@@ -1522,7 +1524,7 @@ void SendScoreboardMessageToAllClients( void ) {
 
 	for ( i = 0 ; i < level.maxclients ; i++ ) {
 		if ( level.clients[ i ].pers.connected == CON_CONNECTED ) {
-			DeathmatchScoreboardMessage( g_entities + i );
+			DeathmatchScoreboardMessage( g_entities + i, g_usesRatVM.integer > 0);
 			EliminationMessage( g_entities + i );
 		}
 	}
