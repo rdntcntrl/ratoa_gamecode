@@ -29,30 +29,57 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 int G_MissilePrestep(gclient_t *client) {
 	int launchlag = G_LaunchLag(client);
+	int offset = 0;
+	if (g_unlagCorrectFrameOffset.integer) {
+		offset = level.time - (level.previousTime + client->frameOffset);
+		//Com_Printf("MissilePrestep: offset = %i\n", offset);
+		if (offset < 0) {
+			offset = 0;
+		}
+	}
 	switch (g_unlagMode.integer) {
 		case 1:
 			// add default MISSILE_PRESTEP
 			// this is simulating local OA, but MISSILE_PRESTEP 50 was added by
 			// unlagged mod, so it might already be too large
-			return launchlag + 50;
+			return offset + launchlag + 50;
 			break;
 		case 2:
-			return launchlag + sv_fps.integer/1000;
+			return offset + launchlag + sv_fps.integer/1000;
 			break;
 		case 3:
-			return launchlag;
+			return offset + launchlag;
+			break;
+		case 4:
+			return offset + 50;
 			break;
 	}
 	return 0;
 }
 
 int G_LaunchLag(gclient_t *client) {
+	int ping;
 	switch (g_unlagLaunchLagMode.integer) {
 		case 1:
 			return MISSILE_LAUNCHLAG(client->ps.ping);
 			break;
 		case 2:
 			return MISSILE_LAUNCHLAG(client->pers.realPing);
+			break;
+		case 3:
+			ping = level.previousTime + client->frameOffset - (client->attackTime + client->pers.cmdTimeNudge);
+			//Com_Printf("Launchlag: ping = %i\n", ping);
+			if (ping < 0) {
+				ping = 0;
+			}
+			return MISSILE_LAUNCHLAG(ping);
+			break;
+		case 4:
+			ping = level.previousTime + client->frameOffset - client->attackTime;
+			if (ping < 0) {
+				ping = 0;
+			}
+			return MISSILE_LAUNCHLAG(ping);
 			break;
 	}
 	return 0;

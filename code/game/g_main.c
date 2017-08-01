@@ -178,6 +178,7 @@ vmCvar_t        g_ambientSound;
 vmCvar_t        g_rocketSpeed; 
 vmCvar_t        g_unlagMode; 
 vmCvar_t        g_unlagLaunchLagMode; 
+vmCvar_t        g_unlagCorrectFrameOffset; 
 vmCvar_t        g_unlagPrestep; 
 vmCvar_t        g_unlagFlight; 
 
@@ -356,6 +357,7 @@ static cvarTable_t		gameCvarTable[] = {
         { &g_rocketSpeed, "g_rocketSpeed", "1000", CVAR_ARCHIVE, 0, qtrue },
         { &g_unlagMode, "g_unlagMode", "1", CVAR_ARCHIVE, 0, qfalse },
         { &g_unlagLaunchLagMode, "g_unlagLaunchLagMode", "1", CVAR_ARCHIVE, 0, qfalse },
+        { &g_unlagCorrectFrameOffset, "g_unlagCorrectFrameOffset", "1", CVAR_ARCHIVE, 0, qfalse },
         { &g_unlagPrestep, "g_unlagPrestep", "1", CVAR_ARCHIVE, 0, qfalse },
         { &g_unlagFlight, "g_unlagFlight", "1", CVAR_ARCHIVE, 0, qfalse },
 
