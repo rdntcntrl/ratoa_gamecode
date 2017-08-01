@@ -528,7 +528,9 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 		killer = attacker->s.number;
 		if ( attacker->client ) {
 			killerName = attacker->client->pers.netname;
-			attacker->client->sess.kills += 1;
+			if (self != attacker) {
+				attacker->client->sess.kills += 1;
+			}
 		} else {
 			killerName = "<non-client>";
 		}
@@ -1329,15 +1331,20 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		if ( targ->client ) {
 			targ->client->ps.stats[STAT_HEALTH] = targ->health;
 		}
+
+		// stats
 		if (targ->health < 0) {
 			dmgTaken += targ->health;
 		}
 		if (targ->client) {
 			targ->client->sess.dmgTaken += dmgTaken;
 		}
-		if (attacker && attacker->client) {
-			attacker->client->sess.dmgGiven += dmgTaken;
+		if (targ != attacker) {
+			if (attacker && attacker->client) {
+				attacker->client->sess.dmgGiven += dmgTaken;
+			}
 		}
+		///
 			
 		if ( targ->health <= 0 ) {
 			if ( client )
