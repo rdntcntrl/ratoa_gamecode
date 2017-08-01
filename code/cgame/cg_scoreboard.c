@@ -440,9 +440,9 @@ qboolean CG_DrawRatScoreboard(void) {
 		if (cg.teamScores[0] == cg.teamScores[1]) {
 			s = va("Teams are tied at %i", cg.teamScores[0]);
 		} else if (cg.teamScores[0] >= cg.teamScores[1]) {
-			s = va("Red leads %i to %i", cg.teamScores[0], cg.teamScores[1]);
+			s = va("^1Red^0 leads ^1%i^7 to ^4%i", cg.teamScores[0], cg.teamScores[1]);
 		} else {
-			s = va("Blue leads %i to %i", cg.teamScores[1], cg.teamScores[0]);
+			s = va("^4Blue^7 leads ^4%i^7 to ^1%i", cg.teamScores[1], cg.teamScores[0]);
 		}
 
 		w = CG_DrawStrlen(s) * SCORECHAR_WIDTH;
