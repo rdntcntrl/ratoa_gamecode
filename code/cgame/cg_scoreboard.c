@@ -278,7 +278,7 @@ static void CG_RatDrawClientScore(int y, score_t *score, float *color, float fad
 
 	tcolor[0] = tcolor[1] = tcolor[2] = 1.0;
 	if (ci->team == TEAM_SPECTATOR && score->ping != -1) {
-		Com_sprintf(string, sizeof (string), "SPECT");
+		Com_sprintf(string, sizeof (string), " SPECT");
 		CG_DrawSmallScoreStringColor(RATSB_SCORE_X, ysmall, string, tcolor);
 	} else {
 		Com_sprintf(string, sizeof (string), "%4i", score->score);
@@ -440,7 +440,7 @@ qboolean CG_DrawRatScoreboard(void) {
 		if (cg.teamScores[0] == cg.teamScores[1]) {
 			s = va("Teams are tied at %i", cg.teamScores[0]);
 		} else if (cg.teamScores[0] >= cg.teamScores[1]) {
-			s = va("^1Red^0 leads ^1%i^7 to ^4%i", cg.teamScores[0], cg.teamScores[1]);
+			s = va("^1Red^7 leads ^1%i^7 to ^4%i", cg.teamScores[0], cg.teamScores[1]);
 		} else {
 			s = va("^4Blue^7 leads ^4%i^7 to ^1%i", cg.teamScores[1], cg.teamScores[0]);
 		}
