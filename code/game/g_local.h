@@ -1188,6 +1188,12 @@ extern vmCvar_t	       g_timeinAllowed;
 extern vmCvar_t	       g_timeoutTime;
 extern vmCvar_t	       g_timeoutOvertimeStep;
 
+extern vmCvar_t        g_shaderremap;
+extern vmCvar_t        g_shaderremap_flag;
+extern vmCvar_t        g_shaderremap_flagreset;
+extern vmCvar_t        g_shaderremap_banner;
+extern vmCvar_t        g_shaderremap_bannerreset;
+
 //KK-OAX Killing Sprees
 extern  vmCvar_t    g_sprees; //Used for specifiying the config file
 extern  vmCvar_t    g_altExcellent; //Turns on Multikills instead of Excellent

@@ -200,6 +200,11 @@ vmCvar_t        g_timeinAllowed;
 vmCvar_t        g_timeoutTime;
 vmCvar_t        g_timeoutOvertimeStep;
 
+vmCvar_t        g_shaderremap;
+vmCvar_t        g_shaderremap_flag;
+vmCvar_t        g_shaderremap_flagreset;
+vmCvar_t        g_shaderremap_banner;
+vmCvar_t        g_shaderremap_bannerreset;
 
 //KK-OAX
 vmCvar_t        g_sprees;
@@ -370,6 +375,13 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_timeinAllowed, 		"g_timeinAllowed", "1", 0, 0, qtrue },
 	{ &g_timeoutTime, 		"g_timeoutTime", "30", 0, 0, qtrue },
 	{ &g_timeoutOvertimeStep,	"g_timeoutOvertimeStep", "30", 0, 0, qtrue },
+
+
+	{ &g_shaderremap,		"g_shaderremap", "0", 0, 0, qfalse },
+	{ &g_shaderremap_flag,          "g_shaderremap_flag", "1", 0, 0, qfalse },
+	{ &g_shaderremap_flagreset,     "g_shaderremap_flagreset", "1", 0, 0, qfalse },
+	{ &g_shaderremap_banner,        "g_shaderremap_banner", "1", 0, 0, qfalse },
+	{ &g_shaderremap_bannerreset,   "g_shaderremap_bannerreset", "1", 0, 0, qfalse },
 
 	{ &g_rankings, "g_rankings", "0", 0, 0, qfalse},
         { &g_music, "g_music", "", 0, 0, qfalse},
@@ -596,6 +608,8 @@ void G_FindTeams( void ) {
 
 void G_RemapTeamShaders( void ) {
 	char string[1024];
+	char mapname[MAX_QPATH];
+
 	float f = level.time * 0.001;
 	ClearRemaps();
 #ifdef MISSIONPACK
@@ -606,24 +620,56 @@ void G_RemapTeamShaders( void ) {
 	AddRemap("textures/ctf2/blueteam01", string, f); 
 	AddRemap("textures/ctf2/blueteam02", string, f); 
 #endif
-	// RATOA
-	if( g_redclan.string[0] ) {
-		Com_sprintf( string, sizeof(string), "team_icon/ratoa/%s_redflag", g_redclan.string );
-		AddRemap("models/flags/r_flag", string, f); 
-		Com_sprintf( string, sizeof(string), "team_icon/ratoa/%s_red_banner", g_redclan.string );
-		AddRemap("textures/clown/red_banner", string, f); 
-	}  else {
-		AddRemap("models/flags/r_flag", "models/flags/r_flag", f); 
-		AddRemap("textures/clown/red_banner", "textures/clown/red_banner", f); 
-	}
-	if( g_blueclan.string[0] ) {
-		Com_sprintf( string, sizeof(string), "team_icon/ratoa/%s_blueflag", g_blueclan.string );
-		AddRemap("models/flags/b_flag", string, f); 
-		Com_sprintf( string, sizeof(string), "team_icon/ratoa/%s_blue_banner", g_blueclan.string );
-		AddRemap("textures/clown/blue_banner", string, f); 
-	}  else {
-		AddRemap("models/flags/b_flag", "models/flags/b_flag", f); 
-		AddRemap("textures/clown/blue_banner", "textures/clown/blue_banner", f); 
+
+	if (g_shaderremap.integer) {
+		qboolean has_banner = qfalse;
+		trap_Cvar_VariableStringBuffer( "mapname", mapname, sizeof( mapname ) );
+
+		if (Q_stricmp(mapname, "oasago2") == 0
+				|| Q_stricmp(mapname, "oasago2f3") == 0
+				|| Q_stricmp(mapname, "oasago2_081") == 0
+				|| Q_stricmp(mapname, "ps37ctf") == 0
+				|| Q_stricmp(mapname, "ps37ctf2") == 0
+				|| Q_stricmp(mapname, "ps37ctf-mmp") == 0
+				|| Q_stricmp(mapname, "oa_ctf2") == 0
+				|| Q_stricmp(mapname, "oa_ctf2old") == 0) {
+			has_banner = qtrue;
+		}
+		// RATOA
+		if( g_redclan.string[0] ) {
+			if (g_shaderremap_flag.integer) {
+				Com_sprintf( string, sizeof(string), "team_icon/ratoa/%s_redflag", g_redclan.string );
+				AddRemap("models/flags/r_flag", string, f); 
+			}
+			if (g_shaderremap_banner.integer && has_banner) {
+				Com_sprintf( string, sizeof(string), "team_icon/ratoa/%s_red_banner", g_redclan.string );
+				AddRemap("textures/clown/red_banner", string, f); 
+			}
+		}  else {
+			if (g_shaderremap_flagreset.integer) {
+				AddRemap("models/flags/r_flag", "models/flags/r_flag", f); 
+			}
+			if (g_shaderremap_bannerreset.integer && has_banner) {
+				AddRemap("textures/clown/red_banner", "textures/clown/red_banner", f); 
+			}
+		}
+		if( g_blueclan.string[0] ) {
+			if (g_shaderremap_flag.integer) {
+				Com_sprintf( string, sizeof(string), "team_icon/ratoa/%s_blueflag", g_blueclan.string );
+				AddRemap("models/flags/b_flag", string, f); 
+			}
+			if (g_shaderremap_banner.integer && has_banner) {
+				Com_sprintf( string, sizeof(string), "team_icon/ratoa/%s_blue_banner", g_blueclan.string );
+				AddRemap("textures/clown/blue_banner", string, f); 
+			}
+		}  else {
+			if (g_shaderremap_flagreset.integer) {
+				AddRemap("models/flags/b_flag", "models/flags/b_flag", f); 
+			}
+			if (g_shaderremap_bannerreset.integer && has_banner) {
+				AddRemap("textures/clown/blue_banner", "textures/clown/blue_banner", f); 
+			}
+		}
 	}
 	trap_SetConfigstring(CS_SHADERSTATE, BuildShaderStateConfig());
 }
