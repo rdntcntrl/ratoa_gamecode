@@ -106,7 +106,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define RATSB_CNUM_WIDTH       (2 * SCORESMALLCHAR_WIDTH)
 #define RATSB_NAME_WIDTH       (25 * SCORECHAR_WIDTH)
 #define RATSB_KD_WIDTH         (7 * SCORETINYCHAR_WIDTH)
-#define RATSB_DT_WIDTH         (11 * SCORETINYCHAR_WIDTH)
+#define RATSB_DT_WIDTH         (9 * SCORETINYCHAR_WIDTH)
 #define RATSB_ACCURACY_WIDTH   (4 * SCORESMALLCHAR_WIDTH)
 #define RATSB_PING_WIDTH       (3 * SCORESMALLCHAR_WIDTH)
 
@@ -530,7 +530,7 @@ qboolean CG_DrawRatScoreboard(void) {
 	CG_DrawTinyScoreString(RATSB_CNUM_CENTER - SCORETINYCHAR_WIDTH, y, "CN", fade);
 	CG_DrawTinyScoreString(RATSB_NAME_X, y, "Name", fade);
 	CG_DrawTinyScoreString(RATSB_KD_CENTER - 1.5 * SCORETINYCHAR_WIDTH, y, "K/D", fade);
-	CG_DrawTinyScoreString(RATSB_DT_CENTER - 1.5 * SCORETINYCHAR_WIDTH, y, "D/T", fade);
+	CG_DrawTinyScoreString(RATSB_DT_CENTER - 2.5 * SCORETINYCHAR_WIDTH, y, "DG/DT", fade);
 	//CG_DrawTinyScoreString(RATSB_ACCURACY_CENTER - 1.5 * SCORETINYCHAR_WIDTH, y, "Acc", fade);
 	CG_DrawTinyScoreString(RATSB_PING_CENTER - 2 * SCORETINYCHAR_WIDTH, y, "Ping", fade);
 
