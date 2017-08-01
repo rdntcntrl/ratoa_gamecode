@@ -1885,6 +1885,7 @@ void ClientBegin( int clientNum ) {
 		}
 	}
 	trap_SendServerCommand(ent - g_entities, "cp \"\"");
+
         
 	G_LogPrintf( "ClientBegin: %i\n", clientNum );
 
@@ -1905,6 +1906,15 @@ void ClientBegin( int clientNum ) {
 
 	if (level.timeout)
 		G_TimeoutReminder(ent);
+
+	if (g_usesRatVM.integer) {
+		if (level.timeoutOvertime > 0) {
+			trap_SendServerCommand(ent - g_entities, va("overtime %i", level.timeoutOvertime));
+		}
+		if (level.timeout) {
+			trap_SendServerCommand(ent - g_entities, va("timeout %i", level.timeoutEnd));
+		}
+	}
 
 }
 

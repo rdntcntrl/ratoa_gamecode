@@ -1223,6 +1223,10 @@ void G_Timeout(gentity_t *caller) {
 
 	G_TimeoutModTimes(level.timeoutAdd);
 
+	if (g_usesRatVM.integer) {
+		trap_SendServerCommand(-1, va("timeout %i", level.timeoutEnd));
+	}
+
 
 	trap_SendServerCommand(-1,va("cp \"%s" S_COLOR_CYAN " called a %is timeout\nGame continues at %i:%02i\"", 
 				caller->client->pers.netname,
@@ -1265,6 +1269,7 @@ void G_TimeinCommand(gentity_t *caller) {
 		return;
 	}
 
+
 	trap_SendServerCommand(-1,va("cp \"%s" S_COLOR_CYAN " unpaused.\nGame continues in 6s\"", 
 				caller->client->pers.netname));
 	trap_SendServerCommand(-1,va("print \"%s" S_COLOR_CYAN " unpaused.\n\"", 
@@ -1276,6 +1281,10 @@ void G_TimeinCommand(gentity_t *caller) {
 	G_TimeoutModTimes(delta);
 	level.timeoutAdd += delta;
 	level.timeoutEnd += delta;
+
+	if (g_usesRatVM.integer) {
+		trap_SendServerCommand(-1, va("timeout %i", level.timeoutEnd));
+	}
 	// leave overtime 
 	//level.timeoutOvertime += delta;
 	//level.timeoutOvertime = timeout_overtimestep(level.timeoutOvertime);
@@ -1300,6 +1309,9 @@ void G_TimeinWarning(int levelTime) {
 	if (remaining == 5000) {
 		level.timeoutTotalPausedTime += level.timeoutAdd;
 		level.timeoutOvertime = timeout_overtimestep(level.timeoutTotalPausedTime);
+		if (g_usesRatVM.integer) {
+			trap_SendServerCommand(-1, va("overtime %i", level.timeoutOvertime));
+		}
 		trap_SendServerCommand(-1,va("print \"" S_COLOR_CYAN "Game continues in 5s! Total overtime added: %is\n\"", 
 					level.timeoutOvertime/1000));
 	}
@@ -1319,8 +1331,10 @@ void G_Timein( void ) {
 	if (g_timelimit.integer > 0) {
 		int newtimelimit = g_timelimit.integer * 60*1000 + level.timeoutOvertime;
 		newtimelimit /= 1000;
-		trap_SendServerCommand(-1,va("print \"" S_COLOR_CYAN "Game ends at %i:%02i\n\"", 
-					newtimelimit/60, newtimelimit - (newtimelimit/60)*60 ));
+		if (!g_usesRatVM.integer) {
+			trap_SendServerCommand(-1,va("print \"" S_COLOR_CYAN "Game ends at %i:%02i\n\"", 
+						newtimelimit/60, newtimelimit - (newtimelimit/60)*60 ));
+		}
 
 	}
 }
