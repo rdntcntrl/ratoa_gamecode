@@ -88,9 +88,14 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define RATSB_SCORE_X          (RATSB_LOSSES_X    + RATSB_LOSSES_WIDTH    + 0 * SCORESMALLCHAR_WIDTH)
 #define RATSB_TIME_X           (RATSB_SCORE_X     + RATSB_SCORE_WIDTH     + 1 * SCORESMALLCHAR_WIDTH)
 #define RATSB_CNUM_X           (RATSB_TIME_X      + RATSB_TIME_WIDTH      + 1 * SCORESMALLCHAR_WIDTH)
-#define RATSB_NAME_X           (RATSB_CNUM_X      + RATSB_CNUM_WIDTH      + 2 * SCORESMALLCHAR_WIDTH)
-#define RATSB_ACCURACY_X       (RATSB_CNUM_X      + RATSB_NAME_WIDTH      + 4 * SCORESMALLCHAR_WIDTH)
-#define RATSB_PING_X           (RATSB_ACCURACY_X  + RATSB_ACCURACY_WIDTH  + 2 * SCORESMALLCHAR_WIDTH)
+#define RATSB_NAME_X           (RATSB_CNUM_X      + RATSB_CNUM_WIDTH      + 1 * SCORESMALLCHAR_WIDTH)
+#define RATSB_KD_X	       (RATSB_NAME_X      + RATSB_NAME_WIDTH      + 3 * SCORESMALLCHAR_WIDTH)
+#define RATSB_DT_X	       (RATSB_KD_X        + RATSB_KD_WIDTH	  + 1 * SCORESMALLCHAR_WIDTH)
+
+#define RATSB_PING_X           (RATSB_DT_X  + RATSB_DT_WIDTH  + 1 * SCORESMALLCHAR_WIDTH)
+
+//#define RATSB_ACCURACY_X       (RATSB_DT_X        + RATSB_DT_WIDTH        + 1 * SCORESMALLCHAR_WIDTH)
+//#define RATSB_PING_X           (RATSB_ACCURACY_X  + RATSB_ACCURACY_WIDTH  + 1 * SCORESMALLCHAR_WIDTH)
 
 #define RATSB_WINS_WIDTH       (2 * SCORESMALLCHAR_WIDTH)
 #define RATSB_WL_WIDTH         (1 * SCORESMALLCHAR_WIDTH)
@@ -99,6 +104,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define RATSB_TIME_WIDTH       (3 * SCORESMALLCHAR_WIDTH)
 #define RATSB_CNUM_WIDTH       (2 * SCORESMALLCHAR_WIDTH)
 #define RATSB_NAME_WIDTH       (25 * SCORECHAR_WIDTH)
+#define RATSB_KD_WIDTH         (7 * SCORETINYCHAR_WIDTH)
+#define RATSB_DT_WIDTH         (11 * SCORETINYCHAR_WIDTH)
 #define RATSB_ACCURACY_WIDTH   (4 * SCORESMALLCHAR_WIDTH)
 #define RATSB_PING_WIDTH       (3 * SCORESMALLCHAR_WIDTH)
 
@@ -108,6 +115,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define RATSB_SCORE_CENTER     (RATSB_SCORE_X + RATSB_SCORE_WIDTH/2)
 #define RATSB_TIME_CENTER      (RATSB_TIME_X + RATSB_TIME_WIDTH/2)
 #define RATSB_CNUM_CENTER      (RATSB_CNUM_X + RATSB_CNUM_WIDTH/2)
+#define RATSB_KD_CENTER        (RATSB_KD_X + RATSB_KD_WIDTH/2)
+#define RATSB_DT_CENTER        (RATSB_DT_X + RATSB_DT_WIDTH/2)
 #define RATSB_ACCURACY_CENTER  (RATSB_ACCURACY_X + RATSB_ACCURACY_WIDTH/2)
 #define RATSB_PING_CENTER      (RATSB_PING_X + RATSB_PING_WIDTH/2)
 
@@ -138,10 +147,20 @@ static void CG_RatDrawClientScore(int y, score_t *score, float *color, float fad
 	int iconx, headx;
 	float tcolor[4] = { 1.0, 1.0, 1.0, 1.0 };
 	int ysmall = y + (SCORECHAR_HEIGHT - SCORESMALLCHAR_HEIGHT);
+	int ytiny = y + (SCORECHAR_HEIGHT - SCORETINYCHAR_HEIGHT);
+	int i;
+	damageScore_t *damage = NULL;
 
 	if (score->client < 0 || score->client >= cgs.maxclients) {
 		Com_Printf("Bad score->client: %i\n", score->client);
 		return;
+	}
+
+	for (i = 0; i < cg.numDamageScores; i++) {
+		if (cg.damageScores[i].client == score->client) {
+			damage = &cg.damageScores[i];
+			break;
+		}
 	}
 
 	ci = &cgs.clientinfo[score->client];
@@ -178,7 +197,6 @@ static void CG_RatDrawClientScore(int y, score_t *score, float *color, float fad
 				}
 			}
 		} else if (ci->handicap < 100) {
-			int ytiny = y + (SCORECHAR_HEIGHT - SCORETINYCHAR_HEIGHT);
 			Com_sprintf(string, sizeof ( string), "%i", ci->handicap);
 			//CG_DrawSmallScoreStringColor(iconx, ysmall, string, color);
 			tcolor[0] = tcolor[1] = tcolor[2] = 0.75;
@@ -301,9 +319,20 @@ static void CG_RatDrawClientScore(int y, score_t *score, float *color, float fad
 	Com_sprintf(string, sizeof (string), "%s", ci->name);
 	CG_DrawScoreString(RATSB_NAME_X, y, string, fade);
 
-	tcolor[0] = tcolor[1] = tcolor[2] = 0.75;
-	Com_sprintf(string, sizeof (string), "%3i%%", score->accuracy);
-	CG_DrawSmallScoreStringColor(RATSB_ACCURACY_X, ysmall, string, tcolor);
+	if (damage) {
+		tcolor[0] = tcolor[1] = tcolor[2] = 0.75;
+		Com_sprintf(string, sizeof (string), "%3i/%-3i", damage->kills, damage->deaths);
+		CG_DrawTinyScoreStringColor(RATSB_KD_X, ytiny, string, tcolor);
+
+		tcolor[0] = tcolor[1] = tcolor[2] = 0.75;
+		Com_sprintf(string, sizeof (string), "%2.1f/%-2.1f",
+				(float)damage->dmgGiven/1000.0, (float)damage->dmgTaken/1000.0);
+		CG_DrawTinyScoreStringColor(RATSB_DT_X, ytiny, string, tcolor);
+	}
+
+	//tcolor[0] = tcolor[1] = tcolor[2] = 0.75;
+	//Com_sprintf(string, sizeof (string), "%3i%%", score->accuracy);
+	//CG_DrawSmallScoreStringColor(RATSB_ACCURACY_X, ysmall, string, tcolor);
 
 	tcolor[0] = tcolor[1] = tcolor[2] = 0.75;
 	Com_sprintf(string, sizeof (string), "%3i", score->ping);
@@ -422,6 +451,7 @@ qboolean CG_DrawRatScoreboard(void) {
 		// so request new ones
 		cg.scoresRequestTime = cg.time;
 		trap_SendClientCommand( "score" );
+		trap_SendClientCommand( "damages" );
 	}
 
 
@@ -472,12 +502,10 @@ qboolean CG_DrawRatScoreboard(void) {
 	CG_DrawTinyScoreString(RATSB_TIME_CENTER - 2 * SCORETINYCHAR_WIDTH, y, "Time", fade);
 	CG_DrawTinyScoreString(RATSB_CNUM_CENTER - SCORETINYCHAR_WIDTH, y, "CN", fade);
 	CG_DrawTinyScoreString(RATSB_NAME_X, y, "Name", fade);
-	CG_DrawTinyScoreString(RATSB_ACCURACY_CENTER - 1.5 * SCORETINYCHAR_WIDTH, y, "Acc", fade);
+	CG_DrawTinyScoreString(RATSB_KD_CENTER - 1.5 * SCORETINYCHAR_WIDTH, y, "K/D", fade);
+	CG_DrawTinyScoreString(RATSB_DT_CENTER - 1.5 * SCORETINYCHAR_WIDTH, y, "D/T", fade);
+	//CG_DrawTinyScoreString(RATSB_ACCURACY_CENTER - 1.5 * SCORETINYCHAR_WIDTH, y, "Acc", fade);
 	CG_DrawTinyScoreString(RATSB_PING_CENTER - 2 * SCORETINYCHAR_WIDTH, y, "Ping", fade);
-	//CG_DrawPic(RATSB_SCORE_X + (RATSB_RATING_WIDTH / 2), y, 64, 32, cgs.media.scoreboardScore);
-	//CG_DrawPic(RATSB_PING_X - (RATSB_RATING_WIDTH / 2), y, 64, 32, cgs.media.scoreboardPing);
-	//CG_DrawPic(RATSB_TIME_X - (RATSB_RATING_WIDTH / 2), y, 64, 32, cgs.media.scoreboardTime);
-	//CG_DrawPic(RATSB_NAME_X - (RATSB_RATING_WIDTH / 2), y, 64, 32, cgs.media.scoreboardName);
 
 	y = RATSB_TOP;
 

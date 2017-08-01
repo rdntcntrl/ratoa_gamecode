@@ -60,6 +60,41 @@ static int CG_ValidOrder(const char *p) {
 
 /*
 =================
+CG_ParseDamages
+
+=================
+*/
+static void CG_ParseDamages( void ) {
+	int		i, powerups;
+
+	cg.numDamageScores = atoi( CG_Argv( 1 ) );
+	if ( cg.numDamageScores > MAX_CLIENTS ) {
+		cg.numDamageScores = MAX_CLIENTS;
+	}
+
+	memset( cg.damageScores, 0, sizeof( cg.damageScores ) );
+
+#define NUM_DMG_DATA 5
+#define FIRST_DMG_DATA 1
+
+	for ( i = 0 ; i < cg.numDamageScores ; i++ ) {
+		//
+		cg.damageScores[i].client = atoi( CG_Argv( i * NUM_DMG_DATA + FIRST_DMG_DATA + 1 ) );
+		cg.damageScores[i].kills = atoi( CG_Argv( i * NUM_DMG_DATA + FIRST_DMG_DATA + 2 ) );
+		cg.damageScores[i].deaths = atoi( CG_Argv( i * NUM_DMG_DATA + FIRST_DMG_DATA + 3 ) );
+		cg.damageScores[i].dmgGiven = atoi( CG_Argv( i * NUM_DMG_DATA + FIRST_DMG_DATA + 4 ) );
+		cg.damageScores[i].dmgTaken = atoi( CG_Argv( i * NUM_DMG_DATA + FIRST_DMG_DATA + 5 ) );
+
+		if ( cg.damageScores[i].client < 0 || cg.damageScores[i].client >= MAX_CLIENTS ) {
+			cg.damageScores[i].client = 0;
+		}
+
+	}
+}
+
+
+/*
+=================
 CG_ParseScores
 
 =================
@@ -1266,6 +1301,11 @@ static void CG_ServerCommand( void ) {
 
 	if ( !strcmp( cmd, "scores" ) ) {
 		CG_ParseScores();
+		return;
+	}
+
+	if ( !strcmp( cmd, "damages" ) ) {
+		CG_ParseDamages();
 		return;
 	}
 
