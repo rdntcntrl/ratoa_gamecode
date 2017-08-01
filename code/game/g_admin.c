@@ -159,6 +159,11 @@ g_admin_cmd_t g_admin_cmds[ ] =
       "[^3name|slot#^7] [^3h|a|s^7]"
     },
 
+    {"record", G_admin_record, "R",
+      "record a server-side demo",
+      ""
+    },
+
     {"readconfig", G_admin_readconfig, "G",
       "reloads the admin config file and refreshes permission flags",
       ""
@@ -1084,6 +1089,39 @@ void G_admin_namelog_update( gclient_t *client, qboolean disconnect )
     sizeof( namelog->name[ 0 ] ) );
   namelog->slot = ( disconnect ) ? -1 : clientNum;
   g_admin_namelog[ i ] = namelog;
+}
+
+qboolean G_admin_record( gentity_t *ent, int skiparg ) {
+	char map[ MAX_QPATH ];
+	char svname[MAX_INFO_VALUE];
+	char redclan[MAX_NETNAME];
+	char blueclan[MAX_NETNAME];
+	char demoname[ 40 ];
+	qtime_t qt;
+
+	trap_RealTime(&qt);
+	trap_Cvar_VariableStringBuffer( "mapname", map, sizeof( map ) );
+	trap_Cvar_VariableStringBuffer( "sv_hostname", svname, sizeof( svname ) );
+
+	trap_Cvar_VariableStringBuffer( "g_redclan", redclan, sizeof( redclan ) );
+	trap_Cvar_VariableStringBuffer( "g_blueclan", blueclan, sizeof( blueclan ) );
+
+	Com_sprintf(demoname, sizeof(demoname), "%04d%02d%02d%02d%02d%02d_%s-%s",
+				1900 + qt.tm_year,
+				1 + qt.tm_mon,
+				qt.tm_mday,
+				qt.tm_hour,
+				qt.tm_min,
+				qt.tm_sec,
+				redclan,
+				blueclan
+		    );
+
+	trap_SendConsoleCommand( EXEC_APPEND, "demo_stop\n");
+	trap_SendConsoleCommand( EXEC_APPEND,
+		       	va( "demo_record \"%s\"\n",
+					demoname
+			       	 ) );
 }
 
 //KK-OAX Added Parsing Warnings
