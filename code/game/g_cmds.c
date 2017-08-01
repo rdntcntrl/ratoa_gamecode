@@ -1052,6 +1052,14 @@ void Cmd_Follow_f( gentity_t *ent ) {
 	ent->client->sess.spectatorClient = i;
 }
 
+int timeoutend_minutes() {
+	return (level.timeoutEnd-level.startTime)/(60*1000);
+}
+
+int timeoutend_seconds() {
+	return (level.timeoutEnd-level.startTime)/1000 - timeoutend_minutes()*60;
+}
+
 /*
 =================
 Cmd_FollowCycle_f
@@ -1134,6 +1142,70 @@ void Cmd_FollowCycle_f( gentity_t *ent ) {
 	// leave it where it was
 }
 
+void Cmd_Timeout_f( gentity_t *ent ) {
+	int i,j;
+	if ( !g_timeoutAllowed.integer ) {
+		trap_SendServerCommand(ent-g_entities,va("cp \"" S_COLOR_CYAN "timeout not allowed\"" ) );
+		return;
+	}
+	if ( level.warmupTime ) {
+		trap_SendServerCommand(ent-g_entities,va("cp \"" S_COLOR_CYAN "timeout not allowed during warmup\"" ) );
+		return;
+	}
+
+	if ( ent->client->sess.sessionTeam == TEAM_SPECTATOR) {
+		trap_SendServerCommand(ent-g_entities,va("cp \"" S_COLOR_CYAN "timeout not allowed as spectator\"" ) );
+		return;
+	}
+	if ( !(ent->client->timeouts < g_timeoutAllowed.integer) ) {
+		trap_SendServerCommand(ent-g_entities,va("cp \"" S_COLOR_CYAN "timeout limit reached\"" ) );
+		return;
+	}
+
+	if ( level.timeout ) {
+		trap_SendServerCommand( ent-g_entities, va("cp \"timeout until %i:%i\"",
+					timeoutend_minutes(), timeoutend_seconds() ));
+		trap_SendServerCommand( ent-g_entities, va("print \"timeout until %i:%i\"",
+					timeoutend_minutes(), timeoutend_seconds() ));
+	} else {
+		level.timeout = qtrue;
+		level.timeoutAdd = g_timeoutTime.integer * 1000;
+		level.timeoutEnd = level.time + level.timeoutAdd;
+		level.timeoutOvertime += level.timeoutAdd;
+
+		ent->client->timeouts++;
+
+		gentity_t *tent = &g_entities[0];
+		for (i=0 ; i < level.num_entities ; i++, tent++) {
+			if ( tent->inuse ) {
+				if ( tent->nextthink > 0 )
+					tent->nextthink += level.timeoutAdd;
+				if ( tent->eventTime > 0 )
+					tent->eventTime += level.timeoutAdd;
+			}
+		}
+
+		//TODO: POWERUPS
+
+		for ( i = 0; i < level.numConnectedClients ;i++) {
+			for ( j = 0; j < MAX_POWERUPS; j++ ) {
+				if ( level.clients[i].ps.powerups[j] > 0 )
+					level.clients->ps.powerups[j] += level.timeoutAdd;
+			}
+		}
+
+		trap_SendServerCommand(-1,va("cp \"%s" S_COLOR_CYAN " called a %is timeout\nGame continues at %i:%i\"", 
+					ent->client->pers.netname,
+				       	level.timeoutAdd/1000,
+					timeoutend_minutes(),
+					timeoutend_seconds()) );
+		trap_SendServerCommand(-1,va("print \"%s" S_COLOR_CYAN " called a %is timeout\nGame continues at %i:%i\"", 
+					ent->client->pers.netname,
+				       	level.timeoutAdd/1000,
+					timeoutend_minutes(),
+					timeoutend_seconds()) );
+	}
+}
 
 /*
 ==================
@@ -2268,6 +2340,8 @@ commands_t cmds[ ] =
   { "follow", CMD_NOTEAM, Cmd_Follow_f },
   { "follownext", CMD_NOTEAM, Cmd_FollowCycle_f },
   { "followprev", CMD_NOTEAM, Cmd_FollowCycle_f },
+
+  { "timeout", 0, Cmd_Timeout_f },
 
   { "teamvote", CMD_TEAM, Cmd_TeamVote_f },
   { "teamtask", CMD_TEAM, Cmd_TeamTask_f },

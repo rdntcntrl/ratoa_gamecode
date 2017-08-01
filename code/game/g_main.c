@@ -195,6 +195,9 @@ vmCvar_t        g_pm_swimScale;
 
 vmCvar_t        g_teamslocked;
 
+vmCvar_t        g_timeoutAllowed;
+vmCvar_t        g_timeoutTime;
+
 
 //KK-OAX
 vmCvar_t        g_sprees;
@@ -360,6 +363,9 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_pm_swimScale, 		"g_pm_swimScale", "0.50", 0, 0, qtrue },
 
 	{ &g_teamslocked, 		"g_teamslocked", "0", 0, 0, qfalse },
+
+	{ &g_timeoutAllowed, 		"g_timeoutAllowed", "0", 0, 0, qtrue },
+	{ &g_timeoutTime, 		"g_timeoutTime", "30", 0, 0, qtrue },
 
 	{ &g_rankings, "g_rankings", "0", 0, 0, qfalse},
         { &g_music, "g_music", "", 0, 0, qfalse},
@@ -2896,6 +2902,9 @@ int start, end;
 	G_UpdateCvars();
 
 	G_UpdateActionCamera();
+
+	if (level.timeout)
+		return;
 
         if( (g_gametype.integer==GT_ELIMINATION || g_gametype.integer==GT_CTF_ELIMINATION) && !(g_elimflags.integer & EF_NO_FREESPEC) && g_elimination_lockspectator.integer>1)
             trap_Cvar_Set("elimflags",va("%i",g_elimflags.integer|EF_NO_FREESPEC));

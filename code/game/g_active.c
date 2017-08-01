@@ -776,6 +776,9 @@ void ClientThink_real( gentity_t *ent ) {
 	int			msec;
 	usercmd_t	*ucmd;
 
+	if (level.timeout)
+		return;
+
 	client = ent->client;
 
 	// don't think if the client is not yet connected (and thus not yet spawned in)

@@ -437,6 +437,8 @@ struct gclient_s {
         qboolean        spawnprotected;
 
         int			accuracy[WP_NUM_WEAPONS][2];
+
+	int		timeouts; // number of timeouts called;
 };
 
 
@@ -523,6 +525,11 @@ typedef struct {
 	int			exitTime;
 	vec3_t		intermission_origin;	// also used for spectator spawns
 	vec3_t		intermission_angle;
+
+	qboolean	timeout;
+	int		timeoutAdd;
+	int		timeoutEnd;
+	int		timeoutOvertime;
 
 	qboolean	locationLinked;			// target_locations get linked
 	gentity_t	*locationHead;			// head of the location list
@@ -1167,6 +1174,9 @@ extern vmCvar_t        g_railgunDamage;
 extern vmCvar_t        g_lgDamage;
 
 extern vmCvar_t	       g_teamslocked;
+
+extern vmCvar_t	       g_timeoutAllowed;
+extern vmCvar_t	       g_timeoutTime;
 
 //KK-OAX Killing Sprees
 extern  vmCvar_t    g_sprees; //Used for specifiying the config file
