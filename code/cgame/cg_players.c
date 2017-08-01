@@ -2383,6 +2383,11 @@ void CG_Player( centity_t *cent ) {
 	memset( &torso, 0, sizeof(torso) );
 	memset( &head, 0, sizeof(head) );
 
+	torso.shaderRGBA[0] = 0xff;
+	torso.shaderRGBA[1] = 0xff;
+	torso.shaderRGBA[2] = 0;
+	torso.shaderRGBA[3] = 0xff;
+
 	// get the rotation information
 	CG_PlayerAngles( cent, legs.axis, torso.axis, head.axis );
 	
