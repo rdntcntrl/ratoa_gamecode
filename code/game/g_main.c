@@ -2912,8 +2912,10 @@ int start, end;
 
 	G_UpdateActionCamera();
 
-	if (level.timeout)
+	if (level.timeout) {
+		G_TimeinWarning(levelTime);
 		return;
+	}
 
         if( (g_gametype.integer==GT_ELIMINATION || g_gametype.integer==GT_CTF_ELIMINATION) && !(g_elimflags.integer & EF_NO_FREESPEC) && g_elimination_lockspectator.integer>1)
             trap_Cvar_Set("elimflags",va("%i",g_elimflags.integer|EF_NO_FREESPEC));

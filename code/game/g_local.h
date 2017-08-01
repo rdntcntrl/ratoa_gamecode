@@ -612,6 +612,7 @@ char *ConcatArgs( int start );  //KK-OAX This declaration moved from g_svccmds.c
 //KK-OAX Added this to make accessible from g_svcmds_ext.c
 void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText ); 
 void G_Timein(void);
+void G_TimeinWarning(int levelTime);
 void G_Timeout(gentity_t *caller);
 void G_TimeoutReminder(gentity_t *ent);
 

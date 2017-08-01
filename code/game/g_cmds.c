@@ -1149,6 +1149,9 @@ void G_TimeoutReminder(gentity_t *ent) {
 				timeoutend_minutes(), timeoutend_seconds() ));
 }
 
+void G_TimeoutModTimes(int delta) {
+}
+
 void G_Timeout(gentity_t *caller) {
 	int i,j;
 	if ( level.timeout ) {
@@ -1231,6 +1234,16 @@ void Cmd_Timeout_f( gentity_t *ent ) {
 	}
 	G_Timeout(ent);
 
+}
+
+void G_TimeinWarning(int levelTime) {
+	int remaining = level.timeoutEnd - levelTime;
+	if (remaining <= 5000 && remaining % 1000 == 0) {
+		int soundIndex = G_SoundIndex("sound/items/wearoff.wav");
+		G_GlobalSound(soundIndex);
+		trap_SendServerCommand(-1,va("print \"" S_COLOR_CYAN "unpause in %i...\n\"", 
+					remaining/1000));
+	}
 }
 
 void G_Timein( void ) {
