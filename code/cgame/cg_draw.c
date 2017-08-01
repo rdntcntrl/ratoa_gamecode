@@ -890,11 +890,17 @@ static float CG_DrawTimer( float y ) {
 	float	color[4];
 	int char_width = BIGCHAR_WIDTH * cg_timerScaleX.value;
 	int char_height = BIGCHAR_HEIGHT * cg_timerScaleY.value;
+	qboolean negative = qfalse;
 
 	color[0] = color[1] = color[2] = 1.0;
 	color[3] = cg_timerAlpha.value;
 
-	msec = cg.time - cgs.levelStartTime;
+	msec = cg.time - cgs.levelStartTime - cgs.timeoutOvertime;
+
+	if (msec < 0) {
+		msec = -msec;
+		negative = qtrue;
+	}
 
 	seconds = msec / 1000;
 	mins = seconds / 60;
@@ -902,7 +908,46 @@ static float CG_DrawTimer( float y ) {
 	tens = seconds / 10;
 	seconds -= tens * 10;
 
-	s = va( "%i:%i%i", mins, tens, seconds );
+	s = va( "%s%i:%i%i", negative ? "-" : "", mins, tens, seconds );
+	w = CG_DrawStrlen( s ) * BIGCHAR_WIDTH;
+
+	//CG_DrawBigString( 635 - w, y + 2, s, 1.0F);
+	CG_DrawStringExt( 635-w, y+2, s, color, qfalse, qtrue, char_width, char_height, 0 );
+
+	return y + char_height + 4;
+}
+
+/*
+=================
+CG_DrawTimeout
+=================
+*/
+static float CG_DrawTimeout( float y ) {
+	char		*s;
+	int			w;
+	int			mins, seconds, tens;
+	int			msec;
+	float	color[4];
+	int char_width = BIGCHAR_WIDTH * cg_timerScaleX.value;
+	int char_height = BIGCHAR_HEIGHT * cg_timerScaleY.value;
+
+	if (cg.time >= cgs.timeoutEnd) {
+		return y;
+	}
+
+	color[0] = color[1] = 0.0;
+       	color[2] = 1.0;
+	color[3] = cg_timerAlpha.value;
+
+	msec = cgs.timeoutEnd - cg.time;
+
+	seconds = msec / 1000;
+	mins = seconds / 60;
+	seconds -= mins * 60;
+	tens = seconds / 10;
+	seconds -= tens * 10;
+
+	s = va( "Timeout ends: %i:%i%i", mins, tens, seconds );
 	w = CG_DrawStrlen( s ) * BIGCHAR_WIDTH;
 
 	//CG_DrawBigString( 635 - w, y + 2, s, 1.0F);
@@ -1455,6 +1500,7 @@ static void CG_DrawUpperRight(stereoFrame_t stereoFrame)
 	if ( cg_drawTimer.integer) {
 		y = CG_DrawTimer( y );
 	}
+	y = CG_DrawTimeout( y );
 	if ( cg_drawAttacker.integer ) {
 		y = CG_DrawAttacker( y );
 	}

@@ -1196,6 +1196,8 @@ typedef struct {
 
     int		itemPickup;
     int		powerupGlows;
+    int		timeoutEnd;
+    int		timeoutOvertime;
 } cgs_t;
 
 //==============================================================================

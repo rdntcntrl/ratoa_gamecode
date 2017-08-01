@@ -60,6 +60,28 @@ static int CG_ValidOrder(const char *p) {
 
 /*
 =================
+CG_ParseTimeout
+
+=================
+*/
+static void CG_ParseTimeout( void ) {
+	cgs.timeoutEnd = atoi(CG_Argv(1));
+}
+
+/*
+=================
+CG_ParseOvertime
+
+=================
+*/
+static void CG_ParseOvertime( void ) {
+	cgs.timeoutOvertime = atoi(CG_Argv(1));
+}
+
+
+
+/*
+=================
 CG_ParseRatScores
 
 =================
@@ -1345,6 +1367,16 @@ static void CG_ServerCommand( void ) {
 
 	if ( !strcmp( cmd, "ratscores" ) ) {
 		CG_ParseRatScores();
+		return;
+	}
+
+	if ( !strcmp( cmd, "timeout" ) ) {
+		CG_ParseTimeout();
+		return;
+	}
+
+	if ( !strcmp( cmd, "overtime" ) ) {
+		CG_ParseOvertime();
 		return;
 	}
 
