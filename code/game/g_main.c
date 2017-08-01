@@ -181,6 +181,8 @@ vmCvar_t        g_unlagLaunchLagMode;
 vmCvar_t        g_unlagPrestep; 
 vmCvar_t        g_unlagFlight; 
 
+vmCvar_t	g_tournamentMinSpawnDistance;
+
 vmCvar_t        sv_allowDuplicateGuid;
 
 // weapon config
@@ -356,6 +358,8 @@ static cvarTable_t		gameCvarTable[] = {
         { &g_unlagLaunchLagMode, "g_unlagLaunchLagMode", "1", CVAR_ARCHIVE, 0, qtrue },
         { &g_unlagPrestep, "g_unlagPrestep", "1", CVAR_ARCHIVE, 0, qtrue },
         { &g_unlagFlight, "g_unlagFlight", "1", CVAR_ARCHIVE, 0, qtrue },
+
+        { &g_tournamentMinSpawnDistance, "g_tournamentMinSpawnDistance", "900", CVAR_ARCHIVE, 0, qtrue },
 
         { &g_teleMissiles, "g_teleMissiles", "0", CVAR_ARCHIVE, 0, qtrue },
         { &g_pushGrenades, "g_pushGrenades", "0", CVAR_ARCHIVE, 0, qtrue },

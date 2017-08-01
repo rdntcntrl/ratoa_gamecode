@@ -1171,6 +1171,8 @@ extern  vmCvar_t        g_unlagLaunchLagMode;
 extern  vmCvar_t        g_unlagPrestep;
 extern  vmCvar_t        g_unlagFlight;
 
+extern  vmCvar_t	g_tournamentMinSpawnDistance;
+
 extern  vmCvar_t        sv_allowDuplicateGuid;
 
 // weapon config
