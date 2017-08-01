@@ -2410,36 +2410,31 @@ void CG_FloatColorToRGBA(float *color, byte *out) {
 	out[3] = color[3]*0xff;
 }
 
-void CG_PlayerSetColors(clientInfo_t *ci, centity_t *cent, refEntity_t *legs, refEntity_t *torso, refEntity_t *head) {
+void CG_PlayerGetColors(clientInfo_t *ci, qboolean isDead, byte *outColor) {
 	clientInfo_t *player = &cgs.clientinfo[cg.clientNum];
 	float color[4];
-	color[3] = 1.0;
+	color[0] = color[1] = color[2] = color[3] = 1.0;
 
 	if (player->team == TEAM_SPECTATOR) {
+		CG_FloatColorToRGBA(color, outColor);
 		return;
 	}
 
 	if (cg_forceEnemyModelColor.integer && ((player->team == TEAM_FREE && player != ci)|| player->team != ci->team)) {
-		if (cg_forceEnemyCorpseHue.integer && cent->currentState.eFlags & EF_DEAD) {
+		if (cg_forceEnemyCorpseHue.integer && isDead & EF_DEAD) {
 			CG_HSV2RGB(cg_forceEnemyCorpseHue.value, cg_forceEnemyCorpseSaturation.value, cg_forceEnemyCorpseValue.value, color);
 		} else {
 			CG_HSV2RGB(cg_forceEnemyModelHue.value, cg_forceEnemyModelSaturation.value, cg_forceEnemyModelValue.value, color);
 		}
-		CG_FloatColorToRGBA(color, legs->shaderRGBA);
-		CG_FloatColorToRGBA(color, torso->shaderRGBA);
-		CG_FloatColorToRGBA(color, head->shaderRGBA);
 		
 	} else if (cg_forceModelColor.integer && (ci == player || (player->team != TEAM_FREE && ci->team == player->team ))) {
-		if (cg_forceCorpseHue.integer && cent->currentState.eFlags & EF_DEAD) {
+		if (cg_forceCorpseHue.integer && isDead & EF_DEAD) {
 			CG_HSV2RGB(cg_forceCorpseHue.value, cg_forceCorpseSaturation.value, cg_forceCorpseValue.value, color);
 		} else {
 			CG_HSV2RGB(cg_forceModelHue.value, cg_forceModelSaturation.value, cg_forceModelValue.value, color);
 		}
-		CG_FloatColorToRGBA(color, legs->shaderRGBA);
-		CG_FloatColorToRGBA(color, torso->shaderRGBA);
-		CG_FloatColorToRGBA(color, head->shaderRGBA);
-		return;
 	} 
+	CG_FloatColorToRGBA(color, outColor);
 
 }
 
@@ -2464,6 +2459,7 @@ void CG_Player( centity_t *cent ) {
 	float			c;
 	float			angle;
 	vec3_t			dir, angles;
+	byte			playercolor[4];
 
 	// the client number is stored in clientNum.  It can't be derived
 	// from the entity number, because a single client may have
@@ -2497,7 +2493,10 @@ void CG_Player( centity_t *cent ) {
 	memset( &torso, 0, sizeof(torso) );
 	memset( &head, 0, sizeof(head) );
 
-	CG_PlayerSetColors(ci, cent, &legs, &torso, &head);
+	CG_PlayerGetColors(ci, cent->currentState.eFlags & EF_DEAD ? qtrue : qfalse, playercolor);
+	memcpy(&legs.shaderRGBA, playercolor, sizeof(playercolor));
+	memcpy(&torso.shaderRGBA, playercolor, sizeof(playercolor));
+	memcpy(&head.shaderRGBA, playercolor, sizeof(playercolor));
 
 	// get the rotation information
 	CG_PlayerAngles( cent, legs.axis, torso.axis, head.axis );

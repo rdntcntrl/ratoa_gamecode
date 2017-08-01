@@ -1575,6 +1575,7 @@ qhandle_t CG_StatusHandle(int task);
 // cg_player.c
 //
 void CG_Player( centity_t *cent );
+void CG_PlayerGetColors(clientInfo_t *ci, qboolean isDead, byte *outColor);
 void CG_ResetPlayerEntity( centity_t *cent );
 void CG_AddRefEntityWithPowerups( refEntity_t *ent, entityState_t *state, int team, qboolean isMissile );
 void CG_NewClientInfo( int clientNum );
