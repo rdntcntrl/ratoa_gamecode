@@ -1347,8 +1347,14 @@ static void G_SayTo( gentity_t *ent, gentity_t *other, int mode, int color, cons
 
         if ((ent->r.svFlags & SVF_BOT) && trap_Cvar_VariableValue( "bot_nochat" )>1) return;
 
+	if (g_specMuted.integer 
+			&& ent->client->sess.sessionTeam == TEAM_SPECTATOR 
+			&& other->client->sess.sessionTeam != TEAM_SPECTATOR) {
+		return;
+	}
+
 	// no chatting to players in tournements
-	if ( (g_gametype.integer == GT_TOURNAMENT )
+	if ( (g_gametype.integer == GT_TOURNAMENT)
 			&& other->client->sess.sessionTeam == TEAM_FREE
 			&& ent->client->sess.sessionTeam != TEAM_FREE ) {
 		return;
@@ -1381,7 +1387,8 @@ void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText ) 
 	}
 
 	if ((g_gametype.integer == GT_TOURNAMENT || g_specMuted.integer)
-			&& ent->client->sess.sessionTeam == TEAM_SPECTATOR) {
+			&& ent->client->sess.sessionTeam == TEAM_SPECTATOR
+			&& mode == SAY_ALL) {
 		mode = SAY_TEAM;
 	}
 
@@ -1403,6 +1410,7 @@ void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText ) 
 		color = COLOR_CYAN;
 		break;
 	case SAY_TELL:
+
 		if (target && g_gametype.integer >= GT_TEAM && g_ffa_gt != 1 &&
 			target->client->sess.sessionTeam == ent->client->sess.sessionTeam &&
 			Team_GetLocationMsg(ent, location, sizeof(location)))
@@ -1509,6 +1517,7 @@ static void Cmd_Tell_f( gentity_t *ent ) {
 	p = ConcatArgs( 2 );
 
 	G_LogPrintf( "tell: %s to %s: %s\n", ent->client->pers.netname, target->client->pers.netname, p );
+
 	G_Say( ent, target, SAY_TELL, p );
 	// don't tell to the player self if it was already directed to this player
 	// also don't send the chat back to a bot
