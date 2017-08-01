@@ -302,7 +302,7 @@ Request current scoreboard information
 ==================
 */
 void Cmd_Score_f( gentity_t *ent ) {
-	DeathmatchScoreboardMessage( ent, trap_Argc() == 2 );
+	DeathmatchScoreboardMessage( ent, g_usesRatVM.integer > 0);
 }
 
 
