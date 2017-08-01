@@ -417,6 +417,13 @@ qboolean CG_DrawRatScoreboard(void) {
 		fade = *fadeColor;
 	}
 
+	if ( cg.scoresRequestTime + 1000 < cg.time ) {
+		// the scores are more than 1s out of data,
+		// so request new ones
+		cg.scoresRequestTime = cg.time;
+		trap_SendClientCommand( "score" );
+	}
+
 
 	// fragged by ... line
 	if (cg.killerName[0]) {
