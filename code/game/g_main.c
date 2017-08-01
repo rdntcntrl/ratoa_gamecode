@@ -187,6 +187,7 @@ vmCvar_t        g_unlagFlight;
 vmCvar_t	g_tournamentMinSpawnDistance;
 
 vmCvar_t        g_autoClans;
+vmCvar_t        g_powerupGlows;
 vmCvar_t        g_itemPickup;
 vmCvar_t        g_usesRatVM;
 vmCvar_t        sv_allowDuplicateGuid;
@@ -378,6 +379,8 @@ static cvarTable_t		gameCvarTable[] = {
         { &g_pushGrenades, "g_pushGrenades", "0", CVAR_ARCHIVE, 0, qtrue },
 
         { &g_autoClans, "g_autoClans", "0", CVAR_ARCHIVE , 0, qfalse },
+
+        { &g_powerupGlows, "g_powerupGlows", "1", CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qfalse },
 
         { &g_itemPickup, "g_itemPickup", "0", CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qtrue },
         { &g_usesRatVM, "g_usesRatVM", "0", 0, 0, qfalse },
