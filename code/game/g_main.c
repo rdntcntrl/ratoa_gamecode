@@ -96,11 +96,13 @@ vmCvar_t	g_obeliskRegenPeriod;
 vmCvar_t	g_obeliskRegenAmount;
 vmCvar_t	g_obeliskRespawnDelay;
 vmCvar_t	g_cubeTimeout;
+#ifdef MISSIONPACK
 vmCvar_t	g_redteam;
 vmCvar_t	g_blueteam;
-#ifdef MISSIONPACK
 vmCvar_t	g_singlePlayer;
 #endif
+vmCvar_t	g_redclan;
+vmCvar_t	g_blueclan;
 vmCvar_t	g_enableDust;
 vmCvar_t	g_enableBreath;
 vmCvar_t	g_proxMineTimeout;
@@ -314,10 +316,9 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_redteam, "g_redteam", "Stroggs", CVAR_ARCHIVE | CVAR_SERVERINFO | CVAR_USERINFO , 0, qtrue, qtrue },
 	{ &g_blueteam, "g_blueteam", "Pagans", CVAR_ARCHIVE | CVAR_SERVERINFO | CVAR_USERINFO , 0, qtrue, qtrue  },
 	{ &g_singlePlayer, "ui_singlePlayerActive", "", 0, 0, qfalse, qfalse  },
-	#else
-	{ &g_redteam, "g_redteam", "", CVAR_SERVERINFO | CVAR_USERINFO , 0, qtrue, qtrue },
-	{ &g_blueteam, "g_blueteam", "", CVAR_SERVERINFO | CVAR_USERINFO , 0, qtrue, qtrue  },
         #endif
+	{ &g_redclan, "g_redclan", "", 0 , 0, qtrue, qtrue },
+	{ &g_blueclan, "g_blueclan", "", 0, 0, qtrue, qtrue  },
 
 	{ &g_enableDust, "g_enableDust", "0", CVAR_SERVERINFO, 0, qtrue, qfalse },
 	{ &g_enableBreath, "g_enableBreath", "0", CVAR_SERVERINFO, 0, qtrue, qfalse },
@@ -596,19 +597,19 @@ void G_RemapTeamShaders( void ) {
 	AddRemap("textures/ctf2/blueteam02", string, f); 
 #endif
 	// RATOA
-	if( g_redteam.string[0] ) {
-		Com_sprintf( string, sizeof(string), "team_icon/ratoa/%s_redflag", g_redteam.string );
+	if( g_redclan.string[0] ) {
+		Com_sprintf( string, sizeof(string), "team_icon/ratoa/%s_redflag", g_redclan.string );
 		AddRemap("models/flags/r_flag", string, f); 
-		Com_sprintf( string, sizeof(string), "team_icon/ratoa/%s_red_banner", g_redteam.string );
+		Com_sprintf( string, sizeof(string), "team_icon/ratoa/%s_red_banner", g_redclan.string );
 		AddRemap("textures/clown/red_banner", string, f); 
 	}  else {
 		AddRemap("models/flags/r_flag", "models/flags/r_flag", f); 
 		AddRemap("textures/clown/red_banner", "textures/clown/red_banner", f); 
 	}
-	if( g_blueteam.string[0] ) {
-		Com_sprintf( string, sizeof(string), "team_icon/ratoa/%s_blueflag", g_blueteam.string );
+	if( g_blueclan.string[0] ) {
+		Com_sprintf( string, sizeof(string), "team_icon/ratoa/%s_blueflag", g_blueclan.string );
 		AddRemap("models/flags/b_flag", string, f); 
-		Com_sprintf( string, sizeof(string), "team_icon/ratoa/%s_blue_banner", g_blueteam.string );
+		Com_sprintf( string, sizeof(string), "team_icon/ratoa/%s_blue_banner", g_blueclan.string );
 		AddRemap("textures/clown/blue_banner", string, f); 
 	}  else {
 		AddRemap("models/flags/b_flag", "models/flags/b_flag", f); 

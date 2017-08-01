@@ -1066,6 +1066,8 @@ extern	vmCvar_t	g_singlePlayer;
 extern	vmCvar_t	g_redteam;
 extern	vmCvar_t	g_blueteam;
 #endif
+extern	vmCvar_t	g_redclan;
+extern	vmCvar_t	g_blueclan;
 extern	vmCvar_t	g_enableDust;
 extern	vmCvar_t	g_enableBreath;
 extern	vmCvar_t	g_proxMineTimeout;
