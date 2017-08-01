@@ -30,6 +30,7 @@ displayContextDef_t cgDC;
 #endif
 
 int forceModelModificationCount = -1;
+int forceBrightModelModificationCount = -1;
 
 void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum );
 void CG_Shutdown( void );
@@ -600,6 +601,7 @@ void CG_RegisterCvars( void ) {
 	cgs.localServer = atoi( var );
 
 	forceModelModificationCount = cg_forceModel.modificationCount;
+	forceBrightModelModificationCount = cg_forceBrightModels.modificationCount;
 
 	trap_Cvar_Register(NULL, "model", DEFAULT_MODEL, CVAR_USERINFO | CVAR_ARCHIVE );
 	trap_Cvar_Register(NULL, "headmodel", DEFAULT_MODEL, CVAR_USERINFO | CVAR_ARCHIVE );
@@ -686,6 +688,10 @@ void CG_UpdateCvars( void ) {
 	// if force model changed
 	if ( forceModelModificationCount != cg_forceModel.modificationCount ) {
 		forceModelModificationCount = cg_forceModel.modificationCount;
+		CG_ForceModelChange();
+	}
+	if ( forceBrightModelModificationCount != cg_forceBrightModels.modificationCount ) {
+		forceBrightModelModificationCount = cg_forceBrightModels.modificationCount;
 		CG_ForceModelChange();
 	}
 }
