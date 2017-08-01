@@ -1195,6 +1195,7 @@ typedef struct {
     int             altExcellent;
 
     int		itemPickup;
+    int		powerupGlows;
 } cgs_t;
 
 //==============================================================================
