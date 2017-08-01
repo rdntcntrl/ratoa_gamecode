@@ -766,6 +766,9 @@ static void CG_MapRestart( void ) {
 
 	cgs.voteTime = 0;
 
+	cgs.timeoutOvertime = 0;
+	cgs.timeoutEnd = 0;
+
 	cg.mapRestart = qtrue;
 
 	CG_StartMusic();
