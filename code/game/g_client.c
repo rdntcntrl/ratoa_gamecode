@@ -1923,8 +1923,10 @@ void ClientBegin( int clientNum ) {
 		G_TimeoutReminder(ent);
 
 	if (g_usesRatVM.integer) {
-		trap_SendServerCommand(ent - g_entities, va("timeout %i", level.timeoutEnd));
-		trap_SendServerCommand(ent - g_entities, va("overtime %i", level.timeoutOvertime));
+		//trap_SendServerCommand(ent - g_entities, va("timeout %i", level.timeoutEnd));
+		if (level.timeoutOvertime > 0) {
+			trap_SendServerCommand(ent - g_entities, va("overtime %i", level.timeoutOvertime));
+		}
 		if (level.timeout) {
 			trap_SendServerCommand(ent - g_entities, va("timeout %i", level.timeoutEnd));
 		}
