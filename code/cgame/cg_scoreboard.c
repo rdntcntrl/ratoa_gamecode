@@ -59,6 +59,58 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define SB_TIME_X			(SB_SCORELINE_X + 17 * BIGCHAR_WIDTH + 8) // width 5
 #define SB_NAME_X			(SB_SCORELINE_X + 22 * BIGCHAR_WIDTH) // width 15
 
+
+
+// RAT Scoreboard ==============================
+#define MAX(a,b) (((a) > (b)) ? (a) : (b))
+#define RATSCOREBOARD_X  (0)
+
+#define RATSB_HEADER   86
+#define RATSB_TOP    (RATSB_HEADER+10)
+
+// Where the status bar starts, so we don't overwrite it
+#define RATSB_STATUSBAR  420
+
+#define RATSB_NORMAL_HEIGHT 40
+#define RATSB_INTER_HEIGHT  16 // interleaved height
+
+#define RATSB_MAXCLIENTS_INTER   ((RATSB_STATUSBAR - RATSB_TOP) / RATSB_INTER_HEIGHT - 1)
+
+#define RATSB_BOTICON_X  (RATSCOREBOARD_X+10)
+#define RATSB_HEAD_X   (RATSB_BOTICON_X+32)
+
+#define RATSB_SCORELINE_X  64
+
+#define RATSB_RATING_WIDTH     (0)
+#define RATSB_WINS_X           (RATSB_SCORELINE_X +     SCORESMALLCHAR_WIDTH)
+#define RATSB_WL_X             (RATSB_WINS_X      + RATSB_WINS_WIDTH      + 0 * SCORESMALLCHAR_WIDTH)
+#define RATSB_LOSSES_X         (RATSB_WL_X        + RATSB_WL_WIDTH        + 0 * SCORESMALLCHAR_WIDTH)
+#define RATSB_SCORE_X          (RATSB_LOSSES_X    + RATSB_LOSSES_WIDTH    + 0 * SCORESMALLCHAR_WIDTH)
+#define RATSB_TIME_X           (RATSB_SCORE_X     + RATSB_SCORE_WIDTH     + 1 * SCORESMALLCHAR_WIDTH)
+#define RATSB_CNUM_X           (RATSB_TIME_X      + RATSB_TIME_WIDTH      + 1 * SCORESMALLCHAR_WIDTH)
+#define RATSB_NAME_X           (RATSB_CNUM_X      + RATSB_CNUM_WIDTH      + 2 * SCORESMALLCHAR_WIDTH)
+#define RATSB_ACCURACY_X       (RATSB_CNUM_X      + RATSB_NAME_WIDTH      + 4 * SCORESMALLCHAR_WIDTH)
+#define RATSB_PING_X           (RATSB_ACCURACY_X  + RATSB_ACCURACY_WIDTH  + 2 * SCORESMALLCHAR_WIDTH)
+
+#define RATSB_WINS_WIDTH       (2 * SCORESMALLCHAR_WIDTH)
+#define RATSB_WL_WIDTH         (1 * SCORESMALLCHAR_WIDTH)
+#define RATSB_LOSSES_WIDTH     (2 * SCORESMALLCHAR_WIDTH)
+#define RATSB_SCORE_WIDTH      (MAX(5*SCORECHAR_WIDTH,6*SCORESMALLCHAR_WIDTH))
+#define RATSB_TIME_WIDTH       (3 * SCORESMALLCHAR_WIDTH)
+#define RATSB_CNUM_WIDTH       (2 * SCORESMALLCHAR_WIDTH)
+#define RATSB_NAME_WIDTH       (25 * SCORECHAR_WIDTH)
+#define RATSB_ACCURACY_WIDTH   (4 * SCORESMALLCHAR_WIDTH)
+#define RATSB_PING_WIDTH       (3 * SCORESMALLCHAR_WIDTH)
+
+#define RATSB_WINS_CENTER      (RATSB_WINS_X + RATSB_WINS_WIDTH/2)
+#define RATSB_WL_CENTER        (RATSB_WL_X + RATSB_WL_WIDTH/2)
+#define RATSB_LOSSES_CENTER    (RATSB_LOSSES_X + RATSB_LOSSES_WIDTH/2)
+#define RATSB_SCORE_CENTER     (RATSB_SCORE_X + RATSB_SCORE_WIDTH/2)
+#define RATSB_TIME_CENTER      (RATSB_TIME_X + RATSB_TIME_WIDTH/2)
+#define RATSB_CNUM_CENTER      (RATSB_CNUM_X + RATSB_CNUM_WIDTH/2)
+#define RATSB_ACCURACY_CENTER  (RATSB_ACCURACY_X + RATSB_ACCURACY_WIDTH/2)
+#define RATSB_PING_CENTER      (RATSB_PING_X + RATSB_PING_WIDTH/2)
+
 // The new and improved score board
 //
 // In cases where the number of clients is high, the score board heads are interleaved
@@ -72,6 +124,416 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 static qboolean localClient; // true if local client has been displayed
 
+
+
+/*
+=================
+CG_RatDrawScoreboard
+=================
+ */
+static void CG_RatDrawClientScore(int y, score_t *score, float *color, float fade, qboolean largeFormat) {
+	char string[1024];
+	vec3_t headAngles;
+	clientInfo_t *ci;
+	int iconx, headx;
+	float tcolor[4] = { 1.0, 1.0, 1.0, 1.0 };
+	int ysmall = y + (SCORECHAR_HEIGHT - SCORESMALLCHAR_HEIGHT);
+
+	if (score->client < 0 || score->client >= cgs.maxclients) {
+		Com_Printf("Bad score->client: %i\n", score->client);
+		return;
+	}
+
+	ci = &cgs.clientinfo[score->client];
+
+	iconx = RATSB_BOTICON_X + (RATSB_RATING_WIDTH / 2);
+	headx = RATSB_HEAD_X + (RATSB_RATING_WIDTH / 2);
+
+	// draw the handicap or bot skill marker (unless player has flag)
+	if (ci->powerups & (1 << PW_NEUTRALFLAG)) {
+		if (largeFormat) {
+			CG_DrawFlagModel(iconx, y - (32 - SCORECHAR_HEIGHT) / 2, 32, 32, TEAM_FREE, qfalse);
+		} else {
+			CG_DrawFlagModel(iconx, y, 16, 16, TEAM_FREE, qfalse);
+		}
+	} else if (ci->powerups & (1 << PW_REDFLAG)) {
+		if (largeFormat) {
+			CG_DrawFlagModel(iconx, y - (32 - SCORECHAR_HEIGHT) / 2, 32, 32, TEAM_RED, qfalse);
+		} else {
+			CG_DrawFlagModel(iconx, y, 16, 16, TEAM_RED, qfalse);
+		}
+	} else if (ci->powerups & (1 << PW_BLUEFLAG)) {
+		if (largeFormat) {
+			CG_DrawFlagModel(iconx, y - (32 - SCORECHAR_HEIGHT) / 2, 32, 32, TEAM_BLUE, qfalse);
+		} else {
+			CG_DrawFlagModel(iconx, y, 16, 16, TEAM_BLUE, qfalse);
+		}
+	} else {
+		if (ci->botSkill > 0 && ci->botSkill <= 5) {
+			if (cg_drawIcons.integer) {
+				if (largeFormat) {
+					CG_DrawPic(iconx, y - (32 - SCORECHAR_HEIGHT) / 2, 32, 32, cgs.media.botSkillShaders[ ci->botSkill - 1 ]);
+				} else {
+					CG_DrawPic(iconx, y, 16, 16, cgs.media.botSkillShaders[ ci->botSkill - 1 ]);
+				}
+			}
+		} else if (ci->handicap < 100) {
+			int ytiny = y + (SCORECHAR_HEIGHT - SCORETINYCHAR_HEIGHT);
+			Com_sprintf(string, sizeof ( string), "%i", ci->handicap);
+			//CG_DrawSmallScoreStringColor(iconx, ysmall, string, color);
+			tcolor[0] = tcolor[1] = tcolor[2] = 0.75;
+			//CG_DrawSmallScoreStringColor(iconx, ysmall, string, tcolor);
+			CG_DrawTinyScoreStringColor(iconx, ytiny, string, tcolor);
+		}
+	}
+
+	// draw the face
+	VectorClear(headAngles);
+	headAngles[YAW] = 180;
+	if (largeFormat) {
+		CG_DrawHead(headx, y - (ICON_SIZE - SCORECHAR_HEIGHT) / 2, ICON_SIZE, ICON_SIZE,
+				score->client, headAngles);
+	} else {
+		CG_DrawHead(headx, y, 16, 16, score->client, headAngles);
+	}
+
+
+	// highlight your position
+	if (score->client == cg.snap->ps.clientNum) {
+		float hcolor[4];
+		int rank;
+
+		localClient = qtrue;
+
+		if ((cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR) ||
+				((cgs.gametype >= GT_TEAM) &&
+				(cgs.ffa_gt != 1))) {
+			// Sago: I think this means that it doesn't matter if two players are tied in team game - only team score counts
+			rank = -1;
+		} else {
+			rank = cg.snap->ps.persistant[PERS_RANK] & ~RANK_TIED_FLAG;
+		}
+		if (rank == 0) {
+			hcolor[0] = 0;
+			hcolor[1] = 0;
+			hcolor[2] = 0.7f;
+		} else if (rank == 1) {
+			hcolor[0] = 0.7f;
+			hcolor[1] = 0;
+			hcolor[2] = 0;
+		} else if (rank == 2) {
+			hcolor[0] = 0.7f;
+			hcolor[1] = 0.7f;
+			hcolor[2] = 0;
+		} else {
+			hcolor[0] = 0.7f;
+			hcolor[1] = 0.7f;
+			hcolor[2] = 0.7f;
+		}
+
+		hcolor[3] = fade * 0.7;
+		CG_FillRect(RATSB_SCORELINE_X + SCORECHAR_WIDTH + (RATSB_RATING_WIDTH / 2), y,
+				640 - RATSB_SCORELINE_X - SCORECHAR_WIDTH, SCORECHAR_HEIGHT + 1, hcolor);
+	}
+	// draw the score line ===========
+	tcolor[3] = fade;
+	tcolor[0] = tcolor[1] = tcolor[2] = 1.0;
+	if (score->ping == -1) {
+		Com_sprintf(string, sizeof (string), "connecting ");
+		CG_DrawSmallScoreStringColor(RATSB_WINS_X, ysmall, string, tcolor);
+	} else {
+		tcolor[0] = tcolor[2] = 0.5;
+		tcolor[1] = 1.0;
+		if (cgs.gametype == GT_TOURNAMENT) {
+			Com_sprintf(string, sizeof (string), "%2i", ci->wins);
+		} else if (cgs.gametype == GT_CTF) {
+			Com_sprintf(string, sizeof (string), "%2i", score->captures);
+		} else {
+			Com_sprintf(string, sizeof (string), "  ");
+		}
+		CG_DrawSmallScoreStringColor(RATSB_WINS_X, ysmall, string, tcolor);
+
+		tcolor[0] = tcolor[1] = tcolor[2] = 1.0;
+		if (cgs.gametype == GT_TOURNAMENT 
+				|| cgs.gametype == GT_CTF) {
+			Com_sprintf(string, sizeof (string), "/");
+		} else {
+			Com_sprintf(string, sizeof (string), " ");
+		}
+		CG_DrawSmallScoreStringColor(RATSB_WL_X, ysmall, string, tcolor);
+
+		if (cgs.gametype == GT_TOURNAMENT) {
+			tcolor[1] = tcolor[2] = 0.5;
+			tcolor[2] = 1.0;
+			Com_sprintf(string, sizeof (string), "%-2i", ci->losses);
+		} else if (cgs.gametype == GT_CTF) {
+			tcolor[0] = tcolor[2] = 0.25;
+			tcolor[1] = 0.75;
+			Com_sprintf(string, sizeof (string), "%-2i", score->defendCount);
+		} else {
+			Com_sprintf(string, sizeof (string), "  ");
+		}
+		CG_DrawSmallScoreStringColor(RATSB_LOSSES_X, ysmall, string, tcolor);
+	}
+
+	tcolor[0] = tcolor[1] = tcolor[2] = 1.0;
+	if (ci->team == TEAM_SPECTATOR && score->ping != -1) {
+		Com_sprintf(string, sizeof (string), "SPECT");
+		CG_DrawSmallScoreStringColor(RATSB_SCORE_X, ysmall, string, tcolor);
+	} else {
+		Com_sprintf(string, sizeof (string), "%4i", score->score);
+		CG_DrawScoreStringColor(RATSB_SCORE_X, y, string, tcolor);
+	}
+
+	tcolor[0] = tcolor[1] = tcolor[2] = 0.75;
+	Com_sprintf(string, sizeof (string), "%3i", score->time);
+	CG_DrawSmallScoreStringColor(RATSB_TIME_X, ysmall, string, tcolor);
+
+	tcolor[0] = 0;
+	tcolor[1] = 0.45;
+	tcolor[2] = 1.0;
+	Com_sprintf(string, sizeof (string), "%2i", score->client);
+	CG_DrawSmallScoreStringColor(RATSB_CNUM_X, ysmall, string, tcolor);
+
+	tcolor[0] = tcolor[1] = tcolor[2] = 1.0;
+	Com_sprintf(string, sizeof (string), "%s", ci->name);
+	CG_DrawScoreString(RATSB_NAME_X, y, string, fade);
+
+	tcolor[0] = tcolor[1] = tcolor[2] = 0.75;
+	Com_sprintf(string, sizeof (string), "%3i%%", score->accuracy);
+	CG_DrawSmallScoreStringColor(RATSB_ACCURACY_X, ysmall, string, tcolor);
+
+	tcolor[0] = tcolor[1] = tcolor[2] = 0.75;
+	Com_sprintf(string, sizeof (string), "%3i", score->ping);
+	CG_DrawSmallScoreStringColor(RATSB_PING_X, ysmall, string, tcolor);
+
+	
+	//if (score->ping == -1) {
+	//	Com_sprintf(string, sizeof (string),
+	//			"       connecting    ^5%2i  %s", score->client, ci->name);
+	//} else if (ci->team == TEAM_SPECTATOR) {
+	//	Com_sprintf(string, sizeof (string),
+	//			"       SPECT %3i ^2%3i ^5%2i  %s", score->ping, score->time, score->client, ci->name);
+	//} else {
+	//	Com_sprintf(string, sizeof (string),
+	//			"^3%2i^7/^3%-2i^7 %5i %4i ^2%3i ^5%2i  %s %i", ci->wins, ci->losses, score->score, score->ping, score->time, score->client, ci->name, score->accuracy);
+	//}
+
+	//CG_DrawScoreString(RATSB_SCORELINE_X + (RATSB_RATING_WIDTH / 2), y, string, fade);
+	// ===================
+
+	// add the "ready" marker for intermission exiting
+	if (cg.snap->ps.stats[ STAT_CLIENTS_READY ] & (1 << score->client)) {
+		CG_DrawScoreStringColor(iconx, y, "READY", color);
+	} else
+		if (cgs.gametype == GT_LMS) {
+		CG_DrawScoreStringColor(iconx - 50, y, va("*%i*", ci->isDead), color);
+	} else
+		if (ci->isDead) {
+		CG_DrawScoreStringColor(iconx - 60, y, "DEAD", color);
+	}
+}
+
+/*
+=================
+CG_RatTeamScoreboard
+=================
+ */
+static int CG_RatTeamScoreboard(int y, team_t team, float fade, int maxClients, int lineHeight) {
+	int i;
+	score_t *score;
+	float color[4];
+	int count;
+	clientInfo_t *ci;
+
+	color[0] = color[1] = color[2] = 1.0;
+	color[3] = fade;
+
+	count = 0;
+	for (i = 0; i < cg.numScores && count < maxClients; i++) {
+		score = &cg.scores[i];
+		ci = &cgs.clientinfo[ score->client ];
+
+		if (team != ci->team) {
+			continue;
+		}
+
+		CG_RatDrawClientScore(y + lineHeight * count, score, color, fade, lineHeight == RATSB_NORMAL_HEIGHT);
+
+		count++;
+	}
+
+	return count;
+}
+
+
+/*
+=================
+CG_DrawRatboard
+
+Draw the normal in-game scoreboard
+=================
+ */
+qboolean CG_DrawRatScoreboard(void) {
+	int x, y, w, i, n1, n2;
+	float fade;
+	float *fadeColor;
+	char *s;
+	int maxClients;
+	int lineHeight;
+	int topBorderSize, bottomBorderSize;
+
+	// don't draw amuthing if the menu or console is up
+	if (cg_paused.integer) {
+		cg.deferredPlayerLoading = 0;
+		return qfalse;
+	}
+
+	if (cgs.gametype == GT_SINGLE_PLAYER && cg.predictedPlayerState.pm_type == PM_INTERMISSION) {
+		cg.deferredPlayerLoading = 0;
+		return qfalse;
+	}
+
+	// don't draw scoreboard during death while warmup up
+	if (cg.warmup && !cg.showScores) {
+		return qfalse;
+	}
+
+	if (cg.showScores || cg.predictedPlayerState.pm_type == PM_DEAD ||
+			cg.predictedPlayerState.pm_type == PM_INTERMISSION) {
+		fade = 1.0;
+		fadeColor = colorWhite;
+	} else {
+		fadeColor = CG_FadeColor(cg.scoreFadeTime, FADE_TIME);
+
+		if (!fadeColor) {
+			// next time scoreboard comes up, don't print killer
+			cg.deferredPlayerLoading = 0;
+			cg.killerName[0] = 0;
+			return qfalse;
+		}
+		fade = *fadeColor;
+	}
+
+
+	// fragged by ... line
+	if (cg.killerName[0]) {
+		s = va("Fragged by %s", cg.killerName);
+		w = CG_DrawStrlen(s) * SCORECHAR_WIDTH;
+		x = (SCREEN_WIDTH - w) / 2;
+		y = 40;
+		CG_DrawScoreString(x, y, s, fade);
+	}
+
+	// current rank
+	if (cgs.gametype < GT_TEAM || cgs.ffa_gt == 1) {
+		if (cg.snap->ps.persistant[PERS_TEAM] != TEAM_SPECTATOR) {
+			s = va("%s place with %i",
+					CG_PlaceString(cg.snap->ps.persistant[PERS_RANK] + 1),
+					cg.snap->ps.persistant[PERS_SCORE]);
+			w = CG_DrawStrlen(s) * SCORECHAR_WIDTH;
+			x = (SCREEN_WIDTH - w) / 2;
+			y = 60;
+			CG_DrawScoreString(x, y, s, fade);
+		}
+	} else {
+		if (cg.teamScores[0] == cg.teamScores[1]) {
+			s = va("Teams are tied at %i", cg.teamScores[0]);
+		} else if (cg.teamScores[0] >= cg.teamScores[1]) {
+			s = va("Red leads %i to %i", cg.teamScores[0], cg.teamScores[1]);
+		} else {
+			s = va("Blue leads %i to %i", cg.teamScores[1], cg.teamScores[0]);
+		}
+
+		w = CG_DrawStrlen(s) * SCORECHAR_WIDTH;
+		x = (SCREEN_WIDTH - w) / 2;
+		y = 60;
+		CG_DrawScoreString(x, y, s, fade);
+	}
+
+	// scoreboard
+	y = RATSB_HEADER;
+
+	if (cgs.gametype == GT_TOURNAMENT) {
+		CG_DrawTinyScoreString(RATSB_WL_CENTER-1.5*SCORETINYCHAR_WIDTH, y, "W/L", fade);
+	} else if (cgs.gametype == GT_CTF) {
+		CG_DrawTinyScoreString(RATSB_WL_CENTER-1.5*SCORETINYCHAR_WIDTH, y, "C/D", fade);
+	}
+	CG_DrawTinyScoreString(RATSB_SCORE_CENTER - 2.5*SCORETINYCHAR_WIDTH, y, "Score", fade);
+	CG_DrawTinyScoreString(RATSB_TIME_CENTER - 2 * SCORETINYCHAR_WIDTH, y, "Time", fade);
+	CG_DrawTinyScoreString(RATSB_CNUM_CENTER - SCORETINYCHAR_WIDTH, y, "CN", fade);
+	CG_DrawTinyScoreString(RATSB_NAME_X, y, "Name", fade);
+	CG_DrawTinyScoreString(RATSB_ACCURACY_CENTER - 1.5 * SCORETINYCHAR_WIDTH, y, "Acc", fade);
+	CG_DrawTinyScoreString(RATSB_PING_CENTER - 2 * SCORETINYCHAR_WIDTH, y, "Ping", fade);
+	//CG_DrawPic(RATSB_SCORE_X + (RATSB_RATING_WIDTH / 2), y, 64, 32, cgs.media.scoreboardScore);
+	//CG_DrawPic(RATSB_PING_X - (RATSB_RATING_WIDTH / 2), y, 64, 32, cgs.media.scoreboardPing);
+	//CG_DrawPic(RATSB_TIME_X - (RATSB_RATING_WIDTH / 2), y, 64, 32, cgs.media.scoreboardTime);
+	//CG_DrawPic(RATSB_NAME_X - (RATSB_RATING_WIDTH / 2), y, 64, 32, cgs.media.scoreboardName);
+
+	y = RATSB_TOP;
+
+	maxClients = RATSB_MAXCLIENTS_INTER;
+	lineHeight = RATSB_INTER_HEIGHT;
+	topBorderSize = 8;
+	bottomBorderSize = 16;
+
+	localClient = qfalse;
+
+	if (cgs.gametype >= GT_TEAM && cgs.ffa_gt != 1) {
+		//
+		// teamplay scoreboard
+		//
+		y += lineHeight / 2;
+
+		if (cg.teamScores[0] >= cg.teamScores[1]) {
+			n1 = CG_RatTeamScoreboard(y, TEAM_RED, fade, maxClients, lineHeight);
+			CG_DrawTeamBackground(0, y - topBorderSize, 640, n1 * lineHeight + bottomBorderSize, 0.33f, TEAM_RED);
+			y += (n1 * lineHeight) + SCORECHAR_HEIGHT;
+			maxClients -= n1;
+			n2 = CG_RatTeamScoreboard(y, TEAM_BLUE, fade, maxClients, lineHeight);
+			CG_DrawTeamBackground(0, y - topBorderSize, 640, n2 * lineHeight + bottomBorderSize, 0.33f, TEAM_BLUE);
+			y += (n2 * lineHeight) + SCORECHAR_HEIGHT;
+			maxClients -= n2;
+		} else {
+			n1 = CG_RatTeamScoreboard(y, TEAM_BLUE, fade, maxClients, lineHeight);
+			CG_DrawTeamBackground(0, y - topBorderSize, 640, n1 * lineHeight + bottomBorderSize, 0.33f, TEAM_BLUE);
+			y += (n1 * lineHeight) + SCORECHAR_HEIGHT;
+			maxClients -= n1;
+			n2 = CG_RatTeamScoreboard(y, TEAM_RED, fade, maxClients, lineHeight);
+			CG_DrawTeamBackground(0, y - topBorderSize, 640, n2 * lineHeight + bottomBorderSize, 0.33f, TEAM_RED);
+			y += (n2 * lineHeight) + SCORECHAR_HEIGHT;
+			maxClients -= n2;
+		}
+		n1 = CG_RatTeamScoreboard(y, TEAM_SPECTATOR, fade, maxClients, lineHeight);
+		y += (n1 * lineHeight) + SCORECHAR_HEIGHT;
+
+	} else {
+		//
+		// free for all scoreboard
+		//
+		n1 = CG_RatTeamScoreboard(y, TEAM_FREE, fade, maxClients, lineHeight);
+		y += (n1 * lineHeight) + SCORECHAR_HEIGHT;
+		n2 = CG_RatTeamScoreboard(y, TEAM_SPECTATOR, fade, maxClients - n1, lineHeight);
+		y += (n2 * lineHeight) + SCORECHAR_HEIGHT;
+	}
+
+	if (!localClient) {
+		// draw local client at the bottom
+		for (i = 0; i < cg.numScores; i++) {
+			if (cg.scores[i].client == cg.snap->ps.clientNum) {
+				CG_RatDrawClientScore(y, &cg.scores[i], fadeColor, fade, lineHeight == RATSB_NORMAL_HEIGHT);
+				break;
+			}
+		}
+	}
+
+	// load any models that have been deferred
+	if (++cg.deferredPlayerLoading > 10) {
+		CG_LoadDeferredPlayers();
+	}
+
+	return qtrue;
+}
 
 							 /*
 =================

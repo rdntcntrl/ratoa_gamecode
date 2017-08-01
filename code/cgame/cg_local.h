@@ -1266,6 +1266,9 @@ extern	vmCvar_t		cg_teamChatsOnly;
 extern	vmCvar_t		cg_noVoiceChats;
 extern	vmCvar_t		cg_noVoiceText;
 extern  vmCvar_t		cg_scorePlum;
+
+extern vmCvar_t                cg_ratScoreboard;
+
 //unlagged - smooth clients #2
 // this is done server-side now
 //extern	vmCvar_t		cg_smoothClients;
@@ -1438,6 +1441,12 @@ void CG_DrawString( float x, float y, const char *string,
 
 void CG_DrawStringExt( int x, int y, const char *string, const float *setColor, 
 		qboolean forceColor, qboolean shadow, int charWidth, int charHeight, int maxChars );
+void CG_DrawScoreString( int x, int y, const char *s, float alpha );
+void CG_DrawScoreStringColor( int x, int y, const char *s, vec4_t color );
+void CG_DrawSmallScoreString( int x, int y, const char *s, float alpha );
+void CG_DrawSmallScoreStringColor( int x, int y, const char *s, vec4_t color );
+void CG_DrawTinyScoreString( int x, int y, const char *s, float alpha );
+void CG_DrawTinyScoreStringColor( int x, int y, const char *s, vec4_t color );
 void CG_DrawBigString( int x, int y, const char *s, float alpha );
 void CG_DrawBigStringColor( int x, int y, const char *s, vec4_t color );
 void CG_DrawSmallString( int x, int y, const char *s, float alpha );
@@ -1654,6 +1663,7 @@ void CG_DrawInformation( void );
 // cg_scoreboard.c
 //
 qboolean CG_DrawOldScoreboard( void );
+qboolean CG_DrawRatScoreboard( void );
 void CG_DrawOldTourneyScoreboard( void );
 
 //

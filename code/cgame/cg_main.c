@@ -164,6 +164,9 @@ vmCvar_t	cg_noVoiceChats;
 vmCvar_t	cg_noVoiceText;
 vmCvar_t	cg_hudFiles;
 vmCvar_t 	cg_scorePlum;
+
+vmCvar_t 	cg_ratScoreboard;
+
 //unlagged - smooth clients #2
 // this is done server-side now
 //vmCvar_t 	cg_smoothClients;
@@ -386,6 +389,9 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_timescaleFadeSpeed, "cg_timescaleFadeSpeed", "0", 0},
 	{ &cg_timescale, "timescale", "1", 0},
 	{ &cg_scorePlum, "cg_scorePlums", "1", CVAR_USERINFO | CVAR_ARCHIVE},
+
+	{ &cg_ratScoreboard, "cg_ratScoreboard", "0", CVAR_ARCHIVE},
+
 //unlagged - smooth clients #2
 // this is done server-side now
 //	{ &cg_smoothClients, "cg_smoothClients", "0", CVAR_USERINFO | CVAR_ARCHIVE},

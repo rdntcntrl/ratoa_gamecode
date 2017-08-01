@@ -173,6 +173,11 @@ void CG_DrawStringExt( int x, int y, const char *string, const float *setColor,
 
 	// draw the drop shadow
 	if (shadow) {
+		int shadow_offset = 2;
+		if (charHeight <= SCORECHAR_HEIGHT || charWidth <= SCORECHAR_WIDTH) {
+			shadow_offset = 1;
+		}
+
 		color[0] = color[1] = color[2] = 0;
 		color[3] = setColor[3];
 		trap_R_SetColor( color );
@@ -184,7 +189,7 @@ void CG_DrawStringExt( int x, int y, const char *string, const float *setColor,
 				s += 2;
 				continue;
 			}
-			CG_DrawChar( xx + 2, y + 2, charWidth, charHeight, *s );
+			CG_DrawChar( xx + shadow_offset, y + shadow_offset, charWidth, charHeight, *s );
 			cnt++;
 			xx += charWidth;
 			s++;
@@ -212,6 +217,42 @@ void CG_DrawStringExt( int x, int y, const char *string, const float *setColor,
 		s++;
 	}
 	trap_R_SetColor( NULL );
+}
+
+void CG_DrawScoreString( int x, int y, const char *s, float alpha ) {
+	float   color[4];
+
+	color[0] = color[1] = color[2] = 1.0;
+	color[3] = alpha;
+	CG_DrawStringExt( x, y, s, color, qfalse, qtrue, SCORECHAR_WIDTH, SCORECHAR_HEIGHT, 0 );
+}
+
+void CG_DrawScoreStringColor( int x, int y, const char *s, vec4_t color ) {
+	CG_DrawStringExt( x, y, s, color, qtrue, qtrue, SCORECHAR_WIDTH, SCORECHAR_HEIGHT, 0 );
+}
+
+void CG_DrawSmallScoreString( int x, int y, const char *s, float alpha ) {
+	float   color[4];
+
+	color[0] = color[1] = color[2] = 1.0;
+	color[3] = alpha;
+	CG_DrawStringExt( x, y, s, color, qfalse, qtrue, SCORESMALLCHAR_WIDTH, SCORESMALLCHAR_HEIGHT, 0 );
+}
+
+void CG_DrawSmallScoreStringColor( int x, int y, const char *s, vec4_t color ) {
+	CG_DrawStringExt( x, y, s, color, qtrue, qtrue, SCORESMALLCHAR_WIDTH, SCORESMALLCHAR_HEIGHT, 0 );
+}
+
+void CG_DrawTinyScoreString( int x, int y, const char *s, float alpha ) {
+	float   color[4];
+
+	color[0] = color[1] = color[2] = 1.0;
+	color[3] = alpha;
+	CG_DrawStringExt( x, y, s, color, qfalse, qtrue, SCORETINYCHAR_WIDTH, SCORETINYCHAR_HEIGHT, 0 );
+}
+
+void CG_DrawTinyScoreStringColor( int x, int y, const char *s, vec4_t color ) {
+	CG_DrawStringExt( x, y, s, color, qtrue, qtrue, SCORETINYCHAR_WIDTH, SCORETINYCHAR_HEIGHT, 0 );
 }
 
 void CG_DrawBigString( int x, int y, const char *s, float alpha ) {
