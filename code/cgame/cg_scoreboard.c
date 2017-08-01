@@ -95,7 +95,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define RATSB_WINS_WIDTH       (2 * SCORESMALLCHAR_WIDTH)
 #define RATSB_WL_WIDTH         (1 * SCORESMALLCHAR_WIDTH)
 #define RATSB_LOSSES_WIDTH     (2 * SCORESMALLCHAR_WIDTH)
-#define RATSB_SCORE_WIDTH      (MAX(5*SCORECHAR_WIDTH,6*SCORESMALLCHAR_WIDTH))
+#define RATSB_SCORE_WIDTH      (MAX(4*SCORECHAR_WIDTH,5*SCORESMALLCHAR_WIDTH))
 #define RATSB_TIME_WIDTH       (3 * SCORESMALLCHAR_WIDTH)
 #define RATSB_CNUM_WIDTH       (2 * SCORESMALLCHAR_WIDTH)
 #define RATSB_NAME_WIDTH       (25 * SCORECHAR_WIDTH)
@@ -277,12 +277,14 @@ static void CG_RatDrawClientScore(int y, score_t *score, float *color, float fad
 	}
 
 	tcolor[0] = tcolor[1] = tcolor[2] = 1.0;
-	if (ci->team == TEAM_SPECTATOR && score->ping != -1) {
-		Com_sprintf(string, sizeof (string), " SPECT");
-		CG_DrawSmallScoreStringColor(RATSB_SCORE_X, ysmall, string, tcolor);
-	} else {
-		Com_sprintf(string, sizeof (string), "%4i", score->score);
-		CG_DrawScoreStringColor(RATSB_SCORE_X, y, string, tcolor);
+	if (score->ping != -1) {
+		if (ci->team == TEAM_SPECTATOR) {
+			Com_sprintf(string, sizeof (string), "SPECT");
+			CG_DrawSmallScoreStringColor(RATSB_SCORE_X, ysmall, string, tcolor);
+		} else {
+			Com_sprintf(string, sizeof (string), "%4i", score->score);
+			CG_DrawScoreStringColor(RATSB_SCORE_X, y, string, tcolor);
+		}
 	}
 
 	tcolor[0] = tcolor[1] = tcolor[2] = 0.75;
