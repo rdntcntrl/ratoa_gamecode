@@ -61,6 +61,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 // for delagged projectiles
 //#define	MISSILE_PRESTEP_MAX_LATENCY 250
+#define	UNLAG_MAX_BACKTRACK (g_unlagMissileMaxLatency.integer + 1000/sv_fps.integer * 2)
 
 // movers are things like doors, plats, buttons, etc
 typedef enum {
@@ -1169,6 +1170,7 @@ extern  vmCvar_t        g_rocketSpeed;
 extern  vmCvar_t        g_unlagMissileMaxLatency;
 extern  vmCvar_t        g_unlagMode;
 extern  vmCvar_t        g_unlagLaunchLagMode;
+extern  vmCvar_t        g_unlagLatencyMode;
 extern  vmCvar_t        g_unlagCorrectFrameOffset;
 extern  vmCvar_t        g_unlagPrestep;
 extern  vmCvar_t        g_unlagFlight;

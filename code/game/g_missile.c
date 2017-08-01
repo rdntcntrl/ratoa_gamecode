@@ -26,7 +26,44 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 //#define	MISSILE_PRESTEP_MAX_LATENCY 150
 #define MIN(x,y) (x < y ? x : y)
 //#define MISSILE_LAUNCHLAG(ping) (MIN(MISSILE_PRESTEP_MAX_LATENCY/2, ping/2))
-#define MISSILE_LAUNCHLAG(ping) (MIN(g_unlagMissileMaxLatency.integer/2, ping/2))
+//#define MISSILE_LAUNCHLAG(ping) (MIN(g_unlagMissileMaxLatency.integer/2, ping/2))
+
+int G_UnlagLatency(gclient_t *client) {
+	int ping = 0;
+	switch (g_unlagLatencyMode.integer) {
+		case 1:
+			ping = client->ps.ping;
+			break;
+		case 2:
+			ping = client->pers.realPing;
+			break;
+		case 3:
+			ping = level.previousTime + client->frameOffset - (client->attackTime + client->pers.cmdTimeNudge);
+			if (ping < 0) {
+				ping = 0;
+			}
+			break;
+		case 4:
+			ping = level.previousTime + client->frameOffset - client->attackTime;
+			if (ping < 0) {
+				ping = 0;
+			}
+			break;
+	}
+	return MIN(g_unlagMissileMaxLatency.integer, ping);
+}
+
+int G_LaunchLag(gclient_t *client) {
+	switch (g_unlagLaunchLagMode.integer) {
+		case 1:
+			return G_UnlagLatency(client)/2;
+			break;
+		case 2:
+			return G_UnlagLatency(client);
+			break;
+	}
+	return 0;
+}
 
 int G_MissilePrestep(gclient_t *client) {
 	int launchlag = G_LaunchLag(client);
@@ -36,6 +73,9 @@ int G_MissilePrestep(gclient_t *client) {
 		//Com_Printf("MissilePrestep: offset = %i\n", offset);
 		if (offset < 0) {
 			offset = 0;
+		}
+		if (offset > 1000/sv_fps.integer) {
+			offset = 1000/sv_fps.integer;
 		}
 	}
 	switch (g_unlagMode.integer) {
@@ -58,33 +98,6 @@ int G_MissilePrestep(gclient_t *client) {
 	return 0;
 }
 
-int G_LaunchLag(gclient_t *client) {
-	int ping;
-	switch (g_unlagLaunchLagMode.integer) {
-		case 1:
-			return MISSILE_LAUNCHLAG(client->ps.ping);
-			break;
-		case 2:
-			return MISSILE_LAUNCHLAG(client->pers.realPing);
-			break;
-		case 3:
-			ping = level.previousTime + client->frameOffset - (client->attackTime + client->pers.cmdTimeNudge);
-			//Com_Printf("Launchlag: ping = %i\n", ping);
-			if (ping < 0) {
-				ping = 0;
-			}
-			return MISSILE_LAUNCHLAG(ping);
-			break;
-		case 4:
-			ping = level.previousTime + client->frameOffset - client->attackTime;
-			if (ping < 0) {
-				ping = 0;
-			}
-			return MISSILE_LAUNCHLAG(ping);
-			break;
-	}
-	return 0;
-}
 
 /*
 ================

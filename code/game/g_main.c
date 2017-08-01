@@ -179,6 +179,7 @@ vmCvar_t        g_rocketSpeed;
 vmCvar_t        g_unlagMissileMaxLatency; 
 vmCvar_t        g_unlagMode; 
 vmCvar_t        g_unlagLaunchLagMode; 
+vmCvar_t        g_unlagLatencyMode; 
 vmCvar_t        g_unlagCorrectFrameOffset; 
 vmCvar_t        g_unlagPrestep; 
 vmCvar_t        g_unlagFlight; 
@@ -359,6 +360,7 @@ static cvarTable_t		gameCvarTable[] = {
         { &g_unlagMissileMaxLatency, "g_unlagMissileMaxLatency", "200", CVAR_ARCHIVE, 0, qfalse },
         { &g_unlagMode, "g_unlagMode", "1", CVAR_ARCHIVE, 0, qfalse },
         { &g_unlagLaunchLagMode, "g_unlagLaunchLagMode", "1", CVAR_ARCHIVE, 0, qfalse },
+        { &g_unlagLatencyMode, "g_unlagLatencyMode", "2", CVAR_ARCHIVE, 0, qfalse },
         { &g_unlagCorrectFrameOffset, "g_unlagCorrectFrameOffset", "1", CVAR_ARCHIVE, 0, qfalse },
         { &g_unlagPrestep, "g_unlagPrestep", "1", CVAR_ARCHIVE, 0, qfalse },
         { &g_unlagFlight, "g_unlagFlight", "1", CVAR_ARCHIVE, 0, qfalse },
@@ -3068,7 +3070,7 @@ int start, end;
 	}
 
 	if (g_unlagPrestep.integer 
-			&& level.previousTime > g_unlagMissileMaxLatency.integer
+			&& level.previousTime > UNLAG_MAX_BACKTRACK
 			&& msec > 0) {
 		// if we see the missile late due to lag & PRESTEP
 		// compute the flight since it was launched, 
@@ -3084,7 +3086,7 @@ int start, end;
 
 			int prevTimeSaved = level.previousTime;
 			int lvlTimeSaved = level.time;
-			int projectileDelagTime = level.previousTime - (g_unlagMissileMaxLatency.integer/msec) * msec;
+			int projectileDelagTime = level.previousTime - (UNLAG_MAX_BACKTRACK/msec) * msec;
 			while (projectileDelagTime < prevTimeSaved) {
 				if ( !ent->inuse || ent->freeAfterEvent ) {
 					// make sure we don't run missile again
@@ -3121,9 +3123,9 @@ int start, end;
 
 	if (g_unlagFlight.integer) {
 		int projectileDelagTime = level.previousTime;
-		if (level.previousTime > g_unlagMissileMaxLatency.integer
+		if (level.previousTime > UNLAG_MAX_BACKTRACK
 				&& msec > 0) {
-			projectileDelagTime -= (g_unlagMissileMaxLatency.integer/msec) * msec;
+			projectileDelagTime -= (UNLAG_MAX_BACKTRACK/msec) * msec;
 		}
 		while (projectileDelagTime <= level.previousTime) {
 			int lag = level.previousTime - projectileDelagTime;
