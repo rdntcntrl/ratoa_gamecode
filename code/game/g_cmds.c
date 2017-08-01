@@ -1179,10 +1179,25 @@ void G_Timeout(gentity_t *caller) {
 
 	//TODO: POWERUPS
 
-	for ( i = 0; i < level.numConnectedClients ;i++) {
-		for ( j = 0; j < MAX_POWERUPS; j++ ) {
-			if ( level.clients[i].ps.powerups[j] > 0 )
-				level.clients->ps.powerups[j] += level.timeoutAdd;
+	tent = &g_entities[0];
+	for (i=0 ; i < level.maxclients ; i++, tent++ ) {
+		if ( tent->inuse && tent->client ) {
+			for ( j = 0; j < MAX_POWERUPS; j++ ) {
+				if ( tent->client->ps.powerups[j] > 0 )
+					tent->client->ps.powerups[j] += level.timeoutAdd;
+			}
+			if (tent->client->respawnTime) {
+				tent->client->respawnTime += level.timeoutAdd;
+			}
+			if (tent->client->airOutTime) {
+				tent->client->airOutTime += level.timeoutAdd;
+			}
+			if (tent->client->invulnerabilityTime) {
+				tent->client->invulnerabilityTime += level.timeoutAdd;
+			}
+			if (tent->client->lastSentFlyingTime) {
+				tent->client->lastSentFlyingTime += level.timeoutAdd;
+			}
 		}
 	}
 

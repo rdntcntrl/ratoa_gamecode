@@ -2896,12 +2896,16 @@ int start, end;
 
 	level.framenum++;
 	level.previousTime = level.time;
-	level.time = levelTime;
-	msec = level.time - level.previousTime;
+	
 
-	if (level.timeout && level.time >= level.timeoutEnd) {
+	if (level.timeout && levelTime >= level.timeoutEnd) {
 		G_Timein();
 	}
+
+	if (!level.timeout)
+		level.time = levelTime;
+
+	msec = level.time - level.previousTime;
 
 	// get any cvar changes
 	G_UpdateCvars();
