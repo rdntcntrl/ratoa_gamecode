@@ -1158,8 +1158,8 @@ static void CG_RegisterGraphics( void ) {
 	cgs.media.bloodTrailShader = trap_R_RegisterShader( "bloodTrail" );
 	//cgs.media.lagometerShader = trap_R_RegisterShader("lagometer" );
 	cgs.media.lagometerShader = trap_R_RegisterShader("gfx/2d/lag.tga" );
-	//cgs.media.connectionShader = trap_R_RegisterShader( "disconnected" );
-	cgs.media.connectionShader = trap_R_RegisterShader( "gfx/2d/net.tga" );
+	cgs.media.connectionShader = trap_R_RegisterShader( "ratdisconnected" );
+	//cgs.media.connectionShader = trap_R_RegisterShader( "gfx/2d/net.tga" );
 
 	cgs.media.waterBubbleShader = trap_R_RegisterShader( "waterBubble" );
 
