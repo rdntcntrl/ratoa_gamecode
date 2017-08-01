@@ -909,7 +909,7 @@ static float CG_DrawTimer( float y ) {
 	seconds -= tens * 10;
 
 	s = va( "%s%i:%i%i", negative ? "-" : "", mins, tens, seconds );
-	w = CG_DrawStrlen( s ) * BIGCHAR_WIDTH;
+	w = CG_DrawStrlen( s ) * char_width;
 
 	//CG_DrawBigString( 635 - w, y + 2, s, 1.0F);
 	CG_DrawStringExt( 635-w, y+2, s, color, qfalse, qtrue, char_width, char_height, 0 );
@@ -948,7 +948,7 @@ static float CG_DrawTimeout( float y ) {
 	seconds -= tens * 10;
 
 	s = va( "Timeout ends: %i:%i%i", mins, tens, seconds );
-	w = CG_DrawStrlen( s ) * BIGCHAR_WIDTH;
+	w = CG_DrawStrlen( s ) * char_width;
 
 	//CG_DrawBigString( 635 - w, y + 2, s, 1.0F);
 	CG_DrawStringExt( 635-w, y+2, s, color, qfalse, qtrue, char_width, char_height, 0 );
