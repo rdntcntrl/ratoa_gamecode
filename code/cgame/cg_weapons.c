@@ -1306,24 +1306,26 @@ static void CG_LightningBolt( centity_t *cent, vec3_t origin ) {
 	trap_R_AddRefEntityToScene( &beam );
 
 	// add the impact flare if it hit something
-	if ( trace.fraction < 1.0 ) {
-		vec3_t	angles;
-		vec3_t	dir;
+	if (cg_ratLgImpact.integer) {
+		if ( trace.fraction < 1.0 ) {
+			vec3_t	angles;
+			vec3_t	dir;
 
-		VectorSubtract( beam.oldorigin, beam.origin, dir );
-		VectorNormalize( dir );
+			VectorSubtract( beam.oldorigin, beam.origin, dir );
+			VectorNormalize( dir );
 
-		memset( &beam, 0, sizeof( beam ) );
-		beam.hModel = cgs.media.lightningExplosionModel;
+			memset( &beam, 0, sizeof( beam ) );
+			beam.hModel = cgs.media.lightningExplosionModel;
 
-		VectorMA( trace.endpos, -16, dir, beam.origin );
+			VectorMA( trace.endpos, -16, dir, beam.origin );
 
-		// make a random orientation
-		angles[0] = rand() % 360;
-		angles[1] = rand() % 360;
-		angles[2] = rand() % 360;
-		AnglesToAxis( angles, beam.axis );
-		trap_R_AddRefEntityToScene( &beam );
+			// make a random orientation
+			angles[0] = rand() % 360;
+			angles[1] = rand() % 360;
+			angles[2] = rand() % 360;
+			AnglesToAxis( angles, beam.axis );
+			trap_R_AddRefEntityToScene( &beam );
+		}
 	}
 }
 /*
