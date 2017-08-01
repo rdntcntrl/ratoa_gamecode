@@ -104,19 +104,18 @@ static void CG_ScoresDown_f( void ) {
 #ifdef MISSIONPACK
 		CG_BuildSpectatorString();
 #endif
-	if ( cg.scoresRequestTime + 2000 < cg.time ) {
+	if ( cg.scoresRequestTime + 1000 < cg.time ) {
 		// the scores are more than 2s out of data,
 		// so request new ones
 		cg.scoresRequestTime = cg.time;
+
 		trap_SendClientCommand( "score" );
-		trap_SendClientCommand( "damages" );
 
 		// leave the current scores up if they were already
 		// displayed, but if this is the first hit, clear them out
 		if ( !cg.showScores ) {
 			cg.showScores = qtrue;
 			cg.numScores = 0;
-			cg.numDamageScores = 0;
 		}
 	} else {
 		// show the cached contents even if they just pressed if it

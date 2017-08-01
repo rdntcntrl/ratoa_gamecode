@@ -304,15 +304,11 @@ typedef struct {
 	qboolean	perfect;
 	int				team;
 	int			isDead;
-} score_t;
-
-typedef struct {
 	int			kills;
 	int			deaths;
 	int			dmgGiven;
 	int			dmgTaken;
-	int			client;
-} damageScore_t;
+} score_t;
 
 // each client has an associated clientInfo_t
 // that contains media references necessary to present the
@@ -557,9 +553,6 @@ typedef struct {
 	qboolean	showScores;
 	qboolean	scoreBoardShowing;
 	int			scoreFadeTime;
-	int			damageScoresRequestTime;
-	int			numDamageScores;
-	damageScore_t	damageScores[MAX_CLIENTS];
 
         int		accuracys[WP_NUM_WEAPONS][2];
 	int		accRequestTime;

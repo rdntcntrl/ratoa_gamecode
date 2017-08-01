@@ -60,35 +60,66 @@ static int CG_ValidOrder(const char *p) {
 
 /*
 =================
-CG_ParseDamages
+CG_ParseRatScores
 
 =================
 */
-static void CG_ParseDamages( void ) {
+static void CG_ParseRatScores( void ) {
 	int		i, powerups;
 
-	cg.numDamageScores = atoi( CG_Argv( 1 ) );
-	if ( cg.numDamageScores > MAX_CLIENTS ) {
-		cg.numDamageScores = MAX_CLIENTS;
+	cg.numScores = atoi( CG_Argv( 1 ) );
+	if ( cg.numScores > MAX_CLIENTS ) {
+		cg.numScores = MAX_CLIENTS;
 	}
 
-	memset( cg.damageScores, 0, sizeof( cg.damageScores ) );
+	cg.teamScores[0] = atoi( CG_Argv( 2 ) );
+	cg.teamScores[1] = atoi( CG_Argv( 3 ) );
 
-#define NUM_DMG_DATA 5
-#define FIRST_DMG_DATA 1
+	cgs.roundStartTime = atoi( CG_Argv( 4 ) );
 
-	for ( i = 0 ; i < cg.numDamageScores ; i++ ) {
+	//Update thing in lower-right corner
+	if(cgs.gametype == GT_ELIMINATION || cgs.gametype == GT_CTF_ELIMINATION)
+	{
+		cgs.scores1 = cg.teamScores[0];
+		cgs.scores2 = cg.teamScores[1];
+	}
+
+	memset( cg.scores, 0, sizeof( cg.scores ) );
+
+#define NUM_RAT_DATA 19
+#define FIRST_RAT_DATA 4
+
+	for ( i = 0 ; i < cg.numScores ; i++ ) {
 		//
-		cg.damageScores[i].client = atoi( CG_Argv( i * NUM_DMG_DATA + FIRST_DMG_DATA + 1 ) );
-		cg.damageScores[i].kills = atoi( CG_Argv( i * NUM_DMG_DATA + FIRST_DMG_DATA + 2 ) );
-		cg.damageScores[i].deaths = atoi( CG_Argv( i * NUM_DMG_DATA + FIRST_DMG_DATA + 3 ) );
-		cg.damageScores[i].dmgGiven = atoi( CG_Argv( i * NUM_DMG_DATA + FIRST_DMG_DATA + 4 ) );
-		cg.damageScores[i].dmgTaken = atoi( CG_Argv( i * NUM_DMG_DATA + FIRST_DMG_DATA + 5 ) );
+		cg.scores[i].client = atoi( CG_Argv( i * NUM_RAT_DATA + FIRST_RAT_DATA + 1 ) );
+		cg.scores[i].score = atoi( CG_Argv( i * NUM_RAT_DATA + FIRST_RAT_DATA + 2 ) );
+		cg.scores[i].ping = atoi( CG_Argv( i * NUM_RAT_DATA + FIRST_RAT_DATA + 3 ) );
+		cg.scores[i].time = atoi( CG_Argv( i * NUM_RAT_DATA + FIRST_RAT_DATA + 4 ) );
+		cg.scores[i].scoreFlags = atoi( CG_Argv( i * NUM_RAT_DATA + FIRST_RAT_DATA + 5 ) );
+		powerups = atoi( CG_Argv( i * NUM_RAT_DATA + FIRST_RAT_DATA + 6 ) );
+		cg.scores[i].accuracy = atoi(CG_Argv(i * NUM_RAT_DATA + FIRST_RAT_DATA + 7));
+		cg.scores[i].impressiveCount = atoi(CG_Argv(i * NUM_RAT_DATA + FIRST_RAT_DATA + 8));
+		cg.scores[i].excellentCount = atoi(CG_Argv(i * NUM_RAT_DATA + FIRST_RAT_DATA + 9));
+		cg.scores[i].guantletCount = atoi(CG_Argv(i * NUM_RAT_DATA + FIRST_RAT_DATA + 10));
+		cg.scores[i].defendCount = atoi(CG_Argv(i * NUM_RAT_DATA + FIRST_RAT_DATA + 11));
+		cg.scores[i].assistCount = atoi(CG_Argv(i * NUM_RAT_DATA + FIRST_RAT_DATA + 12));
+		cg.scores[i].perfect = atoi(CG_Argv(i * NUM_RAT_DATA + FIRST_RAT_DATA + 13));
+		cg.scores[i].captures = atoi(CG_Argv(i * NUM_RAT_DATA + FIRST_RAT_DATA + 14));
+		cg.scores[i].isDead = atoi(CG_Argv(i * NUM_RAT_DATA + FIRST_RAT_DATA + 15));
+		cg.scores[i].kills = atoi(CG_Argv(i * NUM_RAT_DATA + FIRST_RAT_DATA + 16));
+		cg.scores[i].deaths = atoi(CG_Argv(i * NUM_RAT_DATA + FIRST_RAT_DATA + 17));
+		cg.scores[i].dmgGiven = atoi(CG_Argv(i * NUM_RAT_DATA + FIRST_RAT_DATA + 18));
+		cg.scores[i].dmgTaken = atoi(CG_Argv(i * NUM_RAT_DATA + FIRST_RAT_DATA + 19));
+		//cgs.roundStartTime = 
 
-		if ( cg.damageScores[i].client < 0 || cg.damageScores[i].client >= MAX_CLIENTS ) {
-			cg.damageScores[i].client = 0;
+		if ( cg.scores[i].client < 0 || cg.scores[i].client >= MAX_CLIENTS ) {
+			cg.scores[i].client = 0;
 		}
+		cgs.clientinfo[ cg.scores[i].client ].score = cg.scores[i].score;
+		cgs.clientinfo[ cg.scores[i].client ].powerups = powerups;
+		cgs.clientinfo[ cg.scores[i].client ].isDead = cg.scores[i].isDead;
 
+		cg.scores[i].team = cgs.clientinfo[cg.scores[i].client].team;
 	}
 }
 
@@ -1304,8 +1335,8 @@ static void CG_ServerCommand( void ) {
 		return;
 	}
 
-	if ( !strcmp( cmd, "damages" ) ) {
-		CG_ParseDamages();
+	if ( !strcmp( cmd, "ratscores" ) ) {
+		CG_ParseRatScores();
 		return;
 	}
 

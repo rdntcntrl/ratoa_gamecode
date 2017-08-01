@@ -148,19 +148,10 @@ static void CG_RatDrawClientScore(int y, score_t *score, float *color, float fad
 	float tcolor[4] = { 1.0, 1.0, 1.0, 1.0 };
 	int ysmall = y + (SCORECHAR_HEIGHT - SCORESMALLCHAR_HEIGHT);
 	int ytiny = y + (SCORECHAR_HEIGHT - SCORETINYCHAR_HEIGHT);
-	int i;
-	damageScore_t *damage = NULL;
 
 	if (score->client < 0 || score->client >= cgs.maxclients) {
 		Com_Printf("Bad score->client: %i\n", score->client);
 		return;
-	}
-
-	for (i = 0; i < cg.numDamageScores; i++) {
-		if (cg.damageScores[i].client == score->client) {
-			damage = &cg.damageScores[i];
-			break;
-		}
 	}
 
 	ci = &cgs.clientinfo[score->client];
@@ -319,16 +310,14 @@ static void CG_RatDrawClientScore(int y, score_t *score, float *color, float fad
 	Com_sprintf(string, sizeof (string), "%s", ci->name);
 	CG_DrawScoreString(RATSB_NAME_X, y, string, fade);
 
-	if (damage) {
-		tcolor[0] = tcolor[1] = tcolor[2] = 0.75;
-		Com_sprintf(string, sizeof (string), "%3i/%-3i", damage->kills, damage->deaths);
-		CG_DrawTinyScoreStringColor(RATSB_KD_X, ytiny, string, tcolor);
+	tcolor[0] = tcolor[1] = tcolor[2] = 0.75;
+	Com_sprintf(string, sizeof (string), "%3i/%-3i", score->kills, score->deaths);
+	CG_DrawTinyScoreStringColor(RATSB_KD_X, ytiny, string, tcolor);
 
-		tcolor[0] = tcolor[1] = tcolor[2] = 0.75;
-		Com_sprintf(string, sizeof (string), "%2.1f/%-2.1f",
-				(float)damage->dmgGiven/1000.0, (float)damage->dmgTaken/1000.0);
-		CG_DrawTinyScoreStringColor(RATSB_DT_X, ytiny, string, tcolor);
-	}
+	tcolor[0] = tcolor[1] = tcolor[2] = 0.75;
+	Com_sprintf(string, sizeof (string), "%2.1f/%-2.1f",
+			(float)score->dmgGiven/1000.0, (float)score->dmgTaken/1000.0);
+	CG_DrawTinyScoreStringColor(RATSB_DT_X, ytiny, string, tcolor);
 
 	//tcolor[0] = tcolor[1] = tcolor[2] = 0.75;
 	//Com_sprintf(string, sizeof (string), "%3i%%", score->accuracy);
@@ -451,7 +440,6 @@ qboolean CG_DrawRatScoreboard(void) {
 		// so request new ones
 		cg.scoresRequestTime = cg.time;
 		trap_SendClientCommand( "score" );
-		trap_SendClientCommand( "damages" );
 	}
 
 
