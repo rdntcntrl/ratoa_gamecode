@@ -1373,6 +1373,47 @@ static void G_SayTo( gentity_t *ent, gentity_t *other, int mode, int color, cons
 		name, Q_COLOR_ESCAPE, color, message));
 }
 
+char * G_TeamSayTokens(gentity_t *ent, const char *message) {
+	static char text[MAX_SAY_TEXT];
+	char location[64];
+	char *p1 = message;
+	char *token = NULL;
+	int i = 0;
+	while (i < MAX_SAY_TEXT-1) {
+		if (token && *token) {
+			text[i++] = *(token++);
+			continue;
+		} 
+		if (*p1 == '\0') {
+			break;
+		}
+		if (ent->client) {
+			if (*p1 == '#' && *(p1+1) != '\0') {
+				switch (*(p1+1)) {
+					case 'L':
+						if (Team_GetLocationMsg(ent, location, sizeof(location))) {
+							token = location;
+						}
+						p1+=2;
+						continue;
+					case 'H':
+						token = va("%i", ent->health);
+						p1+=2;
+						continue;
+					case 'A':
+						token = va("%i", ent->client->ps.stats[STAT_ARMOR]);
+						p1+=2;
+						continue;
+						break;
+				}
+			}  
+		}
+		text[i++] = *(p1++);
+	}
+	text[i] = '\0';
+	return text;
+}
+
 #define EC		"\x19"
 
 void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText ) {
@@ -1383,6 +1424,7 @@ void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText ) 
 	// don't let text be too long for malicious reasons
 	char		text[MAX_SAY_TEXT];
 	char		location[64];
+	int 		intendedMode = mode;
 
 	if (ent && ent->client) {
 		ClientInactivityHeartBeat(ent->client);
@@ -1409,12 +1451,14 @@ void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText ) 
 		break;
 	case SAY_TEAM:
 		G_LogPrintf( "sayteam: %s: %s\n", ent->client->pers.netname, chatText );
-		if (Team_GetLocationMsg(ent, location, sizeof(location)))
-			Com_sprintf (name, sizeof(name), EC"(%s%c%c"EC") (%s)"EC": ", 
-				ent->client->pers.netname, Q_COLOR_ESCAPE, COLOR_WHITE, location);
-		else
-			Com_sprintf (name, sizeof(name), EC"(%s%c%c"EC")"EC": ", 
-				ent->client->pers.netname, Q_COLOR_ESCAPE, COLOR_WHITE );
+		//if (Team_GetLocationMsg(ent, location, sizeof(location)))
+		//	Com_sprintf (name, sizeof(name), EC"(%s%c%c"EC") (%s)"EC": ", 
+		//		ent->client->pers.netname, Q_COLOR_ESCAPE, COLOR_WHITE, location);
+		//else
+		//	Com_sprintf (name, sizeof(name), EC"(%s%c%c"EC")"EC": ", 
+		//		ent->client->pers.netname, Q_COLOR_ESCAPE, COLOR_WHITE );
+		Com_sprintf (name, sizeof(name), EC"(%s%c%c"EC")"EC": ", 
+			ent->client->pers.netname, Q_COLOR_ESCAPE, COLOR_WHITE );
 		color = COLOR_CYAN;
 		break;
 	case SAY_TELL:
@@ -1429,7 +1473,11 @@ void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText ) 
 		break;
 	}
 
-	Q_strncpyz( text, chatText, sizeof(text) );
+	if (intendedMode == SAY_TEAM && mode == SAY_TEAM) {
+		Q_strncpyz( text, G_TeamSayTokens(ent, chatText), sizeof(text) );
+	} else {
+		Q_strncpyz( text, chatText, sizeof(text) );
+	}
 
 	if ( target ) {
 		G_SayTo( ent, target, mode, color, name, text );
