@@ -174,6 +174,8 @@ vmCvar_t	cg_crosshairNamesY;
 vmCvar_t	cg_crosshairNamesScaleX;
 vmCvar_t	cg_crosshairNamesScaleY;
 vmCvar_t	cg_crosshairNamesHealth;
+vmCvar_t	cg_friendFloatHealth;
+vmCvar_t	cg_friendFloatHealthSize;
 
 //unlagged - smooth clients #2
 // this is done server-side now
@@ -398,6 +400,7 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_timescale, "timescale", "1", 0},
 	{ &cg_scorePlum, "cg_scorePlums", "1", CVAR_USERINFO | CVAR_ARCHIVE},
 
+	// RAT ===================
 	{ &cg_ratScoreboard, "cg_ratScoreboard", "1", CVAR_ARCHIVE},
 	{ &cg_ratRocketTrail, "cg_ratRocketTrail", "0", CVAR_ARCHIVE},
 	{ &cg_ratRocketTrailAlpha, "cg_ratRocketTrailAlpha", "0.5", CVAR_ARCHIVE},
@@ -407,6 +410,9 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_crosshairNamesScaleX, "cg_crosshairNamesScaleX", "1", CVAR_ARCHIVE},
 	{ &cg_crosshairNamesScaleY, "cg_crosshairNamesScaleY", "1", CVAR_ARCHIVE},
 	{ &cg_crosshairNamesHealth, "cg_crosshairNamesHealth", "1", CVAR_ARCHIVE},
+	{ &cg_friendFloatHealth, "cg_friendFloatHealth", "0", CVAR_ARCHIVE},
+	{ &cg_friendFloatHealthSize, "cg_friendFloatHealthSize", "8", CVAR_ARCHIVE},
+	// / RAT ===================
 
 //unlagged - smooth clients #2
 // this is done server-side now

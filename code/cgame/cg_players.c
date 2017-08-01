@@ -1879,13 +1879,96 @@ static void CG_PlayerPowerups( centity_t *cent, refEntity_t *torso ) {
 	}
 }
 
+/*
+===================
+CG_PlayerFloatHealth
+===================
+*/
+
+
+void CG_PlayerFloatHealth( centity_t *cent, qboolean armor ) {
+	refEntity_t	re;
+	vec3_t		origin, delta, dir, vec, up = {0, 0, 1};
+	float		c, len;
+	int			i, score, digits[10], numdigits;
+	int rf;
+	//int xoffset = armor ? - 1 - 3 * HEALTHNUMBER_SIZE : 1 + 3 * HEALTHNUMBER_SIZE;
+	int yoffset = armor ? 0 : cg_friendFloatHealthSize.value*1.10;
+
+	if ( cent->currentState.number == cg.snap->ps.clientNum && !cg.renderingThirdPerson ) {
+		rf = RF_THIRD_PERSON;		// only show in mirrors
+	} else {
+		rf = 0;
+	}
+
+	if (armor ) {
+		score = cgs.clientinfo[cent->currentState.number].armor;
+	} else {
+		score = cgs.clientinfo[cent->currentState.number].health;
+	}
+
+	if (score >= 999) {
+		score = 999;
+	} else if (score < 0) {
+		score = 0;
+	}
+
+	memset( &re, 0, sizeof( re ) );
+	if (armor) {
+		re.shaderRGBA[0] = 0xff;
+		re.shaderRGBA[1] = 0;
+	} else {
+		re.shaderRGBA[0] = 0;
+		re.shaderRGBA[1] = 0xff;
+	}
+
+	re.shaderRGBA[2] = 0;
+	re.shaderRGBA[3] = 0xff;
+
+	re.reType = RT_SPRITE;
+	re.renderfx = rf;
+	re.radius = cg_friendFloatHealthSize.value/2;
+
+	VectorCopy(cent->lerpOrigin, origin);
+	origin[2] += 40 + yoffset;
+
+	VectorSubtract(cg.refdef.vieworg, origin, dir);
+	CrossProduct(dir, up, vec);
+	VectorNormalize(vec);
+
+	//VectorMA(origin, -10 + 20 * sin(c * 2 * M_PI), vec, origin);
+
+	// if the view would be "inside" the sprite, kill the sprite
+	// so it doesn't add too much overdraw
+	VectorSubtract( origin, cg.refdef.vieworg, delta );
+	len = VectorLength( delta );
+	if ( len < 20 ) {
+		return;
+	}
+
+	for (numdigits = 0; !(numdigits && !score); numdigits++) {
+		digits[numdigits] = score % 10;
+		score = score / 10;
+	}
+
+	for (i = 0; i < numdigits; i++) {
+		VectorMA(origin, 
+			(float) (((float) numdigits / 2) - i) * cg_friendFloatHealthSize.value,
+			vec,
+			re.origin);
+		re.customShader = cgs.media.numberShaders[digits[numdigits-1-i]];
+		trap_R_AddRefEntityToScene( &re );
+	}
+}
+
+
 
 /*
-===============
-CG_PlayerFloatSprite
+   ===============
+   CG_PlayerFloatSprite
 
-Float a sprite over the player's head
-===============
+   Float a sprite over the player's head
+   ===============
 */
 static void CG_PlayerFloatSprite( centity_t *cent, qhandle_t shader ) {
 	int				rf;
@@ -1968,7 +2051,12 @@ static void CG_PlayerSprites( centity_t *cent ) {
 		cg.snap->ps.persistant[PERS_TEAM] == team &&
 		cgs.gametype >= GT_TEAM && cgs.ffa_gt!=1) {
 		if (cg_drawFriend.integer) {
-			CG_PlayerFloatSprite( cent, cgs.media.friendShader );
+			if (cg_friendFloatHealth.integer) {
+				CG_PlayerFloatHealth( cent, qfalse );
+				CG_PlayerFloatHealth( cent, qtrue );
+			} else {
+				CG_PlayerFloatSprite( cent, cgs.media.friendShader );
+			}
 		}
 		return;
 	}
