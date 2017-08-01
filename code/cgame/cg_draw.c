@@ -2715,6 +2715,8 @@ static void CG_DrawCrosshairNames( void ) {
 	float		*color;
 	char		*name;
 	float		w;
+	int	char_width = 8;
+	int	char_height = 8;
 
 	if ( !cg_drawCrosshair.integer ) {
 		return;
@@ -2744,13 +2746,39 @@ static void CG_DrawCrosshairNames( void ) {
 #else
 	//w = CG_DrawStrlen( name ) * BIGCHAR_WIDTH;
 	//CG_DrawBigString( 320 - w / 2, 170, name, color[3] * 0.5f );
-	w = CG_DrawStrlen( name ) * SMALLCHAR_WIDTH;
+	char_width *= cg_crosshairNamesScaleX.value;
+	char_height *= cg_crosshairNamesScaleY.value;
+	w = CG_DrawStrlen( name ) * char_width;
 	//CG_DrawSmallString( 320 - w / 2, cg_crossHairNamesY.integer, name, 1.0f );
 	//CG_DrawSmallString( 320 - w / 2, cg_crossHairNamesY.integer, name, 1.0f );
 	color [0] = color[1] = color[2] = color[3] = 1.0;
 	CG_DrawStringExt( 320 -w / 2, cg_crosshairNamesY.integer, name, color, qfalse, qfalse,
-		       	8 * cg_crosshairNamesScaleX.value,
-		       	8 * cg_crosshairNamesScaleY.value, 0 );
+		       	char_width,
+		       	char_height, 0 );
+	if (cgs.gametype >= GT_TEAM && cgs.ffa_gt!=1 && cg_crosshairNamesHealth.integer) {
+		if (cgs.clientinfo[cg.crosshairClientNum].team == cg.snap->ps.persistant[PERS_TEAM]) {
+			w = 8 * char_width;
+			color[0] = color[2] = 0.0;
+			color[1] = 1.0;
+			CG_DrawStringExt( 320 - 3 * char_width - 3,
+				       	cg_crosshairNamesY.integer + (char_height*1.20),
+				       	va("%3i", cgs.clientinfo[cg.crosshairClientNum].health),
+					color, qfalse, qfalse,
+					char_width,
+					char_height,
+				       	0 );
+			color[1] = color[2] = 0.0;
+			color[0] = 1.0;
+			CG_DrawStringExt( 320 + 3,
+				       	cg_crosshairNamesY.integer + (char_height*1.20),
+				       	va("%3i", cgs.clientinfo[cg.crosshairClientNum].armor),
+					color, qfalse, qfalse,
+					char_width,
+					char_height,
+					0 );
+
+		}
+	}
 #endif
 	trap_R_SetColor( NULL );
 }

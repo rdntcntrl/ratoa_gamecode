@@ -173,6 +173,7 @@ vmCvar_t	cg_ratLg;
 vmCvar_t	cg_crosshairNamesY;
 vmCvar_t	cg_crosshairNamesScaleX;
 vmCvar_t	cg_crosshairNamesScaleY;
+vmCvar_t	cg_crosshairNamesHealth;
 
 //unlagged - smooth clients #2
 // this is done server-side now
@@ -405,6 +406,7 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_crosshairNamesY, "cg_crosshairNamesY", "260", CVAR_ARCHIVE},
 	{ &cg_crosshairNamesScaleX, "cg_crosshairNamesScaleX", "1", CVAR_ARCHIVE},
 	{ &cg_crosshairNamesScaleY, "cg_crosshairNamesScaleY", "1", CVAR_ARCHIVE},
+	{ &cg_crosshairNamesHealth, "cg_crosshairNamesHealth", "1", CVAR_ARCHIVE},
 
 //unlagged - smooth clients #2
 // this is done server-side now
