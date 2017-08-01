@@ -149,6 +149,9 @@ vmCvar_t	cg_drawSpeed;
 vmCvar_t	cg_synchronousClients;
 vmCvar_t 	cg_teamChatTime;
 vmCvar_t 	cg_teamChatHeight;
+vmCvar_t 	cg_teamChatY;
+vmCvar_t 	cg_teamChatScaleX;
+vmCvar_t 	cg_teamChatScaleY;
 vmCvar_t 	cg_stats;
 vmCvar_t 	cg_buildScript;
 vmCvar_t 	cg_forceModel;
@@ -350,6 +353,9 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_thirdPerson, "cg_thirdPerson", "0", 0 },
 	{ &cg_teamChatTime, "cg_teamChatTime", "5000", CVAR_ARCHIVE  },
 	{ &cg_teamChatHeight, "cg_teamChatHeight", "0", CVAR_ARCHIVE  },
+	{ &cg_teamChatY, "cg_teamChatY", "420", CVAR_ARCHIVE  },
+	{ &cg_teamChatScaleX, "cg_teamChatScaleX", "1", CVAR_ARCHIVE  },
+	{ &cg_teamChatScaleY, "cg_teamChatScaleY", "1", CVAR_ARCHIVE  },
 	{ &cg_forceModel, "cg_forceModel", "0", CVAR_ARCHIVE  },
 	{ &cg_predictItems, "cg_predictItems", "1", CVAR_ARCHIVE },
 #ifdef MISSIONPACK

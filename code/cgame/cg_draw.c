@@ -1823,7 +1823,7 @@ static void CG_DrawTeamInfo( void ) {
 	vec4_t		hcolor;
 	int		chatHeight;
 
-#define CHATLOC_Y 420 // bottom end
+//#define CHATLOC_Y 420 // bottom end
 #define CHATLOC_X 0
 
 	if (cg_teamChatHeight.integer < TEAMCHAT_HEIGHT)
@@ -1838,7 +1838,7 @@ static void CG_DrawTeamInfo( void ) {
 			cgs.teamLastChatPos++;
 		}
 
-		h = (cgs.teamChatPos - cgs.teamLastChatPos) * TINYCHAR_HEIGHT;
+		h = (cgs.teamChatPos - cgs.teamLastChatPos) * TINYCHAR_HEIGHT * cg_teamChatScaleY.value;
 
 		w = 0;
 
@@ -1847,8 +1847,8 @@ static void CG_DrawTeamInfo( void ) {
 			if (len > w)
 				w = len;
 		}
-		w *= TINYCHAR_WIDTH;
-		w += TINYCHAR_WIDTH * 2;
+		w *= TINYCHAR_WIDTH * cg_teamChatScaleX.value;
+		w += TINYCHAR_WIDTH * cg_teamChatScaleX.value * 2;
 
 		if ( cg.snap->ps.persistant[PERS_TEAM] == TEAM_RED ) {
 			hcolor[0] = 1.0f;
@@ -1868,17 +1868,17 @@ static void CG_DrawTeamInfo( void ) {
 		}
 
 		trap_R_SetColor( hcolor );
-		CG_DrawPic( CHATLOC_X, CHATLOC_Y - h, 640, h, cgs.media.teamStatusBar );
+		CG_DrawPic( CHATLOC_X, cg_teamChatY.integer - h, 640, h, cgs.media.teamStatusBar );
 		trap_R_SetColor( NULL );
 
 		hcolor[0] = hcolor[1] = hcolor[2] = 1.0f;
 		hcolor[3] = 1.0f;
 
 		for (i = cgs.teamChatPos - 1; i >= cgs.teamLastChatPos; i--) {
-			CG_DrawStringExt( CHATLOC_X + TINYCHAR_WIDTH, 
-				CHATLOC_Y - (cgs.teamChatPos - i)*TINYCHAR_HEIGHT, 
+			CG_DrawStringExt( CHATLOC_X + TINYCHAR_WIDTH * cg_teamChatScaleX.value, 
+				cg_teamChatY.integer - (cgs.teamChatPos - i)*TINYCHAR_HEIGHT * cg_teamChatScaleY.value, 
 				cgs.teamChatMsgs[i % chatHeight], hcolor, qfalse, qfalse,
-				TINYCHAR_WIDTH, TINYCHAR_HEIGHT, 0 );
+				TINYCHAR_WIDTH * cg_teamChatScaleX.value, TINYCHAR_HEIGHT * cg_teamChatScaleY.value, 0 );
 		}
 	}
 }
