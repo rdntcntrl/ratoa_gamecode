@@ -196,7 +196,9 @@ vmCvar_t        g_pm_swimScale;
 vmCvar_t        g_teamslocked;
 
 vmCvar_t        g_timeoutAllowed;
+vmCvar_t        g_timeinAllowed;
 vmCvar_t        g_timeoutTime;
+vmCvar_t        g_timeoutOvertimeStep;
 
 
 //KK-OAX
@@ -365,7 +367,9 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_teamslocked, 		"g_teamslocked", "0", 0, 0, qfalse },
 
 	{ &g_timeoutAllowed, 		"g_timeoutAllowed", "0", 0, 0, qtrue },
+	{ &g_timeinAllowed, 		"g_timeinAllowed", "1", 0, 0, qtrue },
 	{ &g_timeoutTime, 		"g_timeoutTime", "30", 0, 0, qtrue },
+	{ &g_timeoutOvertimeStep,	"g_timeoutOvertimeStep", "30", 0, 0, qtrue },
 
 	{ &g_rankings, "g_rankings", "0", 0, 0, qfalse},
         { &g_music, "g_music", "", 0, 0, qfalse},
@@ -2896,6 +2900,7 @@ int start, end;
 
 	level.framenum++;
 	level.previousTime = level.time;
+	level.timeoutRealLevelTime = levelTime;
 	
 
 	if (level.timeout && levelTime >= level.timeoutEnd) {

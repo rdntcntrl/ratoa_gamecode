@@ -530,6 +530,9 @@ typedef struct {
 	int		timeoutAdd;
 	int		timeoutEnd;
 	int		timeoutOvertime;
+	int		timeoutTotalPausedTime;
+	int		timeoutRealLevelTime;
+	qboolean	timein;
 
 	qboolean	locationLinked;			// target_locations get linked
 	gentity_t	*locationHead;			// head of the location list
@@ -614,6 +617,7 @@ void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText );
 void G_Timein(void);
 void G_TimeinWarning(int levelTime);
 void G_Timeout(gentity_t *caller);
+void G_TimeinCommand(gentity_t *caller);
 void G_TimeoutReminder(gentity_t *ent);
 
 
@@ -1180,7 +1184,9 @@ extern vmCvar_t        g_lgDamage;
 extern vmCvar_t	       g_teamslocked;
 
 extern vmCvar_t	       g_timeoutAllowed;
+extern vmCvar_t	       g_timeinAllowed;
 extern vmCvar_t	       g_timeoutTime;
+extern vmCvar_t	       g_timeoutOvertimeStep;
 
 //KK-OAX Killing Sprees
 extern  vmCvar_t    g_sprees; //Used for specifiying the config file

@@ -164,6 +164,7 @@ int G_admin_parse_time( const char *time );
 // ! command functions
 qboolean G_admin_time( gentity_t *ent, int skiparg );
 qboolean G_admin_timeout( gentity_t *ent, int skiparg );
+qboolean G_admin_timein( gentity_t *ent, int skiparg );
 qboolean G_admin_setlevel( gentity_t *ent, int skiparg );
 qboolean G_admin_kick( gentity_t *ent, int skiparg );
 qboolean G_admin_adjustban( gentity_t *ent, int skiparg );

@@ -1150,10 +1150,55 @@ void G_TimeoutReminder(gentity_t *ent) {
 }
 
 void G_TimeoutModTimes(int delta) {
+	int i,j;
+	gentity_t *tent = &g_entities[0];
+	for (i=0 ; i < level.num_entities ; i++, tent++) {
+		if ( tent->inuse ) {
+			if ( tent->nextthink > 0 )
+				tent->nextthink += delta;
+			if ( tent->eventTime > 0 )
+				tent->eventTime += delta;
+		}
+	}
+
+	//TODO: POWERUPS
+
+	tent = &g_entities[0];
+	for (i=0 ; i < level.maxclients ; i++, tent++ ) {
+		if ( tent->inuse && tent->client ) {
+			for ( j = 0; j < MAX_POWERUPS; j++ ) {
+				if ( tent->client->ps.powerups[j] > 0 )
+					tent->client->ps.powerups[j] += delta;
+			}
+			if (tent->client->respawnTime) {
+				tent->client->respawnTime += delta;
+			}
+			if (tent->client->airOutTime) {
+				tent->client->airOutTime += delta;
+			}
+			if (tent->client->invulnerabilityTime) {
+				tent->client->invulnerabilityTime += delta;
+			}
+			if (tent->client->lastSentFlyingTime) {
+				tent->client->lastSentFlyingTime += delta;
+			}
+		}
+	}
+
+}
+
+int timeout_overtimestep(int duration) {
+	if (g_timeoutOvertimeStep.integer <= 0) {
+		return duration;
+	}
+	if (duration > g_timeoutOvertimeStep.integer * 1000) {
+		return g_timeoutOvertimeStep.integer * 1000 * (duration/(g_timeoutOvertimeStep.integer*1000));
+	} else {
+		return g_timeoutOvertimeStep.integer * 1000;
+	}
 }
 
 void G_Timeout(gentity_t *caller) {
-	int i,j;
 	if ( level.timeout ) {
 		G_TimeoutReminder(caller);
 		return;
@@ -1165,56 +1210,25 @@ void G_Timeout(gentity_t *caller) {
 	caller->client->timeouts++;
 
 	level.timeout = qtrue;
+	level.timein = qfalse;
 	level.timeoutAdd = g_timeoutTime.integer * 1000;
 	level.timeoutEnd = level.time + level.timeoutAdd;
-	level.timeoutOvertime += level.timeoutAdd;
+	//level.timeoutOvertime += level.timeoutAdd;
+	//level.timeoutOvertime += timeout_overtimestep(level.timeoutAdd);
 
+	G_TimeoutModTimes(level.timeoutAdd);
 
-	gentity_t *tent = &g_entities[0];
-	for (i=0 ; i < level.num_entities ; i++, tent++) {
-		if ( tent->inuse ) {
-			if ( tent->nextthink > 0 )
-				tent->nextthink += level.timeoutAdd;
-			if ( tent->eventTime > 0 )
-				tent->eventTime += level.timeoutAdd;
-		}
-	}
-
-	//TODO: POWERUPS
-
-	tent = &g_entities[0];
-	for (i=0 ; i < level.maxclients ; i++, tent++ ) {
-		if ( tent->inuse && tent->client ) {
-			for ( j = 0; j < MAX_POWERUPS; j++ ) {
-				if ( tent->client->ps.powerups[j] > 0 )
-					tent->client->ps.powerups[j] += level.timeoutAdd;
-			}
-			if (tent->client->respawnTime) {
-				tent->client->respawnTime += level.timeoutAdd;
-			}
-			if (tent->client->airOutTime) {
-				tent->client->airOutTime += level.timeoutAdd;
-			}
-			if (tent->client->invulnerabilityTime) {
-				tent->client->invulnerabilityTime += level.timeoutAdd;
-			}
-			if (tent->client->lastSentFlyingTime) {
-				tent->client->lastSentFlyingTime += level.timeoutAdd;
-			}
-		}
-	}
 
 	trap_SendServerCommand(-1,va("cp \"%s" S_COLOR_CYAN " called a %is timeout\nGame continues at %i:%02i\"", 
 				caller->client->pers.netname,
 				level.timeoutAdd/1000,
 				timeoutend_minutes(),
 				timeoutend_seconds()) );
-	trap_SendServerCommand(-1,va("print \"%s" S_COLOR_CYAN " called a %is timeout\nGame continues at %i:%02i, total overtime %is\n\"", 
+	trap_SendServerCommand(-1,va("print \"%s" S_COLOR_CYAN " called a %is timeout\nGame continues at %i:%02i\n\"", 
 				caller->client->pers.netname,
 				level.timeoutAdd/1000,
 				timeoutend_minutes(),
-				timeoutend_seconds(),
-				level.timeoutOvertime/1000 ));
+				timeoutend_seconds()));
 }
 
 
@@ -1236,9 +1250,55 @@ void Cmd_Timeout_f( gentity_t *ent ) {
 
 }
 
+void G_TimeinCommand(gentity_t *caller) {
+
+	if (!level.timeout || level.timein) {
+		return;
+	}
+
+	if (level.timeoutRealLevelTime + 5000 >= level.timeoutEnd) {
+		return;
+	}
+
+	trap_SendServerCommand(-1,va("cp \"%s" S_COLOR_CYAN " unpaused.\nGame continues in 5s\"", 
+				caller->client->pers.netname));
+	trap_SendServerCommand(-1,va("print \"%s" S_COLOR_CYAN " unpaused.\nGame continues in 5s\n\"", 
+				caller->client->pers.netname));
+
+	level.timein = qtrue;
+
+	int delta = level.timeoutRealLevelTime - level.timeoutEnd + 5000;
+	G_TimeoutModTimes(delta);
+	level.timeoutAdd += delta;
+	level.timeoutEnd += delta;
+	// leave overtime 
+	//level.timeoutOvertime += delta;
+	//level.timeoutOvertime = timeout_overtimestep(level.timeoutOvertime);
+}
+
+void Cmd_Timein_f( gentity_t *ent ) {
+	if ( !g_timeinAllowed.integer ) {
+		trap_SendServerCommand(ent-g_entities,va("cp \"" S_COLOR_CYAN "timein not allowed\"" ) );
+		return;
+	}
+	if ( ent->client->sess.sessionTeam == TEAM_SPECTATOR) {
+		trap_SendServerCommand(ent-g_entities,va("cp \"" S_COLOR_CYAN "timein not allowed as spectator\"" ) );
+		return;
+	}
+
+	G_TimeinCommand(ent);
+
+}
+
 void G_TimeinWarning(int levelTime) {
 	int remaining = level.timeoutEnd - levelTime;
-	if (remaining <= 5000 && remaining % 1000 == 0) {
+	if (remaining == 5000) {
+		level.timeoutTotalPausedTime += level.timeoutAdd;
+		level.timeoutOvertime = timeout_overtimestep(level.timeoutTotalPausedTime);
+		trap_SendServerCommand(-1,va("print \"" S_COLOR_CYAN "Game continues in 5s! Total overtime added: %is\n\"", 
+					level.timeoutOvertime/1000));
+	}
+	if (remaining <= 4000 && remaining % 1000 == 0) {
 		int soundIndex = G_SoundIndex("sound/items/wearoff.wav");
 		G_GlobalSound(soundIndex);
 		trap_SendServerCommand(-1,va("print \"" S_COLOR_CYAN "unpause in %i...\n\"", 
@@ -1248,6 +1308,7 @@ void G_TimeinWarning(int levelTime) {
 
 void G_Timein( void ) {
 	level.timeout = qfalse;
+	level.timein = qfalse;
 	trap_SendServerCommand(-1,va("print \"" S_COLOR_CYAN "Game continues! Total overtime added: %is\n\"", 
 			       		level.timeoutOvertime/1000	));
 }
@@ -2386,6 +2447,7 @@ commands_t cmds[ ] =
   { "follownext", CMD_NOTEAM, Cmd_FollowCycle_f },
   { "followprev", CMD_NOTEAM, Cmd_FollowCycle_f },
 
+  { "timein", 0, Cmd_Timein_f },
   { "timeout", 0, Cmd_Timeout_f },
 
   { "teamvote", CMD_TEAM, Cmd_TeamVote_f },

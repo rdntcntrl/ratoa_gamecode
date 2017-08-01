@@ -197,6 +197,10 @@ g_admin_cmd_t g_admin_cmds[ ] =
       "show the current local server time",
       ""},
 
+    {"timein", G_admin_timein, "t",
+      "end a timeout",
+      ""},
+
     {"timeout", G_admin_timeout, "t",
       "call a timeout",
       ""},
@@ -1339,6 +1343,12 @@ qboolean G_admin_time( gentity_t *ent, int skiparg )
   ADMP( va( "^3!time: ^7local time is %02i:%02i:%02i\n",
     qt.tm_hour, qt.tm_min, qt.tm_sec ) );
   return qtrue;
+}
+
+qboolean G_admin_timein( gentity_t *ent, int skiparg )
+{
+	G_TimeinCommand(ent);
+	return qtrue;
 }
 
 qboolean G_admin_timeout( gentity_t *ent, int skiparg )
