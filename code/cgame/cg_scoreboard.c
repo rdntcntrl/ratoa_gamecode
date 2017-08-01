@@ -90,13 +90,16 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define RATSB_TIME_X           (RATSB_SCORE_X     + RATSB_SCORE_WIDTH     + 1 * SCORESMALLCHAR_WIDTH)
 #define RATSB_CNUM_X           (RATSB_TIME_X      + RATSB_TIME_WIDTH      + 1 * SCORESMALLCHAR_WIDTH)
 #define RATSB_NAME_X           (RATSB_CNUM_X      + RATSB_CNUM_WIDTH      + 1 * SCORESMALLCHAR_WIDTH)
-#define RATSB_KD_X	       (RATSB_NAME_X      + RATSB_NAME_WIDTH      + 3 * SCORESMALLCHAR_WIDTH)
+#define RATSB_KD_X	       (RATSB_NAME_X      + RATSB_NAME_WIDTH      + 1 * SCORESMALLCHAR_WIDTH)
 #define RATSB_DT_X	       (RATSB_KD_X        + RATSB_KD_WIDTH	  + 1 * SCORESMALLCHAR_WIDTH)
 
-#define RATSB_PING_X           (RATSB_DT_X  + RATSB_DT_WIDTH  + 1 * SCORESMALLCHAR_WIDTH)
+#define RATSB_ACCURACY_X       (RATSB_DT_X        + RATSB_DT_WIDTH        + 1 * SCORESMALLCHAR_WIDTH)
+#define RATSB_PING_X           (RATSB_ACCURACY_X  + RATSB_ACCURACY_WIDTH  + 1 * SCORESMALLCHAR_WIDTH)
 
 //#define RATSB_ACCURACY_X       (RATSB_DT_X        + RATSB_DT_WIDTH        + 1 * SCORESMALLCHAR_WIDTH)
 //#define RATSB_PING_X           (RATSB_ACCURACY_X  + RATSB_ACCURACY_WIDTH  + 1 * SCORESMALLCHAR_WIDTH)
+
+#define RATSB_NAME_LENGTH	(25)
 
 #define RATSB_WINS_WIDTH       (2 * SCORESMALLCHAR_WIDTH)
 #define RATSB_WL_WIDTH         (1 * SCORESMALLCHAR_WIDTH)
@@ -104,10 +107,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define RATSB_SCORE_WIDTH      (MAX(4*SCORECHAR_WIDTH,5*SCORESMALLCHAR_WIDTH))
 #define RATSB_TIME_WIDTH       (3 * SCORESMALLCHAR_WIDTH)
 #define RATSB_CNUM_WIDTH       (2 * SCORESMALLCHAR_WIDTH)
-#define RATSB_NAME_WIDTH       (25 * SCORECHAR_WIDTH)
+#define RATSB_NAME_WIDTH       (RATSB_NAME_LENGTH * SCORECHAR_WIDTH)
 #define RATSB_KD_WIDTH         (7 * SCORETINYCHAR_WIDTH)
 #define RATSB_DT_WIDTH         (9 * SCORETINYCHAR_WIDTH)
-#define RATSB_ACCURACY_WIDTH   (4 * SCORESMALLCHAR_WIDTH)
+#define RATSB_ACCURACY_WIDTH   (4 * SCORETINYCHAR_WIDTH)
 #define RATSB_PING_WIDTH       (3 * SCORESMALLCHAR_WIDTH)
 
 #define RATSB_WINS_CENTER      (RATSB_WINS_X + RATSB_WINS_WIDTH/2)
@@ -346,7 +349,7 @@ static void CG_RatDrawClientScore(int y, score_t *score, float *color, float fad
 
 	tcolor[0] = tcolor[1] = tcolor[2] = 1.0;
 	Com_sprintf(string, sizeof (string), "%s", ci->name);
-	CG_DrawScoreString(RATSB_NAME_X, y, string, fade);
+	CG_DrawScoreString(RATSB_NAME_X, y, string, fade, RATSB_NAME_LENGTH);
 
 	CG_RatioColor(score->kills, score->deaths, tcolor);
 	Com_sprintf(string, sizeof (string), "%3i/%-3i", score->kills, score->deaths);
@@ -357,9 +360,9 @@ static void CG_RatDrawClientScore(int y, score_t *score, float *color, float fad
 			(float)score->dmgGiven/1000.0, (float)score->dmgTaken/1000.0);
 	CG_DrawTinyScoreStringColor(RATSB_DT_X, ytiny, string, tcolor);
 
-	//tcolor[0] = tcolor[1] = tcolor[2] = 0.75;
-	//Com_sprintf(string, sizeof (string), "%3i%%", score->accuracy);
-	//CG_DrawSmallScoreStringColor(RATSB_ACCURACY_X, ysmall, string, tcolor);
+	tcolor[0] = tcolor[1] = tcolor[2] = 0.80;
+	Com_sprintf(string, sizeof (string), "%3i%%", score->accuracy);
+	CG_DrawTinyScoreStringColor(RATSB_ACCURACY_X, ysmall, string, tcolor);
 
 	//tcolor[0] = tcolor[1] = tcolor[2] = 1.0;
 	CG_PingColor(score->ping, tcolor);
@@ -488,7 +491,7 @@ qboolean CG_DrawRatScoreboard(void) {
 		w = CG_DrawStrlen(s) * SCORECHAR_WIDTH;
 		x = (SCREEN_WIDTH - w) / 2;
 		y = 40;
-		CG_DrawScoreString(x, y, s, fade);
+		CG_DrawScoreString(x, y, s, fade, 0);
 	}
 
 	// current rank
@@ -500,7 +503,7 @@ qboolean CG_DrawRatScoreboard(void) {
 			w = CG_DrawStrlen(s) * SCORECHAR_WIDTH;
 			x = (SCREEN_WIDTH - w) / 2;
 			y = 60;
-			CG_DrawScoreString(x, y, s, fade);
+			CG_DrawScoreString(x, y, s, fade, 0);
 		}
 	} else {
 		if (cg.teamScores[0] == cg.teamScores[1]) {
@@ -514,7 +517,7 @@ qboolean CG_DrawRatScoreboard(void) {
 		w = CG_DrawStrlen(s) * SCORECHAR_WIDTH;
 		x = (SCREEN_WIDTH - w) / 2;
 		y = 60;
-		CG_DrawScoreString(x, y, s, fade);
+		CG_DrawScoreString(x, y, s, fade, 0);
 	}
 
 	// scoreboard
@@ -531,6 +534,7 @@ qboolean CG_DrawRatScoreboard(void) {
 	CG_DrawTinyScoreString(RATSB_NAME_X, y, "Name", fade);
 	CG_DrawTinyScoreString(RATSB_KD_CENTER - 1.5 * SCORETINYCHAR_WIDTH, y, "K/D", fade);
 	CG_DrawTinyScoreString(RATSB_DT_CENTER - 2.5 * SCORETINYCHAR_WIDTH, y, "DG/DT", fade);
+	CG_DrawTinyScoreString(RATSB_ACCURACY_CENTER - 1.5 * SCORETINYCHAR_WIDTH, y, "Acc", fade);
 	//CG_DrawTinyScoreString(RATSB_ACCURACY_CENTER - 1.5 * SCORETINYCHAR_WIDTH, y, "Acc", fade);
 	CG_DrawTinyScoreString(RATSB_PING_CENTER - 2 * SCORETINYCHAR_WIDTH, y, "Ping", fade);
 

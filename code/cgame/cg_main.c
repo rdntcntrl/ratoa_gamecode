@@ -398,7 +398,7 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_timescale, "timescale", "1", 0},
 	{ &cg_scorePlum, "cg_scorePlums", "1", CVAR_USERINFO | CVAR_ARCHIVE},
 
-	{ &cg_ratScoreboard, "cg_ratScoreboard", "0", CVAR_ARCHIVE},
+	{ &cg_ratScoreboard, "cg_ratScoreboard", "1", CVAR_ARCHIVE},
 	{ &cg_ratRocketTrail, "cg_ratRocketTrail", "0", CVAR_ARCHIVE},
 	{ &cg_ratRocketTrailAlpha, "cg_ratRocketTrailAlpha", "0.5", CVAR_ARCHIVE},
 	{ &cg_ratRocketTrailRadius, "cg_ratRocketTrailRadius", "5", CVAR_ARCHIVE},
