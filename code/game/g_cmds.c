@@ -1326,6 +1326,7 @@ void G_TimeinWarning(int levelTime) {
 void G_Timein( void ) {
 	level.timeout = qfalse;
 	level.timein = qfalse;
+	G_LogPrintf("Timeout ended ----------------------------- \n" );
 	trap_SendServerCommand(-1,va("print \"" S_COLOR_CYAN "Game continues! Total overtime added: %is\n\"", 
 			       		level.timeoutOvertime/1000	));
 	if (g_timelimit.integer > 0) {
