@@ -1297,6 +1297,7 @@ extern vmCvar_t			cg_friendFloatHealth;
 extern vmCvar_t			cg_friendFloatHealthSize;
 extern vmCvar_t			cg_teamOverlayScaleX;
 extern vmCvar_t			cg_teamOverlayScaleY;
+extern vmCvar_t			cg_drawTeamBackground;
 
 //unlagged - smooth clients #2
 // this is done server-side now

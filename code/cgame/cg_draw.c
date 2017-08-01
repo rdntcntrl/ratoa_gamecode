@@ -559,11 +559,13 @@ static void CG_DrawStatusBar( void ) {
 		return;
 	}
 
-	// draw the team background
-	if ( !(cg.snap->ps.pm_flags & PMF_FOLLOW) ) //If not following anybody:
-		CG_DrawTeamBackground( 0, 420, 640, 60, 0.33f, cg.snap->ps.persistant[PERS_TEAM] );
-	else //Sago: If we follow find the teamcolor of the guy we follow. It might not be our own team!
-		CG_DrawTeamBackground( 0, 420, 640, 60, 0.33f, cgs.clientinfo[ cg.snap->ps.clientNum ].team );
+	if (cg_drawTeamBackground.integer) {
+		// draw the team background
+		if ( !(cg.snap->ps.pm_flags & PMF_FOLLOW) ) //If not following anybody:
+			CG_DrawTeamBackground( 0, 420, 640, 60, 0.33f, cg.snap->ps.persistant[PERS_TEAM] );
+		else //Sago: If we follow find the teamcolor of the guy we follow. It might not be our own team!
+			CG_DrawTeamBackground( 0, 420, 640, 60, 0.33f, cgs.clientinfo[ cg.snap->ps.clientNum ].team );
+	}
 
 	cent = &cg_entities[cg.snap->ps.clientNum];
 	ps = &cg.snap->ps;
@@ -1276,10 +1278,9 @@ static float CG_DrawTeamOverlay( float y, qboolean right, qboolean upper ) {
 	for (i = 0; i < count; i++) {
 		ci = cgs.clientinfo + sortedTeamPlayers[i];
 		if ( ci->infoValid && ci->team == cg.snap->ps.persistant[PERS_TEAM]) {
-
-			if (cgs.clientinfo[i].powerups & (( 1<< PW_REDFLAG ) | ( 1<<PW_BLUEFLAG))) {
+			if (ci->powerups & (( 1<< PW_REDFLAG ) | ( 1<<PW_BLUEFLAG))) {
 				hcolor[0] = 1.0f;
-				hcolor[1] = 0.0f;
+				hcolor[1] = 1.0f;
 				hcolor[2] = 1.0f;
 				hcolor[3] = 0.66f;
 				trap_R_SetColor( hcolor );
@@ -1762,6 +1763,11 @@ static void CG_DrawLowerRight( void ) {
 	} 
 
 	y = CG_DrawScores( y );
+
+	if ( cgs.gametype >= GT_TEAM && cgs.ffa_gt!=1 && cg_drawTeamOverlay.integer == 4 ) {
+		y = CG_DrawTeamOverlay( y, qtrue, qfalse );
+	} 
+
 	y = CG_DrawPowerups( y );
 }
 #endif // MISSIONPACK
