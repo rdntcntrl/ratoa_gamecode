@@ -1166,6 +1166,8 @@ extern  vmCvar_t        g_teleMissiles;
 extern  vmCvar_t        g_pushGrenades;
 extern  vmCvar_t        g_ambientSound;
 extern  vmCvar_t        g_rocketSpeed;
+extern  vmCvar_t        g_unlagMode;
+extern  vmCvar_t        g_unlagLaunchLagMode;
 extern  vmCvar_t        g_unlagPrestep;
 extern  vmCvar_t        g_unlagFlight;
 

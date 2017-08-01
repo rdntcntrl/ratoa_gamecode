@@ -176,6 +176,8 @@ vmCvar_t        g_teleMissiles;
 vmCvar_t        g_pushGrenades;
 vmCvar_t        g_ambientSound; 
 vmCvar_t        g_rocketSpeed; 
+vmCvar_t        g_unlagMode; 
+vmCvar_t        g_unlagLaunchLagMode; 
 vmCvar_t        g_unlagPrestep; 
 vmCvar_t        g_unlagFlight; 
 
@@ -350,6 +352,8 @@ static cvarTable_t		gameCvarTable[] = {
 //unlagged - server options
         { &g_ambientSound, "g_ambientSound", "1", CVAR_ARCHIVE, 0, qtrue },
         { &g_rocketSpeed, "g_rocketSpeed", "1000", CVAR_ARCHIVE, 0, qtrue },
+        { &g_unlagMode, "g_unlagMode", "1", CVAR_ARCHIVE, 0, qtrue },
+        { &g_unlagLaunchLagMode, "g_unlagLaunchLagMode", "1", CVAR_ARCHIVE, 0, qtrue },
         { &g_unlagPrestep, "g_unlagPrestep", "1", CVAR_ARCHIVE, 0, qtrue },
         { &g_unlagFlight, "g_unlagFlight", "1", CVAR_ARCHIVE, 0, qtrue },
 

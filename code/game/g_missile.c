@@ -22,14 +22,40 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 //
 #include "g_local.h"
 
-#define	MISSILE_PRESTEP_TIME 50
+//#define	MISSILE_PRESTEP_TIME 50
 //#define	MISSILE_PRESTEP_MAX_LATENCY 150
 #define MIN(x,y) (x < y ? x : y)
-#define MISSILE_PRESTEP_VAR(ping) (MIN(MISSILE_PRESTEP_MAX_LATENCY/2, ping/2))
+#define MISSILE_LAUNCHLAG(ping) (MIN(MISSILE_PRESTEP_MAX_LATENCY/2, ping/2))
 
 int G_MissilePrestep(gclient_t *client) {
-	return MISSILE_PRESTEP_VAR(client->ps.ping);
-	//return MISSILE_PRESTEP_VAR(client->pers.realPing);
+	int launchlag = G_LaunchLag(client);
+	switch (g_unlagMode.integer) {
+		case 1:
+			// add default MISSILE_PRESTEP
+			// this is simulating local OA, but MISSILE_PRESTEP 50 was added by
+			// unlagged mod, so it might already be too large
+			return launchlag + 50;
+			break;
+		case 2:
+			return launchlag + sv_fps.integer/1000;
+			break;
+		case 3:
+			return launchlag;
+			break;
+	}
+	return 0;
+}
+
+int G_LaunchLag(gclient_t *client) {
+	switch (g_unlagLaunchLagMode.integer) {
+		case 1:
+			return MISSILE_LAUNCHLAG(client->ps.ping);
+			break;
+		case 2:
+			return MISSILE_LAUNCHLAG(client->pers.realPing);
+			break;
+	}
+	return 0;
 }
 
 /*
@@ -795,11 +821,11 @@ gentity_t *fire_plasma (gentity_t *self, vec3_t start, vec3_t dir) {
 	bolt->target_ent = NULL;
 
 	bolt->s.pos.trType = TR_LINEAR;
-	bolt->s.pos.trTime = level.time - MISSILE_PRESTEP_TIME;		// move a bit on the very first frame
+	bolt->s.pos.trTime = level.time;
 	//bolt->s.pos.trTime = level.time;
 	if (self->client != NULL) {
-		bolt->launchLag = G_MissilePrestep(self->client);
-		bolt->s.pos.trTime -= bolt->launchLag;
+		bolt->launchLag = G_LaunchLag(self->client);
+		bolt->s.pos.trTime -= G_MissilePrestep(self->client);
 		bolt->needsDelag = qtrue;
 		bolt->launchTime = bolt->s.pos.trTime;
 	}
@@ -851,11 +877,11 @@ gentity_t *fire_grenade (gentity_t *self, vec3_t start, vec3_t dir) {
 	bolt->target_ent = NULL;
 
 	bolt->s.pos.trType = TR_GRAVITY;
-	bolt->s.pos.trTime = level.time - MISSILE_PRESTEP_TIME;		// move a bit on the very first frame
+	bolt->s.pos.trTime = level.time;
 	//bolt->s.pos.trTime = level.time;
 	if (self->client != NULL) {
-		bolt->launchLag = G_MissilePrestep(self->client);
-		bolt->s.pos.trTime -= bolt->launchLag;
+		bolt->launchLag = G_LaunchLag(self->client);
+		bolt->s.pos.trTime -= G_MissilePrestep(self->client);
 		bolt->needsDelag = qtrue;
 		bolt->launchTime = bolt->s.pos.trTime;
 	}
@@ -906,11 +932,11 @@ gentity_t *fire_bfg (gentity_t *self, vec3_t start, vec3_t dir) {
 	bolt->target_ent = NULL;
 
 	bolt->s.pos.trType = TR_LINEAR;
-	bolt->s.pos.trTime = level.time - MISSILE_PRESTEP_TIME;		// move a bit on the very first frame
+	bolt->s.pos.trTime = level.time;
 	//bolt->s.pos.trTime = level.time;
 	if (self->client != NULL) {
-		bolt->launchLag = G_MissilePrestep(self->client);
-		bolt->s.pos.trTime -= bolt->launchLag;
+		bolt->launchLag = G_LaunchLag(self->client);
+		bolt->s.pos.trTime -= G_MissilePrestep(self->client);
 		bolt->needsDelag = qtrue;
 		bolt->launchTime = bolt->s.pos.trTime;
 	}
@@ -960,11 +986,11 @@ gentity_t *fire_rocket (gentity_t *self, vec3_t start, vec3_t dir) {
 	bolt->target_ent = NULL;
 
 	bolt->s.pos.trType = TR_LINEAR;
-	bolt->s.pos.trTime = level.time - MISSILE_PRESTEP_TIME;		// move a bit on the very first frame
+	bolt->s.pos.trTime = level.time;
 	//bolt->s.pos.trTime = level.time;
 	if (self->client != NULL) {
-		bolt->launchLag = G_MissilePrestep(self->client);
-		bolt->s.pos.trTime -= bolt->launchLag;
+		bolt->launchLag = G_LaunchLag(self->client);
+		bolt->s.pos.trTime -= G_MissilePrestep(self->client);
 		bolt->needsDelag = qtrue;
 		bolt->launchTime = bolt->s.pos.trTime;
 		//Com_Printf("fire_rocket at level.time = %d\n", level.time);
@@ -1016,7 +1042,7 @@ gentity_t *fire_grapple (gentity_t *self, vec3_t start, vec3_t dir) {
 		hooktime = self->client->pers.cmd.serverTime + 50;
 	}
 	else {
-		hooktime = level.time - MISSILE_PRESTEP_TIME;
+		hooktime = level.time - G_MissilePrestep(self->client);
 	}
 
 	hook->s.pos.trTime = hooktime;
@@ -1133,11 +1159,11 @@ gentity_t *fire_prox( gentity_t *self, vec3_t start, vec3_t dir ) {
 	bolt->s.generic1 = self->client->sess.sessionTeam;
 
 	bolt->s.pos.trType = TR_GRAVITY;
-	bolt->s.pos.trTime = level.time - MISSILE_PRESTEP_TIME;		// move a bit on the very first frame
+	bolt->s.pos.trTime = level.time;
 	//bolt->s.pos.trTime = level.time;
 	if (self->client != NULL) {
-		bolt->launchLag = G_MissilePrestep(self->client);
-		bolt->s.pos.trTime -= bolt->launchLag;
+		bolt->launchLag = G_LaunchLag(self->client);
+		bolt->s.pos.trTime -= G_MissilePrestep(self->client);
 		bolt->needsDelag = qtrue;
 		bolt->launchTime = bolt->s.pos.trTime;
 	}
