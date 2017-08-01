@@ -1175,6 +1175,7 @@ extern  vmCvar_t        sv_allowDuplicateGuid;
 extern vmCvar_t        g_weaponChangeTime_Dropping;
 extern vmCvar_t        g_weaponChangeTime_Raising;
 extern vmCvar_t        g_weaponReloadTime_Shotgun;
+extern vmCvar_t        g_weaponReloadTime_Lg;
 extern vmCvar_t        g_weaponReloadTime_Railgun;
 extern vmCvar_t        g_mgDamage;
 extern vmCvar_t        g_mgTeamDamage;

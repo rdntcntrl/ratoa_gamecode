@@ -185,6 +185,7 @@ vmCvar_t        sv_allowDuplicateGuid;
 vmCvar_t        g_weaponChangeTime_Dropping;
 vmCvar_t        g_weaponChangeTime_Raising;
 vmCvar_t        g_weaponReloadTime_Shotgun;
+vmCvar_t	g_weaponReloadTime_Lg;
 vmCvar_t        g_weaponReloadTime_Railgun;
 vmCvar_t        g_mgDamage;
 vmCvar_t        g_mgTeamDamage;
@@ -361,6 +362,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_weaponChangeTime_Dropping, "g_weaponChangeTime_Dropping", "200", 0, 0, qtrue },
 	{ &g_weaponChangeTime_Raising,  "g_weaponChangeTime_Raising",  "250", 0, 0, qtrue },
 	{ &g_weaponReloadTime_Shotgun,  "g_weaponReloadTime_Shotgun", "1000", 0, 0, qtrue },
+	{ &g_weaponReloadTime_Lg,  	"g_weaponReloadTime_Lg", "50", 0, 0, qtrue },
 	{ &g_weaponReloadTime_Railgun,  "g_weaponReloadTime_Railgun", "1500", 0, 0, qtrue },
 	{ &g_mgDamage,			"g_mgDamage", "7", 0, 0, qtrue },
 	{ &g_mgTeamDamage,		"g_mgTeamDamage", "5", 0, 0, qtrue },

@@ -85,6 +85,7 @@ void		PM_StepSlideMove( qboolean gravity );
 extern vmCvar_t        g_weaponChangeTime_Dropping;
 extern vmCvar_t        g_weaponChangeTime_Raising;
 extern vmCvar_t        g_weaponReloadTime_Shotgun;
+extern vmCvar_t        g_weaponReloadTime_Lg;
 extern vmCvar_t        g_weaponReloadTime_Railgun;
 
 extern vmCvar_t        g_pm_swimScale;

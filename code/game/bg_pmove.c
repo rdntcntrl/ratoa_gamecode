@@ -1496,7 +1496,7 @@ static void PM_BeginWeaponChange( int weapon ) {
             PM_AddEvent( EV_CHANGE_WEAPON );
             pm->ps->weaponstate = WEAPON_DROPPING;
             //pm->ps->weaponTime += 100;
-            pm->ps->weaponTime += g_weaponChangeTime_Dropping.value;
+            pm->ps->weaponTime += g_weaponChangeTime_Dropping.integer;
             PM_StartTorsoAnim( TORSO_DROP );
         }
 }
@@ -1524,7 +1524,7 @@ static void PM_FinishWeaponChange( void ) {
         if(! (pm->pmove_flags & DF_INSTANT_WEAPON_CHANGE))
         {
                 //pm->ps->weaponTime += 200;
-                pm->ps->weaponTime += g_weaponChangeTime_Raising.value;
+                pm->ps->weaponTime += g_weaponChangeTime_Raising.integer;
                 PM_StartTorsoAnim( TORSO_RAISE );
         }
 }
@@ -1672,11 +1672,11 @@ static void PM_Weapon( void ) {
 		addTime = 400;
 		break;
 	case WP_LIGHTNING:
-		addTime = 50;
+		addTime = g_weaponReloadTime_Lg.integer;
 		break;
 	case WP_SHOTGUN:
 		//addTime = 950;
-		addTime = g_weaponReloadTime_Shotgun.value;
+		addTime = g_weaponReloadTime_Shotgun.integer;
 		break;
 	case WP_MACHINEGUN:
 		addTime = 100;
@@ -1692,7 +1692,7 @@ static void PM_Weapon( void ) {
 		break;
 	case WP_RAILGUN:
 		//addTime = 1250;
-		addTime = g_weaponReloadTime_Railgun.value;
+		addTime = g_weaponReloadTime_Railgun.integer;
 		break;
 	case WP_BFG:
 		addTime = 200;
