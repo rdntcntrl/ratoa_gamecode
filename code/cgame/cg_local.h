@@ -1302,6 +1302,26 @@ extern vmCvar_t			cg_teamOverlayScaleX;
 extern vmCvar_t			cg_teamOverlayScaleY;
 extern vmCvar_t			cg_drawTeamBackground;
 
+extern vmCvar_t			cg_forceEnemyModelColor;
+extern vmCvar_t			cg_forceModelColor;
+
+extern vmCvar_t			cg_forceEnemyModelHue;
+extern vmCvar_t			cg_forceEnemyModelSaturation;
+extern vmCvar_t			cg_forceEnemyModelValue;
+extern vmCvar_t			cg_forceModelHue;
+extern vmCvar_t			cg_forceModelSaturation;
+extern vmCvar_t			cg_forceModelValue;
+
+extern vmCvar_t			cg_forceEnemyCorpseColor;
+extern vmCvar_t			cg_forceCorpseColor;
+
+extern vmCvar_t			cg_forceEnemyCorpseHue;
+extern vmCvar_t			cg_forceEnemyCorpseSaturation;
+extern vmCvar_t			cg_forceEnemyCorpseValue;
+extern vmCvar_t			cg_forceCorpseHue;
+extern vmCvar_t			cg_forceCorpseSaturation;
+extern vmCvar_t			cg_forceCorpseValue;
+
 extern vmCvar_t			cg_timerAlpha;
 extern vmCvar_t			cg_fpsAlpha;
 extern vmCvar_t			cg_speedAlpha;

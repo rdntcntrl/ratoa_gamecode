@@ -184,6 +184,26 @@ vmCvar_t	cg_friendFloatHealthSize;
 vmCvar_t	cg_teamOverlayScaleX;
 vmCvar_t	cg_teamOverlayScaleY;
 
+vmCvar_t	cg_forceEnemyModelColor;
+vmCvar_t	cg_forceModelColor;
+
+vmCvar_t	cg_forceEnemyModelHue;
+vmCvar_t	cg_forceEnemyModelSaturation;
+vmCvar_t	cg_forceEnemyModelValue;
+vmCvar_t	cg_forceModelHue;
+vmCvar_t	cg_forceModelSaturation;
+vmCvar_t	cg_forceModelValue;
+
+vmCvar_t	cg_forceEnemyCorpseColor;
+vmCvar_t	cg_forceCorpseColor;
+
+vmCvar_t	cg_forceEnemyCorpseHue;
+vmCvar_t	cg_forceEnemyCorpseSaturation;
+vmCvar_t	cg_forceEnemyCorpseValue;
+vmCvar_t	cg_forceCorpseHue;
+vmCvar_t	cg_forceCorpseSaturation;
+vmCvar_t	cg_forceCorpseValue;
+
 vmCvar_t	cg_timerAlpha;
 vmCvar_t	cg_fpsAlpha;
 vmCvar_t	cg_speedAlpha;
@@ -447,6 +467,26 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_timerScaleY ,     "cg_timerScaleY", "1", CVAR_ARCHIVE},
 	{ &cg_fpsScaleY   ,     "cg_fpsScaleY", "1", CVAR_ARCHIVE},
 	{ &cg_speedScaleY ,     "cg_speedScaleY", "1", CVAR_ARCHIVE},
+	
+	{ &cg_forceEnemyModelColor ,     "cg_forceEnemyModelColor", "1", CVAR_ARCHIVE},
+	{ &cg_forceModelColor ,     "cg_forceModelColor", "1", CVAR_ARCHIVE},
+
+	{ &cg_forceEnemyModelHue ,     "cg_forceEnemyModelHue", "0", CVAR_ARCHIVE},
+	{ &cg_forceEnemyModelSaturation ,     "cg_forceEnemyModelSaturation", "1", CVAR_ARCHIVE},
+	{ &cg_forceEnemyModelValue ,     "cg_forceEnemyModelValue", "1", CVAR_ARCHIVE},
+	{ &cg_forceModelHue ,     "cg_forceModelHue", "204", CVAR_ARCHIVE},
+	{ &cg_forceModelSaturation ,     "cg_forceModelSaturation", "1", CVAR_ARCHIVE},
+	{ &cg_forceModelValue ,     "cg_forceModelValue", "1", CVAR_ARCHIVE},
+
+	{ &cg_forceEnemyCorpseColor ,     "cg_forceEnemyCorpseColor", "1", CVAR_ARCHIVE},
+	{ &cg_forceCorpseColor ,     "cg_forceCorpseColor", "1", CVAR_ARCHIVE},
+
+	{ &cg_forceEnemyCorpseHue ,     "cg_forceEnemyCorpseHue", "0", CVAR_ARCHIVE},
+	{ &cg_forceEnemyCorpseSaturation ,     "cg_forceEnemyCorpseSaturation", "1", CVAR_ARCHIVE},
+	{ &cg_forceEnemyCorpseValue ,     "cg_forceEnemyCorpseValue", "1", CVAR_ARCHIVE},
+	{ &cg_forceCorpseHue ,     "cg_forceCorpseHue", "204", CVAR_ARCHIVE},
+	{ &cg_forceCorpseSaturation ,     "cg_forceCorpseSaturation", "1", CVAR_ARCHIVE},
+	{ &cg_forceCorpseValue ,     "cg_forceCorpseValue", "1", CVAR_ARCHIVE},
 
 	// / RAT ===================
 

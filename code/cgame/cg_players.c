@@ -2330,6 +2330,120 @@ int CG_LightVerts( vec3_t normal, int numVerts, polyVert_t *verts )
 	return qtrue;
 }
 
+void CG_HSV2RGB(float h, float s, float v, float *out) {
+	float	hh, p, q, t, ff;
+	int     i;
+
+	if (h > 360.0) {
+		h = 360.0;
+	} else if (h < 0.0) {
+		h = 0.0;
+	}
+	if (s > 1.0) {
+		s = 1.0;
+	} else if (s < 0.0) {
+		s = 0.0;
+	}
+	if (v > 1.0) {
+		v = 1.0;
+	} else if (v < 0.0) {
+		v = 0.0;
+	}
+
+	if(s <= 0.0) {
+		out[0] = v;
+		out[1] = v;
+		out[2] = v;
+		return;
+	}
+	hh = h;
+	if (hh >= 360.0) {
+	       	hh = 0.0;
+	}
+	hh /= 60.0;
+	i = (int)hh;
+	ff = hh - i;
+	p = v * (1.0 - s);
+	q = v * (1.0 - (s * ff));
+	t = v * (1.0 - (s * (1.0 - ff)));
+
+	switch (i) {
+		case 0:
+			out[0] = v;
+			out[1] = t;
+			out[2] = p;
+			break;
+		case 1:
+			out[0] = q;
+			out[1] = v;
+			out[2] = p;
+			break;
+		case 2:
+			out[0] = p;
+			out[1] = v;
+			out[2] = t;
+			break;
+
+		case 3:
+			out[0] = p;
+			out[1] = q;
+			out[2] = v;
+			break;
+		case 4:
+			out[0] = t;
+			out[1] = p;
+			out[2] = v;
+			break;
+		case 5:
+		default:
+			out[0] = v;
+			out[1] = p;
+			out[2] = q;
+			break;
+	}
+}
+
+void CG_FloatColorToRGBA(float *color, byte *out) {
+	out[0] = color[0]*0xff;
+	out[1] = color[1]*0xff;
+	out[2] = color[2]*0xff;
+	out[3] = color[3]*0xff;
+}
+
+void CG_PlayerSetColors(clientInfo_t *ci, centity_t *cent, refEntity_t *legs, refEntity_t *torso, refEntity_t *head) {
+	clientInfo_t *player = &cgs.clientinfo[cg.clientNum];
+	float color[4];
+	color[3] = 1.0;
+
+	if (player->team == TEAM_SPECTATOR) {
+		return;
+	}
+
+	if (cg_forceEnemyModelColor.integer && ((player->team == TEAM_FREE && player != ci)|| player->team != ci->team)) {
+		if (cg_forceEnemyCorpseHue.integer && cent->currentState.eFlags & EF_DEAD) {
+			CG_HSV2RGB(cg_forceEnemyCorpseHue.value, cg_forceEnemyCorpseSaturation.value, cg_forceEnemyCorpseValue.value, color);
+		} else {
+			CG_HSV2RGB(cg_forceEnemyModelHue.value, cg_forceEnemyModelSaturation.value, cg_forceEnemyModelValue.value, color);
+		}
+		CG_FloatColorToRGBA(color, legs->shaderRGBA);
+		CG_FloatColorToRGBA(color, torso->shaderRGBA);
+		CG_FloatColorToRGBA(color, head->shaderRGBA);
+		
+	} else if (cg_forceModelColor.integer && (ci == player || (player->team != TEAM_FREE && ci->team == player->team ))) {
+		if (cg_forceCorpseHue.integer && cent->currentState.eFlags & EF_DEAD) {
+			CG_HSV2RGB(cg_forceCorpseHue.value, cg_forceCorpseSaturation.value, cg_forceCorpseValue.value, color);
+		} else {
+			CG_HSV2RGB(cg_forceModelHue.value, cg_forceModelSaturation.value, cg_forceModelValue.value, color);
+		}
+		CG_FloatColorToRGBA(color, legs->shaderRGBA);
+		CG_FloatColorToRGBA(color, torso->shaderRGBA);
+		CG_FloatColorToRGBA(color, head->shaderRGBA);
+		return;
+	} 
+
+}
+
+
 /*
 ===============
 CG_Player
@@ -2383,10 +2497,7 @@ void CG_Player( centity_t *cent ) {
 	memset( &torso, 0, sizeof(torso) );
 	memset( &head, 0, sizeof(head) );
 
-	torso.shaderRGBA[0] = 0xff;
-	torso.shaderRGBA[1] = 0xff;
-	torso.shaderRGBA[2] = 0;
-	torso.shaderRGBA[3] = 0xff;
+	CG_PlayerSetColors(ci, cent, &legs, &torso, &head);
 
 	// get the rotation information
 	CG_PlayerAngles( cent, legs.axis, torso.axis, head.axis );
