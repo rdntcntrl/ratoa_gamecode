@@ -184,6 +184,16 @@ vmCvar_t	cg_friendFloatHealthSize;
 vmCvar_t	cg_teamOverlayScaleX;
 vmCvar_t	cg_teamOverlayScaleY;
 
+vmCvar_t	cg_timerAlpha;
+vmCvar_t	cg_fpsAlpha;
+vmCvar_t	cg_speedAlpha;
+vmCvar_t	cg_timerScaleX;
+vmCvar_t	cg_fpsScaleX;
+vmCvar_t	cg_speedScaleX;
+vmCvar_t	cg_timerScaleY;
+vmCvar_t	cg_fpsScaleY;
+vmCvar_t	cg_speedScaleY;
+
 vmCvar_t	cg_drawTeamBackground;
 
 //unlagged - smooth clients #2
@@ -428,6 +438,16 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_teamOverlayScaleX, "cg_teamOverlayScaleX", "1", CVAR_ARCHIVE},
 	{ &cg_teamOverlayScaleY, "cg_teamOverlayScaleY", "1", CVAR_ARCHIVE},
 	{ &cg_drawTeamBackground, "cg_drawTeamBackground", "1", CVAR_ARCHIVE},
+	{ &cg_timerAlpha  ,     "cg_timerAlpha", "1", CVAR_ARCHIVE},
+	{ &cg_fpsAlpha    ,     "cg_fpsAlpha", "1", CVAR_ARCHIVE},
+	{ &cg_speedAlpha  ,     "cg_speedAlpha", "1", CVAR_ARCHIVE},
+	{ &cg_timerScaleX ,     "cg_timerScaleX", "1", CVAR_ARCHIVE},
+	{ &cg_fpsScaleX   ,     "cg_fpsScaleX", "1", CVAR_ARCHIVE},
+	{ &cg_speedScaleX ,     "cg_speedScaleX", "1", CVAR_ARCHIVE},
+	{ &cg_timerScaleY ,     "cg_timerScaleY", "1", CVAR_ARCHIVE},
+	{ &cg_fpsScaleY   ,     "cg_fpsScaleY", "1", CVAR_ARCHIVE},
+	{ &cg_speedScaleY ,     "cg_speedScaleY", "1", CVAR_ARCHIVE},
+
 	// / RAT ===================
 
 //unlagged - smooth clients #2

@@ -775,6 +775,9 @@ static float CG_DrawSpeedMeter( float y ) {
 	int         w;
 	vec_t       *vel;
 	int         speed;
+	float	color[4];
+	int char_width = cg_speedScaleX.value * BIGCHAR_WIDTH;
+	int char_height = cg_speedScaleY.value * BIGCHAR_WIDTH;
 
 	/* speed meter can get in the way of the scoreboard */
 	if ( cg.scoreBoardShowing ) {
@@ -787,15 +790,20 @@ static float CG_DrawSpeedMeter( float y ) {
 
 	s = va( "%iu/s", speed );
 
-	w = CG_DrawStrlen( s ) * BIGCHAR_WIDTH;
+	w = CG_DrawStrlen( s ) * char_width;
+
+	color[0] = color[1] = color[2] = 1.0;
+	color[3] = cg_speedAlpha.value;
 
 	if (cg_drawSpeed.integer == 1) {
 		/* top left-hand corner of screen */
-		CG_DrawBigString( 635 - w, y + 2, s, 1.0F);
-		return y + BIGCHAR_HEIGHT + 4;
+		//CG_DrawBigString( 635 - w, y + 2, s, 1.0F);
+		CG_DrawStringExt( 635 -w, y + 2, s, color, qfalse, qtrue, char_width, char_height, 0 );
+		return y + char_height + 4;
 	} else {
 		/* center of screen */
-		CG_DrawBigString( 320 - w / 2, 300, s, 1.0F);
+		//CG_DrawBigString( 320 - w / 2, 300, s, 1.0F);
+		CG_DrawStringExt( 320 - w / 2, 300, s, color, qfalse, qtrue, char_width, char_height, 0 );
 		return y;
 	}
 }
@@ -833,6 +841,9 @@ static float CG_DrawFPS( float y ) {
 	int		fps;
 	static	int	previous;
 	int		t, frameTime;
+	float	color[4];
+	int	char_width = BIGCHAR_WIDTH * cg_fpsScaleX.value;		
+	int	char_height = BIGCHAR_HEIGHT * cg_fpsScaleY.value;		
 
 	// don't use serverTime, because that will be drifting to
 	// correct for internet lag changes, timescales, timedemos, etc
@@ -854,12 +865,16 @@ static float CG_DrawFPS( float y ) {
 		fps = 1000 * FPS_FRAMES / total;
 
 		s = va( "%ifps", fps );
-		w = CG_DrawStrlen( s ) * BIGCHAR_WIDTH;
+		w = CG_DrawStrlen( s ) * char_width;
 
-		CG_DrawBigString( 635 - w, y + 2, s, 1.0F);
+		//CG_DrawBigString( 635 - w, y + 2, s, 1.0F);
+
+		color[0] = color[1] = color[2] = 1.0;
+		color[3] = cg_fpsAlpha.value;
+		CG_DrawStringExt( 635-w, y + 2, s, color, qfalse, qtrue, char_width, char_height, 0 );
 	}
 
-	return y + BIGCHAR_HEIGHT + 4;
+	return y + char_height + 4;
 }
 
 /*
@@ -872,6 +887,12 @@ static float CG_DrawTimer( float y ) {
 	int			w;
 	int			mins, seconds, tens;
 	int			msec;
+	float	color[4];
+	int char_width = BIGCHAR_WIDTH * cg_timerScaleX.value;
+	int char_height = BIGCHAR_HEIGHT * cg_timerScaleY.value;
+
+	color[0] = color[1] = color[2] = 1.0;
+	color[3] = cg_timerAlpha.value;
 
 	msec = cg.time - cgs.levelStartTime;
 
@@ -884,9 +905,10 @@ static float CG_DrawTimer( float y ) {
 	s = va( "%i:%i%i", mins, tens, seconds );
 	w = CG_DrawStrlen( s ) * BIGCHAR_WIDTH;
 
-	CG_DrawBigString( 635 - w, y + 2, s, 1.0F);
+	//CG_DrawBigString( 635 - w, y + 2, s, 1.0F);
+	CG_DrawStringExt( 635-w, y+2, s, color, qfalse, qtrue, char_width, char_height, 0 );
 
-	return y + BIGCHAR_HEIGHT + 4;
+	return y + char_height + 4;
 }
 
 /*
@@ -1425,15 +1447,16 @@ static void CG_DrawUpperRight(stereoFrame_t stereoFrame)
 	}
 
 	//y = CG_DrawFollowMessage( y );
+	
+	if ( cg_drawSpeed.integer ) {
+		y = CG_DrawSpeedMeter( y );
+	}
 
 	if ( cg_drawTimer.integer) {
 		y = CG_DrawTimer( y );
 	}
 	if ( cg_drawAttacker.integer ) {
 		y = CG_DrawAttacker( y );
-	}
-	if ( cg_drawSpeed.integer ) {
-		y = CG_DrawSpeedMeter( y );
 	}
 
 }
