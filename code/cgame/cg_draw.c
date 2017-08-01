@@ -1412,7 +1412,7 @@ static void CG_DrawUpperRight(stereoFrame_t stereoFrame)
 			y = CG_DrawEliminationDeathMessage( y);*/
 	}
 
-	y = CG_DrawFollowMessage( y );
+	//y = CG_DrawFollowMessage( y );
 
 	if ( cg_drawTimer.integer) {
 		y = CG_DrawTimer( y );
@@ -3011,7 +3011,8 @@ static qboolean CG_DrawFollow( void ) {
 
 	name = cgs.clientinfo[ cg.snap->ps.clientNum ].name;
 
-	Com_sprintf(string, sizeof(string), "following %s", name);
+	//Com_sprintf(string, sizeof(string), "following %s", name);
+	Com_sprintf(string, sizeof(string), "%s", name);
 
 	CG_DrawSmallString( 0.5 * (640 - SMALLCHAR_WIDTH * CG_DrawStrlen(string)), 32, string, 1.0F );
 
