@@ -1159,7 +1159,7 @@ typedef struct {
 
 static clan_t clans[] = {
 	{ "{T-L}", "TopLevel", "toplevel" },
-	{ "/u/", "NiN", "nin" },
+	{ "/N/", "NiN", "nin" },
 	{ "*SoS*", "SoS", "sos" },
 	{ "SeXy-", "SeXy", "sexy" },
 	{ "Guild", "Guild", "guilda" },
