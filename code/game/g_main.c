@@ -352,39 +352,39 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &sv_fps, "sv_fps", "20", CVAR_SYSTEMINFO | CVAR_ARCHIVE, 0, qfalse },
         { &g_lagLightning, "g_lagLightning", "1", CVAR_ARCHIVE, 0, qtrue },
 //unlagged - server options
-        { &g_ambientSound, "g_ambientSound", "1", CVAR_ARCHIVE, 0, qtrue },
+        { &g_ambientSound, "g_ambientSound", "1", CVAR_ARCHIVE, 0, qfalse },
         { &g_rocketSpeed, "g_rocketSpeed", "1000", CVAR_ARCHIVE, 0, qtrue },
-        { &g_unlagMode, "g_unlagMode", "1", CVAR_ARCHIVE, 0, qtrue },
-        { &g_unlagLaunchLagMode, "g_unlagLaunchLagMode", "1", CVAR_ARCHIVE, 0, qtrue },
-        { &g_unlagPrestep, "g_unlagPrestep", "1", CVAR_ARCHIVE, 0, qtrue },
-        { &g_unlagFlight, "g_unlagFlight", "1", CVAR_ARCHIVE, 0, qtrue },
+        { &g_unlagMode, "g_unlagMode", "1", CVAR_ARCHIVE, 0, qfalse },
+        { &g_unlagLaunchLagMode, "g_unlagLaunchLagMode", "1", CVAR_ARCHIVE, 0, qfalse },
+        { &g_unlagPrestep, "g_unlagPrestep", "1", CVAR_ARCHIVE, 0, qfalse },
+        { &g_unlagFlight, "g_unlagFlight", "1", CVAR_ARCHIVE, 0, qfalse },
 
-        { &g_tournamentMinSpawnDistance, "g_tournamentMinSpawnDistance", "900", CVAR_ARCHIVE, 0, qtrue },
+        { &g_tournamentMinSpawnDistance, "g_tournamentMinSpawnDistance", "900", CVAR_ARCHIVE, 0, qfalse },
 
         { &g_teleMissiles, "g_teleMissiles", "0", CVAR_ARCHIVE, 0, qtrue },
         { &g_pushGrenades, "g_pushGrenades", "0", CVAR_ARCHIVE, 0, qtrue },
 
-        { &sv_allowDuplicateGuid, "sv_allowDuplicateGuid", "0", 0, 0, qtrue },
+        { &sv_allowDuplicateGuid, "sv_allowDuplicateGuid", "0", 0, 0, qfalse },
 
 // weapon config
-	{ &g_weaponChangeTime_Dropping, "g_weaponChangeTime_Dropping", "200", 0, 0, qtrue },
-	{ &g_weaponChangeTime_Raising,  "g_weaponChangeTime_Raising",  "250", 0, 0, qtrue },
-	{ &g_weaponReloadTime_Shotgun,  "g_weaponReloadTime_Shotgun", "1000", 0, 0, qtrue },
-	{ &g_weaponReloadTime_Lg,  	"g_weaponReloadTime_Lg", "50", 0, 0, qtrue },
-	{ &g_weaponReloadTime_Railgun,  "g_weaponReloadTime_Railgun", "1500", 0, 0, qtrue },
+	{ &g_weaponChangeTime_Dropping, "g_weaponChangeTime_Dropping", "200", 0, 0, qfalse },
+	{ &g_weaponChangeTime_Raising,  "g_weaponChangeTime_Raising",  "250", 0, 0, qfalse },
+	{ &g_weaponReloadTime_Shotgun,  "g_weaponReloadTime_Shotgun", "1000", 0, 0, qfalse },
+	{ &g_weaponReloadTime_Lg,  	"g_weaponReloadTime_Lg", "50", 0, 0, qfalse },
+	{ &g_weaponReloadTime_Railgun,  "g_weaponReloadTime_Railgun", "1500", 0, 0, qfalse },
 	{ &g_mgDamage,			"g_mgDamage", "7", 0, 0, qtrue },
 	{ &g_mgTeamDamage,		"g_mgTeamDamage", "5", 0, 0, qtrue },
 	{ &g_railgunDamage,		"g_railgunDamage", "100", 0, 0, qtrue },
 	{ &g_lgDamage, 			"g_lgDamage", "8", 0, 0, qtrue },
 
-	{ &g_pm_swimScale, 		"g_pm_swimScale", "0.50", 0, 0, qtrue },
+	{ &g_pm_swimScale, 		"g_pm_swimScale", "0.50", 0, 0, qfalse },
 
 	{ &g_teamslocked, 		"g_teamslocked", "0", 0, 0, qfalse },
 
-	{ &g_timeoutAllowed, 		"g_timeoutAllowed", "0", 0, 0, qtrue },
-	{ &g_timeinAllowed, 		"g_timeinAllowed", "1", 0, 0, qtrue },
-	{ &g_timeoutTime, 		"g_timeoutTime", "30", 0, 0, qtrue },
-	{ &g_timeoutOvertimeStep,	"g_timeoutOvertimeStep", "30", 0, 0, qtrue },
+	{ &g_timeoutAllowed, 		"g_timeoutAllowed", "0", 0, 0, qfalse },
+	{ &g_timeinAllowed, 		"g_timeinAllowed", "1", 0, 0, qfalse },
+	{ &g_timeoutTime, 		"g_timeoutTime", "30", 0, 0, qfalse },
+	{ &g_timeoutOvertimeStep,	"g_timeoutOvertimeStep", "30", 0, 0, qfalse },
 
 
 	{ &g_shaderremap,		"g_shaderremap", "0", 0, 0, qfalse },
