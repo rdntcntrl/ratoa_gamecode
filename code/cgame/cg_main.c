@@ -184,8 +184,13 @@ vmCvar_t	cg_friendFloatHealthSize;
 vmCvar_t	cg_teamOverlayScaleX;
 vmCvar_t	cg_teamOverlayScaleY;
 
+
+vmCvar_t	cg_forceBrightModels;
 vmCvar_t	cg_forceEnemyModelColor;
 vmCvar_t	cg_forceModelColor;
+vmCvar_t	cg_modelHueBlue;
+vmCvar_t	cg_modelHueDefault;
+vmCvar_t	cg_modelHueRed;
 
 vmCvar_t	cg_forceEnemyModelHue;
 vmCvar_t	cg_forceEnemyModelSaturation;
@@ -468,13 +473,17 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_fpsScaleY   ,     "cg_fpsScaleY", "1", CVAR_ARCHIVE},
 	{ &cg_speedScaleY ,     "cg_speedScaleY", "1", CVAR_ARCHIVE},
 	
-	{ &cg_forceEnemyModelColor ,     "cg_forceEnemyModelColor", "1", CVAR_ARCHIVE},
-	{ &cg_forceModelColor ,     "cg_forceModelColor", "1", CVAR_ARCHIVE},
+	{ &cg_forceBrightModels ,     "cg_forceBrightModels", "0", CVAR_ARCHIVE},
+	{ &cg_forceEnemyModelColor ,     "cg_forceEnemyModelColor", "0", CVAR_ARCHIVE},
+	{ &cg_forceModelColor ,     "cg_forceModelColor", "0", CVAR_ARCHIVE},
+	{ &cg_modelHueBlue ,     "cg_modelHueBlue", "185", CVAR_ARCHIVE},
+	{ &cg_modelHueDefault ,     "cg_modelHueDefault", "125", CVAR_ARCHIVE},
+	{ &cg_modelHueRed ,     "cg_modelHueRed", "10", CVAR_ARCHIVE},
 
-	{ &cg_forceEnemyModelHue ,     "cg_forceEnemyModelHue", "0", CVAR_ARCHIVE},
+	{ &cg_forceEnemyModelHue ,     "cg_forceEnemyModelHue", "125", CVAR_ARCHIVE},
 	{ &cg_forceEnemyModelSaturation ,     "cg_forceEnemyModelSaturation", "1", CVAR_ARCHIVE},
 	{ &cg_forceEnemyModelValue ,     "cg_forceEnemyModelValue", "1", CVAR_ARCHIVE},
-	{ &cg_forceModelHue ,     "cg_forceModelHue", "204", CVAR_ARCHIVE},
+	{ &cg_forceModelHue ,     "cg_forceModelHue", "280", CVAR_ARCHIVE},
 	{ &cg_forceModelSaturation ,     "cg_forceModelSaturation", "1", CVAR_ARCHIVE},
 	{ &cg_forceModelValue ,     "cg_forceModelValue", "1", CVAR_ARCHIVE},
 
@@ -482,11 +491,11 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_forceCorpseColor ,     "cg_forceCorpseColor", "1", CVAR_ARCHIVE},
 
 	//{ &cg_forceEnemyCorpseHue ,     "cg_forceEnemyCorpseHue", "0", CVAR_ARCHIVE},
-	{ &cg_forceEnemyCorpseSaturation ,     "cg_forceEnemyCorpseSaturation", "1", CVAR_ARCHIVE},
-	{ &cg_forceEnemyCorpseValue ,     "cg_forceEnemyCorpseValue", "1", CVAR_ARCHIVE},
+	{ &cg_forceEnemyCorpseSaturation ,     "cg_forceEnemyCorpseSaturation", "0.75", CVAR_ARCHIVE},
+	{ &cg_forceEnemyCorpseValue ,     "cg_forceEnemyCorpseValue", "0.5", CVAR_ARCHIVE},
 	//{ &cg_forceCorpseHue ,     "cg_forceCorpseHue", "204", CVAR_ARCHIVE},
-	{ &cg_forceCorpseSaturation ,     "cg_forceCorpseSaturation", "1", CVAR_ARCHIVE},
-	{ &cg_forceCorpseValue ,     "cg_forceCorpseValue", "1", CVAR_ARCHIVE},
+	{ &cg_forceCorpseSaturation ,     "cg_forceCorpseSaturation", "0.75", CVAR_ARCHIVE},
+	{ &cg_forceCorpseValue ,     "cg_forceCorpseValue", "0.5", CVAR_ARCHIVE},
 
 	// / RAT ===================
 

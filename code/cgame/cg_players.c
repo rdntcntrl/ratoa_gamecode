@@ -363,11 +363,7 @@ static qboolean	CG_FindClientModelFile( char *filename, int length, clientInfo_t
 				return qtrue;
 			}
 			if ( cgs.gametype >= GT_TEAM && cgs.ffa_gt!=1) {
-				const char *tmpTeam = team;
-				if (local_team != TEAM_SPECTATOR &&
-						((cg_forceModelColor.integer && !enemy ) || (cg_forceEnemyModelColor.integer && enemy))) {
-					 tmpTeam = skinName;
-				}
+				const char *tmpTeam = cg_forceBrightModels.integer ? skinName : team;
 				if ( i == 0 && teamName && *teamName ) {
 					//								"models/players/characters/sergei/stroggs/lower_red.skin"
 					Com_sprintf( filename, length, "models/players/%s%s/%s%s_%s.%s", charactersFolder, modelName, teamName, base, tmpTeam, ext );
@@ -412,25 +408,6 @@ CG_FindClientHeadFile
 static qboolean	CG_FindClientHeadFile( char *filename, int length, clientInfo_t *ci, const char *teamName, const char *headModelName, const char *headSkinName, const char *base, const char *ext ) {
 	char *team, *headsFolder;
 	int i;
-	const char	*local_config;
-	int 	local_team;
-	qboolean enemy = qfalse;
-	const char *v;
-
-	if (cg_forceModel.integer) {
-    		local_config = CG_ConfigString(cg.clientNum + CS_PLAYERS);
-    		v = Info_ValueForKey(local_config, "t");
-    		local_team = atoi(v);
-  	}
-
-	if (cgs.gametype >= GT_TEAM && cgs.ffa_gt != 1 ) {
-		if (local_team != ci->team)
-			enemy = 1;
-		else
-			enemy = 0;
-	} else {
-		enemy = 1;
-	}
 
 	if ( cgs.gametype >= GT_TEAM && cgs.ffa_gt!=1) {
 		switch ( ci->team ) {
@@ -467,11 +444,7 @@ static qboolean	CG_FindClientHeadFile( char *filename, int length, clientInfo_t 
 				return qtrue;
 			}
 			if ( cgs.gametype >= GT_TEAM && cgs.ffa_gt!=1) {
-				const char *tmpTeam = team;
-				if (local_team != TEAM_SPECTATOR &&
-						((cg_forceModelColor.integer && !enemy ) || (cg_forceEnemyModelColor.integer && enemy))) {
-					 tmpTeam = headSkinName;
-				}
+				const char *tmpTeam = cg_forceBrightModels.integer ? headSkinName : team;
 				if ( i == 0 &&  teamName && *teamName ) {
 					Com_sprintf( filename, length, "models/players/%s%s/%s%s_%s.%s", headsFolder, headModelName, teamName, base, tmpTeam, ext );
 				}
@@ -996,7 +969,11 @@ void CG_NewClientInfo( int clientNum ) {
 
 	// model
 	v = Info_ValueForKey( configstring, "model" );
-	if ( cg_forceModel.integer ) {
+
+	if (cg_forceBrightModels.integer) {
+		Q_strncpyz( newInfo.modelName, DEFAULT_TEAM_MODEL, sizeof( newInfo.modelName ) );
+		Q_strncpyz( newInfo.skinName, "bright", sizeof( newInfo.skinName ) );
+	} else if ( cg_forceModel.integer ) {
 		// forcemodel makes everyone use a single model
 		// to prevent load hitches
 		char modelStr[MAX_QPATH];
@@ -1012,12 +989,7 @@ void CG_NewClientInfo( int clientNum ) {
 		}
 		if( cgs.gametype >= GT_TEAM && cgs.ffa_gt!=1) {
 			Q_strncpyz( newInfo.modelName, DEFAULT_TEAM_MODEL, sizeof( newInfo.modelName ) );
-			if (local_team != TEAM_SPECTATOR &&
-					((cg_forceEnemyModelColor.integer && enemy) || (cg_forceModelColor.integer && !enemy))) {
-				Q_strncpyz( newInfo.skinName, "bright", sizeof( newInfo.skinName ) );
-			} else {
-				Q_strncpyz( newInfo.skinName, "default", sizeof( newInfo.skinName ) );
-			}
+			Q_strncpyz( newInfo.skinName, "default", sizeof( newInfo.skinName ) );
 		} else {
 			trap_Cvar_VariableStringBuffer( "model", modelStr, sizeof( modelStr ) );
 			if ( ( skin = strchr( modelStr, '/' ) ) == NULL) {
@@ -1053,7 +1025,10 @@ void CG_NewClientInfo( int clientNum ) {
 
 	// head model
 	v = Info_ValueForKey( configstring, "hmodel" );
-	if ( cg_forceModel.integer ) {
+	if (cg_forceBrightModels.integer) {
+		Q_strncpyz( newInfo.headModelName, DEFAULT_TEAM_MODEL, sizeof( newInfo.headModelName ) );
+		Q_strncpyz( newInfo.headSkinName, "bright", sizeof( newInfo.headSkinName ) );
+	} else if ( cg_forceModel.integer ) {
 		// forcemodel makes everyone use a single model
 		// to prevent load hitches
 		char modelStr[MAX_QPATH];
@@ -1061,12 +1036,7 @@ void CG_NewClientInfo( int clientNum ) {
 
 		if( cgs.gametype >= GT_TEAM && cgs.ffa_gt!=1) {
 			Q_strncpyz( newInfo.headModelName, DEFAULT_TEAM_MODEL, sizeof( newInfo.headModelName ) );
-			if (local_team != TEAM_SPECTATOR &&
-					( (cg_forceEnemyModelColor.integer && enemy) || (cg_forceModelColor.integer && !enemy))) {
-				Q_strncpyz( newInfo.headSkinName, "bright", sizeof( newInfo.headSkinName ) );
-			} else {
-				Q_strncpyz( newInfo.headSkinName, "default", sizeof( newInfo.headSkinName ) );
-			}
+			Q_strncpyz( newInfo.headSkinName, "default", sizeof( newInfo.headSkinName ) );
 		} else {
 			trap_Cvar_VariableStringBuffer( "headmodel", modelStr, sizeof( modelStr ) );
 			if ( ( skin = strchr( modelStr, '/' ) ) == NULL) {
@@ -2488,27 +2458,58 @@ void CG_FloatColorToRGBA(float *color, byte *out) {
 void CG_PlayerGetColors(clientInfo_t *ci, qboolean isDead, byte *outColor) {
 	clientInfo_t *player = &cgs.clientinfo[cg.clientNum];
 	float color[4];
+	float h,s,v;
 	color[0] = color[1] = color[2] = color[3] = 1.0;
 
-	if (player->team == TEAM_SPECTATOR) {
+	if (!cg_forceBrightModels.integer) {
 		CG_FloatColorToRGBA(color, outColor);
 		return;
 	}
 
-	if (cg_forceEnemyModelColor.integer && ((player->team == TEAM_FREE && player != ci)|| player->team != ci->team)) {
-		if (cg_forceEnemyCorpseColor.integer && isDead ) {
-			CG_HSV2RGB(cg_forceEnemyModelHue.value, cg_forceEnemyCorpseSaturation.value, cg_forceEnemyCorpseValue.value, color);
-		} else {
-			CG_HSV2RGB(cg_forceEnemyModelHue.value, cg_forceEnemyModelSaturation.value, cg_forceEnemyModelValue.value, color);
+	s = v = 1.0;
+
+
+	switch (ci->team) {
+		case TEAM_BLUE:
+			h = cg_modelHueBlue.value;
+			break;
+		case TEAM_RED:
+			h = cg_modelHueRed.value;
+			break;
+		default:
+			h = cg_modelHueDefault.value;
+			break;
+	}
+	if (player->team == TEAM_SPECTATOR) {
+		CG_HSV2RGB(h,s,v, color);
+		CG_FloatColorToRGBA(color, outColor);
+		return;
+	}
+
+	if ((player->team == TEAM_FREE && player != ci)
+			|| (player->team != ci->team)) {
+		// is enemy
+		if (cg_forceEnemyModelColor.integer) {
+			h = cg_forceEnemyModelHue.value;
+			s = cg_forceEnemyModelSaturation.value;
+			v = cg_forceEnemyModelValue.value;
 		}
-		
-	} else if (cg_forceModelColor.integer && (ci == player || (player->team != TEAM_FREE && ci->team == player->team ))) {
-		if (cg_forceCorpseColor.integer && isDead ) {
-			CG_HSV2RGB(cg_forceModelHue.value, cg_forceCorpseSaturation.value, cg_forceCorpseValue.value, color);
-		} else {
-			CG_HSV2RGB(cg_forceModelHue.value, cg_forceModelSaturation.value, cg_forceModelValue.value, color);
+		if (isDead && cg_forceEnemyCorpseColor.integer) {
+			s = cg_forceEnemyCorpseSaturation.value;
+			v = cg_forceEnemyCorpseValue.value;
 		}
-	} 
+	} else {
+		if (cg_forceModelColor.integer) {
+			h = cg_forceModelHue.value;
+			s = cg_forceModelSaturation.value;
+			v = cg_forceModelValue.value;
+		}
+		if (isDead && cg_forceCorpseColor.integer) {
+			s = cg_forceCorpseSaturation.value;
+			v = cg_forceCorpseValue.value;
+		}
+	}
+	CG_HSV2RGB(h,s,v, color);
 	CG_FloatColorToRGBA(color, outColor);
 
 }
