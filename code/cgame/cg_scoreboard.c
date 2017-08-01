@@ -294,9 +294,23 @@ static void CG_RatDrawClientScore(int y, score_t *score, float *color, float fad
 		Com_sprintf(string, sizeof (string), "connecting ");
 		CG_DrawSmallScoreStringColor(RATSB_WINS_X, ysmall, string, tcolor);
 	} else if (ci->team == TEAM_SPECTATOR) {
+		const char *team_s = NULL;
 		tcolor[0] = tcolor[1] = tcolor[2] = 1.0;
-		Com_sprintf(string, sizeof (string), "SPECT");
-		CG_DrawSmallScoreStringColor(RATSB_SCORE_X, ysmall, string, tcolor);
+		switch (score->spectatorGroup) {
+			case SPECTATORGROUP_NOTREADY:
+				team_s = "NOTREADY";
+				break;
+			case SPECTATORGROUP_AFK:
+				team_s = "AFK";
+				break;
+			default:
+				team_s = "SPECT";
+				break;
+		}
+		Com_sprintf(string, sizeof (string), "%9s", team_s);
+		CG_DrawSmallScoreStringColor(
+				RATSB_SCORE_X+RATSB_SCORE_WIDTH - CG_DrawStrlen(string) * SCORESMALLCHAR_WIDTH,
+			       	ysmall, string, tcolor);
 	} else {
 		tcolor[0] = tcolor[2] = 0.5;
 		tcolor[1] = 1.0;
@@ -325,7 +339,7 @@ static void CG_RatDrawClientScore(int y, score_t *score, float *color, float fad
 		} else if (cgs.gametype == GT_CTF) {
 			tcolor[0] = tcolor[2] = 0.25;
 			tcolor[1] = 0.75;
-			Com_sprintf(string, sizeof (string), "%-2i", score->defendCount);
+			Com_sprintf(string, sizeof (string), "%-2i", score->flagrecovery);
 		} else {
 			Com_sprintf(string, sizeof (string), "  ");
 		}
@@ -526,7 +540,7 @@ qboolean CG_DrawRatScoreboard(void) {
 	if (cgs.gametype == GT_TOURNAMENT) {
 		CG_DrawTinyScoreString(RATSB_WL_CENTER-1.5*SCORETINYCHAR_WIDTH, y, "W/L", fade);
 	} else if (cgs.gametype == GT_CTF) {
-		CG_DrawTinyScoreString(RATSB_WL_CENTER-1.5*SCORETINYCHAR_WIDTH, y, "C/D", fade);
+		CG_DrawTinyScoreString(RATSB_WL_CENTER-1.5*SCORETINYCHAR_WIDTH, y, "C/R", fade);
 	}
 	CG_DrawTinyScoreString(RATSB_SCORE_CENTER - 2.5*SCORETINYCHAR_WIDTH, y, "Score", fade);
 	CG_DrawTinyScoreString(RATSB_TIME_CENTER - 2 * SCORETINYCHAR_WIDTH, y, "Time", fade);

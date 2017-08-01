@@ -286,6 +286,11 @@ typedef struct localEntity_s {
 
 //======================================================================
 
+typedef enum {
+	SPECTATORGROUP_QUEUED,
+	SPECTATORGROUP_NOTREADY,
+	SPECTATORGROUP_AFK
+} spectatorGroup_t;
 
 typedef struct {
 	int				client;
@@ -301,6 +306,7 @@ typedef struct {
 	int				defendCount;
 	int				assistCount;
 	int				captures;
+	int			flagrecovery;
 	qboolean	perfect;
 	int				team;
 	int			isDead;
@@ -308,6 +314,7 @@ typedef struct {
 	int			deaths;
 	int			dmgGiven;
 	int			dmgTaken;
+	spectatorGroup_t	spectatorGroup;
 } score_t;
 
 // each client has an associated clientInfo_t

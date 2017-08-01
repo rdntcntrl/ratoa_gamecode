@@ -86,7 +86,7 @@ static void CG_ParseRatScores( void ) {
 
 	memset( cg.scores, 0, sizeof( cg.scores ) );
 
-#define NUM_RAT_DATA 19
+#define NUM_RAT_DATA 21
 #define FIRST_RAT_DATA 4
 
 	for ( i = 0 ; i < cg.numScores ; i++ ) {
@@ -110,6 +110,8 @@ static void CG_ParseRatScores( void ) {
 		cg.scores[i].deaths = atoi(CG_Argv(i * NUM_RAT_DATA + FIRST_RAT_DATA + 17));
 		cg.scores[i].dmgGiven = atoi(CG_Argv(i * NUM_RAT_DATA + FIRST_RAT_DATA + 18));
 		cg.scores[i].dmgTaken = atoi(CG_Argv(i * NUM_RAT_DATA + FIRST_RAT_DATA + 19));
+		cg.scores[i].spectatorGroup = atoi(CG_Argv(i * NUM_RAT_DATA + FIRST_RAT_DATA + 20));
+		cg.scores[i].flagrecovery = atoi(CG_Argv(i * NUM_RAT_DATA + FIRST_RAT_DATA + 21));
 		//cgs.roundStartTime = 
 
 		if ( cg.scores[i].client < 0 || cg.scores[i].client >= MAX_CLIENTS ) {
