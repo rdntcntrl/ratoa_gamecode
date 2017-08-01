@@ -290,6 +290,10 @@ static void CG_RatDrawClientScore(int y, score_t *score, float *color, float fad
 	if (score->ping == -1) {
 		Com_sprintf(string, sizeof (string), "connecting ");
 		CG_DrawSmallScoreStringColor(RATSB_WINS_X, ysmall, string, tcolor);
+	} else if (ci->team == TEAM_SPECTATOR) {
+		tcolor[0] = tcolor[1] = tcolor[2] = 1.0;
+		Com_sprintf(string, sizeof (string), "SPECT");
+		CG_DrawSmallScoreStringColor(RATSB_SCORE_X, ysmall, string, tcolor);
 	} else {
 		tcolor[0] = tcolor[2] = 0.5;
 		tcolor[1] = 1.0;
@@ -323,19 +327,11 @@ static void CG_RatDrawClientScore(int y, score_t *score, float *color, float fad
 			Com_sprintf(string, sizeof (string), "  ");
 		}
 		CG_DrawSmallScoreStringColor(RATSB_LOSSES_X, ysmall, string, tcolor);
-	}
 
-	if (score->ping != -1) {
-		if (ci->team == TEAM_SPECTATOR) {
-			tcolor[0] = tcolor[1] = tcolor[2] = 1.0;
-			Com_sprintf(string, sizeof (string), "SPECT");
-			CG_DrawSmallScoreStringColor(RATSB_SCORE_X, ysmall, string, tcolor);
-		} else {
-			tcolor[0] = tcolor[1] = 1.0;
-			tcolor[2] = 0;
-			Com_sprintf(string, sizeof (string), "%4i", score->score);
-			CG_DrawScoreStringColor(RATSB_SCORE_X, y, string, tcolor);
-		}
+		tcolor[0] = tcolor[1] = 1.0;
+		tcolor[2] = 0;
+		Com_sprintf(string, sizeof (string), "%4i", score->score);
+		CG_DrawScoreStringColor(RATSB_SCORE_X, y, string, tcolor);
 	}
 
 	tcolor[0] = tcolor[1] = tcolor[2] = 1.0;
