@@ -1167,7 +1167,7 @@ void G_TimeoutModTimes(int delta) {
 	for (i=0 ; i < level.maxclients ; i++, tent++ ) {
 		if ( tent->inuse && tent->client ) {
 			for ( j = 0; j < MAX_POWERUPS; j++ ) {
-				if ( tent->client->ps.powerups[j] > 0 )
+				if ( tent->client->ps.powerups[j] > 0 && tent->client->ps.powerups[j] < INT_MAX)
 					tent->client->ps.powerups[j] += delta;
 			}
 			if (tent->client->respawnTime) {
