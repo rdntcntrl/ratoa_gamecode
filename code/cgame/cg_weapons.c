@@ -2561,6 +2561,7 @@ void CG_DrawWeaponBar8(int count, int bits, float *color){
 	char *s;
 	float red[4];
 	float yellow[4];
+	float grey[4];
 	float green[4];
 	float blue[4];
 	
@@ -2569,10 +2570,15 @@ void CG_DrawWeaponBar8(int count, int bits, float *color){
 	red[2] = 0;
 	red[3] = 0.4f;
 	
-	yellow[0] = 0.8f;
-	yellow[1] = 0.8f;
-	yellow[2] = 0.8f;
-	yellow[3] = 0.8f;
+	grey[0] = 0.8f;
+	grey[1] = 0.8f;
+	grey[2] = 0.8f;
+	grey[3] = 0.8f;
+	
+	yellow[0] = 1.0f;
+	yellow[1] = 1.0f;
+	yellow[2] = 0;
+	yellow[3] = 1.0f;
 	
 	green[0] = 0;
 	green[1] = 1.0f;
@@ -2629,21 +2635,16 @@ void CG_DrawWeaponBar8(int count, int bits, float *color){
 				CG_FillRect( x+2, y+40, br, 4, green);
 		}
 			
-		if(cg.snap->ps.ammo[i]){
-			if ( i == cg.weaponSelect) {
-				CG_FillRect( x, y , 30 , 38, blue );
-				CG_DrawRect( x, y, 30 ,38 ,2, yellow); 
-			}
+		if ( i == cg.weaponSelect) {
+			CG_FillRect( x, y , 30 , 38, blue );
+			CG_DrawRect( x , y, 30,38,2, grey); 
 		}
-		else{ 
-			if ( i == cg.weaponSelect) {
-				CG_FillRect( x, y , 30 , 38, blue );
-				CG_DrawRect( x , y, 30,38,2, yellow); 
-			}
-			CG_DrawPic( x, y, 30, 38, cgs.media.noammoShader );
-		}	
 		CG_RegisterWeapon( i );	
 		CG_DrawPic( x+7, y+2, 16, 16, cg_weapons[i].weaponIcon );
+
+		if (!cg.snap->ps.ammo[i]){
+			CG_DrawPic( x, y, 30, 38, cgs.media.noammoShader );
+		}	
 			
 		if(cg.snap->ps.ammo[ i ]!=-1){
 			s = va("%i", cg.snap->ps.ammo[ i ] );
@@ -2676,6 +2677,7 @@ void CG_DrawWeaponBar9(int count, int bits, float *color){
 	char *s;
 	float red[4];
 	float yellow[4];
+	float grey[4];
 	float green[4];
 	float blue[4];
 	
@@ -2684,10 +2686,15 @@ void CG_DrawWeaponBar9(int count, int bits, float *color){
 	red[2] = 0;
 	red[3] = 0.4f;
 	
-	yellow[0] = 0.8f;
-	yellow[1] = 0.8f;
-	yellow[2] = 0.8f;
-	yellow[3] = 0.8f;
+	grey[0] = 0.8f;
+	grey[1] = 0.8f;
+	grey[2] = 0.8f;
+	grey[3] = 0.8f;
+	
+	yellow[0] = 1.0f;
+	yellow[1] = 1.0f;
+	yellow[2] = 0;
+	yellow[3] = 1.0f;
 	
 	green[0] = 0;
 	green[1] = 1.0f;
@@ -2732,43 +2739,37 @@ void CG_DrawWeaponBar9(int count, int bits, float *color){
 		if(ammo >=100)
 			ammo=100;
 			
-		br=ammo*20/100;
+		br=ammo*24/100;
 				
 		if(i!=WP_GAUNTLET && i!=WP_GRAPPLING_HOOK){
 			if(ammo <= 20)
-				CG_FillRect( x, y+2+20-br, 4,br, red);
+				CG_FillRect( x, y+2+24-br, 4,br, red);
 			if(ammo > 20 && ammo <= 50)
-				CG_FillRect( x, y+2+20-br, 4,br, yellow);
+				CG_FillRect( x, y+2+24-br, 4,br, yellow);
 			if(ammo > 50)
-				CG_FillRect( x, y+2+20-br, 4,br, green);
+				CG_FillRect( x, y+2+24-br, 4,br, green);
 		}
 			
-		if(cg.snap->ps.ammo[i]){
-			if ( i == cg.weaponSelect) {
-				CG_FillRect( x+4, y, 50, 24, blue );
-				CG_DrawRect( x+4, y, 50, 24, 2, yellow);
-			}
+		if ( i == cg.weaponSelect) {
+			CG_FillRect( x+4, y, 54, 28, blue );
+			CG_DrawRect( x+4, y, 54, 28, 2, grey);
 		}
-		else{ 
-			if ( i == cg.weaponSelect) { 
-				//CG_FillRect( x, y, 50, 24, red );
-				CG_FillRect( x+4, y, 50, 24, blue );
-				CG_DrawRect( x+4, y, 50, 24, 2, yellow);
-			}
-			CG_DrawPic( x+4, y, 50, 24, cgs.media.noammoShader );
-		}
-		     CG_RegisterWeapon( i );
-			// draw weapon icon
-			CG_DrawPic( x+6, y+4, 16, 16, cg_weapons[i].weaponIcon );
-		
-			/** Draw Weapon Ammo **/
-			if(cg.snap->ps.ammo[ i ]!=-1){
-				s = va("%i", cg.snap->ps.ammo[ i ] );
-				w = CG_DrawStrlen( s ) * SMALLCHAR_WIDTH;
-				CG_DrawSmallStringColor(x+4 - w/2 + 32, y+4, s, color);
-			}
+		CG_RegisterWeapon( i );
+		// draw weapon icon
+		CG_DrawPic( x+6, y+2, 24, 24, cg_weapons[i].weaponIcon );
 
-			y -= 24;
+		if(!cg.snap->ps.ammo[i]){
+			CG_DrawPic( x+6, y+2, 24, 24, cgs.media.noammoShader );
+		}
+
+		/** Draw Weapon Ammo **/
+		if(cg.snap->ps.ammo[ i ]!=-1){
+			s = va("%i", cg.snap->ps.ammo[ i ] );
+			w = CG_DrawStrlen( s ) * SMALLCHAR_WIDTH;
+			CG_DrawSmallStringColor(x+12 - w/2 + 32, y+6, s, color);
+		}
+
+		y -= 28;
                         //Sago: Undo mad change of weapons
                 if(i==10)
                         i=0;
