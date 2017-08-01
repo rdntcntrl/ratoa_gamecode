@@ -647,9 +647,11 @@ void G_UpdateActionCamera(void) {
 	if ( cl->pers.connected == CON_CONNECTED && cl->sess.sessionTeam != TEAM_SPECTATOR ) {
 		ent = &g_entities[ clientNum ];
 		if (ent->health <= 0) {
-			level.followauto = cl->lasthurt_client;
-			level.followautoTime = level.time;
-			return;
+			if (cl->lasthurt_client < level.maxclients) {
+				level.followauto = cl->lasthurt_client;
+				level.followautoTime = level.time;
+				return;
+			}
 		}
 		if (level.followautoTime + 60 * 2 * 1000 > level.time) {
 			return;
