@@ -1151,6 +1151,87 @@ static void ClientCleanName(const char *in, char *out, int outSize, int clientNu
 
 
 
+typedef struct {
+	char tag[MAX_NETNAME];
+	char displayname[MAX_NETNAME];
+	char name[MAX_NETNAME];
+} clan_t;
+
+static clan_t clans[] = {
+	{ "{T-L}", "TopLevel", "toplevel" },
+	{ "/u/", "NiN", "nin" },
+	{ "*SoS*", "SoS", "sos" },
+	{ "SeXy-", "SeXy", "sexy" },
+	{ "Guild", "Guild", "guilda" },
+	{ "raGe|", "raGe", "rage" },
+	{ "vihmu", "vihmu", "vihmu" },
+};
+
+#define MAX_CLAN (sizeof(clans)/sizeof(clan_t)) 
+
+int G_ClanForClient( gclient_t *client) {
+	int j;
+	char name[MAX_NETNAME];
+	Q_strncpyz(name, client->pers.netname, sizeof(name));
+	Q_CleanStr(name);
+	for (j = 0; j < MAX_CLAN; ++j) {
+		if (strstr(name, clans[j].tag)) {
+			return j;
+		}
+	}
+	return -1;
+}
+
+void G_CheckClan( team_t team) {
+	int i;
+	int detected_clan = -1;
+	char *teamcvar = NULL;
+
+	if (!g_autoClans.integer) {
+		return;
+	}
+
+	if (team != TEAM_RED && team != TEAM_BLUE) {
+		return;
+	}
+
+	for( i = 0; i < level.maxclients; i++ ) {
+		int clan = -1;
+		if( level.clients[ i ].pers.connected == CON_DISCONNECTED )
+			continue;
+		if( level.clients[ i ].sess.sessionTeam != team )
+			continue;
+		if (g_entities[i].r.svFlags & SVF_BOT) {
+			continue;
+		}
+
+		clan = G_ClanForClient(&level.clients[i]);
+		if (clan == -1) {
+			detected_clan = -1;
+			break;
+		} else if (detected_clan == -1) {
+			detected_clan = clan;
+		} else if (detected_clan != clan) {
+			detected_clan = -1;
+			break;
+		}
+	}
+
+	teamcvar = team == TEAM_BLUE ? "g_blueclan" : "g_redclan";
+	if (detected_clan != -1) {
+		char prevclanname[MAX_NETNAME];
+		trap_Cvar_VariableStringBuffer( teamcvar, prevclanname, sizeof( prevclanname ) );
+		if (Q_strncmp(prevclanname, clans[detected_clan].name, sizeof(prevclanname)) != 0) {
+			trap_Cvar_Set(teamcvar, va("%s", clans[detected_clan].name));
+			trap_SendServerCommand( -1, va("print \"" S_COLOR_CYAN "Clan %s detected! Welcome!\n\"", clans[detected_clan].displayname) );
+		}
+
+	} else {
+		trap_Cvar_Set(teamcvar, "");
+	}
+}
+
+
 /*
 ===========
 ClientUserInfoChanged
@@ -1446,6 +1527,9 @@ Sago: I am not happy with this exception
 
 	// this is not the userinfo, more like the configstring actually
 	G_LogPrintf( "ClientUserinfoChanged: %i %s\\id\\%s\n", clientNum, s, Info_ValueForKey(userinfo, "cl_guid") );
+
+	G_CheckClan(TEAM_RED);
+	G_CheckClan(TEAM_BLUE);
 }
 
 
@@ -1595,8 +1679,11 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 		trap_SendServerCommand( clientNum, "print \"Full lag compensation is OFF!\n\"" );
 	}
 
+
 //unlagged - backward reconciliation #5
     G_admin_namelog_update( client, qfalse );
+
+	G_CheckClan(client->sess.sessionTeam);
 	return NULL;
 }
 
@@ -2249,6 +2336,7 @@ void ClientDisconnect( int clientNum ) {
 	gentity_t	*ent;
 	int			i;
         char	userinfo[MAX_INFO_STRING];
+	team_t oldTeam;
 
 	// cleanup if we are kicking a bot that
 	// hasn't spawned yet
@@ -2340,6 +2428,7 @@ void ClientDisconnect( int clientNum ) {
 	ent->s.modelindex = 0;
 	ent->inuse = qfalse;
 	ent->classname = "disconnected";
+	oldTeam = ent->client->sess.sessionTeam;
 	ent->client->pers.connected = CON_DISCONNECTED;
 	ent->client->ps.persistant[PERS_TEAM] = TEAM_FREE;
 	ent->client->sess.sessionTeam = TEAM_FREE;
@@ -2352,6 +2441,8 @@ void ClientDisconnect( int clientNum ) {
 	if ( ent->r.svFlags & SVF_BOT ) {
 		BotAIShutdownClient( clientNum, qfalse );
 	}
+
+	G_CheckClan(oldTeam);
 }
 
 
