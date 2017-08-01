@@ -130,6 +130,11 @@ g_admin_cmd_t g_admin_cmds[ ] =
       "[^3name|slot#^7]"
     },
 
+    {"mutespec", G_admin_mutespec, "m",
+      "mute the spectators",
+      ""
+    },
+
     {"namelog", G_admin_namelog, "e",
       "display a list of names used by recently connected players",
       "(^5name^7)"
@@ -227,6 +232,11 @@ g_admin_cmd_t g_admin_cmds[ ] =
     {"unmute", G_admin_mute, "m",
       "unmute a muted player",
       "[^3name|slot#^7]"
+    },
+
+    {"unmutespec", G_admin_unmutespec, "m",
+      "unmute the spectators",
+      ""
     },
 
 //KK-OAX   
@@ -3059,6 +3069,22 @@ qboolean G_admin_namelog( gentity_t *ent, int skiparg )
   }
   ADMBP( va( "^3!namelog:^7 %d recent clients found\n", printed ) );
   ADMBP_end();
+  return qtrue;
+}
+
+qboolean G_admin_mutespec( gentity_t *ent, int skiparg ) 
+{
+  trap_Cvar_Set("g_specMuted", "1");
+  AP( va( "print \"^3!mutespec: ^7spectators have been muted by %s\n\"",
+    ( ent ) ? ent->client->pers.netname : "console" ) );
+  return qtrue;
+}
+
+qboolean G_admin_unmutespec( gentity_t *ent, int skiparg ) 
+{
+  trap_Cvar_Set("g_specMuted", "0");
+  AP( va( "print \"^3!unmutespec: ^7spectators have been unmuted by %s\n\"",
+    ( ent ) ? ent->client->pers.netname : "console" ) );
   return qtrue;
 }
 

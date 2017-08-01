@@ -1324,6 +1324,9 @@ G_Say
 */
 
 static void G_SayTo( gentity_t *ent, gentity_t *other, int mode, int color, const char *name, const char *message ) {
+	if (ent->client->pers.muted){
+		return;
+	}
 	if (!other) {
 		return;
 	}
@@ -1336,7 +1339,9 @@ static void G_SayTo( gentity_t *ent, gentity_t *other, int mode, int color, cons
 	if ( other->client->pers.connected != CON_CONNECTED ) {
 		return;
 	}
-	if ( mode == SAY_TEAM  && !OnSameTeam(ent, other) ) {
+	if ( mode == SAY_TEAM  && !OnSameTeam(ent, other) 
+			&& !(ent->client->sess.sessionTeam == TEAM_SPECTATOR &&
+				other->client->sess.sessionTeam == TEAM_SPECTATOR)) {
 		return;
 	}
 
@@ -1344,8 +1349,8 @@ static void G_SayTo( gentity_t *ent, gentity_t *other, int mode, int color, cons
 
 	// no chatting to players in tournements
 	if ( (g_gametype.integer == GT_TOURNAMENT )
-		&& other->client->sess.sessionTeam == TEAM_FREE
-		&& ent->client->sess.sessionTeam != TEAM_FREE ) {
+			&& other->client->sess.sessionTeam == TEAM_FREE
+			&& ent->client->sess.sessionTeam != TEAM_FREE ) {
 		return;
 	}
 
@@ -1373,6 +1378,11 @@ void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText ) 
 
 	if ( (g_gametype.integer < GT_TEAM || g_ffa_gt == 1) && mode == SAY_TEAM ) {
 		mode = SAY_ALL;
+	}
+
+	if ((g_gametype.integer == GT_TOURNAMENT || g_specMuted.integer)
+			&& ent->client->sess.sessionTeam == TEAM_SPECTATOR) {
+		mode = SAY_TEAM;
 	}
 
 	switch ( mode ) {
