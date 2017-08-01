@@ -134,6 +134,45 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 static qboolean localClient; // true if local client has been displayed
 
 
+/*
+=================
+CG_RatioColor
+=================
+ */
+static void CG_RatioColor(int a, int b, vec4_t color) {
+	int s = a + b;
+	color[3] = 1.0;
+	color[2] = 0;
+
+	if (s == 0) {
+		color[0] = color[1] = 1.0;
+		return;
+	}
+	color[0] = 2.0*(float)b/(float)s;
+	color[1] = 2.0*(float)a/(float)s;
+
+}
+
+/*
+=================
+CG_PingColor
+=================
+ */
+static void CG_PingColor(int ping, vec4_t color) {
+	float ratio;
+	color[3] = 1.0;
+	color[2] = 0;
+	if (ping >= 200) {
+		color[0] = 1.0;
+		color[1] = 0;
+		return;
+	}
+	ratio = (float)ping/200.0;
+	color[0] = ratio;
+	color[1] = 1.0-ratio;
+
+}
+
 
 /*
 =================
@@ -285,18 +324,20 @@ static void CG_RatDrawClientScore(int y, score_t *score, float *color, float fad
 		CG_DrawSmallScoreStringColor(RATSB_LOSSES_X, ysmall, string, tcolor);
 	}
 
-	tcolor[0] = tcolor[1] = tcolor[2] = 1.0;
 	if (score->ping != -1) {
 		if (ci->team == TEAM_SPECTATOR) {
+			tcolor[0] = tcolor[1] = tcolor[2] = 1.0;
 			Com_sprintf(string, sizeof (string), "SPECT");
 			CG_DrawSmallScoreStringColor(RATSB_SCORE_X, ysmall, string, tcolor);
 		} else {
+			tcolor[0] = tcolor[1] = 1.0;
+			tcolor[2] = 0;
 			Com_sprintf(string, sizeof (string), "%4i", score->score);
 			CG_DrawScoreStringColor(RATSB_SCORE_X, y, string, tcolor);
 		}
 	}
 
-	tcolor[0] = tcolor[1] = tcolor[2] = 0.75;
+	tcolor[0] = tcolor[1] = tcolor[2] = 1.0;
 	Com_sprintf(string, sizeof (string), "%3i", score->time);
 	CG_DrawSmallScoreStringColor(RATSB_TIME_X, ysmall, string, tcolor);
 
@@ -310,11 +351,11 @@ static void CG_RatDrawClientScore(int y, score_t *score, float *color, float fad
 	Com_sprintf(string, sizeof (string), "%s", ci->name);
 	CG_DrawScoreString(RATSB_NAME_X, y, string, fade);
 
-	tcolor[0] = tcolor[1] = tcolor[2] = 0.75;
+	CG_RatioColor(score->kills, score->deaths, tcolor);
 	Com_sprintf(string, sizeof (string), "%3i/%-3i", score->kills, score->deaths);
 	CG_DrawTinyScoreStringColor(RATSB_KD_X, ytiny, string, tcolor);
 
-	tcolor[0] = tcolor[1] = tcolor[2] = 0.75;
+	CG_RatioColor(score->dmgGiven, score->dmgTaken, tcolor);
 	Com_sprintf(string, sizeof (string), "%2.1f/%-2.1f",
 			(float)score->dmgGiven/1000.0, (float)score->dmgTaken/1000.0);
 	CG_DrawTinyScoreStringColor(RATSB_DT_X, ytiny, string, tcolor);
@@ -323,7 +364,8 @@ static void CG_RatDrawClientScore(int y, score_t *score, float *color, float fad
 	//Com_sprintf(string, sizeof (string), "%3i%%", score->accuracy);
 	//CG_DrawSmallScoreStringColor(RATSB_ACCURACY_X, ysmall, string, tcolor);
 
-	tcolor[0] = tcolor[1] = tcolor[2] = 0.75;
+	//tcolor[0] = tcolor[1] = tcolor[2] = 1.0;
+	CG_PingColor(score->ping, tcolor);
 	Com_sprintf(string, sizeof (string), "%3i", score->ping);
 	CG_DrawSmallScoreStringColor(RATSB_PING_X, ysmall, string, tcolor);
 
