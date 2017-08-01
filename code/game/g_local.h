@@ -1180,6 +1180,7 @@ extern  vmCvar_t        g_unlagFlight;
 
 extern  vmCvar_t	g_tournamentMinSpawnDistance;
 
+extern  vmCvar_t        g_itemPickup;
 extern  vmCvar_t        g_usesRatVM;
 extern  vmCvar_t        sv_allowDuplicateGuid;
 
