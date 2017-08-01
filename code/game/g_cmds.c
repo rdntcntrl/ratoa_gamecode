@@ -1188,14 +1188,11 @@ void G_TimeoutModTimes(int delta) {
 }
 
 int timeout_overtimestep(int duration) {
-	if (g_timeoutOvertimeStep.integer <= 0) {
+	int stepms = g_timeoutOvertimeStep.integer * 1000;
+	if (stepms <= 0) {
 		return duration;
 	}
-	if (duration > g_timeoutOvertimeStep.integer * 1000) {
-		return g_timeoutOvertimeStep.integer * 1000 * (duration/(g_timeoutOvertimeStep.integer*1000));
-	} else {
-		return g_timeoutOvertimeStep.integer * 1000;
-	}
+	return stepms * (((duration % stepms == 0) ? 0 : 1) + duration/stepms);
 }
 
 void G_Timeout(gentity_t *caller) {
@@ -1256,18 +1253,18 @@ void G_TimeinCommand(gentity_t *caller) {
 		return;
 	}
 
-	if (level.timeoutRealLevelTime + 5000 >= level.timeoutEnd) {
+	if (level.timeoutRealLevelTime + 6000 >= level.timeoutEnd) {
 		return;
 	}
 
-	trap_SendServerCommand(-1,va("cp \"%s" S_COLOR_CYAN " unpaused.\nGame continues in 5s\"", 
+	trap_SendServerCommand(-1,va("cp \"%s" S_COLOR_CYAN " unpaused.\nGame continues in 6s\"", 
 				caller->client->pers.netname));
-	trap_SendServerCommand(-1,va("print \"%s" S_COLOR_CYAN " unpaused.\nGame continues in 5s\n\"", 
+	trap_SendServerCommand(-1,va("print \"%s" S_COLOR_CYAN " unpaused.\n\"", 
 				caller->client->pers.netname));
 
 	level.timein = qtrue;
 
-	int delta = level.timeoutRealLevelTime - level.timeoutEnd + 5000;
+	int delta = level.timeoutRealLevelTime - level.timeoutEnd + 6000;
 	G_TimeoutModTimes(delta);
 	level.timeoutAdd += delta;
 	level.timeoutEnd += delta;
@@ -1311,6 +1308,13 @@ void G_Timein( void ) {
 	level.timein = qfalse;
 	trap_SendServerCommand(-1,va("print \"" S_COLOR_CYAN "Game continues! Total overtime added: %is\n\"", 
 			       		level.timeoutOvertime/1000	));
+	if (g_timelimit.integer > 0) {
+		int newtimelimit = g_timelimit.integer * 60*1000 + level.timeoutOvertime;
+		newtimelimit /= 1000;
+		trap_SendServerCommand(-1,va("print \"" S_COLOR_CYAN "Game ends at %i:%02i\n\"", 
+					newtimelimit/60, newtimelimit - (newtimelimit/60)*60 ));
+
+	}
 }
 
 /*
