@@ -25,7 +25,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 //#define	MISSILE_PRESTEP_TIME 50
 //#define	MISSILE_PRESTEP_MAX_LATENCY 150
 #define MIN(x,y) (x < y ? x : y)
-#define MISSILE_LAUNCHLAG(ping) (MIN(MISSILE_PRESTEP_MAX_LATENCY/2, ping/2))
+//#define MISSILE_LAUNCHLAG(ping) (MIN(MISSILE_PRESTEP_MAX_LATENCY/2, ping/2))
+#define MISSILE_LAUNCHLAG(ping) (MIN(g_unlagMissileMaxLatency.integer/2, ping/2))
 
 int G_MissilePrestep(gclient_t *client) {
 	int launchlag = G_LaunchLag(client);

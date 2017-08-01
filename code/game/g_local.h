@@ -60,7 +60,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define FL_FORCE_GESTURE		0x00008000	// force gesture on client
 
 // for delagged projectiles
-#define	MISSILE_PRESTEP_MAX_LATENCY 250
+//#define	MISSILE_PRESTEP_MAX_LATENCY 250
 
 // movers are things like doors, plats, buttons, etc
 typedef enum {
@@ -1166,6 +1166,7 @@ extern  vmCvar_t        g_teleMissiles;
 extern  vmCvar_t        g_pushGrenades;
 extern  vmCvar_t        g_ambientSound;
 extern  vmCvar_t        g_rocketSpeed;
+extern  vmCvar_t        g_unlagMissileMaxLatency;
 extern  vmCvar_t        g_unlagMode;
 extern  vmCvar_t        g_unlagLaunchLagMode;
 extern  vmCvar_t        g_unlagCorrectFrameOffset;
