@@ -1275,6 +1275,7 @@ extern vmCvar_t                	cg_ratScoreboard;
 extern vmCvar_t			cg_ratRocketTrail;
 extern vmCvar_t			cg_ratRocketTrailAlpha;
 extern vmCvar_t			cg_ratRocketTrailRadius;
+extern vmCvar_t			cg_ratLg;
 
 //unlagged - smooth clients #2
 // this is done server-side now

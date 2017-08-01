@@ -169,6 +169,7 @@ vmCvar_t 	cg_ratScoreboard;
 vmCvar_t	cg_ratRocketTrail;
 vmCvar_t	cg_ratRocketTrailAlpha;
 vmCvar_t	cg_ratRocketTrailRadius;
+vmCvar_t	cg_ratLg;
 
 //unlagged - smooth clients #2
 // this is done server-side now
@@ -397,6 +398,7 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_ratRocketTrail, "cg_ratRocketTrail", "0", CVAR_ARCHIVE},
 	{ &cg_ratRocketTrailAlpha, "cg_ratRocketTrailAlpha", "0.5", CVAR_ARCHIVE},
 	{ &cg_ratRocketTrailRadius, "cg_ratRocketTrailRadius", "5", CVAR_ARCHIVE},
+	{ &cg_ratLg, "cg_ratLg", "0", CVAR_ARCHIVE},
 
 //unlagged - smooth clients #2
 // this is done server-side now
