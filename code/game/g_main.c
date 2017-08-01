@@ -599,14 +599,20 @@ void G_RemapTeamShaders( void ) {
 	if( g_redteam.string[0] ) {
 		Com_sprintf( string, sizeof(string), "team_icon/ratoa/%s_redflag", g_redteam.string );
 		AddRemap("models/flags/r_flag", string, f); 
+		Com_sprintf( string, sizeof(string), "team_icon/ratoa/%s_red_banner", g_redteam.string );
+		AddRemap("textures/clown/red_banner", string, f); 
 	}  else {
 		AddRemap("models/flags/r_flag", "models/flags/r_flag", f); 
+		AddRemap("textures/clown/red_banner", "textures/clown/red_banner", f); 
 	}
 	if( g_blueteam.string[0] ) {
 		Com_sprintf( string, sizeof(string), "team_icon/ratoa/%s_blueflag", g_blueteam.string );
 		AddRemap("models/flags/b_flag", string, f); 
+		Com_sprintf( string, sizeof(string), "team_icon/ratoa/%s_blue_banner", g_blueteam.string );
+		AddRemap("textures/clown/blue_banner", string, f); 
 	}  else {
 		AddRemap("models/flags/b_flag", "models/flags/b_flag", f); 
+		AddRemap("textures/clown/blue_banner", "textures/clown/blue_banner", f); 
 	}
 	trap_SetConfigstring(CS_SHADERSTATE, BuildShaderStateConfig());
 }
