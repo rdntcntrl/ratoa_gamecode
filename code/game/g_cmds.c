@@ -1067,6 +1067,16 @@ void Cmd_Follow_f( gentity_t *ent ) {
 	ent->client->sess.spectatorClient = i;
 }
 
+void Cmd_FollowAuto_f( gentity_t *ent ) {
+	if (ent->client->sess.sessionTeam != TEAM_SPECTATOR) {
+		return;
+	}
+
+	ent->client->sess.spectatorState = SPECTATOR_FOLLOW;
+	ent->client->sess.spectatorClient = -3;
+
+}
+
 /*
 =================
 Cmd_FollowCycle_f
@@ -2547,6 +2557,7 @@ commands_t cmds[ ] =
   { "follow", CMD_NOTEAM, Cmd_Follow_f },
   { "follownext", CMD_NOTEAM, Cmd_FollowCycle_f },
   { "followprev", CMD_NOTEAM, Cmd_FollowCycle_f },
+  { "followauto", CMD_NOTEAM, Cmd_FollowAuto_f },
 
   { "timein", 0, Cmd_Timein_f },
   { "timeout", 0, Cmd_Timeout_f },
