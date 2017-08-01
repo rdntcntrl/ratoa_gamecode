@@ -32,8 +32,8 @@ DeathmatchScoreboardMessage
 ==================
 */
 void DeathmatchScoreboardMessage( gentity_t *ent, qboolean advanced ) {
-	char		entry[1024];
-	char		string[1400];
+	char		entry[2048];
+	char		string[4096];
 	int			stringlength;
 	int			i, j;
 	gclient_t	*cl;
