@@ -1205,6 +1205,9 @@ extern vmCvar_t	       g_timeinAllowed;
 extern vmCvar_t	       g_timeoutTime;
 extern vmCvar_t	       g_timeoutOvertimeStep;
 
+extern vmCvar_t        g_autoFollowKiller;
+extern vmCvar_t        g_autoFollowSwitchTime;
+
 extern vmCvar_t        g_shaderremap;
 extern vmCvar_t        g_shaderremap_flag;
 extern vmCvar_t        g_shaderremap_flagreset;

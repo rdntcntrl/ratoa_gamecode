@@ -212,6 +212,9 @@ vmCvar_t        g_timeinAllowed;
 vmCvar_t        g_timeoutTime;
 vmCvar_t        g_timeoutOvertimeStep;
 
+vmCvar_t        g_autoFollowKiller;
+vmCvar_t        g_autoFollowSwitchTime;
+
 vmCvar_t        g_shaderremap;
 vmCvar_t        g_shaderremap_flag;
 vmCvar_t        g_shaderremap_flagreset;
@@ -400,6 +403,9 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_timeinAllowed, 		"g_timeinAllowed", "1", 0, 0, qfalse },
 	{ &g_timeoutTime, 		"g_timeoutTime", "30", 0, 0, qfalse },
 	{ &g_timeoutOvertimeStep,	"g_timeoutOvertimeStep", "30", 0, 0, qfalse },
+
+	{ &g_autoFollowKiller,	"g_autoFollowKiller", "0", 0, 0, qfalse },
+	{ &g_autoFollowSwitchTime,	"g_autoFollowSwitchTime", "60", 0, 0, qfalse },
 
 
 	{ &g_shaderremap,		"g_shaderremap", "0", 0, 0, qfalse },
@@ -727,14 +733,16 @@ void G_UpdateActionCamera(void) {
 	cl = &level.clients[ clientNum ];
 	if ( cl->pers.connected == CON_CONNECTED && cl->sess.sessionTeam != TEAM_SPECTATOR ) {
 		ent = &g_entities[ clientNum ];
-		if (ent->health <= 0) {
-			if (cl->lasthurt_client < level.maxclients) {
-				level.followauto = cl->lasthurt_client;
-				level.followautoTime = level.time;
-				return;
+		if (g_autoFollowKiller.integer) {
+			if (ent->health <= 0) {
+				if (cl->lasthurt_client < level.maxclients) {
+					level.followauto = cl->lasthurt_client;
+					level.followautoTime = level.time;
+					return;
+				}
 			}
 		}
-		if (level.followautoTime + 60 * 2 * 1000 > level.time) {
+		if (level.followautoTime + g_autoFollowSwitchTime.integer * 1000 > level.time) {
 			return;
 		}
 	}
