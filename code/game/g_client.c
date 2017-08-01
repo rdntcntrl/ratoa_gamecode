@@ -735,7 +735,7 @@ TeamCount
 Returns number of players on a team
 ================
 */
-team_t TeamCount( int ignoreClientNum, int team ) {
+team_t TeamCount( int ignoreClientNum, int team, qboolean countBots ) {
 	int		i;
 	int		count = 0;
 
@@ -750,6 +750,10 @@ team_t TeamCount( int ignoreClientNum, int team ) {
                 if ( level.clients[i].pers.connected == CON_CONNECTING) {
                         continue;
                 }
+
+		if (!countBots && g_entities[i].r.svFlags & SVF_BOT) {
+			continue;
+		}
 
 		if ( level.clients[i].sess.sessionTeam == team ) {
 			count++;
@@ -1034,14 +1038,14 @@ PickTeam
 team_t PickTeam( int ignoreClientNum ) {
 	int		counts[TEAM_NUM_TEAMS];
 
-	counts[TEAM_BLUE] = TeamCount( ignoreClientNum, TEAM_BLUE );
-	counts[TEAM_RED] = TeamCount( ignoreClientNum, TEAM_RED );
+	counts[TEAM_BLUE] = TeamCount( ignoreClientNum, TEAM_BLUE, qfalse );
+	counts[TEAM_RED] = TeamCount( ignoreClientNum, TEAM_RED, qfalse );
     
-    //KK-OAX Both Teams locked...forget about it, print an error message, keep as spec
-    if ( level.RedTeamLocked && level.BlueTeamLocked ) {
-        G_Printf( "Both teams have been locked by the Admin! \n" );
-        return TEAM_NONE;
-    }	
+	//KK-OAX Both Teams locked...forget about it, print an error message, keep as spec
+	if ( level.RedTeamLocked && level.BlueTeamLocked ) {
+		G_Printf( "Both teams have been locked by the Admin! \n" );
+		return TEAM_NONE;
+	}	
 	if ( ( counts[TEAM_BLUE] > counts[TEAM_RED] ) && ( !level.RedTeamLocked ) ) {
 		return TEAM_RED;
 	}
@@ -1053,10 +1057,10 @@ team_t PickTeam( int ignoreClientNum ) {
 		return TEAM_RED;
 	}
 	if ( ( level.teamScores[TEAM_RED] > level.teamScores[TEAM_BLUE] ) && ( !level.BlueTeamLocked ) ) {  
-	    return TEAM_BLUE;
-    }
-    //KK-OAX Force Team Blue?
-    return TEAM_BLUE;
+		return TEAM_BLUE;
+	}
+	//KK-OAX Force Team Blue?
+	return TEAM_BLUE;
 }
 
 /*
@@ -1816,9 +1820,9 @@ void ClientBegin( int clientNum ) {
 	}
 
 	//Count smallest team
-	countFree = TeamCount(-1,TEAM_FREE);
-	countRed = TeamCount(-1,TEAM_RED);
-	countBlue = TeamCount(-1,TEAM_BLUE);
+	countFree = TeamCount(-1,TEAM_FREE, qtrue);
+	countRed = TeamCount(-1,TEAM_RED, qtrue);
+	countBlue = TeamCount(-1,TEAM_BLUE, qtrue);
 	if(g_gametype.integer < GT_TEAM || g_ffa_gt)
 	{
 		if(countFree>level.teamSize)
@@ -1952,8 +1956,8 @@ void ClientSpawn(gentity_t *ent) {
 		// Sago: I beleive the TeamCount is to make sure people can join even if the game can't start
 		if( ( level.roundNumber == level.roundNumberStarted ) ||
 			( (level.time < level.roundStartTime - g_elimination_activewarmup.integer*1000 ) &&
-			TeamCount( -1, TEAM_BLUE ) &&
-			TeamCount( -1, TEAM_RED )  ) )
+			TeamCount( -1, TEAM_BLUE, qtrue ) &&
+			TeamCount( -1, TEAM_RED, qtrue )  ) )
 		{	
 			client->sess.spectatorState = SPECTATOR_FREE;
 			client->isEliminated = qtrue;

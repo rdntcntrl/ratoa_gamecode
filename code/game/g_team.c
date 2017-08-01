@@ -1262,7 +1262,7 @@ int Team_TouchOurFlag( gentity_t *ent, gentity_t *other, int team ) {
 	other->client->rewardTime = level.time + REWARD_SPRITE_TIME;
 	other->client->ps.persistant[PERS_CAPTURES]++;
         G_LogPrintf( "Award: %i %i: %s gained the %s award!\n", other->client->ps.clientNum, 4, other->client->pers.netname, "CAPTURE" );
-        if(TeamCount(-1,TEAM_RED) && TeamCount(-1,TEAM_BLUE) && !level.hadBots)
+        if(TeamCount(-1,TEAM_RED, qtrue) && TeamCount(-1,TEAM_BLUE, qtrue) && !level.hadBots)
             ChallengeMessage(other,AWARD_CAPTURE);
 	// other gets another 10 frag bonus
 	AddScore(other, ent->r.currentOrigin, CTF_CAPTURE_BONUS);
@@ -1908,7 +1908,7 @@ static void ObeliskDie( gentity_t *self, gentity_t *inflictor, gentity_t *attack
         G_LogPrintf("OBELISK: %i %i %i %i: %s destroyed the enemy obelisk.\n",
                  attacker->client->ps.clientNum,attacker->client->sess.sessionTeam,3,0,
                  attacker->client->pers.netname);
-        if(TeamCount(-1,TEAM_RED) && TeamCount(-1,TEAM_BLUE) && !level.hadBots)
+        if(TeamCount(-1,TEAM_RED, qtrue) && TeamCount(-1,TEAM_BLUE, qtrue) && !level.hadBots)
             ChallengeMessage(attacker,AWARD_CAPTURE);
 
         ObeliskHealthChange(self->spawnflags,self->health);
@@ -1953,7 +1953,7 @@ static void ObeliskTouch( gentity_t *self, gentity_t *other, trace_t *trace ) {
         for(i = 0;i<tokens;i++)
         {
             G_LogPrintf( "Award: %i %i: %s gained the %s award!\n", other->client->ps.clientNum, 4, other->client->pers.netname, "CAPTURE" );
-	if(TeamCount(-1,TEAM_RED) && TeamCount(-1,TEAM_BLUE) && !level.hadBots)
+	if(TeamCount(-1,TEAM_RED, qtrue) && TeamCount(-1,TEAM_BLUE, qtrue) && !level.hadBots)
             ChallengeMessage(other,AWARD_CAPTURE);
         }
 

@@ -1378,8 +1378,8 @@ qboolean G_admin_teams( gentity_t *ent, int skiparg )
 	int smallTeam, largeTeam;
 	int moved = 0;
 	if (g_gametype.integer >= GT_TEAM && g_ffa_gt!=1) {
-		countRed = TeamCount(-1,TEAM_RED);
-		countBlue = TeamCount(-1,TEAM_BLUE);
+		countRed = TeamCount(-1,TEAM_RED, qfalse);
+		countBlue = TeamCount(-1,TEAM_BLUE, qfalse);
 
 		if (countRed >= countBlue) {
 			diff = countRed - countBlue;

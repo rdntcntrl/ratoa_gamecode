@@ -788,8 +788,8 @@ void SetTeam( gentity_t *ent, char *s ) {
 			if ( g_teamForceBalance.integer  ) {
 				int		counts[TEAM_NUM_TEAMS];
 
-				counts[TEAM_BLUE] = TeamCount( ent - g_entities, TEAM_BLUE );
-				counts[TEAM_RED] = TeamCount( ent - g_entities, TEAM_RED );
+				counts[TEAM_BLUE] = TeamCount( ent - g_entities, TEAM_BLUE, qfalse);
+				counts[TEAM_RED] = TeamCount( ent - g_entities, TEAM_RED, qfalse);
 
 				// We allow a spread of two
 				if ( team == TEAM_RED && counts[TEAM_RED] - counts[TEAM_BLUE] > 1 ) {
