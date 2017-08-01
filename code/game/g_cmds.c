@@ -975,7 +975,7 @@ void Cmd_Team_f( gentity_t *ent ) {
     force = G_admin_permission(ent, ADMF_FORCETEAMCHANGE);
 	
 	if( !force ) {
-	    if ( ent->client->switchTeamTime > level.time ) {
+	    if ( !level.timeout && ent->client->switchTeamTime > level.time ) {
 		    trap_SendServerCommand( ent-g_entities, "print \"May not switch teams more than once per 5 seconds.\n\"" );
 		    return;
 		}
