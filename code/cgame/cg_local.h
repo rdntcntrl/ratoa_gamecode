@@ -1271,7 +1271,10 @@ extern	vmCvar_t		cg_noVoiceChats;
 extern	vmCvar_t		cg_noVoiceText;
 extern  vmCvar_t		cg_scorePlum;
 
-extern vmCvar_t                cg_ratScoreboard;
+extern vmCvar_t                	cg_ratScoreboard;
+extern vmCvar_t			cg_ratRocketTrail;
+extern vmCvar_t			cg_ratRocketTrailAlpha;
+extern vmCvar_t			cg_ratRocketTrailRadius;
 
 //unlagged - smooth clients #2
 // this is done server-side now
