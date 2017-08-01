@@ -2514,6 +2514,56 @@ void CG_PlayerGetColors(clientInfo_t *ci, qboolean isDead, byte *outColor) {
 
 }
 
+int CG_CountPlayers(team_t team) {
+	int i;
+	int count = 0;
+	clientInfo_t *ci;
+	for ( i = 0 ; i < cgs.maxclients ; i++ ) {
+		ci = &cgs.clientinfo[ i ];
+		if ( !ci->infoValid ) {
+			continue;
+		}
+		if ( ci->deferred ) {
+			continue;
+		}
+		
+		if (ci->team == team) {
+			count++;
+		}
+	}
+	return count;
+}
+
+void CG_PlayerAutoHeadColor(clientInfo_t *ci, byte *outColor) {
+	float h,s,v;
+	float color[4];
+	int team_count = CG_CountPlayers(ci->team);
+	int team_idx = 0;
+	clientInfo_t *ci2;
+	int i;
+
+	for ( i = 0 ; i < cgs.maxclients ; i++ ) {
+		ci2 = &cgs.clientinfo[ i ];
+		if ( !ci2->infoValid ) {
+			continue;
+		}
+		if ( ci2->deferred ) {
+			continue;
+		}
+
+		if (ci2->team == ci->team) {
+			team_idx++;
+			if (ci == ci2) {
+				break;
+			}
+		}
+	}
+	s = v = 1.0;
+	h = team_idx * 360.0/team_count;
+	CG_HSV2RGB(h,s,v, color);
+	color[3] = 1.0;
+	CG_FloatColorToRGBA(color, outColor);
+}
 
 /*
 ===============
@@ -2572,7 +2622,12 @@ void CG_Player( centity_t *cent ) {
 	CG_PlayerGetColors(ci, cent->currentState.eFlags & EF_DEAD ? qtrue : qfalse, playercolor);
 	memcpy(&legs.shaderRGBA, playercolor, sizeof(playercolor));
 	memcpy(&torso.shaderRGBA, playercolor, sizeof(playercolor));
-	memcpy(&head.shaderRGBA, playercolor, sizeof(playercolor));
+	if (cg_forceBrightModels.integer && cg_autoHeadColors.integer && ci->team != TEAM_SPECTATOR) {
+		CG_PlayerAutoHeadColor(ci, playercolor);
+		memcpy(&head.shaderRGBA, playercolor, sizeof(playercolor));
+	} else {
+		memcpy(&head.shaderRGBA, playercolor, sizeof(playercolor));
+	}
 
 	// get the rotation information
 	CG_PlayerAngles( cent, legs.axis, torso.axis, head.axis );

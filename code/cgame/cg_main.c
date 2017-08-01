@@ -186,6 +186,8 @@ vmCvar_t	cg_teamOverlayScaleX;
 vmCvar_t	cg_teamOverlayScaleY;
 
 
+vmCvar_t	cg_autoHeadColors;
+
 vmCvar_t	cg_forceBrightModels;
 vmCvar_t	cg_forceEnemyModelColor;
 vmCvar_t	cg_forceModelColor;
@@ -474,6 +476,8 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_fpsScaleY   ,     "cg_fpsScaleY", "0.75", CVAR_ARCHIVE},
 	{ &cg_speedScaleY ,     "cg_speedScaleY", "0.75", CVAR_ARCHIVE},
 	
+	{ &cg_autoHeadColors ,     "cg_autoHeadColors", "0", CVAR_ARCHIVE},
+
 	{ &cg_forceBrightModels ,     "cg_forceBrightModels", "0", CVAR_ARCHIVE},
 	{ &cg_forceEnemyModelColor ,     "cg_forceEnemyModelColor", "0", CVAR_ARCHIVE},
 	{ &cg_forceModelColor ,     "cg_forceModelColor", "0", CVAR_ARCHIVE},

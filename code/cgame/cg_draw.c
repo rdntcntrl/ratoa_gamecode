@@ -333,7 +333,11 @@ void CG_Draw3DHead( float x, float y, float w, float h, qhandle_t model, qhandle
 	ent.customSkin = skin;
 	ent.renderfx = RF_NOSHADOW;		// no stencil shadows
 
-	CG_PlayerGetColors(ci, qfalse, ent.shaderRGBA);
+	if (cg_forceBrightModels.integer && cg_autoHeadColors.integer && ci->team != TEAM_SPECTATOR) {
+		CG_PlayerAutoHeadColor(ci, ent.shaderRGBA);
+	} else if (cg_forceBrightModels.integer) {
+		CG_PlayerGetColors(ci, qfalse, ent.shaderRGBA);
+	}
 
 	refdef.rdflags = RDF_NOWORLDMODEL;
 

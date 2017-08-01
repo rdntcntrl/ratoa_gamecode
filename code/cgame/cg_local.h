@@ -1302,6 +1302,8 @@ extern vmCvar_t			cg_teamOverlayScaleX;
 extern vmCvar_t			cg_teamOverlayScaleY;
 extern vmCvar_t			cg_drawTeamBackground;
 
+extern vmCvar_t			cg_autoHeadColors;
+
 extern vmCvar_t			cg_forceBrightModels;
 extern vmCvar_t			cg_forceEnemyModelColor;
 extern vmCvar_t			cg_forceModelColor;
