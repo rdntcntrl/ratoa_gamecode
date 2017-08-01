@@ -1156,19 +1156,21 @@ static void ClientCleanName(const char *in, char *out, int outSize, int clientNu
 
 
 typedef struct {
-	char tag[MAX_NETNAME];
-	char displayname[MAX_NETNAME];
-	char name[MAX_NETNAME];
+	char *tag;
+	char *tag2;
+	char *tag3;
+	char *displayname;
+	char *name;
 } clan_t;
 
 static clan_t clans[] = {
-	{ "{T-L}", "TopLevel", "toplevel" },
-	{ "/N/", "NiN", "nin" },
-	{ "*SoS*", "SoS", "sos" },
-	{ "SeXy-", "SeXy", "sexy" },
-	{ "Guild", "Guild", "guilda" },
-	{ "raGe|", "raGe", "rage" },
-	{ "vihmu", "vihmu", "vihmu" },
+	{ "{T-L}", NULL, NULL, "TopLevel", "toplevel" },
+	{ "/N/", "/u/", "/NiN/", "NiN", "nin" },
+	{ "*SoS*", NULL, NULL, "SoS", "sos" },
+	{ "SeXy-", NULL, NULL, "SeXy", "sexy" },
+	{ "Guild", NULL, NULL, "Guild", "guilda" },
+	{ "raGe|", NULL, NULL, "raGe", "rage" },
+	{ "vihmu", NULL, NULL, "vihmu", "vihmu" },
 };
 
 #define MAX_CLAN (sizeof(clans)/sizeof(clan_t)) 
@@ -1179,7 +1181,9 @@ int G_ClanForClient( gclient_t *client) {
 	Q_strncpyz(name, client->pers.netname, sizeof(name));
 	Q_CleanStr(name);
 	for (j = 0; j < MAX_CLAN; ++j) {
-		if (strstr(name, clans[j].tag)) {
+		if (strstr(name, clans[j].tag) 
+				|| (clans[j].tag2 && strstr(name, clans[j].tag2))
+				|| (clans[j].tag3 && strstr(name, clans[j].tag3))) {
 			return j;
 		}
 	}
@@ -1231,7 +1235,7 @@ void G_CheckClan( team_t team) {
 		}
 
 	} else {
-		trap_Cvar_Set(teamcvar, "");
+		trap_Cvar_Set(teamcvar, "rat");
 	}
 }
 

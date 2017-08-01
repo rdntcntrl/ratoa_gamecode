@@ -343,8 +343,8 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_blueteam, "g_blueteam", "Pagans", CVAR_ARCHIVE | CVAR_SERVERINFO | CVAR_USERINFO , 0, qtrue, qtrue  },
 	{ &g_singlePlayer, "ui_singlePlayerActive", "", 0, 0, qfalse, qfalse  },
         #endif
-	{ &g_redclan, "g_redclan", "", 0 , 0, qtrue, qtrue },
-	{ &g_blueclan, "g_blueclan", "", 0, 0, qtrue, qtrue  },
+	{ &g_redclan, "g_redclan", "rat", 0 , 0, qtrue, qtrue },
+	{ &g_blueclan, "g_blueclan", "rat", 0, 0, qtrue, qtrue  },
 
 	{ &g_enableDust, "g_enableDust", "0", CVAR_SERVERINFO, 0, qtrue, qfalse },
 	{ &g_enableBreath, "g_enableBreath", "0", CVAR_SERVERINFO, 0, qtrue, qfalse },
