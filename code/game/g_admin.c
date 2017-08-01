@@ -193,6 +193,10 @@ g_admin_cmd_t g_admin_cmds[ ] =
       "move 999 pingers to the spectator team",
       ""},
 
+    {"teams", G_admin_teams, "T",
+      "fix team sizes",
+      ""},
+
     {"time", G_admin_time, "C",
       "show the current local server time",
       ""},
@@ -568,11 +572,11 @@ static void admin_default_levels( void )
 
   Q_strncpyz( g_admin_levels[ 3 ]->name, "^2Junior Admin",
     sizeof( l->name ) );
-  Q_strncpyz( g_admin_levels[ 3 ]->flags, "iahCpPwrkmfKncN?", sizeof( l->flags ) );
+  Q_strncpyz( g_admin_levels[ 3 ]->flags, "iahCpPwrkmfKncN?T", sizeof( l->flags ) );
 
   Q_strncpyz( g_admin_levels[ 4 ]->name, "^3Senior Admin",
     sizeof( l->name ) );
-  Q_strncpyz( g_admin_levels[ 4 ]->flags, "iahCpPwrkmfKncN?MVdBbeDS51t", sizeof( l->flags ) );
+  Q_strncpyz( g_admin_levels[ 4 ]->flags, "iahCpPwrkmfKncN?MVdBbeDS51tT", sizeof( l->flags ) );
 
   Q_strncpyz( g_admin_levels[ 5 ]->name, "^1Server Operator",
     sizeof( l->name ) );
@@ -1333,6 +1337,73 @@ qboolean G_admin_readconfig( gentity_t *ent, int skiparg )
     if( level.clients[ i ].pers.connected != CON_DISCONNECTED )
       level.clients[ i ].pers.adminLevel = G_admin_level( &g_entities[ i ] );
   return qtrue;
+}
+
+int G_FindPlayerLastJoined(int team) {
+	int i;
+	int lastEnterTime = -1;
+	int lastEnterClient = 0;
+	int enterTime;
+	for ( i = 0 ; i < level.maxclients ; i++ ) {
+		if ( level.clients[i].pers.connected != CON_CONNECTED ) {
+			continue;
+		}
+		if ( level.clients[i].sess.sessionTeam != team ) {
+			continue;
+		}
+
+		enterTime = level.clients[i].pers.enterTime;
+		if ( enterTime > lastEnterTime) {
+			lastEnterTime = enterTime;
+			lastEnterClient = i;
+		}
+	}
+	return lastEnterClient;
+}
+
+qboolean G_admin_teams( gentity_t *ent, int skiparg )
+{
+	int countRed, countBlue;
+	int diff;
+	int smallTeam, largeTeam;
+	int moved = 0;
+	if (g_gametype.integer >= GT_TEAM && g_ffa_gt!=1) {
+		countRed = TeamCount(-1,TEAM_RED);
+		countBlue = TeamCount(-1,TEAM_BLUE);
+
+		if (countRed >= countBlue) {
+			diff = countRed - countBlue;
+			smallTeam = TEAM_BLUE;
+			largeTeam = TEAM_RED;
+		} else {
+			diff = countBlue - countRed;
+			smallTeam = TEAM_RED;
+			largeTeam = TEAM_BLUE;
+		}
+		while (diff >= 2) {
+			// move a player to smaller team
+			gentity_t *player = g_entities + G_FindPlayerLastJoined(largeTeam);
+			SetTeam(player, smallTeam == TEAM_RED ? "r" : "b");
+			moved += 1;
+			diff -= 2;
+		}
+
+		// if diff remains 1, only balance if losing team is smaller
+		if (diff == 1 && level.teamScores[smallTeam] < level.teamScores[largeTeam]) {
+			// move a player to smaller team
+			gentity_t *player = g_entities + G_FindPlayerLastJoined(largeTeam);
+			SetTeam(player, smallTeam == TEAM_RED ? "r" : "b");
+			moved += 1;
+		}
+		if (moved) {
+			AP( va( "print \"^3!teams: ^7teams fixed!\n\""));
+		} else {
+			AP( va( "print \"^3!teams: ^7teams ok!\n\""));
+		}
+
+	}
+
+	return qtrue;
 }
 
 qboolean G_admin_time( gentity_t *ent, int skiparg )
