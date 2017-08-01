@@ -305,6 +305,13 @@ Request current scoreboard information
 ==================
 */
 void Cmd_Score_f( gentity_t *ent ) {
+	if (trap_Cvar_VariableIntegerValue("sv_demoState") == 2) {
+		// don't send an additional score message while a demo is
+		// playing. This prevents messing up the original scoreboard,
+		// but also prevents spectators watching the demo from being
+		// displayed on the scoreboard. (use \serverstatus instead)
+		return;
+	}
 	DeathmatchScoreboardMessage( ent, g_usesRatVM.integer > 0);
 }
 
