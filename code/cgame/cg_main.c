@@ -170,6 +170,9 @@ vmCvar_t	cg_ratRocketTrail;
 vmCvar_t	cg_ratRocketTrailAlpha;
 vmCvar_t	cg_ratRocketTrailRadius;
 vmCvar_t	cg_ratLg;
+vmCvar_t	cg_crosshairNamesY;
+vmCvar_t	cg_crosshairNamesScaleX;
+vmCvar_t	cg_crosshairNamesScaleY;
 
 //unlagged - smooth clients #2
 // this is done server-side now
@@ -399,6 +402,9 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_ratRocketTrailAlpha, "cg_ratRocketTrailAlpha", "0.5", CVAR_ARCHIVE},
 	{ &cg_ratRocketTrailRadius, "cg_ratRocketTrailRadius", "5", CVAR_ARCHIVE},
 	{ &cg_ratLg, "cg_ratLg", "0", CVAR_ARCHIVE},
+	{ &cg_crosshairNamesY, "cg_crosshairNamesY", "260", CVAR_ARCHIVE},
+	{ &cg_crosshairNamesScaleX, "cg_crosshairNamesScaleX", "1", CVAR_ARCHIVE},
+	{ &cg_crosshairNamesScaleY, "cg_crosshairNamesScaleY", "1", CVAR_ARCHIVE},
 
 //unlagged - smooth clients #2
 // this is done server-side now

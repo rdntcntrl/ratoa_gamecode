@@ -2742,8 +2742,15 @@ static void CG_DrawCrosshairNames( void ) {
 	w = CG_Text_Width(name, 0.3f, 0);
 	CG_Text_Paint( 320 - w / 2, 190, 0.3f, color, name, 0, 0, ITEM_TEXTSTYLE_SHADOWED);
 #else
-	w = CG_DrawStrlen( name ) * BIGCHAR_WIDTH;
-	CG_DrawBigString( 320 - w / 2, 170, name, color[3] * 0.5f );
+	//w = CG_DrawStrlen( name ) * BIGCHAR_WIDTH;
+	//CG_DrawBigString( 320 - w / 2, 170, name, color[3] * 0.5f );
+	w = CG_DrawStrlen( name ) * SMALLCHAR_WIDTH;
+	//CG_DrawSmallString( 320 - w / 2, cg_crossHairNamesY.integer, name, 1.0f );
+	//CG_DrawSmallString( 320 - w / 2, cg_crossHairNamesY.integer, name, 1.0f );
+	color [0] = color[1] = color[2] = color[3] = 1.0;
+	CG_DrawStringExt( 320 -w / 2, cg_crosshairNamesY.integer, name, color, qfalse, qfalse,
+		       	8 * cg_crosshairNamesScaleX.value,
+		       	8 * cg_crosshairNamesScaleY.value, 0 );
 #endif
 	trap_R_SetColor( NULL );
 }

@@ -1278,6 +1278,9 @@ extern vmCvar_t			cg_ratRocketTrail;
 extern vmCvar_t			cg_ratRocketTrailAlpha;
 extern vmCvar_t			cg_ratRocketTrailRadius;
 extern vmCvar_t			cg_ratLg;
+extern vmCvar_t			cg_crosshairNamesY;
+extern vmCvar_t			cg_crosshairNamesScaleX;
+extern vmCvar_t			cg_crosshairNamesScaleY;
 
 //unlagged - smooth clients #2
 // this is done server-side now
