@@ -276,7 +276,7 @@ static void CG_TouchItem( centity_t *cent ) {
 	if ( !cg_predictItems.integer ) {
 		return;
 	}
-	if ( !BG_PlayerTouchesItem( &cg.predictedPlayerState, &cent->currentState, cg.time ) ) {
+	if ( !BG_PlayerTouchesItem( &cg.predictedPlayerState, &cent->currentState, cg.time, cgs.itemPickup) ) {
 		return;
 	}
 

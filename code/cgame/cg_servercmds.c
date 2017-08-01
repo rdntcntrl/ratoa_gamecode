@@ -442,6 +442,9 @@ void CG_ParseServerinfo( void ) {
 	cgs.delagHitscan = atoi( Info_ValueForKey( info, "g_delagHitscan" ) );
 	trap_Cvar_Set("g_delagHitscan", va("%i", cgs.delagHitscan));
 //unlagged - server options
+//
+	cgs.itemPickup = atoi( Info_ValueForKey( info, "g_itemPickup" ) );
+	trap_Cvar_Set("g_itemPickup", va("%i", cgs.itemPickup));
 
         //Copy allowed votes directly to the client:
         trap_Cvar_Set("cg_voteflags",Info_ValueForKey( info, "voteflags" ) );
