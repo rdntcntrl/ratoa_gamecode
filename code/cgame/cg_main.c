@@ -197,10 +197,10 @@ vmCvar_t	cg_forceModelValue;
 vmCvar_t	cg_forceEnemyCorpseColor;
 vmCvar_t	cg_forceCorpseColor;
 
-vmCvar_t	cg_forceEnemyCorpseHue;
+//vmCvar_t	cg_forceEnemyCorpseHue;
 vmCvar_t	cg_forceEnemyCorpseSaturation;
 vmCvar_t	cg_forceEnemyCorpseValue;
-vmCvar_t	cg_forceCorpseHue;
+//vmCvar_t	cg_forceCorpseHue;
 vmCvar_t	cg_forceCorpseSaturation;
 vmCvar_t	cg_forceCorpseValue;
 
@@ -481,10 +481,10 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_forceEnemyCorpseColor ,     "cg_forceEnemyCorpseColor", "1", CVAR_ARCHIVE},
 	{ &cg_forceCorpseColor ,     "cg_forceCorpseColor", "1", CVAR_ARCHIVE},
 
-	{ &cg_forceEnemyCorpseHue ,     "cg_forceEnemyCorpseHue", "0", CVAR_ARCHIVE},
+	//{ &cg_forceEnemyCorpseHue ,     "cg_forceEnemyCorpseHue", "0", CVAR_ARCHIVE},
 	{ &cg_forceEnemyCorpseSaturation ,     "cg_forceEnemyCorpseSaturation", "1", CVAR_ARCHIVE},
 	{ &cg_forceEnemyCorpseValue ,     "cg_forceEnemyCorpseValue", "1", CVAR_ARCHIVE},
-	{ &cg_forceCorpseHue ,     "cg_forceCorpseHue", "204", CVAR_ARCHIVE},
+	//{ &cg_forceCorpseHue ,     "cg_forceCorpseHue", "204", CVAR_ARCHIVE},
 	{ &cg_forceCorpseSaturation ,     "cg_forceCorpseSaturation", "1", CVAR_ARCHIVE},
 	{ &cg_forceCorpseValue ,     "cg_forceCorpseValue", "1", CVAR_ARCHIVE},
 

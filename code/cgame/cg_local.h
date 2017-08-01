@@ -1315,10 +1315,10 @@ extern vmCvar_t			cg_forceModelValue;
 extern vmCvar_t			cg_forceEnemyCorpseColor;
 extern vmCvar_t			cg_forceCorpseColor;
 
-extern vmCvar_t			cg_forceEnemyCorpseHue;
+//extern vmCvar_t			cg_forceEnemyCorpseHue;
 extern vmCvar_t			cg_forceEnemyCorpseSaturation;
 extern vmCvar_t			cg_forceEnemyCorpseValue;
-extern vmCvar_t			cg_forceCorpseHue;
+//extern vmCvar_t			cg_forceCorpseHue;
 extern vmCvar_t			cg_forceCorpseSaturation;
 extern vmCvar_t			cg_forceCorpseValue;
 
