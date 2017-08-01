@@ -180,6 +180,9 @@ vmCvar_t	cg_crosshairNamesHealth;
 vmCvar_t	cg_friendFloatHealth;
 vmCvar_t	cg_friendFloatHealthSize;
 
+vmCvar_t	cg_teamOverlayScaleX;
+vmCvar_t	cg_teamOverlayScaleY;
+
 //unlagged - smooth clients #2
 // this is done server-side now
 //vmCvar_t 	cg_smoothClients;
@@ -418,6 +421,8 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_crosshairNamesHealth, "cg_crosshairNamesHealth", "1", CVAR_ARCHIVE},
 	{ &cg_friendFloatHealth, "cg_friendFloatHealth", "0", CVAR_ARCHIVE},
 	{ &cg_friendFloatHealthSize, "cg_friendFloatHealthSize", "8", CVAR_ARCHIVE},
+	{ &cg_teamOverlayScaleX, "cg_teamOverlayScaleX", "1", CVAR_ARCHIVE},
+	{ &cg_teamOverlayScaleY, "cg_teamOverlayScaleY", "1", CVAR_ARCHIVE},
 	// / RAT ===================
 
 //unlagged - smooth clients #2

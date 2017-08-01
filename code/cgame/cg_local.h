@@ -1295,6 +1295,8 @@ extern vmCvar_t			cg_crosshairNamesScaleY;
 extern vmCvar_t			cg_crosshairNamesHealth;
 extern vmCvar_t			cg_friendFloatHealth;
 extern vmCvar_t			cg_friendFloatHealthSize;
+extern vmCvar_t			cg_teamOverlayScaleX;
+extern vmCvar_t			cg_teamOverlayScaleY;
 
 //unlagged - smooth clients #2
 // this is done server-side now
