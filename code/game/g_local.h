@@ -1199,6 +1199,7 @@ extern vmCvar_t        g_railgunDamage;
 extern vmCvar_t        g_lgDamage;
 
 extern vmCvar_t	       g_teamslocked;
+extern vmCvar_t	       g_tourneylocked;
 extern vmCvar_t	       g_specMuted;
 
 extern vmCvar_t	       g_timeoutAllowed;

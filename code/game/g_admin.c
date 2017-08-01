@@ -214,6 +214,16 @@ g_admin_cmd_t g_admin_cmds[ ] =
       "call a timeout",
       ""},
 
+    {"tourneylock", G_admin_tourneylock, "L",
+      "prevent anyone except admins with this permission from joining the server",
+      ""
+    },
+
+    {"tourneyunlock", G_admin_tourneyunlock, "L",
+      "unlock the server",
+      ""
+    },
+
     {"unban", G_admin_unban, "b",
       "unbans a player specified by the slot as seen in showbans",
       "[^3ban#^7]"
@@ -1435,6 +1445,20 @@ qboolean G_admin_timein( gentity_t *ent, int skiparg )
 qboolean G_admin_timeout( gentity_t *ent, int skiparg )
 {
 	G_Timeout(ent);
+	return qtrue;
+}
+
+qboolean G_admin_tourneylock( gentity_t *ent, int skiparg )
+{
+	trap_Cvar_Set("g_tourneylocked", "1");
+	AP( va( "print \"^3!tourneylock: server locked\n"));
+	return qtrue;
+}
+
+qboolean G_admin_tourneyunlock( gentity_t *ent, int skiparg )
+{
+	trap_Cvar_Set("g_tourneylocked", "0");
+	AP( va( "print \"^3!tourneyunlock: server unlocked\n"));
 	return qtrue;
 }
 

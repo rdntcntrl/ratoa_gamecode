@@ -166,6 +166,8 @@ qboolean G_admin_teams( gentity_t *ent, int skiparg );
 qboolean G_admin_time( gentity_t *ent, int skiparg );
 qboolean G_admin_timeout( gentity_t *ent, int skiparg );
 qboolean G_admin_timein( gentity_t *ent, int skiparg );
+qboolean G_admin_tourneylock( gentity_t *ent, int skiparg );
+qboolean G_admin_tourneyunlock( gentity_t *ent, int skiparg );
 qboolean G_admin_setlevel( gentity_t *ent, int skiparg );
 qboolean G_admin_kick( gentity_t *ent, int skiparg );
 qboolean G_admin_adjustban( gentity_t *ent, int skiparg );

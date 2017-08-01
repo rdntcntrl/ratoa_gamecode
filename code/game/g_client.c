@@ -1601,6 +1601,7 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
     if( G_admin_ban_check( userinfo, reason, sizeof( reason ) ) ) {    
  	    return va( "%s", reason );
  	}
+
  	 
   //KK-OAX
   // we don't check GUID or password for bots and local client
@@ -1636,10 +1637,10 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 		    
 	}
 
-    //Check for local client
-    if( !strcmp( client->pers.ip, "localhost" ) )
-        client->pers.localClient = qtrue;
-        client->pers.adminLevel = G_admin_level( ent );
+	//Check for local client
+	if( !strcmp( client->pers.ip, "localhost" ) )
+		client->pers.localClient = qtrue;
+	client->pers.adminLevel = G_admin_level( ent );
 
 	client->pers.connected = CON_CONNECTING;
 
@@ -1655,6 +1656,10 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 		if( !G_BotConnect( clientNum, !firstTime ) ) {
 			return "BotConnectfailed";
 		}
+	}
+
+	if (g_tourneylocked.integer && firstTime &&  !G_admin_permission(ent, 'L')) {
+		return "Server is locked for a tournament match!";
 	}
 
 	//KK-OAX Swapped these in order...seemed to help the connection process.
