@@ -253,6 +253,8 @@ typedef struct {
 	spectatorGroup_t	spectatorGroup;
 	int			wins, losses;		// tournament stats
 	qboolean	teamLeader;			// true when this client is a team leader
+	int		dmgTaken, dmgGiven;
+	int		kills, deaths;
 } clientSession_t;
 
 //
@@ -441,8 +443,6 @@ struct gclient_s {
 
 	int		timeouts; // number of timeouts called;
 
-	int		dmgTaken, dmgGiven;
-	int		kills, deaths;
 };
 
 
