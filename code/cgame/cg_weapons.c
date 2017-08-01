@@ -2551,7 +2551,7 @@ CG_DrawWeaponBar8
 
 void CG_DrawWeaponBar8(int count, int bits, float *color){
 
-	int y = 380;
+	int y = 372;
 	int x = 320 - count * 15;
 	int i;
 	int ammo;
@@ -2628,19 +2628,19 @@ void CG_DrawWeaponBar8(int count, int bits, float *color){
 				
 		if(i!=WP_GAUNTLET && i!=WP_GRAPPLING_HOOK){
 			if(ammo <= 20)
-				CG_FillRect( x+2, y +40, br, 4, red);
+				CG_FillRect( x+2, y +48, br, 4, red);
 			if(ammo > 20 && ammo <= 50)
-				CG_FillRect( x+2, y+40, br, 4, yellow);
+				CG_FillRect( x+2, y+48, br, 4, yellow);
 			if(ammo > 50)
-				CG_FillRect( x+2, y+40, br, 4, green);
+				CG_FillRect( x+2, y+48, br, 4, green);
 		}
 			
 		if ( i == cg.weaponSelect) {
-			CG_FillRect( x, y , 30 , 38, blue );
-			CG_DrawRect( x , y, 30,38,2, grey); 
+			CG_FillRect( x, y , 30 , 46, blue );
+			CG_DrawRect( x , y, 30,46,2, grey); 
 		}
 		CG_RegisterWeapon( i );	
-		CG_DrawPic( x+7, y+2, 16, 16, cg_weapons[i].weaponIcon );
+		CG_DrawPic( x+3, y+2, 24, 24, cg_weapons[i].weaponIcon );
 
 		if (!cg.snap->ps.ammo[i]){
 			CG_DrawPic( x, y, 30, 38, cgs.media.noammoShader );
@@ -2649,7 +2649,7 @@ void CG_DrawWeaponBar8(int count, int bits, float *color){
 		if(cg.snap->ps.ammo[ i ]!=-1){
 			s = va("%i", cg.snap->ps.ammo[ i ] );
 			w = CG_DrawStrlen( s ) * SMALLCHAR_WIDTH;
-			CG_DrawSmallStringColor(x - w/2 + 15, y+20, s, color);
+			CG_DrawSmallStringColor(x - w/2 + 15, y+28, s, color);
 		}
 			
 		x += 30;
