@@ -765,11 +765,11 @@ void SetTeam( gentity_t *ent, char *s ) {
 	} else if ( Q_strequal( s, "spectator" ) || Q_strequal( s, "s" ) ) {
 		team = TEAM_SPECTATOR;
 		specState = SPECTATOR_FREE;
-	} else if ( Q_strequal( s, "notready" ) ) {
+	} else if ( Q_strequal( s, "notready" ) || Q_strequal(s, "n") ) {
 		team = TEAM_SPECTATOR;
 		specState = SPECTATOR_FREE;
 		specGroup = SPECTATORGROUP_NOTREADY;
-	} else if ( Q_strequal( s, "afk" ) ) {
+	} else if ( Q_strequal( s, "afk" ) || Q_strequal(s, "a") ) {
 		team = TEAM_SPECTATOR;
 		specState = SPECTATOR_FREE;
 		specGroup = SPECTATORGROUP_AFK;
