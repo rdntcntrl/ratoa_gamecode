@@ -63,6 +63,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 // RAT Scoreboard ==============================
 #define MAX(a,b) (((a) > (b)) ? (a) : (b))
+#define MIN(a,b) (((a) < (b)) ? (a) : (b))
 #define RATSCOREBOARD_X  (0)
 
 #define RATSB_HEADER   86
@@ -139,17 +140,17 @@ static qboolean localClient; // true if local client has been displayed
 CG_RatioColor
 =================
  */
-static void CG_RatioColor(int a, int b, vec4_t color) {
-	int s = a + b;
+static void CG_RatioColor(float a, float b, vec4_t color) {
+	float s = a + b;
 	color[3] = 1.0;
 	color[2] = 0;
 
-	if (s == 0) {
+	if (s == 0.0) {
 		color[0] = color[1] = 1.0;
 		return;
 	}
-	color[0] = 2.0*(float)b/(float)s;
-	color[1] = 2.0*(float)a/(float)s;
+	color[0] = MIN(2.0*b/s, 1.0);
+	color[1] = MIN(2.0*a/s, 1.0);
 
 }
 
@@ -168,8 +169,8 @@ static void CG_PingColor(int ping, vec4_t color) {
 		return;
 	}
 	ratio = (float)ping/200.0;
-	color[0] = ratio;
-	color[1] = 1.0-ratio;
+	color[0] = MIN(2.0*ratio, 1.0);
+	color[1] = MIN(2.0*(1.0-ratio), 1.0);
 
 }
 
