@@ -403,10 +403,11 @@ static void CG_RatDrawClientScore(int y, score_t *score, float *color, float fad
 		CG_DrawScoreStringColor(iconx, y, "READY", color);
 	} else
 		if (cgs.gametype == GT_LMS) {
-		CG_DrawScoreStringColor(iconx - 50, y, va("*%i*", ci->isDead), color);
-	} else
-		if (ci->isDead) {
-		CG_DrawScoreStringColor(iconx - 60, y, "DEAD", color);
+		//CG_DrawScoreStringColor(iconx - 50, y, va("*%i*", ci->isDead), color);
+		CG_DrawScoreStringColor(iconx, y, va("*%i*", ci->isDead), color);
+	} else if (ci->isDead) {
+		//CG_DrawScoreStringColor(iconx - 60, y, "DEAD", color);
+		CG_DrawScoreStringColor(iconx, y, "DEAD", color);
 	}
 }
 
