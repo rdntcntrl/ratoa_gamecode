@@ -33,6 +33,7 @@ void CG_Bullet( vec3_t end, int sourceEntityNum, vec3_t normal, qboolean flesh, 
 #define MACHINEGUN_SPREAD	200
 #define CHAINGUN_SPREAD		600
 
+
 /*
 =======================
 CG_PredictWeaponEffects
@@ -280,6 +281,9 @@ void CG_PredictWeaponEffects( centity_t *cent ) {
 		localEntity_t	*le;
 		refEntity_t	*plasma;
 
+		if (cg.snap->ping > MAX_PROJECTILEDELAG_PING) {
+			return;
+		}
 
 		le = CG_AllocLocalEntity();
 		le->leFlags = 0;
@@ -311,6 +315,10 @@ void CG_PredictWeaponEffects( centity_t *cent ) {
 	} else if (cg_ratPredictMissiles.integer > 0 && ent->weapon == WP_ROCKET_LAUNCHER) {
 		localEntity_t	*le;
 		refEntity_t	*rocket;
+
+		if (cg.snap->ping > MAX_PROJECTILEDELAG_PING) {
+			return;
+		}
 
 
 		le = CG_AllocLocalEntity();
@@ -345,6 +353,9 @@ void CG_PredictWeaponEffects( centity_t *cent ) {
 		localEntity_t	*le;
 		refEntity_t	*rocket;
 
+		if (cg.snap->ping > MAX_PROJECTILEDELAG_PING) {
+			return;
+		}
 
 		le = CG_AllocLocalEntity();
 		le->leFlags = 0;

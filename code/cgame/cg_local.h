@@ -94,6 +94,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define	DEFAULT_TEAM_HEAD		"sarge"
 #endif
 
+#define MAX_PROJECTILEDELAG_PING 200
+#define MAX(a,b) (((a) > (b)) ? (a) : (b))
+
 #define DEFAULT_REDTEAM_NAME		"Vim supporters"
 #define DEFAULT_BLUETEAM_NAME		"Emacs supporters"
 

@@ -921,10 +921,12 @@ void CG_AddRefEntity( localEntity_t *le ) {
 	trap_R_AddRefEntityToScene( &le->refEntity );
 }
 
+
 void CG_PredictedMissile( localEntity_t *le ) {
 	vec3_t	newOrigin;
 	trace_t	trace;
 	int timeshift = 0;
+	int time;
 
 	const weaponInfo_t *weapon = &cg_weapons[le->weapon];
 
@@ -934,9 +936,10 @@ void CG_PredictedMissile( localEntity_t *le ) {
 	}
 
 	timeshift = 1000 / sv_fps.integer;
+	time = cg.time + timeshift;
 
 	// calculate new position
-	BG_EvaluateTrajectory( &le->pos, cg.time + timeshift, newOrigin);
+	BG_EvaluateTrajectory( &le->pos, time, newOrigin);
 
 	//BG_EvaluateTrajectory( &le->pos, cg.time, newOrigin );
 
