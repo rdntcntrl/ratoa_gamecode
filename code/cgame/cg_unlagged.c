@@ -277,9 +277,11 @@ void CG_PredictWeaponEffects( centity_t *cent ) {
 			CG_Bullet( tr.endpos, cg.predictedPlayerState.clientNum, tr.plane.normal, flesh, fleshEntityNum );
 			//Com_Printf( "Predicted bullet\n" );
 		}
-	} else if (cg_ratPredictMissiles.integer > 0 && ent->weapon == WP_PLASMAGUN) {
+	} else if (cg_ratPredictMissiles.integer > 0 && (ent->weapon == WP_PLASMAGUN
+							 || ent->weapon == WP_ROCKET_LAUNCHER 
+							 || ent->weapon == WP_GRENADE_LAUNCHER)) {
 		localEntity_t	*le;
-		refEntity_t	*plasma;
+		refEntity_t	*bolt;
 
 		if (cg.snap->ping > MAX_PROJECTILEDELAG_PING) {
 			return;
@@ -297,96 +299,39 @@ void CG_PredictWeaponEffects( centity_t *cent ) {
 		// server does this, we'll do it here for accuracy
 		SnapVector ( muzzlePoint );
 
+		bolt = &le->refEntity;
+
 		VectorCopy(muzzlePoint, le->pos.trBase);
-		VectorScale(forward, 2000, le->pos.trDelta);
-		le->pos.trType = TR_LINEAR;
 		//le->pos.trTime = cg.time-50;
 		le->pos.trTime = cg.time-cg_ratPredictMissilesNudge.integer;
 
-		plasma = &le->refEntity;
+		VectorCopy( muzzlePoint, bolt->origin );
+		VectorCopy( muzzlePoint, bolt->oldorigin );
 
-		VectorCopy( muzzlePoint, plasma->origin );
-		VectorCopy( muzzlePoint, plasma->oldorigin );
-
-		plasma->reType = RT_SPRITE;
-		plasma->radius = 16;
-		plasma->rotation = 0;
-		plasma->customShader = cgs.media.plasmaBallShader;
-	} else if (cg_ratPredictMissiles.integer > 0 && ent->weapon == WP_ROCKET_LAUNCHER) {
-		localEntity_t	*le;
-		refEntity_t	*rocket;
-
-		if (cg.snap->ping > MAX_PROJECTILEDELAG_PING) {
-			return;
+		switch (ent->weapon) {
+			case WP_PLASMAGUN:
+				VectorScale(forward, 2000, le->pos.trDelta);
+				le->pos.trType = TR_LINEAR;
+				bolt->reType = RT_SPRITE;
+				bolt->radius = 16;
+				bolt->rotation = 0;
+				bolt->customShader = cgs.media.plasmaBallShader;
+				return;
+			case WP_ROCKET_LAUNCHER:
+				VectorScale(forward, 1000, le->pos.trDelta);
+				le->pos.trType = TR_LINEAR;
+				break;
+			case WP_GRENADE_LAUNCHER:
+				forward[2] += 0.2f;
+				VectorNormalize( forward );
+				VectorScale(forward, 700, le->pos.trDelta);
+				le->pos.trType = TR_GRAVITY;
+				break;
 		}
-
-
-		le = CG_AllocLocalEntity();
-		le->leFlags = 0;
-		le->leType = LE_PREDICTEDMISSILE;
-		le->startTime = cg.time;
-		le->endTime = cg.time + (cg_ratPredictMissilesPing.integer > 0 ?
-				cg_ratPredictMissilesPing.integer : cg.snap->ping)
-				* cg_ratPredictMissilesPingFactor.value;
-		le->weapon = ent->weapon;
-
-		// server does this, we'll do it here for accuracy
-		SnapVector ( muzzlePoint );
-
-		VectorCopy(muzzlePoint, le->pos.trBase);
-		VectorScale(forward, 1000, le->pos.trDelta);
-		le->pos.trType = TR_LINEAR;
-		//le->pos.trTime = cg.time-50;
-		le->pos.trTime = cg.time - cg_ratPredictMissilesNudge.integer;
-
-		rocket = &le->refEntity;
-
-
-		VectorCopy( muzzlePoint, rocket->origin );
-		VectorCopy( muzzlePoint, rocket->oldorigin );
-
-		rocket->reType = RT_MODEL;
-		rocket->rotation = 0;
-		rocket->hModel = cg_weapons[ent->weapon].missileModel;
-		rocket->renderfx = cg_weapons[ent->weapon].missileRenderfx | RF_NOSHADOW;
-	} else if (cg_ratPredictMissiles.integer > 0 && ent->weapon == WP_GRENADE_LAUNCHER) {
-		localEntity_t	*le;
-		refEntity_t	*rocket;
-
-		if (cg.snap->ping > MAX_PROJECTILEDELAG_PING) {
-			return;
-		}
-
-		le = CG_AllocLocalEntity();
-		le->leFlags = 0;
-		le->leType = LE_PREDICTEDMISSILE;
-		le->startTime = cg.time;
-		le->endTime = cg.time + (cg_ratPredictMissilesPing.integer > 0 ?
-				cg_ratPredictMissilesPing.integer : cg.snap->ping)
-				* cg_ratPredictMissilesPingFactor.value;
-		le->weapon = ent->weapon;
-
-		// server does this, we'll do it here for accuracy
-		SnapVector ( muzzlePoint );
-
-		VectorCopy(muzzlePoint, le->pos.trBase);
-		forward[2] += 0.2f;
-		VectorNormalize( forward );
-		VectorScale(forward, 700, le->pos.trDelta);
-		le->pos.trType = TR_GRAVITY;
-		//le->pos.trTime = cg.time-50;
-		le->pos.trTime = cg.time - cg_ratPredictMissilesNudge.integer;
-
-		rocket = &le->refEntity;
-
-
-		VectorCopy( muzzlePoint, rocket->origin );
-		VectorCopy( muzzlePoint, rocket->oldorigin );
-
-		rocket->reType = RT_MODEL;
-		rocket->rotation = 0;
-		rocket->hModel = cg_weapons[ent->weapon].missileModel;
-		rocket->renderfx = cg_weapons[ent->weapon].missileRenderfx | RF_NOSHADOW;
+		bolt->reType = RT_MODEL;
+		bolt->rotation = 0;
+		bolt->hModel = cg_weapons[ent->weapon].missileModel;
+		bolt->renderfx = cg_weapons[ent->weapon].missileRenderfx | RF_NOSHADOW;
 	}
 }
 
