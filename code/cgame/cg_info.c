@@ -154,6 +154,7 @@ void CG_DrawInformation( void ) {
 	qhandle_t	levelshot;
 	qhandle_t	detail;
 	char		buf[1024];
+	float	color[4];
 
 	info = CG_ConfigString( CS_SERVERINFO );
 	sysInfo = CG_ConfigString( CS_SYSTEMINFO );
@@ -173,14 +174,28 @@ void CG_DrawInformation( void ) {
 	// draw the icons of things as they are loaded
 	CG_DrawLoadingIcons();
 
+	color[0] = color[1] = color[2] = 0.0;
+	color[3] = 0.6;
+	CG_FillRect( 0, 450, 640, 30, color);
+			
+	//UI_DrawProportionalString( 20, 440, "RATmod",
+	//		UI_LEFT|UI_SMALLFONT, colorYellow );
+
+	//UI_DrawProportionalString( 620, 440, "By a rat. For the rats.",
+	//		UI_RIGHT|UI_SMALLFONT, colorYellow );
+	CG_DrawScoreString(10, 465-SCORECHAR_HEIGHT/2, S_COLOR_YELLOW "RAT" S_COLOR_BLACK "mod"
+			"   ---<(((" S_COLOR_YELLOW ":" S_COLOR_BLACK ">", 1.0, 0);
+	s = S_COLOR_YELLOW "By a rat. For the rats.";
+	CG_DrawScoreString(630-CG_DrawStrlen(s)*SCORECHAR_WIDTH, 465-SCORECHAR_HEIGHT/2, s, 1.0, 0);
+
 	// the first 150 rows are reserved for the client connection
 	// screen to write into
 	if ( cg.infoScreenText[0] ) {
 		UI_DrawProportionalString( 320, 128-32, va("Loading... %s", cg.infoScreenText),
-			UI_CENTER|UI_SMALLFONT|UI_DROPSHADOW, colorWhite );
+			UI_CENTER|UI_SMALLFONT|UI_DROPSHADOW, colorMdGrey );
 	} else {
 		UI_DrawProportionalString( 320, 128-32, "Awaiting snapshot...",
-			UI_CENTER|UI_SMALLFONT|UI_DROPSHADOW, colorWhite );
+			UI_CENTER|UI_SMALLFONT|UI_DROPSHADOW, colorMdGrey );
 	}
 
 	// draw info string information
@@ -201,7 +216,7 @@ void CG_DrawInformation( void ) {
 		s = Info_ValueForKey( sysInfo, "sv_pure" );
 		if ( s[0] == '1' ) {
 			UI_DrawProportionalString( 320, y, "Pure Server",
-				UI_CENTER|UI_SMALLFONT|UI_DROPSHADOW, colorWhite );
+				UI_CENTER|UI_SMALLFONT|UI_DROPSHADOW, colorLtGrey );
 			y += PROP_HEIGHT;
 		}
 
@@ -209,7 +224,7 @@ void CG_DrawInformation( void ) {
 		s = CG_ConfigString( CS_MOTD );
 		if ( s[0] ) {
 			UI_DrawProportionalString( 320, y, s,
-				UI_CENTER|UI_SMALLFONT|UI_DROPSHADOW, colorWhite );
+				UI_CENTER|UI_SMALLFONT|UI_DROPSHADOW, colorYellow );
 			y += PROP_HEIGHT;
 		}
 
@@ -221,7 +236,7 @@ void CG_DrawInformation( void ) {
 	s = CG_ConfigString( CS_MESSAGE );
 	if ( s[0] ) {
 		UI_DrawProportionalString( 320, y, s,
-			UI_CENTER|UI_SMALLFONT|UI_DROPSHADOW, colorWhite );
+			UI_CENTER|UI_SMALLFONT|UI_DROPSHADOW, colorCyan );
 		y += PROP_HEIGHT;
 	}
 
@@ -229,7 +244,7 @@ void CG_DrawInformation( void ) {
 	s = Info_ValueForKey( sysInfo, "sv_cheats" );
 	if ( s[0] == '1' ) {
 		UI_DrawProportionalString( 320, y, "CHEATS ARE ENABLED",
-			UI_CENTER|UI_SMALLFONT|UI_DROPSHADOW, colorWhite );
+			UI_CENTER|UI_SMALLFONT|UI_DROPSHADOW, colorRed );
 		y += PROP_HEIGHT;
 	}
 
@@ -281,13 +296,13 @@ void CG_DrawInformation( void ) {
 		break;
 	}
 	UI_DrawProportionalString( 320, y, s,
-		UI_CENTER|UI_SMALLFONT|UI_DROPSHADOW, colorWhite );
+		UI_CENTER|UI_SMALLFONT|UI_DROPSHADOW, colorGreen );
 	y += PROP_HEIGHT;
 		
 	value = atoi( Info_ValueForKey( info, "timelimit" ) );
 	if ( value ) {
 		UI_DrawProportionalString( 320, y, va( "timelimit %i", value ),
-			UI_CENTER|UI_SMALLFONT|UI_DROPSHADOW, colorWhite );
+			UI_CENTER|UI_SMALLFONT|UI_DROPSHADOW, colorBlue );
 		y += PROP_HEIGHT;
 	}
 
@@ -295,7 +310,7 @@ void CG_DrawInformation( void ) {
 		value = atoi( Info_ValueForKey( info, "fraglimit" ) );
 		if ( value ) {
 			UI_DrawProportionalString( 320, y, va( "fraglimit %i", value ),
-				UI_CENTER|UI_SMALLFONT|UI_DROPSHADOW, colorWhite );
+				UI_CENTER|UI_SMALLFONT|UI_DROPSHADOW, colorBlue );
 			y += PROP_HEIGHT;
 		}
 	}
@@ -304,9 +319,10 @@ void CG_DrawInformation( void ) {
 		value = atoi( Info_ValueForKey( info, "capturelimit" ) );
 		if ( value ) {
 			UI_DrawProportionalString( 320, y, va( "capturelimit %i", value ),
-				UI_CENTER|UI_SMALLFONT|UI_DROPSHADOW, colorWhite );
+				UI_CENTER|UI_SMALLFONT|UI_DROPSHADOW, colorBlue );
 			y += PROP_HEIGHT;
 		}
 	}
+
 }
 
