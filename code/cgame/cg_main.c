@@ -173,13 +173,13 @@ vmCvar_t 	cg_ratPredictMissilesPing;
 vmCvar_t 	cg_ratPredictMissilesPingFactor;
 vmCvar_t 	cg_ratPredictMissiles;
 vmCvar_t 	cg_ratPredictMissilesNudge;
+vmCvar_t 	cg_delagProjectileTrail;
 vmCvar_t 	cg_ratScoreboard;
 vmCvar_t	cg_ratRocketTrail;
 vmCvar_t	cg_ratRocketTrailAlpha;
 vmCvar_t	cg_ratRocketTrailRadius;
 vmCvar_t	cg_ratLg;
 vmCvar_t	cg_ratLgImpact;
-vmCvar_t 	cg_delagProjectileTrail;
 vmCvar_t 	cg_noBubbleTrail;
 vmCvar_t	cg_zoomAnim;
 vmCvar_t	cg_zoomAnimScale;
@@ -464,13 +464,13 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_ratPredictMissilesPingFactor, "cg_ratPredictMissilesPingFactor", "1.1", 0},
 	{ &cg_ratPredictMissiles, "cg_ratPredictMissiles", "0", CVAR_ARCHIVE},
 	{ &cg_ratPredictMissilesNudge, "cg_ratPredictMissilesNudge", "58", 0},
+	{ &cg_delagProjectileTrail, "cg_delagProjectileTrail", "0", 0},
 	{ &cg_ratScoreboard, "cg_ratScoreboard", "1", CVAR_ARCHIVE},
 	{ &cg_ratRocketTrail, "cg_ratRocketTrail", "0", CVAR_ARCHIVE},
 	{ &cg_ratRocketTrailAlpha, "cg_ratRocketTrailAlpha", "0.5", CVAR_ARCHIVE},
 	{ &cg_ratRocketTrailRadius, "cg_ratRocketTrailRadius", "5", CVAR_ARCHIVE},
 	{ &cg_ratLg, "cg_ratLg", "0", CVAR_ARCHIVE},
 	{ &cg_ratLgImpact, "cg_ratLgImpact", "1", CVAR_ARCHIVE},
-	{ &cg_delagProjectileTrail, "cg_delagProjectileTrail", "1", CVAR_ARCHIVE},
 	{ &cg_noBubbleTrail, "cg_noBubbleTrail", "1", CVAR_ARCHIVE},
 	{ &cg_zoomAnim, "cg_zoomAnim", "1", CVAR_ARCHIVE},
 	{ &cg_zoomAnimScale, "cg_zoomAnimScale", "1", CVAR_ARCHIVE},
