@@ -1293,6 +1293,7 @@ extern vmCvar_t			cg_ratRocketTrailRadius;
 extern vmCvar_t			cg_ratLg;
 extern vmCvar_t			cg_ratLgImpact;
 extern vmCvar_t			cg_zoomAnim;
+extern vmCvar_t			cg_zoomAnimScale;
 extern vmCvar_t			cg_crosshairNamesY;
 extern vmCvar_t			cg_crosshairNamesScaleX;
 extern vmCvar_t			cg_crosshairNamesScaleY;
