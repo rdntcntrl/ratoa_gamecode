@@ -921,6 +921,91 @@ void CG_AddRefEntity( localEntity_t *le ) {
 	trap_R_AddRefEntityToScene( &le->refEntity );
 }
 
+void CG_PredictedMissile( localEntity_t *le ) {
+	vec3_t	newOrigin;
+	trace_t	trace;
+	int timeshift = 0;
+
+	const weaponInfo_t *weapon = &cg_weapons[le->weapon];
+
+	if (le->endTime < cg.time) {
+		CG_FreeLocalEntity( le );
+		return;
+	}
+
+	timeshift = 1000 / sv_fps.integer;
+
+	// calculate new position
+	BG_EvaluateTrajectory( &le->pos, cg.time + timeshift, newOrigin);
+
+	//BG_EvaluateTrajectory( &le->pos, cg.time, newOrigin );
+
+	// trace a line from previous position to new position
+	CG_Trace( &trace, le->refEntity.origin, NULL, NULL, newOrigin, -1, CONTENTS_SOLID );
+	if ( trace.fraction == 1.0 ) {
+
+		// still in free fall
+		VectorCopy( newOrigin, le->refEntity.origin );
+		if ( weapon->missileDlight ) {
+			trap_R_AddLightToScene(newOrigin, weapon->missileDlight, 
+					weapon->missileDlightColor[0], weapon->missileDlightColor[1], weapon->missileDlightColor[2] );
+		}
+
+		if (le->weapon == WP_PLASMAGUN) {
+			trap_R_AddRefEntityToScene( &le->refEntity );
+			return;
+		}
+
+		if ( VectorNormalize2( le->pos.trDelta, le->refEntity.axis[0] ) == 0 ) {
+			le->refEntity.axis[0][2] = 1;
+		}
+		if ( le->pos.trType != TR_STATIONARY ) {
+			RotateAroundDirection( le->refEntity.axis, cg.time / 4 );
+		}
+
+		trap_R_AddRefEntityToScene( &le->refEntity );
+
+		return;
+	} else {
+		CG_FreeLocalEntity( le );
+		return; 
+	}
+}
+
+void CG_RemovePredictedMissile( centity_t *missile) {
+	localEntity_t	*le, *next;
+
+	if (!cg_ratPredictMissiles.integer) {
+		return;
+	}
+
+	if ( missile->currentState.otherEntityNum != cg.clientNum ) {
+		return;
+	}
+
+	le = cg_activeLocalEntities.prev;
+	for ( ; le != &cg_activeLocalEntities ; le = next ) {
+		next = le->prev;
+
+		if (le->leType != LE_PREDICTEDMISSILE) {
+			continue;
+		}
+
+		if (le->weapon != missile->currentState.weapon) {
+			continue;
+		}
+
+		if (missile->currentState.pos.trTime - 10 > le->pos.trTime
+				|| missile->currentState.pos.trTime + 10 < le->pos.trTime) {
+			continue;
+		}
+
+		CG_FreeLocalEntity( le );
+
+
+	}
+}
+
 //#endif
 /*
 ===================
@@ -1091,6 +1176,9 @@ void CG_AddLocalEntities( void ) {
 
 		case LE_GORE:			// blood
 			CG_AddGore( le );
+			break;
+		case LE_PREDICTEDMISSILE:
+			CG_PredictedMissile( le );
 			break;
 		}
 	}

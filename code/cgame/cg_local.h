@@ -232,7 +232,8 @@ typedef enum {
 	LE_INVULIMPACT,
 	LE_INVULJUICED,
 	LE_SHOWREFENTITY,
-	LE_GORE
+	LE_GORE,
+	LE_PREDICTEDMISSILE
 } leType_t;
 
 typedef enum {
@@ -282,6 +283,8 @@ typedef struct localEntity_s {
 	leBounceSoundType_t	leBounceSoundType;
 
 	refEntity_t		refEntity;		
+
+	int			weapon; // weapon for predicting missiles
 } localEntity_t;
 
 //======================================================================
@@ -1286,6 +1289,10 @@ extern	vmCvar_t		cg_noVoiceChats;
 extern	vmCvar_t		cg_noVoiceText;
 extern  vmCvar_t		cg_scorePlum;
 
+extern vmCvar_t                	cg_ratPredictMissilesPing;
+extern vmCvar_t                	cg_ratPredictMissilesPingFactor;
+extern vmCvar_t                	cg_ratPredictMissiles;
+extern vmCvar_t                	cg_ratPredictMissilesNudge;
 extern vmCvar_t                	cg_ratScoreboard;
 extern vmCvar_t			cg_ratRocketTrail;
 extern vmCvar_t			cg_ratRocketTrailAlpha;
@@ -1682,6 +1689,7 @@ void    CG_LeiPuff (vec3_t org, vec3_t vel, int duration, float x, float y, floa
 void	CG_InitLocalEntities( void );
 localEntity_t	*CG_AllocLocalEntity( void );
 void	CG_AddLocalEntities( void );
+void CG_RemovePredictedMissile(centity_t *missile);
 
 //
 // cg_effects.c

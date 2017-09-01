@@ -169,6 +169,10 @@ vmCvar_t	cg_noVoiceText;
 vmCvar_t	cg_hudFiles;
 vmCvar_t 	cg_scorePlum;
 
+vmCvar_t 	cg_ratPredictMissilesPing;
+vmCvar_t 	cg_ratPredictMissilesPingFactor;
+vmCvar_t 	cg_ratPredictMissiles;
+vmCvar_t 	cg_ratPredictMissilesNudge;
 vmCvar_t 	cg_ratScoreboard;
 vmCvar_t	cg_ratRocketTrail;
 vmCvar_t	cg_ratRocketTrailAlpha;
@@ -456,6 +460,10 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_scorePlum, "cg_scorePlums", "1", CVAR_USERINFO | CVAR_ARCHIVE},
 
 	// RAT ===================
+	{ &cg_ratPredictMissilesPing, "cg_ratPredictMissilesPing", "0", 0},
+	{ &cg_ratPredictMissilesPingFactor, "cg_ratPredictMissilesPingFactor", "1.1", 0},
+	{ &cg_ratPredictMissiles, "cg_ratPredictMissiles", "0", CVAR_ARCHIVE},
+	{ &cg_ratPredictMissilesNudge, "cg_ratPredictMissilesNudge", "58", 0},
 	{ &cg_ratScoreboard, "cg_ratScoreboard", "1", CVAR_ARCHIVE},
 	{ &cg_ratRocketTrail, "cg_ratRocketTrail", "0", CVAR_ARCHIVE},
 	{ &cg_ratRocketTrailAlpha, "cg_ratRocketTrailAlpha", "0.5", CVAR_ARCHIVE},

@@ -403,6 +403,8 @@ static void CG_Missile( centity_t *cent ) {
 	const weaponInfo_t		*weapon;
 //	int	col;
 
+	CG_RemovePredictedMissile(cent);
+
 	s1 = &cent->currentState;
 	if ( s1->weapon >= WP_NUM_WEAPONS ) {
 		s1->weapon = 0;

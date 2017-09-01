@@ -276,6 +276,71 @@ void CG_PredictWeaponEffects( centity_t *cent ) {
 			CG_Bullet( tr.endpos, cg.predictedPlayerState.clientNum, tr.plane.normal, flesh, fleshEntityNum );
 			//Com_Printf( "Predicted bullet\n" );
 		}
+	} else if (cg_ratPredictMissiles.integer > 0 && ent->weapon == WP_PLASMAGUN) {
+		localEntity_t	*le;
+		refEntity_t	*plasma;
+
+
+		le = CG_AllocLocalEntity();
+		le->leFlags = 0;
+		le->leType = LE_PREDICTEDMISSILE;
+		le->startTime = cg.time;
+		le->endTime = cg.time + (cg_ratPredictMissilesPing.integer > 0 ?
+				cg_ratPredictMissilesPing.integer : cg.snap->ping)
+				* cg_ratPredictMissilesPingFactor.value;
+		le->weapon = ent->weapon;
+
+		// server does this, we'll do it here for accuracy
+		SnapVector ( muzzlePoint );
+
+		VectorCopy(muzzlePoint, le->pos.trBase);
+		VectorScale(forward, 2000, le->pos.trDelta);
+		le->pos.trType = TR_LINEAR;
+		//le->pos.trTime = cg.time-50;
+		le->pos.trTime = cg.time-cg_ratPredictMissilesNudge.integer;
+
+		plasma = &le->refEntity;
+
+		VectorCopy( muzzlePoint, plasma->origin );
+		VectorCopy( muzzlePoint, plasma->oldorigin );
+
+		plasma->reType = RT_SPRITE;
+		plasma->radius = 16;
+		plasma->rotation = 0;
+		plasma->customShader = cgs.media.plasmaBallShader;
+	} else if (cg_ratPredictMissiles.integer > 0 && ent->weapon == WP_ROCKET_LAUNCHER) {
+		localEntity_t	*le;
+		refEntity_t	*rocket;
+
+
+		le = CG_AllocLocalEntity();
+		le->leFlags = 0;
+		le->leType = LE_PREDICTEDMISSILE;
+		le->startTime = cg.time;
+		le->endTime = cg.time + (cg_ratPredictMissilesPing.integer > 0 ?
+				cg_ratPredictMissilesPing.integer : cg.snap->ping)
+				* cg_ratPredictMissilesPingFactor.value;
+		le->weapon = ent->weapon;
+
+		// server does this, we'll do it here for accuracy
+		SnapVector ( muzzlePoint );
+
+		VectorCopy(muzzlePoint, le->pos.trBase);
+		VectorScale(forward, 1000, le->pos.trDelta);
+		le->pos.trType = TR_LINEAR;
+		//le->pos.trTime = cg.time-50;
+		le->pos.trTime = cg.time - cg_ratPredictMissilesNudge.integer;
+
+		rocket = &le->refEntity;
+
+
+		VectorCopy( muzzlePoint, rocket->origin );
+		VectorCopy( muzzlePoint, rocket->oldorigin );
+
+		rocket->reType = RT_MODEL;
+		rocket->rotation = 0;
+		rocket->hModel = cg_weapons[WP_ROCKET_LAUNCHER].missileModel;
+		rocket->renderfx = cg_weapons[WP_ROCKET_LAUNCHER].missileRenderfx | RF_NOSHADOW;
 	}
 }
 
