@@ -581,6 +581,10 @@ static void CG_DamageBlendBlob( void ) {
 		return;
 	}
 
+	if (cg_bloodOnHit.integer == 0) {
+		return;
+	}
+
 	//if (cg.cameraMode) {
 	//	return;
 	//}
