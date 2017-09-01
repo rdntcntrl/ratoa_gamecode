@@ -1839,6 +1839,8 @@ void CG_DrawWeaponBar0(int count, int bits){
 	int y = 380;
 	int x = 320 - count * 20;
 	int i;
+	int weaponSelect = (cg.snap->ps.pm_flags & PMF_FOLLOW) ? 
+		cg.predictedPlayerState.weapon : cg.weaponSelect;
 	
 	for ( i = 0 ; i < MAX_WEAPONS ; i++ ) {
                 //Sago: Do mad change of grapple placement:
@@ -1857,7 +1859,7 @@ void CG_DrawWeaponBar0(int count, int bits){
 		CG_DrawPic( x, y, 32, 32, cg_weapons[i].weaponIcon );
 
 		// draw selection marker
-		if ( i == cg.weaponSelect ) {
+		if ( i == weaponSelect ) {
 			CG_DrawPic( x-4, y-4, 40, 40, cgs.media.selectShader );
 		}
 
@@ -1890,6 +1892,8 @@ void CG_DrawWeaponBar1(int count, int bits){
 	float red[4];
 	float yellow[4];
 	float green[4];
+	int weaponSelect = (cg.snap->ps.pm_flags & PMF_FOLLOW) ? 
+		cg.predictedPlayerState.weapon : cg.weaponSelect;
 	
 	red[0] = 1.0f;
 	red[1] = 0;
@@ -1955,7 +1959,7 @@ void CG_DrawWeaponBar1(int count, int bits){
 		CG_DrawPic( x, y, 32, 32, cg_weapons[i].weaponIcon );
 
 		// draw selection marker
-		if ( i == cg.weaponSelect ) {
+		if ( i == weaponSelect ) {
 			CG_DrawPic( x-4, y-4, 40, 40, cgs.media.selectShader );
 		}
 
@@ -1987,6 +1991,8 @@ void CG_DrawWeaponBar2(int count, int bits, float *color){
 	float red[4];
 	float yellow[4];
 	float blue[4];
+	int weaponSelect = (cg.snap->ps.pm_flags & PMF_FOLLOW) ? 
+		cg.predictedPlayerState.weapon : cg.weaponSelect;
 	
 	red[0] = 1.0f;
 	red[1] = 0;
@@ -2016,7 +2022,7 @@ void CG_DrawWeaponBar2(int count, int bits, float *color){
 		}
 			
 		if(cg.snap->ps.ammo[i]){
-			if ( i == cg.weaponSelect) {
+			if ( i == weaponSelect) {
 				CG_FillRect( x, y, 50, 24, blue );
 				CG_DrawRect( x, y, 50, 24, 2, yellow); 
 			}
@@ -2025,7 +2031,7 @@ void CG_DrawWeaponBar2(int count, int bits, float *color){
 			}
 		}
 		else{ 
-			if ( i == cg.weaponSelect) { 
+			if ( i == weaponSelect) { 
 				CG_FillRect( x, y, 50, 24, red );
 				CG_DrawRect( x, y, 50, 24, 2, yellow);
 			}
@@ -2072,6 +2078,8 @@ void CG_DrawWeaponBar3(int count, int bits, float *color){
 	float yellow[4];
 	float green[4];
 	float blue[4];
+	int weaponSelect = (cg.snap->ps.pm_flags & PMF_FOLLOW) ? 
+		cg.predictedPlayerState.weapon : cg.weaponSelect;
 	
 	red[0] = 1.0f;
 	red[1] = 0;
@@ -2138,7 +2146,7 @@ void CG_DrawWeaponBar3(int count, int bits, float *color){
 		}
 			
 		if(cg.snap->ps.ammo[i]){
-			if ( i == cg.weaponSelect) {
+			if ( i == weaponSelect) {
 				CG_FillRect( x, y, 50, 24, blue );
 				CG_DrawRect( x, y, 50, 24, 2, yellow); 
 			}
@@ -2147,7 +2155,7 @@ void CG_DrawWeaponBar3(int count, int bits, float *color){
 			}
 		}
 		else{ 
-			if ( i == cg.weaponSelect) { 
+			if ( i == weaponSelect) { 
 				CG_FillRect( x, y, 50, 24, red );
 				CG_DrawRect( x, y, 50, 24, 2, yellow);
 			}
@@ -2190,6 +2198,8 @@ void CG_DrawWeaponBar4(int count, int bits, float *color){
 	char *s;
 	float boxColor[4];
 	float yellow[4];
+	int weaponSelect = (cg.snap->ps.pm_flags & PMF_FOLLOW) ? 
+		cg.predictedPlayerState.weapon : cg.weaponSelect;
 	
 	boxColor[1]=0;
 	boxColor[3]=0.4f;
@@ -2236,7 +2246,7 @@ void CG_DrawWeaponBar4(int count, int bits, float *color){
 		boxColor[2]=(ammo/100.0f)*1.0f;
 		boxColor[0]=1.0f-(ammo/100.0f)*1.0f;	
 		
-		if ( i == cg.weaponSelect) {
+		if ( i == weaponSelect) {
 			CG_FillRect( x, y, 50, 24, boxColor );
 			CG_DrawRect( x, y, 50, 24, 2, yellow); 
 		}
@@ -2277,6 +2287,8 @@ void CG_DrawWeaponBar5(int count, int bits, float *color){
 	float red[4];
 	float yellow[4];
 	float blue[4];
+	int weaponSelect = (cg.snap->ps.pm_flags & PMF_FOLLOW) ? 
+		cg.predictedPlayerState.weapon : cg.weaponSelect;
 	
 	red[0] = 1.0f;
 	red[1] = 0;
@@ -2306,7 +2318,7 @@ void CG_DrawWeaponBar5(int count, int bits, float *color){
 		}
 			
 		if(cg.snap->ps.ammo[i]){
-			if ( i == cg.weaponSelect) {
+			if ( i == weaponSelect) {
 				CG_FillRect( x, y , 30 , 38, blue );
 				CG_DrawRect( x, y, 30 ,38 ,2, yellow); 
 			}
@@ -2315,7 +2327,7 @@ void CG_DrawWeaponBar5(int count, int bits, float *color){
 			}
 		}
 		else{ 
-			if ( i == cg.weaponSelect) {
+			if ( i == weaponSelect) {
 				CG_FillRect( x, y , 30 , 38, red );
 				CG_DrawRect( x , y, 30,38,2, yellow); 
 			}
@@ -2359,6 +2371,8 @@ void CG_DrawWeaponBar6(int count, int bits, float *color){
 	float yellow[4];
 	float green[4];
 	float blue[4];
+	int weaponSelect = (cg.snap->ps.pm_flags & PMF_FOLLOW) ? 
+		cg.predictedPlayerState.weapon : cg.weaponSelect;
 	
 	red[0] = 1.0f;
 	red[1] = 0;
@@ -2426,7 +2440,7 @@ void CG_DrawWeaponBar6(int count, int bits, float *color){
 		}
 			
 		if(cg.snap->ps.ammo[i]){
-			if ( i == cg.weaponSelect) {
+			if ( i == weaponSelect) {
 				CG_FillRect( x, y , 30 , 38, blue );
 				CG_DrawRect( x, y, 30 ,38 ,2, yellow); 
 			}
@@ -2435,7 +2449,7 @@ void CG_DrawWeaponBar6(int count, int bits, float *color){
 			}
 		}
 		else{ 
-			if ( i == cg.weaponSelect) {
+			if ( i == weaponSelect) {
 				CG_FillRect( x, y , 30 , 38, red );
 				CG_DrawRect( x , y, 30,38,2, yellow); 
 			}
@@ -2476,6 +2490,8 @@ void CG_DrawWeaponBar7(int count, int bits, float *color){
 	char *s;
 	float yellow[4];
 	float boxColor[4];
+	int weaponSelect = (cg.snap->ps.pm_flags & PMF_FOLLOW) ? 
+		cg.predictedPlayerState.weapon : cg.weaponSelect;
 	
 	boxColor[1]=0;
 	boxColor[3]=0.4f;
@@ -2522,7 +2538,7 @@ void CG_DrawWeaponBar7(int count, int bits, float *color){
 		boxColor[2]=(ammo/100.0f)*1.0f;
 		boxColor[0]=1.0f-(ammo/100.0f)*1.0f;
 				
-		if ( i == cg.weaponSelect) {
+		if ( i == weaponSelect) {
 			CG_FillRect( x, y , 30 , 38, boxColor );
 			CG_DrawRect( x, y, 30 ,38 ,2, yellow); 
 		}
@@ -2566,6 +2582,8 @@ void CG_DrawWeaponBar8(int count, int bits, float *color){
 	float grey[4];
 	float green[4];
 	float blue[4];
+	int weaponSelect = (cg.snap->ps.pm_flags & PMF_FOLLOW) ? 
+		cg.predictedPlayerState.weapon : cg.weaponSelect;
 	
 	red[0] = 1.0f;
 	red[1] = 0;
@@ -2637,7 +2655,7 @@ void CG_DrawWeaponBar8(int count, int bits, float *color){
 				CG_FillRect( x+2, y+48, br, 4, green);
 		}
 			
-		if ( i == cg.weaponSelect) {
+		if ( i == weaponSelect) {
 			CG_FillRect( x, y , 30 , 46, blue );
 			CG_DrawRect( x , y, 30,46,2, grey); 
 		}
@@ -2682,6 +2700,8 @@ void CG_DrawWeaponBar9(int count, int bits, float *color){
 	float grey[4];
 	float green[4];
 	float blue[4];
+	int weaponSelect = (cg.snap->ps.pm_flags & PMF_FOLLOW) ? 
+		cg.predictedPlayerState.weapon : cg.weaponSelect;
 	
 	red[0] = 1.0f;
 	red[1] = 0;
@@ -2752,7 +2772,7 @@ void CG_DrawWeaponBar9(int count, int bits, float *color){
 				CG_FillRect( x, y+2+24-br, 4,br, green);
 		}
 			
-		if ( i == cg.weaponSelect) {
+		if ( i == weaponSelect) {
 			CG_FillRect( x+4, y, 54, 28, blue );
 			CG_DrawRect( x+4, y, 54, 28, 2, grey);
 		}
