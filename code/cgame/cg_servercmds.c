@@ -472,6 +472,9 @@ void CG_ParseServerinfo( void ) {
 
 	cgs.powerupGlows = atoi( Info_ValueForKey( info, "g_powerupGlows" ) );
 	trap_Cvar_Set("g_powerupGlows", va("%i", cgs.powerupGlows));
+	
+	cgs.screenShake = atoi( Info_ValueForKey( info, "g_screenShake" ) );
+	trap_Cvar_Set("g_screenShake", va("%i", cgs.screenShake));
 
         //Copy allowed votes directly to the client:
         trap_Cvar_Set("cg_voteflags",Info_ValueForKey( info, "voteflags" ) );
