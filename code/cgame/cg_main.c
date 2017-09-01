@@ -461,10 +461,10 @@ static cvarTable_t cvarTable[] = { // bk001129
 
 	// RAT ===================
 	{ &cg_ratPredictMissilesPing, "cg_ratPredictMissilesPing", "0", 0},
-	{ &cg_ratPredictMissilesPingFactor, "cg_ratPredictMissilesPingFactor", "1.1", 0},
-	{ &cg_ratPredictMissiles, "cg_ratPredictMissiles", "0", CVAR_ARCHIVE},
+	{ &cg_ratPredictMissilesPingFactor, "cg_ratPredictMissilesPingFactor", "1.5", 0},
+	{ &cg_ratPredictMissiles, "cg_ratPredictMissiles", "1", CVAR_ARCHIVE},
 	{ &cg_ratPredictMissilesNudge, "cg_ratPredictMissilesNudge", "58", 0},
-	{ &cg_delagProjectileTrail, "cg_delagProjectileTrail", "0", 0},
+	{ &cg_delagProjectileTrail, "cg_delagProjectileTrail", "1", 0},
 	{ &cg_ratScoreboard, "cg_ratScoreboard", "1", CVAR_ARCHIVE},
 	{ &cg_ratRocketTrail, "cg_ratRocketTrail", "0", CVAR_ARCHIVE},
 	{ &cg_ratRocketTrailAlpha, "cg_ratRocketTrailAlpha", "0.5", CVAR_ARCHIVE},
