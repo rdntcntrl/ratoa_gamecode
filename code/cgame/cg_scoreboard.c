@@ -371,7 +371,7 @@ static void CG_RatDrawClientScore(int y, score_t *score, float *color, float fad
 
 	CG_RatioColor(score->dmgGiven, score->dmgTaken, tcolor);
 	Com_sprintf(string, sizeof (string), "%2.1f/%-2.1f",
-			(float)score->dmgGiven/1000.0, (float)score->dmgTaken/1000.0);
+			(double)score->dmgGiven/1000.0, (double)score->dmgTaken/1000.0);
 	CG_DrawTinyScoreStringColor(RATSB_DT_X, ytiny, string, tcolor);
 
 	tcolor[0] = tcolor[1] = tcolor[2] = 0.80;
