@@ -98,6 +98,81 @@ int G_MissilePrestep(gclient_t *client) {
 	return 0;
 }
 
+void G_MissileRunPrestep(gentity_t *ent, int stepmsec) {
+	if (!g_unlagPrestep.integer
+			|| level.previousTime <= UNLAG_MAX_BACKTRACK
+			|| stepmsec <= 0) {
+		return;
+	}
+
+	// if we see the missile late due to lag & PRESTEP
+	// compute the flight since it was launched, 
+	// shifting clients back accordingly
+	if ( !ent->inuse 
+			|| ent->freeAfterEvent
+			|| ent->s.eType != ET_MISSILE
+			|| !ent->needsDelag ) {
+		return;
+	}
+
+	int prevTimeSaved = level.previousTime;
+	int lvlTimeSaved = level.time;
+	int projectileDelagTime = level.previousTime - (UNLAG_MAX_BACKTRACK/stepmsec) * stepmsec;
+	while (projectileDelagTime < prevTimeSaved) {
+		if ( !ent->inuse || ent->freeAfterEvent ) {
+			// make sure we don't run missile again
+			// if it exploded already
+			break;
+		}
+		if (projectileDelagTime >= ent->launchTime) {
+			int shiftTime = projectileDelagTime;
+			if (g_unlagFlight.integer) {
+				// if the whole flight should be
+				// unlagged, shift clients even
+				// further s.t. you can aim
+				// properly locally
+				shiftTime -= ent->launchLag;
+				shiftTime = shiftTime >= 0 ? shiftTime : 0;
+			}
+			G_TimeShiftAllClients( shiftTime, ent->parent );
+			level.time = projectileDelagTime + stepmsec;
+			level.previousTime = projectileDelagTime;
+
+
+			//Com_Printf("delag prestep running missile, level.time = %d, level.previousTime = %d, launchTime = %d\n", level.time, level.previousTime, ent->launchTime);
+			G_RunMissile( ent );
+
+			level.time = lvlTimeSaved;
+			level.previousTime = prevTimeSaved;
+			G_UnTimeShiftAllClients( ent->parent );
+		}
+		projectileDelagTime += stepmsec;
+	}
+	ent->needsDelag = qfalse;
+}
+
+void G_ImmediateRunMissile(gentity_t *ent) {
+	if (!g_unlagPrestepImmediate.integer) {
+		return;
+	}
+	if (g_unlagPrestep.integer) {
+		int stepmsec = level.time - level.previousTime;
+		G_MissileRunPrestep(ent, stepmsec);
+
+	}
+	if ( !ent->inuse ) {
+		return;
+	}
+
+	// temporary entities don't think
+	if ( ent->freeAfterEvent ) {
+		return;
+	}
+
+	if ( ent->s.eType == ET_MISSILE ) {
+		G_RunMissile( ent );
+	}
+}
 
 /*
 ================

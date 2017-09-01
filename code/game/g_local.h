@@ -736,6 +736,8 @@ void TossClientCubes( gentity_t *self );
 // g_missile.c
 //
 void G_RunMissile( gentity_t *ent );
+void G_MissileRunPrestep( gentity_t *ent, int stepmsec);
+void G_ImmediateRunMissile(gentity_t *ent);
 void ProximityMine_RemoveAll( void );
 
 gentity_t *fire_blaster (gentity_t *self, vec3_t start, vec3_t aimdir);
@@ -1176,6 +1178,7 @@ extern  vmCvar_t        g_unlagLaunchLagMode;
 extern  vmCvar_t        g_unlagLatencyMode;
 extern  vmCvar_t        g_unlagCorrectFrameOffset;
 extern  vmCvar_t        g_unlagPrestep;
+extern  vmCvar_t        g_unlagImmediateRun;
 extern  vmCvar_t        g_unlagFlight;
 
 extern  vmCvar_t	g_tournamentMinSpawnDistance;

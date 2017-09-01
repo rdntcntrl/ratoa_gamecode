@@ -182,6 +182,7 @@ vmCvar_t        g_unlagLaunchLagMode;
 vmCvar_t        g_unlagLatencyMode; 
 vmCvar_t        g_unlagCorrectFrameOffset; 
 vmCvar_t        g_unlagPrestep; 
+vmCvar_t        g_unlagImmediateRun; 
 vmCvar_t        g_unlagFlight; 
 
 vmCvar_t	g_tournamentMinSpawnDistance;
@@ -374,6 +375,7 @@ static cvarTable_t		gameCvarTable[] = {
         { &g_unlagLatencyMode, "g_unlagLatencyMode", "3", CVAR_ARCHIVE, 0, qfalse },
         { &g_unlagCorrectFrameOffset, "g_unlagCorrectFrameOffset", "1", CVAR_ARCHIVE, 0, qfalse },
         { &g_unlagPrestep, "g_unlagPrestep", "1", CVAR_ARCHIVE, 0, qfalse },
+        { &g_unlagImmediateRun, "g_unlagImmediateRun", "1", CVAR_ARCHIVE, 0, qfalse },
         { &g_unlagFlight, "g_unlagFlight", "0", CVAR_ARCHIVE, 0, qfalse },
 
         { &g_tournamentMinSpawnDistance, "g_tournamentMinSpawnDistance", "900", CVAR_ARCHIVE, 0, qfalse },
@@ -3095,56 +3097,9 @@ int start, end;
 		G_RunThink( ent );
 	}
 
-	if (g_unlagPrestep.integer 
-			&& level.previousTime > UNLAG_MAX_BACKTRACK
-			&& msec > 0) {
-		// if we see the missile late due to lag & PRESTEP
-		// compute the flight since it was launched, 
-		// shifting clients back accordingly
-		for (i=0 ; i < level.num_entities ; ++i ) {
-			ent = &g_entities[i];
-			if ( !ent->inuse 
-					|| ent->freeAfterEvent
-					|| ent->s.eType != ET_MISSILE
-					|| !ent->needsDelag ) {
-				continue;
-			}
-
-			int prevTimeSaved = level.previousTime;
-			int lvlTimeSaved = level.time;
-			int projectileDelagTime = level.previousTime - (UNLAG_MAX_BACKTRACK/msec) * msec;
-			while (projectileDelagTime < prevTimeSaved) {
-				if ( !ent->inuse || ent->freeAfterEvent ) {
-					// make sure we don't run missile again
-					// if it exploded already
-					break;
-				}
-				if (projectileDelagTime >= ent->launchTime) {
-					int shiftTime = projectileDelagTime;
-					if (g_unlagFlight.integer) {
-						// if the whole flight should be
-						// unlagged, shift clients even
-						// further s.t. you can aim
-						// properly locally
-						shiftTime -= ent->launchLag;
-						shiftTime = shiftTime >= 0 ? shiftTime : 0;
-					}
-					G_TimeShiftAllClients( shiftTime, ent->parent );
-					level.time = projectileDelagTime + msec;
-					level.previousTime = projectileDelagTime;
-
-
-					//Com_Printf("delag prestep running missile, level.time = %d, level.previousTime = %d, launchTime = %d\n", level.time, level.previousTime, ent->launchTime);
-					G_RunMissile( ent );
-
-					level.time = lvlTimeSaved;
-					level.previousTime = prevTimeSaved;
-					G_UnTimeShiftAllClients( ent->parent );
-				}
-				projectileDelagTime += msec;
-			}
-			ent->needsDelag = qfalse;
-		}
+	for (i=0 ; i < level.num_entities ; ++i ) {
+		ent = &g_entities[i];
+		G_MissileRunPrestep(ent, msec);
 	}
 
 	if (g_unlagFlight.integer) {

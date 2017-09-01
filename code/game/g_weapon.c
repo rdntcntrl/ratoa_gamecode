@@ -320,6 +320,8 @@ void BFG_Fire ( gentity_t *ent ) {
 	m->damage *= s_quadFactor;
 	m->splashDamage *= s_quadFactor;
 
+	G_ImmediateRunMissile(m);
+
 //	VectorAdd( m->s.pos.trDelta, ent->client->ps.velocity, m->s.pos.trDelta );	// "real" physics
 }
 
@@ -470,6 +472,8 @@ void weapon_grenadelauncher_fire (gentity_t *ent) {
 	m->damage *= s_quadFactor;
 	m->splashDamage *= s_quadFactor;
 
+	G_ImmediateRunMissile(m);
+
 //	VectorAdd( m->s.pos.trDelta, ent->client->ps.velocity, m->s.pos.trDelta );	// "real" physics
 }
 
@@ -487,6 +491,8 @@ void Weapon_RocketLauncher_Fire (gentity_t *ent) {
 	m = fire_rocket (ent, muzzle, forward);
 	m->damage *= s_quadFactor;
 	m->splashDamage *= s_quadFactor;
+
+	G_ImmediateRunMissile(m);
 
 //	VectorAdd( m->s.pos.trDelta, ent->client->ps.velocity, m->s.pos.trDelta );	// "real" physics
 }
@@ -506,6 +512,8 @@ void Weapon_Plasmagun_Fire (gentity_t *ent) {
 	m = fire_plasma (ent, muzzle, forward);
 	m->damage *= s_quadFactor;
 	m->splashDamage *= s_quadFactor;
+
+	G_ImmediateRunMissile(m);
 
 //	VectorAdd( m->s.pos.trDelta, ent->client->ps.velocity, m->s.pos.trDelta );	// "real" physics
 }
@@ -670,6 +678,8 @@ void Weapon_GrapplingHook_Fire (gentity_t *ent)
 		fire_grapple (ent, muzzle, forward);
 
 	ent->client->fireHeld = qtrue;
+
+	G_ImmediateRunMissile(ent);
 }
 
 void Weapon_HookFree (gentity_t *ent)
@@ -802,6 +812,8 @@ void Weapon_Nailgun_Fire (gentity_t *ent) {
 		m = fire_nail (ent, muzzle, forward, right, up );
 		m->damage *= s_quadFactor;
 		m->splashDamage *= s_quadFactor;
+
+		G_ImmediateRunMissile(m);
 	}
 
 //	VectorAdd( m->s.pos.trDelta, ent->client->ps.velocity, m->s.pos.trDelta );	// "real" physics
@@ -826,6 +838,8 @@ void weapon_proxlauncher_fire (gentity_t *ent) {
 	m = fire_prox (ent, muzzle, forward);
 	m->damage *= s_quadFactor;
 	m->splashDamage *= s_quadFactor;
+
+	G_ImmediateRunMissile(m);
 
 //	VectorAdd( m->s.pos.trDelta, ent->client->ps.velocity, m->s.pos.trDelta );	// "real" physics
 }
