@@ -292,13 +292,15 @@ void CG_RailTrail (clientInfo_t *ci, vec3_t start, vec3_t end) {
 		AxisClear( re->axis );
 	}
 
-	if (cg_oldRail.integer)
+	if (cg_oldRail.integer || !cg_ratRail.integer)
 	{
-		if (!cg_ratRail.integer) {
-			// nudge down a bit so it isn't exactly in center
-			re->origin[2] -= 8;
-			re->oldorigin[2] -= 8;
-		}
+		// nudge down a bit so it isn't exactly in center
+		re->origin[2] -= 8;
+		re->oldorigin[2] -= 8;
+		return;
+	}
+
+	if (cg_ratRail.integer && cg_ratRailRadius.value == 0) {
 		return;
 	}
 
@@ -350,12 +352,22 @@ void CG_RailTrail (clientInfo_t *ci, vec3_t start, vec3_t end) {
 			le->pos.trTime = cg.time;
 
 			VectorCopy( move, move2);
-			VectorMA(move2, RADIUS , axis[j], move2);
+			if (cg_ratRail.integer) {
+				VectorMA(move2, cg_ratRailRadius.value , axis[j], move2);
+			} else {
+				VectorMA(move2, RADIUS , axis[j], move2);
+			}
 			VectorCopy(move2, le->pos.trBase);
 
-			le->pos.trDelta[0] = axis[j][0]*6;
-			le->pos.trDelta[1] = axis[j][1]*6;
-			le->pos.trDelta[2] = axis[j][2]*6;
+			if (cg_ratRail.integer) {
+				le->pos.trDelta[0] = axis[j][0]*4;
+				le->pos.trDelta[1] = axis[j][1]*4;
+				le->pos.trDelta[2] = axis[j][2]*4;
+			} else {
+				le->pos.trDelta[0] = axis[j][0]*6;
+				le->pos.trDelta[1] = axis[j][1]*6;
+				le->pos.trDelta[2] = axis[j][2]*6;
+			}
 		}
 
 		VectorAdd (move, vec, move);

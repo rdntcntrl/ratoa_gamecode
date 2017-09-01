@@ -1306,6 +1306,7 @@ extern vmCvar_t			cg_ratRocketTrailRadius;
 extern vmCvar_t			cg_ratRocketTrailStep;
 extern vmCvar_t			cg_ratRocketTrailTime;
 extern vmCvar_t			cg_ratRail;
+extern vmCvar_t			cg_ratRailRadius;
 extern vmCvar_t			cg_ratLg;
 extern vmCvar_t			cg_ratLgImpact;
 extern vmCvar_t			cg_delagProjectileTrail;
