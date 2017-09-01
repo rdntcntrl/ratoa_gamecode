@@ -202,6 +202,9 @@ typedef struct centity_s {
 	// exact interpolated position of entity on this frame
 	vec3_t			lerpOrigin;
 	vec3_t			lerpAngles;
+
+	// for cg_projectileNudgeAuto
+	int			projectileNudge;
 } centity_t;
 
 
@@ -1412,6 +1415,7 @@ extern	vmCvar_t		cg_delag;
 extern	vmCvar_t		cg_cmdTimeNudge;
 extern	vmCvar_t		sv_fps;
 extern	vmCvar_t		cg_projectileNudge;
+extern	vmCvar_t		cg_projectileNudgeAuto;
 extern	vmCvar_t		cg_optimizePrediction;
 extern	vmCvar_t		cl_timeNudge;
 //extern	vmCvar_t		cg_latentSnaps;

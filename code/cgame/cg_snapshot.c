@@ -44,6 +44,9 @@ static void CG_ResetEntity( centity_t *cent ) {
 	if (cg_delagProjectileTrail.integer && cent->currentState.eType == ET_MISSILE) {
 		cent->trailTime = MIN(cent->currentState.pos.trTime+50, cent->trailTime);
 	}
+	if (cent->currentState.eType == ET_MISSILE) {
+		cent->projectileNudge = cg.snap->ping*0.5;
+	}
 
 	VectorCopy (cent->currentState.origin, cent->lerpOrigin);
 	VectorCopy (cent->currentState.angles, cent->lerpAngles);

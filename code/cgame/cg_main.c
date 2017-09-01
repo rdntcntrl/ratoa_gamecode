@@ -289,6 +289,7 @@ vmCvar_t	cg_delag;
 vmCvar_t	cg_cmdTimeNudge;
 vmCvar_t	sv_fps;
 vmCvar_t	cg_projectileNudge;
+vmCvar_t	cg_projectileNudgeAuto;
 vmCvar_t	cg_optimizePrediction;
 vmCvar_t	cl_timeNudge;
 //vmCvar_t	cg_latentSnaps;
@@ -558,6 +559,7 @@ static cvarTable_t cvarTable[] = { // bk001129
 	// this will be automagically copied from the server
 	{ &sv_fps, "sv_fps", "20", CVAR_SYSTEMINFO },
 	{ &cg_projectileNudge, "cg_projectileNudge", "0", CVAR_ARCHIVE },
+	{ &cg_projectileNudgeAuto, "cg_projectileNudgeAuto", "1", CVAR_ARCHIVE },
 	{ &cg_optimizePrediction, "cg_optimizePrediction", "1", CVAR_ARCHIVE },
 	{ &cl_timeNudge, "cl_timeNudge", "0", CVAR_ARCHIVE },
 //	{ &cg_latentSnaps, "cg_latentSnaps", "0", CVAR_USERINFO | CVAR_CHEAT },

@@ -795,7 +795,7 @@ static void CG_CalcEntityLerpPositions( centity_t *cent ) {
 		// if it's not, and it's not a grenade launcher
 		else if ( cent->currentState.weapon != WP_GRENADE_LAUNCHER ) {
 			// extrapolate based on cg_projectileNudge
-			timeshift = cg_projectileNudge.integer + 1000 / sv_fps.integer;
+			timeshift = (cg_projectileNudgeAuto.integer ? cent->projectileNudge : cg_projectileNudge.integer) + 1000 / sv_fps.integer;
 		}
 	}
 
