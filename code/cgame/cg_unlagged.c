@@ -339,8 +339,43 @@ void CG_PredictWeaponEffects( centity_t *cent ) {
 
 		rocket->reType = RT_MODEL;
 		rocket->rotation = 0;
-		rocket->hModel = cg_weapons[WP_ROCKET_LAUNCHER].missileModel;
-		rocket->renderfx = cg_weapons[WP_ROCKET_LAUNCHER].missileRenderfx | RF_NOSHADOW;
+		rocket->hModel = cg_weapons[ent->weapon].missileModel;
+		rocket->renderfx = cg_weapons[ent->weapon].missileRenderfx | RF_NOSHADOW;
+	} else if (cg_ratPredictMissiles.integer > 0 && ent->weapon == WP_GRENADE_LAUNCHER) {
+		localEntity_t	*le;
+		refEntity_t	*rocket;
+
+
+		le = CG_AllocLocalEntity();
+		le->leFlags = 0;
+		le->leType = LE_PREDICTEDMISSILE;
+		le->startTime = cg.time;
+		le->endTime = cg.time + (cg_ratPredictMissilesPing.integer > 0 ?
+				cg_ratPredictMissilesPing.integer : cg.snap->ping)
+				* cg_ratPredictMissilesPingFactor.value;
+		le->weapon = ent->weapon;
+
+		// server does this, we'll do it here for accuracy
+		SnapVector ( muzzlePoint );
+
+		VectorCopy(muzzlePoint, le->pos.trBase);
+		forward[2] += 0.2f;
+		VectorNormalize( forward );
+		VectorScale(forward, 700, le->pos.trDelta);
+		le->pos.trType = TR_GRAVITY;
+		//le->pos.trTime = cg.time-50;
+		le->pos.trTime = cg.time - cg_ratPredictMissilesNudge.integer;
+
+		rocket = &le->refEntity;
+
+
+		VectorCopy( muzzlePoint, rocket->origin );
+		VectorCopy( muzzlePoint, rocket->oldorigin );
+
+		rocket->reType = RT_MODEL;
+		rocket->rotation = 0;
+		rocket->hModel = cg_weapons[ent->weapon].missileModel;
+		rocket->renderfx = cg_weapons[ent->weapon].missileRenderfx | RF_NOSHADOW;
 	}
 }
 
