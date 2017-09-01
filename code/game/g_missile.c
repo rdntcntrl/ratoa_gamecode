@@ -152,9 +152,11 @@ void G_MissileRunPrestep(gentity_t *ent, int stepmsec) {
 }
 
 void G_ImmediateRunMissile(gentity_t *ent) {
-	if (!g_unlagPrestepImmediate.integer) {
+	if (ent->missileRan == 1) {
+		// missile was already run immediately after firing
 		return;
 	}
+
 	if (g_unlagPrestep.integer) {
 		int stepmsec = level.time - level.previousTime;
 		G_MissileRunPrestep(ent, stepmsec);
@@ -171,6 +173,46 @@ void G_ImmediateRunMissile(gentity_t *ent) {
 
 	if ( ent->s.eType == ET_MISSILE ) {
 		G_RunMissile( ent );
+	}
+}
+
+void G_ImmediateLaunchMissile(gentity_t *ent) {
+	switch (g_unlagImmediateRun.integer) {
+		case 1:
+			break;
+		case 2:
+			ent->missileRan = -1;
+			// run missile during NEXT Clienthink_real
+			// for a slight delay
+			return;
+			break;
+		default:
+			return;
+			break;
+	}
+	G_ImmediateRunMissile(ent);
+}
+
+void G_ImmediateRunClientMissiles(gentity_t *client) {
+	gentity_t *ent;
+	int i;
+	if (g_unlagImmediateRun.integer != 2) {
+		return;
+	}
+	for (i=0 ; i < level.num_entities ; ++i ) {
+		ent = &g_entities[i];
+		if ( !ent->inuse 
+				|| ent->freeAfterEvent
+				|| ent->s.eType != ET_MISSILE
+				|| ent->parent != client) {
+			return;
+		}
+		if (ent->missileRan == -1) {
+			// this missile will be run next time
+			ent->missileRan == 0;
+			continue;
+		}
+		G_ImmediateRunMissile(ent);
 	}
 }
 
@@ -793,6 +835,8 @@ void G_RunMissile( gentity_t *ent ) {
 	int		unlinked = 0;
 	int		i;
 	int		telepushed = 0;
+
+	ent->missileRan = 1;
 
 	// get current position
 	BG_EvaluateTrajectory( &ent->s.pos, level.time, origin );

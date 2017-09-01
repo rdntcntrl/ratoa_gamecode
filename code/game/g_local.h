@@ -189,6 +189,7 @@ struct gentity_s {
 	qboolean	needsDelag;
 	int		launchTime;
 	int		launchLag;
+	int		missileRan;
 
 	int		pushed_at;
 };
@@ -737,7 +738,8 @@ void TossClientCubes( gentity_t *self );
 //
 void G_RunMissile( gentity_t *ent );
 void G_MissileRunPrestep( gentity_t *ent, int stepmsec);
-void G_ImmediateRunMissile(gentity_t *ent);
+void G_ImmediateRunMissiles(gentity_t *client);
+void G_ImmediateLaunchMissile(gentity_t *ent);
 void ProximityMine_RemoveAll( void );
 
 gentity_t *fire_blaster (gentity_t *self, vec3_t start, vec3_t aimdir);
