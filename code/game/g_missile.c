@@ -1140,6 +1140,12 @@ gentity_t *fire_nail( gentity_t *self, vec3_t start, vec3_t forward, vec3_t righ
 
 	bolt->s.pos.trType = TR_LINEAR;
 	bolt->s.pos.trTime = level.time;
+	if (self->client != NULL) {
+		bolt->launchLag = G_LaunchLag(self->client);
+		bolt->s.pos.trTime -= G_MissilePrestep(self->client);
+		bolt->needsDelag = qtrue;
+		bolt->launchTime = bolt->s.pos.trTime;
+	}
 	VectorCopy( start, bolt->s.pos.trBase );
 
 	r = random() * M_PI * 2.0f;
