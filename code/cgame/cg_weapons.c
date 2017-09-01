@@ -238,7 +238,12 @@ void CG_RailTrail (clientInfo_t *ci, vec3_t start, vec3_t end) {
  
 	re->shaderTime = cg.time / 1000.0f;
 	re->reType = RT_RAIL_CORE;
-	re->customShader = cgs.media.railCoreShader;
+
+	if (cg_ratRail.integer) {
+		re->customShader = cgs.media.ratRailCoreShader;
+	} else {
+		re->customShader = cgs.media.railCoreShader;
+	}
  
 	VectorCopy(start, re->origin);
 	VectorCopy(end, re->oldorigin);
@@ -246,20 +251,54 @@ void CG_RailTrail (clientInfo_t *ci, vec3_t start, vec3_t end) {
 	re->shaderRGBA[0] = ci->color1[0] * 255;
 	re->shaderRGBA[1] = ci->color1[1] * 255;
 	re->shaderRGBA[2] = ci->color1[2] * 255;
+
 	re->shaderRGBA[3] = 255;
 
 	le->color[0] = ci->color1[0] * 0.75;
 	le->color[1] = ci->color1[1] * 0.75;
 	le->color[2] = ci->color1[2] * 0.75;
+
 	le->color[3] = 1.0f;
 
 	AxisClear( re->axis );
- 
+
+	if (cg_ratRail.integer) {
+		le = CG_AllocLocalEntity();
+		re = &le->refEntity;
+
+		le->leType = LE_FADE_RGB;
+		le->startTime = cg.time;
+		le->endTime = cg.time + cg_railTrailTime.value/3.0;
+		le->lifeRate = 1.0 / (le->endTime - le->startTime);
+
+		re->shaderTime = cg.time / 1000.0f;
+		re->reType = RT_RAIL_CORE;
+
+		re->customShader = cgs.media.ratRailCoreShaderOverlay;
+
+		VectorCopy(start, re->origin);
+		VectorCopy(end, re->oldorigin);
+
+		re->shaderRGBA[0] = 255;
+		re->shaderRGBA[1] = 255;
+		re->shaderRGBA[2] = 255;
+		re->shaderRGBA[3] = 255;
+
+		le->color[0] = 1.0;
+		le->color[1] = 1.0;
+		le->color[2] = 1.0;
+		le->color[3] = 1.0f;
+
+		AxisClear( re->axis );
+	}
+
 	if (cg_oldRail.integer)
 	{
-		// nudge down a bit so it isn't exactly in center
-		re->origin[2] -= 8;
-		re->oldorigin[2] -= 8;
+		if (!cg_ratRail.integer) {
+			// nudge down a bit so it isn't exactly in center
+			re->origin[2] -= 8;
+			re->oldorigin[2] -= 8;
+		}
 		return;
 	}
 
@@ -1052,6 +1091,8 @@ void CG_RegisterWeapon( int weaponNum ) {
 		cgs.media.railExplosionShader = trap_R_RegisterShader( "railExplosion" );
 		cgs.media.railRingsShader = trap_R_RegisterShader( "railDisc" );
 		cgs.media.railCoreShader = trap_R_RegisterShader( "railCore" );
+		cgs.media.ratRailCoreShader = trap_R_RegisterShader( "ratRailCore" );
+		cgs.media.ratRailCoreShaderOverlay = trap_R_RegisterShader( "ratRailCoreOverlay" );
 		break;
 
 	case WP_BFG:

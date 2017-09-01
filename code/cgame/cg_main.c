@@ -180,6 +180,7 @@ vmCvar_t	cg_ratRocketTrailAlpha;
 vmCvar_t	cg_ratRocketTrailRadius;
 vmCvar_t	cg_ratRocketTrailStep;
 vmCvar_t	cg_ratRocketTrailTime;
+vmCvar_t	cg_ratRail;
 vmCvar_t	cg_ratLg;
 vmCvar_t	cg_ratLgImpact;
 vmCvar_t 	cg_noBubbleTrail;
@@ -473,6 +474,7 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_ratRocketTrailRadius, "cg_ratRocketTrailRadius", "1", CVAR_ARCHIVE},
 	{ &cg_ratRocketTrailStep, "cg_ratRocketTrailStep", "20", CVAR_ARCHIVE},
 	{ &cg_ratRocketTrailTime, "cg_ratRocketTrailTime", "0.5", CVAR_ARCHIVE},
+	{ &cg_ratRail, "cg_ratRail", "1", CVAR_ARCHIVE},
 	{ &cg_ratLg, "cg_ratLg", "0", CVAR_ARCHIVE},
 	{ &cg_ratLgImpact, "cg_ratLgImpact", "1", CVAR_ARCHIVE},
 	{ &cg_noBubbleTrail, "cg_noBubbleTrail", "1", CVAR_ARCHIVE},
