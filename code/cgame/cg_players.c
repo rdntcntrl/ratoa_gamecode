@@ -2622,7 +2622,11 @@ void CG_Player( centity_t *cent ) {
 	CG_PlayerGetColors(ci, cent->currentState.eFlags & EF_DEAD ? qtrue : qfalse, playercolor);
 	memcpy(&legs.shaderRGBA, playercolor, sizeof(playercolor));
 	memcpy(&torso.shaderRGBA, playercolor, sizeof(playercolor));
-	if (cg_forceBrightModels.integer && cg_autoHeadColors.integer && ci->team != TEAM_SPECTATOR) {
+	if (cg_forceBrightModels.integer && ci->team != TEAM_SPECTATOR &&
+			( cg_autoHeadColors.integer == 1  // both teams
+			  || cg_autoHeadColors.integer == 2 && ci->team != cg.snap->ps.persistant[PERS_TEAM] // only for enemies
+			  || cg_autoHeadColors.integer == 3 && ci->team == cg.snap->ps.persistant[PERS_TEAM] // only for teammates
+			)) {
 		CG_PlayerAutoHeadColor(ci, playercolor);
 		memcpy(&head.shaderRGBA, playercolor, sizeof(playercolor));
 	} else {

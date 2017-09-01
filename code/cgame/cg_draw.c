@@ -333,7 +333,11 @@ void CG_Draw3DHead( float x, float y, float w, float h, qhandle_t model, qhandle
 	ent.customSkin = skin;
 	ent.renderfx = RF_NOSHADOW;		// no stencil shadows
 
-	if (cg_forceBrightModels.integer && cg_autoHeadColors.integer && ci->team != TEAM_SPECTATOR) {
+	if (cg_forceBrightModels.integer && ci->team != TEAM_SPECTATOR &&
+			( cg_autoHeadColors.integer == 1  // both teams
+			  || cg_autoHeadColors.integer == 2 && ci->team != cg.snap->ps.persistant[PERS_TEAM] // only for enemies
+			  || cg_autoHeadColors.integer == 3 && ci->team == cg.snap->ps.persistant[PERS_TEAM] // only for teammates
+			)) {
 		CG_PlayerAutoHeadColor(ci, ent.shaderRGBA);
 	} else if (cg_forceBrightModels.integer) {
 		CG_PlayerGetColors(ci, qfalse, ent.shaderRGBA);
