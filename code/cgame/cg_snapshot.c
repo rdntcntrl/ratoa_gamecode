@@ -26,6 +26,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "cg_local.h"
 
 
+#define MIN(a,b) (((a) < (b)) ? (a) : (b))
 
 /*
 ==================
@@ -40,6 +41,9 @@ static void CG_ResetEntity( centity_t *cent ) {
 	}
 
 	cent->trailTime = cg.snap->serverTime;
+	if (cg_delagProjectileTrail.integer && cent->currentState.eType == ET_MISSILE) {
+		cent->trailTime = MIN(cent->currentState.pos.trTime+50, cent->trailTime);
+	}
 
 	VectorCopy (cent->currentState.origin, cent->lerpOrigin);
 	VectorCopy (cent->currentState.angles, cent->lerpAngles);

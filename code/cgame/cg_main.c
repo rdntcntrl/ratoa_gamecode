@@ -175,6 +175,7 @@ vmCvar_t	cg_ratRocketTrailAlpha;
 vmCvar_t	cg_ratRocketTrailRadius;
 vmCvar_t	cg_ratLg;
 vmCvar_t	cg_ratLgImpact;
+vmCvar_t 	cg_delagProjectileTrail;
 vmCvar_t	cg_zoomAnim;
 vmCvar_t	cg_zoomAnimScale;
 vmCvar_t	cg_crosshairNamesY;
@@ -460,6 +461,7 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_ratRocketTrailRadius, "cg_ratRocketTrailRadius", "5", CVAR_ARCHIVE},
 	{ &cg_ratLg, "cg_ratLg", "0", CVAR_ARCHIVE},
 	{ &cg_ratLgImpact, "cg_ratLgImpact", "1", CVAR_ARCHIVE},
+	{ &cg_delagProjectileTrail, "cg_delagProjectileTrail", "1", CVAR_ARCHIVE},
 	{ &cg_zoomAnim, "cg_zoomAnim", "1", CVAR_ARCHIVE},
 	{ &cg_zoomAnimScale, "cg_zoomAnimScale", "1", CVAR_ARCHIVE},
 	{ &cg_crosshairNamesY, "cg_crosshairNamesY", "280", CVAR_ARCHIVE},
