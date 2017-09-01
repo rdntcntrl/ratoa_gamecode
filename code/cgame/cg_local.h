@@ -94,7 +94,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define	DEFAULT_TEAM_HEAD		"sarge"
 #endif
 
-#define MAX_PROJECTILEDELAG_PING 200
 #define MAX(a,b) (((a) > (b)) ? (a) : (b))
 
 #define DEFAULT_REDTEAM_NAME		"Vim supporters"
@@ -1210,6 +1209,8 @@ typedef struct {
     int		itemPickup;
     int		powerupGlows;
     int		screenShake;
+    int		rocketSpeed;
+    int		unlagMissileMaxLatency;
     int		timeoutEnd;
     int		timeoutOvertime;
 } cgs_t;

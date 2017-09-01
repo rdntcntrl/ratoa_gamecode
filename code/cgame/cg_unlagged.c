@@ -283,7 +283,7 @@ void CG_PredictWeaponEffects( centity_t *cent ) {
 		localEntity_t	*le;
 		refEntity_t	*bolt;
 
-		if (cg.snap->ping > MAX_PROJECTILEDELAG_PING) {
+		if (cg.snap->ping > cgs.unlagMissileMaxLatency) {
 			return;
 		}
 
@@ -322,7 +322,7 @@ void CG_PredictWeaponEffects( centity_t *cent ) {
 				bolt->customShader = cgs.media.plasmaBallShader;
 				return;
 			case WP_ROCKET_LAUNCHER:
-				VectorScale(forward, 1000, le->pos.trDelta);
+				VectorScale(forward, cgs.rocketSpeed, le->pos.trDelta);
 				le->pos.trType = TR_LINEAR;
 				break;
 			case WP_GRENADE_LAUNCHER:

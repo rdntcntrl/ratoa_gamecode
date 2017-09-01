@@ -476,6 +476,12 @@ void CG_ParseServerinfo( void ) {
 	cgs.screenShake = atoi( Info_ValueForKey( info, "g_screenShake" ) );
 	trap_Cvar_Set("g_screenShake", va("%i", cgs.screenShake));
 
+	cgs.rocketSpeed = atoi( Info_ValueForKey( info, "g_rocketSpeed" ) );
+	trap_Cvar_Set("g_rocketSpeed", va("%i", cgs.rocketSpeed));
+
+	cgs.unlagMissileMaxLatency = atoi( Info_ValueForKey( info, "g_unlagMissileMaxLatency" ) );
+	trap_Cvar_Set("g_unlagMissileMaxLatency", va("%i", cgs.unlagMissileMaxLatency));
+
         //Copy allowed votes directly to the client:
         trap_Cvar_Set("cg_voteflags",Info_ValueForKey( info, "voteflags" ) );
 }
