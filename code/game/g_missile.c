@@ -1039,7 +1039,7 @@ gentity_t *fire_rocket (gentity_t *self, vec3_t start, vec3_t dir) {
 	VectorCopy( start, bolt->s.pos.trBase );
 	//VectorScale( dir, 900, bolt->s.pos.trDelta );
 	//VectorScale( dir, 1000, bolt->s.pos.trDelta );
-	VectorScale( dir, g_rocketSpeed.value, bolt->s.pos.trDelta );
+	VectorScale( dir, g_rocketSpeed.integer, bolt->s.pos.trDelta );
 	SnapVector( bolt->s.pos.trDelta );			// save net bandwidth
 	VectorCopy (start, bolt->r.currentOrigin);
 

@@ -366,8 +366,8 @@ static cvarTable_t		gameCvarTable[] = {
         { &g_lagLightning, "g_lagLightning", "1", CVAR_ARCHIVE, 0, qtrue },
 //unlagged - server options
         { &g_ambientSound, "g_ambientSound", "1", CVAR_ARCHIVE, 0, qfalse },
-        { &g_rocketSpeed, "g_rocketSpeed", "1000", CVAR_ARCHIVE, 0, qtrue },
-        { &g_unlagMissileMaxLatency, "g_unlagMissileMaxLatency", "200", CVAR_ARCHIVE, 0, qfalse },
+        { &g_rocketSpeed, "g_rocketSpeed", "1000", CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qtrue },
+        { &g_unlagMissileMaxLatency, "g_unlagMissileMaxLatency", "200", CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qfalse },
         { &g_unlagMode, "g_unlagMode", "1", CVAR_ARCHIVE, 0, qfalse },
         { &g_unlagLaunchLagMode, "g_unlagLaunchLagMode", "1", CVAR_ARCHIVE, 0, qfalse },
         { &g_unlagLatencyMode, "g_unlagLatencyMode", "2", CVAR_ARCHIVE, 0, qfalse },
