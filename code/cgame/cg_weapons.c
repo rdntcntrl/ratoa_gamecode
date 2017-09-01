@@ -1091,8 +1091,17 @@ void CG_RegisterWeapon( int weaponNum ) {
 		cgs.media.railExplosionShader = trap_R_RegisterShader( "railExplosion" );
 		cgs.media.railRingsShader = trap_R_RegisterShader( "railDisc" );
 		cgs.media.railCoreShader = trap_R_RegisterShader( "railCore" );
-		cgs.media.ratRailCoreShader = trap_R_RegisterShader( "ratRailCore" );
-		cgs.media.ratRailCoreShaderOverlay = trap_R_RegisterShader( "ratRailCoreOverlay" );
+		switch (cg_ratRail.integer) {
+			case 2:
+				cgs.media.ratRailCoreShader = trap_R_RegisterShader( "ratRailCoreFat" );
+				cgs.media.ratRailCoreShaderOverlay = trap_R_RegisterShader( "ratRailCoreOverlayFat" );
+				break;
+			case 1:
+			default:
+				cgs.media.ratRailCoreShader = trap_R_RegisterShader( "ratRailCore" );
+				cgs.media.ratRailCoreShaderOverlay = trap_R_RegisterShader( "ratRailCoreOverlay" );
+				break;
+		}
 		break;
 
 	case WP_BFG:
