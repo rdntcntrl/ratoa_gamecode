@@ -348,7 +348,7 @@ static void CG_RatRocketTrail( centity_t *ent, const weaponInfo_t *wi ) {
 	up[1] = 0;
 	up[2] = 0;
 
-	step = 40;
+	step = cg_ratRocketTrailStep.integer;
 
 	es = &ent->currentState;
 	startTime = ent->trailTime;
@@ -380,8 +380,8 @@ static void CG_RatRocketTrail( centity_t *ent, const weaponInfo_t *wi ) {
 
 		smoke = CG_SmokePuff( lastPos, up, 
 					  cg_ratRocketTrailRadius.value,
-					  1, 1, 1, cg_ratRocketTrailAlpha.value,
-					  wi->wiTrailTime, 
+					  0.9, 0.9, 0.9, cg_ratRocketTrailAlpha.value,
+					  wi->wiTrailTime*cg_ratRocketTrailTime.value, 
 					  t,
 					  0,
 					  0, 
