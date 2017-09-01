@@ -644,6 +644,19 @@ static void CG_ColorFromString( const char *v, vec3_t color ) {
 
 	VectorClear( color );
 
+	if (v[0] && (v[0] == 'H' || v[0] == 'h')) {
+		float hcolor[4];
+		val = atoi(v+1);
+		if (val < 0 || val >= 360) {
+			val = 0;
+		} 
+		CG_HSV2RGB((float)val, 1.0, 1.0, hcolor);
+		color[0] = hcolor[0];
+		color[1] = hcolor[1];
+		color[2] = hcolor[2];
+		return;
+	}
+
 	val = atoi( v );
 
 	if ( val < 1 || val > 7 ) {
