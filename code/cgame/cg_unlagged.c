@@ -330,6 +330,7 @@ void CG_PredictWeaponEffects( centity_t *cent ) {
 				VectorNormalize( forward );
 				VectorScale(forward, 700, le->pos.trDelta);
 				le->pos.trType = TR_GRAVITY;
+				bolt->customShader = cgs.media.grenadeBrightSkinShader;
 				break;
 		}
 		bolt->reType = RT_MODEL;

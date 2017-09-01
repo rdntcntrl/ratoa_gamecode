@@ -470,6 +470,10 @@ static void CG_Missile( centity_t *cent ) {
 	ent.hModel = weapon->missileModel;
 	ent.renderfx = weapon->missileRenderfx | RF_NOSHADOW;
 
+	if (cent->currentState.weapon == WP_GRENADE_LAUNCHER) {
+		ent.customShader = cgs.media.grenadeBrightSkinShader;
+	}
+
 //#ifdef MISSIONPACK
 	if ( cent->currentState.weapon == WP_PROX_LAUNCHER ) {
 		if (s1->generic1 == TEAM_BLUE) {

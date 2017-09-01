@@ -861,6 +861,8 @@ typedef struct {
 	qhandle_t	dishFlashModel;
 	qhandle_t	lightningExplosionModel;
 
+	qhandle_t	grenadeBrightSkinShader;
+
 	// weapon effect shaders
 	qhandle_t	railExplosionShader;
 	qhandle_t	plasmaExplosionShader;
