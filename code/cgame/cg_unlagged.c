@@ -287,6 +287,10 @@ void CG_PredictWeaponEffects( centity_t *cent ) {
 			return;
 		}
 
+		if (cg.snap->ps.pm_flags & PMF_FOLLOW) {
+			return;
+		}
+
 		le = CG_AllocLocalEntity();
 		le->leFlags = 0;
 		le->leType = LE_PREDICTEDMISSILE;
