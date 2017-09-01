@@ -152,7 +152,7 @@ void G_MissileRunPrestep(gentity_t *ent, int stepmsec) {
 }
 
 void G_ImmediateRunMissile(gentity_t *ent) {
-	if (!g_unlagPrestepImmediate.integer) {
+	if (!g_unlagImmediateRun.integer) {
 		return;
 	}
 	if (g_unlagPrestep.integer) {
