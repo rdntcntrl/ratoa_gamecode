@@ -1211,6 +1211,7 @@ typedef struct {
     int		screenShake;
     int		rocketSpeed;
     int		unlagMissileMaxLatency;
+    int		predictMissiles;
     int		timeoutEnd;
     int		timeoutOvertime;
 } cgs_t;

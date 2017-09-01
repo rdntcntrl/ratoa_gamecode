@@ -482,6 +482,9 @@ void CG_ParseServerinfo( void ) {
 	cgs.unlagMissileMaxLatency = atoi( Info_ValueForKey( info, "g_unlagMissileMaxLatency" ) );
 	trap_Cvar_Set("g_unlagMissileMaxLatency", va("%i", cgs.unlagMissileMaxLatency));
 
+	cgs.predictMissiles = atoi( Info_ValueForKey( info, "g_ratVmPredictMissiles" ) );
+	trap_Cvar_Set("g_ratVmPredictMissiles", va("%i", cgs.predictMissiles));
+
         //Copy allowed votes directly to the client:
         trap_Cvar_Set("cg_voteflags",Info_ValueForKey( info, "voteflags" ) );
 }
