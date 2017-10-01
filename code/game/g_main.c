@@ -188,6 +188,7 @@ vmCvar_t        g_unlagFlight;
 vmCvar_t	g_tournamentMinSpawnDistance;
 
 vmCvar_t        g_autoClans;
+vmCvar_t        g_startWhenReady;
 vmCvar_t        g_powerupGlows;
 vmCvar_t        g_screenShake;
 vmCvar_t        g_itemPickup;
@@ -386,6 +387,8 @@ static cvarTable_t		gameCvarTable[] = {
 
         { &g_autoClans, "g_autoClans", "0", CVAR_ARCHIVE , 0, qfalse },
 
+        { &g_startWhenReady, "g_startWhenReady", "0", CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qfalse },
+	
         { &g_powerupGlows, "g_powerupGlows", "1", CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qfalse },
         { &g_screenShake, "g_screenShake", "1", CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qfalse },
 
@@ -2731,14 +2734,19 @@ void CheckTournament( void ) {
 		// if all players have arrived, start the countdown
 		if ( level.warmupTime < 0 ) {
 			if ( level.numPlayingClients == 2 ) {
-				// fudge by -1 to account for extra delays
-				if ( g_warmup.integer > 1 ) {
-					level.warmupTime = level.time + ( g_warmup.integer - 1 ) * 1000;
-				} else {
-					level.warmupTime = 0;
-				}
+				if ( ( g_startWhenReady.integer && 
+				       ( g_entities[level.sortedClients[0]].client->ready || ( g_entities[level.sortedClients[0]].r.svFlags & SVF_BOT ) ) && 
+				       ( g_entities[level.sortedClients[1]].client->ready || ( g_entities[level.sortedClients[1]].r.svFlags & SVF_BOT ) ) 
+				      ) || !g_startWhenReady.integer || !g_doWarmup.integer ) {
+					// fudge by -1 to account for extra delays
+					if ( g_warmup.integer > 1 ) {
+						level.warmupTime = level.time + ( g_warmup.integer - 1 ) * 1000;
+					} else {
+						level.warmupTime = 0;
+					}
 
-				trap_SetConfigstring( CS_WARMUP, va("%i", level.warmupTime) );
+					trap_SetConfigstring( CS_WARMUP, va("%i", level.warmupTime) );
+				}
 			}
 			return;
 		}
@@ -2754,6 +2762,8 @@ void CheckTournament( void ) {
 	} else if ( g_gametype.integer != GT_SINGLE_PLAYER && level.warmupTime != 0 ) {
 		int		counts[TEAM_NUM_TEAMS];
 		qboolean	notEnough = qfalse;
+		int i;
+		int clientsReady = 0;
 
 		if ( g_gametype.integer > GT_TEAM && !g_ffa_gt ) {
 			counts[TEAM_BLUE] = TeamCount( -1, TEAM_BLUE, qtrue);
@@ -2763,6 +2773,21 @@ void CheckTournament( void ) {
 				notEnough = qtrue;
 			}
 		} else if ( level.numPlayingClients < 2 ) {
+			notEnough = qtrue;
+		}
+
+		if( g_startWhenReady.integer ){
+			for( i = 0; i < level.numPlayingClients; i++ ){
+				if( ( g_entities[level.sortedClients[i]].client->ready || g_entities[level.sortedClients[i]].r.svFlags & SVF_BOT ) && g_entities[level.sortedClients[i]].inuse )
+					clientsReady++;
+			}
+		}
+
+		if ( g_doWarmup.integer && g_startWhenReady.integer == 1 
+				&& ( clientsReady < level.numPlayingClients/2 + 1 )) {
+			notEnough = qtrue;
+		} else if ( g_doWarmup.integer && g_startWhenReady.integer == 2 
+				&& ( clientsReady < level.numPlayingClients )) {
 			notEnough = qtrue;
 		}
 

@@ -351,6 +351,7 @@ struct gclient_s {
 	clientSession_t		sess;
 
 	qboolean	readyToExit;		// wishes to leave the intermission
+	qboolean	ready;		// wishes to start the game
 
 	qboolean	noclip;
 
@@ -531,6 +532,8 @@ typedef struct {
 	vec3_t		intermission_origin;	// also used for spectator spawns
 	vec3_t		intermission_angle;
 
+	int		readyMask;
+
 	qboolean	timeout;
 	int		timeoutAdd;
 	int		timeoutEnd;
@@ -624,6 +627,7 @@ void G_TimeinWarning(int levelTime);
 void G_Timeout(gentity_t *caller);
 void G_TimeinCommand(gentity_t *caller);
 void G_TimeoutReminder(gentity_t *ent);
+void SendReadyMask(int clientnum);
 
 
 // KK-OAX Added these in a seperate file to keep g_cmds.c familiar. 
@@ -1186,6 +1190,7 @@ extern  vmCvar_t        g_unlagFlight;
 extern  vmCvar_t	g_tournamentMinSpawnDistance;
 
 extern  vmCvar_t        g_autoClans;
+extern  vmCvar_t        g_startWhenReady;
 extern  vmCvar_t        g_powerupGlows;
 extern  vmCvar_t        g_screenShake;
 

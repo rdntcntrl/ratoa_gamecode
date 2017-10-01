@@ -1359,6 +1359,72 @@ void G_Timein( void ) {
 
 /*
 ==================
+SendReadymask
+
+sends the readymask to the player with clientnum, if clientnum = -1 its send to every player
+==================
+*/
+
+void SendReadymask( int clientnum ) {
+	int			ready, notReady, playerCount;
+	int			i;
+	gclient_t	*cl;
+	int			readyMask;
+	char		entry[16];
+
+	if ( !level.warmupTime ) {
+		return;
+	}
+
+	if (!g_usesRatVM.integer) {
+		return;
+	}
+
+	// see which players are ready
+	ready = 0;
+	notReady = 0;
+	readyMask = 0;
+	playerCount = 0;
+	
+	for ( i = 0; i < g_maxclients.integer; i++ ) {
+		cl = level.clients + i;
+		if ( cl->pers.connected != CON_CONNECTED || cl->sess.sessionTeam == TEAM_SPECTATOR ) {
+			continue;
+		}
+
+		playerCount++;
+		if ( cl->ready || ( g_entities[cl->ps.clientNum].r.svFlags & SVF_BOT ) ) {
+			ready++;
+			if ( i < 16 ) {
+			    readyMask |= 1 << i;
+			}
+		} else {
+			notReady++;
+		}
+	}
+
+	level.readyMask = readyMask;
+	Com_sprintf (entry, sizeof(entry), " %i ", readyMask);
+
+	trap_SendServerCommand( clientnum, va("readyMask%s", entry ));
+}
+
+void Cmd_Ready_f( gentity_t *ent ) {
+	if (level.warmupTime != -1) {
+		return;
+	}
+
+	if (!g_startWhenReady.integer) {
+		return;
+	}
+
+	ent->client->ready = !ent->client->ready;
+
+	SendReadymask(-1);
+}
+
+/*
+==================
 G_Say
 ==================
 */
@@ -2562,6 +2628,8 @@ commands_t cmds[ ] =
 
   { "timein", 0, Cmd_Timein_f },
   { "timeout", 0, Cmd_Timeout_f },
+
+  { "ready", 0, Cmd_Ready_f },
 
   { "teamvote", CMD_TEAM, Cmd_TeamVote_f },
   { "teamtask", CMD_TEAM, Cmd_TeamTask_f },

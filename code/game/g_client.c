@@ -1919,6 +1919,8 @@ void ClientBegin( int clientNum ) {
         if(strlen(custom_vote_info))
             SendCustomVoteCommands(clientNum);
 
+	SendReadymask( ent-g_entities );
+
 	if (level.timeout)
 		G_TimeoutReminder(ent);
 
@@ -2471,6 +2473,8 @@ void ClientDisconnect( int clientNum ) {
 	if ( ent->r.svFlags & SVF_BOT ) {
 		BotAIShutdownClient( clientNum, qfalse );
 	}
+
+	SendReadymask( -1 );
 
 	G_CheckClan(oldTeam);
 }
