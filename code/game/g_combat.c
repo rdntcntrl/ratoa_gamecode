@@ -1328,7 +1328,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 
 	// do the damage
 	if (take) {
-		int dmgTaken = take + asave;
+		int dmgTaken = (take >= 0 ? take : 0) + (asave >= 0 ? asave : 0);
 		targ->health = targ->health - take;
 		if ( targ->client ) {
 			targ->client->ps.stats[STAT_HEALTH] = targ->health;
@@ -1337,6 +1337,9 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		// stats
 		if (targ->health < 0) {
 			dmgTaken += targ->health;
+			if (dmgTaken < 0) {
+				dmgTaken = 0;
+			}
 		}
 		if (targ->client) {
 			targ->client->sess.dmgTaken += dmgTaken;
