@@ -770,6 +770,70 @@ static void CG_PlayBufferedSounds( void ) {
 
 //=========================================================================
 
+
+void CG_AddSpawnpoints( void ){
+	refEntity_t		re;
+	int i;
+	refEntity_t		legs;
+	refEntity_t		torso;
+	refEntity_t		head;
+	clientInfo_t	*ci;
+
+	if( !cg_drawSpawnpoints.integer )
+		return;
+
+	ci = &cgs.clientinfo[ cg.snap->ps.clientNum ];
+	memset( &legs, 0, sizeof(legs) );
+	memset( &torso, 0, sizeof(torso) );
+	memset( &head, 0, sizeof(head) );
+
+	legs.hModel = ci->legsModel;
+	torso.hModel = ci->torsoModel;
+	head.hModel = ci->headModel;
+
+	legs.customShader = cgs.media.spawnPointShader;
+	torso.customShader = cgs.media.spawnPointShader;
+	head.customShader = cgs.media.spawnPointShader;
+	
+	//memset( &re, 0, sizeof(re));
+	//re.hModel = cgs.media.spawnPoint;
+	//re.customShader = cgs.media.spawnPointShader;
+	
+	for( i=0; i < cg.numSpawnpoints; i++ ){
+	//    CG_Printf("origin = %f %f %f\n",
+	//		    cg.spawnpoints[i].origin[0],
+	//		    cg.spawnpoints[i].origin[1],
+	//		    cg.spawnpoints[i].origin[2]);
+	    VectorCopy( cg.spawnpoints[i].origin, legs.origin);
+	    AnglesToAxis(cg.spawnpoints[i].angle, legs.axis);
+	    AnglesToAxis(cg.spawnpoints[i].angle, torso.axis);
+	    AnglesToAxis(cg.spawnpoints[i].angle, head.axis);
+	    
+	    legs.shaderRGBA[3] = 255;
+	    if( cg.spawnpoints[i].team == TEAM_BLUE ){
+		    legs.shaderRGBA[0] = 0;
+		    legs.shaderRGBA[1] = 0;
+		    legs.shaderRGBA[2] = 255;
+	    } else if( cg.spawnpoints[i].team == TEAM_RED ){
+		    legs.shaderRGBA[0] = 255;
+		    legs.shaderRGBA[1] = 0;
+		    legs.shaderRGBA[2] = 0;
+	    } else {
+		    legs.shaderRGBA[0] = 255;
+		    legs.shaderRGBA[1] = 255;
+		    legs.shaderRGBA[2] = 255;
+	    }
+	    memcpy(&torso.shaderRGBA, &legs.shaderRGBA, sizeof(legs.shaderRGBA));
+	    memcpy(&head.shaderRGBA, &legs.shaderRGBA, sizeof(legs.shaderRGBA));
+	    trap_R_AddRefEntityToScene(&legs);
+	    CG_PositionRotatedEntityOnTag( &torso, &legs, ci->legsModel, "tag_torso");
+	    trap_R_AddRefEntityToScene(&torso);
+	    CG_PositionRotatedEntityOnTag( &head, &torso, ci->torsoModel, "tag_head");
+	    trap_R_AddRefEntityToScene(&head);
+	}
+}
+
+
 /*
 =================
 CG_DrawActiveFrame
@@ -836,6 +900,9 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demo
 		CG_AddMarks();
 		CG_AddParticles ();
 		CG_AddLocalEntities();
+		if ( cg.warmup != 0 ) {
+			CG_AddSpawnpoints();
+		}
 	}
 	CG_AddViewWeapon( &cg.predictedPlayerState );
 

@@ -194,6 +194,7 @@ vmCvar_t	cg_crosshairNamesHealth;
 vmCvar_t	cg_friendFloatHealth;
 vmCvar_t	cg_friendFloatHealthSize;
 vmCvar_t	cg_bloodOnHit;
+vmCvar_t	cg_drawSpawnpoints;
 
 vmCvar_t	cg_teamOverlayScaleX;
 vmCvar_t	cg_teamOverlayScaleY;
@@ -490,6 +491,7 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_friendFloatHealth, "cg_friendFloatHealth", "1", CVAR_ARCHIVE},
 	{ &cg_friendFloatHealthSize, "cg_friendFloatHealthSize", "8", CVAR_ARCHIVE},
 	{ &cg_bloodOnHit, "cg_bloodOnHit", "0", CVAR_ARCHIVE},
+	{ &cg_drawSpawnpoints, "cg_drawSpawnpoints", "0", CVAR_ARCHIVE},
 	{ &cg_teamOverlayScaleX, "cg_teamOverlayScaleX", "0.7", CVAR_ARCHIVE},
 	{ &cg_teamOverlayScaleY, "cg_teamOverlayScaleY", "1", CVAR_ARCHIVE},
 	{ &cg_drawTeamBackground, "cg_drawTeamBackground", "0", CVAR_ARCHIVE},
@@ -1222,6 +1224,8 @@ static void CG_RegisterGraphics( void ) {
 	cgs.media.invisShader = trap_R_RegisterShader("powerups/invisibility" );
 	cgs.media.regenShader = trap_R_RegisterShader("powerups/regen" );
 	cgs.media.hastePuffShader = trap_R_RegisterShader("hasteSmokePuff" );
+
+	cgs.media.spawnPointShader = trap_R_RegisterShader("spawnPoint" );
 
 	if ( cgs.gametype == GT_CTF || cgs.gametype == GT_CTF_ELIMINATION|| cgs.gametype == GT_1FCTF || cgs.gametype == GT_HARVESTER || cg_buildScript.integer ) {
 		cgs.media.redCubeModel = trap_R_RegisterModel( "models/powerups/orb/r_orb.md3" );
