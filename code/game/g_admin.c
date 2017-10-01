@@ -140,7 +140,7 @@ g_admin_cmd_t g_admin_cmds[ ] =
       "(^5name^7)"
     },
 
-    {"nextmap", "nm", G_admin_nextmap, "n",
+    {"nextmap", "n", G_admin_nextmap, "n",
       "go to the next map in the cycle",
       ""
     },
@@ -154,7 +154,7 @@ g_admin_cmd_t g_admin_cmds[ ] =
       ""
     },
 
-    {"putteam", "pt", G_admin_putteam, "p",
+    {"putteam", "p", G_admin_putteam, "p",
       "move a player to a specified team",
       "[^3name|slot#^7] [^3h|a|s^7]"
     },
@@ -203,7 +203,7 @@ g_admin_cmd_t g_admin_cmds[ ] =
       "move 999 pingers to the spectator team",
       ""},
 
-    {"swap", "", G_admin_swap, "p",
+    {"swap", "s", G_admin_swap, "p",
       "swap two players",
       "[^3name|slot#^7] [^3name|slot#^7]"
     },
