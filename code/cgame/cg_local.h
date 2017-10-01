@@ -693,6 +693,8 @@ typedef struct {
         
         int redObeliskHealth;
         int blueObeliskHealth;
+
+	int readyMask;
 } cg_t;
 
 
@@ -1207,6 +1209,7 @@ typedef struct {
     int             altExcellent;
 
     int		itemPickup;
+    int		startWhenReady;
     int		powerupGlows;
     int		screenShake;
     int		rocketSpeed;

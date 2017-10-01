@@ -348,6 +348,28 @@ static void CG_ParseObeliskHealth( void ) {
     cg.blueObeliskHealth = atoi( CG_Argv(2) );
 }
 
+
+static void CG_ParseReadyMask ( void ) {
+    int readyMask, i;
+    readyMask = atoi ( CG_Argv ( 1 ) );
+
+    if ( cg.warmup >= 0 )
+        return;
+
+    if ( readyMask != cg.readyMask ) {
+        for ( i = 0; i < 32 ; i++ ) {
+            if ( ( cg.readyMask & ( 1 << i ) ) != ( readyMask & ( 1 << i ) ) ) {
+
+                if ( readyMask & ( 1 << i ) )
+                    CG_CenterPrint ( va ( "%s ^2is ready", cgs.clientinfo[ i ].name ), 120, BIGCHAR_WIDTH );
+                else
+                    CG_CenterPrint ( va ( "%s ^1is not ready", cgs.clientinfo[ i ].name ), 120, BIGCHAR_WIDTH );
+            }
+        }
+        cg.readyMask = readyMask;
+    }
+}
+
 /**
  * Sets the respawn counter for the client.
  */
@@ -484,6 +506,9 @@ void CG_ParseServerinfo( void ) {
 
 	cgs.predictMissiles = atoi( Info_ValueForKey( info, "g_ratVmPredictMissiles" ) );
 	trap_Cvar_Set("g_ratVmPredictMissiles", va("%i", cgs.predictMissiles));
+
+	cgs.startWhenReady = atoi( Info_ValueForKey( info, "g_startWhenReady" ) );
+	trap_Cvar_Set("g_startWhenReady", va("%i", cgs.startWhenReady));
 
         //Copy allowed votes directly to the client:
         trap_Cvar_Set("cg_voteflags",Info_ValueForKey( info, "voteflags" ) );
@@ -1483,6 +1508,11 @@ static void CG_ServerCommand( void ) {
             CG_ParseObeliskHealth();
             return;
         }
+
+	if ( !strcmp ( cmd, "readyMask" ) ) {
+		CG_ParseReadyMask();
+		return;
+	}
 
         if ( !strcmp( cmd, "respawn" ) ) {
 		CG_ParseRespawnTime();

@@ -409,6 +409,15 @@ static void CG_RatDrawClientScore(int y, score_t *score, float *color, float fad
 		//CG_DrawScoreStringColor(iconx - 60, y, "DEAD", color);
 		CG_DrawScoreStringColor(iconx, y, "DEAD", color);
 	}
+
+	if( cg.warmup < 0 && ci->team != TEAM_SPECTATOR && cgs.startWhenReady ){
+		if( cg.readyMask & ( 1 << score->client ) ){
+			color[0] = 0;
+			color[1] = 1;
+			color[2] = 0;
+			CG_DrawScoreStringColor(iconx, y, "READY", color);
+		}
+	}
 }
 
 /*

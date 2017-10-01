@@ -2138,6 +2138,28 @@ static void CG_DrawReward( void ) {
 	trap_R_SetColor( NULL );
 }
 
+/*
+===================
+CG_DrawReady
+===================
+*/
+static void CG_DrawReady ( void ) {
+	char *s;
+	int w;
+	if ( !cgs.startWhenReady )
+		return;
+	if ( cg.warmup >= 0 )
+		return;
+
+	if ( cg.readyMask & ( 1 << cg.snap->ps.clientNum ) ) {
+		s = "^2You are ready!";
+	} else {
+		s = "^1Type \\ready to ready up!";
+	}
+	w = CG_DrawStrlen( s ) * SMALLCHAR_WIDTH;
+	CG_DrawSmallString(320 - w / 2, 72, s, 1.0F);
+}
+
 
 /*
 ===============================================================================
@@ -3547,6 +3569,9 @@ static void CG_Draw2D(stereoFrame_t stereoFrame)
                 CG_DrawCenterDDString();
                 CG_DrawCenter1FctfString();
 		CG_DrawCenterString();
+
+		if ( cgs.clientinfo[cg.clientNum].team != TEAM_SPECTATOR )
+			CG_DrawReady();
 	}
 
         cg.accBoardShowing = CG_DrawAccboard();
