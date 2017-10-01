@@ -2221,6 +2221,10 @@ static void CG_DrawDisconnect( void ) {
 		return;
 	}
 
+	if (cg.time < cgs.timeoutEnd) {
+		return;
+	}
+
 	// also add text in center of screen
 	s = "Connection Interrupted"; // bk 010215 - FIXME
 	w = CG_DrawStrlen( s ) * BIGCHAR_WIDTH;
