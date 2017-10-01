@@ -992,7 +992,7 @@ void CG_NewClientInfo( int clientNum ) {
 		enemy = 1;
 	}
 
-	if (cg_forceBrightModels.integer == 82734) {
+	if (cg_forceBrightModels.integer == 2) {
 		if (enemy) {
 			Q_strncpyz( newInfo.modelName, "smarine", sizeof( newInfo.modelName ) );
 			Q_strncpyz( newInfo.skinName, "bright", sizeof( newInfo.skinName ) );
@@ -1047,7 +1047,7 @@ void CG_NewClientInfo( int clientNum ) {
 
 	// head model
 	v = Info_ValueForKey( configstring, "hmodel" );
-	if (cg_forceBrightModels.integer == 82734) {
+	if (cg_forceBrightModels.integer == 2) {
 		if (enemy) {
 			Q_strncpyz( newInfo.headModelName, "smarine", sizeof( newInfo.headModelName ) );
 			Q_strncpyz( newInfo.headSkinName, "bright", sizeof( newInfo.headSkinName ) );

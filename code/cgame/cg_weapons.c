@@ -978,7 +978,7 @@ void CG_RegisterWeapon( int weaponNum ) {
 			case 2:
 				cgs.media.lightningShader = trap_R_RegisterShader( "lightningBoltRat2");
 				break;
-			case 82734:
+			case 3:
 				cgs.media.lightningShader = trap_R_RegisterShader( "lightningBoltRat3");
 				break;
 			default:

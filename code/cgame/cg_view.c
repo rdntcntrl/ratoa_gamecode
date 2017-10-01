@@ -809,16 +809,6 @@ void CG_AddSpawnpoints( void ){
 	    AnglesToAxis(cg.spawnpoints[i].angle, torso.axis);
 	    AnglesToAxis(cg.spawnpoints[i].angle, head.axis);
 
-	    if (cg_drawSpawnpoints.integer == 82734) {
-		    int myteam = cg.snap->ps.persistant[PERS_TEAM];
-		    if (myteam == cg.spawnpoints[i].team) {
-			    continue;
-		    }
-		    legs.frame = 146;
-		    torso.frame = 146;
-		    head.frame = 146;
-	    }
-	    
 	    legs.shaderRGBA[3] = 255;
 	    if( cg.spawnpoints[i].team == TEAM_BLUE ){
 		    legs.shaderRGBA[0] = 0;
@@ -910,7 +900,7 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demo
 		CG_AddMarks();
 		CG_AddParticles ();
 		CG_AddLocalEntities();
-		if ( cg.warmup != 0 || cg_drawSpawnpoints.integer == 82734 ) {
+		if ( cg.warmup != 0 ) {
 			CG_AddSpawnpoints();
 		}
 	}
