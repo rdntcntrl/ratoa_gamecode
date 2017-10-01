@@ -925,7 +925,7 @@ void CG_NewClientInfo( int clientNum ) {
 		return;		// player just left
 	}
 
-	if (cg_forceModel.integer) {
+	if (cg_forceModel.integer || cg_forceBrightModels.integer) {
     		local_config = CG_ConfigString(cg.clientNum + CS_PLAYERS);
     		v = Info_ValueForKey(local_config, "t");
     		local_team = atoi(v);
@@ -992,10 +992,7 @@ void CG_NewClientInfo( int clientNum ) {
 		enemy = 1;
 	}
 
-	if (cg_forceBrightModels.integer == 1) {
-		Q_strncpyz( newInfo.modelName, DEFAULT_TEAM_MODEL, sizeof( newInfo.modelName ) );
-		Q_strncpyz( newInfo.skinName, "bright", sizeof( newInfo.skinName ) );
-	} else if (cg_forceBrightModels.integer = 82734) {
+	if (cg_forceBrightModels.integer == 82734) {
 		if (enemy) {
 			Q_strncpyz( newInfo.modelName, "smarine", sizeof( newInfo.modelName ) );
 			Q_strncpyz( newInfo.skinName, "bright", sizeof( newInfo.skinName ) );
@@ -1003,6 +1000,9 @@ void CG_NewClientInfo( int clientNum ) {
 			Q_strncpyz( newInfo.modelName, DEFAULT_TEAM_MODEL, sizeof( newInfo.modelName ) );
 			Q_strncpyz( newInfo.skinName, "bright", sizeof( newInfo.skinName ) );
 		}
+	} else if (cg_forceBrightModels.integer) {
+		Q_strncpyz( newInfo.modelName, DEFAULT_TEAM_MODEL, sizeof( newInfo.modelName ) );
+		Q_strncpyz( newInfo.skinName, "bright", sizeof( newInfo.skinName ) );
 	} else if ( cg_forceModel.integer ) {
 		// forcemodel makes everyone use a single model
 		// to prevent load hitches
@@ -1047,10 +1047,7 @@ void CG_NewClientInfo( int clientNum ) {
 
 	// head model
 	v = Info_ValueForKey( configstring, "hmodel" );
-	if (cg_forceBrightModels.integer == 1) {
-		Q_strncpyz( newInfo.headModelName, DEFAULT_TEAM_MODEL, sizeof( newInfo.headModelName ) );
-		Q_strncpyz( newInfo.headSkinName, "bright", sizeof( newInfo.headSkinName ) );
-	} else if (cg_forceBrightModels.integer = 82734) {
+	if (cg_forceBrightModels.integer == 82734) {
 		if (enemy) {
 			Q_strncpyz( newInfo.headModelName, "smarine", sizeof( newInfo.headModelName ) );
 			Q_strncpyz( newInfo.headSkinName, "bright", sizeof( newInfo.headSkinName ) );
@@ -1058,6 +1055,9 @@ void CG_NewClientInfo( int clientNum ) {
 			Q_strncpyz( newInfo.headModelName, DEFAULT_TEAM_MODEL, sizeof( newInfo.headModelName ) );
 			Q_strncpyz( newInfo.headSkinName, "bright", sizeof( newInfo.headSkinName ) );
 		}
+	} else if (cg_forceBrightModels.integer) {
+		Q_strncpyz( newInfo.headModelName, DEFAULT_TEAM_MODEL, sizeof( newInfo.headModelName ) );
+		Q_strncpyz( newInfo.headSkinName, "bright", sizeof( newInfo.headSkinName ) );
 	} else if ( cg_forceModel.integer ) {
 		// forcemodel makes everyone use a single model
 		// to prevent load hitches
@@ -1154,6 +1154,7 @@ void CG_LoadDeferredPlayers( void ) {
 //			break;
 		}
 	}
+	CG_ForceModelChange();
 }
 
 /*
