@@ -1234,6 +1234,9 @@ void SpectatorClientEndFrame( gentity_t *ent ) {
 					ent->client->ps = cl->ps;
 					for(i = 0; i < MAX_PERSISTANT; i++)
 						ent->client->ps.persistant[i] = preservedScore[i];
+
+					//ent->client->ps.persistant[PERS_HITS] = cl->ps.persistant[PERS_HITS];
+					//ent->client->ps.persistant[PERS_DAMAGE_DONE] = cl->ps.persistant[PERS_DAMAGE_DONE];
 				}
 				else
 					ent->client->ps = cl->ps;
