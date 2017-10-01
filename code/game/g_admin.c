@@ -99,7 +99,7 @@ g_admin_cmd_t g_admin_cmds[ ] =
       "[^3name|slot#^7] (^5reason^7)"
     },
     
-    {"listadmins", "la", G_admin_listadmins, "D",
+    {"listadmins", "", G_admin_listadmins, "D",
       "display a list of all server admins and their levels",
       "(^5name|start admin#^7)"
     },
