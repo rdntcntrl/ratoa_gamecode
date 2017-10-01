@@ -48,7 +48,7 @@ static char g_bfb[ 32000 ];
 // note: list ordered alphabetically
 g_admin_cmd_t g_admin_cmds[ ] =
   {
-    {"adjustban", G_admin_adjustban, "b",
+    {"adjustban", "", G_admin_adjustban, "b",
       "change the duration or reason of a ban.  duration is specified as "
       "numbers followed by units 'w' (weeks), 'd' (days), 'h' (hours) or "
       "'m' (minutes), or seconds if no units are specified.  if the duration is"
@@ -57,17 +57,17 @@ g_admin_cmd_t g_admin_cmds[ ] =
       "[^3ban#^7] (^5duration^7) (^5reason^7)"
     },
 
-    {"admintest", G_admin_admintest, "a",
+    {"admintest", "", G_admin_admintest, "a",
       "display your current admin level",
       ""
     },
 
-    {"allready", G_admin_allready, "y",
+    {"allready", "ar", G_admin_allready, "y",
       "makes everyone ready in intermission",
       ""
     },
 
-    {"ban", G_admin_ban, "b",
+    {"ban", "", G_admin_ban, "b",
       "ban a player by IP and GUID with an optional expiration time and reason."
       " duration is specified as numbers followed by units 'w' (weeks), 'd' "
       "(days), 'h' (hours) or 'm' (minutes), or seconds if no units are "
@@ -75,12 +75,12 @@ g_admin_cmd_t g_admin_cmds[ ] =
       "[^3name|slot#|IP^7] (^5duration^7) (^5reason^7)"
     },
 
-    {"cancelvote", G_admin_cancelvote, "c",
+    {"cancelvote", "cv", G_admin_cancelvote, "c",
       "cancel a vote taking place",
       ""
     },
     //KK-OAX
-    {"disorient",	G_admin_disorient,	"d",
+    {"disorient", "", G_admin_disorient,	"d",
 		"disorient a player by flipping player's view and controls",
 		"[^3name|slot#^7] (^hreason^7)"
 	},
@@ -89,173 +89,178 @@ g_admin_cmd_t g_admin_cmds[ ] =
     //  "[^3name|slot#^7]"
     //},
     
-    {"help", G_admin_help, "h",
+    {"help", "h", G_admin_help, "h",
       "display commands available to you or help on a specific command",
       "(^5command^7)"
     },
 
-    {"kick", G_admin_kick, "k",
+    {"kick", "k", G_admin_kick, "k",
       "kick a player with an optional reason",
       "[^3name|slot#^7] (^5reason^7)"
     },
     
-    {"listadmins", G_admin_listadmins, "D",
+    {"listadmins", "la", G_admin_listadmins, "D",
       "display a list of all server admins and their levels",
       "(^5name|start admin#^7)"
     },
 
-    {"listplayers", G_admin_listplayers, "i",
+    {"listplayers", "lp", G_admin_listplayers, "i",
       "display a list of players, their client numbers and their levels",
       ""
     },
 
-    {"lock", G_admin_lock, "K",
+    {"lock", "l", G_admin_lock, "K",
       "lock a team to prevent anyone from joining it",
       "[^3a|h^7]"
     },
 
-    {"lockall", G_admin_lockall, "K",
+    {"lockall", "la", G_admin_lockall, "K",
       "lock all teams to prevent anyone from joining them",
       ""
     },
 
     //KK-OAX
-    {"map", G_admin_map, "M",
+    {"map", "m", G_admin_map, "M",
       "load a map",
       "[^3mapname^7]"
     },
 
-    {"mute", G_admin_mute, "m",
+    {"mute", "", G_admin_mute, "m",
       "mute a player",
       "[^3name|slot#^7]"
     },
 
-    {"mutespec", G_admin_mutespec, "m",
+    {"mutespec", "ms", G_admin_mutespec, "m",
       "mute the spectators",
       ""
     },
 
-    {"namelog", G_admin_namelog, "e",
+    {"namelog", "nl", G_admin_namelog, "e",
       "display a list of names used by recently connected players",
       "(^5name^7)"
     },
 
-    {"nextmap", G_admin_nextmap, "n",
+    {"nextmap", "nm", G_admin_nextmap, "n",
       "go to the next map in the cycle",
       ""
     },
     //KK-OAX
-    {"orient",	G_admin_orient,	"d",
+    {"orient", "", G_admin_orient,	"d",
 		"orient a player after a !disorient", "[^3name|slot#^7]"
 	},
 	
-    {"passvote", G_admin_passvote, "V",
+    {"passvote", "pv",  G_admin_passvote, "V",
       "pass a vote currently taking place",
       ""
     },
 
-    {"putteam", G_admin_putteam, "p",
+    {"putteam", "pt", G_admin_putteam, "p",
       "move a player to a specified team",
       "[^3name|slot#^7] [^3h|a|s^7]"
     },
 
-    {"record", G_admin_record, "R",
+    {"record", "", G_admin_record, "R",
       "record a server-side demo",
       ""
     },
 
-    {"readconfig", G_admin_readconfig, "G",
+    {"readconfig", "", G_admin_readconfig, "G",
       "reloads the admin config file and refreshes permission flags",
       ""
     },
 
-    {"rename", G_admin_rename, "N",
+    {"rename", "", G_admin_rename, "N",
       "rename a player",
       "[^3name|slot#^7] [^3new name^7]"
     },
 
-    {"restart", G_admin_restart, "r",
+    {"restart", "r", G_admin_restart, "r",
       "restart the current map (optionally using named layout)",
       ""
     },
 
-    {"setlevel", G_admin_setlevel, "s",
+    {"setlevel", "", G_admin_setlevel, "s",
       "sets the admin level of a player",
       "[^3name|slot#|admin#^7] [^3level^7]"
     },
 
-    {"showbans", G_admin_showbans, "B",
+    {"showbans", "sb", G_admin_showbans, "B",
       "display a (partial) list of active bans",
       "(^5start at ban#^7) (^5name|IP^7)"
     },
     //KK-OAX
-    {"shuffle", G_admin_shuffle, "f",
+    {"shuffle", "", G_admin_shuffle, "f",
         "Shuffles the teams"
         ""
     },
     
-    {"slap", G_admin_slap, "S",
+    {"slap", "", G_admin_slap, "S",
         "Reduces the health of the selected player by the damage specified",
         "[^3name|slot#] [damage] [reason]"
     },
 
-    {"spec999", G_admin_spec999, "P",
+    {"spec999", "", G_admin_spec999, "P",
       "move 999 pingers to the spectator team",
       ""},
 
-    {"teams", G_admin_teams, "T",
+    {"swap", "", G_admin_swap, "p",
+      "swap two players",
+      "[^3name|slot#^7] [^3name|slot#^7]"
+    },
+
+    {"teams", "t", G_admin_teams, "T",
       "fix team sizes",
       ""},
 
-    {"time", G_admin_time, "C",
+    {"time", "", G_admin_time, "C",
       "show the current local server time",
       ""},
 
-    {"timein", G_admin_timein, "t",
+    {"timein", "ti", G_admin_timein, "t",
       "end a timeout",
       ""},
 
-    {"timeout", G_admin_timeout, "t",
+    {"timeout", "to", G_admin_timeout, "t",
       "call a timeout",
       ""},
 
-    {"tourneylock", G_admin_tourneylock, "L",
+    {"tourneylock", "tl", G_admin_tourneylock, "L",
       "prevent anyone except admins with this permission from joining the server",
       ""
     },
 
-    {"tourneyunlock", G_admin_tourneyunlock, "L",
+    {"tourneyunlock", "tul", G_admin_tourneyunlock, "L",
       "unlock the server",
       ""
     },
 
-    {"unban", G_admin_unban, "b",
+    {"unban", "", G_admin_unban, "b",
       "unbans a player specified by the slot as seen in showbans",
       "[^3ban#^7]"
     },
 
-    {"unlock", G_admin_unlock, "K",
+    {"unlock", "u", G_admin_unlock, "K",
       "unlock a locked team",
       "[^3a|h^7]"
     },
 
-    {"unlockall", G_admin_unlockall, "K",
+    {"unlockall", "ula", G_admin_unlockall, "K",
       "unlock all teams",
       ""
     },
 
-    {"unmute", G_admin_mute, "m",
+    {"unmute", "", G_admin_mute, "m",
       "unmute a muted player",
       "[^3name|slot#^7]"
     },
 
-    {"unmutespec", G_admin_unmutespec, "m",
+    {"unmutespec", "ums", G_admin_unmutespec, "m",
       "unmute the spectators",
       ""
     },
 
 //KK-OAX   
-    {"warn", G_admin_warn, "w",
+    {"warn", "", G_admin_warn, "w",
       "warn a player",
       "[^3name|slot#^7] [reason]"
     }
@@ -999,8 +1004,11 @@ qboolean G_admin_cmd_check( gentity_t *ent, qboolean say )
 
   for( i = 0; i < adminNumCmds; i++ )
   {
-    if( Q_stricmp( cmd, g_admin_cmds[ i ].keyword ) )
-      continue;
+    if( Q_stricmp( cmd, g_admin_cmds[ i ].keyword ) ) {
+	    if (*g_admin_cmds[i].alias == NULL || Q_stricmp(cmd, g_admin_cmds[ i ].alias)) {
+		    continue;
+	    }
+    }
 
     if( G_admin_permission( ent, g_admin_cmds[ i ].flag[ 0 ] ) )
     {
@@ -2268,6 +2276,69 @@ qboolean G_admin_putteam( gentity_t *ent, int skiparg )
   return qtrue;
 }
 
+qboolean G_admin_swap( gentity_t *ent, int skiparg )
+{
+  int pids[ MAX_CLIENTS ], found;
+  //KK-OAPub Changed Team Name Length so "Spectator" doesn't crash Game
+  char names[2][ MAX_NAME_LENGTH ], err[ MAX_STRING_CHARS ];
+  gentity_t *victims[2];
+  char *teams[2];
+  int i;
+
+  G_SayArgv( 1 + skiparg, names[0], sizeof( names[0] ) );
+  G_SayArgv( 2 + skiparg, names[1], sizeof( names[1] ) );
+  Com_Printf("name1 = %s, name2 = %s\n", names[0], names[1]);
+  if( G_SayArgc() < 3 + skiparg )
+  {
+    ADMP( "^3!swap: ^7usage: !swap [name] [name]\n" );
+    return qfalse;
+  }
+
+  for (i = 0; i < 2; ++i) {
+	  if( ( found = G_ClientNumbersFromString( names[i], pids, MAX_CLIENTS ) ) != 1 )
+	  {
+		  G_MatchOnePlayer( pids, found, err, sizeof( err ) );
+		  ADMP( va( "^3!swap: ^7%s\n", err ) );
+		  return qfalse;
+	  }
+	  if( !admin_higher( ent, &g_entities[ pids[ 0 ] ] ) )
+	  {
+		  ADMP( "^3!swap: ^7sorry, but your intended victim has a higher "
+				  " admin level than you\n" );
+		  return qfalse;
+	  }
+	  victims[i] = &g_entities[ pids[ 0 ] ];
+	  switch( victims[i]->client->sess.sessionTeam ) {
+		  case TEAM_RED:
+			  teams[i] = "r";
+			  break;
+		  case TEAM_BLUE:
+			  teams[i] = "b";
+			  break;
+		  case TEAM_FREE:
+			  teams[i] = "f";
+			  break;
+		  case TEAM_SPECTATOR:
+			  teams[i] = "s";
+			  break;
+		  default:
+			  teams[i] = "s";
+			  break;
+	  }
+  }
+  if( teams[0] == teams[1])
+    return qfalse;
+  
+  SetTeam( victims[0], teams[1] );
+  SetTeam( victims[1], teams[0] );
+
+  AP( va( "print \"^3!swap: ^7%s^7 swapped %s^7 with %s\n\"",
+          ( ent ) ? ent->client->pers.netname : "console",
+          victims[0]->client->pers.netname, 
+	  victims[1]->client->pers.netname) );
+  return qtrue;
+}
+
 //KK-Fixed!!!!
 //KK-Removed Layouts from The command
 qboolean G_admin_map( gentity_t *ent, int skiparg )
@@ -2825,6 +2896,10 @@ qboolean G_admin_help( gentity_t *ent, int skiparg )
         ADMBP( va( " ^3Function: ^7%s\n", g_admin_cmds[ i ].function ) );
         ADMBP( va( " ^3Syntax: ^7!%s %s\n", g_admin_cmds[ i ].keyword,
                  g_admin_cmds[ i ].syntax ) );
+	if (strlen(g_admin_cmds[ i ].alias)) {
+		ADMBP( va( " ^3Syntax: ^7!%s %s\n", g_admin_cmds[ i ].alias,
+			 g_admin_cmds[ i ].syntax ) );
+	}
         ADMBP( va( " ^3Flag: ^7'%c'\n", g_admin_cmds[ i ].flag[ 0 ] ) );
         ADMBP_end();
         return qtrue;

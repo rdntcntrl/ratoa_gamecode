@@ -87,6 +87,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 typedef struct
 {
   char *keyword;
+  char *alias;
   qboolean ( * handler ) ( gentity_t *ent, int skiparg );
   char *flag;
   char *function;  // used for !help
@@ -175,6 +176,7 @@ qboolean G_admin_adjustban( gentity_t *ent, int skiparg );
 qboolean G_admin_ban( gentity_t *ent, int skiparg );
 qboolean G_admin_unban( gentity_t *ent, int skiparg );
 qboolean G_admin_putteam( gentity_t *ent, int skiparg );
+qboolean G_admin_swap( gentity_t *ent, int skiparg );
 qboolean G_admin_listadmins( gentity_t *ent, int skiparg );
 qboolean G_admin_listplayers( gentity_t *ent, int skiparg );
 qboolean G_admin_map( gentity_t *ent, int skiparg );
