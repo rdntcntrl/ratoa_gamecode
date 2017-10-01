@@ -177,26 +177,17 @@ void G_ImmediateRunMissile(gentity_t *ent) {
 }
 
 void G_ImmediateLaunchMissile(gentity_t *ent) {
-	switch (g_unlagImmediateRun.integer) {
-		case 1:
-			break;
-		case 2:
-			ent->missileRan = -1;
-			// run missile during NEXT Clienthink_real
-			// for a slight delay
-			return;
-			break;
-		default:
-			return;
-			break;
+	if (g_unlagImmediateRun.integer == 1) {
+		G_ImmediateRunMissile(ent);
+	} else if (g_unlagImmediateRun.integer >= 2) {
+		ent->missileRan = -g_unlagImmediateRun.integer+1;
 	}
-	G_ImmediateRunMissile(ent);
 }
 
 void G_ImmediateRunClientMissiles(gentity_t *client) {
 	gentity_t *ent;
 	int i;
-	if (g_unlagImmediateRun.integer != 2) {
+	if (g_unlagImmediateRun.integer <= 1) {
 		return;
 	}
 	for (i=0 ; i < level.num_entities ; ++i ) {
@@ -207,9 +198,9 @@ void G_ImmediateRunClientMissiles(gentity_t *client) {
 				|| ent->parent != client) {
 			continue;
 		}
-		if (ent->missileRan == -1) {
-			// this missile will be run next time
-			ent->missileRan = 0;
+		if (ent->missileRan < 0) {
+			// this missile will be run later
+			ent->missileRan++;
 			continue;
 		}
 		G_ImmediateRunMissile(ent);
