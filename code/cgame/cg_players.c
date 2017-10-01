@@ -983,23 +983,32 @@ void CG_NewClientInfo( int clientNum ) {
 	// model
 	v = Info_ValueForKey( configstring, "model" );
 
-	if (cg_forceBrightModels.integer) {
+	if (cgs.gametype >= GT_TEAM && cgs.ffa_gt != 1 ) {
+		if (local_team != newInfo.team)
+			enemy = 1;
+		else
+			enemy = 0;
+	} else {
+		enemy = 1;
+	}
+
+	if (cg_forceBrightModels.integer == 1) {
 		Q_strncpyz( newInfo.modelName, DEFAULT_TEAM_MODEL, sizeof( newInfo.modelName ) );
 		Q_strncpyz( newInfo.skinName, "bright", sizeof( newInfo.skinName ) );
+	} else if (cg_forceBrightModels.integer = 82734) {
+		if (enemy) {
+			Q_strncpyz( newInfo.modelName, "smarine", sizeof( newInfo.modelName ) );
+			Q_strncpyz( newInfo.skinName, "bright", sizeof( newInfo.skinName ) );
+		} else {
+			Q_strncpyz( newInfo.modelName, DEFAULT_TEAM_MODEL, sizeof( newInfo.modelName ) );
+			Q_strncpyz( newInfo.skinName, "bright", sizeof( newInfo.skinName ) );
+		}
 	} else if ( cg_forceModel.integer ) {
 		// forcemodel makes everyone use a single model
 		// to prevent load hitches
 		char modelStr[MAX_QPATH];
 		char *skin;
 
-		if (cgs.gametype >= GT_TEAM && cgs.ffa_gt != 1 ) {
-        		if (local_team != newInfo.team)
-          			enemy = 1;
-        		else
-          			enemy = 0;
-		} else {
-        		enemy = 1;
-		}
 		if( cgs.gametype >= GT_TEAM && cgs.ffa_gt!=1) {
 			Q_strncpyz( newInfo.modelName, DEFAULT_TEAM_MODEL, sizeof( newInfo.modelName ) );
 			Q_strncpyz( newInfo.skinName, "default", sizeof( newInfo.skinName ) );
@@ -1038,9 +1047,17 @@ void CG_NewClientInfo( int clientNum ) {
 
 	// head model
 	v = Info_ValueForKey( configstring, "hmodel" );
-	if (cg_forceBrightModels.integer) {
+	if (cg_forceBrightModels.integer == 1) {
 		Q_strncpyz( newInfo.headModelName, DEFAULT_TEAM_MODEL, sizeof( newInfo.headModelName ) );
 		Q_strncpyz( newInfo.headSkinName, "bright", sizeof( newInfo.headSkinName ) );
+	} else if (cg_forceBrightModels.integer = 82734) {
+		if (enemy) {
+			Q_strncpyz( newInfo.headModelName, "smarine", sizeof( newInfo.headModelName ) );
+			Q_strncpyz( newInfo.headSkinName, "bright", sizeof( newInfo.headSkinName ) );
+		} else {
+			Q_strncpyz( newInfo.headModelName, DEFAULT_TEAM_MODEL, sizeof( newInfo.headModelName ) );
+			Q_strncpyz( newInfo.headSkinName, "bright", sizeof( newInfo.headSkinName ) );
+		}
 	} else if ( cg_forceModel.integer ) {
 		// forcemodel makes everyone use a single model
 		// to prevent load hitches
