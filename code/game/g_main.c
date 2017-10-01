@@ -679,6 +679,7 @@ void G_RemapTeamShaders( void ) {
 				|| Q_stricmp(mapname, "ps37ctf2") == 0
 				|| Q_stricmp(mapname, "ps37ctf-mmp") == 0
 				|| Q_stricmp(mapname, "oa_ctf2") == 0
+				|| Q_stricmp(mapname, "mlctf1beta") == 0
 				|| Q_stricmp(mapname, "oa_ctf2old") == 0) {
 			has_banner = qtrue;
 		}
@@ -690,14 +691,22 @@ void G_RemapTeamShaders( void ) {
 			}
 			if (g_shaderremap_banner.integer && has_banner) {
 				Com_sprintf( string, sizeof(string), "team_icon/ratoa/%s_red_banner", g_redclan.string );
-				AddRemap("textures/clown/red_banner", string, f); 
+				if (Q_stricmp(mapname, "mlctf1beta") == 0) {
+					AddRemap("textures/ctf2/red_banner02", string, f); 
+				} else {
+					AddRemap("textures/clown/red_banner", string, f); 
+				}
 			}
 		}  else {
 			if (g_shaderremap_flagreset.integer) {
 				AddRemap("models/flags/r_flag", "models/flags/r_flag", f); 
 			}
 			if (g_shaderremap_bannerreset.integer && has_banner) {
-				AddRemap("textures/clown/red_banner", "textures/clown/red_banner", f); 
+				if (Q_stricmp(mapname, "mlctf1beta") == 0) {
+					AddRemap("textures/ctf2/red_banner02", "textures/ctf2/red_banner02", f); 
+				} else {
+					AddRemap("textures/clown/red_banner", "textures/clown/red_banner", f); 
+				}
 			}
 		}
 		if( g_blueclan.string[0] ) {
@@ -707,14 +716,22 @@ void G_RemapTeamShaders( void ) {
 			}
 			if (g_shaderremap_banner.integer && has_banner) {
 				Com_sprintf( string, sizeof(string), "team_icon/ratoa/%s_blue_banner", g_blueclan.string );
-				AddRemap("textures/clown/blue_banner", string, f); 
+				if (Q_stricmp(mapname, "mlctf1beta") == 0) {
+					AddRemap("textures/ctf2/blue_banner02", string, f); 
+				} else {
+					AddRemap("textures/clown/blue_banner", string, f); 
+				}
 			}
 		}  else {
 			if (g_shaderremap_flagreset.integer) {
 				AddRemap("models/flags/b_flag", "models/flags/b_flag", f); 
 			}
 			if (g_shaderremap_bannerreset.integer && has_banner) {
-				AddRemap("textures/clown/blue_banner", "textures/clown/blue_banner", f); 
+				if (Q_stricmp(mapname, "mlctf1beta") == 0) {
+					AddRemap("textures/ctf2/blue_banner02", "textures/ctf2/blue_banner02", f); 
+				} else {
+					AddRemap("textures/clown/blue_banner", "textures/clown/blue_banner", f); 
+				}
 			}
 		}
 	}
