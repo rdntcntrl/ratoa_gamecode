@@ -1208,6 +1208,7 @@ extern vmCvar_t        g_lgDamage;
 extern vmCvar_t	       g_teamslocked;
 extern vmCvar_t	       g_tourneylocked;
 extern vmCvar_t	       g_specMuted;
+extern vmCvar_t	       g_tournamentMuteSpec;
 
 extern vmCvar_t	       g_timeoutAllowed;
 extern vmCvar_t	       g_timeinAllowed;

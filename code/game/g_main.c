@@ -211,6 +211,7 @@ vmCvar_t        g_pm_swimScale;
 vmCvar_t        g_teamslocked;
 vmCvar_t        g_tourneylocked;
 vmCvar_t        g_specMuted;
+vmCvar_t        g_tournamentMuteSpec;
 
 vmCvar_t        g_timeoutAllowed;
 vmCvar_t        g_timeinAllowed;
@@ -409,6 +410,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_teamslocked, 		"g_teamslocked", "0", 0, 0, qfalse },
 	{ &g_tourneylocked, 		"g_tourneylocked", "0", 0, 0, qfalse },
 	{ &g_specMuted, 		"g_specMuted", "0", 0, 0, qfalse },
+	{ &g_tournamentMuteSpec,        "g_tournamentMuteSpec", "1", CVAR_ARCHIVE, 0, qtrue },
 
 	{ &g_timeoutAllowed, 		"g_timeoutAllowed", "0", 0, 0, qfalse },
 	{ &g_timeinAllowed, 		"g_timeinAllowed", "1", 0, 0, qfalse },

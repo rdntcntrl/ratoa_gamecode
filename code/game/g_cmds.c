@@ -1394,7 +1394,8 @@ static void G_SayTo( gentity_t *ent, gentity_t *other, int mode, int color, cons
 	}
 
 	// no chatting to players in tournements
-	if ( (g_gametype.integer == GT_TOURNAMENT)
+	if (g_tournamentMuteSpec.integer && 
+			(g_gametype.integer == GT_TOURNAMENT)
 			&& other->client->sess.sessionTeam == TEAM_FREE
 			&& ent->client->sess.sessionTeam != TEAM_FREE ) {
 		return;
@@ -1468,7 +1469,7 @@ void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText ) 
 		mode = SAY_ALL;
 	}
 
-	if ((g_gametype.integer == GT_TOURNAMENT || g_specMuted.integer)
+	if (((g_gametype.integer == GT_TOURNAMENT && g_tournamentMuteSpec.integer )|| g_specMuted.integer)
 			&& ent->client->sess.sessionTeam == TEAM_SPECTATOR
 			&& mode == SAY_ALL) {
 		mode = SAY_TEAM;
