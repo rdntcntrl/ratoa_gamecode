@@ -233,9 +233,9 @@ int allowedFraglimit(int limit) {
     return qtrue;
 }
 
-#define MAX_CUSTOM_VOTES    12
+#define MAX_CUSTOM_VOTES    24
 
-char            custom_vote_info[1024];
+char            custom_vote_info[2048];
 
 /*
 ==================

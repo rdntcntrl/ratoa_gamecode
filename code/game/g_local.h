@@ -992,7 +992,7 @@ typedef struct {
     char    command[MAX_CUSTOMCOMMAND]; //The command executed
 } t_customvote;
 
-extern char custom_vote_info[1024];
+extern char custom_vote_info[2048];
 
 extern t_mappage getMappage(int page);
 extern int allowedMap(char *mapname);
