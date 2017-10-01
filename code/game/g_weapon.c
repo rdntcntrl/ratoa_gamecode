@@ -80,7 +80,9 @@ qboolean CheckGauntletAttack( gentity_t *ent ) {
 
 	VectorMA (muzzle, 32, forward, end);
 
-	trap_Trace (&tr, muzzle, NULL, NULL, end, ent->s.number, MASK_SHOT);
+	G_DoTimeShiftFor( ent );
+		trap_Trace (&tr, muzzle, NULL, NULL, end, ent->s.number, MASK_SHOT);
+	G_UndoTimeShiftFor( ent );
 	if ( tr.surfaceFlags & SURF_NOIMPACT ) {
 		return qfalse;
 	}
