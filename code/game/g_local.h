@@ -627,7 +627,7 @@ void G_TimeinWarning(int levelTime);
 void G_Timeout(gentity_t *caller);
 void G_TimeinCommand(gentity_t *caller);
 void G_TimeoutReminder(gentity_t *ent);
-void SendReadyMask(int clientnum);
+void SendReadymask(int clientnum);
 
 
 // KK-OAX Added these in a seperate file to keep g_cmds.c familiar. 

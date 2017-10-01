@@ -2978,9 +2978,9 @@ qboolean G_admin_allready( gentity_t *ent, int skiparg )
   int i = 0;
   gclient_t *cl;
 
-  if( !level.intermissiontime )
+  if( !level.intermissiontime && !(g_startWhenReady.integer && level.warmupTime < 0))
   {
-    ADMP( "^3!allready: ^7this command is only valid during intermission\n" );
+    ADMP( "^3!allready: ^7this command is only valid during intermission/ready up phase\n" );
     return qfalse;
   }
 
@@ -2993,7 +2993,14 @@ qboolean G_admin_allready( gentity_t *ent, int skiparg )
     if( cl->sess.sessionTeam == TEAM_NONE )
       continue;
 
-    cl->readyToExit = 1;
+    if (level.intermissiontime) {
+	    cl->readyToExit = 1;
+    } else if (level.warmupTime < 0) {
+	    cl->ready = 1;
+    }
+  }
+  if (level.warmupTime < 0 ) {
+	  SendReadymask(-1);
   }
   AP( va( "print \"^3!allready:^7 %s^7 says everyone is READY now\n\"",
      ( ent ) ? ent->client->pers.netname : "console" ) );

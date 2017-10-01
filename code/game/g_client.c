@@ -1950,6 +1950,7 @@ void ClientSpawn(gentity_t *ent) {
 	vec3_t	spawn_origin, spawn_angles;
 	gclient_t	*client;
 	int		i;
+	qboolean ready;
 	clientPersistant_t	saved;
 	clientSession_t		savedSess;
 	int		persistant[MAX_PERSISTANT];
@@ -2105,7 +2106,8 @@ void ClientSpawn(gentity_t *ent) {
 //unlagged - backward reconciliation #3
 
 	// clear everything but the persistant data
-
+	
+	ready = client->ready;
 	saved = client->pers;
 	savedSess = client->sess;
 	savedPing = client->ps.ping;
@@ -2120,6 +2122,7 @@ void ClientSpawn(gentity_t *ent) {
 
 	Com_Memset (client, 0, sizeof(*client));
 
+	client->ready = ready;
 	client->pers = saved;
 	client->sess = savedSess;
 	client->ps.ping = savedPing;
