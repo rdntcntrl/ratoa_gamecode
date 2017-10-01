@@ -144,6 +144,64 @@ void AccMessage( gentity_t *ent ) {
 }
 
 
+void G_SendSpawnpoints( gentity_t *ent ){
+	gentity_t *spot;
+	int spotnumber = 0;
+	char entry[64];
+	char string[2048];
+	int j;
+	int stringlength = 0;
+
+	
+	if( level.warmupTime != -1 )
+		return;
+
+	string[0] = '\0';
+
+	if( g_gametype.integer < GT_CTF || g_ffa_gt == 1) {
+		spot = NULL;
+		while(( spot = G_Find (spot, FOFS(classname), "info_player_deathmatch")) != NULL ) {
+			Com_sprintf( entry, sizeof(entry), "%i %i %i %i %i %i %i ", (int)spot->s.origin[0], (int)spot->s.origin[1], (int)spot->s.origin[2], 
+										   (int)spot->s.angles[0], (int)spot->s.angles[1], (int)spot->s.angles[2], TEAM_FREE );
+			spotnumber++;
+			j = strlen(entry);
+			if (stringlength + j >= sizeof(string)) {
+				break;
+			}
+			strcat( string, entry );
+			stringlength += j;
+		}
+	}
+	else{
+		spot = NULL;
+		while(( spot = G_Find (spot, FOFS(classname), "team_CTF_redspawn")) != NULL ) {
+			Com_sprintf( entry, sizeof(entry), "%i %i %i %i %i %i %i ", (int)spot->s.origin[0], (int)spot->s.origin[1], (int)spot->s.origin[2], 
+										   (int)spot->s.angles[0], (int)spot->s.angles[1], (int)spot->s.angles[2], TEAM_RED );
+			spotnumber++;
+			j = strlen(entry);
+			if (stringlength + j >= sizeof(string)) {
+				break;
+			}
+			strcat( string, entry );
+			stringlength += j;
+		}
+		spot = NULL;
+		while(( spot = G_Find (spot, FOFS(classname), "team_CTF_bluespawn")) != NULL ) {
+			Com_sprintf( entry, sizeof(entry), "%i %i %i %i %i %i %i ", (int)spot->s.origin[0], (int)spot->s.origin[1], (int)spot->s.origin[2], 
+										   (int)spot->s.angles[0], (int)spot->s.angles[1], (int)spot->s.angles[2], TEAM_BLUE );
+			spotnumber++;
+			j = strlen(entry);
+			if (stringlength + j >= sizeof(string)) {
+				break;
+			}
+			strcat( string, entry );
+			stringlength += j;
+		}
+	}
+	trap_SendServerCommand( ent-g_entities, va( "spawnPoints %i %s", spotnumber, string ));
+}
+
+
 /*
 ==================
 DominationPointStatusMessage

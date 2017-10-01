@@ -628,6 +628,7 @@ void G_Timeout(gentity_t *caller);
 void G_TimeinCommand(gentity_t *caller);
 void G_TimeoutReminder(gentity_t *ent);
 void SendReadymask(int clientnum);
+void G_SendSpawnpoints(gentity_t *ent);
 
 
 // KK-OAX Added these in a seperate file to keep g_cmds.c familiar. 

@@ -1932,6 +1932,7 @@ void ClientBegin( int clientNum ) {
 		if (level.timeout) {
 			trap_SendServerCommand(ent - g_entities, va("timeout %i", level.timeoutEnd));
 		}
+		G_SendSpawnpoints( ent );
 	}
 
 }
