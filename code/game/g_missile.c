@@ -205,11 +205,11 @@ void G_ImmediateRunClientMissiles(gentity_t *client) {
 				|| ent->freeAfterEvent
 				|| ent->s.eType != ET_MISSILE
 				|| ent->parent != client) {
-			return;
+			continue;
 		}
 		if (ent->missileRan == -1) {
 			// this missile will be run next time
-			ent->missileRan == 0;
+			ent->missileRan = 0;
 			continue;
 		}
 		G_ImmediateRunMissile(ent);
