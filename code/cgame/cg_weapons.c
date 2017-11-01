@@ -2651,7 +2651,7 @@ void CG_DrawWeaponBar8(int count, int bits, float *color){
 	red[0] = 1.0f;
 	red[1] = 0;
 	red[2] = 0;
-	red[3] = 0.4f;
+	red[3] = 1.0f;
 	
 	grey[0] = 0.8f;
 	grey[1] = 0.8f;
@@ -2769,7 +2769,7 @@ void CG_DrawWeaponBar9(int count, int bits, float *color){
 	red[0] = 1.0f;
 	red[1] = 0;
 	red[2] = 0;
-	red[3] = 0.4f;
+	red[3] = 1.0f;
 	
 	grey[0] = 0.8f;
 	grey[1] = 0.8f;
@@ -2791,7 +2791,8 @@ void CG_DrawWeaponBar9(int count, int bits, float *color){
 	blue[2] = 1.0f;
 	blue[3] = 0.3f;
 	
-	for ( i = 0 ; i < MAX_WEAPONS ; i++ ) {
+	//for ( i = 0 ; i < MAX_WEAPONS ; i++ ) {
+	for ( i = WP_NUM_WEAPONS-1 > MAX_WEAPONS ? MAX_WEAPONS : WP_NUM_WEAPONS-1 ; i >= 0 ; --i ) {
                 //Sago: Do mad change of grapple placement:
                 if(i==10)
                     continue;
@@ -2824,37 +2825,39 @@ void CG_DrawWeaponBar9(int count, int bits, float *color){
 		if(ammo >=100)
 			ammo=100;
 			
-		br=ammo*24/100;
+		br=ammo*16/100;
 				
 		if(i!=WP_GAUNTLET && i!=WP_GRAPPLING_HOOK){
 			if(ammo <= 20)
-				CG_FillRect( x, y+2+24-br, 4,br, red);
+				CG_FillRect( x, y+2+16-br, 4,br, red);
 			if(ammo > 20 && ammo <= 50)
-				CG_FillRect( x, y+2+24-br, 4,br, yellow);
+				CG_FillRect( x, y+2+16-br, 4,br, yellow);
 			if(ammo > 50)
-				CG_FillRect( x, y+2+24-br, 4,br, green);
+				CG_FillRect( x, y+2+16-br, 4,br, green);
 		}
 			
 		if ( i == weaponSelect) {
-			CG_FillRect( x+4, y, 54, 28, blue );
-			CG_DrawRect( x+4, y, 54, 28, 2, grey);
+			CG_FillRect( x+4, y, 46, 20, blue );
+			CG_DrawRect( x+4, y, 46, 20, 2, grey);
 		}
 		CG_RegisterWeapon( i );
 		// draw weapon icon
-		CG_DrawPic( x+6, y+2, 24, 24, cg_weapons[i].weaponIcon );
+		//CG_DrawPic( x+6, y+2, 24, 24, cg_weapons[i].weaponIcon );
+		CG_DrawPic( x+6, y+2, 16, 16, cg_weapons[i].weaponIcon );
 
 		if(!cg.snap->ps.ammo[i]){
-			CG_DrawPic( x+6, y+2, 24, 24, cgs.media.noammoShader );
+			//CG_DrawPic( x+6, y+2, 24, 24, cgs.media.noammoShader );
+			CG_DrawPic( x+6, y+2, 16, 16, cgs.media.noammoShader );
 		}
 
 		/** Draw Weapon Ammo **/
 		if(cg.snap->ps.ammo[ i ]!=-1){
 			s = va("%i", cg.snap->ps.ammo[ i ] );
 			w = CG_DrawStrlen( s ) * SMALLCHAR_WIDTH;
-			CG_DrawSmallStringColor(x+12 - w/2 + 32, y+6, s, color);
+			CG_DrawSmallStringColor(x+13 - w/2 + 20, y+3, s, color);
 		}
 
-		y -= 28;
+		y -= 20;
                         //Sago: Undo mad change of weapons
                 if(i==10)
                         i=0;
