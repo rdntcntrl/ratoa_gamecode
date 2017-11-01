@@ -412,7 +412,34 @@ static void CG_TouchTriggerPrediction( void ) {
 		}
 
 		if ( ent->eType == ET_TELEPORT_TRIGGER ) {
-			cg.hyperspace = qtrue;
+			if (cg_predictTeleport.integer && ent->generic1) {
+				qboolean noAngles;
+				// teleporter has unique destination
+				VectorCopy( ent->origin2, cg.predictedPlayerState.origin );
+				cg.predictedPlayerState.origin[2] += 1;
+				noAngles = (ent->angles2[0] > 999999.0);
+				if (!noAngles) {
+					int			i;
+					// spit the player out
+					AngleVectors( ent->angles2, cg.predictedPlayerState.velocity, NULL, NULL );
+					VectorScale( cg.predictedPlayerState.velocity, 400, cg.predictedPlayerState.velocity );
+					cg.predictedPlayerState.pm_time = 160;
+					cg.predictedPlayerState.pm_flags |= PMF_TIME_KNOCKBACK;
+
+
+					// set the delta angle
+					for (i=0 ; i<3 ; i++) {
+						int		cmdAngle;
+
+						cmdAngle = ANGLE2SHORT(ent->angles2[i]);
+						cg.predictedPlayerState.delta_angles[i] = cmdAngle - cg_pmove.cmd.angles[i];
+					}
+					VectorCopy (ent->angles2, cg.predictedPlayerState.viewangles );
+				}
+			} else {
+				cg.hyperspace = qtrue;
+			}
+			//cg.hyperspace = qtrue;
 		} else if ( ent->eType == ET_PUSH_TRIGGER ) {
 			BG_TouchJumpPad( &cg.predictedPlayerState, ent );
 		}
