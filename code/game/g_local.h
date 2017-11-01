@@ -1210,6 +1210,7 @@ extern  vmCvar_t        g_countDownHealthArmor;
 extern  vmCvar_t        g_powerupGlows;
 extern  vmCvar_t        g_screenShake;
 extern  vmCvar_t        g_allowBrightModels;
+extern  vmCvar_t        g_brightPlayerShells;
 extern  vmCvar_t        g_friendsWallHack;
 extern  vmCvar_t        g_specShowZoom;
 

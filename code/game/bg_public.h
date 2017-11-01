@@ -751,6 +751,7 @@ qboolean	BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const play
 #define RAT_ALLOWBRIGHTSKINS 	256
 #define RAT_FRIENDSWALLHACK 	512
 #define RAT_SPECSHOWZOOM 	1024
+#define RAT_BRIGHTSHELL 	2048
 
 
 // content masks
