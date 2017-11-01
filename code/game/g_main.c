@@ -193,6 +193,8 @@ vmCvar_t	g_tournamentMinSpawnDistance;
 
 vmCvar_t	g_enableGreenArmor;
 
+vmCvar_t	g_damageThroughWalls;
+
 vmCvar_t	g_pingEqualizer;
 
 vmCvar_t        g_autoClans;
@@ -392,6 +394,8 @@ static cvarTable_t		gameCvarTable[] = {
         { &g_tournamentMinSpawnDistance, "g_tournamentMinSpawnDistance", "900", CVAR_ARCHIVE, 0, qfalse },
 
         { &g_enableGreenArmor, "g_enableGreenArmor", "0", CVAR_ARCHIVE, 0, qfalse },
+
+        { &g_damageThroughWalls, "g_damageThroughWalls", "0", CVAR_ARCHIVE, 0, qtrue },
 
         { &g_pingEqualizer, "g_pingEqualizer", "0", CVAR_ARCHIVE, 0, qfalse },
 
