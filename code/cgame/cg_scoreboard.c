@@ -514,7 +514,7 @@ qboolean CG_DrawRatScoreboard(void) {
 		s = va("Fragged by %s", cg.killerName);
 		w = CG_DrawStrlen(s) * SCORECHAR_WIDTH;
 		x = (SCREEN_WIDTH - w) / 2;
-		y = 40;
+		y = 30;
 		CG_DrawScoreString(x, y, s, fade, 0);
 	}
 
@@ -526,10 +526,20 @@ qboolean CG_DrawRatScoreboard(void) {
 					cg.snap->ps.persistant[PERS_SCORE]);
 			w = CG_DrawStrlen(s) * SCORECHAR_WIDTH;
 			x = (SCREEN_WIDTH - w) / 2;
-			y = 60;
+			y = 50;
 			CG_DrawScoreString(x, y, s, fade, 0);
 		}
+
+		if (cgs.gametype != GT_TOURNAMENT) {
+			s = va("%i players", CG_CountPlayers(TEAM_FREE));
+			w = CG_DrawStrlen(s) * SCORESMALLCHAR_WIDTH;
+			x = (SCREEN_WIDTH - w) / 2;
+			y = 70;
+			CG_DrawSmallScoreString(x, y, s, 0.6);
+		}
 	} else {
+		int redCount = CG_CountPlayers(TEAM_RED);
+		int blueCount = CG_CountPlayers(TEAM_BLUE);
 		if (cg.teamScores[0] == cg.teamScores[1]) {
 			s = va("Teams are tied at %i", cg.teamScores[0]);
 		} else if (cg.teamScores[0] >= cg.teamScores[1]) {
@@ -540,8 +550,18 @@ qboolean CG_DrawRatScoreboard(void) {
 
 		w = CG_DrawStrlen(s) * SCORECHAR_WIDTH;
 		x = (SCREEN_WIDTH - w) / 2;
-		y = 60;
+		y = 50;
 		CG_DrawScoreString(x, y, s, fade, 0);
+
+		if (cg.teamScores[0] >= cg.teamScores[1]) {
+			s = va("%ivs%i", redCount, blueCount);
+		} else {
+			s = va("%ivs%i", blueCount, redCount);
+		}
+		w = CG_DrawStrlen(s) * SCORESMALLCHAR_WIDTH;
+		x = (SCREEN_WIDTH - w) / 2;
+		y = 70;
+		CG_DrawSmallScoreString(x, y, s, 0.6);
 	}
 
 	// scoreboard
