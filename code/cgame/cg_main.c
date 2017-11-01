@@ -217,6 +217,8 @@ vmCvar_t	cg_mySound;
 vmCvar_t	cg_teamSound;
 vmCvar_t	cg_enemySound;
 
+vmCvar_t	cg_brightShells;
+
 vmCvar_t	cg_forceBrightModels;
 vmCvar_t	cg_forceEnemyModelColor;
 vmCvar_t	cg_forceModelColor;
@@ -533,6 +535,8 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_mySound ,     "cg_mySound", "", CVAR_ARCHIVE},
 	{ &cg_teamSound ,   "cg_teamSound", "", CVAR_ARCHIVE},
 	{ &cg_enemySound ,  "cg_enemySound", "", CVAR_ARCHIVE},
+
+	{ &cg_brightShells ,     "cg_brightShells", "1", CVAR_ARCHIVE},
 
 	{ &cg_forceBrightModels ,     "cg_forceBrightModels", "0", CVAR_ARCHIVE},
 	{ &cg_forceEnemyModelColor ,     "cg_forceEnemyModelColor", "0", CVAR_ARCHIVE},

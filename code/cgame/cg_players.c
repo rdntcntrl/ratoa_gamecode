@@ -2397,7 +2397,7 @@ void CG_AddRefEntityWithPowerups( refEntity_t *ent, entityState_t *state, int te
 		}
 
 		if(!isMissile && 
-				(cgs.ratFlags & RAT_BRIGHTSHELL && 
+				((cgs.ratFlags & RAT_BRIGHTSHELL && cg_brightShells.integer) && 
 				 (!cg_forceBrightModels.integer || !(cgs.ratFlags & RAT_ALLOWBRIGHTSKINS)))
 			       	&& !(state->eFlags & EF_DEAD)  ) {
 			ent->customShader = cgs.media.brightShell;
@@ -2541,7 +2541,7 @@ void CG_PlayerGetColors(clientInfo_t *ci, qboolean isDead, byte *outColor) {
 	float h,s,v;
 	color[0] = color[1] = color[2] = color[3] = 1.0;
 
-	if (!(cgs.ratFlags & RAT_BRIGHTSHELL) && (!cg_forceBrightModels.integer || !(cgs.ratFlags & RAT_ALLOWBRIGHTSKINS))) {
+	if (!((cgs.ratFlags & RAT_BRIGHTSHELL && cg_brightShells.integer)) && (!cg_forceBrightModels.integer || !(cgs.ratFlags & RAT_ALLOWBRIGHTSKINS))) {
 		CG_FloatColorToRGBA(color, outColor);
 		return;
 	}

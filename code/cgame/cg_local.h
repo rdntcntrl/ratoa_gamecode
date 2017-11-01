@@ -1383,6 +1383,8 @@ extern vmCvar_t			cg_mySound;
 extern vmCvar_t			cg_teamSound;
 extern vmCvar_t			cg_enemySound;
 
+extern vmCvar_t			cg_brightShells;
+
 extern vmCvar_t			cg_forceBrightModels;
 extern vmCvar_t			cg_forceEnemyModelColor;
 extern vmCvar_t			cg_forceModelColor;
