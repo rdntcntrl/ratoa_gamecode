@@ -421,10 +421,10 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_weaponReloadTime_Shotgun,  "g_weaponReloadTime_Shotgun", "1000", 0, 0, qfalse },
 	{ &g_weaponReloadTime_Lg,  	"g_weaponReloadTime_Lg", "50", 0, 0, qfalse },
 	{ &g_weaponReloadTime_Railgun,  "g_weaponReloadTime_Railgun", "1500", 0, 0, qfalse },
-	{ &g_mgDamage,			"g_mgDamage", "7", 0, 0, qtrue },
+	{ &g_mgDamage,			"g_mgDamage", "6", 0, 0, qtrue },
 	{ &g_mgTeamDamage,		"g_mgTeamDamage", "5", 0, 0, qtrue },
-	{ &g_railgunDamage,		"g_railgunDamage", "100", 0, 0, qtrue },
-	{ &g_lgDamage, 			"g_lgDamage", "8", 0, 0, qtrue },
+	{ &g_railgunDamage,		"g_railgunDamage", "80", 0, 0, qtrue },
+	{ &g_lgDamage, 			"g_lgDamage", "7", 0, 0, qtrue },
 
 	{ &g_teamslocked, 		"g_teamslocked", "0", 0, 0, qfalse },
 	{ &g_tourneylocked, 		"g_tourneylocked", "0", 0, 0, qfalse },
