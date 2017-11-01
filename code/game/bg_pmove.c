@@ -1686,6 +1686,10 @@ static void PM_Weapon( void ) {
 		return;
 	}
 
+	if ((pm->ps->pm_flags & PMF_ELIMWARMUP)) {
+		return;
+	}
+
 	// check for fire
 	if ( ! (pm->cmd.buttons & BUTTON_ATTACK) ) {
 		pm->ps->weaponTime = 0;
@@ -2089,7 +2093,6 @@ void PmoveSingle (pmove_t *pmove) {
 	PM_SetWaterLevel();
 
 	// weapons
-	if(!(pm->ps->pm_flags & PMF_ELIMWARMUP))
 	PM_Weapon();
 
 	// torso animation
