@@ -189,6 +189,7 @@ vmCvar_t	g_tournamentMinSpawnDistance;
 
 vmCvar_t        g_autoClans;
 vmCvar_t        g_startWhenReady;
+vmCvar_t        g_countDownHealthArmor;
 vmCvar_t        g_powerupGlows;
 vmCvar_t        g_screenShake;
 vmCvar_t        g_itemPickup;
@@ -388,6 +389,8 @@ static cvarTable_t		gameCvarTable[] = {
         { &g_autoClans, "g_autoClans", "0", CVAR_ARCHIVE , 0, qfalse },
 
         { &g_startWhenReady, "g_startWhenReady", "0", CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qfalse },
+
+        { &g_countDownHealthArmor, "g_countDownHealthArmor", "1", CVAR_ARCHIVE , 0, qfalse },
 	
         { &g_powerupGlows, "g_powerupGlows", "1", CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qfalse },
         { &g_screenShake, "g_screenShake", "1", CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qfalse },

@@ -1192,6 +1192,7 @@ extern  vmCvar_t	g_tournamentMinSpawnDistance;
 
 extern  vmCvar_t        g_autoClans;
 extern  vmCvar_t        g_startWhenReady;
+extern  vmCvar_t        g_countDownHealthArmor;
 extern  vmCvar_t        g_powerupGlows;
 extern  vmCvar_t        g_screenShake;
 
