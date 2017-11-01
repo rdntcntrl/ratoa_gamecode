@@ -1281,6 +1281,8 @@ static void CG_RegisterGraphics( void ) {
                 cgs.media.neutralOverlay = trap_R_RegisterShader( "playeroverlays/playerSuit1_Neutral");
         }
 
+	cgs.media.brightShell = trap_R_RegisterShader( "playerBrightShell");
+
 //For Double Domination:
 	if ( cgs.gametype == GT_DOUBLE_D ) {
 		cgs.media.ddPointSkinA[TEAM_RED] = trap_R_RegisterShaderNoMip( "icons/icona_red" );

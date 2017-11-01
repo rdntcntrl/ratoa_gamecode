@@ -2359,21 +2359,22 @@ void CG_AddRefEntityWithPowerups( refEntity_t *ent, entityState_t *state, int te
 		else {*/
 			trap_R_AddRefEntityToScene( ent );
 		//}
-                        if(!isMissile && (cgs.dmflags & DF_PLAYER_OVERLAY) && !(state->eFlags & EF_DEAD)  ) {
-                            switch(team) {
-                                case TEAM_RED:
-                                    ent->customShader = cgs.media.redOverlay;
-                                    trap_R_AddRefEntityToScene( ent );
-                                    break;
-                                case TEAM_BLUE:
-                                    ent->customShader = cgs.media.blueOverlay;
-                                    trap_R_AddRefEntityToScene( ent );
-                                    break;
-                                default:
-                                    ent->customShader = cgs.media.neutralOverlay;
-                                    trap_R_AddRefEntityToScene( ent );
-                            }
-                        }
+		
+		if(!isMissile && (cgs.dmflags & DF_PLAYER_OVERLAY) && !(state->eFlags & EF_DEAD)  ) {
+		    switch(team) {
+			case TEAM_RED:
+			    ent->customShader = cgs.media.redOverlay;
+			    trap_R_AddRefEntityToScene( ent );
+			    break;
+			case TEAM_BLUE:
+			    ent->customShader = cgs.media.blueOverlay;
+			    trap_R_AddRefEntityToScene( ent );
+			    break;
+			default:
+			    ent->customShader = cgs.media.neutralOverlay;
+			    trap_R_AddRefEntityToScene( ent );
+		    }
+		}
                         
 		if ( state->powerups & ( 1 << PW_QUAD ) )
 		{
@@ -2392,6 +2393,14 @@ void CG_AddRefEntityWithPowerups( refEntity_t *ent, entityState_t *state, int te
 		}
 		if ( state->powerups & ( 1 << PW_BATTLESUIT ) ) {
 			ent->customShader = cgs.media.battleSuitShader;
+			trap_R_AddRefEntityToScene( ent );
+		}
+
+		if(!isMissile && 
+				(cgs.ratFlags & RAT_BRIGHTSHELL && 
+				 (!cg_forceBrightModels.integer || !(cgs.ratFlags & RAT_ALLOWBRIGHTSKINS)))
+			       	&& !(state->eFlags & EF_DEAD)  ) {
+			ent->customShader = cgs.media.brightShell;
 			trap_R_AddRefEntityToScene( ent );
 		}
 	}
@@ -2532,7 +2541,7 @@ void CG_PlayerGetColors(clientInfo_t *ci, qboolean isDead, byte *outColor) {
 	float h,s,v;
 	color[0] = color[1] = color[2] = color[3] = 1.0;
 
-	if (!cg_forceBrightModels.integer || !(cgs.ratFlags & RAT_ALLOWBRIGHTSKINS)) {
+	if (!(cgs.ratFlags & RAT_BRIGHTSHELL) && (!cg_forceBrightModels.integer || !(cgs.ratFlags & RAT_ALLOWBRIGHTSKINS))) {
 		CG_FloatColorToRGBA(color, outColor);
 		return;
 	}

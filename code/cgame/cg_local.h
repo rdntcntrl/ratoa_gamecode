@@ -883,6 +883,9 @@ typedef struct {
         qhandle_t       redOverlay;
         qhandle_t       blueOverlay;
 
+	// bright shell overlay
+        qhandle_t       brightShell;
+
 	// weapon effect models
 	qhandle_t	bulletFlashModel;
 	qhandle_t	ringFlashModel;
