@@ -2172,7 +2172,9 @@ static void CG_PlayerSprites( centity_t *cent ) {
 		cg.snap->ps.persistant[PERS_TEAM] == team &&
 		cgs.gametype >= GT_TEAM && cgs.ffa_gt!=1) {
 		if (cg_drawFriend.integer) {
-			if (cg_friendFloatHealth.integer) {
+			if (cgs.ratFlags & RAT_FRIENDSWALLHACK) {
+				CG_PlayerFloatSprite( cent, cgs.media.friendShaderThroughWalls );
+			} else if (cg_friendFloatHealth.integer) {
 				CG_PlayerFloatHealth( cent, qfalse );
 				CG_PlayerFloatHealth( cent, qtrue );
 			} else {

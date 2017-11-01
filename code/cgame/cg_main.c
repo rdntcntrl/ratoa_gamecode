@@ -195,6 +195,7 @@ vmCvar_t	cg_ratRailRadius;
 vmCvar_t	cg_ratLg;
 vmCvar_t	cg_ratLgImpact;
 vmCvar_t 	cg_noBubbleTrail;
+vmCvar_t	cg_specShowZoom;
 vmCvar_t	cg_zoomAnim;
 vmCvar_t	cg_zoomAnimScale;
 vmCvar_t	cg_crosshairNamesY;
@@ -503,6 +504,7 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_ratLg, "cg_ratLg", "3", CVAR_ARCHIVE},
 	{ &cg_ratLgImpact, "cg_ratLgImpact", "1", CVAR_ARCHIVE},
 	{ &cg_noBubbleTrail, "cg_noBubbleTrail", "1", CVAR_ARCHIVE},
+	{ &cg_specShowZoom, "cg_specShowZoom", "1", CVAR_ARCHIVE},
 	{ &cg_zoomAnim, "cg_zoomAnim", "1", CVAR_ARCHIVE},
 	{ &cg_zoomAnimScale, "cg_zoomAnimScale", "2", CVAR_ARCHIVE},
 	{ &cg_crosshairNamesY, "cg_crosshairNamesY", "280", CVAR_ARCHIVE},
@@ -1344,6 +1346,7 @@ static void CG_RegisterGraphics( void ) {
 		cg_buildScript.integer ) {
 
 		cgs.media.friendShader = trap_R_RegisterShader( "sprites/foe" );
+		cgs.media.friendShaderThroughWalls = trap_R_RegisterShader( "sprites/friendthroughwall" );
 		cgs.media.redQuadShader = trap_R_RegisterShader("powerups/blueflag" );
 		//cgs.media.teamStatusBar = trap_R_RegisterShader( "gfx/2d/colorbar.tga" ); - moved outside, used by accuracy
 		cgs.media.blueKamikazeShader = trap_R_RegisterShader( "models/weaphits/kamikblu" );

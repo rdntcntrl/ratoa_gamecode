@@ -238,7 +238,8 @@ typedef enum {
 	STAT_DEAD_YAW,					// look this direction when dead (FIXME: get rid of?)
 	STAT_CLIENTS_READY,				// bit mask of clients wishing to exit the intermission (FIXME: configstring?)
 	STAT_MAX_HEALTH,				// health / armor limit, changable by handicap
-	STAT_JUMPTIME					// rampjump
+	STAT_JUMPTIME,					// rampjump
+	STAT_EXTFLAGS					// extended playerstate flags
 } statIndex_t;
 
 
@@ -266,6 +267,8 @@ typedef enum {
 	PERS_DAMAGE_DONE
 } persEnum_t;
 
+// stats[STAT_EXTFLAGS]
+#define EXTFL_ZOOMING 1
 
 // entityState_t->eFlags
 #define	EF_DEAD				0x00000001		// don't draw a foe marker over players with EF_DEAD
@@ -745,6 +748,8 @@ qboolean	BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const play
 #define RAT_RATPHYSICS 		64
 #define RAT_RAMPJUMP 		128
 #define RAT_ALLOWBRIGHTSKINS 	256
+#define RAT_FRIENDSWALLHACK 	512
+#define RAT_SPECSHOWZOOM 	1024
 
 
 // content masks

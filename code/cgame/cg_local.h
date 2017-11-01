@@ -567,6 +567,7 @@ typedef struct {
 	qboolean	zoomed;
 	int			zoomTime;
 	float		zoomSensitivity;
+	qboolean	specZoomed;
 
 	// information screen text during loading
 	char		infoScreenText[MAX_STRING_CHARS];
@@ -799,6 +800,7 @@ typedef struct {
 	qhandle_t	lightningShader;
 
 	qhandle_t	friendShader;
+	qhandle_t	friendShaderThroughWalls;
 
 	qhandle_t	balloonShader;
 	qhandle_t	connectionShader;
@@ -1357,6 +1359,7 @@ extern vmCvar_t			cg_ratLg;
 extern vmCvar_t			cg_ratLgImpact;
 extern vmCvar_t			cg_delagProjectileTrail;
 extern vmCvar_t			cg_noBubbleTrail;
+extern vmCvar_t			cg_specShowZoom;
 extern vmCvar_t			cg_zoomAnim;
 extern vmCvar_t			cg_zoomAnimScale;
 extern vmCvar_t			cg_crosshairNamesY;
