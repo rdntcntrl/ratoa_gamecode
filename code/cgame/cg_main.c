@@ -31,6 +31,9 @@ displayContextDef_t cgDC;
 
 int forceModelModificationCount = -1;
 int forceBrightModelModificationCount = -1;
+int mySoundModificationCount = -1;
+int teamSoundModificationCount = -1;
+int enemySoundModificationCount = -1;
 
 void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum );
 void CG_Shutdown( void );
@@ -207,6 +210,10 @@ vmCvar_t	cg_teamOverlayScaleY;
 
 
 vmCvar_t	cg_autoHeadColors;
+
+vmCvar_t	cg_mySound;
+vmCvar_t	cg_teamSound;
+vmCvar_t	cg_enemySound;
 
 vmCvar_t	cg_forceBrightModels;
 vmCvar_t	cg_forceEnemyModelColor;
@@ -519,6 +526,10 @@ static cvarTable_t cvarTable[] = { // bk001129
 	
 	{ &cg_autoHeadColors ,     "cg_autoHeadColors", "0", CVAR_ARCHIVE},
 
+	{ &cg_mySound ,     "cg_mySound", "", CVAR_ARCHIVE},
+	{ &cg_teamSound ,   "cg_teamSound", "", CVAR_ARCHIVE},
+	{ &cg_enemySound ,  "cg_enemySound", "", CVAR_ARCHIVE},
+
 	{ &cg_forceBrightModels ,     "cg_forceBrightModels", "0", CVAR_ARCHIVE},
 	{ &cg_forceEnemyModelColor ,     "cg_forceEnemyModelColor", "0", CVAR_ARCHIVE},
 	{ &cg_forceModelColor ,     "cg_forceModelColor", "0", CVAR_ARCHIVE},
@@ -739,6 +750,14 @@ void CG_UpdateCvars( void ) {
 	if ( forceBrightModelModificationCount != cg_forceBrightModels.modificationCount ) {
 		forceBrightModelModificationCount = cg_forceBrightModels.modificationCount;
 		CG_ForceModelChange();
+	}
+	if ( mySoundModificationCount != cg_mySound.modificationCount
+			|| teamSoundModificationCount != cg_teamSound.modificationCount
+			|| enemySoundModificationCount != cg_enemySound.modificationCount) {
+		CG_LoadForcedSounds();
+		mySoundModificationCount = cg_mySound.modificationCount;
+		teamSoundModificationCount = cg_teamSound.modificationCount;
+		enemySoundModificationCount = cg_enemySound.modificationCount;
 	}
 }
 
@@ -2371,6 +2390,8 @@ void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum ) {
 	trap_S_ClearLoopingSounds( qtrue );
 
 	trap_Cvar_Set("snaps", "40");
+
+	CG_LoadForcedSounds();
 }
 
 /*

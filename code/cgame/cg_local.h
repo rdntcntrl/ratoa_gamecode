@@ -1225,6 +1225,11 @@ typedef struct {
 	int acceptLeader;
 	char acceptVoice[MAX_NAME_LENGTH];
 
+
+	sfxHandle_t		mySounds[MAX_CUSTOM_SOUNDS];
+	sfxHandle_t		teamSounds[MAX_CUSTOM_SOUNDS];
+	sfxHandle_t		enemySounds[MAX_CUSTOM_SOUNDS];
+
 	// media
 	cgMedia_t		media;
 
@@ -1366,6 +1371,10 @@ extern vmCvar_t			cg_teamOverlayScaleY;
 extern vmCvar_t			cg_drawTeamBackground;
 
 extern vmCvar_t			cg_autoHeadColors;
+
+extern vmCvar_t			cg_mySound;
+extern vmCvar_t			cg_teamSound;
+extern vmCvar_t			cg_enemySound;
 
 extern vmCvar_t			cg_forceBrightModels;
 extern vmCvar_t			cg_forceEnemyModelColor;
@@ -1651,6 +1660,7 @@ void CG_AddRefEntityWithPowerups( refEntity_t *ent, entityState_t *state, int te
 void CG_NewClientInfo( int clientNum );
 sfxHandle_t	CG_CustomSound( int clientNum, const char *soundName );
 void CG_HSV2RGB(float h, float s, float v, float *out);
+void CG_LoadForcedSounds(void);
 
 //
 // cg_predict.c
