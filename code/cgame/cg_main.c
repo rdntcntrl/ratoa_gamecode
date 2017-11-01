@@ -170,6 +170,9 @@ vmCvar_t	cg_hudFiles;
 vmCvar_t 	cg_scorePlum;
 
 vmCvar_t 	g_ratPhysics;
+vmCvar_t 	g_rampJump;
+vmCvar_t 	g_fastSwitch;
+vmCvar_t 	g_fastWeapons;
 vmCvar_t 	cg_ratPredictMissilesPing;
 vmCvar_t 	cg_ratPredictMissilesPingFactor;
 vmCvar_t 	cg_ratPredictMissiles;
@@ -468,6 +471,9 @@ static cvarTable_t cvarTable[] = { // bk001129
 
 	// RAT ===================
 	{ &g_ratPhysics, "g_ratPhysics", "0", CVAR_SYSTEMINFO},
+	{ &g_rampJump, "g_rampJump", "0", CVAR_SYSTEMINFO},
+	{ &g_fastSwitch, "g_fastSwitch", "1", CVAR_SYSTEMINFO},
+	{ &g_fastWeapons, "g_fastWeapons", "1", CVAR_SYSTEMINFO},
 	{ &cg_ratPredictMissilesPing, "cg_ratPredictMissilesPing", "0", 0},
 	{ &cg_ratPredictMissilesPingFactor, "cg_ratPredictMissilesPingFactor", "1.5", 0},
 	{ &cg_ratPredictMissiles, "cg_ratPredictMissiles", "1", CVAR_ARCHIVE},

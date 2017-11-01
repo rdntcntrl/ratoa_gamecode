@@ -132,6 +132,9 @@ vmCvar_t        g_elimination_lockspectator;
 vmCvar_t	g_rockets;
 
 vmCvar_t	g_ratPhysics;
+vmCvar_t	g_rampJump;
+vmCvar_t	g_fastSwitch;
+vmCvar_t	g_fastWeapons;
 
 //dmn_clowns suggestions (with my idea of implementing):
 vmCvar_t	g_instantgib;
@@ -355,6 +358,9 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_rockets, "g_rockets", "0", CVAR_SERVERINFO | CVAR_LATCH | CVAR_NORESTART, 0, qfalse },
 
 	{ &g_ratPhysics, "g_ratPhysics", "0", CVAR_ARCHIVE, qtrue},
+	{ &g_rampJump, "g_rampJump", "0", CVAR_ARCHIVE, qtrue},
+	{ &g_fastSwitch, "g_fastSwitch", "0", CVAR_ARCHIVE, qtrue},
+	{ &g_fastWeapons, "g_fastWeapons", "0", CVAR_ARCHIVE, qtrue},
 
 	//Instantgib and Vampire thingies
 	{ &g_instantgib, "g_instantgib", "0", CVAR_SERVERINFO | CVAR_LATCH, 0, qfalse },

@@ -1320,6 +1320,9 @@ extern	vmCvar_t		cg_noVoiceText;
 extern  vmCvar_t		cg_scorePlum;
 
 extern vmCvar_t                	g_ratPhysics;
+extern vmCvar_t                	g_rampJump;
+extern vmCvar_t                	g_fastSwitch;
+extern vmCvar_t                	g_fastWeapons;
 extern vmCvar_t                	cg_ratPredictMissilesPing;
 extern vmCvar_t                	cg_ratPredictMissilesPingFactor;
 extern vmCvar_t                	cg_ratPredictMissiles;
