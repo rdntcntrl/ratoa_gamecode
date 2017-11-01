@@ -294,6 +294,50 @@ void trigger_teleporter_touch (gentity_t *self, gentity_t *other, trace_t *trace
 	TeleportPlayer( other, dest->s.origin, dest->s.angles );
 }
 
+void G_SetTeleporterDestinations(void) {
+	gentity_t *ent;
+	int i;
+	for (i=0 ; i < level.num_entities ; ++i ) {
+		gentity_t	*target = NULL;
+		qboolean	unique = qtrue;
+		gentity_t	*unique_target = NULL;
+		ent = &g_entities[i];
+
+		if (!ent->inuse) {
+			continue;
+		}
+
+		if (ent->s.eType != ET_TELEPORT_TRIGGER) {
+			continue;
+		}
+		if ( ( ent->spawnflags & 1 ) ) {
+			continue;
+		}
+
+		while(1)
+		{
+			target = G_Find (target, FOFS(targetname), ent->target);
+			if (!target)
+				break;
+			if (unique_target) {
+				unique = qfalse;
+				break;
+			} else {
+				unique_target = target;
+			}
+		}
+
+		if (unique_target && unique) {
+			VectorCopy(unique_target->s.origin, ent->s.origin2);
+			VectorCopy(unique_target->s.angles, ent->s.angles2);
+			ent->s.generic1 = 1;
+		} else {
+			ent->s.generic1 = 0;
+		}
+
+	}
+}
+
 
 /*QUAKED trigger_teleport (.5 .5 .5) ? SPECTATOR
 Allows client side prediction of teleportation events.

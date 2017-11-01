@@ -767,6 +767,7 @@ void Touch_DoorTrigger( gentity_t *ent, gentity_t *other, trace_t *trace );
 // g_trigger.c
 //
 void trigger_teleporter_touch (gentity_t *self, gentity_t *other, trace_t *trace );
+void G_SetTeleporterDestinations(void);
 
 
 //
