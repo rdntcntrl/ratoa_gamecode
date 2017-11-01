@@ -605,7 +605,11 @@ static void CG_DrawRatStatusBar( void ) {
 	playerState_t	*ps;
 	int			value;
 	int flagx = 0;
+	qhandle_t	icon_a;
+	qhandle_t	icon_h;
+	int team = TEAM_FREE;
         
+
 	static float colors[4][4] = { 
 //		{ 0.2, 1.0, 0.2, 1.0 } , { 1.0, 0.2, 0.2, 1.0 }, {0.5, 0.5, 0.5, 1} };
 		{ 1.0f, 0.69f, 0.0f, 1.0f },    // normal
@@ -615,6 +619,12 @@ static void CG_DrawRatStatusBar( void ) {
 
 	if ( cg_drawStatus.integer == 0 ) {
 		return;
+	}
+
+	if ( !(cg.snap->ps.pm_flags & PMF_FOLLOW) ) {
+		team = cg.snap->ps.persistant[PERS_TEAM];
+	} else {
+		team = cgs.clientinfo[ cg.snap->ps.clientNum ].team;
 	}
 
 	cent = &cg_entities[cg.snap->ps.clientNum];
@@ -640,7 +650,7 @@ static void CG_DrawRatStatusBar( void ) {
 	if ( cent->currentState.weapon ) {
 		value = ps->ammo[cent->currentState.weapon];
 		if ( value > -1 ) {
-			qhandle_t	icon;
+			qhandle_t icon;
 			if ( cg.predictedPlayerState.weaponstate == WEAPON_FIRING
 				&& cg.predictedPlayerState.weaponTime > 100 ) {
 				// draw as dark grey when reloading
@@ -665,6 +675,22 @@ static void CG_DrawRatStatusBar( void ) {
 		}
 	}
 
+	trap_R_SetColor( NULL );
+	switch (team) {
+		case TEAM_BLUE:
+			icon_h = cgs.media.healthIconBlue;
+			icon_a = cgs.media.armorIconBlue;
+			break;
+		case TEAM_RED:
+			icon_h = cgs.media.healthIconRed;
+			icon_a = cgs.media.armorIconRed;
+			break;
+		default:
+			icon_h = cgs.media.healthIcon;
+			icon_a = cgs.media.armorIcon;
+			break;
+	}
+
 	//
 	// health
 	//
@@ -678,7 +704,7 @@ static void CG_DrawRatStatusBar( void ) {
 	}
 
 	CG_DrawField ( RATSTATUS_HEALTHX-ICON_SIZE-TEXT_ICON_SPACE-CHAR_WIDTH*3, 432, 3, value, qfalse, CHAR_WIDTH, CHAR_HEIGHT);
-	CG_DrawPic( RATSTATUS_HEALTHX-ICON_SIZE, 432, ICON_SIZE, ICON_SIZE, cgs.media.healthIcon );
+	CG_DrawPic( RATSTATUS_HEALTHX-ICON_SIZE, 432, ICON_SIZE, ICON_SIZE, icon_h );
 
 	//
 	// armor
@@ -694,7 +720,7 @@ static void CG_DrawRatStatusBar( void ) {
 		trap_R_SetColor( NULL );
 	}
 	//CG_DrawPic( 370 + CHAR_WIDTH*3 + TEXT_ICON_SPACE, 432, ICON_SIZE, ICON_SIZE, cgs.media.armorIcon );
-	CG_DrawPic( RATSTATUS_ARMORX, 432, ICON_SIZE, ICON_SIZE, cgs.media.armorIcon );
+	CG_DrawPic( RATSTATUS_ARMORX, 432, ICON_SIZE, ICON_SIZE, icon_a );
 }
 #endif
 /*

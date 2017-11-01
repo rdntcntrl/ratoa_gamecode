@@ -1331,6 +1331,11 @@ static void CG_RegisterGraphics( void ) {
 	cgs.media.armorIcon  = trap_R_RegisterShaderNoMip( "icons/iconr_yellow" );
 	cgs.media.healthIcon  = trap_R_RegisterShaderNoMip( "icons/iconh_yellow" );
 
+	cgs.media.armorIconBlue  = trap_R_RegisterShaderNoMip( "armorIconBlue" );
+	cgs.media.healthIconBlue  = trap_R_RegisterShaderNoMip( "healthIconBlue" );
+	cgs.media.armorIconRed  = trap_R_RegisterShaderNoMip( "armorIconRed" );
+	cgs.media.healthIconRed  = trap_R_RegisterShaderNoMip( "healthIconRed" );
+
 	cgs.media.machinegunBrassModel = trap_R_RegisterModel( "models/weapons2/shells/m_shell.md3" );
 	cgs.media.shotgunBrassModel = trap_R_RegisterModel( "models/weapons2/shells/s_shell.md3" );
 

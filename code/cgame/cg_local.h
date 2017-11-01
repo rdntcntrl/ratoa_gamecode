@@ -765,6 +765,11 @@ typedef struct {
 	qhandle_t	armorIcon;
 	qhandle_t	healthIcon;
 
+	qhandle_t	armorIconBlue;
+	qhandle_t	healthIconBlue;
+	qhandle_t	armorIconRed;
+	qhandle_t	healthIconRed;
+
 	qhandle_t	teamStatusBar;
 
 	qhandle_t	deferShader;
