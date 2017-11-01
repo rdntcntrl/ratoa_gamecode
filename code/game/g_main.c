@@ -3099,6 +3099,8 @@ int start, end;
 	// get any cvar changes
 	G_UpdateCvars();
 
+	G_UpdateRatFlags();
+
 	G_UpdateActionCamera();
 
 	if (level.timeout) {
