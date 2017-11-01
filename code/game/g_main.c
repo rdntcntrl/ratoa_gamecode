@@ -174,6 +174,7 @@ vmCvar_t        g_lagLightning; //Adds a little lag to the lightninggun to make 
 //unlagged - server options
 vmCvar_t        g_teleMissiles;
 vmCvar_t        g_pushGrenades;
+vmCvar_t        g_ratPhysics;
 vmCvar_t        g_ambientSound; 
 vmCvar_t        g_rocketSpeed; 
 vmCvar_t        g_unlagMissileMaxLatency; 
@@ -388,6 +389,8 @@ static cvarTable_t		gameCvarTable[] = {
 
         { &g_teleMissiles, "g_teleMissiles", "0", CVAR_ARCHIVE, 0, qtrue },
         { &g_pushGrenades, "g_pushGrenades", "0", CVAR_ARCHIVE, 0, qtrue },
+
+	{ &g_ratPhysics,   "g_ratPhysics", "0", CVAR_ARCHIVE, 0, qtrue },
 
         { &g_autoClans, "g_autoClans", "0", CVAR_ARCHIVE , 0, qfalse },
 
@@ -861,6 +864,12 @@ void G_UpdateRatFlags( void ) {
 		rflags |= RAT_PREDICTMISSILES;
 	}
 
+	if (g_ratPhysics.integer) {
+		rflags |= RAT_RATPHYSICS;
+	}
+
+	// XXX --> also update code where this is called!
+
 	trap_Cvar_Set("g_ratFlags",va("%i",rflags));
 }
 
@@ -938,7 +947,9 @@ void G_UpdateCvars( void ) {
 				if (cv->vmCvar == &g_itemPickup 
 						|| cv->vmCvar == &g_powerupGlows
 						|| cv->vmCvar == &g_screenShake
-						|| cv->vmCvar == &g_ratVmPredictMissiles) {
+						|| cv->vmCvar == &g_ratVmPredictMissiles
+						|| cv->vmCvar == &g_ratPhysics
+						) {
 					updateRatFlags = qtrue;
 				}
 			}

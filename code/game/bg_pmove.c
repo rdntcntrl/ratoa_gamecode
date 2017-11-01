@@ -389,7 +389,22 @@ static qboolean PM_CheckJump( void ) {
 	pm->ps->pm_flags |= PMF_JUMP_HELD;
 
 	pm->ps->groundEntityNum = ENTITYNUM_NONE;
-	pm->ps->velocity[2] = JUMP_VELOCITY;
+
+	if ( g_ratPhysics.integer && (pm->ps->velocity[2] >= 0) ) {
+		if (pm->ps->stats[STAT_JUMPTIME] > 0) {
+			float speed = sqrt(pml.forward[0]*pml.forward[0] + pml.forward[1]*pml.forward[1]);
+			pm->ps->velocity[2] += JUMP_VELOCITY + 100;
+			pm->ps->velocity[0] += (pml.forward[0]/speed)*80;
+			pm->ps->velocity[1] += (pml.forward[1]/speed)*80;
+		} else {
+			pm->ps->velocity[2] += JUMP_VELOCITY;
+		}
+	} else {
+		pm->ps->velocity[2] = JUMP_VELOCITY;
+	}
+
+	pm->ps->stats[STAT_JUMPTIME] = 400;
+
 	PM_AddEvent( EV_JUMP );
 
 	if ( pm->cmd.forwardmove >= 0 ) {
@@ -615,6 +630,7 @@ static void PM_AirMove( void ) {
 	float		wishspeed;
 	float		scale;
 	usercmd_t	cmd;
+	float		accel = pm_airaccelerate;
 
 	PM_Friction();
 
@@ -642,8 +658,39 @@ static void PM_AirMove( void ) {
 	wishspeed = VectorNormalize(wishdir);
 	wishspeed *= scale;
 
+	if (g_ratPhysics.integer) {
+		if (fmove == 0 && smove != 0) {
+			if (wishspeed > 30.0) {
+				wishspeed = 30.0;
+			}
+			accel = 60.0f;
+		}
+	}
+
 	// not on ground, so little effect on velocity
-	PM_Accelerate (wishdir, wishspeed, pm_airaccelerate);
+	PM_Accelerate (wishdir, wishspeed, accel);
+	if (g_ratPhysics.integer) {
+		if (smove == 0 && wishspeed != 0) {
+			vec3_t vel;
+			float speed;
+			float dot;
+			float turn;
+			VectorCopy(pm->ps->velocity, vel);
+			vel[2] = 0.0;
+			speed = VectorLength(vel);
+			VectorNormalize(vel);
+
+			dot = DotProduct(vel, wishdir);
+			turn = 4000.0 * dot * dot * pml.frametime;
+
+			vel[0] = vel[0] * speed + wishdir[0] * turn;
+			vel[1] = vel[1] * speed + wishdir[1] * turn;
+			VectorNormalize(vel);
+			VectorScale(vel, speed, vel);
+			pm->ps->velocity[0] = vel[0];
+			pm->ps->velocity[1] = vel[1];
+		}
+	}
 
 	// we may have a ground plane that is very steep, even
 	// though we don't have a groundentity
@@ -1986,6 +2033,10 @@ void PmoveSingle (pmove_t *pmove) {
 	}
 
 	PM_DropTimers();
+
+	if (pm->ps->stats[STAT_JUMPTIME] > 0) {
+		pm->ps->stats[STAT_JUMPTIME] -= pml.msec;
+	}
 
 	if ( pm->ps->powerups[PW_INVULNERABILITY] ) {
 		PM_InvulnerabilityMove();
