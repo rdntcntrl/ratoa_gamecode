@@ -483,7 +483,7 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &g_rampJump, "g_rampJump", "0", CVAR_SYSTEMINFO},
 	{ &g_fastSwitch, "g_fastSwitch", "1", CVAR_SYSTEMINFO},
 	{ &g_fastWeapons, "g_fastWeapons", "1", CVAR_SYSTEMINFO},
-	{ &cg_predictTeleport, "cg_predictTeleport", "1", CVAR_ARCHIVE},
+	{ &cg_predictTeleport, "cg_predictTeleport", "0", 0},
 	{ &cg_ratPredictMissilesPing, "cg_ratPredictMissilesPing", "0", 0},
 	{ &cg_ratPredictMissilesPingFactor, "cg_ratPredictMissilesPingFactor", "1.5", 0},
 	{ &cg_ratPredictMissiles, "cg_ratPredictMissiles", "1", CVAR_ARCHIVE},
