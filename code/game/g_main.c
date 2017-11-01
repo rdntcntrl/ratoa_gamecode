@@ -187,6 +187,8 @@ vmCvar_t        g_unlagFlight;
 
 vmCvar_t	g_tournamentMinSpawnDistance;
 
+vmCvar_t	g_enableGreenArmor;
+
 vmCvar_t        g_autoClans;
 vmCvar_t        g_startWhenReady;
 vmCvar_t        g_countDownHealthArmor;
@@ -382,6 +384,8 @@ static cvarTable_t		gameCvarTable[] = {
         { &g_unlagFlight, "g_unlagFlight", "0", CVAR_ARCHIVE, 0, qfalse },
 
         { &g_tournamentMinSpawnDistance, "g_tournamentMinSpawnDistance", "900", CVAR_ARCHIVE, 0, qfalse },
+
+        { &g_enableGreenArmor, "g_enableGreenArmor", "0", CVAR_ARCHIVE, 0, qfalse },
 
         { &g_teleMissiles, "g_teleMissiles", "0", CVAR_ARCHIVE, 0, qtrue },
         { &g_pushGrenades, "g_pushGrenades", "0", CVAR_ARCHIVE, 0, qtrue },

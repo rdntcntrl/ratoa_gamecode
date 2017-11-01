@@ -1189,6 +1189,7 @@ extern  vmCvar_t        g_unlagImmediateRun;
 extern  vmCvar_t        g_unlagFlight;
 
 extern  vmCvar_t	g_tournamentMinSpawnDistance;
+extern  vmCvar_t	g_enableGreenArmor;
 
 extern  vmCvar_t        g_autoClans;
 extern  vmCvar_t        g_startWhenReady;

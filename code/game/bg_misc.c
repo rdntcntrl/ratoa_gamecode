@@ -1073,6 +1073,22 @@ Only in Domination games
 /* sounds */ ""
 	},
 
+/*QUAKED item_armor_jacket (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
+*/
+	{
+		"item_armor_jacket", 
+		"sound/misc/ar2_pkup.wav",
+        { "models/powerups/armor/armor_yel.md3", // TODO: make green armor model
+		NULL, NULL, NULL},
+/* icon */		"icons/iconr_green",
+/* pickup */	"Light Armor",
+		25,
+		IT_ARMOR,
+		0,
+/* precache */ "",
+/* sounds */ ""
+	},
+
 	// end of list marker
 	{NULL}
 };
