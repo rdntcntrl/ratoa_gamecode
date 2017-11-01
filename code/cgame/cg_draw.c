@@ -648,9 +648,9 @@ static void CG_DrawRatStatusBar( void ) {
 	// ammo
 	//
 	if ( cent->currentState.weapon ) {
+		qhandle_t icon;
 		value = ps->ammo[cent->currentState.weapon];
 		if ( value > -1 ) {
-			qhandle_t icon;
 			if ( cg.predictedPlayerState.weaponstate == WEAPON_FIRING
 				&& cg.predictedPlayerState.weaponTime > 100 ) {
 				// draw as dark grey when reloading
@@ -667,11 +667,11 @@ static void CG_DrawRatStatusBar( void ) {
 			CG_DrawField (320, 454, 3, value, qtrue, RAT_CHAR_WIDTH, RAT_CHAR_HEIGHT);
 			trap_R_SetColor( NULL );
 
-			icon = cg_weapons[ cg.predictedPlayerState.weapon ].weaponIcon;
-			if ( icon ) {
-				//CG_DrawPic( CHAR_WIDTH*3 + TEXT_ICON_SPACE, 432, ICON_SIZE, ICON_SIZE, icon );
-				CG_DrawPic( 320-RAT_ICON_SIZE/2, 432, RAT_ICON_SIZE, RAT_ICON_SIZE, icon );
-			}
+		}
+		icon = cg_weapons[ cg.predictedPlayerState.weapon ].weaponIcon;
+		if ( icon ) {
+			//CG_DrawPic( CHAR_WIDTH*3 + TEXT_ICON_SPACE, 432, ICON_SIZE, ICON_SIZE, icon );
+			CG_DrawPic( 320-RAT_ICON_SIZE/2, 432, RAT_ICON_SIZE, RAT_ICON_SIZE, icon );
 		}
 	}
 
