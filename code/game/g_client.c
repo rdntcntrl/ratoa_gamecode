@@ -251,12 +251,12 @@ Chooses a player start for tourney
 ============
 */
 gentity_t *SelectTournamentSpawnPoint ( gclient_t *client, vec3_t origin, vec3_t angles ) {
-	gentity_t	*spot;
-	gentity_t	*nearestSpot;
-	gentity_t	*furthestSpot;
-	vec_t		furthestSpotDistance;
-	vec_t		dist;
-	vec3_t		delta;
+	//gentity_t	*spot;
+	//gentity_t	*nearestSpot;
+	//gentity_t	*furthestSpot;
+	//vec_t		furthestSpotDistance;
+	//vec_t		dist;
+	//vec3_t		delta;
 	int		opponentClientNum;
 	gclient_t	*opponent;
 
@@ -275,37 +275,38 @@ gentity_t *SelectTournamentSpawnPoint ( gclient_t *client, vec3_t origin, vec3_t
 		return SelectSpawnPoint ( client->ps.origin, origin, angles);
 	}
 
+	return SelectRandomFurthestSpawnPoint(opponent->ps.origin, origin, angles);
 
-	//nearestSpot = SelectNearestDeathmatchSpawnPoint( opponent->ps.origin );
-	
-	int i = 3;
-	furthestSpotDistance = -1;
-	furthestSpot = NULL;
-	do {
-		//Com_Printf("Select spawn, i = %i\n", i);
-		spot = SelectRandomDeathmatchSpawnPoint ( );
-		VectorSubtract(spot->s.origin, opponent->ps.origin, delta);
-		dist = VectorLength(delta);
-		if (dist > furthestSpotDistance) {
-			furthestSpotDistance = dist;
-			furthestSpot = spot;
-		}
-		if ( furthestSpotDistance >= g_tournamentMinSpawnDistance.value) {
-			//Com_Printf("taking it!\n");
-			break;
-		}
-	} while (i--);
+	////nearestSpot = SelectNearestDeathmatchSpawnPoint( opponent->ps.origin );
+	//
+	//int i = 3;
+	//furthestSpotDistance = -1;
+	//furthestSpot = NULL;
+	//do {
+	//	//Com_Printf("Select spawn, i = %i\n", i);
+	//	spot = SelectRandomDeathmatchSpawnPoint ( );
+	//	VectorSubtract(spot->s.origin, opponent->ps.origin, delta);
+	//	dist = VectorLength(delta);
+	//	if (dist > furthestSpotDistance) {
+	//		furthestSpotDistance = dist;
+	//		furthestSpot = spot;
+	//	}
+	//	if ( furthestSpotDistance >= g_tournamentMinSpawnDistance.value) {
+	//		//Com_Printf("taking it!\n");
+	//		break;
+	//	}
+	//} while (i--);
 
-	// find a single player start spot
-	if (!furthestSpot) {
-		G_Error( "Couldn't find a spawn point" );
-	}
+	//// find a single player start spot
+	//if (!furthestSpot) {
+	//	G_Error( "Couldn't find a spawn point" );
+	//}
 
-	VectorCopy (furthestSpot->s.origin, origin);
-	origin[2] += 9;
-	VectorCopy (furthestSpot->s.angles, angles);
+	//VectorCopy (furthestSpot->s.origin, origin);
+	//origin[2] += 9;
+	//VectorCopy (furthestSpot->s.angles, angles);
 
-	return furthestSpot;
+	//return furthestSpot;
 }
 
 /*
