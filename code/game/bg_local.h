@@ -81,3 +81,4 @@ qboolean	PM_SlideMove( qboolean gravity );
 void		PM_StepSlideMove( qboolean gravity );
 
 
+extern vmCvar_t	g_ratPhysics;

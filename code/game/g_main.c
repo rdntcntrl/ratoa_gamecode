@@ -131,6 +131,8 @@ vmCvar_t        g_elimination_lockspectator;
 
 vmCvar_t	g_rockets;
 
+vmCvar_t	g_ratPhysics;
+
 //dmn_clowns suggestions (with my idea of implementing):
 vmCvar_t	g_instantgib;
 vmCvar_t	g_vampire;
@@ -351,6 +353,8 @@ static cvarTable_t		gameCvarTable[] = {
 
 	//nexuiz style rocket arena
 	{ &g_rockets, "g_rockets", "0", CVAR_SERVERINFO | CVAR_LATCH | CVAR_NORESTART, 0, qfalse },
+
+	{ &g_ratPhysics, "g_ratPhysics", "0", CVAR_ARCHIVE, qtrue},
 
 	//Instantgib and Vampire thingies
 	{ &g_instantgib, "g_instantgib", "0", CVAR_SERVERINFO | CVAR_LATCH, 0, qfalse },

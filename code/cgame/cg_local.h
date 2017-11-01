@@ -1319,6 +1319,7 @@ extern	vmCvar_t		cg_noVoiceChats;
 extern	vmCvar_t		cg_noVoiceText;
 extern  vmCvar_t		cg_scorePlum;
 
+extern vmCvar_t                	g_ratPhysics;
 extern vmCvar_t                	cg_ratPredictMissilesPing;
 extern vmCvar_t                	cg_ratPredictMissilesPingFactor;
 extern vmCvar_t                	cg_ratPredictMissiles;
