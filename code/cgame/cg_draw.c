@@ -209,7 +209,7 @@ Draws large numbers for status bar and powerups
 ==============
 */
 #ifndef MISSIONPACK
-static void CG_DrawField (int x, int y, int width, int value) {
+static void CG_DrawField (int x, int y, int width, int value, qboolean centered, int char_width, int char_height) {
 	char	num[16], *ptr;
 	int		l;
 	int		frame;
@@ -246,7 +246,14 @@ static void CG_DrawField (int x, int y, int width, int value) {
 	l = strlen(num);
 	if (l > width)
 		l = width;
-	x += 2 + CHAR_WIDTH*(width - l);
+	if (centered) {
+		x -= char_width*(l/2);
+		if (l % 2 == 1) {
+			x -= char_width/2;
+		} 
+	} else {
+		x += 2 + char_width*(width - l);
+	}
 
 	ptr = num;
 	while (*ptr && l)
@@ -256,8 +263,8 @@ static void CG_DrawField (int x, int y, int width, int value) {
 		else
 			frame = *ptr -'0';
 
-		CG_DrawPic( x,y, CHAR_WIDTH, CHAR_HEIGHT, cgs.media.numberShaders[frame] );
-		x += CHAR_WIDTH;
+		CG_DrawPic( x,y, char_width, char_height, cgs.media.numberShaders[frame] );
+		x += char_width;
 		ptr++;
 		l--;
 	}
@@ -587,6 +594,109 @@ void CG_DrawTeamBackground( int x, int y, int w, int h, float alpha, int team )
 	trap_R_SetColor( NULL );
 }
 
+#ifndef MISSIONPACK
+#define RATSTATUS_HEALTHX (320-RAT_CHAR_WIDTH*2-10)
+#define RATSTATUS_ARMORX  (320+RAT_CHAR_WIDTH*2+10)
+#define RATSTATUS_FLAGX_R   (RATSTATUS_ARMORX + ICON_SIZE + TEXT_ICON_SPACE + CHAR_WIDTH*3 + TEXT_ICON_SPACE)
+#define RATSTATUS_FLAGX_L   (32)
+static void CG_DrawRatStatusBar( void ) {
+	int			color;
+	centity_t	*cent;
+	playerState_t	*ps;
+	int			value;
+	int flagx = 0;
+        
+	static float colors[4][4] = { 
+//		{ 0.2, 1.0, 0.2, 1.0 } , { 1.0, 0.2, 0.2, 1.0 }, {0.5, 0.5, 0.5, 1} };
+		{ 1.0f, 0.69f, 0.0f, 1.0f },    // normal
+		{ 1.0f, 0.2f, 0.2f, 1.0f },     // low health
+		{ 0.5f, 0.5f, 0.5f, 1.0f },     // weapon firing
+		{ 1.0f, 1.0f, 1.0f, 1.0f } };   // health > 100
+
+	if ( cg_drawStatus.integer == 0 ) {
+		return;
+	}
+
+	cent = &cg_entities[cg.snap->ps.clientNum];
+	ps = &cg.snap->ps;
+
+
+	if (cg_ratStatusbar.integer == 2) {
+		flagx = RATSTATUS_FLAGX_R;
+	} else {
+		flagx = RATSTATUS_FLAGX_L;
+	}
+	if( cg.predictedPlayerState.powerups[PW_REDFLAG] ) {
+		CG_DrawStatusBarFlag( flagx, TEAM_RED );
+	} else if( cg.predictedPlayerState.powerups[PW_BLUEFLAG] ) {
+		CG_DrawStatusBarFlag( flagx, TEAM_BLUE );
+	} else if( cg.predictedPlayerState.powerups[PW_NEUTRALFLAG] ) {
+		CG_DrawStatusBarFlag( flagx, TEAM_FREE );
+	}
+
+	//
+	// ammo
+	//
+	if ( cent->currentState.weapon ) {
+		value = ps->ammo[cent->currentState.weapon];
+		if ( value > -1 ) {
+			qhandle_t	icon;
+			if ( cg.predictedPlayerState.weaponstate == WEAPON_FIRING
+				&& cg.predictedPlayerState.weaponTime > 100 ) {
+				// draw as dark grey when reloading
+				color = 2;	// dark grey
+			} else {
+				if ( value >= 1 ) {
+					color = 0;	// green
+				} else {
+					color = 1;	// red
+				}
+			}
+			trap_R_SetColor( colors[color] );
+			
+			CG_DrawField (320, 454, 3, value, qtrue, RAT_CHAR_WIDTH, RAT_CHAR_HEIGHT);
+			trap_R_SetColor( NULL );
+
+			icon = cg_weapons[ cg.predictedPlayerState.weapon ].weaponIcon;
+			if ( icon ) {
+				//CG_DrawPic( CHAR_WIDTH*3 + TEXT_ICON_SPACE, 432, ICON_SIZE, ICON_SIZE, icon );
+				CG_DrawPic( 320-RAT_ICON_SIZE/2, 432, RAT_ICON_SIZE, RAT_ICON_SIZE, icon );
+			}
+		}
+	}
+
+	//
+	// health
+	//
+	value = ps->stats[STAT_HEALTH];
+	if ( value > 100 ) {
+		trap_R_SetColor( colors[3] );
+	} else if (value > 30) {
+		trap_R_SetColor( colors[0] );
+	} else {
+		trap_R_SetColor( colors[1] );
+	}
+
+	CG_DrawField ( RATSTATUS_HEALTHX-ICON_SIZE-TEXT_ICON_SPACE-CHAR_WIDTH*3, 432, 3, value, qfalse, CHAR_WIDTH, CHAR_HEIGHT);
+	CG_DrawPic( RATSTATUS_HEALTHX-ICON_SIZE, 432, ICON_SIZE, ICON_SIZE, cgs.media.healthIcon );
+
+	//
+	// armor
+	//
+	value = ps->stats[STAT_ARMOR];
+	if (value > 0 ) {
+		if (value > 100) {
+			trap_R_SetColor( colors[3] );
+		} else  {
+			trap_R_SetColor( colors[0] );
+		}
+		CG_DrawField (RATSTATUS_ARMORX+ICON_SIZE+TEXT_ICON_SPACE, 432, 3, value, qfalse, CHAR_WIDTH, CHAR_HEIGHT);
+		trap_R_SetColor( NULL );
+	}
+	//CG_DrawPic( 370 + CHAR_WIDTH*3 + TEXT_ICON_SPACE, 432, ICON_SIZE, ICON_SIZE, cgs.media.armorIcon );
+	CG_DrawPic( RATSTATUS_ARMORX, 432, ICON_SIZE, ICON_SIZE, cgs.media.armorIcon );
+}
+#endif
 /*
 ================
 CG_DrawStatusBar
@@ -690,7 +800,7 @@ static void CG_DrawStatusBar( void ) {
 			}
 			trap_R_SetColor( colors[color] );
 			
-			CG_DrawField (0, 432, 3, value);
+			CG_DrawField (0, 432, 3, value, qfalse, CHAR_WIDTH, CHAR_HEIGHT);
 			trap_R_SetColor( NULL );
 
 			// if we didn't draw a 3D icon, draw a 2D icon for ammo
@@ -721,7 +831,7 @@ static void CG_DrawStatusBar( void ) {
 	}
 
 	// stretch the health up when taking damage
-	CG_DrawField ( 185, 432, 3, value);
+	CG_DrawField ( 185, 432, 3, value, qfalse, CHAR_WIDTH, CHAR_HEIGHT);
 	CG_ColorForHealth( hcolor );
 	trap_R_SetColor( hcolor );
 
@@ -732,7 +842,7 @@ static void CG_DrawStatusBar( void ) {
 	value = ps->stats[STAT_ARMOR];
 	if (value > 0 ) {
 		trap_R_SetColor( colors[0] );
-		CG_DrawField (370, 432, 3, value);
+		CG_DrawField (370, 432, 3, value, qfalse, CHAR_WIDTH, CHAR_HEIGHT);
 		trap_R_SetColor( NULL );
 		// if we didn't draw a 3D icon, draw a 2D icon for armor
 		if ( !cg_draw3dIcons.integer && cg_drawIcons.integer ) {
@@ -747,7 +857,7 @@ static void CG_DrawStatusBar( void ) {
             value = ps->generic1;
             if (value > 0 ) {
                     trap_R_SetColor( colors[0] );
-                    CG_DrawField (470, 432, 3, value);
+                    CG_DrawField (470, 432, 3, value, qfalse, CHAR_WIDTH, CHAR_HEIGHT);
                     trap_R_SetColor( NULL );
                     // if we didn't draw a 3D icon, draw a 2D icon for skull
                     if ( !cg_draw3dIcons.integer && cg_drawIcons.integer ) {
@@ -1839,7 +1949,7 @@ static float CG_DrawPowerups( float y ) {
 		  y -= ICON_SIZE;
 
 		  trap_R_SetColor( colors[color] );
-		  CG_DrawField( x, y, 2, sortedTime[ i ] / 1000 );
+		  CG_DrawField( x, y, 2, sortedTime[ i ] / 1000, qfalse, CHAR_WIDTH, CHAR_HEIGHT);
 
 		  t = ps->powerups[ sorted[i] ];
 		  if ( t - cg.time >= POWERUP_BLINKS * POWERUP_BLINK_TIME ) {
@@ -3521,7 +3631,11 @@ static void CG_Draw2D(stereoFrame_t stereoFrame)
 				CG_DrawTimedMenus();
 			}
 #else
-			CG_DrawStatusBar();
+			if (cg_ratStatusbar.integer && cgs.gametype != GT_HARVESTER) {
+				CG_DrawRatStatusBar();
+			} else {
+				CG_DrawStatusBar();
+			}
 #endif
       
 			CG_DrawAmmoWarning();

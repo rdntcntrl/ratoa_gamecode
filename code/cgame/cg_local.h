@@ -76,6 +76,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define	TEAMCHAT_WIDTH		80
 #define TEAMCHAT_HEIGHT		8
 
+#define	RAT_ICON_SIZE			20
+#define	RAT_CHAR_WIDTH			16
+#define	RAT_CHAR_HEIGHT			24
+
 // very large characters.pk
 #define	GIANT_WIDTH			32
 #define	GIANT_HEIGHT		48
@@ -759,6 +763,7 @@ typedef struct {
 
 	qhandle_t	armorModel;
 	qhandle_t	armorIcon;
+	qhandle_t	healthIcon;
 
 	qhandle_t	teamStatusBar;
 
@@ -1328,6 +1333,7 @@ extern vmCvar_t                	cg_ratPredictMissilesPingFactor;
 extern vmCvar_t                	cg_ratPredictMissiles;
 extern vmCvar_t                	cg_ratPredictMissilesNudge;
 extern vmCvar_t                	cg_ratScoreboard;
+extern vmCvar_t                	cg_ratStatusbar;
 extern vmCvar_t			cg_ratRocketTrail;
 extern vmCvar_t			cg_ratRocketTrailAlpha;
 extern vmCvar_t			cg_ratRocketTrailRadius;
@@ -1638,6 +1644,7 @@ void CG_ResetPlayerEntity( centity_t *cent );
 void CG_AddRefEntityWithPowerups( refEntity_t *ent, entityState_t *state, int team, qboolean isMissile );
 void CG_NewClientInfo( int clientNum );
 sfxHandle_t	CG_CustomSound( int clientNum, const char *soundName );
+void CG_HSV2RGB(float h, float s, float v, float *out);
 
 //
 // cg_predict.c

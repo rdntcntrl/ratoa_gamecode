@@ -2671,7 +2671,7 @@ void CG_DrawWeaponBar8(int count, int bits, float *color){
 	blue[0] = 0;
 	blue[1] = 0.33;
 	blue[2] = 1.0f;
-	blue[3] = 0.45f;
+	blue[3] = 0.3f;
 	
 	for ( i = 0 ; i < MAX_WEAPONS ; i++ ) {
                 //Sago: Do mad change of grapple placement:
@@ -2789,7 +2789,7 @@ void CG_DrawWeaponBar9(int count, int bits, float *color){
 	blue[0] = 0;
 	blue[1] = 0.33;
 	blue[2] = 1.0f;
-	blue[3] = 0.45f;
+	blue[3] = 0.3f;
 	
 	for ( i = 0 ; i < MAX_WEAPONS ; i++ ) {
                 //Sago: Do mad change of grapple placement:

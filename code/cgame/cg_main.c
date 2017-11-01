@@ -179,6 +179,7 @@ vmCvar_t 	cg_ratPredictMissiles;
 vmCvar_t 	cg_ratPredictMissilesNudge;
 vmCvar_t 	cg_delagProjectileTrail;
 vmCvar_t 	cg_ratScoreboard;
+vmCvar_t 	cg_ratStatusbar;
 vmCvar_t	cg_ratRocketTrail;
 vmCvar_t	cg_ratRocketTrailAlpha;
 vmCvar_t	cg_ratRocketTrailRadius;
@@ -480,6 +481,7 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_ratPredictMissilesNudge, "cg_ratPredictMissilesNudge", "58", 0},
 	{ &cg_delagProjectileTrail, "cg_delagProjectileTrail", "1", 0},
 	{ &cg_ratScoreboard, "cg_ratScoreboard", "1", CVAR_ARCHIVE},
+	{ &cg_ratStatusbar, "cg_ratStatusbar", "0", CVAR_ARCHIVE},
 	{ &cg_ratRocketTrail, "cg_ratRocketTrail", "1", CVAR_ARCHIVE},
 	{ &cg_ratRocketTrailAlpha, "cg_ratRocketTrailAlpha", "0.3", CVAR_ARCHIVE},
 	{ &cg_ratRocketTrailRadius, "cg_ratRocketTrailRadius", "1", CVAR_ARCHIVE},
@@ -1327,6 +1329,7 @@ static void CG_RegisterGraphics( void ) {
 
 	cgs.media.armorModel = trap_R_RegisterModel( "models/powerups/armor/armor_yel.md3" );
 	cgs.media.armorIcon  = trap_R_RegisterShaderNoMip( "icons/iconr_yellow" );
+	cgs.media.healthIcon  = trap_R_RegisterShaderNoMip( "icons/iconh_yellow" );
 
 	cgs.media.machinegunBrassModel = trap_R_RegisterModel( "models/weapons2/shells/m_shell.md3" );
 	cgs.media.shotgunBrassModel = trap_R_RegisterModel( "models/weapons2/shells/s_shell.md3" );
