@@ -34,7 +34,7 @@ pml_t		pml;
 float	pm_stopspeed = 100.0f;
 float	pm_duckScale = 0.25f;
 float	pm_swimScale = 0.75f;
-//float	pm_wadeScale = 0.70f;
+float	pm_wadeScale = 0.70f;
 
 float	pm_accelerate = 10.0f;
 float	pm_airaccelerate = 1.0f;
@@ -390,7 +390,7 @@ static qboolean PM_CheckJump( void ) {
 
 	pm->ps->groundEntityNum = ENTITYNUM_NONE;
 
-	if ( g_ratPhysics.integer && (pm->ps->velocity[2] >= 0) ) {
+	if ( (g_ratPhysics.integer || g_rampJump.integer) && (pm->ps->velocity[2] >= 0) ) {
 		if (pm->ps->stats[STAT_JUMPTIME] > 0) {
 			//float speed = sqrt(pml.forward[0]*pml.forward[0] + pml.forward[1]*pml.forward[1]);
 			//pm->ps->velocity[0] += (pml.forward[0]/speed)*80;
@@ -1543,7 +1543,12 @@ static void PM_BeginWeaponChange( int weapon ) {
             PM_AddEvent( EV_CHANGE_WEAPON );
             pm->ps->weaponstate = WEAPON_DROPPING;
             //pm->ps->weaponTime += 100;
-            pm->ps->weaponTime += g_weaponChangeTime_Dropping.integer;
+            //pm->ps->weaponTime += g_weaponChangeTime_Dropping.integer;
+	    if (g_fastSwitch.integer) {
+		    pm->ps->weaponTime += 100;
+	    } else {
+		    pm->ps->weaponTime += 200;
+	    }
             PM_StartTorsoAnim( TORSO_DROP );
         }
 }
@@ -1571,7 +1576,12 @@ static void PM_FinishWeaponChange( void ) {
         if(! (pm->pmove_flags & DF_INSTANT_WEAPON_CHANGE))
         {
                 //pm->ps->weaponTime += 200;
-                pm->ps->weaponTime += g_weaponChangeTime_Raising.integer;
+                //pm->ps->weaponTime += g_weaponChangeTime_Raising.integer;
+		if (g_fastSwitch.integer) {
+			pm->ps->weaponTime += 200;
+		} else {
+			pm->ps->weaponTime += 250;
+		}
                 PM_StartTorsoAnim( TORSO_RAISE );
         }
 }
@@ -1719,11 +1729,17 @@ static void PM_Weapon( void ) {
 		addTime = 400;
 		break;
 	case WP_LIGHTNING:
-		addTime = g_weaponReloadTime_Lg.integer;
+		//addTime = g_weaponReloadTime_Lg.integer;
+		addTime = 50;
 		break;
 	case WP_SHOTGUN:
 		//addTime = 950;
-		addTime = g_weaponReloadTime_Shotgun.integer;
+		//addTime = g_weaponReloadTime_Shotgun.integer;
+		if (g_fastWeapons.integer) {
+			addTime = 950;
+		} else {
+			addTime = 1000;
+		}
 		break;
 	case WP_MACHINEGUN:
 		addTime = 100;
@@ -1739,7 +1755,12 @@ static void PM_Weapon( void ) {
 		break;
 	case WP_RAILGUN:
 		//addTime = 1250;
-		addTime = g_weaponReloadTime_Railgun.integer;
+		//addTime = g_weaponReloadTime_Railgun.integer;
+		if (g_fastWeapons.integer) {
+			addTime = 1250;
+		} else {
+			addTime = 1500;
+		}
 		break;
 	case WP_BFG:
 		addTime = 200;

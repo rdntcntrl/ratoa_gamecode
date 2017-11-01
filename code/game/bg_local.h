@@ -60,7 +60,7 @@ extern	pml_t		pml;
 extern	float	pm_stopspeed;
 extern	float	pm_duckScale;
 extern	float	pm_swimScale;
-//extern	float	pm_wadeScale;
+extern	float	pm_wadeScale;
 
 extern	float	pm_accelerate;
 extern	float	pm_airaccelerate;
@@ -82,9 +82,12 @@ void		PM_StepSlideMove( qboolean gravity );
 
 
 // weapon config
-extern vmCvar_t        g_weaponChangeTime_Dropping;
-extern vmCvar_t        g_weaponChangeTime_Raising;
-extern vmCvar_t        g_weaponReloadTime_Shotgun;
-extern vmCvar_t        g_weaponReloadTime_Lg;
-extern vmCvar_t        g_weaponReloadTime_Railgun;
+//extern vmCvar_t        g_weaponChangeTime_Dropping;
+//extern vmCvar_t        g_weaponChangeTime_Raising;
+//extern vmCvar_t        g_weaponReloadTime_Shotgun;
+//extern vmCvar_t        g_weaponReloadTime_Lg;
+//extern vmCvar_t        g_weaponReloadTime_Railgun;
 extern vmCvar_t        g_ratPhysics;
+extern vmCvar_t        g_rampJump;
+extern vmCvar_t        g_fastSwitch;
+extern vmCvar_t        g_fastWeapons;

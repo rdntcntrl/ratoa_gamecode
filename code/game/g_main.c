@@ -175,6 +175,9 @@ vmCvar_t        g_lagLightning; //Adds a little lag to the lightninggun to make 
 vmCvar_t        g_teleMissiles;
 vmCvar_t        g_pushGrenades;
 vmCvar_t        g_ratPhysics;
+vmCvar_t        g_rampJump;
+vmCvar_t        g_fastSwitch;
+vmCvar_t        g_fastWeapons;
 vmCvar_t        g_ambientSound; 
 vmCvar_t        g_rocketSpeed; 
 vmCvar_t        g_unlagMissileMaxLatency; 
@@ -392,6 +395,9 @@ static cvarTable_t		gameCvarTable[] = {
         { &g_pushGrenades, "g_pushGrenades", "0", CVAR_ARCHIVE, 0, qtrue },
 
 	{ &g_ratPhysics,   "g_ratPhysics", "0", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_rampJump,     "g_rampJump", "0", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_fastSwitch,   "g_fastSwitch", "1", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_fastWeapons,  "g_fastWeapons", "1", CVAR_ARCHIVE, 0, qtrue },
 
         { &g_autoClans, "g_autoClans", "0", CVAR_ARCHIVE , 0, qfalse },
 
@@ -866,8 +872,20 @@ void G_UpdateRatFlags( void ) {
 		rflags |= RAT_PREDICTMISSILES;
 	}
 
+	if (g_fastSwitch.integer) {
+		rflags |= RAT_FASTSWITCH;
+	}
+
+	if (g_fastWeapons.integer) {
+		rflags |= RAT_FASTWEAPONS;
+	}
+
 	if (g_ratPhysics.integer) {
 		rflags |= RAT_RATPHYSICS;
+	}
+
+	if (g_rampJump.integer) {
+		rflags |= RAT_RAMPJUMP;
 	}
 
 
@@ -955,7 +973,10 @@ void G_UpdateCvars( void ) {
 						|| cv->vmCvar == &g_powerupGlows
 						|| cv->vmCvar == &g_screenShake
 						|| cv->vmCvar == &g_ratVmPredictMissiles
+						|| cv->vmCvar == &g_fastSwitch
+						|| cv->vmCvar == &g_fastWeapons
 						|| cv->vmCvar == &g_ratPhysics
+						|| cv->vmCvar == &g_rampJump
 						|| cv->vmCvar == &g_allowBrightModels
 						) {
 					updateRatFlags = qtrue;
