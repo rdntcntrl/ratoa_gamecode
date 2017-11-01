@@ -500,8 +500,8 @@ static int CG_CalcFov( void ) {
 			fov_x = cg_fov.value;
 			if ( fov_x < 1 ) {
 				fov_x = 1;
-			} else if ( fov_x > 160 ) {
-				fov_x = 160;
+			} else if ( fov_x > 145 ) {
+				fov_x = 145;
 			}
                         if( (cgs.videoflags & VF_LOCK_CVARS_BASIC) && fov_x>140 )
                             fov_x = 140;
@@ -516,8 +516,8 @@ static int CG_CalcFov( void ) {
                         zoomFov = cg_zoomFov.value;
                         if ( zoomFov < 1 ) {
                                 zoomFov = 1;
-                        } else if ( zoomFov > 160 ) {
-                                zoomFov = 160;
+                        } else if ( zoomFov > 145 ) {
+                                zoomFov = 145;
                         }
 
                         if( (cgs.videoflags & VF_LOCK_CVARS_BASIC) && zoomFov>140 )
