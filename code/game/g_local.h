@@ -592,6 +592,8 @@ typedef struct {
     int healthRedObelisk; //health in percent
     int healthBlueObelisk; //helth in percent
     qboolean MustSendObeliskHealth; //Health has changed
+
+    qboolean	pingEqualized;
      
 } level_locals_t;
 

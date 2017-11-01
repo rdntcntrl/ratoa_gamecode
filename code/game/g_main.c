@@ -774,26 +774,48 @@ void G_PingEqualizerReset() {
 	}
 	trap_FS_Write( "\n", 1, f );
 	trap_FS_FCloseFile( f );
+	trap_SendServerCommand( -1, va("print \"^5Server: resetting ping equalizer...\n"));
 }
 
 void G_PingEqualizerWrite() {
 	fileHandle_t f;
 	int len;
 	char *s;
-	if (!g_pingEqualizer.integer) {
+	qboolean equalize = qfalse;
+	gclient_t *c1 = NULL;
+	gclient_t *c2 = NULL;
+	if (!g_pingEqualizer.integer || g_gametype.integer != GT_TOURNAMENT) {
 		return;
 	}
-	if (level.warmupTime > 0
-			&& level.warmupTime - level.time == 10000 
-			&& g_gametype.integer == GT_TOURNAMENT 
-			&& level.numPlayingClients == 2) {
-		gclient_t *c1 = &level.clients[level.sortedClients[0]];
-		gclient_t *c2 = &level.clients[level.sortedClients[1]];
+	if (level.warmupTime == 0 // game already running
+			|| level.numPlayingClients != 2 // not enough players
+			|| level.pingEqualized // already equalized
+			) {
+		return;
+	}
+	c1 = &level.clients[level.sortedClients[0]];
+	c2 = &level.clients[level.sortedClients[1]];
+	if (!c1 || !c2) {
+		return;
+	}
+	if (level.warmupTime > 0 
+			&& level.time < level.warmupTime
+			&& level.warmupTime - level.time <= 10000 ) {
+		// warmup already running, equalize now!
+		equalize = qtrue;
+	} else if (level.warmupTime == -1
+			&& c1->pers.enterTime + 5000 <= level.time
+			&& c2->pers.enterTime + 5000 <= level.time
+		  ) {
+		// in \ready phase, both joined at least 5s ago
+		equalize = qtrue;
+	}
+	if (equalize) {
 		gclient_t *lower = NULL;
 		int pingdiff = 0;
-		if (!c1 || !c2) {
-			return;
-		}
+
+		level.pingEqualized = qtrue;
+
 		if (g_entities[level.sortedClients[0]].r.svFlags & SVF_BOT
 				|| g_entities[level.sortedClients[1]].r.svFlags & SVF_BOT) {
 			return;
@@ -816,6 +838,8 @@ void G_PingEqualizerWrite() {
 		s = va("%s %i\n", lower->pers.ip, pingdiff);
 		trap_FS_Write( s, strlen(s), f );
 		trap_FS_FCloseFile( f );
+
+		trap_SendServerCommand( -1, va("print \"^5Server: equalizing pings...\n"));
 	}
 }
 
