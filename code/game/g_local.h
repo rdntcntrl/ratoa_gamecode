@@ -1198,6 +1198,8 @@ extern  vmCvar_t        g_unlagFlight;
 extern  vmCvar_t	g_tournamentMinSpawnDistance;
 extern  vmCvar_t	g_enableGreenArmor;
 
+extern  vmCvar_t	g_readSpawnVarFiles;
+
 extern vmCvar_t		g_damageThroughWalls;
 
 extern  vmCvar_t	g_pingEqualizer;

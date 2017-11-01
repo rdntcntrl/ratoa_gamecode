@@ -595,6 +595,77 @@ qboolean G_ParseSpawnVars( void ) {
 	return qtrue;
 }
 
+qboolean G_ParseSpawnVarsFromString( const char **string ) {
+	char		keyname[MAX_TOKEN_CHARS];
+	char *token = NULL;
+
+	level.numSpawnVars = 0;
+	level.numSpawnVarChars = 0;
+
+	// parse the opening brace
+	token = COM_Parse(string);
+	if (!token[0]) {
+		return qfalse;
+	}
+
+	if ( token[0] != '{' ) {
+		G_Error( "G_ParseSpawnVarsFromString: found %s when expecting {", token );
+	}
+
+	// go through all the key / value pairs
+	while ( 1 ) {	
+		// parse key
+		token = COM_ParseExt(string, qtrue);
+		if (!token[0]) {
+			G_Error( "G_ParseSpawnVarsFromString: EOF without closing brace" );
+		}
+
+		if ( token[0] == '}' ) {
+			break;
+		}
+		Q_strncpyz( keyname, token, sizeof( keyname ) );
+		
+		// parse value	
+		token = COM_ParseExt( string, qfalse );
+		if (!token[0]) {
+			G_Error( "G_ParseSpawnVarsFromString: EOF without closing brace" );
+		}
+
+		if ( token[0] == '}' ) {
+			G_Error( "G_ParseSpawnVarsFromString: closing brace without data" );
+		}
+		if ( level.numSpawnVars == MAX_SPAWN_VARS ) {
+			G_Error( "G_ParseSpawnVarsFromString: MAX_SPAWN_VARS" );
+		}
+		level.spawnVars[ level.numSpawnVars ][0] = G_AddSpawnVarToken( keyname );
+		level.spawnVars[ level.numSpawnVars ][1] = G_AddSpawnVarToken( token );
+		level.numSpawnVars++;
+	}
+
+	return qtrue;
+}
+#define SPAWNVARFILE_BUFFER_SIZE (32*1024)
+
+qboolean G_ReadSpawnVarFile( char *buffer ) {
+	fileHandle_t	file;
+	char            fname[256];
+	int len;
+
+	memset(buffer,0,SPAWNVARFILE_BUFFER_SIZE);
+
+	trap_Cvar_VariableStringBuffer( "mapname", fname, sizeof( fname ) - 5 );
+	strcat(fname, ".sv");
+
+	len = trap_FS_FOpenFile(fname,&file,FS_READ);
+
+	if(!file || len == 0) {
+		return qfalse;
+	}
+
+	trap_FS_Read(buffer,SPAWNVARFILE_BUFFER_SIZE,file);
+	trap_FS_FCloseFile(file);
+	return qtrue;
+}
 
 
 /*QUAKED worldspawn (0 0 0) ?
@@ -671,6 +742,27 @@ void G_SpawnEntitiesFromString( void ) {
 	// allow calls to G_Spawn*()
 	level.spawning = qtrue;
 	level.numSpawnVars = 0;
+
+	if (g_readSpawnVarFiles.integer) {
+		char buffer[SPAWNVARFILE_BUFFER_SIZE];
+		char *pbuf = buffer;
+		if (G_ReadSpawnVarFile(pbuf)) {
+			// the worldspawn is not an actual entity, but it still
+			// has a "spawn" function to perform any global setup
+			// needed by a level (setting configstrings or cvars, etc)
+			if ( !G_ParseSpawnVarsFromString(&pbuf) ) {
+				G_Error( "SpawnEntities: no entities" );
+			}
+			SP_worldspawn();
+
+			// parse ents
+			while( G_ParseSpawnVarsFromString(&pbuf) ) {
+				G_SpawnGEntityFromSpawnVars();
+			}	
+			level.spawning = qfalse;
+			return;
+		}
+	}
 
 	// the worldspawn is not an actual entity, but it still
 	// has a "spawn" function to perform any global setup
