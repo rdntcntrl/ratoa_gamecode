@@ -336,7 +336,7 @@ static void CG_OffsetFirstPersonView( void ) {
 		return;
 	}
 
-	if (cgs.screenShake) {
+	if (cgs.ratFlags & RAT_SCREENSHAKE) {
 		// add angles based on weapon kick
 		VectorAdd (angles, cg.kick_angles, angles);
 

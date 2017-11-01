@@ -733,6 +733,17 @@ qboolean	BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const play
 #define VF_custom       256
 #define VF_shuffle      512
 
+//g_ratFlags->integer
+// autoparsed from various ratmod cvars
+#define RAT_EASYPICKUP		1
+#define RAT_POWERUPGLOWS 	2
+#define RAT_SCREENSHAKE 	4
+#define RAT_PREDICTMISSILES 	8
+#define RAT_FASTSWITCH 		16
+#define RAT_FASTWEAPONS 	32
+#define RAT_RATPHYSICS 		64
+
+
 // content masks
 #define	MASK_ALL				(-1)
 #define	MASK_SOLID				(CONTENTS_SOLID)

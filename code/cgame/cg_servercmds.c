@@ -489,23 +489,14 @@ void CG_ParseServerinfo( void ) {
 	trap_Cvar_Set("g_delagHitscan", va("%i", cgs.delagHitscan));
 //unlagged - server options
 //
-	cgs.itemPickup = atoi( Info_ValueForKey( info, "g_itemPickup" ) );
-	trap_Cvar_Set("g_itemPickup", va("%i", cgs.itemPickup));
-
-	cgs.powerupGlows = atoi( Info_ValueForKey( info, "g_powerupGlows" ) );
-	trap_Cvar_Set("g_powerupGlows", va("%i", cgs.powerupGlows));
-	
-	cgs.screenShake = atoi( Info_ValueForKey( info, "g_screenShake" ) );
-	trap_Cvar_Set("g_screenShake", va("%i", cgs.screenShake));
-
 	cgs.rocketSpeed = atoi( Info_ValueForKey( info, "g_rocketSpeed" ) );
 	trap_Cvar_Set("g_rocketSpeed", va("%i", cgs.rocketSpeed));
 
 	cgs.unlagMissileMaxLatency = atoi( Info_ValueForKey( info, "g_unlagMissileMaxLatency" ) );
 	trap_Cvar_Set("g_unlagMissileMaxLatency", va("%i", cgs.unlagMissileMaxLatency));
 
-	cgs.predictMissiles = atoi( Info_ValueForKey( info, "g_ratVmPredictMissiles" ) );
-	trap_Cvar_Set("g_ratVmPredictMissiles", va("%i", cgs.predictMissiles));
+	cgs.ratFlags = atoi( Info_ValueForKey( info, "g_ratFlags" ) );
+	trap_Cvar_Set("g_ratFlags", va("%i", cgs.ratFlags));
 
 	cgs.startWhenReady = atoi( Info_ValueForKey( info, "g_startWhenReady" ) );
 	trap_Cvar_Set("g_startWhenReady", va("%i", cgs.startWhenReady));

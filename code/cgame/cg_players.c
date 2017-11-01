@@ -1910,7 +1910,7 @@ static void CG_PlayerPowerups( centity_t *cent, refEntity_t *torso ) {
 
 	// quad gives a dlight
 	if ( powerups & ( 1 << PW_QUAD ) ) {
-		if (cgs.powerupGlows) {
+		if (cgs.ratFlags & RAT_POWERUPGLOWS) {
 			trap_R_AddLightToScene( cent->lerpOrigin, 200 + (rand()&31), 0.2f, 0.2f, 1 );
 		}
 	}
@@ -1929,7 +1929,7 @@ static void CG_PlayerPowerups( centity_t *cent, refEntity_t *torso ) {
 		else {
 			CG_TrailItem( cent, cgs.media.redFlagModel );
 		}
-		if (cgs.powerupGlows) {
+		if (cgs.ratFlags & RAT_POWERUPGLOWS) {
 			trap_R_AddLightToScene( cent->lerpOrigin, 200 + (rand()&31), 1.0, 0.2f, 0.2f );
 		}
 	}
@@ -1942,7 +1942,7 @@ static void CG_PlayerPowerups( centity_t *cent, refEntity_t *torso ) {
 		else {
 			CG_TrailItem( cent, cgs.media.blueFlagModel );
 		}
-		if (cgs.powerupGlows) {
+		if (cgs.ratFlags & RAT_POWERUPGLOWS) {
 			trap_R_AddLightToScene( cent->lerpOrigin, 200 + (rand()&31), 0.2f, 0.2f, 1.0 );
 		}
 	}
@@ -1955,7 +1955,7 @@ static void CG_PlayerPowerups( centity_t *cent, refEntity_t *torso ) {
 		else {
 			CG_TrailItem( cent, cgs.media.neutralFlagModel );
 		}
-		if (cgs.powerupGlows) {
+		if (cgs.ratFlags & RAT_POWERUPGLOWS) {
 			trap_R_AddLightToScene( cent->lerpOrigin, 200 + (rand()&31), 1.0, 1.0, 1.0 );
 		}
 	}

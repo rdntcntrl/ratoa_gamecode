@@ -277,7 +277,7 @@ void CG_PredictWeaponEffects( centity_t *cent ) {
 			CG_Bullet( tr.endpos, cg.predictedPlayerState.clientNum, tr.plane.normal, flesh, fleshEntityNum );
 			//Com_Printf( "Predicted bullet\n" );
 		}
-	} else if ((cg_ratPredictMissiles.integer > 0 && cgs.predictMissiles > 0)
+	} else if ((cg_ratPredictMissiles.integer > 0 && (cgs.ratFlags & RAT_PREDICTMISSILES))
 		       	&& (ent->weapon == WP_PLASMAGUN
 			    || ent->weapon == WP_ROCKET_LAUNCHER 
 			    || ent->weapon == WP_GRENADE_LAUNCHER
