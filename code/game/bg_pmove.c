@@ -33,7 +33,7 @@ pml_t		pml;
 // movement parameters
 float	pm_stopspeed = 100.0f;
 float	pm_duckScale = 0.25f;
-//float	pm_swimScale = 0.50f;
+float	pm_swimScale = 0.75f;
 //float	pm_wadeScale = 0.70f;
 
 float	pm_accelerate = 10.0f;
@@ -525,8 +525,8 @@ static void PM_WaterMove( void ) {
 	VectorCopy (wishvel, wishdir);
 	wishspeed = VectorNormalize(wishdir);
 
-	if ( wishspeed > pm->ps->speed * g_pm_swimScale.value ) {
-		wishspeed = pm->ps->speed * g_pm_swimScale.value;
+	if ( wishspeed > pm->ps->speed * pm_swimScale ) {
+		wishspeed = pm->ps->speed * pm_swimScale;
 	}
 
 	PM_Accelerate (wishdir, wishspeed, pm_wateraccelerate);
@@ -770,7 +770,7 @@ static void PM_WalkMove( void ) {
 		float	waterScale;
 
 		waterScale = pm->waterlevel / 3.0;
-		waterScale = 1.0 - ( 1.0 - g_pm_swimScale.value ) * waterScale;
+		waterScale = 1.0 - ( 1.0 - pm_swimScale ) * waterScale;
 		if ( wishspeed > pm->ps->speed * waterScale ) {
 			wishspeed = pm->ps->speed * waterScale;
 		}
