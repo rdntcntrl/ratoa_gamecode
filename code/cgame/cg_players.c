@@ -333,25 +333,6 @@ CG_FindClientModelFile
 static qboolean	CG_FindClientModelFile( char *filename, int length, clientInfo_t *ci, const char *teamName, const char *modelName, const char *skinName, const char *base, const char *ext ) {
 	char *team, *charactersFolder;
 	int i;
-	const char	*local_config;
-	int 	local_team;
-	qboolean enemy = qfalse;
-	const char *v;
-
-	if (cg_forceModel.integer) {
-    		local_config = CG_ConfigString(cg.clientNum + CS_PLAYERS);
-    		v = Info_ValueForKey(local_config, "t");
-    		local_team = atoi(v);
-  	}
-
-	if (cgs.gametype >= GT_TEAM && cgs.ffa_gt != 1 ) {
-		if (local_team != ci->team)
-			enemy = 1;
-		else
-			enemy = 0;
-	} else {
-		enemy = 1;
-	}
 
 	if ( cgs.gametype >= GT_TEAM && cgs.ffa_gt!=1) {
 		switch ( ci->team ) {
@@ -980,11 +961,9 @@ void CG_NewClientInfo( int clientNum ) {
 		return;		// player just left
 	}
 
-	if (cg_forceModel.integer || cg_forceBrightModels.integer) {
-    		local_config = CG_ConfigString(cg.clientNum + CS_PLAYERS);
-    		v = Info_ValueForKey(local_config, "t");
-    		local_team = atoi(v);
-  	}
+	local_config = CG_ConfigString(cg.clientNum + CS_PLAYERS);
+	v = Info_ValueForKey(local_config, "t");
+	local_team = atoi(v);
 
 	// build into a temp buffer so the defer checks can use
 	// the old value
