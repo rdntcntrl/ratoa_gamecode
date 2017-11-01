@@ -812,6 +812,7 @@ void ClientThink_real( gentity_t *ent ) {
 //		G_Printf("serverTime >>>>>\n" );
 	} 
 
+
 //Here comes the unlagged bit!
 //unlagged - backward reconciliation #4
 	// frameOffset should be about the number of milliseconds into a frame 
@@ -1174,7 +1175,6 @@ void ClientThink_real( gentity_t *ent ) {
         
 	// perform once-a-second actions
 	ClientTimerActions( ent, msec );
-
 }
 
 /*
