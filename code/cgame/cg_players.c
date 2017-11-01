@@ -363,7 +363,7 @@ static qboolean	CG_FindClientModelFile( char *filename, int length, clientInfo_t
 				return qtrue;
 			}
 			if ( cgs.gametype >= GT_TEAM && cgs.ffa_gt!=1) {
-				const char *tmpTeam = cg_forceBrightModels.integer ? skinName : team;
+				const char *tmpTeam = (cg_forceBrightModels.integer && cgs.ratFlags & RAT_ALLOWBRIGHTSKINS) ? skinName : team;
 				if ( i == 0 && teamName && *teamName ) {
 					//								"models/players/characters/sergei/stroggs/lower_red.skin"
 					Com_sprintf( filename, length, "models/players/%s%s/%s%s_%s.%s", charactersFolder, modelName, teamName, base, tmpTeam, ext );
@@ -444,7 +444,7 @@ static qboolean	CG_FindClientHeadFile( char *filename, int length, clientInfo_t 
 				return qtrue;
 			}
 			if ( cgs.gametype >= GT_TEAM && cgs.ffa_gt!=1) {
-				const char *tmpTeam = cg_forceBrightModels.integer ? headSkinName : team;
+				const char *tmpTeam = (cg_forceBrightModels.integer && cgs.ratFlags & RAT_ALLOWBRIGHTSKINS) ? headSkinName : team;
 				if ( i == 0 &&  teamName && *teamName ) {
 					Com_sprintf( filename, length, "models/players/%s%s/%s%s_%s.%s", headsFolder, headModelName, teamName, base, tmpTeam, ext );
 				}
@@ -992,7 +992,7 @@ void CG_NewClientInfo( int clientNum ) {
 		enemy = 1;
 	}
 
-	if (cg_forceBrightModels.integer == 2) {
+	if (cg_forceBrightModels.integer == 2 && cgs.ratFlags & RAT_ALLOWBRIGHTSKINS) {
 		if (enemy) {
 			Q_strncpyz( newInfo.modelName, "smarine", sizeof( newInfo.modelName ) );
 			Q_strncpyz( newInfo.skinName, "bright", sizeof( newInfo.skinName ) );
@@ -1000,7 +1000,7 @@ void CG_NewClientInfo( int clientNum ) {
 			Q_strncpyz( newInfo.modelName, DEFAULT_TEAM_MODEL, sizeof( newInfo.modelName ) );
 			Q_strncpyz( newInfo.skinName, "bright", sizeof( newInfo.skinName ) );
 		}
-	} else if (cg_forceBrightModels.integer) {
+	} else if (cg_forceBrightModels.integer && cgs.ratFlags & RAT_ALLOWBRIGHTSKINS) {
 		Q_strncpyz( newInfo.modelName, DEFAULT_TEAM_MODEL, sizeof( newInfo.modelName ) );
 		Q_strncpyz( newInfo.skinName, "bright", sizeof( newInfo.skinName ) );
 	} else if ( cg_forceModel.integer ) {
@@ -1047,7 +1047,7 @@ void CG_NewClientInfo( int clientNum ) {
 
 	// head model
 	v = Info_ValueForKey( configstring, "hmodel" );
-	if (cg_forceBrightModels.integer == 2) {
+	if (cg_forceBrightModels.integer == 2 && cgs.ratFlags & RAT_ALLOWBRIGHTSKINS) {
 		if (enemy) {
 			Q_strncpyz( newInfo.headModelName, "smarine", sizeof( newInfo.headModelName ) );
 			Q_strncpyz( newInfo.headSkinName, "bright", sizeof( newInfo.headSkinName ) );
@@ -1055,7 +1055,7 @@ void CG_NewClientInfo( int clientNum ) {
 			Q_strncpyz( newInfo.headModelName, DEFAULT_TEAM_MODEL, sizeof( newInfo.headModelName ) );
 			Q_strncpyz( newInfo.headSkinName, "bright", sizeof( newInfo.headSkinName ) );
 		}
-	} else if (cg_forceBrightModels.integer) {
+	} else if (cg_forceBrightModels.integer && cgs.ratFlags & RAT_ALLOWBRIGHTSKINS) {
 		Q_strncpyz( newInfo.headModelName, DEFAULT_TEAM_MODEL, sizeof( newInfo.headModelName ) );
 		Q_strncpyz( newInfo.headSkinName, "bright", sizeof( newInfo.headSkinName ) );
 	} else if ( cg_forceModel.integer ) {
@@ -2496,7 +2496,7 @@ void CG_PlayerGetColors(clientInfo_t *ci, qboolean isDead, byte *outColor) {
 	float h,s,v;
 	color[0] = color[1] = color[2] = color[3] = 1.0;
 
-	if (!cg_forceBrightModels.integer) {
+	if (!cg_forceBrightModels.integer || !(cgs.ratFlags & RAT_ALLOWBRIGHTSKINS)) {
 		CG_FloatColorToRGBA(color, outColor);
 		return;
 	}
@@ -2657,7 +2657,7 @@ void CG_Player( centity_t *cent ) {
 	CG_PlayerGetColors(ci, cent->currentState.eFlags & EF_DEAD ? qtrue : qfalse, playercolor);
 	memcpy(&legs.shaderRGBA, playercolor, sizeof(playercolor));
 	memcpy(&torso.shaderRGBA, playercolor, sizeof(playercolor));
-	if (cg_forceBrightModels.integer && ci->team != TEAM_SPECTATOR &&
+	if (cgs.ratFlags & RAT_ALLOWBRIGHTSKINS && cg_forceBrightModels.integer && ci->team != TEAM_SPECTATOR &&
 			( cg_autoHeadColors.integer == 1  // both teams
 			  || cg_autoHeadColors.integer == 2 && ci->team != cg.snap->ps.persistant[PERS_TEAM] // only for enemies
 			  || cg_autoHeadColors.integer == 3 && ci->team == cg.snap->ps.persistant[PERS_TEAM] // only for teammates
