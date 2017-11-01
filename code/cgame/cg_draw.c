@@ -2728,6 +2728,10 @@ static void CG_DrawCrosshair(void)
 		w = h = cg_crosshairSize.value;
 		ca = cg_drawCrosshair.integer;
 	}
+
+	if ( cgs.screenXScale > cgs.screenYScale ) {
+		w = w * cgs.screenYScale / cgs.screenXScale;
+	}
 	
 	if( cg_crosshairPulse.integer ){
 		// pulse the size of the crosshair when picking up items
