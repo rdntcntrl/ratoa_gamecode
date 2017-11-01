@@ -193,6 +193,8 @@ vmCvar_t	g_tournamentMinSpawnDistance;
 
 vmCvar_t	g_enableGreenArmor;
 
+vmCvar_t	g_pingEqualizer;
+
 vmCvar_t        g_autoClans;
 vmCvar_t        g_startWhenReady;
 vmCvar_t        g_countDownHealthArmor;
@@ -390,6 +392,8 @@ static cvarTable_t		gameCvarTable[] = {
         { &g_tournamentMinSpawnDistance, "g_tournamentMinSpawnDistance", "900", CVAR_ARCHIVE, 0, qfalse },
 
         { &g_enableGreenArmor, "g_enableGreenArmor", "0", CVAR_ARCHIVE, 0, qfalse },
+
+        { &g_pingEqualizer, "g_pingEqualizer", "0", CVAR_ARCHIVE, 0, qfalse },
 
         { &g_teleMissiles, "g_teleMissiles", "0", CVAR_ARCHIVE, 0, qtrue },
         { &g_pushGrenades, "g_pushGrenades", "0", CVAR_ARCHIVE, 0, qtrue },
@@ -753,6 +757,68 @@ void G_RemapTeamShaders( void ) {
 	}
 	trap_SetConfigstring(CS_SHADERSTATE, BuildShaderStateConfig());
 }
+
+void G_PingEqualizerReset() {
+	fileHandle_t f;
+	int len;
+	if (!g_pingEqualizer.integer) {
+		return;
+	}
+	if (level.warmupTime == 0 ){
+		return;
+	}
+	Com_Printf("Resetting ping equalizer...\n");
+	len = trap_FS_FOpenFile( "pingequalizer.log", &f, FS_WRITE );
+	if (len < 0 ) {
+		return;
+	}
+	trap_FS_Write( "\n", 1, f );
+	trap_FS_FCloseFile( f );
+}
+
+void G_PingEqualizerWrite() {
+	fileHandle_t f;
+	int len;
+	char *s;
+	if (!g_pingEqualizer.integer) {
+		return;
+	}
+	if (level.warmupTime > 0
+			&& level.warmupTime - level.time == 10000 
+			&& g_gametype.integer == GT_TOURNAMENT 
+			&& level.numPlayingClients == 2) {
+		gclient_t *c1 = &level.clients[level.sortedClients[0]];
+		gclient_t *c2 = &level.clients[level.sortedClients[1]];
+		gclient_t *lower = NULL;
+		int pingdiff = 0;
+		if (!c1 || !c2) {
+			return;
+		}
+		if (g_entities[level.sortedClients[0]].r.svFlags & SVF_BOT
+				|| g_entities[level.sortedClients[1]].r.svFlags & SVF_BOT) {
+			return;
+		}
+		if (c1->pers.realPing > c2->pers.realPing) {
+			pingdiff = c1->pers.realPing - c2->pers.realPing;
+			lower = c2;
+		} else if (c1->pers.realPing < c2->pers.realPing) {
+			pingdiff = c2->pers.realPing - c1->pers.realPing;
+			lower = c1;
+		}
+		if (!lower) {
+			return;
+		}
+		Com_Printf("Updating ping equalizer...\n");
+		len = trap_FS_FOpenFile( "pingequalizer.log", &f, FS_WRITE );
+		if (len < 0 ) {
+			return;
+		}
+		s = va("%s %i\n", lower->pers.ip, pingdiff);
+		trap_FS_Write( s, strlen(s), f );
+		trap_FS_FCloseFile( f );
+	}
+}
+
 
 void G_UpdateActionCamera(void) {
 	int i;
@@ -1206,6 +1272,8 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 		level.FFALocked = qtrue;
 		trap_Cvar_Set("g_teamslocked",va("%i", g_teamslocked.integer - 1));
 	}
+
+	G_PingEqualizerReset();
 }
 
 
@@ -3352,6 +3420,9 @@ end = trap_Milliseconds();
 		}
 		trap_Cvar_Set("g_listEntity", "0");
 	}
+
+	G_PingEqualizerWrite();
+
 
 //unlagged - backward reconciliation #4
 	// record the time at the end of this frame - it should be about
