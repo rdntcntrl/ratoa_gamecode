@@ -203,6 +203,7 @@ vmCvar_t        g_countDownHealthArmor;
 vmCvar_t        g_powerupGlows;
 vmCvar_t        g_screenShake;
 vmCvar_t        g_allowBrightModels;
+vmCvar_t        g_friendsWallHack;
 vmCvar_t        g_itemPickup;
 vmCvar_t        g_usesRatVM;
 vmCvar_t        g_ratVmPredictMissiles;
@@ -416,6 +417,7 @@ static cvarTable_t		gameCvarTable[] = {
         { &g_powerupGlows, "g_powerupGlows", "1", CVAR_ARCHIVE, 0, qfalse },
         { &g_screenShake, "g_screenShake", "1", CVAR_ARCHIVE, 0, qfalse },
         { &g_allowBrightModels, "g_allowBrightModels", "1", CVAR_ARCHIVE, 0, qfalse },
+        { &g_friendsWallHack, "g_friendsWallHack", "0", CVAR_ARCHIVE, 0, qfalse },
 
         { &g_itemPickup, "g_itemPickup", "0", CVAR_ARCHIVE , 0, qtrue },
         { &g_usesRatVM, "g_usesRatVM", "0", 0, 0, qfalse },
@@ -987,6 +989,10 @@ void G_UpdateRatFlags( void ) {
 		rflags |= RAT_ALLOWBRIGHTSKINS;
 	}
 
+	if (g_friendsWallHack.integer) {
+		rflags |= RAT_FRIENDSWALLHACK;
+	}
+
 	// XXX --> also update code where this is called!
 
 	trap_Cvar_Set("g_ratFlags",va("%i",rflags));
@@ -1072,6 +1078,7 @@ void G_UpdateCvars( void ) {
 						|| cv->vmCvar == &g_ratPhysics
 						|| cv->vmCvar == &g_rampJump
 						|| cv->vmCvar == &g_allowBrightModels
+						|| cv->vmCvar == &g_friendsWallHack
 						) {
 					updateRatFlags = qtrue;
 				}
