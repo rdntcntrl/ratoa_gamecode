@@ -1577,13 +1577,13 @@ int QDECL SortRanks( const void *a, const void *b ) {
 	}
 
         //In elimination and CTF elimination, sort dead players last
-        if((g_gametype.integer == GT_ELIMINATION || g_gametype.integer == GT_CTF_ELIMINATION)
-                && level.roundNumber==level.roundNumberStarted && (ca->isEliminated != cb->isEliminated)) {
-            if( ca->isEliminated )
-                return 1;
-            if( cb->isEliminated )
-                return -1;
-        }
+        //if((g_gametype.integer == GT_ELIMINATION || g_gametype.integer == GT_CTF_ELIMINATION)
+        //        && level.roundNumber==level.roundNumberStarted && (ca->isEliminated != cb->isEliminated)) {
+        //    if( ca->isEliminated )
+        //        return 1;
+        //    if( cb->isEliminated )
+        //        return -1;
+        //} // confusing
 
 	// then sort by score
 	if ( ca->ps.persistant[PERS_SCORE]
@@ -2276,9 +2276,9 @@ qboolean ScoreIsTied( void ) {
         //Sago: In Elimination and Oneway Flag Capture teams must win by two points.
         if ( g_gametype.integer == GT_ELIMINATION || 
                 (g_gametype.integer == GT_CTF_ELIMINATION && g_elimination_ctf_oneway.integer)) {
-            return (level.teamScores[TEAM_RED] == level.teamScores[TEAM_BLUE] || 
+            return (level.teamScores[TEAM_RED] == level.teamScores[TEAM_BLUE] /*|| 
                     level.teamScores[TEAM_RED] == level.teamScores[TEAM_BLUE]+1 ||
-                    level.teamScores[TEAM_RED] == level.teamScores[TEAM_BLUE]-1);
+                    level.teamScores[TEAM_RED] == level.teamScores[TEAM_BLUE]-1*/);
         }
 	
 	if ( g_gametype.integer >= GT_TEAM && g_ffa_gt!=1) {

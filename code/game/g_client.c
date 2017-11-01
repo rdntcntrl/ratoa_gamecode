@@ -1985,10 +1985,10 @@ void ClientSpawn(gentity_t *ent) {
 		// N_G: Another condition that makes no sense to me, see for
 		// yourself if you really meant this
 		// Sago: I beleive the TeamCount is to make sure people can join even if the game can't start
-		if( ( level.roundNumber == level.roundNumberStarted ) ||
+		if( ( ( level.roundNumber == level.roundNumberStarted ) ||
 			( (level.time < level.roundStartTime - g_elimination_activewarmup.integer*1000 ) &&
 			TeamCount( -1, TEAM_BLUE, qtrue ) &&
-			TeamCount( -1, TEAM_RED, qtrue )  ) )
+			TeamCount( -1, TEAM_RED, qtrue )  ) ) && level.roundNumberStarted > 0 ) 
 		{	
 			client->sess.spectatorState = SPECTATOR_FREE;
 			client->isEliminated = qtrue;
