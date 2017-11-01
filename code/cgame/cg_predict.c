@@ -316,10 +316,11 @@ static void CG_TouchItem( centity_t *cent ) {
 		if (cg.predictedPlayerState.persistant[PERS_TEAM] == TEAM_BLUE &&
 			item->giTag == PW_REDFLAG && (!(cgs.elimflags&EF_ONEWAY) || cgs.attackingTeam == TEAM_BLUE))
 			canBePicked = qtrue;
-		if (item->giTag == WP_RAILGUN)
-			canBePicked = qfalse;
-		if (item->giTag == WP_PLASMAGUN)
-			canBePicked = qfalse;
+		// WHY THE F* was that in here??
+		//if (item->giTag == WP_RAILGUN)
+		//	canBePicked = qfalse;
+		//if (item->giTag == WP_PLASMAGUN)
+		//	canBePicked = qfalse;
 	}
 
 	//Currently we don't predict anything in Double Domination because it looks like we take a flag
@@ -352,7 +353,9 @@ static void CG_TouchItem( centity_t *cent ) {
 		// if its a weapon, give them some predicted ammo so the autoswitch will work
 		if ( item->giType == IT_WEAPON ) {
 			cg.predictedPlayerState.stats[ STAT_WEAPONS ] |= 1 << item->giTag;
-			if ( !cg.predictedPlayerState.ammo[ item->giTag ] ) {
+			if (cg_predictWeapons.integer && cg.predictedPlayerState.ammo[ item->giTag ] < item->quantity) {
+				cg.predictedPlayerState.ammo[ item->giTag ] = item->quantity;
+			} else if ( !cg.predictedPlayerState.ammo[ item->giTag ] ) {
 				cg.predictedPlayerState.ammo[ item->giTag ] = 1;
 			}
 		}
