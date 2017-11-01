@@ -197,6 +197,7 @@ vmCvar_t        g_screenShake;
 vmCvar_t        g_itemPickup;
 vmCvar_t        g_usesRatVM;
 vmCvar_t        g_ratVmPredictMissiles;
+vmCvar_t        g_ratFlags;
 vmCvar_t        sv_allowDuplicateGuid;
 
 // weapon config
@@ -396,12 +397,13 @@ static cvarTable_t		gameCvarTable[] = {
 
         { &g_countDownHealthArmor, "g_countDownHealthArmor", "1", CVAR_ARCHIVE , 0, qfalse },
 	
-        { &g_powerupGlows, "g_powerupGlows", "1", CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qfalse },
-        { &g_screenShake, "g_screenShake", "1", CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qfalse },
+        { &g_powerupGlows, "g_powerupGlows", "1", CVAR_ARCHIVE, 0, qfalse },
+        { &g_screenShake, "g_screenShake", "1", CVAR_ARCHIVE, 0, qfalse },
 
-        { &g_itemPickup, "g_itemPickup", "0", CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qtrue },
+        { &g_itemPickup, "g_itemPickup", "0", CVAR_ARCHIVE , 0, qtrue },
         { &g_usesRatVM, "g_usesRatVM", "0", 0, 0, qfalse },
-        { &g_ratVmPredictMissiles, "g_ratVmPredictMissiles", "1", CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qfalse },
+        { &g_ratVmPredictMissiles, "g_ratVmPredictMissiles", "1", CVAR_ARCHIVE, 0, qfalse },
+        { &g_ratFlags, "g_ratFlags", "0", CVAR_SERVERINFO, 0, qfalse },
         { &sv_allowDuplicateGuid, "sv_allowDuplicateGuid", "0", 0, 0, qfalse },
 
 // weapon config
@@ -844,6 +846,28 @@ void G_RegisterCvars( void ) {
 	level.warmupModificationCount = g_warmup.modificationCount;
 }
 
+void G_UpdateRatFlags( void ) {
+	int rflags = 0;
+
+	if (g_itemPickup.integer) {
+		rflags |= RAT_EASYPICKUP;
+	}
+
+	if (g_powerupGlows.integer) {
+		rflags |= RAT_POWERUPGLOWS;
+	}
+
+	if (g_screenShake.integer) {
+		rflags |= RAT_SCREENSHAKE;
+	}
+
+	if (g_ratVmPredictMissiles.integer) {
+		rflags |= RAT_PREDICTMISSILES;
+	}
+
+	trap_Cvar_Set("g_ratFlags",va("%i",rflags));
+}
+
 /*
 =================
 G_UpdateCvars
@@ -853,6 +877,7 @@ void G_UpdateCvars( void ) {
 	int			i;
 	cvarTable_t	*cv;
 	qboolean remapped = qfalse;
+	qboolean updateRatFlags = qfalse;
 
 	for ( i = 0, cv = gameCvarTable ; i < gameCvarTableSize ; i++, cv++ ) {
 		if ( cv->vmCvar ) {
@@ -913,12 +938,23 @@ void G_UpdateCvars( void ) {
 				if (cv->teamShader) {
 					remapped = qtrue;
 				}
+
+				if (cv->vmCvar == &g_itemPickup 
+						|| cv->vmCvar == &g_powerupGlows
+						|| cv->vmCvar == &g_screenShake
+						|| cv->vmCvar == &g_ratVmPredictMissiles) {
+					updateRatFlags = qtrue;
+				}
 			}
 		}
 	}
 
 	if (remapped) {
 		G_RemapTeamShaders();
+	}
+
+	if (updateRatFlags) {
+		G_UpdateRatFlags();
 	}
 }
 

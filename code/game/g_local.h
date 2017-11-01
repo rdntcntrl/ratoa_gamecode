@@ -1200,6 +1200,7 @@ extern  vmCvar_t        g_screenShake;
 extern  vmCvar_t        g_itemPickup;
 extern  vmCvar_t        g_usesRatVM;
 extern  vmCvar_t        g_ratVmPredictMissiles;
+extern  vmCvar_t        g_ratFlags;
 extern  vmCvar_t        sv_allowDuplicateGuid;
 
 // weapon config
