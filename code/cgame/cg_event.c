@@ -944,6 +944,11 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 		trap_S_StartSound (NULL, es->number, CHAN_AUTO, cgs.media.teleOutSound );
 		CG_SpawnEffect(  position);
 		break;
+	
+	case EV_MISSILE_TELEPORT:
+		DEBUGNAME("EV_MISSILE_TELEPORT");
+		trap_S_StartSound (NULL, es->number, CHAN_AUTO, cgs.media.teleShotSound );
+		break;
 
 	case EV_ITEM_POP:
 		DEBUGNAME("EV_ITEM_POP");
