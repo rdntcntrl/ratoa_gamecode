@@ -1364,6 +1364,13 @@ void ClientUserinfoChanged( int clientNum ) {
                 "print \"You cannot change your name while you are muted\n\"" );
             revertName = qtrue;
         }
+        else if( G_TournamentSpecMuted() && g_tournamentMuteSpec.integer == 3
+		       	&& ( client->sess.sessionTeam == TEAM_SPECTATOR 
+				&& client->pers.connected == CON_CONNECTED )) {
+            trap_SendServerCommand( ent - g_entities,
+                "print \"You cannot change your name while spectators are muted\n\"" );
+            revertName = qtrue;
+	}
         else if( !G_admin_name_check( ent, client->pers.netname, err, sizeof( err ) ) )
         {
             trap_SendServerCommand( ent - g_entities, va( "print \"%s\n\"", err ) );

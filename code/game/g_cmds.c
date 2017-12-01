@@ -1501,6 +1501,13 @@ void Cmd_Ready_f( gentity_t *ent ) {
 	SendReadymask(-1);
 }
 
+qboolean G_TournamentSpecMuted(void) {
+	return (g_gametype.integer == GT_TOURNAMENT) 
+		&& ((g_tournamentMuteSpec.integer == 1)
+		    || (g_tournamentMuteSpec.integer >= 2 && level.warmupTime != -1)
+		   );
+}
+
 /*
 ==================
 G_Say
@@ -1538,8 +1545,7 @@ static void G_SayTo( gentity_t *ent, gentity_t *other, int mode, int color, cons
 	}
 
 	// no chatting to players in tournements
-	if (g_tournamentMuteSpec.integer && 
-			(g_gametype.integer == GT_TOURNAMENT)
+	if (G_TournamentSpecMuted() 
 			&& other->client->sess.sessionTeam == TEAM_FREE
 			&& ent->client->sess.sessionTeam != TEAM_FREE ) {
 		return;
@@ -1591,6 +1597,7 @@ char * G_TeamSayTokens(gentity_t *ent, const char *message) {
 	return text;
 }
 
+
 #define EC		"\x19"
 
 void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText ) {
@@ -1607,14 +1614,15 @@ void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText ) 
 		ClientInactivityHeartBeat(ent->client);
 	}
 
-    if ((ent->r.svFlags & SVF_BOT) && trap_Cvar_VariableValue( "bot_nochat" )>1) return;
+	if ((ent->r.svFlags & SVF_BOT) && trap_Cvar_VariableValue( "bot_nochat" )>1)
+	       	return;
 
 	if ( (g_gametype.integer < GT_TEAM || g_ffa_gt == 1) && mode == SAY_TEAM &&
 			!(g_gametype.integer == GT_TOURNAMENT && ent->client->sess.sessionTeam == TEAM_SPECTATOR)) {
 		mode = SAY_ALL;
 	}
 
-	if (((g_gametype.integer == GT_TOURNAMENT && g_tournamentMuteSpec.integer )|| g_specMuted.integer)
+	if ((G_TournamentSpecMuted() || g_specMuted.integer)
 			&& ent->client->sess.sessionTeam == TEAM_SPECTATOR
 			&& mode == SAY_ALL) {
 		mode = SAY_TEAM;
