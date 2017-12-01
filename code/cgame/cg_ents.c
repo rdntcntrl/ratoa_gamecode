@@ -457,6 +457,8 @@ static void CG_Missile( centity_t *cent ) {
 	VectorCopy( cent->lerpOrigin, ent.origin);
 	VectorCopy( cent->lerpOrigin, ent.oldorigin);
 
+	//CG_Printf("cent->currentState.pos.trTime = %i\n", cent->currentState.pos.trTime);
+
 	if ( cent->currentState.weapon == WP_PLASMAGUN ) {
 		ent.reType = RT_SPRITE;
 		ent.radius = 16;

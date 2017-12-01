@@ -703,6 +703,7 @@ typedef struct {
 	int			lastServerTime;
 	playerState_t savedPmoveStates[NUM_SAVED_STATES];
 	int			stateHead, stateTail;
+	int			cmdMsecDelta;
 //unlagged - optimized prediction
 
         //time that the client will respawn. If 0 = the player is alive.

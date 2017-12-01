@@ -310,10 +310,12 @@ void CG_PredictWeaponEffects( centity_t *cent ) {
 
 		VectorCopy(muzzlePoint, le->pos.trBase);
 		//le->pos.trTime = cg.time-50;
-		le->pos.trTime = cg.time-cgs.predictedMissileNudge;
+		le->pos.trTime = cg.time-cgs.predictedMissileNudge-cg.cmdMsecDelta;
 
 		VectorCopy( muzzlePoint, bolt->origin );
 		VectorCopy( muzzlePoint, bolt->oldorigin );
+
+		//CG_Printf("cmdMsecDelta = %i, le->pos.trTime = %i\n", cg.cmdMsecDelta, le->pos.trTime);
 
 		switch (ent->weapon) {
 			case WP_PLASMAGUN:
