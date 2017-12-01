@@ -177,6 +177,7 @@ vmCvar_t        g_pushGrenades;
 vmCvar_t        g_newShotgun;
 vmCvar_t        g_ratPhysics;
 vmCvar_t        g_rampJump;
+vmCvar_t        g_additiveJump;
 vmCvar_t        g_fastSwitch;
 vmCvar_t        g_fastWeapons;
 vmCvar_t        g_ambientSound; 
@@ -421,6 +422,7 @@ static cvarTable_t		gameCvarTable[] = {
 
 	{ &g_ratPhysics,   "g_ratPhysics", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_rampJump,     "g_rampJump", "0", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_additiveJump,     "g_additiveJump", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_fastSwitch,   "g_fastSwitch", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_fastWeapons,  "g_fastWeapons", "1", CVAR_ARCHIVE, 0, qtrue },
 
@@ -1027,6 +1029,10 @@ void G_UpdateRatFlags( void ) {
 		rflags |= RAT_NEWSHOTGUN;
 	}
 
+	if (g_additiveJump.integer) {
+		rflags |= RAT_ADDITIVEJUMP;
+	}
+
 	// XXX --> also update code where this is called!
 
 	trap_Cvar_Set("g_ratFlags",va("%i",rflags));
@@ -1116,6 +1122,7 @@ void G_UpdateCvars( void ) {
 						|| cv->vmCvar == &g_specShowZoom
 						|| cv->vmCvar == &g_brightPlayerShells
 						|| cv->vmCvar == &g_newShotgun
+						|| cv->vmCvar == &g_additiveJump
 						) {
 					updateRatFlags = qtrue;
 				}

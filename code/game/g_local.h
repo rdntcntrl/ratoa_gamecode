@@ -1183,6 +1183,7 @@ extern  vmCvar_t        g_pushGrenades;
 extern  vmCvar_t        g_newShotgun;
 extern  vmCvar_t        g_ratPhysics;
 extern  vmCvar_t        g_rampJump;
+extern  vmCvar_t        g_additiveJump;
 extern  vmCvar_t        g_fastSwitch;
 extern  vmCvar_t        g_fastWeapons;
 extern  vmCvar_t        g_ambientSound;

@@ -390,8 +390,8 @@ static qboolean PM_CheckJump( void ) {
 
 	pm->ps->groundEntityNum = ENTITYNUM_NONE;
 
-	if ( (g_ratPhysics.integer || g_rampJump.integer) && (pm->ps->velocity[2] >= 0) ) {
-		if (pm->ps->stats[STAT_JUMPTIME] > 0) {
+	if ( (g_ratPhysics.integer || g_rampJump.integer || g_additiveJump.integer) && (pm->ps->velocity[2] >= 0) ) {
+		if (pm->ps->stats[STAT_JUMPTIME] > 0 && (g_rampJump.integer || g_ratPhysics.integer)) {
 			//float speed = sqrt(pml.forward[0]*pml.forward[0] + pml.forward[1]*pml.forward[1]);
 			//pm->ps->velocity[0] += (pml.forward[0]/speed)*80;
 			//pm->ps->velocity[1] += (pml.forward[1]/speed)*80;
