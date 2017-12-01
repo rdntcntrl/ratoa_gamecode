@@ -1217,6 +1217,7 @@ extern  vmCvar_t        g_specShowZoom;
 
 extern  vmCvar_t        g_itemPickup;
 extern  vmCvar_t        g_usesRatVM;
+extern  vmCvar_t        g_usesRatEngine;
 extern  vmCvar_t        g_broadcastClients;
 extern  vmCvar_t        g_ratVmPredictMissiles;
 extern  vmCvar_t        g_ratFlags;
