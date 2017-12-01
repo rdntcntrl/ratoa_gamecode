@@ -28,10 +28,15 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 void CG_ShotgunPattern( vec3_t origin, vec3_t origin2, int seed, int otherEntNum );
 void CG_Bullet( vec3_t end, int sourceEntityNum, vec3_t normal, qboolean flesh, int fleshEntityNum );
 
+localEntity_t	*CG_BasePredictMissile( entityState_t *ent,  vec3_t muzzlePoint );
+void CG_FinishPredictMissileModel( entityState_t *ent, localEntity_t *le );
+void CG_PredictNailgunMissile( entityState_t *ent, vec3_t muzzlePoint, vec3_t forward, vec3_t right, vec3_t up );
+
 // and this as well
 //Must be in sync with g_weapon.c
 #define MACHINEGUN_SPREAD	200
 #define CHAINGUN_SPREAD		600
+
 
 
 /*
@@ -283,6 +288,7 @@ void CG_PredictWeaponEffects( centity_t *cent ) {
 			    || ent->weapon == WP_GRENADE_LAUNCHER
 			    || ent->weapon == WP_BFG
 			    || ent->weapon == WP_PROX_LAUNCHER
+			    || ent->weapon == WP_NAILGUN
 			   )
 		   ) {
 		localEntity_t	*le;
@@ -296,28 +302,14 @@ void CG_PredictWeaponEffects( centity_t *cent ) {
 			return;
 		}
 
-		le = CG_AllocLocalEntity();
-		le->leFlags = 0;
-		le->leType = LE_PREDICTEDMISSILE;
-		le->startTime = cg.time;
-		le->endTime = cg.time + (cg_ratPredictMissilesPing.integer > 0 ?
-				cg_ratPredictMissilesPing.integer : cg.snap->ping)
-				* cg_ratPredictMissilesPingFactor.value;
-		le->weapon = ent->weapon;
+		if (ent->weapon == WP_NAILGUN) {
+			CG_PredictNailgunMissile(ent, muzzlePoint, forward, right, up);
+			return;
+		}
 
-		// server does this, we'll do it here for accuracy
-		SnapVector ( muzzlePoint );
+		le = CG_BasePredictMissile(ent, muzzlePoint);
 
 		bolt = &le->refEntity;
-
-		VectorCopy(muzzlePoint, le->pos.trBase);
-		//le->pos.trTime = cg.time-50;
-		le->pos.trTime = cg.time-cgs.predictedMissileNudge-cg.cmdMsecDelta;
-
-		VectorCopy( muzzlePoint, bolt->origin );
-		VectorCopy( muzzlePoint, bolt->oldorigin );
-
-		//CG_Printf("cmdMsecDelta = %i, le->pos.trTime = %i\n", cg.cmdMsecDelta, le->pos.trTime);
 
 		switch (ent->weapon) {
 			case WP_PLASMAGUN:
@@ -355,15 +347,87 @@ void CG_PredictWeaponEffects( centity_t *cent ) {
 				le->pos.trType = TR_GRAVITY;
 				break;
 		}
-		bolt->reType = RT_MODEL;
-		bolt->rotation = 0;
-		bolt->hModel = cg_weapons[ent->weapon].missileModel;
-		bolt->renderfx = cg_weapons[ent->weapon].missileRenderfx | RF_NOSHADOW;
+		CG_FinishPredictMissileModel(ent, le);
 		if (ent->weapon == WP_PROX_LAUNCHER && cg.predictedPlayerState.persistant[PERS_TEAM] == TEAM_BLUE) {
 			bolt->hModel = cgs.media.blueProxMine;
 		}
 	}
 }
+
+localEntity_t	*CG_BasePredictMissile( entityState_t *ent,  vec3_t muzzlePoint ) {
+	localEntity_t	*le;
+	refEntity_t	*bolt;
+
+	le = CG_AllocLocalEntity();
+	le->leFlags = 0;
+	le->leType = LE_PREDICTEDMISSILE;
+	le->startTime = cg.time;
+	le->endTime = cg.time + (cg_ratPredictMissilesPing.integer > 0 ?
+			cg_ratPredictMissilesPing.integer : cg.snap->ping)
+		* cg_ratPredictMissilesPingFactor.value;
+	le->weapon = ent->weapon;
+
+	// server does this, we'll do it here for accuracy
+	SnapVector ( muzzlePoint );
+
+	bolt = &le->refEntity;
+
+	VectorCopy(muzzlePoint, le->pos.trBase);
+	//le->pos.trTime = cg.time-50;
+	le->pos.trTime = cg.time-cgs.predictedMissileNudge-cg.cmdMsecDelta;
+
+	VectorCopy( muzzlePoint, bolt->origin );
+	VectorCopy( muzzlePoint, bolt->oldorigin );
+
+	//CG_Printf("cmdMsecDelta = %i, le->pos.trTime = %i\n", cg.cmdMsecDelta, le->pos.trTime);
+
+	return le;
+}
+
+void CG_FinishPredictMissileModel( entityState_t *ent, localEntity_t *le ) {
+	refEntity_t	*bolt = &le->refEntity;
+
+	bolt->reType = RT_MODEL;
+	bolt->rotation = 0;
+	bolt->hModel = cg_weapons[ent->weapon].missileModel;
+	bolt->renderfx = cg_weapons[ent->weapon].missileRenderfx | RF_NOSHADOW;
+}
+
+#define NAILGUN_SPREAD 500
+#define NUM_NAILSHOTS 15
+void CG_PredictNailgunMissile( entityState_t *ent, vec3_t muzzlePoint, vec3_t forward, vec3_t right, vec3_t up ) {
+	localEntity_t	*le;
+	refEntity_t	*bolt;
+	int i;
+	int seed = cg.oldTime % 256;
+	float		r, u, scale;
+	vec3_t		dir;
+	vec3_t		end;
+
+	for (i = 0; i < NUM_NAILSHOTS; ++i) {
+		le = CG_BasePredictMissile(ent, muzzlePoint);
+
+		r = Q_random(&seed) * M_PI * 2.0f;
+		u = sin(r) * Q_crandom(&seed) * NAILGUN_SPREAD * 16;
+		r = cos(r) * Q_crandom(&seed) * NAILGUN_SPREAD * 16;
+		VectorMA( muzzlePoint, 8192 * 16, forward, end);
+		VectorMA (end, r, right, end);
+		VectorMA (end, u, up, end);
+		VectorSubtract( end, muzzlePoint, dir );
+		VectorNormalize( dir );
+
+		scale = 555 + Q_random(&seed) * 1800;
+		VectorScale( dir, scale, le->pos.trDelta );
+		SnapVector( le->pos.trDelta );
+
+		le->pos.trType = TR_LINEAR;
+
+		CG_FinishPredictMissileModel(ent, le);
+	}
+
+}
+
+
 
 /*
 =================
