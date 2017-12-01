@@ -147,7 +147,7 @@ void CG_DrawChar( int x, int y, int width, int height, int ch ) {
 	trap_R_DrawStretchPic( ax, ay, aw, ah,
 					   fcol, frow, 
 					   fcol + size, frow + size, 
-					   cgs.media.charsetShader );
+					   cg_newFont.integer ? cgs.media.charsetShaderHiRes : cgs.media.charsetShader );
 }
 
 

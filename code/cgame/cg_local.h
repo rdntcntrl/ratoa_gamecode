@@ -723,6 +723,7 @@ typedef struct {
 // stored in the clientInfo_t, itemInfo_t, weaponInfo_t, and powerupInfo_t
 typedef struct {
 	qhandle_t	charsetShader;
+	qhandle_t	charsetShaderHiRes;
 	qhandle_t	charsetProp;
 	qhandle_t	charsetPropGlow;
 	qhandle_t	charsetPropB;
@@ -1384,6 +1385,8 @@ extern vmCvar_t			cg_drawSpawnpoints;
 extern vmCvar_t			cg_teamOverlayScaleX;
 extern vmCvar_t			cg_teamOverlayScaleY;
 extern vmCvar_t			cg_drawTeamBackground;
+
+extern vmCvar_t			cg_newFont;
 
 extern vmCvar_t			cg_autoHeadColors;
 

@@ -208,6 +208,7 @@ vmCvar_t	cg_friendFloatHealth;
 vmCvar_t	cg_friendFloatHealthSize;
 vmCvar_t	cg_bloodOnHit;
 vmCvar_t	cg_drawSpawnpoints;
+vmCvar_t	cg_newFont;
 
 vmCvar_t	cg_teamOverlayScaleX;
 vmCvar_t	cg_teamOverlayScaleY;
@@ -534,6 +535,8 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_timerScaleY ,     "cg_timerScaleY", "1", CVAR_ARCHIVE},
 	{ &cg_fpsScaleY   ,     "cg_fpsScaleY", "0.75", CVAR_ARCHIVE},
 	{ &cg_speedScaleY ,     "cg_speedScaleY", "0.75", CVAR_ARCHIVE},
+
+	{ &cg_newFont ,     "cg_newFont", "0", 0},
 	
 	{ &cg_autoHeadColors ,     "cg_autoHeadColors", "0", CVAR_ARCHIVE},
 
@@ -2322,6 +2325,7 @@ void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum ) {
 
 	// load a few needed things before we do any screen updates
 	cgs.media.charsetShader		= trap_R_RegisterShader( "gfx/2d/bigchars" );
+	cgs.media.charsetShaderHiRes	= trap_R_RegisterShader( "gfx/2d/bigcharsHiRes" );
 	cgs.media.whiteShader		= trap_R_RegisterShader( "white" );
 	cgs.media.charsetProp		= trap_R_RegisterShaderNoMip( "menu/art/font1_prop.tga" );
 	cgs.media.charsetPropGlow	= trap_R_RegisterShaderNoMip( "menu/art/font1_prop_glo.tga" );
