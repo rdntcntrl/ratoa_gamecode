@@ -310,7 +310,7 @@ void CG_PredictWeaponEffects( centity_t *cent ) {
 		AngleVectors( cg.predictedPlayerState.viewangles, forward, right, up );
 		VectorMA( muzzlePoint, 14, forward, muzzlePoint );
 		// snap again
-		SnapVector(muzzlePoint);
+		//SnapVector(muzzlePoint);
 
 		if (ent->weapon == WP_NAILGUN) {
 			CG_PredictNailgunMissile(ent, muzzlePoint, forward, right, up);
