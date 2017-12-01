@@ -1181,10 +1181,6 @@ fire_grapple
 */
 gentity_t *fire_grapple (gentity_t *self, vec3_t start, vec3_t dir) {
 	gentity_t	*hook;
-//unlagged - grapple
-	int hooktime;
-//unlagged - grapple
-
 	VectorNormalize (dir);
 
 	hook = G_Spawn();
@@ -1204,17 +1200,14 @@ gentity_t *fire_grapple (gentity_t *self, vec3_t start, vec3_t dir) {
 	// we might want this later
 	hook->s.otherEntityNum = self->s.number;
 
-	// setting the projectile base time back makes the hook's first
-	// step larger
+	hook->s.pos.trTime = level.time;
+	if (self->client != NULL) {
+		hook->launchLag = G_LaunchLag(self->client);
+		hook->s.pos.trTime -= G_MissilePrestep(self->client);
+		hook->needsDelag = qtrue;
+		hook->launchTime = hook->s.pos.trTime;
+	} 
 
-	if ( self->client ) {
-		hooktime = self->client->pers.cmd.serverTime + 50;
-	}
-	else {
-		hooktime = level.time - G_MissilePrestep(self->client);
-	}
-
-	hook->s.pos.trTime = hooktime;
 //unlagged - grapple
 
 	hook->s.pos.trType = TR_LINEAR;
