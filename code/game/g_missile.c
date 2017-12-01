@@ -333,7 +333,10 @@ void G_TeleportMissile( gentity_t *ent, trace_t *trace, gentity_t *portal ) {
 	ent->s.pos.trTime = level.time;
 
 	if (g_usesRatVM.integer) {
-		G_TempEntity(ent->r.currentOrigin, EV_MISSILE_TELEPORT );
+		//G_TempEntity(ent->r.currentOrigin, EV_MISSILE_TELEPORT );
+		//G_AddEvent(ent, EV_MISSILE_TELEPORT, 0 );
+		gentity_t *tmp_ent = G_TempEntity(ent->r.currentOrigin, EV_MISSILE_TELEPORT );
+		tmp_ent->r.svFlags |= SVF_BROADCAST;
 	}
 }
 
