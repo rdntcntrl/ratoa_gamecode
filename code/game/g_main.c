@@ -219,6 +219,8 @@ vmCvar_t        g_ratVmMissileNudge;
 vmCvar_t        g_ratFlags;
 vmCvar_t        sv_allowDuplicateGuid;
 
+vmCvar_t        g_botshandicapped;
+
 // weapon config
 vmCvar_t        g_weaponChangeTime_Dropping;
 vmCvar_t        g_weaponChangeTime_Raising;
@@ -444,6 +446,7 @@ static cvarTable_t		gameCvarTable[] = {
         { &g_ratFlags, "g_ratFlags", "0", CVAR_SERVERINFO, 0, qfalse },
         { &sv_allowDuplicateGuid, "sv_allowDuplicateGuid", "0", 0, 0, qfalse },
 
+        { &g_botshandicapped, "g_botshandicapped", "1", CVAR_ARCHIVE, 0, qfalse },
 // weapon config
 	{ &g_weaponChangeTime_Dropping, "g_weaponChangeTime_Dropping", "200", 0, 0, qfalse },
 	{ &g_weaponChangeTime_Raising,  "g_weaponChangeTime_Raising",  "250", 0, 0, qfalse },

@@ -1224,6 +1224,8 @@ extern  vmCvar_t        g_ratVmPredictMissiles;
 extern  vmCvar_t        g_ratFlags;
 extern  vmCvar_t        sv_allowDuplicateGuid;
 
+extern  vmCvar_t        g_botshandicapped;
+
 // weapon config
 extern vmCvar_t        g_weaponChangeTime_Dropping;
 extern vmCvar_t        g_weaponChangeTime_Raising;
