@@ -1368,6 +1368,7 @@ extern vmCvar_t			cg_ratLgImpact;
 extern vmCvar_t			cg_delagProjectileTrail;
 extern vmCvar_t			cg_noBubbleTrail;
 extern vmCvar_t			cg_specShowZoom;
+extern vmCvar_t			cg_zoomToggle;
 extern vmCvar_t			cg_zoomAnim;
 extern vmCvar_t			cg_zoomAnimScale;
 extern vmCvar_t			cg_crosshairNamesY;

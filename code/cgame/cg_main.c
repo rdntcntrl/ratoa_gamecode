@@ -195,6 +195,7 @@ vmCvar_t	cg_ratLg;
 vmCvar_t	cg_ratLgImpact;
 vmCvar_t 	cg_noBubbleTrail;
 vmCvar_t	cg_specShowZoom;
+vmCvar_t	cg_zoomToggle;
 vmCvar_t	cg_zoomAnim;
 vmCvar_t	cg_zoomAnimScale;
 vmCvar_t	cg_crosshairNamesY;
@@ -505,6 +506,7 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_ratLgImpact, "cg_ratLgImpact", "1", CVAR_ARCHIVE},
 	{ &cg_noBubbleTrail, "cg_noBubbleTrail", "1", CVAR_ARCHIVE},
 	{ &cg_specShowZoom, "cg_specShowZoom", "1", CVAR_ARCHIVE},
+	{ &cg_zoomToggle, "cg_zoomToggle", "0", CVAR_ARCHIVE},
 	{ &cg_zoomAnim, "cg_zoomAnim", "1", CVAR_ARCHIVE},
 	{ &cg_zoomAnimScale, "cg_zoomAnimScale", "2", CVAR_ARCHIVE},
 	{ &cg_crosshairNamesY, "cg_crosshairNamesY", "280", CVAR_ARCHIVE},
@@ -1261,12 +1263,12 @@ static void CG_RegisterGraphics( void ) {
 	cgs.media.noammoShader = trap_R_RegisterShader( "icons/noammo" );
 
 	// powerup shaders
-	cgs.media.quadShader = trap_R_RegisterShader("powerups/quad" );
+	cgs.media.quadShader = trap_R_RegisterShader("powerups/ratQuad" );
 	cgs.media.quadWeaponShader = trap_R_RegisterShader("powerups/quadWeapon" );
-	cgs.media.battleSuitShader = trap_R_RegisterShader("powerups/battleSuit" );
+	cgs.media.battleSuitShader = trap_R_RegisterShader("powerups/ratBattleSuit" );
 	cgs.media.battleWeaponShader = trap_R_RegisterShader("powerups/battleWeapon" );
 	cgs.media.invisShader = trap_R_RegisterShader("powerups/invisibility" );
-	cgs.media.regenShader = trap_R_RegisterShader("powerups/regen" );
+	cgs.media.regenShader = trap_R_RegisterShader("powerups/ratRegen" );
 	cgs.media.hastePuffShader = trap_R_RegisterShader("hasteSmokePuff" );
 
 	cgs.media.spawnPointShader = trap_R_RegisterShader("spawnPoint" );

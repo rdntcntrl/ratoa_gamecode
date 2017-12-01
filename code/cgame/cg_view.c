@@ -445,10 +445,7 @@ static void CG_OffsetFirstPersonView( void ) {
 
 //======================================================================
 
-void CG_ZoomDown_f( void ) { 
-	if ( cg.zoomed ) {
-		return;
-	}
+void CG_ZoomIn( void ) {
 	cg.zoomed = qtrue;
 	cg.zoomTime = cg.time;
 	if (cgs.ratFlags & RAT_SPECSHOWZOOM) {
@@ -456,15 +453,37 @@ void CG_ZoomDown_f( void ) {
 	}
 }
 
-void CG_ZoomUp_f( void ) { 
-	if ( !cg.zoomed ) {
-		return;
-	}
+void CG_ZoomOut( void ) {
 	cg.zoomed = qfalse;
 	cg.zoomTime = cg.time;
 	if (cgs.ratFlags & RAT_SPECSHOWZOOM) {
 		trap_SendClientCommand( "unzoom" );
 	}
+}
+
+void CG_ZoomDown_f( void ) { 
+	if (cg_zoomToggle.integer) {
+		if (cg.zoomed) {
+			CG_ZoomOut();
+		} else {
+			CG_ZoomIn();
+		}
+		return;
+	}
+	if ( cg.zoomed ) {
+		return;
+	}
+	CG_ZoomIn();
+}
+
+void CG_ZoomUp_f( void ) { 
+	if (cg_zoomToggle.integer) {
+		return;
+	}
+	if ( !cg.zoomed ) {
+		return;
+	}
+	CG_ZoomOut();
 }
 
 
