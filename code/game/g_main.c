@@ -211,6 +211,7 @@ vmCvar_t        g_friendsWallHack;
 vmCvar_t        g_specShowZoom;
 vmCvar_t        g_itemPickup;
 vmCvar_t        g_usesRatVM;
+vmCvar_t        g_broadcastClients;
 vmCvar_t        g_ratVmPredictMissiles;
 vmCvar_t        g_ratFlags;
 vmCvar_t        sv_allowDuplicateGuid;
@@ -432,6 +433,7 @@ static cvarTable_t		gameCvarTable[] = {
 
         { &g_itemPickup, "g_itemPickup", "0", CVAR_ARCHIVE , 0, qtrue },
         { &g_usesRatVM, "g_usesRatVM", "0", 0, 0, qfalse },
+        { &g_broadcastClients, "g_broadcastClients", "1", 0, 0, qfalse },
         { &g_ratVmPredictMissiles, "g_ratVmPredictMissiles", "1", CVAR_ARCHIVE, 0, qfalse },
         { &g_ratFlags, "g_ratFlags", "0", CVAR_SERVERINFO, 0, qfalse },
         { &sv_allowDuplicateGuid, "sv_allowDuplicateGuid", "0", 0, 0, qfalse },

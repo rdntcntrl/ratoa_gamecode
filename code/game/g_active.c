@@ -793,10 +793,12 @@ void ClientThink_real( gentity_t *ent ) {
 	// immediately when going through teleporters (with client-side teleport prediction)
 	// (Normally, the server only sends entities client when they in LOS of
 	// the player).
-	if ( (client->sess.sessionTeam == TEAM_SPECTATOR) || client->isEliminated || client->ps.stats[STAT_HEALTH] <= 0 ) {
-		ent->r.svFlags &= ~SVF_BROADCAST;
-	} else {
-		ent->r.svFlags |= SVF_BROADCAST;
+	if (g_usesRatVM.integer) {
+		if (!g_broadcastClients.integer || (client->sess.sessionTeam == TEAM_SPECTATOR) || client->isEliminated || client->ps.stats[STAT_HEALTH] <= 0 ) {
+			ent->r.svFlags &= ~SVF_BROADCAST;
+		} else {
+			ent->r.svFlags |= SVF_BROADCAST;
+		}
 	}
 
 	// mark the time, so the connection sprite can be removed
