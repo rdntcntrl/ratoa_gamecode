@@ -281,6 +281,8 @@ void CG_PredictWeaponEffects( centity_t *cent ) {
 		       	&& (ent->weapon == WP_PLASMAGUN
 			    || ent->weapon == WP_ROCKET_LAUNCHER 
 			    || ent->weapon == WP_GRENADE_LAUNCHER
+			    || ent->weapon == WP_BFG
+			    || ent->weapon == WP_PROX_LAUNCHER
 			   )
 		   ) {
 		localEntity_t	*le;
@@ -320,28 +322,46 @@ void CG_PredictWeaponEffects( centity_t *cent ) {
 		switch (ent->weapon) {
 			case WP_PLASMAGUN:
 				VectorScale(forward, 2000, le->pos.trDelta);
+				SnapVector(le->pos.trDelta);
 				le->pos.trType = TR_LINEAR;
 				bolt->reType = RT_SPRITE;
 				bolt->radius = 16;
 				bolt->rotation = 0;
 				bolt->customShader = cgs.media.plasmaBallShader;
+				// NOTE RETURN!
 				return;
 			case WP_ROCKET_LAUNCHER:
 				VectorScale(forward, cgs.rocketSpeed, le->pos.trDelta);
+				SnapVector(le->pos.trDelta);
 				le->pos.trType = TR_LINEAR;
 				break;
 			case WP_GRENADE_LAUNCHER:
 				forward[2] += 0.2f;
 				VectorNormalize( forward );
 				VectorScale(forward, 700, le->pos.trDelta);
+				SnapVector(le->pos.trDelta);
 				le->pos.trType = TR_GRAVITY;
 				bolt->customShader = cgs.media.grenadeBrightSkinShader;
+				break;
+			case WP_BFG:
+				VectorScale(forward, 2000, le->pos.trDelta);
+				SnapVector(le->pos.trDelta);
+				le->pos.trType = TR_LINEAR;
+				break;
+			case WP_PROX_LAUNCHER:
+				forward[2] += 0.2f;
+				VectorScale(forward, 700, le->pos.trDelta);
+				SnapVector(le->pos.trDelta);
+				le->pos.trType = TR_GRAVITY;
 				break;
 		}
 		bolt->reType = RT_MODEL;
 		bolt->rotation = 0;
 		bolt->hModel = cg_weapons[ent->weapon].missileModel;
 		bolt->renderfx = cg_weapons[ent->weapon].missileRenderfx | RF_NOSHADOW;
+		if (ent->weapon == WP_PROX_LAUNCHER && cg.predictedPlayerState.persistant[PERS_TEAM] == TEAM_BLUE) {
+			bolt->hModel = cgs.media.blueProxMine;
+		}
 	}
 }
 
