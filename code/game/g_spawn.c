@@ -644,7 +644,7 @@ qboolean G_ParseSpawnVarsFromString( const char **string ) {
 
 	return qtrue;
 }
-#define SPAWNVARFILE_BUFFER_SIZE (32*1024)
+#define SPAWNVARFILE_BUFFER_SIZE (64*1024)
 
 qboolean G_ReadSpawnVarFile( char *buffer ) {
 	fileHandle_t	file;
