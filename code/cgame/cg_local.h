@@ -1252,6 +1252,7 @@ typedef struct {
     int		startWhenReady;
     int		rocketSpeed;
     int		unlagMissileMaxLatency;
+    int		predictedMissileNudge;
     int		ratFlags;
     int		timeoutEnd;
     int		timeoutOvertime;
@@ -1352,7 +1353,6 @@ extern vmCvar_t                	cg_predictWeapons;
 extern vmCvar_t                	cg_ratPredictMissilesPing;
 extern vmCvar_t                	cg_ratPredictMissilesPingFactor;
 extern vmCvar_t                	cg_ratPredictMissiles;
-extern vmCvar_t                	cg_ratPredictMissilesNudge;
 extern vmCvar_t                	cg_ratScoreboard;
 extern vmCvar_t                	cg_ratStatusbar;
 extern vmCvar_t			cg_ratRocketTrail;

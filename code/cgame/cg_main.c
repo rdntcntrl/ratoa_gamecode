@@ -181,7 +181,6 @@ vmCvar_t 	cg_predictWeapons;
 vmCvar_t 	cg_ratPredictMissilesPing;
 vmCvar_t 	cg_ratPredictMissilesPingFactor;
 vmCvar_t 	cg_ratPredictMissiles;
-vmCvar_t 	cg_ratPredictMissilesNudge;
 vmCvar_t 	cg_delagProjectileTrail;
 vmCvar_t 	cg_ratScoreboard;
 vmCvar_t 	cg_ratStatusbar;
@@ -492,7 +491,6 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_ratPredictMissilesPing, "cg_ratPredictMissilesPing", "0", 0},
 	{ &cg_ratPredictMissilesPingFactor, "cg_ratPredictMissilesPingFactor", "1.5", 0},
 	{ &cg_ratPredictMissiles, "cg_ratPredictMissiles", "1", CVAR_ARCHIVE},
-	{ &cg_ratPredictMissilesNudge, "cg_ratPredictMissilesNudge", "58", 0},
 	{ &cg_delagProjectileTrail, "cg_delagProjectileTrail", "1", 0},
 	{ &cg_ratScoreboard, "cg_ratScoreboard", "1", CVAR_ARCHIVE},
 	{ &cg_ratStatusbar, "cg_ratStatusbar", "0", CVAR_ARCHIVE},

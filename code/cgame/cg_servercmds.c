@@ -495,6 +495,9 @@ void CG_ParseServerinfo( void ) {
 	cgs.unlagMissileMaxLatency = atoi( Info_ValueForKey( info, "g_unlagMissileMaxLatency" ) );
 	trap_Cvar_Set("g_unlagMissileMaxLatency", va("%i", cgs.unlagMissileMaxLatency));
 
+	cgs.predictedMissileNudge = atoi( Info_ValueForKey( info, "g_ratVmMissileNudge" ) );
+	trap_Cvar_Set("g_ratVmMissileNudge", va("%i", cgs.predictedMissileNudge));
+
 	cgs.ratFlags = atoi( Info_ValueForKey( info, "g_ratFlags" ) );
 	trap_Cvar_Set("g_ratFlags", va("%i", cgs.ratFlags));
 

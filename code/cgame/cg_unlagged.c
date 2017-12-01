@@ -310,7 +310,7 @@ void CG_PredictWeaponEffects( centity_t *cent ) {
 
 		VectorCopy(muzzlePoint, le->pos.trBase);
 		//le->pos.trTime = cg.time-50;
-		le->pos.trTime = cg.time-cg_ratPredictMissilesNudge.integer;
+		le->pos.trTime = cg.time-cgs.predictedMissileNudge;
 
 		VectorCopy( muzzlePoint, bolt->origin );
 		VectorCopy( muzzlePoint, bolt->oldorigin );
