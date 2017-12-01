@@ -173,6 +173,8 @@ vmCvar_t	cg_noVoiceText;
 vmCvar_t	cg_hudFiles;
 vmCvar_t 	cg_scorePlum;
 
+vmCvar_t 	cg_ratInitialized;
+
 vmCvar_t 	g_ratPhysics;
 vmCvar_t 	g_rampJump;
 vmCvar_t 	g_additiveJump;
@@ -395,7 +397,7 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_drawAmmoWarning, "cg_drawAmmoWarning", "1", CVAR_ARCHIVE  },
 	{ &cg_drawAttacker, "cg_drawAttacker", "1", CVAR_ARCHIVE  },
 	{ &cg_drawSpeed, "cg_drawSpeed", "1", CVAR_ARCHIVE  },
-	{ &cg_drawCrosshair, "cg_drawCrosshair", "21", CVAR_ARCHIVE },
+	{ &cg_drawCrosshair, "cg_drawCrosshair", "19", CVAR_ARCHIVE },
 	{ &cg_drawCrosshairNames, "cg_drawCrosshairNames", "1", CVAR_ARCHIVE },
 	{ &cg_drawRewards, "cg_drawRewards", "1", CVAR_ARCHIVE },
 	{ &cg_crosshairSize, "cg_crosshairSize", "30", CVAR_ARCHIVE },
@@ -488,6 +490,8 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_scorePlum, "cg_scorePlums", "1", CVAR_USERINFO | CVAR_ARCHIVE},
 
 	// RAT ===================
+	{ &cg_ratInitialized, "cg_ratInitialized", "0", CVAR_ARCHIVE},
+
 	{ &g_ratPhysics, "g_ratPhysics", "0", CVAR_SYSTEMINFO},
 	{ &g_rampJump, "g_rampJump", "0", CVAR_SYSTEMINFO},
 	{ &g_additiveJump, "g_additiveJump", "0", CVAR_SYSTEMINFO},
@@ -681,6 +685,29 @@ void CG_RegisterCvars( void ) {
 	trap_Cvar_Register(NULL, "headmodel", DEFAULT_MODEL, CVAR_USERINFO | CVAR_ARCHIVE );
 	trap_Cvar_Register(NULL, "team_model", DEFAULT_TEAM_MODEL, CVAR_USERINFO | CVAR_ARCHIVE );
 	trap_Cvar_Register(NULL, "team_headmodel", DEFAULT_TEAM_HEAD, CVAR_USERINFO | CVAR_ARCHIVE );
+}
+
+void CG_RatInitDefaults(void)  {
+	char buf[128];
+	char *cvars[] = { "color1", "color2" };
+	int i;
+	int seed;
+	if (cg_ratInitialized.integer) {
+		return;
+	}
+
+	if (cg_drawCrosshair.integer < 10) {
+		trap_Cvar_Set( "cg_drawCrosshair", "19" );
+	}
+	seed = trap_Milliseconds();
+	for ( i = 0; i < sizeof(cvars)/sizeof(char *); ++i) {
+		memset(buf, 0, sizeof(buf));
+		trap_Cvar_VariableStringBuffer(cvars[i], buf, sizeof(buf));
+		if (buf[0] != 'H') {
+			trap_Cvar_Set(cvars[i], va("H%i", (int)(Q_random(&seed)*360.0)));	
+		}
+	}
+	trap_Cvar_Set( "cg_ratInitialized", "1" );
 }
 
 /*																																			
@@ -2332,6 +2359,9 @@ void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum ) {
 	cgs.media.charsetPropB		= trap_R_RegisterShaderNoMip( "menu/art/font2_prop.tga" );
 
 	CG_RegisterCvars();
+
+	CG_RatInitDefaults();
+
 
 	CG_InitConsoleCommands();
 
