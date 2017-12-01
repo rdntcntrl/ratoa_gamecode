@@ -316,6 +316,7 @@ vmCvar_t	cl_timeNudge;
 //vmCvar_t	cg_latentCmds;
 //vmCvar_t	cg_plOut;
 //unlagged - client options
+vmCvar_t	com_maxfps;
 
 //elimination addition
 vmCvar_t	cg_alwaysWeaponBar;
@@ -599,6 +600,7 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_projectileNudgeAuto, "cg_projectileNudgeAuto", "1", CVAR_ARCHIVE },
 	{ &cg_optimizePrediction, "cg_optimizePrediction", "1", CVAR_ARCHIVE },
 	{ &cl_timeNudge, "cl_timeNudge", "0", CVAR_ARCHIVE },
+	{ &com_maxfps, "com_maxfps", "125", CVAR_ARCHIVE },
 //	{ &cg_latentSnaps, "cg_latentSnaps", "0", CVAR_USERINFO | CVAR_CHEAT },
 //	{ &cg_latentCmds, "cg_latentCmds", "0", CVAR_USERINFO | CVAR_CHEAT },
 //	{ &cg_plOut, "cg_plOut", "0", CVAR_USERINFO | CVAR_CHEAT },
@@ -737,10 +739,15 @@ void CG_UpdateCvars( void ) {
                 else if ( cv->vmCvar == &cg_errorDecay ) {
 			CG_Cvar_ClampInt( cv->cvarName, cv->vmCvar, 0, 250 );
 		}
+                else if ( cv->vmCvar == &com_maxfps ) {
+			CG_Cvar_ClampInt( cv->cvarName, cv->vmCvar, 0, 125 );
+		}
 		trap_Cvar_Update( cv->vmCvar );
 	}
 
 	// check for modications here
+	
+
 
 	// If team overlay is on, ask for updates from the server.  If its off,
 	// let the server know so we don't receive it
