@@ -1012,7 +1012,7 @@ static void CG_RegisterSounds( void ) {
 	cgs.media.obeliskHitSound3 = trap_S_RegisterSound( "sound/items/obelisk_hit_03.wav", qfalse );
 	cgs.media.obeliskRespawnSound = trap_S_RegisterSound( "sound/items/obelisk_respawn.wav", qfalse );
 
-	cgs.media.teleShotSound = trap_S_RegisterSound( "sound/items/teleshot.wav", qfalse );
+	cgs.media.teleShotSound = trap_S_RegisterSound( "sound/world/teleshot.wav", qfalse );
 
 	cgs.media.teleInSound = trap_S_RegisterSound( "sound/world/telein.wav", qfalse );
 	cgs.media.teleOutSound = trap_S_RegisterSound( "sound/world/teleout.wav", qfalse );
