@@ -94,6 +94,9 @@ int G_MissilePrestep(gclient_t *client) {
 		case 4:
 			return offset + 50;
 			break;
+		case 5:
+			return offset + launchlag + g_unlagMissileDefaultNudge.integer;
+			break;
 	}
 	return 0;
 }
