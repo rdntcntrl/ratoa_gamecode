@@ -766,10 +766,10 @@ void Cmd_Kill_f( gentity_t *ent ) {
 
 /*
 =================
-Cmd_Help_f
+Cmd_Motd_f
 =================
 */
-void Cmd_Help_f( gentity_t *ent ) {
+void Cmd_Motd_f( gentity_t *ent ) {
 	motd_chat(ent);
 }
 
@@ -2719,7 +2719,8 @@ commands_t cmds[ ] =
   { "freespectator", CMD_NOTEAM, StopFollowing },
   { "getmappage", 0, Cmd_GetMappage_f },
   { "gc", 0, Cmd_GameCommand_f },
-  { "help", 0, Cmd_Help_f }
+  { "motd", 0, Cmd_Motd_f },
+  { "help", 0, Cmd_Motd_f }
 };
 
 static int numCmds = sizeof( cmds ) / sizeof( cmds[ 0 ] );
