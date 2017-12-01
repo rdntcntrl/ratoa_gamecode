@@ -2541,7 +2541,19 @@ void CG_PlayerGetColors(clientInfo_t *ci, qboolean isDead, byte *outColor) {
 	float h,s,v;
 	color[0] = color[1] = color[2] = color[3] = 1.0;
 
+
+
 	if (!((cgs.ratFlags & RAT_BRIGHTSHELL && cg_brightShells.integer)) && (!cg_forceBrightModels.integer || !(cgs.ratFlags & RAT_ALLOWBRIGHTSKINS))) {
+		CG_FloatColorToRGBA(color, outColor);
+		return;
+	}
+
+	if ((!(cg_forceBrightModels.integer && cgs.ratFlags & RAT_ALLOWBRIGHTSKINS) 
+			&& (cg_brightShells.integer && cgs.ratFlags & RAT_BRIGHTSHELL)
+		       ) && (cgs.gametype < GT_TEAM || cgs.ffa_gt==1)) {
+		color[0] = ci->color2[0];
+		color[1] = ci->color2[1];
+		color[2] = ci->color2[2];
 		CG_FloatColorToRGBA(color, outColor);
 		return;
 	}
