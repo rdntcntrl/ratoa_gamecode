@@ -55,6 +55,20 @@ static void CG_ResetEntity( centity_t *cent ) {
 	}
 }
 
+void CG_UpdateQuiet ( centity_t *cent ) {
+	if (cent->currentState.eType == ET_PLAYER) {
+		// this may be set by ratmod/rat server engine to indicate
+		// that this player entity was broadcast only for teleporter prediction
+		// and may not make any sounds
+		if (cent->currentState.time2 == 1) {
+			cent->quiet = qtrue;
+		} else {
+			cent->quiet = qfalse;
+		}
+	}
+}
+
+
 /*
 ===============
 CG_TransitionEntity
@@ -75,6 +89,8 @@ void CG_TransitionEntity( centity_t *cent ) {
 
 	// clear the next state.  if will be set by the next CG_SetNextSnap
 	cent->interpolate = qfalse;
+
+	CG_UpdateQuiet( cent );
 
 	// check for events
 	CG_CheckEvents( cent );
@@ -120,6 +136,8 @@ void CG_SetInitialSnapshot( snapshot_t *snap ) {
 		cent->currentValid = qtrue;
 
 		CG_ResetEntity( cent );
+
+		CG_UpdateQuiet( cent );
 
 		// check for events
 		CG_CheckEvents( cent );

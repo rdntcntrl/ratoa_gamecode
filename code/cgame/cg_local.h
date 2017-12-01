@@ -216,6 +216,9 @@ typedef struct centity_s {
 
 	// for cg_projectileNudgeAuto
 	int			projectileNudge;
+
+	// set if a player entity should not make sounds
+	qboolean		quiet;
 } centity_t;
 
 
