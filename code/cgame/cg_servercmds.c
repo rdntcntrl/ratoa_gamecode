@@ -503,6 +503,7 @@ void CG_ParseServerinfo( void ) {
 
 	trap_Cvar_Set("g_ratPhysics", va("%i", (cgs.ratFlags & RAT_RATPHYSICS) ? 1 : 0));
 	trap_Cvar_Set("g_rampJump", va("%i", (cgs.ratFlags & RAT_RAMPJUMP) ? 1 : 0));
+	trap_Cvar_Set("g_additiveJump", va("%i", (cgs.ratFlags & RAT_ADDITIVEJUMP) ? 1 : 0));
 	trap_Cvar_Set("g_fastSwitch", va("%i", (cgs.ratFlags & RAT_FASTSWITCH) ? 1 : 0));
 	trap_Cvar_Set("g_fastWeapons", va("%i", (cgs.ratFlags & RAT_FASTWEAPONS) ? 1 : 0));
 

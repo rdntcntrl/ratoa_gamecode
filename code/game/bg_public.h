@@ -754,6 +754,7 @@ qboolean	BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const play
 #define RAT_SPECSHOWZOOM 	1024
 #define RAT_BRIGHTSHELL 	2048
 #define RAT_NEWSHOTGUN 		4096
+#define RAT_ADDITIVEJUMP 	8192
 
 
 // content masks
