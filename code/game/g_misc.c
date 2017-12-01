@@ -111,6 +111,9 @@ void TeleportPlayer( gentity_t *player, vec3_t origin, vec3_t angles ) {
 	// toggle the teleport bit so the client knows to not lerp
 	player->client->ps.eFlags ^= EF_TELEPORT_BIT;
 
+	// reset rampjump
+	player->client->ps.stats[STAT_JUMPTIME] = 0;
+
 //unlagged - backward reconciliation #3
 	// we don't want players being backward-reconciled back through teleporters
 	G_ResetHistory( player );
