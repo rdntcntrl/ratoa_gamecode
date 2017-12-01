@@ -429,6 +429,8 @@ static void CG_TouchTriggerPrediction( void ) {
 					cg.predictedPlayerState.pm_time = 160;
 					cg.predictedPlayerState.pm_flags |= PMF_TIME_KNOCKBACK;
 
+					// reset rampjump
+					cg.predictedPlayerState.stats[STAT_JUMPTIME] = 0;
 
 					// set the delta angle
 					for (i=0 ; i<3 ; i++) {
