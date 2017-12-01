@@ -339,6 +339,7 @@ SHOTGUN
 // DEFAULT_SHOTGUN_SPREAD and DEFAULT_SHOTGUN_COUNT	are in bg_public.h, because
 // client predicts same spreads
 #define	DEFAULT_SHOTGUN_DAMAGE	10
+#define	NEW_SHOTGUN_DAMAGE	8
 
 qboolean ShotgunPellet( vec3_t start, vec3_t end, gentity_t *ent ) {
 	trace_t		tr;
@@ -360,7 +361,7 @@ qboolean ShotgunPellet( vec3_t start, vec3_t end, gentity_t *ent ) {
 		}
 
 		if ( traceEnt->takedamage) {
-			damage = DEFAULT_SHOTGUN_DAMAGE * s_quadFactor;
+			damage = (g_newShotgun.integer ? NEW_SHOTGUN_DAMAGE : DEFAULT_SHOTGUN_DAMAGE) * s_quadFactor;
 			if ( traceEnt->client && traceEnt->client->invulnerabilityTime > level.time ) {
 				if (G_InvulnerabilityEffect( traceEnt, forward, tr.endpos, impactpoint, bouncedir )) {
 					G_BounceProjectile( tr_start, impactpoint, bouncedir, tr_end );
@@ -415,15 +416,45 @@ void ShotgunPattern( vec3_t origin, vec3_t origin2, int seed, gentity_t *ent ) {
 //unlagged - backward reconciliation #2
 
 	// generate the "random" spread pattern
-	for ( i = 0 ; i < DEFAULT_SHOTGUN_COUNT ; i++ ) {
-		r = Q_crandom( &seed ) * DEFAULT_SHOTGUN_SPREAD * 16;
-		u = Q_crandom( &seed ) * DEFAULT_SHOTGUN_SPREAD * 16;
-		VectorMA( origin, 8192 * 16, forward, end);
-		VectorMA (end, r, right, end);
-		VectorMA (end, u, up, end);
-		if( ShotgunPellet( origin, end, ent ) && !hitClient ) {
-			hitClient = qtrue;
-			ent->client->accuracy_hits++;
+	if (g_newShotgun.integer) {
+		for ( i = 0 ; i < 12 ; i++ ) {
+			int randomness = 100;
+			// creates a pentagon inside a hexagon, which one pellet in the center
+			if (i < 5) {
+				float t = i*(72.0*M_PI/180.0) + M_PI/5.0;
+				r = 300 * 16 * cos(t);
+				u = 300 * 16 * sin(t);
+			} else if (i < 11) {
+				float t = (i-5)*(60.0*M_PI/180.0) + M_PI/6.0;
+				r = 600 * 16 * cos(t);
+				u = 600 * 16 * sin(t);
+			} else {
+				r = 0;
+				u = 0;
+			}
+			// add some randomness
+			r += Q_crandom( &seed ) * randomness * 16;
+			u += Q_crandom( &seed ) * randomness * 16;
+
+			VectorMA( origin, 8192 * 16, forward, end);
+			VectorMA (end, r, right, end);
+			VectorMA (end, u, up, end);
+			if( ShotgunPellet( origin, end, ent ) && !hitClient ) {
+				hitClient = qtrue;
+				ent->client->accuracy_hits++;
+			}
+		}
+	} else {
+		for ( i = 0 ; i < DEFAULT_SHOTGUN_COUNT ; i++ ) {
+			r = Q_crandom( &seed ) * DEFAULT_SHOTGUN_SPREAD * 16;
+			u = Q_crandom( &seed ) * DEFAULT_SHOTGUN_SPREAD * 16;
+			VectorMA( origin, 8192 * 16, forward, end);
+			VectorMA (end, r, right, end);
+			VectorMA (end, u, up, end);
+			if( ShotgunPellet( origin, end, ent ) && !hitClient ) {
+				hitClient = qtrue;
+				ent->client->accuracy_hits++;
+			}
 		}
 	}
         if( hitClient )

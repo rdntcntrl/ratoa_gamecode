@@ -174,6 +174,7 @@ vmCvar_t        g_lagLightning; //Adds a little lag to the lightninggun to make 
 //unlagged - server options
 vmCvar_t        g_teleMissiles;
 vmCvar_t        g_pushGrenades;
+vmCvar_t        g_newShotgun;
 vmCvar_t        g_ratPhysics;
 vmCvar_t        g_rampJump;
 vmCvar_t        g_fastSwitch;
@@ -408,6 +409,8 @@ static cvarTable_t		gameCvarTable[] = {
 
         { &g_teleMissiles, "g_teleMissiles", "0", CVAR_ARCHIVE, 0, qtrue },
         { &g_pushGrenades, "g_pushGrenades", "0", CVAR_ARCHIVE, 0, qtrue },
+
+        { &g_newShotgun, "g_newShotgun", "1", CVAR_ARCHIVE, 0, qtrue },
 
 	{ &g_ratPhysics,   "g_ratPhysics", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_rampJump,     "g_rampJump", "0", CVAR_ARCHIVE, 0, qtrue },
@@ -1009,6 +1012,10 @@ void G_UpdateRatFlags( void ) {
 		rflags |= RAT_BRIGHTSHELL;
 	}
 
+	if (g_newShotgun.integer) {
+		rflags |= RAT_NEWSHOTGUN;
+	}
+
 	// XXX --> also update code where this is called!
 
 	trap_Cvar_Set("g_ratFlags",va("%i",rflags));
@@ -1097,6 +1104,7 @@ void G_UpdateCvars( void ) {
 						|| cv->vmCvar == &g_friendsWallHack
 						|| cv->vmCvar == &g_specShowZoom
 						|| cv->vmCvar == &g_brightPlayerShells
+						|| cv->vmCvar == &g_newShotgun
 						) {
 					updateRatFlags = qtrue;
 				}

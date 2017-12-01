@@ -1180,6 +1180,7 @@ extern  vmCvar_t        g_lagLightning;
 //unlagged - server options
 extern  vmCvar_t        g_teleMissiles;
 extern  vmCvar_t        g_pushGrenades;
+extern  vmCvar_t        g_newShotgun;
 extern  vmCvar_t        g_ratPhysics;
 extern  vmCvar_t        g_rampJump;
 extern  vmCvar_t        g_fastSwitch;
