@@ -1185,7 +1185,7 @@ gentity_t *fire_grapple (gentity_t *self, vec3_t start, vec3_t dir) {
 
 	hook = G_Spawn();
 	hook->classname = "hook";
-	hook->nextthink = level.time + 10000;
+	hook->nextthink = level.time + 20000;
 	hook->think = Weapon_HookFree;
 	hook->s.eType = ET_MISSILE;
 	hook->r.svFlags = SVF_USE_CURRENT_ORIGIN;
