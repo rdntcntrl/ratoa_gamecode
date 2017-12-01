@@ -3796,14 +3796,42 @@ void CG_ShotgunPattern( vec3_t origin, vec3_t origin2, int seed, int otherEntNum
 	CrossProduct( forward, right, up );
 
 	// generate the "random" spread pattern
-	for ( i = 0 ; i < DEFAULT_SHOTGUN_COUNT ; i++ ) {
-		r = Q_crandom( &seed ) * DEFAULT_SHOTGUN_SPREAD * 16;
-		u = Q_crandom( &seed ) * DEFAULT_SHOTGUN_SPREAD * 16;
-		VectorMA( origin, 8192 * 16, forward, end);
-		VectorMA (end, r, right, end);
-		VectorMA (end, u, up, end);
+	if (cgs.ratFlags & RAT_NEWSHOTGUN) { 
+		for ( i = 0 ; i < 12 ; i++ ) {
+                        int randomness = 100;
+                        // creates a pentagon inside a hexagon, which one pellet in the center
+                        if (i < 5) {
+                                float t = i*(72.0*M_PI/180.0) + M_PI/5.0;
+                                r = 300 * 16 * cos(t);
+                                u = 300 * 16 * sin(t);
+                        } else if (i < 11) {
+                                float t = (i-5)*(60.0*M_PI/180.0) + M_PI/6.0;
+                                r = 600 * 16 * cos(t);
+                                u = 600 * 16 * sin(t);
+                        } else {
+                                r = 0;
+                                u = 0;
+                        }
+                        // add some randomness
+                        r += Q_crandom( &seed ) * randomness * 16;
+                        u += Q_crandom( &seed ) * randomness * 16;
 
-		CG_ShotgunPellet( origin, end, otherEntNum );
+			VectorMA( origin, 8192 * 16, forward, end);
+			VectorMA (end, r, right, end);
+			VectorMA (end, u, up, end);
+
+			CG_ShotgunPellet( origin, end, otherEntNum );
+		}
+	} else {
+		for ( i = 0 ; i < DEFAULT_SHOTGUN_COUNT ; i++ ) {
+			r = Q_crandom( &seed ) * DEFAULT_SHOTGUN_SPREAD * 16;
+			u = Q_crandom( &seed ) * DEFAULT_SHOTGUN_SPREAD * 16;
+			VectorMA( origin, 8192 * 16, forward, end);
+			VectorMA (end, r, right, end);
+			VectorMA (end, u, up, end);
+
+			CG_ShotgunPellet( origin, end, otherEntNum );
+		}
 	}
 }
 
