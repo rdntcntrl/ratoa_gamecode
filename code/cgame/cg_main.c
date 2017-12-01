@@ -1068,7 +1068,7 @@ static void CG_RegisterSounds( void ) {
             
             case 0:
             default:
-            cgs.media.hitSound = trap_S_RegisterSound( "sound/feedback/hit.wav", qfalse );
+            cgs.media.hitSound = trap_S_RegisterSound( "sound/feedback/hit_old.wav", qfalse );
             cgs.media.hitSound0 = trap_S_RegisterSound( "sound/feedback/hit0.wav", qfalse );
             cgs.media.hitSound1 = trap_S_RegisterSound( "sound/feedback/hit1.wav", qfalse );
             cgs.media.hitSound2 = trap_S_RegisterSound( "sound/feedback/hit2.wav", qfalse );
