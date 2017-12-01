@@ -532,7 +532,11 @@ static int CG_CalcFov( void ) {
 			zoomFov = 22.5;
 		} else {
                         // account for zooms
-                        zoomFov = cg_zoomFov.value;
+			if (cg_zoomFovTmp.value > 0) {
+				zoomFov = cg_zoomFovTmp.value;
+			} else {
+				zoomFov = cg_zoomFov.value;
+			}
                         if ( zoomFov < 1 ) {
                                 zoomFov = 1;
                         } else if ( zoomFov > 145 ) {
