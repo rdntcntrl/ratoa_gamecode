@@ -263,6 +263,11 @@ void G_TeleportMissile( gentity_t *ent, trace_t *trace, gentity_t *portal ) {
 		G_Printf ("Couldn't find teleporter destination\n");
 		return;
 	}
+
+	if (g_usesRatVM.integer) {
+		G_TempEntity(ent->r.currentOrigin, EV_MISSILE_TELEPORT );
+	}
+
 	// evaluate velocity vector at portal impact
 	hitTime = level.previousTime + ( level.time - level.previousTime ) * trace->fraction;
         BG_EvaluateTrajectoryDelta( &ent->s.pos, hitTime, velocity );
@@ -326,6 +331,10 @@ void G_TeleportMissile( gentity_t *ent, trace_t *trace, gentity_t *portal ) {
 	VectorCopy(ent->r.currentOrigin, ent->s.pos.trBase);
 
 	ent->s.pos.trTime = level.time;
+
+	if (g_usesRatVM.integer) {
+		G_TempEntity(ent->r.currentOrigin, EV_MISSILE_TELEPORT );
+	}
 }
 
 /*
