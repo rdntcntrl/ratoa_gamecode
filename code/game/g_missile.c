@@ -338,6 +338,9 @@ void G_PushGrenade( gentity_t *ent, trace_t *trace, gentity_t *jumppad ) {
 	VectorCopy(ent->r.currentOrigin, ent->s.pos.trBase);
 	VectorCopy(jumppad->s.origin2, ent->s.pos.trDelta);
 	ent->s.pos.trTime = level.time;
+	if (g_usesRatVM.integer) {
+		G_AddEvent( ent, EV_JUMP_PAD, 0 );
+	}
 }
 
 
