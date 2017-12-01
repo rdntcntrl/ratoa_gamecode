@@ -840,9 +840,17 @@ NAILGUN
 void Weapon_Nailgun_Fire (gentity_t *ent) {
 	gentity_t	*m;
 	int			count;
+	int seed;
+
+	if (ent->client) {
+		seed = ent->client->attackTime;
+	} else {
+		seed = rand();
+	}
+	seed %= 256;
 
 	for( count = 0; count < NUM_NAILSHOTS; count++ ) {
-		m = fire_nail (ent, muzzle, forward, right, up );
+		m = fire_nail (ent, muzzle, forward, right, up, &seed );
 		m->damage *= s_quadFactor;
 		m->splashDamage *= s_quadFactor;
 

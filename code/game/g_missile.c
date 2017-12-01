@@ -1232,7 +1232,7 @@ fire_nail
 */
 #define NAILGUN_SPREAD	500
 
-gentity_t *fire_nail( gentity_t *self, vec3_t start, vec3_t forward, vec3_t right, vec3_t up ) {
+gentity_t *fire_nail( gentity_t *self, vec3_t start, vec3_t forward, vec3_t right, vec3_t up, int *seed ) {
 	gentity_t	*bolt;
 	vec3_t		dir;
 	vec3_t		end;
@@ -1269,16 +1269,20 @@ gentity_t *fire_nail( gentity_t *self, vec3_t start, vec3_t forward, vec3_t righ
 	}
 	VectorCopy( start, bolt->s.pos.trBase );
 
-	r = random() * M_PI * 2.0f;
-	u = sin(r) * crandom() * NAILGUN_SPREAD * 16;
-	r = cos(r) * crandom() * NAILGUN_SPREAD * 16;
+	//r = random() * M_PI * 2.0f;
+	//u = sin(r) * crandom() * NAILGUN_SPREAD * 16;
+	//r = cos(r) * crandom() * NAILGUN_SPREAD * 16;
+	r = Q_random(seed) * M_PI * 2.0f;
+	u = sin(r) * Q_crandom(seed) * NAILGUN_SPREAD * 16;
+	r = cos(r) * Q_crandom(seed) * NAILGUN_SPREAD * 16;
 	VectorMA( start, 8192 * 16, forward, end);
 	VectorMA (end, r, right, end);
 	VectorMA (end, u, up, end);
 	VectorSubtract( end, start, dir );
 	VectorNormalize( dir );
 
-	scale = 555 + random() * 1800;
+	//scale = 555 + random() * 1800;
+	scale = 555 + Q_random(seed) * 1800;
 	VectorScale( dir, scale, bolt->s.pos.trDelta );
 	SnapVector( bolt->s.pos.trDelta );
 
