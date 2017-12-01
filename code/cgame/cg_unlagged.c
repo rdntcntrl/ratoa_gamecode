@@ -28,7 +28,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 void CG_ShotgunPattern( vec3_t origin, vec3_t origin2, int seed, int otherEntNum );
 void CG_Bullet( vec3_t end, int sourceEntityNum, vec3_t normal, qboolean flesh, int fleshEntityNum );
 
-localEntity_t	*CG_BasePredictMissile( entityState_t *ent,  vec3_t muzzlePoint );
+localEntity_t *CG_BasePredictMissile( entityState_t *ent,  vec3_t muzzlePoint );
 void CG_FinishPredictMissileModel( entityState_t *ent, localEntity_t *le );
 void CG_PredictNailgunMissile( entityState_t *ent, vec3_t muzzlePoint, vec3_t forward, vec3_t right, vec3_t up );
 
@@ -302,10 +302,21 @@ void CG_PredictWeaponEffects( centity_t *cent ) {
 			return;
 		}
 
+		// calculate the muzzle point the way the server sees it (snapped vectors)
+		VectorCopy( cg.predictedPlayerState.origin, muzzlePoint );
+		SnapVector(muzzlePoint);
+		muzzlePoint[2] += cg.predictedPlayerState.viewheight;
+		// get forward, right, and up
+		AngleVectors( cg.predictedPlayerState.viewangles, forward, right, up );
+		VectorMA( muzzlePoint, 14, forward, muzzlePoint );
+		// snap again
+		SnapVector(muzzlePoint);
+
 		if (ent->weapon == WP_NAILGUN) {
 			CG_PredictNailgunMissile(ent, muzzlePoint, forward, right, up);
 			return;
 		}
+
 
 		le = CG_BasePredictMissile(ent, muzzlePoint);
 
@@ -354,7 +365,7 @@ void CG_PredictWeaponEffects( centity_t *cent ) {
 	}
 }
 
-localEntity_t	*CG_BasePredictMissile( entityState_t *ent,  vec3_t muzzlePoint ) {
+localEntity_t *CG_BasePredictMissile( entityState_t *ent,  vec3_t muzzlePoint ) {
 	localEntity_t	*le;
 	refEntity_t	*bolt;
 
@@ -367,9 +378,6 @@ localEntity_t	*CG_BasePredictMissile( entityState_t *ent,  vec3_t muzzlePoint ) 
 		* cg_ratPredictMissilesPingFactor.value;
 	le->weapon = ent->weapon;
 
-	// server does this, we'll do it here for accuracy
-	SnapVector ( muzzlePoint );
-
 	bolt = &le->refEntity;
 
 	VectorCopy(muzzlePoint, le->pos.trBase);
@@ -379,7 +387,13 @@ localEntity_t	*CG_BasePredictMissile( entityState_t *ent,  vec3_t muzzlePoint ) 
 	VectorCopy( muzzlePoint, bolt->origin );
 	VectorCopy( muzzlePoint, bolt->oldorigin );
 
-	//CG_Printf("cmdMsecDelta = %i, le->pos.trTime = %i\n", cg.cmdMsecDelta, le->pos.trTime);
+	//CG_Printf("cmdMsecDelta = %i, le->pos.trTime = %i, trBase = %f %f %f\n", 
+	//		cg.cmdMsecDelta, 
+	//		le->pos.trTime,
+	//		le->pos.trBase[0],
+	//		le->pos.trBase[1],
+	//		le->pos.trBase[2]
+	//		);
 
 	return le;
 }
