@@ -432,7 +432,7 @@ static void CG_RatDrawClientScore(int y, score_t *score, float *color, float fad
 CG_RatTeamScoreboard
 =================
  */
-static int CG_RatTeamScoreboard(int y, team_t team, float fade, int maxClients, int lineHeight) {
+static int CG_RatTeamScoreboard(int y, team_t team, float fade, int maxClients, int lineHeight, qboolean countOnly) {
 	int i;
 	score_t *score;
 	float color[4];
@@ -451,7 +451,9 @@ static int CG_RatTeamScoreboard(int y, team_t team, float fade, int maxClients, 
 			continue;
 		}
 
-		CG_RatDrawClientScore(y + lineHeight * count, score, color, fade, lineHeight == RATSB_NORMAL_HEIGHT);
+		if (!countOnly) {
+			CG_RatDrawClientScore(y + lineHeight * count, score, color, fade, lineHeight == RATSB_NORMAL_HEIGHT);
+		}
 
 		count++;
 	}
@@ -619,35 +621,40 @@ qboolean CG_DrawRatScoreboard(void) {
 		//
 		y += lineHeight / 2;
 
+
 		if (cg.teamScores[0] >= cg.teamScores[1]) {
-			n1 = CG_RatTeamScoreboard(y, TEAM_RED, fade, maxClients, lineHeight);
+			n1 = CG_RatTeamScoreboard(y, TEAM_RED, fade, maxClients, lineHeight, qtrue);
 			CG_DrawTeamBackground(0, y - topBorderSize, 640, n1 * lineHeight + bottomBorderSize, 0.33f, TEAM_RED);
+			n1 = CG_RatTeamScoreboard(y, TEAM_RED, fade, maxClients, lineHeight, qfalse);
 			y += (n1 * lineHeight) + SCORECHAR_HEIGHT;
 			maxClients -= n1;
-			n2 = CG_RatTeamScoreboard(y, TEAM_BLUE, fade, maxClients, lineHeight);
+			n2 = CG_RatTeamScoreboard(y, TEAM_BLUE, fade, maxClients, lineHeight, qtrue);
 			CG_DrawTeamBackground(0, y - topBorderSize, 640, n2 * lineHeight + bottomBorderSize, 0.33f, TEAM_BLUE);
+			n2 = CG_RatTeamScoreboard(y, TEAM_BLUE, fade, maxClients, lineHeight, qfalse);
 			y += (n2 * lineHeight) + SCORECHAR_HEIGHT;
 			maxClients -= n2;
 		} else {
-			n1 = CG_RatTeamScoreboard(y, TEAM_BLUE, fade, maxClients, lineHeight);
+			n1 = CG_RatTeamScoreboard(y, TEAM_BLUE, fade, maxClients, lineHeight, qtrue);
 			CG_DrawTeamBackground(0, y - topBorderSize, 640, n1 * lineHeight + bottomBorderSize, 0.33f, TEAM_BLUE);
+			n1 = CG_RatTeamScoreboard(y, TEAM_BLUE, fade, maxClients, lineHeight, qfalse);
 			y += (n1 * lineHeight) + SCORECHAR_HEIGHT;
 			maxClients -= n1;
-			n2 = CG_RatTeamScoreboard(y, TEAM_RED, fade, maxClients, lineHeight);
+			n2 = CG_RatTeamScoreboard(y, TEAM_RED, fade, maxClients, lineHeight, qtrue);
 			CG_DrawTeamBackground(0, y - topBorderSize, 640, n2 * lineHeight + bottomBorderSize, 0.33f, TEAM_RED);
+			n2 = CG_RatTeamScoreboard(y, TEAM_RED, fade, maxClients, lineHeight, qfalse);
 			y += (n2 * lineHeight) + SCORECHAR_HEIGHT;
 			maxClients -= n2;
 		}
-		n1 = CG_RatTeamScoreboard(y, TEAM_SPECTATOR, fade, maxClients, lineHeight);
+		n1 = CG_RatTeamScoreboard(y, TEAM_SPECTATOR, fade, maxClients, lineHeight, qfalse);
 		y += (n1 * lineHeight) + SCORECHAR_HEIGHT;
 
 	} else {
 		//
 		// free for all scoreboard
 		//
-		n1 = CG_RatTeamScoreboard(y, TEAM_FREE, fade, maxClients, lineHeight);
+		n1 = CG_RatTeamScoreboard(y, TEAM_FREE, fade, maxClients, lineHeight, qfalse);
 		y += (n1 * lineHeight) + SCORECHAR_HEIGHT;
-		n2 = CG_RatTeamScoreboard(y, TEAM_SPECTATOR, fade, maxClients - n1, lineHeight);
+		n2 = CG_RatTeamScoreboard(y, TEAM_SPECTATOR, fade, maxClients - n1, lineHeight, qfalse);
 		y += (n2 * lineHeight) + SCORECHAR_HEIGHT;
 	}
 
