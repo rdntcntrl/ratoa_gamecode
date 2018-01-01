@@ -513,7 +513,7 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_ratPlasmaTrail, "cg_ratPlasmaTrail", "0", 0},
 	{ &cg_ratPlasmaTrailAlpha, "cg_ratPlasmaTrailAlpha", "0.1", 0},
 	{ &cg_ratPlasmaTrailStep, "cg_ratPlasmaTrailStep", "7", 0},
-	{ &cg_ratPlasmaTrailTime, "cg_ratPlasmaTrailTime", "350", 0},
+	{ &cg_ratPlasmaTrailTime, "cg_ratPlasmaTrailTime", "400", 0},
 	//
 	{ &cg_ratRocketTrail, "cg_ratRocketTrail", "1", CVAR_ARCHIVE},
 	{ &cg_ratRocketTrailAlpha, "cg_ratRocketTrailAlpha", "0.3", CVAR_ARCHIVE},

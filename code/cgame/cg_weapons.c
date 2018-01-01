@@ -391,6 +391,7 @@ static void CG_RatRocketTrail( centity_t *ent, const weaponInfo_t *wi ) {
 	vec3_t	up;
 	localEntity_t	*smoke;
 	int timeshift;
+	int currentTime;
 
 	if ( cg_noProjectileTrail.integer ) {
 		return;
@@ -406,33 +407,38 @@ static void CG_RatRocketTrail( centity_t *ent, const weaponInfo_t *wi ) {
 	startTime = ent->trailTime;
 	t = step * ( (startTime + step) / step );
 
-	BG_EvaluateTrajectory( &es->pos, cg.time, origin );
-	contents = CG_PointContents( origin, -1 );
+	// if missile exploded, only draw trail to position of explosion
+	if (es->time2 > 0) {
+		currentTime = es->time2;
+		timeshift = 0;
+	} else {
+		currentTime = cg.time;
+		timeshift =  MAX(CG_ProjectileNudgeTimeshift(ent)-10, 0);
+	}
 
 	// if object (e.g. grenade) is stationary, don't toss up smoke
 	if ( es->pos.trType == TR_STATIONARY ) {
-		ent->trailTime = cg.time;
+		ent->trailTime = currentTime;
 		return;
 	}
 
-	BG_EvaluateTrajectory( &es->pos, ent->trailTime, lastPos );
+	BG_EvaluateTrajectory( &es->pos, startTime, lastPos );
 	lastContents = CG_PointContents( lastPos, -1 );
 
-	ent->trailTime = cg.time;
+	ent->trailTime = currentTime;
 
-	if ( contents & ( CONTENTS_WATER | CONTENTS_SLIME | CONTENTS_LAVA ) ) {
-		if ( contents & lastContents & CONTENTS_WATER ) {
+	for ( ; t <= ent->trailTime; t += step ) {
+		BG_EvaluateTrajectory( &es->pos, t + timeshift, origin );
+		contents = CG_PointContents( origin, -1 );
+		if ( t > startTime && (contents & lastContents & CONTENTS_WATER) ) {
 			CG_BubbleTrail( lastPos, origin, 8 );
+			continue;
 		}
-		return;
-	}
+		if ( contents & ( CONTENTS_WATER | CONTENTS_SLIME | CONTENTS_LAVA ) ) {
+			continue;
+		}
 
-	timeshift =  CG_ProjectileNudgeTimeshift(ent);
-
-	for ( ; t <= ent->trailTime ; t += step ) {
-		BG_EvaluateTrajectory( &es->pos, t + timeshift, lastPos );
-
-		smoke = CG_SmokePuff( lastPos, up, 
+		smoke = CG_SmokePuff( origin, up, 
 					  cg_ratRocketTrailRadius.value,
 					  0.9, 0.9, 0.9, cg_ratRocketTrailAlpha.value,
 					  wi->wiTrailTime*cg_ratRocketTrailTime.value, 
@@ -654,6 +660,7 @@ static void CG_NailTrail( centity_t *ent, const weaponInfo_t *wi ) {
 	vec3_t	up;
 	localEntity_t	*smoke;
 	int timeshift;
+	int currentTime;
 
 	if ( cg_noProjectileTrail.integer ) {
 		return;
@@ -670,33 +677,38 @@ static void CG_NailTrail( centity_t *ent, const weaponInfo_t *wi ) {
 	startTime = ent->trailTime;
 	t = step * ( (startTime + step) / step );
 
-	BG_EvaluateTrajectory( &es->pos, cg.time, origin );
-	contents = CG_PointContents( origin, -1 );
+	// if missile exploded, only draw trail to position of explosion
+	if (es->time2 > 0) {
+		currentTime = es->time2;
+		timeshift = 0;
+	} else {
+		currentTime = cg.time;
+		timeshift =  MAX(CG_ProjectileNudgeTimeshift(ent)-10, 0);
+	}
 
 	// if object (e.g. grenade) is stationary, don't toss up smoke
 	if ( es->pos.trType == TR_STATIONARY ) {
-		ent->trailTime = cg.time;
+		ent->trailTime = currentTime;
 		return;
 	}
 
-	BG_EvaluateTrajectory( &es->pos, ent->trailTime, lastPos );
+	BG_EvaluateTrajectory( &es->pos, startTime, lastPos );
 	lastContents = CG_PointContents( lastPos, -1 );
 
-	ent->trailTime = cg.time;
-
-	if ( contents & ( CONTENTS_WATER | CONTENTS_SLIME | CONTENTS_LAVA ) ) {
-		if ( contents & lastContents & CONTENTS_WATER ) {
-			CG_BubbleTrail( lastPos, origin, 8 );
-		}
-		return;
-	}
-
-	timeshift = CG_ProjectileNudgeTimeshift(ent);
+	ent->trailTime = currentTime;
 
 	for ( ; t <= ent->trailTime ; t += step ) {
-		BG_EvaluateTrajectory( &es->pos, t + timeshift, lastPos );
+		BG_EvaluateTrajectory( &es->pos, t + timeshift, origin );
+		contents = CG_PointContents( origin, -1 );
+		if ( t > startTime && (contents & lastContents & CONTENTS_WATER) ) {
+			CG_BubbleTrail( lastPos, origin, 8 );
+			continue;
+		}
+		if ( contents & ( CONTENTS_WATER | CONTENTS_SLIME | CONTENTS_LAVA ) ) {
+			continue;
+		}
 
-		smoke = CG_SmokePuff( lastPos, up, 
+		smoke = CG_SmokePuff( origin, up, 
 					  wi->trailRadius, 
 					  1, 1, 1, 0.33f,
 					  wi->wiTrailTime, 
@@ -717,15 +729,15 @@ CG_RatPlasmaTrail
 ==========================
 */
 static void CG_RatPlasmaTrail( centity_t *ent, const weaponInfo_t *wi ) {
+	vec3_t 		origin;
 	int		step;
-	vec3_t	origin, lastPos;
 	int		t;
 	int		startTime, contents;
-	int		lastContents;
 	entityState_t	*es;
 	vec3_t	up;
 	localEntity_t	*smoke;
 	int timeshift;
+	int currentTime;
 
 	if ( cg_noProjectileTrail.integer ) {
 		return;
@@ -742,30 +754,31 @@ static void CG_RatPlasmaTrail( centity_t *ent, const weaponInfo_t *wi ) {
 	startTime = ent->trailTime;
 	t = step * ( (startTime + step) / step );
 
-	BG_EvaluateTrajectory( &es->pos, cg.time, origin );
-	contents = CG_PointContents( origin, -1 );
+	// if missile exploded, only draw trail to position of explosion
+	if (es->time2 > 0) {
+		currentTime = es->time2;
+		timeshift = 0;
+	} else {
+		currentTime = cg.time;
+		timeshift =  MAX(CG_ProjectileNudgeTimeshift(ent)-10, 0);
+	}
 
 	// if object (e.g. grenade) is stationary, don't toss up smoke
 	if ( es->pos.trType == TR_STATIONARY ) {
-		ent->trailTime = cg.time;
+		ent->trailTime = currentTime;
 		return;
 	}
 
-	BG_EvaluateTrajectory( &es->pos, ent->trailTime, lastPos );
-	lastContents = CG_PointContents( lastPos, -1 );
-
-	ent->trailTime = cg.time;
-
-	if ( contents & ( CONTENTS_SLIME | CONTENTS_LAVA ) ) {
-		return;
-	}
-
-	timeshift = CG_ProjectileNudgeTimeshift(ent);
+	ent->trailTime = currentTime;
 
 	for ( ; t <= ent->trailTime ; t += step ) {
-		BG_EvaluateTrajectory( &es->pos, t + timeshift, lastPos );
+		BG_EvaluateTrajectory( &es->pos, t + timeshift, origin );
+		contents = CG_PointContents( origin, -1 );
+		if ( contents & ( CONTENTS_SLIME | CONTENTS_LAVA ) ) {
+			continue;
+		}
 
-		smoke = CG_SmokePuff( lastPos, up, 
+		smoke = CG_SmokePuff( origin, up, 
 					  1,
 					  1, 1, 1, 
 					  cg_ratPlasmaTrailAlpha.value,
@@ -924,26 +937,32 @@ static void CG_RocketTrail( centity_t *ent, const weaponInfo_t *wi ) {
 
 		if (cg_ratRocketTrail.integer) {
 			CG_RatRocketTrail(ent, wi);
-		} else if (cg_leiEnhancement.integer) {
-			CG_LeiSmokeTrail( ent, wi );
-		}
-		else
-		{	
-			CG_OldRocketTrail( ent, wi );
-		}
+		} 
+		// these aren't unlagged correctly (yet)
+		
+		//else if (cg_leiEnhancement.integer) {
+		//	CG_LeiSmokeTrail( ent, wi );
+		//}
+		//else
+		//{	
+		//	CG_OldRocketTrail( ent, wi );
+		//}
 }
 
 static void CG_PlasmaTrail( centity_t *ent, const weaponInfo_t *wi ) {
 
 	if (cg_ratPlasmaTrail.integer) {
 		CG_RatPlasmaTrail(ent, wi);
-	} else if (cg_leiEnhancement.integer) {
-		CG_LeiPlasmaTrail( ent, wi );
 	}
-	else
-	{	
-		CG_OldPlasmaTrail( ent, wi );
-	}
+	// these aren't unlagged correctly (yet)
+
+       	//else if (cg_leiEnhancement.integer) {
+	//	CG_LeiPlasmaTrail( ent, wi );
+	//}
+	//else
+	//{	
+	//	CG_OldPlasmaTrail( ent, wi );
+	//}
 }
 
 

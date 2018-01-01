@@ -1376,8 +1376,13 @@ void CG_CheckEvents( centity_t *cent ) {
 		}
 	}
 
-	// calculate the position at exactly the frame time
-	BG_EvaluateTrajectory( &cent->currentState.pos, cg.snap->serverTime, cent->lerpOrigin );
+	if (cent->currentState.eType == ET_MISSILE && cent->currentState.time2 > 0) {
+		// missile exploded, explosion origin stored in origin2 by server!
+		VectorCopy(cent->currentState.origin2, cent->lerpOrigin );
+	} else {
+		// calculate the position at exactly the frame time
+		BG_EvaluateTrajectory( &cent->currentState.pos, cg.snap->serverTime, cent->lerpOrigin );
+	}
 	CG_SetEntitySoundPosition( cent );
 
 	CG_EntityEvent( cent, cent->lerpOrigin );

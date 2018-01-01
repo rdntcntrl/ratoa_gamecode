@@ -420,6 +420,11 @@ static void CG_Missile( centity_t *cent ) {
 	{
 		weapon->missileTrailFunc( cent, weapon );
 	}
+
+	if (s1->time2 > 0) {
+		// missile already exploded, don't render it
+		return;
+	}
 /*
 	if ( cent->currentState.modelindex == TEAM_RED ) {
 		col = 1;
@@ -737,7 +742,19 @@ static void CG_InterpolateEntityPosition( centity_t *cent ) {
 }
 
 int CG_ProjectileNudgeTimeshift(centity_t *cent) {
-	return (cg_projectileNudgeAuto.integer ? cent->projectileNudge : cg_projectileNudge.integer) + 1000 / sv_fps.integer;
+		// if it's one of ours
+		if ( cent->currentState.otherEntityNum == cg.clientNum ) {
+			// extrapolate one server frame's worth - this will correct for tiny
+			// visual inconsistencies introduced by backward-reconciling all players
+			// one server frame before running projectiles
+			return 1000 / sv_fps.integer;
+		}
+		// if it's not, and it's not a grenade launcher
+		else if ( cent->currentState.weapon != WP_GRENADE_LAUNCHER ) {
+			// extrapolate based on cg_projectileNudge
+			return (cg_projectileNudgeAuto.integer ? cent->projectileNudge : cg_projectileNudge.integer) + 1000 / sv_fps.integer;
+		}
+		return 0;
 }
 
 /*
@@ -796,18 +813,7 @@ static void CG_CalcEntityLerpPositions( centity_t *cent ) {
 //unlagged - projectile nudge
 	// if it's a missile but not a grappling hook
 	if ( cent->currentState.eType == ET_MISSILE && cent->currentState.weapon != WP_GRAPPLING_HOOK ) {
-		// if it's one of ours
-		if ( cent->currentState.otherEntityNum == cg.clientNum ) {
-			// extrapolate one server frame's worth - this will correct for tiny
-			// visual inconsistencies introduced by backward-reconciling all players
-			// one server frame before running projectiles
-			timeshift = 1000 / sv_fps.integer;
-		}
-		// if it's not, and it's not a grenade launcher
-		else if ( cent->currentState.weapon != WP_GRENADE_LAUNCHER ) {
-			// extrapolate based on cg_projectileNudge
-			timeshift = CG_ProjectileNudgeTimeshift(cent);
-		}
+		timeshift = CG_ProjectileNudgeTimeshift(cent);
 	}
 
 	// just use the current frame and evaluate as best we can
