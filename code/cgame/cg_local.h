@@ -108,11 +108,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define MIN(a,b) (((a) < (b)) ? (a) : (b))
 #define MAX(a,b) (((a) > (b)) ? (a) : (b))
 
-#define CONSOLE_LINES 4
-#define CHAT_LINES 7
-#define TEAMCHAT_LINES 8
+#define CONSOLE_LINES 3
+#define CHAT_LINES 6
+#define TEAMCHAT_LINES 6
 
-#define COMMONCONSLE_LINES 7
+#define COMMONCONSLE_LINES 6
 
 typedef enum {
 	FOOTSTEP_NORMAL,
