@@ -2438,7 +2438,7 @@ static void CG_DrawReady ( void ) {
 		s = "^1Type \\ready to ready up!";
 	}
 	w = CG_DrawStrlen( s ) * SMALLCHAR_WIDTH;
-	CG_DrawSmallString(320 - w / 2, 72, s, 1.0F);
+	CG_DrawSmallString(320 - w / 2, 90, s, 1.0F);
 }
 
 
@@ -3293,7 +3293,7 @@ static void CG_DrawVote(void) {
 #else
 	s = va("VOTE(%i):%s yes:%i no:%i", sec, cgs.voteString, cgs.voteYes, cgs.voteNo );
 	//CG_DrawSmallString( 0, 58, s, 1.0F );
-	CG_DrawSmallString( SCREEN_WIDTH/2 - (CG_DrawStrlen(s)*SMALLCHAR_WIDTH)/2, 20, s, 1.0F );
+	CG_DrawSmallString( SCREEN_WIDTH/2 - (CG_DrawStrlen(s)*SMALLCHAR_WIDTH)/2, 10, s, 1.0F );
 #endif
 }
 
@@ -3614,9 +3614,13 @@ static void CG_DrawWarmup( void ) {
 	}
 
 	if ( sec < 0 ) {
+		if (cgs.voteTime) {
+			return;
+		}
 		s = "Waiting for players";		
 		w = CG_DrawStrlen( s ) * BIGCHAR_WIDTH;
-		CG_DrawBigString(320 - w / 2, 24, s, 1.0F);
+		//CG_DrawBigString(320 - w / 2, 24, s, 1.0F);
+		CG_DrawBigString(320 - w / 2, 10, s, 0.75F);
 		cg.warmupCount = 0;
 		return;
 	}
@@ -3642,12 +3646,12 @@ static void CG_DrawWarmup( void ) {
 			CG_Text_Paint(320 - w / 2, 60, 0.6f, colorWhite, s, 0, 0, ITEM_TEXTSTYLE_SHADOWEDMORE);
 #else
 			w = CG_DrawStrlen( s );
-			if ( w > 640 / GIANT_WIDTH ) {
+			if ( w > 640 / BIGCHAR_WIDTH ) {
 				cw = 640 / w;
 			} else {
-				cw = GIANT_WIDTH;
+				cw = BIGCHAR_WIDTH;
 			}
-			CG_DrawStringExt( 320 - w * cw/2, 20,s, colorWhite, 
+			CG_DrawStringExt( 320 - w * cw/2, 8,s, colorWhite, 
 					qfalse, qtrue, cw, (int)(cw * 1.5f), 0 );
 #endif
 		}
@@ -3682,12 +3686,12 @@ static void CG_DrawWarmup( void ) {
 		CG_Text_Paint(320 - w / 2, 90, 0.6f, colorWhite, s, 0, 0, ITEM_TEXTSTYLE_SHADOWEDMORE);
 #else
 		w = CG_DrawStrlen( s );
-		if ( w > 640 / GIANT_WIDTH ) {
+		if ( w > 640 / BIGCHAR_WIDTH ) {
 			cw = 640 / w;
 		} else {
-			cw = GIANT_WIDTH;
+			cw = BIGCHAR_WIDTH;
 		}
-		CG_DrawStringExt( 320 - w * cw/2, 25,s, colorWhite, 
+		CG_DrawStringExt( 320 - w * cw/2, 8,s, colorWhite, 
 				qfalse, qtrue, cw, (int)(cw * 1.1f), 0 );
 #endif
 	}
@@ -3739,7 +3743,7 @@ static void CG_DrawWarmup( void ) {
 		CG_Text_Paint(320 - w / 2, 125, scale, colorWhite, s, 0, 0, ITEM_TEXTSTYLE_SHADOWEDMORE);
 #else
 	w = CG_DrawStrlen( s );
-	CG_DrawStringExt( 320 - w * cw/2, 70, s, colorWhite, 
+	CG_DrawStringExt( 320 - w * cw/2, 90, s, colorWhite, 
 			qfalse, qtrue, cw, (int)(cw * 1.5), 0 );
 #endif
 }
