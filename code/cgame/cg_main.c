@@ -564,22 +564,25 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_fpsScaleY   ,     "cg_fpsScaleY", "0.75", CVAR_ARCHIVE},
 	{ &cg_speedScaleY ,     "cg_speedScaleY", "0.75", CVAR_ARCHIVE},
 
-	{ &cg_newFont ,     "cg_newFont", "1", 0},
-	{ &cg_newConsole ,  "cg_newConsole", "0", 0},
-	{ &cg_chatTime ,    "cg_chatTime", "10000", 0},
-	{ &cg_consoleTime , "cg_consoleTime", "10000", 0},
+	{ &cg_chatTime ,    "cg_chatTime", "10000", CVAR_ARCHIVE},
+	{ &cg_consoleTime , "cg_consoleTime", "10000", CVAR_ARCHIVE},
 	{ &cg_teamChatTime, "cg_teamChatTime", "10000", CVAR_ARCHIVE  },
 
 	{ &cg_teamChatY, "cg_teamChatY", "350", CVAR_ARCHIVE  },
 
-	{ &cg_fontScale , "cg_fontScale", "1.0", CVAR_ARCHIVE},
-	
+	{ &cg_newFont ,     "cg_newFont", "1", CVAR_ARCHIVE},
+
+	{ &cg_newConsole ,  "cg_newConsole", "0", 0},
+
 	{ &cg_consoleSizeX , "cg_consoleSizeX", "4", 0},
 	{ &cg_consoleSizeY , "cg_consoleSizeY", "8", 0},
 	{ &cg_chatSizeX , "cg_chatSizeX", "5", 0},
 	{ &cg_chatSizeY , "cg_chatSizeY", "10", 0},
 	{ &cg_teamChatSizeX , "cg_teamChatSizeX", "5", 0},
 	{ &cg_teamChatSizeY , "cg_teamChatSizeY", "10", 0},
+
+	{ &cg_fontScale , "cg_fontScale", "1.0", CVAR_ARCHIVE},
+	
 
 	{ &cg_autoHeadColors ,     "cg_autoHeadColors", "0", CVAR_ARCHIVE},
 
