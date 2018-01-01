@@ -357,17 +357,28 @@ use normal spawn selection.
 */
 gentity_t *SelectInitialSpawnPoint( vec3_t origin, vec3_t angles ) {
 	gentity_t	*spot;
+	int			count;
+	gentity_t	*spots[MAX_SPAWN_POINTS];
 
+	count = 0;
 	spot = NULL;
+
 	while ((spot = G_Find (spot, FOFS(classname), "info_player_deathmatch")) != NULL) {
-		if ( spot->spawnflags & 1 ) {
-			break;
+		if ( !(spot->spawnflags & 1) || SpotWouldTelefrag(spot) ) {
+			continue;
 		}
+		spots[count++] = spot;
 	}
 
-	if ( !spot || SpotWouldTelefrag( spot ) ) {
-		return SelectSpawnPoint( vec3_origin, origin, angles );
+	if ( count == 0) { 
+		return NULL;
 	}
+
+	//if ( !spot || SpotWouldTelefrag( spot ) ) {
+	//	return SelectSpawnPoint( vec3_origin, origin, angles );
+	//}
+	
+	spot = spots[ rand() % count ];
 
 	VectorCopy (spot->s.origin, origin);
 	origin[2] += 9;
@@ -2061,10 +2072,14 @@ void ClientSpawn(gentity_t *ent) {
 	} else {
 		do {
 			// the first spawn should be at a good looking spot
-			if ( !client->pers.initialSpawn && client->pers.localClient ) {
+			if ( !client->pers.initialSpawn ) {
 				client->pers.initialSpawn = qtrue;
 				spawnPoint = SelectInitialSpawnPoint( spawn_origin, spawn_angles );
+				if (!spawnPoint) {
+					continue;
+				}
 			} else if (g_gametype.integer == GT_TOURNAMENT) {
+				CalculateRanks();
 				spawnPoint = SelectTournamentSpawnPoint ( 
 					client,
 					spawn_origin, spawn_angles);
