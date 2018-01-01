@@ -81,10 +81,10 @@ void DeathmatchScoreboardMessage( gentity_t *ent, qboolean advanced ) {
 					perfect,
 					cl->ps.persistant[PERS_CAPTURES],
 					g_gametype.integer == GT_LMS ? cl->pers.livesLeft + (cl->isEliminated?0:1): cl->isEliminated,
-					cl->sess.kills,
-					cl->sess.deaths,
-					cl->sess.dmgGiven,
-					cl->sess.dmgTaken,
+					cl->pers.kills,
+					cl->pers.deaths,
+					cl->pers.dmgGiven,
+					cl->pers.dmgTaken,
 					cl->sess.spectatorGroup,
 					cl->pers.teamState.flagrecovery
 					);

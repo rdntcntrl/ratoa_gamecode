@@ -256,8 +256,6 @@ typedef struct {
 	spectatorGroup_t	spectatorGroup;
 	int			wins, losses;		// tournament stats
 	qboolean	teamLeader;			// true when this client is a team leader
-	int		dmgTaken, dmgGiven;
-	int		kills, deaths;
 } clientSession_t;
 
 //
@@ -328,6 +326,8 @@ typedef struct {
     int         nameChangeTime;
     int         nameChanges;
     
+    int		dmgTaken, dmgGiven;
+    int		kills, deaths;
 } clientPersistant_t;
 
 //unlagged - backward reconciliation #1

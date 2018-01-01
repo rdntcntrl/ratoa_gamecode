@@ -499,7 +499,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 	}
 
 	if (self->client) {
-		self->client->sess.deaths += 1;
+		self->client->pers.deaths += 1;
 	}
 
 //unlagged - backward reconciliation #2
@@ -529,7 +529,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 		if ( attacker->client ) {
 			killerName = attacker->client->pers.netname;
 			if (self != attacker) {
-				attacker->client->sess.kills += 1;
+				attacker->client->pers.kills += 1;
 			}
 		} else {
 			killerName = "<non-client>";
@@ -1343,11 +1343,11 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 			}
 		}
 		if (targ->client) {
-			targ->client->sess.dmgTaken += dmgTaken;
+			targ->client->pers.dmgTaken += dmgTaken;
 		}
 		if (targ != attacker) {
 			if (attacker && attacker->client) {
-				attacker->client->sess.dmgGiven += dmgTaken;
+				attacker->client->pers.dmgGiven += dmgTaken;
 			}
 		}
 		///
