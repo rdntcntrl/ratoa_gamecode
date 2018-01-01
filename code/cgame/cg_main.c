@@ -1448,7 +1448,7 @@ static void CG_RegisterGraphics( void ) {
 
 	cgs.media.smoke2 = trap_R_RegisterModel( "models/weapons2/shells/s_shell.md3" );
 
-	cgs.media.balloonShader = trap_R_RegisterShader( "sprites/balloon3" );
+	cgs.media.balloonShader = trap_R_RegisterShader( "sprites/typing" );
 
 	cgs.media.bloodExplosionShader = trap_R_RegisterShader( "bloodExplosion" );
 

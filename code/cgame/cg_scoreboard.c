@@ -185,6 +185,7 @@ static void CG_RatDrawClientScore(int y, score_t *score, float *color, float fad
 	char string[1024];
 	vec3_t headAngles;
 	clientInfo_t *ci;
+	centity_t *cent;
 	int iconx, headx;
 	float tcolor[4] = { 1.0, 1.0, 1.0, 1.0 };
 	int ysmall = y + (SCORECHAR_HEIGHT - SCORESMALLCHAR_HEIGHT);
@@ -196,6 +197,7 @@ static void CG_RatDrawClientScore(int y, score_t *score, float *color, float fad
 	}
 
 	ci = &cgs.clientinfo[score->client];
+	cent = &cg_entities[score->client];
 
 	iconx = RATSB_BOTICON_X + (RATSB_RATING_WIDTH / 2);
 	headx = RATSB_HEAD_X + (RATSB_RATING_WIDTH / 2);
@@ -234,6 +236,13 @@ static void CG_RatDrawClientScore(int y, score_t *score, float *color, float fad
 			tcolor[0] = tcolor[1] = tcolor[2] = 0.75;
 			//CG_DrawSmallScoreStringColor(iconx, ysmall, string, tcolor);
 			CG_DrawTinyScoreStringColor(iconx, ytiny, string, tcolor);
+		}
+		if ( ci->team != TEAM_SPECTATOR && cent &&  cent->currentState.eFlags & EF_TALK ) {
+			if (largeFormat) {
+				CG_DrawPic(iconx, y - (32 - SCORECHAR_HEIGHT) / 2, 32, 32, cgs.media.balloonShader);
+			} else {
+				CG_DrawPic(iconx, y, 16, 16, cgs.media.balloonShader);
+			}
 		}
 	}
 
