@@ -79,6 +79,11 @@ g_admin_cmd_t g_admin_cmds[ ] =
       "cancel a vote taking place",
       ""
     },
+
+    {"coin", "", G_admin_coin, "q",
+      "toss a coin",
+      ""
+    },
     //KK-OAX
     {"disorient", "", G_admin_disorient,	"d",
 		"disorient a player by flipping player's view and controls",
@@ -590,23 +595,23 @@ static void admin_default_levels( void )
   }
   Q_strncpyz( g_admin_levels[ 0 ]->name, "^4Unknown Player",
     sizeof( l->name ) );
-  Q_strncpyz( g_admin_levels[ 0 ]->flags, "ahC", sizeof( l->flags ) );
+  Q_strncpyz( g_admin_levels[ 0 ]->flags, "qahC", sizeof( l->flags ) );
 
   Q_strncpyz( g_admin_levels[ 1 ]->name, "^5Server Regular",
     sizeof( l->name ) );
-  Q_strncpyz( g_admin_levels[ 1 ]->flags, "iahC", sizeof( l->flags ) );
+  Q_strncpyz( g_admin_levels[ 1 ]->flags, "qiahC", sizeof( l->flags ) );
 
   Q_strncpyz( g_admin_levels[ 2 ]->name, "^6Team Manager",
     sizeof( l->name ) );
-  Q_strncpyz( g_admin_levels[ 2 ]->flags, "iahCpPwr", sizeof( l->flags ) );
+  Q_strncpyz( g_admin_levels[ 2 ]->flags, "qiahCpPwr", sizeof( l->flags ) );
 
   Q_strncpyz( g_admin_levels[ 3 ]->name, "^2Junior Admin",
     sizeof( l->name ) );
-  Q_strncpyz( g_admin_levels[ 3 ]->flags, "iahCpPwrkmfKncN?T", sizeof( l->flags ) );
+  Q_strncpyz( g_admin_levels[ 3 ]->flags, "qiahCpPwrkmfKncN?T", sizeof( l->flags ) );
 
   Q_strncpyz( g_admin_levels[ 4 ]->name, "^3Senior Admin",
     sizeof( l->name ) );
-  Q_strncpyz( g_admin_levels[ 4 ]->flags, "iahCpPwrkmfKncN?MVdBbeDS51tT", sizeof( l->flags ) );
+  Q_strncpyz( g_admin_levels[ 4 ]->flags, "qiahCpPwrkmfKncN?MVdBbeDS51tT", sizeof( l->flags ) );
 
   Q_strncpyz( g_admin_levels[ 5 ]->name, "^1Server Operator",
     sizeof( l->name ) );
@@ -3027,6 +3032,21 @@ qboolean G_admin_cancelvote( gentity_t *ent, int skiparg )
   AP( va( "print \"^3!cancelvote: ^7%s^7 decided that everyone voted No\n\"",
           ( ent ) ? ent->client->pers.netname : "console" ) );
   return qtrue;
+}
+
+qboolean G_admin_coin( gentity_t *ent, int skiparg )
+{
+	if (ent && ( 
+		(ent->client->sess.sessionTeam == TEAM_SPECTATOR && (G_TournamentSpecMuted() || g_specMuted.integer))
+		|| ent->client->pers.muted)
+			) {
+		return qfalse;
+	}
+
+	AP( va( "print \"^3!coin: ^7%s^7's coin is %s\n\"",
+				( ent ) ? ent->client->pers.netname : "console",
+				rand()%2 == 0 ? "heads" : "tails" ) );
+	return qtrue;
 }
 
 qboolean G_admin_passvote( gentity_t *ent, int skiparg )

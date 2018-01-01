@@ -188,6 +188,7 @@ qboolean G_admin_help( gentity_t *ent, int skiparg );
 qboolean G_admin_admintest( gentity_t *ent, int skiparg );
 qboolean G_admin_allready( gentity_t *ent, int skiparg );
 qboolean G_admin_cancelvote( gentity_t *ent, int skiparg );
+qboolean G_admin_coin( gentity_t *ent, int skiparg );
 qboolean G_admin_passvote( gentity_t *ent, int skiparg );
 qboolean G_admin_spec999( gentity_t *ent, int skiparg );
 qboolean G_admin_rename( gentity_t *ent, int skiparg );
