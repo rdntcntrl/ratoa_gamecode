@@ -894,6 +894,7 @@ void QDECL CG_PrintfChat( qboolean team, const char *msg, ... ) {
 		} else {
 			CG_AddToGenericConsole(text, &cgs.chat, CHAT_LINES);
 		}
+		CG_AddToGenericConsole(text, &cgs.commonConsole, COMMONCONSLE_LINES);
 	}
 	trap_Print( text );
 }
@@ -908,6 +909,7 @@ void QDECL CG_Printf( const char *msg, ... ) {
 
 	if (cg_newConsole.integer) {
 		CG_AddToGenericConsole(text, &cgs.console, CONSOLE_LINES);
+		CG_AddToGenericConsole(text, &cgs.commonConsole, COMMONCONSLE_LINES);
 	}
 	trap_Print( text );
 }

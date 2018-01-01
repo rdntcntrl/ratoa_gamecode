@@ -3768,10 +3768,35 @@ static void CG_Draw2D(stereoFrame_t stereoFrame)
 		return;
 	}
 
+
 	if ( cg.snap->ps.pm_type == PM_INTERMISSION ) {
+		CG_DrawGenericConsole(&cgs.commonConsole, COMMONCONSLE_LINES, cg_chatTime.integer, 
+				0, 0, 
+				CG_ConsoleAdjustSizeX(cg_chatSizeX.value),
+				CG_ConsoleAdjustSizeY(cg_chatSizeY.value)
+				);
 		CG_DrawIntermission();
 		return;
 	}
+
+ 	CG_DrawGenericConsole(&cgs.console, CONSOLE_LINES, cg_consoleTime.integer, 
+			0, 0, 
+			CG_ConsoleAdjustSizeX(cg_consoleSizeX.value),
+			CG_ConsoleAdjustSizeY(cg_consoleSizeY.value)
+		       	);
+ 	CG_DrawGenericConsole(&cgs.chat, CHAT_LINES, cg_chatTime.integer, 
+			0, 
+			CONSOLE_LINES * CG_ConsoleAdjustSizeY(cg_consoleSizeY.value) + CG_ConsoleAdjustSizeY(cg_chatSizeY.value)/2,
+		       	CG_ConsoleAdjustSizeX(cg_chatSizeX.value),
+		       	CG_ConsoleAdjustSizeY(cg_chatSizeY.value)
+		       	);
+
+ 	CG_DrawGenericConsole(&cgs.teamChat, TEAMCHAT_LINES, cg_teamChatTime.integer, 
+			0, 
+			cg_teamChatY.integer - TEAMCHAT_LINES*CG_ConsoleAdjustSizeY(cg_teamChatSizeY.value),
+		       	CG_ConsoleAdjustSizeX(cg_teamChatSizeX.value),
+		       	CG_ConsoleAdjustSizeY(cg_teamChatSizeY.value) );
+
 
 /*
 	if (cg.cameraMode) {
@@ -3820,23 +3845,6 @@ static void CG_Draw2D(stereoFrame_t stereoFrame)
     
 	}
 
- 	CG_DrawGenericConsole(&cgs.console, CONSOLE_LINES, cg_consoleTime.integer, 
-			0, 0, 
-			CG_ConsoleAdjustSizeX(cg_consoleSizeX.value),
-			CG_ConsoleAdjustSizeY(cg_consoleSizeY.value)
-		       	);
- 	CG_DrawGenericConsole(&cgs.chat, CHAT_LINES, cg_chatTime.integer, 
-			0, 
-			CONSOLE_LINES * CG_ConsoleAdjustSizeY(cg_consoleSizeY.value) + CG_ConsoleAdjustSizeY(cg_chatSizeY.value)/2,
-		       	CG_ConsoleAdjustSizeX(cg_chatSizeX.value),
-		       	CG_ConsoleAdjustSizeY(cg_chatSizeY.value)
-		       	);
-
- 	CG_DrawGenericConsole(&cgs.teamChat, TEAMCHAT_LINES, cg_teamChatTime.integer, 
-			0, 
-			cg_teamChatY.integer - TEAMCHAT_LINES*CG_ConsoleAdjustSizeY(cg_teamChatSizeY.value),
-		       	CG_ConsoleAdjustSizeX(cg_teamChatSizeX.value),
-		       	CG_ConsoleAdjustSizeY(cg_teamChatSizeY.value) );
 #ifndef MISSIONPACK
 	CG_DrawTeamChat();
 #endif

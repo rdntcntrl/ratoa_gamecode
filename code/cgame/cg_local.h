@@ -112,6 +112,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define CHAT_LINES 7
 #define TEAMCHAT_LINES 8
 
+#define COMMONCONSLE_LINES 7
+
 typedef enum {
 	FOOTSTEP_NORMAL,
 	FOOTSTEP_BOOT,
@@ -1232,6 +1234,7 @@ typedef struct {
 
 	clientInfo_t	clientinfo[MAX_CLIENTS];
 
+	console_t commonConsole;
 	console_t console;
 	console_t chat;
 	console_t teamChat;
