@@ -59,6 +59,53 @@ void CG_TargetCommand_f( void ) {
 	trap_SendConsoleCommand( va( "gc %i %i", targetNum, atoi( test ) ) );
 }
 
+#define MAX_SAMPLECFGSIZE (24*1024)
+void CG_SampleConfig_f( void ) {
+	char *source_fn = "configs/samplecfg.cfg";
+	char *dest_fn = "ratmod_example.cfg";
+	fileHandle_t f;
+	int len;
+	char *p1;
+	char *p2;
+	char buf[MAX_SAMPLECFGSIZE];
+
+	memset(buf, 0, sizeof(buf));
+
+	len = trap_FS_FOpenFile(source_fn, &f, FS_READ);
+
+	if (!f || len == 0) {
+		CG_Printf("failed to open sample config!\n");
+		return;
+	}
+
+	trap_FS_Read(buf, sizeof(buf)-1, f);
+	trap_FS_FCloseFile(f);
+
+
+	trap_FS_FOpenFile(dest_fn, &f, FS_WRITE);
+
+	if (!f) {
+		CG_Printf("failed to write sample config!\n");
+		return;
+	}
+ 	trap_FS_Write( buf, strlen(buf), f );
+	trap_FS_FCloseFile(f);
+
+	p1 = buf;
+	do {
+		p2 = strchr(p1, '\n');
+		if (*p1) {
+			if (p2) {
+				*p2 = '\0';
+			}
+			CG_Printf("^2> %s\n", p1);
+		}
+		p1 = p2 ? p2 + 1 : NULL;
+	} while (p1);
+
+	CG_Printf("sample config written to file '%s'\n", dest_fn);
+}
+
 
 
 /*
@@ -513,6 +560,7 @@ static consoleCommand_t	commands[] = {
 	{ "vtell_target", CG_VoiceTellTarget_f },
 	{ "vtell_attacker", CG_VoiceTellAttacker_f },
 	{ "tcmd", CG_TargetCommand_f },
+	{ "sampleconfig", CG_SampleConfig_f },
 #ifdef MISSIONPACK
 	{ "loadhud", CG_LoadHud_f },
 	{ "nextTeamMember", CG_NextTeamMember_f },
