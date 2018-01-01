@@ -325,6 +325,7 @@ vmCvar_t	cl_timeNudge;
 //vmCvar_t	cg_plOut;
 //unlagged - client options
 vmCvar_t	com_maxfps;
+vmCvar_t	con_notifytime;
 
 //elimination addition
 vmCvar_t	cg_alwaysWeaponBar;
@@ -620,6 +621,7 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_optimizePrediction, "cg_optimizePrediction", "1", CVAR_ARCHIVE },
 	{ &cl_timeNudge, "cl_timeNudge", "0", CVAR_ARCHIVE },
 	{ &com_maxfps, "com_maxfps", "125", CVAR_ARCHIVE },
+	{ &con_notifytime, "con_notifytime", "3", CVAR_ARCHIVE },
 //	{ &cg_latentSnaps, "cg_latentSnaps", "0", CVAR_USERINFO | CVAR_CHEAT },
 //	{ &cg_latentCmds, "cg_latentCmds", "0", CVAR_USERINFO | CVAR_CHEAT },
 //	{ &cg_plOut, "cg_plOut", "0", CVAR_USERINFO | CVAR_CHEAT },
@@ -783,6 +785,12 @@ void CG_UpdateCvars( void ) {
 		}
                 else if ( cv->vmCvar == &com_maxfps ) {
 			CG_Cvar_ClampInt( cv->cvarName, cv->vmCvar, 0, 125 );
+		}
+                else if ( cv->vmCvar == &con_notifytime ) {
+			if (cv->vmCvar->integer <= 0) {
+				Com_sprintf( cv->vmCvar->string, MAX_CVAR_VALUE_STRING, "%s", cv->defaultString);
+				trap_Cvar_Set( cv->cvarName, cv->vmCvar->string );
+			}
 		}
 		trap_Cvar_Update( cv->vmCvar );
 	}

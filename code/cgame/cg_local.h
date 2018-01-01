@@ -1499,6 +1499,7 @@ extern	vmCvar_t		cl_timeNudge;
 //extern	vmCvar_t		cg_plOut;
 //unlagged - client options
 extern	vmCvar_t		com_maxfps;
+extern	vmCvar_t		con_notifytime;
 
 //extra CVARS elimination
 extern	vmCvar_t		cg_alwaysWeaponBar;
