@@ -525,7 +525,7 @@ qboolean CG_DrawRatScoreboard(void) {
 			       	S_COLOR_YELLOW, S_COLOR_WHITE, cg.killerName);
 		w = CG_DrawStrlen(s) * SCORECHAR_WIDTH;
 		x = (SCREEN_WIDTH - w) / 2;
-		y = 30;
+		y = RATSB_HEADER-56;
 		CG_DrawScoreString(x, y, s, fade, 0);
 	}
 
@@ -537,7 +537,7 @@ qboolean CG_DrawRatScoreboard(void) {
 					cg.snap->ps.persistant[PERS_SCORE]);
 			w = CG_DrawStrlen(s) * SCORECHAR_WIDTH;
 			x = (SCREEN_WIDTH - w) / 2;
-			y = 50;
+			y = RATSB_HEADER - 36;
 			CG_DrawScoreString(x, y, s, fade, 0);
 		}
 
@@ -545,7 +545,7 @@ qboolean CG_DrawRatScoreboard(void) {
 			s = va("%i players", CG_CountPlayers(TEAM_FREE));
 			w = CG_DrawStrlen(s) * SCORESMALLCHAR_WIDTH;
 			x = (SCREEN_WIDTH - w) / 2;
-			y = 70;
+			y = RATSB_HEADER - 16;
 			CG_DrawSmallScoreString(x, y, s, 0.6);
 		}
 	} else {
@@ -561,7 +561,7 @@ qboolean CG_DrawRatScoreboard(void) {
 
 		w = CG_DrawStrlen(s) * SCORECHAR_WIDTH;
 		x = (SCREEN_WIDTH - w) / 2;
-		y = 50;
+		y = RATSB_HEADER - 36;
 		CG_DrawScoreString(x, y, s, fade, 0);
 
 		if (cg.teamScores[0] >= cg.teamScores[1]) {
@@ -571,7 +571,7 @@ qboolean CG_DrawRatScoreboard(void) {
 		}
 		w = CG_DrawStrlen(s) * SCORESMALLCHAR_WIDTH;
 		x = (SCREEN_WIDTH - w) / 2;
-		y = 70;
+		y = RATSB_HEADER - 16;
 		CG_DrawSmallScoreString(x, y, s, 0.6);
 	}
 
@@ -583,7 +583,7 @@ qboolean CG_DrawRatScoreboard(void) {
 	}
 	w = len * SCORETINYCHAR_WIDTH;
 	x = (RATSB_PING_X+RATSB_PING_WIDTH - w);
-	y = 60;
+	y = RATSB_HEADER - 26;
 	memcpy(color, colorCyan, sizeof(color));
 	color[3] = fade;
 	CG_DrawTinyScoreStringColor(x, y, s, color);
