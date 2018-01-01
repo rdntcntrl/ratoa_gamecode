@@ -230,7 +230,7 @@ void CG_ImpactMark( qhandle_t markShader, const vec3_t origin, const vec3_t dir,
 CG_AddMarks
 ===============
 */
-#define	MARK_TOTAL_TIME		10000
+#define	MARK_TOTAL_TIME		40000
 #define	MARK_FADE_TIME		1000
 
 void CG_AddMarks( void ) {
