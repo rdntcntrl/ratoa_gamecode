@@ -192,6 +192,8 @@ struct gentity_s {
 	int		missileRan;
 
 	int		pushed_at;
+
+	qboolean	missileExploded;
 };
 
 

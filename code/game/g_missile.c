@@ -806,12 +806,19 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 
 	ent->freeAfterEvent = qtrue;
 
-	// change over to a normal entity right at the point of impact
-	ent->s.eType = ET_GENERAL;
-
 	SnapVectorTowards( trace->endpos, ent->s.pos.trBase );	// save net bandwidth
 
-	G_SetOrigin( ent, trace->endpos );
+	if (g_usesRatVM.integer) {
+		ent->missileExploded = qtrue;
+		// set time of explosion so client knows not to render missile anymore
+		ent->s.time2 = level.time > 0 ? level.time : 1;
+		VectorCopy( trace->endpos, ent->s.origin2 );
+	} else {
+		// change over to a normal entity right at the point of impact
+		ent->s.eType = ET_GENERAL;
+		G_SetOrigin( ent, trace->endpos );
+	}
+
 
 	// splash damage (doesn't apply to person directly hit)
 	if ( ent->splashDamage ) {
@@ -846,6 +853,10 @@ void G_RunMissile( gentity_t *ent ) {
 	int		telepushed = 0;
 
 	ent->missileRan = 1;
+
+	if (ent->missileExploded) {
+		return;
+	}
 
 	// get current position
 	BG_EvaluateTrajectory( &ent->s.pos, level.time, origin );
@@ -935,7 +946,7 @@ void G_RunMissile( gentity_t *ent ) {
 			return;
 		}
 		G_MissileImpact( ent, &tr );
-		if ( ent->s.eType != ET_MISSILE ) {
+		if ( ent->s.eType != ET_MISSILE || ent->missileExploded) {
 			return;		// exploded
 		}
 	}
