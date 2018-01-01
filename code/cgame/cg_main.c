@@ -563,7 +563,7 @@ static cvarTable_t cvarTable[] = { // bk001129
 
 	{ &cg_brightShells ,     "cg_brightShells", "1", CVAR_ARCHIVE},
 
-	{ &cg_forceBrightModels ,     "cg_forceBrightModels", "0", CVAR_ARCHIVE},
+	{ &cg_forceBrightModels ,     "cg_forceBrightModels", "2", CVAR_ARCHIVE},
 	{ &cg_forceEnemyModelColor ,     "cg_forceEnemyModelColor", "0", CVAR_ARCHIVE},
 	{ &cg_forceModelColor ,     "cg_forceModelColor", "0", CVAR_ARCHIVE},
 	{ &cg_modelHueBlue ,     "cg_modelHueBlue", "185", CVAR_ARCHIVE},
