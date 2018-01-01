@@ -153,9 +153,7 @@ vmCvar_t	cg_lagometer;
 vmCvar_t	cg_drawAttacker;
 vmCvar_t	cg_drawSpeed;
 vmCvar_t	cg_synchronousClients;
-vmCvar_t 	cg_teamChatTime;
 vmCvar_t 	cg_teamChatHeight;
-vmCvar_t 	cg_teamChatY;
 vmCvar_t 	cg_teamChatScaleX;
 vmCvar_t 	cg_teamChatScaleY;
 vmCvar_t 	cg_stats;
@@ -216,6 +214,21 @@ vmCvar_t	cg_friendFloatHealthSize;
 vmCvar_t	cg_bloodOnHit;
 vmCvar_t	cg_drawSpawnpoints;
 vmCvar_t	cg_newFont;
+vmCvar_t	cg_newConsole;
+vmCvar_t	cg_chatTime;
+vmCvar_t 	cg_teamChatTime;
+vmCvar_t	cg_consoleTime;
+
+vmCvar_t 	cg_teamChatY;
+
+vmCvar_t	cg_fontScale;
+
+vmCvar_t	cg_consoleSizeX;
+vmCvar_t	cg_consoleSizeY;
+vmCvar_t	cg_chatSizeX;
+vmCvar_t	cg_chatSizeY;
+vmCvar_t	cg_teamChatSizeX;
+vmCvar_t	cg_teamChatSizeY;
 
 vmCvar_t	cg_teamOverlayScaleX;
 vmCvar_t	cg_teamOverlayScaleY;
@@ -441,11 +454,9 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_thirdPersonRange, "cg_thirdPersonRange", "40", CVAR_CHEAT },
 	{ &cg_thirdPersonAngle, "cg_thirdPersonAngle", "0", CVAR_CHEAT },
 	{ &cg_thirdPerson, "cg_thirdPerson", "0", 0 },
-	{ &cg_teamChatTime, "cg_teamChatTime", "5000", CVAR_ARCHIVE  },
-	{ &cg_teamChatHeight, "cg_teamChatHeight", "0", CVAR_ARCHIVE  },
-	{ &cg_teamChatY, "cg_teamChatY", "350", CVAR_ARCHIVE  },
+	{ &cg_teamChatHeight, "cg_teamChatHeight", "8", CVAR_ARCHIVE  },
 	{ &cg_teamChatScaleX, "cg_teamChatScaleX", "0.7", CVAR_ARCHIVE  },
-	{ &cg_teamChatScaleY, "cg_teamChatScaleY", "1.2", CVAR_ARCHIVE  },
+	{ &cg_teamChatScaleY, "cg_teamChatScaleY", "1", CVAR_ARCHIVE  },
 	{ &cg_forceModel, "cg_forceModel", "0", CVAR_ARCHIVE  },
 	{ &cg_predictItems, "cg_predictItems", "1", CVAR_ARCHIVE },
 #ifdef MISSIONPACK
@@ -553,8 +564,23 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_fpsScaleY   ,     "cg_fpsScaleY", "0.75", CVAR_ARCHIVE},
 	{ &cg_speedScaleY ,     "cg_speedScaleY", "0.75", CVAR_ARCHIVE},
 
-	{ &cg_newFont ,     "cg_newFont", "0", 0},
+	{ &cg_newFont ,     "cg_newFont", "1", 0},
+	{ &cg_newConsole ,  "cg_newConsole", "0", 0},
+	{ &cg_chatTime ,    "cg_chatTime", "10000", 0},
+	{ &cg_consoleTime , "cg_consoleTime", "10000", 0},
+	{ &cg_teamChatTime, "cg_teamChatTime", "10000", CVAR_ARCHIVE  },
+
+	{ &cg_teamChatY, "cg_teamChatY", "350", CVAR_ARCHIVE  },
+
+	{ &cg_fontScale , "cg_fontScale", "1.0", CVAR_ARCHIVE},
 	
+	{ &cg_consoleSizeX , "cg_consoleSizeX", "4", 0},
+	{ &cg_consoleSizeY , "cg_consoleSizeY", "8", 0},
+	{ &cg_chatSizeX , "cg_chatSizeX", "5", 0},
+	{ &cg_chatSizeY , "cg_chatSizeY", "10", 0},
+	{ &cg_teamChatSizeX , "cg_teamChatSizeX", "5", 0},
+	{ &cg_teamChatSizeY , "cg_teamChatSizeY", "10", 0},
+
 	{ &cg_autoHeadColors ,     "cg_autoHeadColors", "0", CVAR_ARCHIVE},
 
 	{ &cg_mySound ,     "cg_mySound", "", CVAR_ARCHIVE},
@@ -787,7 +813,12 @@ void CG_UpdateCvars( void ) {
 			CG_Cvar_ClampInt( cv->cvarName, cv->vmCvar, 0, 125 );
 		}
                 else if ( cv->vmCvar == &con_notifytime ) {
-			if (cv->vmCvar->integer <= 0) {
+			if (cg_newConsole.integer ) {
+				if (cv->vmCvar->integer != -1) {
+					Com_sprintf( cv->vmCvar->string, MAX_CVAR_VALUE_STRING, "-1");
+					trap_Cvar_Set( cv->cvarName, cv->vmCvar->string );
+				}
+			} else if (cv->vmCvar->integer <= 0) {
 				Com_sprintf( cv->vmCvar->string, MAX_CVAR_VALUE_STRING, "%s", cv->defaultString);
 				trap_Cvar_Set( cv->cvarName, cv->vmCvar->string );
 			}
@@ -844,6 +875,24 @@ int CG_LastAttacker( void ) {
 	return cg.snap->ps.persistant[PERS_ATTACKER];
 }
 
+void QDECL CG_PrintfChat( qboolean team, const char *msg, ... ) {
+	va_list		argptr;
+	char		text[1024];
+
+	va_start (argptr, msg);
+	Q_vsnprintf (text, sizeof(text), msg, argptr);
+	va_end (argptr);
+
+	if (cg_newConsole.integer) {
+		if (team) {
+			CG_AddToGenericConsole(text, &cgs.teamChat, TEAMCHAT_LINES);
+		} else {
+			CG_AddToGenericConsole(text, &cgs.chat, CHAT_LINES);
+		}
+	}
+	trap_Print( text );
+}
+
 void QDECL CG_Printf( const char *msg, ... ) {
 	va_list		argptr;
 	char		text[1024];
@@ -852,6 +901,9 @@ void QDECL CG_Printf( const char *msg, ... ) {
 	Q_vsnprintf (text, sizeof(text), msg, argptr);
 	va_end (argptr);
 
+	if (cg_newConsole.integer) {
+		CG_AddToGenericConsole(text, &cgs.console, CONSOLE_LINES);
+	}
 	trap_Print( text );
 }
 

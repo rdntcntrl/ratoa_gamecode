@@ -108,6 +108,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define MIN(a,b) (((a) < (b)) ? (a) : (b))
 #define MAX(a,b) (((a) > (b)) ? (a) : (b))
 
+#define CONSOLE_LINES 4
+#define CHAT_LINES 7
+#define TEAMCHAT_LINES 8
+
 typedef enum {
 	FOOTSTEP_NORMAL,
 	FOOTSTEP_BOOT,
@@ -1130,6 +1134,15 @@ typedef struct {
 
 } cgMedia_t;
 
+#define CONSOLE_MAXHEIGHT 16
+#define CONSOLE_WIDTH 80
+typedef struct {
+	char	msgs[CONSOLE_MAXHEIGHT][CONSOLE_WIDTH*3+1];
+	int	msgTimes[CONSOLE_MAXHEIGHT];
+	int	insertIdx;
+	int	displayIdx;
+} console_t;
+
 
 // The client game static (cgs) structure hold everything
 // loaded or calculated from the gamestate.  It will NOT
@@ -1218,6 +1231,10 @@ typedef struct {
 	vec3_t			inlineModelMidpoints[MAX_MODELS];
 
 	clientInfo_t	clientinfo[MAX_CLIENTS];
+
+	console_t console;
+	console_t chat;
+	console_t teamChat;
 
 	// teamchat width is *3 because of embedded color codes
 	char			teamChatMsgs[TEAMCHAT_HEIGHT][TEAMCHAT_WIDTH*3+1];
@@ -1400,6 +1417,18 @@ extern vmCvar_t			cg_teamOverlayScaleY;
 extern vmCvar_t			cg_drawTeamBackground;
 
 extern vmCvar_t			cg_newFont;
+extern vmCvar_t			cg_newConsole;
+extern vmCvar_t			cg_chatTime;
+extern vmCvar_t			cg_consoleTime;
+
+extern vmCvar_t			cg_fontScale;
+
+extern vmCvar_t			cg_consoleSizeX;
+extern vmCvar_t			cg_consoleSizeY;
+extern vmCvar_t			cg_chatSizeX;
+extern vmCvar_t			cg_chatSizeY;
+extern vmCvar_t			cg_teamChatSizeX;
+extern vmCvar_t			cg_teamChatSizeY;
 
 extern vmCvar_t			cg_autoHeadColors;
 
@@ -1567,6 +1596,7 @@ qboolean CG_Cvar_ClampInt( const char *name, vmCvar_t *vmCvar, int min, int max 
 const char *CG_ConfigString( int index );
 const char *CG_Argv( int arg );
 
+void QDECL CG_PrintfChat( qboolean team, const char *msg, ... );
 void QDECL CG_Printf( const char *msg, ... );
 void QDECL CG_Error( const char *msg, ... ) __attribute__((noreturn));
 
@@ -1618,6 +1648,8 @@ void CG_DrawString( float x, float y, const char *string,
 
 void CG_DrawStringExt( int x, int y, const char *string, const float *setColor, 
 		qboolean forceColor, qboolean shadow, int charWidth, int charHeight, int maxChars );
+void CG_DrawStringExtFloat( int x, int y, const char *string, const float *setColor, 
+		qboolean forceColor, qboolean shadow, float charWidth, float charHeight, int maxChars );
 void CG_DrawScoreString( int x, int y, const char *s, float alpha, int maxchars );
 void CG_DrawScoreStringColor( int x, int y, const char *s, vec4_t color );
 void CG_DrawSmallScoreString( int x, int y, const char *s, float alpha );
@@ -1682,6 +1714,7 @@ const char *CG_GameTypeString( void );
 qboolean CG_YourTeamHasFlag( void );
 qboolean CG_OtherTeamHasFlag( void );
 qhandle_t CG_StatusHandle(int task);
+void CG_AddToGenericConsole( const char *str, console_t *console, int maxlines );
 
 
 

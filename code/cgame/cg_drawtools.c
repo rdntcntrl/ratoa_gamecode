@@ -110,6 +110,50 @@ void CG_DrawPic( float x, float y, float width, float height, qhandle_t hShader 
 	trap_R_DrawStretchPic( x, y, width, height, 0, 0, 1, 1, hShader );
 }
 
+qhandle_t CG_SelectFont(float width, float height) {
+	if (!cg_newFont.integer) {
+		return cgs.media.charsetShader;
+	}
+	return cgs.media.charsetShaderHiRes;
+}
+
+/*
+===============
+CG_DrawCharFloat
+
+Coordinates and size in 640*480 virtual screen size
+===============
+*/
+void CG_DrawCharFloat( int x, int y, float width, float height, int ch ) {
+	int row, col;
+	float frow, fcol;
+	float size;
+	float	ax, ay, aw, ah;
+
+	ch &= 255;
+
+	if ( ch == ' ' ) {
+		return;
+	}
+
+	ax = x;
+	ay = y;
+	aw = width;
+	ah = height;
+	CG_AdjustFrom640( &ax, &ay, &aw, &ah );
+
+	row = ch>>4;
+	col = ch&15;
+
+	frow = row*0.0625;
+	fcol = col*0.0625;
+	size = 0.0625;
+
+	trap_R_DrawStretchPic( ax, ay, aw, ah,
+					   fcol, frow, 
+					   fcol + size, frow + size, 
+					   CG_SelectFont(aw, ah) );
+}
 
 
 /*
@@ -147,7 +191,75 @@ void CG_DrawChar( int x, int y, int width, int height, int ch ) {
 	trap_R_DrawStretchPic( ax, ay, aw, ah,
 					   fcol, frow, 
 					   fcol + size, frow + size, 
-					   cg_newFont.integer ? cgs.media.charsetShaderHiRes : cgs.media.charsetShader );
+					   CG_SelectFont(aw, ah) );
+}
+
+/*
+==================
+CG_DrawStringExtFloat
+
+Draws a multi-colored string with a drop shadow, optionally forcing
+to a fixed color.
+
+Coordinates are at 640 by 480 virtual resolution
+==================
+*/
+void CG_DrawStringExtFloat( int x, int y, const char *string, const float *setColor, 
+		qboolean forceColor, qboolean shadow, float charWidth, float charHeight, int maxChars ) {
+	vec4_t		color;
+	const char	*s;
+	float			xx;
+	int			cnt;
+
+	if (maxChars <= 0)
+		maxChars = 32767; // do them all!
+
+	// draw the drop shadow
+	if (shadow) {
+		int shadow_offset = 2;
+		if (charHeight <= SCORECHAR_HEIGHT || charWidth <= SCORECHAR_WIDTH) {
+			shadow_offset = 1;
+		}
+
+		color[0] = color[1] = color[2] = 0;
+		color[3] = setColor[3];
+		trap_R_SetColor( color );
+		s = string;
+		xx = x;
+		cnt = 0;
+		while ( *s && cnt < maxChars) {
+			if ( Q_IsColorString( s ) ) {
+				s += 2;
+				continue;
+			}
+			CG_DrawCharFloat( xx + shadow_offset, y + shadow_offset, charWidth, charHeight, *s );
+			cnt++;
+			xx += charWidth;
+			s++;
+		}
+	}
+
+	// draw the colored text
+	s = string;
+	xx = x;
+	cnt = 0;
+	trap_R_SetColor( setColor );
+	while ( *s && cnt < maxChars) {
+		if ( Q_IsColorString( s ) ) {
+			if ( !forceColor ) {
+				memcpy( color, g_color_table[ColorIndex(*(s+1))], sizeof( color ) );
+				color[3] = setColor[3];
+				trap_R_SetColor( color );
+			}
+			s += 2;
+			continue;
+		}
+		CG_DrawCharFloat( xx, y, charWidth, charHeight, *s );
+		xx += charWidth;
+		cnt++;
+		s++;
+	}
+	trap_R_SetColor( NULL );
 }
 
 

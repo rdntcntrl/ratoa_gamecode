@@ -2101,6 +2101,10 @@ static void CG_DrawTeamChat( void ) {
 	vec4_t		hcolor;
 	int		chatHeight;
 
+	if (cg_newConsole.integer) {
+		return;
+	}
+
 //#define CHATLOC_Y 420 // bottom end
 #define CHATLOC_X 0
 
@@ -2162,6 +2166,122 @@ static void CG_DrawTeamChat( void ) {
 	}
 }
 #endif // MISSIONPACK
+
+float CG_ConsoleAdjustSizeX(float sizeX) {
+	return cg_fontScale.value * (MAX(sizeX,1.0) * ((cgs.screenXScale > cgs.screenYScale) ? (cgs.screenYScale / cgs.screenXScale) : 1.0));
+}
+
+float CG_ConsoleAdjustSizeY(float sizeY) {
+	return cg_fontScale.value * (MAX(sizeY,1.0) * ((cgs.screenYScale > cgs.screenXScale) ? (cgs.screenXScale / cgs.screenYScale) : 1.0));
+}
+
+static void CG_DrawGenericConsole( console_t *console, int maxlines, int time, int x, int y, float sizeX, float sizeY ) {
+	int i, j, len;
+	vec4_t	hcolor;
+	int	chatHeight;
+
+	if (!cg_newConsole.integer) {
+		return;
+	}
+
+	if (maxlines < CONSOLE_MAXHEIGHT)
+		chatHeight = maxlines;
+	else
+		chatHeight = CONSOLE_MAXHEIGHT;
+	if (chatHeight <= 0)
+		return; // disabled
+
+	hcolor[0] = hcolor[1] = hcolor[2] = hcolor[3] = 1.0f;
+
+	j = 0;
+	for (i = console->displayIdx; i < console->insertIdx ; ++i) {
+		if (console->msgTimes[i % chatHeight] + time < cg.time) {
+			continue;
+		}
+		CG_DrawStringExtFloat( x + 1,
+				  y + j * sizeY,
+				  console->msgs[i % chatHeight],
+				  hcolor, qfalse, qfalse,
+				  sizeX,  sizeY, 0 );
+		j++;
+
+	}
+}
+
+void CG_AddToGenericConsole( const char *str, console_t *console, int maxlines ) {
+	int len;
+	char *p, *ls;
+	int lastcolor;
+	int chatHeight;
+
+	if (maxlines < CONSOLE_MAXHEIGHT) {
+		chatHeight = maxlines;
+	} else {
+		chatHeight = CONSOLE_MAXHEIGHT;
+	}
+
+	if (chatHeight <= 0 ) {
+		return;
+	}
+
+	len = 0;
+
+	p = console->msgs[console->insertIdx % chatHeight];
+	*p = 0;
+
+	lastcolor = '7';
+
+	ls = NULL;
+	while (*str) {
+		if (*str == '\n' || len > CONSOLE_WIDTH - 1) {
+			if (*str == '\n') {
+				str++;
+				if (*str == '\0') {
+					continue;
+				}
+			} else if (ls) {
+				str -= (p - ls);
+				str++;
+				p -= (p - ls);
+			}
+			*p = 0;
+
+			console->msgTimes[console->insertIdx % chatHeight] = cg.time;
+
+			console->insertIdx++;
+			p = console->msgs[console->insertIdx % chatHeight];
+			*p = 0;
+			*p++ = Q_COLOR_ESCAPE;
+			*p++ = lastcolor;
+			len = 0;
+			ls = NULL;
+		}
+
+		if ( Q_IsColorString( str ) ) {
+			*p++ = *str++;
+			lastcolor = *str;
+			*p++ = *str++;
+			continue;
+		}
+		if (*str == ' ') {
+			ls = p;
+		}
+		*p++ = *str++;
+		len++;
+	}
+	*p = 0;
+
+	console->msgTimes[console->insertIdx % chatHeight] = cg.time;
+	console->insertIdx++;
+
+	if (console->insertIdx < console->displayIdx) {
+		console->displayIdx = console->insertIdx;
+	}
+
+	if (console->insertIdx - console->displayIdx > chatHeight) {
+		console->displayIdx = console->insertIdx - chatHeight;
+	}
+}
 
 /*
 ===================
@@ -3691,6 +3811,23 @@ static void CG_Draw2D(stereoFrame_t stereoFrame)
     
 	}
 
+ 	CG_DrawGenericConsole(&cgs.console, CONSOLE_LINES, cg_consoleTime.integer, 
+			0, 0, 
+			CG_ConsoleAdjustSizeX(cg_consoleSizeX.value),
+			CG_ConsoleAdjustSizeY(cg_consoleSizeY.value)
+		       	);
+ 	CG_DrawGenericConsole(&cgs.chat, CHAT_LINES, cg_chatTime.integer, 
+			0, 
+			CONSOLE_LINES * CG_ConsoleAdjustSizeY(cg_consoleSizeY.value) + CG_ConsoleAdjustSizeY(cg_chatSizeY.value)/2,
+		       	CG_ConsoleAdjustSizeX(cg_chatSizeX.value),
+		       	CG_ConsoleAdjustSizeY(cg_chatSizeY.value)
+		       	);
+
+ 	CG_DrawGenericConsole(&cgs.teamChat, TEAMCHAT_LINES, cg_teamChatTime.integer, 
+			0, 
+			cg_teamChatY.integer - TEAMCHAT_LINES*CG_ConsoleAdjustSizeY(cg_teamChatSizeY.value),
+		       	CG_ConsoleAdjustSizeX(cg_teamChatSizeX.value),
+		       	CG_ConsoleAdjustSizeY(cg_teamChatSizeY.value) );
 #ifndef MISSIONPACK
 	CG_DrawTeamChat();
 #endif
