@@ -114,6 +114,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #define COMMONCONSLE_LINES 6
 
+// scoreboard header
+//#define RATSB_HEADER   86
+#define RATSB_HEADER   90
+
 typedef enum {
 	FOOTSTEP_NORMAL,
 	FOOTSTEP_BOOT,

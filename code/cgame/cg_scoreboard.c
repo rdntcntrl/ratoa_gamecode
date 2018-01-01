@@ -64,7 +64,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // RAT Scoreboard ==============================
 #define RATSCOREBOARD_X  (0)
 
-#define RATSB_HEADER   86
+//#define RATSB_HEADER   86
 #define RATSB_TOP    (RATSB_HEADER+10)
 
 // Where the status bar starts, so we don't overwrite it

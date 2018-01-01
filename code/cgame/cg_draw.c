@@ -2167,20 +2167,35 @@ static void CG_DrawTeamChat( void ) {
 }
 #endif // MISSIONPACK
 
-float CG_FontScale(void) {
-	float f = cg_fontScale.value;
+float CG_FontResAdjust(void) {
+	float f = 1.0;
 	if (cgs.glconfig.vidHeight < 1024) {
 		f *= 1024.0/cgs.glconfig.vidHeight;
 	}
 	return f;
 }
 
+float CG_ConsoleScaleFitFactor(float consoleSizeY, float chatSizeY) {
+}
+
+float CG_ConsoleDistortionFactorX(void) {
+	return ((cgs.screenXScale > cgs.screenYScale) ? (cgs.screenYScale / cgs.screenXScale) : 1.0);
+}
+
+float CG_ConsoleDistortionFactorY(void) {
+	return ((cgs.screenYScale > cgs.screenXScale) ? (cgs.screenXScale / cgs.screenYScale) : 1.0);
+}
+
 float CG_ConsoleAdjustSizeX(float sizeX) {
-	return CG_FontScale() * (MAX(sizeX,1.0) * ((cgs.screenXScale > cgs.screenYScale) ? (cgs.screenYScale / cgs.screenXScale) : 1.0));
+	return CG_FontResAdjust() * sizeX * CG_ConsoleDistortionFactorX();
 }
 
 float CG_ConsoleAdjustSizeY(float sizeY) {
-	return CG_FontScale() * (MAX(sizeY,1.0) * ((cgs.screenYScale > cgs.screenXScale) ? (cgs.screenXScale / cgs.screenYScale) : 1.0));
+	return CG_FontResAdjust() * sizeY * CG_ConsoleDistortionFactorY();
+}
+
+int CG_ConsoleChatPositionY(float consoleSizeY, float chatSizeY) {
+	return CONSOLE_LINES * consoleSizeY + chatSizeY/2;
 }
 
 static void CG_DrawGenericConsole( console_t *console, int maxlines, int time, int x, int y, float sizeX, float sizeY ) {
@@ -3768,34 +3783,68 @@ static void CG_Draw2D(stereoFrame_t stereoFrame)
 		return;
 	}
 
+	if (cg_newConsole.integer) {
+		float consoleSizeY = CG_ConsoleAdjustSizeY(cg_consoleSizeY.value);
+		float consoleSizeX = CG_ConsoleAdjustSizeX(cg_consoleSizeX.value);
+		float chatSizeY = CG_ConsoleAdjustSizeY(cg_chatSizeY.value);
+		float chatSizeX = CG_ConsoleAdjustSizeX(cg_chatSizeX.value);
+		float teamChatSizeY = CG_ConsoleAdjustSizeY(cg_teamChatSizeY.value);
+		float teamChatSizeX = CG_ConsoleAdjustSizeX(cg_teamChatSizeX.value);
+
+		int lowestChatPos = CG_ConsoleChatPositionY(consoleSizeY, chatSizeY) + CHAT_LINES * chatSizeY;
+		float f;
+
+		if (lowestChatPos > RATSB_HEADER-2) {
+			f = (RATSB_HEADER-2.0)/lowestChatPos;
+			consoleSizeX *= f;
+			consoleSizeY *= f;
+			chatSizeX *= f;
+			chatSizeY *= f;
+			teamChatSizeX *= f;
+			teamChatSizeY *= f;
+		}
+		f = cg_fontScale.value;
+		consoleSizeX *= f;
+		consoleSizeY *= f;
+		chatSizeX *= f;
+		chatSizeY *= f;
+		teamChatSizeX *= f;
+		teamChatSizeY *= f;
+
+		if ( cg.snap->ps.pm_type == PM_INTERMISSION ) {
+			CG_DrawGenericConsole(&cgs.commonConsole, COMMONCONSLE_LINES, cg_chatTime.integer, 
+					0, 0, 
+					chatSizeX,
+					chatSizeY
+					);
+		} else {
+			CG_DrawGenericConsole(&cgs.console, CONSOLE_LINES, cg_consoleTime.integer, 
+					0, 0, 
+					consoleSizeX,
+					consoleSizeY
+					);
+			CG_DrawGenericConsole(&cgs.chat, CHAT_LINES, cg_chatTime.integer, 
+					0, 
+					CG_ConsoleChatPositionY(consoleSizeY, chatSizeY),
+					chatSizeX,
+					chatSizeY
+					);
+
+			CG_DrawGenericConsole(&cgs.teamChat, TEAMCHAT_LINES, cg_teamChatTime.integer, 
+					0, 
+					cg_teamChatY.integer - TEAMCHAT_LINES*teamChatSizeY,
+					teamChatSizeX,
+					teamChatSizeY
+				       	);
+		}
+
+
+	}
 
 	if ( cg.snap->ps.pm_type == PM_INTERMISSION ) {
-		CG_DrawGenericConsole(&cgs.commonConsole, COMMONCONSLE_LINES, cg_chatTime.integer, 
-				0, 0, 
-				CG_ConsoleAdjustSizeX(cg_chatSizeX.value),
-				CG_ConsoleAdjustSizeY(cg_chatSizeY.value)
-				);
 		CG_DrawIntermission();
 		return;
 	}
-
- 	CG_DrawGenericConsole(&cgs.console, CONSOLE_LINES, cg_consoleTime.integer, 
-			0, 0, 
-			CG_ConsoleAdjustSizeX(cg_consoleSizeX.value),
-			CG_ConsoleAdjustSizeY(cg_consoleSizeY.value)
-		       	);
- 	CG_DrawGenericConsole(&cgs.chat, CHAT_LINES, cg_chatTime.integer, 
-			0, 
-			CONSOLE_LINES * CG_ConsoleAdjustSizeY(cg_consoleSizeY.value) + CG_ConsoleAdjustSizeY(cg_chatSizeY.value)/2,
-		       	CG_ConsoleAdjustSizeX(cg_chatSizeX.value),
-		       	CG_ConsoleAdjustSizeY(cg_chatSizeY.value)
-		       	);
-
- 	CG_DrawGenericConsole(&cgs.teamChat, TEAMCHAT_LINES, cg_teamChatTime.integer, 
-			0, 
-			cg_teamChatY.integer - TEAMCHAT_LINES*CG_ConsoleAdjustSizeY(cg_teamChatSizeY.value),
-		       	CG_ConsoleAdjustSizeX(cg_teamChatSizeX.value),
-		       	CG_ConsoleAdjustSizeY(cg_teamChatSizeY.value) );
 
 
 /*
