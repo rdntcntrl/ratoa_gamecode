@@ -575,8 +575,8 @@ static cvarTable_t cvarTable[] = { // bk001129
 
 	{ &cg_newConsole ,  "cg_newConsole", "1", CVAR_ARCHIVE},
 
-	{ &cg_consoleSizeX , "cg_consoleSizeX", "4", 0},
-	{ &cg_consoleSizeY , "cg_consoleSizeY", "8", 0},
+	{ &cg_consoleSizeX , "cg_consoleSizeX", "4.5", 0},
+	{ &cg_consoleSizeY , "cg_consoleSizeY", "9", 0},
 	{ &cg_chatSizeX , "cg_chatSizeX", "5", 0},
 	{ &cg_chatSizeY , "cg_chatSizeY", "10", 0},
 	{ &cg_teamChatSizeX , "cg_teamChatSizeX", "5", 0},
