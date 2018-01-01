@@ -2091,11 +2091,11 @@ static void CG_DrawLowerLeft( void ) {
 
 /*
 =================
-CG_DrawTeamInfo
+CG_DrawTeamChat
 =================
 */
 #ifndef MISSIONPACK
-static void CG_DrawTeamInfo( void ) {
+static void CG_DrawTeamChat( void ) {
 	int w, h;
 	int i, len;
 	vec4_t		hcolor;
@@ -3680,12 +3680,11 @@ static void CG_Draw2D(stereoFrame_t stereoFrame)
                         CG_DrawReward();
 		}
     
-		if ( cgs.gametype >= GT_TEAM && cgs.ffa_gt!=1) {
-#ifndef MISSIONPACK
-			CG_DrawTeamInfo();
-#endif
-		}
 	}
+
+#ifndef MISSIONPACK
+	CG_DrawTeamChat();
+#endif
 
 	CG_DrawVote();
 	CG_DrawTeamVote();
