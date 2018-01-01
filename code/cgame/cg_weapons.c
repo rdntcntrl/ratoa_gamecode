@@ -390,6 +390,7 @@ static void CG_RatRocketTrail( centity_t *ent, const weaponInfo_t *wi ) {
 	entityState_t	*es;
 	vec3_t	up;
 	localEntity_t	*smoke;
+	int timeshift;
 
 	if ( cg_noProjectileTrail.integer ) {
 		return;
@@ -426,8 +427,10 @@ static void CG_RatRocketTrail( centity_t *ent, const weaponInfo_t *wi ) {
 		return;
 	}
 
+	timeshift =  CG_ProjectileNudgeTimeshift(ent);
+
 	for ( ; t <= ent->trailTime ; t += step ) {
-		BG_EvaluateTrajectory( &es->pos, t, lastPos );
+		BG_EvaluateTrajectory( &es->pos, t + timeshift, lastPos );
 
 		smoke = CG_SmokePuff( lastPos, up, 
 					  cg_ratRocketTrailRadius.value,
@@ -650,10 +653,12 @@ static void CG_NailTrail( centity_t *ent, const weaponInfo_t *wi ) {
 	entityState_t	*es;
 	vec3_t	up;
 	localEntity_t	*smoke;
+	int timeshift;
 
 	if ( cg_noProjectileTrail.integer ) {
 		return;
 	}
+
 
 	up[0] = 0;
 	up[1] = 0;
@@ -686,8 +691,10 @@ static void CG_NailTrail( centity_t *ent, const weaponInfo_t *wi ) {
 		return;
 	}
 
+	timeshift = CG_ProjectileNudgeTimeshift(ent);
+
 	for ( ; t <= ent->trailTime ; t += step ) {
-		BG_EvaluateTrajectory( &es->pos, t, lastPos );
+		BG_EvaluateTrajectory( &es->pos, t + timeshift, lastPos );
 
 		smoke = CG_SmokePuff( lastPos, up, 
 					  wi->trailRadius, 
@@ -718,10 +725,12 @@ static void CG_RatPlasmaTrail( centity_t *ent, const weaponInfo_t *wi ) {
 	entityState_t	*es;
 	vec3_t	up;
 	localEntity_t	*smoke;
+	int timeshift;
 
 	if ( cg_noProjectileTrail.integer ) {
 		return;
 	}
+
 
 	up[0] = 0;
 	up[1] = 0;
@@ -751,8 +760,10 @@ static void CG_RatPlasmaTrail( centity_t *ent, const weaponInfo_t *wi ) {
 		return;
 	}
 
+	timeshift = CG_ProjectileNudgeTimeshift(ent);
+
 	for ( ; t <= ent->trailTime ; t += step ) {
-		BG_EvaluateTrajectory( &es->pos, t, lastPos );
+		BG_EvaluateTrajectory( &es->pos, t + timeshift, lastPos );
 
 		smoke = CG_SmokePuff( lastPos, up, 
 					  1,
