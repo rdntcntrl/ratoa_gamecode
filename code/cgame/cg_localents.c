@@ -26,7 +26,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "cg_local.h"
 
-#define	MAX_LOCAL_ENTITIES	512 
+//#define	MAX_LOCAL_ENTITIES	512 
+// increase to accomodate plasma trails / dense rocket trails
+#define	MAX_LOCAL_ENTITIES	2048 
 localEntity_t	cg_localEntities[MAX_LOCAL_ENTITIES];
 localEntity_t	cg_activeLocalEntities;		// double linked list
 localEntity_t	*cg_freeLocalEntities;		// single linked list
