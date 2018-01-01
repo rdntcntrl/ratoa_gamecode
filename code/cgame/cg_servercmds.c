@@ -477,6 +477,7 @@ void CG_ParseServerinfo( void ) {
 	cgs.lms_mode = atoi( Info_ValueForKey( info, "g_lms_mode" ) );
 	cgs.altExcellent = atoi( Info_ValueForKey( info, "g_altExcellent" ) );
 	mapname = Info_ValueForKey( info, "mapname" );
+	Com_sprintf( cgs.mapbasename, sizeof( cgs.mapbasename ), "%s", mapname );
 	Com_sprintf( cgs.mapname, sizeof( cgs.mapname ), "maps/%s.bsp", mapname );
 	Q_strncpyz( cgs.redTeam, Info_ValueForKey( info, "g_redTeam" ), sizeof(cgs.redTeam) );
 	trap_Cvar_Set("g_redTeam", cgs.redTeam);

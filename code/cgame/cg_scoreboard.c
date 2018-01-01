@@ -468,9 +468,10 @@ Draw the normal in-game scoreboard
 =================
  */
 qboolean CG_DrawRatScoreboard(void) {
-	int x, y, w, i, n1, n2;
+	int x, y, w, i, n1, n2, len;
 	float fade;
 	float *fadeColor;
+	vec4_t color;
 	char *s;
 	int maxClients;
 	int lineHeight;
@@ -518,7 +519,8 @@ qboolean CG_DrawRatScoreboard(void) {
 
 	// fragged by ... line
 	if (cg.killerName[0]) {
-		s = va("Fragged by %s", cg.killerName);
+		s = va("%sFragged by%s %s",
+			       	S_COLOR_YELLOW, S_COLOR_WHITE, cg.killerName);
 		w = CG_DrawStrlen(s) * SCORECHAR_WIDTH;
 		x = (SCREEN_WIDTH - w) / 2;
 		y = 30;
@@ -570,6 +572,19 @@ qboolean CG_DrawRatScoreboard(void) {
 		y = 70;
 		CG_DrawSmallScoreString(x, y, s, 0.6);
 	}
+
+	// draw map name
+	s = va("%s", cgs.mapbasename);
+	len = CG_DrawStrlen(s);
+	if (len > 20) {
+		len = 20;
+	}
+	w = len * SCORETINYCHAR_WIDTH;
+	x = (RATSB_PING_X+RATSB_PING_WIDTH - w);
+	y = 60;
+	memcpy(color, colorCyan, sizeof(color));
+	color[3] = fade;
+	CG_DrawTinyScoreStringColor(x, y, s, color);
 
 	// scoreboard
 	y = RATSB_HEADER;
