@@ -206,7 +206,14 @@ static void CG_Obituary( entityState_t *ent ) {
 
         //If a suicide happens while disconnecting then we might not have a targetName
 	if (message && strlen(targetName)) {
-		CG_Printf( "%s %s.\n", targetName, message);
+		CG_Printf( "%s> %s%s%s %s.%s\n", 
+				S_COLOR_RED,
+				S_COLOR_WHITE,
+				targetName,
+				S_COLOR_RED,
+			       	message,
+				S_COLOR_WHITE
+				);
 		return;
 	}
         
@@ -347,14 +354,30 @@ static void CG_Obituary( entityState_t *ent ) {
 		}
 
 		if (message) {
-			CG_Printf( "%s %s %s%s\n", 
-				targetName, message, attackerName, message2);
+			CG_Printf( "%s> %s%s%s %s%s %s%s%s\n", 
+				S_COLOR_RED,
+			       	S_COLOR_WHITE,
+			       	targetName,
+			       	S_COLOR_RED,
+			       	message,
+			       	S_COLOR_WHITE,
+				attackerName,
+			       	S_COLOR_RED,
+			       	message2,
+			       	S_COLOR_WHITE
+				);
 			return;
 		}
 	}
 
 	// we don't know what it was
-	CG_Printf( "%s died.\n", targetName );
+	CG_Printf( "%s> %s%s%s died.%s\n",
+			S_COLOR_RED,
+			S_COLOR_WHITE,
+		       	targetName,
+			S_COLOR_RED,
+			S_COLOR_WHITE
+		 );
 }
 
 //==========================================================================

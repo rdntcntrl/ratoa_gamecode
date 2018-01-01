@@ -3483,7 +3483,7 @@ static void CG_DrawWarmup( void ) {
 		}
 
 		if ( ci1 && ci2 ) {
-			s = va( "%s vs %s", ci1->name, ci2->name );
+			s = va( "%s %svs %s", ci1->name, S_COLOR_WHITE, ci2->name );
 #ifdef MISSIONPACK
 			w = CG_Text_Width(s, 0.6f, 0);
 			CG_Text_Paint(320 - w / 2, 60, 0.6f, colorWhite, s, 0, 0, ITEM_TEXTSTYLE_SHADOWEDMORE);
@@ -3705,9 +3705,12 @@ static void CG_Draw2D(stereoFrame_t stereoFrame)
 	CG_DrawLowerLeft();
 #endif
 
-	if ( !CG_DrawFollow() ) {
-		CG_DrawWarmup();
-	}
+	//if ( !CG_DrawFollow() ) {
+	//	CG_DrawWarmup();
+	//}
+	
+	CG_DrawFollow();
+	CG_DrawWarmup();
 
 	// don't draw center string if scoreboard is up
 	cg.scoreBoardShowing = CG_DrawScoreboard();
