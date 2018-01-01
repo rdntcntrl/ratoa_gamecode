@@ -94,6 +94,7 @@ weaponInfo_t		cg_weapons[MAX_WEAPONS];
 itemInfo_t			cg_items[MAX_ITEMS];
 
 
+vmCvar_t	sv_master1; // so that ioquake3 doesn't override master server
 vmCvar_t	cg_railTrailTime;
 vmCvar_t	cg_centertime;
 vmCvar_t	cg_runpitch;
@@ -382,6 +383,7 @@ typedef struct {
 } cvarTable_t;
 
 static cvarTable_t cvarTable[] = { // bk001129
+	{ &sv_master1, "sv_master1", "dpmaster.deathmask.net", 0 },
 	{ &cg_ignore, "cg_ignore", "0", 0 },	// used for debugging
 	{ &cg_autoswitch, "cg_autoswitch", "0", CVAR_ARCHIVE },
 	{ &cg_drawGun, "cg_drawGun", "1", CVAR_ARCHIVE },
