@@ -573,7 +573,7 @@ static cvarTable_t cvarTable[] = { // bk001129
 
 	{ &cg_newFont ,     "cg_newFont", "1", CVAR_ARCHIVE},
 
-	{ &cg_newConsole ,  "cg_newConsole", "0", 0},
+	{ &cg_newConsole ,  "cg_newConsole", "1", CVAR_ARCHIVE},
 
 	{ &cg_consoleSizeX , "cg_consoleSizeX", "4", 0},
 	{ &cg_consoleSizeY , "cg_consoleSizeY", "8", 0},
