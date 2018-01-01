@@ -2201,7 +2201,7 @@ static void CG_DrawGenericConsole( console_t *console, int maxlines, int time, i
 		CG_DrawStringExtFloat( x + 1,
 				  y + j * sizeY,
 				  console->msgs[i % chatHeight],
-				  hcolor, qfalse, qfalse,
+				  hcolor, qfalse, cg_fontShadow.integer ? qtrue : qfalse,
 				  sizeX,  sizeY, 0 );
 		j++;
 

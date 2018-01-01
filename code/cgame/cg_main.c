@@ -222,6 +222,7 @@ vmCvar_t	cg_consoleTime;
 vmCvar_t 	cg_teamChatY;
 
 vmCvar_t	cg_fontScale;
+vmCvar_t	cg_fontShadow;
 
 vmCvar_t	cg_consoleSizeX;
 vmCvar_t	cg_consoleSizeY;
@@ -582,6 +583,7 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_teamChatSizeY , "cg_teamChatSizeY", "10", 0},
 
 	{ &cg_fontScale , "cg_fontScale", "1.0", CVAR_ARCHIVE},
+	{ &cg_fontShadow , "cg_fontShadow", "1", CVAR_ARCHIVE},
 	
 
 	{ &cg_autoHeadColors ,     "cg_autoHeadColors", "0", CVAR_ARCHIVE},
