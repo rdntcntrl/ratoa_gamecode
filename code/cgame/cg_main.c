@@ -231,6 +231,12 @@ vmCvar_t	cg_chatSizeY;
 vmCvar_t	cg_teamChatSizeX;
 vmCvar_t	cg_teamChatSizeY;
 
+vmCvar_t	cg_consoleLines;
+vmCvar_t	cg_commonConsoleLines;
+vmCvar_t	cg_chatLines;
+vmCvar_t	cg_teamChatLines;
+
+
 vmCvar_t	cg_teamOverlayScaleX;
 vmCvar_t	cg_teamOverlayScaleY;
 
@@ -582,6 +588,11 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_teamChatSizeX , "cg_teamChatSizeX", "5", 0},
 	{ &cg_teamChatSizeY , "cg_teamChatSizeY", "10", 0},
 
+	{ &cg_consoleLines , "cg_consoleLines", "3", 0},
+	{ &cg_commonConsoleLines , "cg_commonConsoleLines", "6", 0},
+	{ &cg_chatLines , "cg_chatLines", "6", 0},
+	{ &cg_teamChatLines , "cg_teamChatLines", "6", 0},
+
 	{ &cg_fontScale , "cg_fontScale", "1.0", CVAR_ARCHIVE},
 	{ &cg_fontShadow , "cg_fontShadow", "1", CVAR_ARCHIVE},
 	
@@ -890,11 +901,11 @@ void QDECL CG_PrintfChat( qboolean team, const char *msg, ... ) {
 
 	if (cg_newConsole.integer) {
 		if (team) {
-			CG_AddToGenericConsole(text, &cgs.teamChat, TEAMCHAT_LINES);
+			CG_AddToGenericConsole(text, &cgs.teamChat);
 		} else {
-			CG_AddToGenericConsole(text, &cgs.chat, CHAT_LINES);
+			CG_AddToGenericConsole(text, &cgs.chat);
 		}
-		CG_AddToGenericConsole(text, &cgs.commonConsole, COMMONCONSLE_LINES);
+		CG_AddToGenericConsole(text, &cgs.commonConsole);
 	}
 	trap_Print( text );
 }
@@ -908,8 +919,8 @@ void QDECL CG_Printf( const char *msg, ... ) {
 	va_end (argptr);
 
 	if (cg_newConsole.integer) {
-		CG_AddToGenericConsole(text, &cgs.console, CONSOLE_LINES);
-		CG_AddToGenericConsole(text, &cgs.commonConsole, COMMONCONSLE_LINES);
+		CG_AddToGenericConsole(text, &cgs.console);
+		CG_AddToGenericConsole(text, &cgs.commonConsole);
 	}
 	trap_Print( text );
 }

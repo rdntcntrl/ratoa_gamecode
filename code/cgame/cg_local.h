@@ -108,12 +108,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define MIN(a,b) (((a) < (b)) ? (a) : (b))
 #define MAX(a,b) (((a) > (b)) ? (a) : (b))
 
-#define CONSOLE_LINES 3
-#define CHAT_LINES 6
-#define TEAMCHAT_LINES 6
-
-#define COMMONCONSLE_LINES 6
-
 // scoreboard header
 //#define RATSB_HEADER   86
 #define RATSB_HEADER   90
@@ -1438,6 +1432,11 @@ extern vmCvar_t			cg_chatSizeY;
 extern vmCvar_t			cg_teamChatSizeX;
 extern vmCvar_t			cg_teamChatSizeY;
 
+extern vmCvar_t			cg_consoleLines;
+extern vmCvar_t			cg_commonConsoleLines;
+extern vmCvar_t			cg_chatLines;
+extern vmCvar_t			cg_teamChatLines;
+
 extern vmCvar_t			cg_autoHeadColors;
 
 extern vmCvar_t			cg_mySound;
@@ -1722,7 +1721,7 @@ const char *CG_GameTypeString( void );
 qboolean CG_YourTeamHasFlag( void );
 qboolean CG_OtherTeamHasFlag( void );
 qhandle_t CG_StatusHandle(int task);
-void CG_AddToGenericConsole( const char *str, console_t *console, int maxlines );
+void CG_AddToGenericConsole( const char *str, console_t *console );
 
 
 

@@ -2194,9 +2194,27 @@ float CG_ConsoleAdjustSizeY(float sizeY) {
 	return CG_FontResAdjust() * sizeY * CG_ConsoleDistortionFactorY();
 }
 
-int CG_ConsoleChatPositionY(float consoleSizeY, float chatSizeY) {
-	return CONSOLE_LINES * consoleSizeY + chatSizeY/2;
+int CG_GetChatHeight(int maxlines) {
+	if (maxlines < CONSOLE_MAXHEIGHT)
+		return maxlines;
+	return CONSOLE_MAXHEIGHT;
 }
+
+int CG_ConsoleChatPositionY(float consoleSizeY, float chatSizeY) {
+	return CG_GetChatHeight(cg_consoleLines.integer) * consoleSizeY + chatSizeY/2;
+}
+
+
+void CG_ConsoleUpdateIdx(console_t *console, int chatHeight) {
+	if (console->insertIdx < console->displayIdx) {
+		console->displayIdx = console->insertIdx;
+	}
+
+	if (console->insertIdx - console->displayIdx > chatHeight) {
+		console->displayIdx = console->insertIdx - chatHeight;
+	}
+}
+
 
 static void CG_DrawGenericConsole( console_t *console, int maxlines, int time, int x, int y, float sizeX, float sizeY ) {
 	int i, j, len;
@@ -2207,23 +2225,23 @@ static void CG_DrawGenericConsole( console_t *console, int maxlines, int time, i
 		return;
 	}
 
-	if (maxlines < CONSOLE_MAXHEIGHT)
-		chatHeight = maxlines;
-	else
-		chatHeight = CONSOLE_MAXHEIGHT;
+	chatHeight = CG_GetChatHeight(maxlines);
+
 	if (chatHeight <= 0)
 		return; // disabled
+
+	CG_ConsoleUpdateIdx(console, chatHeight);
 
 	hcolor[0] = hcolor[1] = hcolor[2] = hcolor[3] = 1.0f;
 
 	j = 0;
 	for (i = console->displayIdx; i < console->insertIdx ; ++i) {
-		if (console->msgTimes[i % chatHeight] + time < cg.time) {
+		if (console->msgTimes[i % CONSOLE_MAXHEIGHT] + time < cg.time) {
 			continue;
 		}
 		CG_DrawStringExtFloat( x + 1,
 				  y + j * sizeY,
-				  console->msgs[i % chatHeight],
+				  console->msgs[i % CONSOLE_MAXHEIGHT],
 				  hcolor, qfalse, cg_fontShadow.integer ? qtrue : qfalse,
 				  sizeX,  sizeY, 0 );
 		j++;
@@ -2231,25 +2249,14 @@ static void CG_DrawGenericConsole( console_t *console, int maxlines, int time, i
 	}
 }
 
-void CG_AddToGenericConsole( const char *str, console_t *console, int maxlines ) {
+void CG_AddToGenericConsole( const char *str, console_t *console ) {
 	int len;
 	char *p, *ls;
 	int lastcolor;
-	int chatHeight;
-
-	if (maxlines < CONSOLE_MAXHEIGHT) {
-		chatHeight = maxlines;
-	} else {
-		chatHeight = CONSOLE_MAXHEIGHT;
-	}
-
-	if (chatHeight <= 0 ) {
-		return;
-	}
 
 	len = 0;
 
-	p = console->msgs[console->insertIdx % chatHeight];
+	p = console->msgs[console->insertIdx % CONSOLE_MAXHEIGHT];
 	*p = 0;
 
 	lastcolor = '7';
@@ -2269,10 +2276,10 @@ void CG_AddToGenericConsole( const char *str, console_t *console, int maxlines )
 			}
 			*p = 0;
 
-			console->msgTimes[console->insertIdx % chatHeight] = cg.time;
+			console->msgTimes[console->insertIdx % CONSOLE_MAXHEIGHT] = cg.time;
 
 			console->insertIdx++;
-			p = console->msgs[console->insertIdx % chatHeight];
+			p = console->msgs[console->insertIdx % CONSOLE_MAXHEIGHT];
 			*p = 0;
 			*p++ = Q_COLOR_ESCAPE;
 			*p++ = lastcolor;
@@ -2294,16 +2301,9 @@ void CG_AddToGenericConsole( const char *str, console_t *console, int maxlines )
 	}
 	*p = 0;
 
-	console->msgTimes[console->insertIdx % chatHeight] = cg.time;
+	console->msgTimes[console->insertIdx % CONSOLE_MAXHEIGHT] = cg.time;
 	console->insertIdx++;
 
-	if (console->insertIdx < console->displayIdx) {
-		console->displayIdx = console->insertIdx;
-	}
-
-	if (console->insertIdx - console->displayIdx > chatHeight) {
-		console->displayIdx = console->insertIdx - chatHeight;
-	}
 }
 
 /*
@@ -3791,7 +3791,12 @@ static void CG_Draw2D(stereoFrame_t stereoFrame)
 		float teamChatSizeY = CG_ConsoleAdjustSizeY(cg_teamChatSizeY.value);
 		float teamChatSizeX = CG_ConsoleAdjustSizeX(cg_teamChatSizeX.value);
 
-		int lowestChatPos = CG_ConsoleChatPositionY(consoleSizeY, chatSizeY) + CHAT_LINES * chatSizeY;
+		int consoleLines = CG_GetChatHeight(cg_consoleLines.integer);
+		int commonConsoleLines = CG_GetChatHeight(cg_commonConsoleLines.integer);
+		int chatLines = CG_GetChatHeight(cg_chatLines.integer);
+		int teamChatLines = CG_GetChatHeight(cg_teamChatLines.integer);
+
+		int lowestChatPos = CG_ConsoleChatPositionY(consoleSizeY, chatSizeY) + chatLines * chatSizeY;
 		float f;
 
 		if (lowestChatPos > RATSB_HEADER-2) {
@@ -3812,27 +3817,27 @@ static void CG_Draw2D(stereoFrame_t stereoFrame)
 		teamChatSizeY *= f;
 
 		if ( cg.snap->ps.pm_type == PM_INTERMISSION ) {
-			CG_DrawGenericConsole(&cgs.commonConsole, COMMONCONSLE_LINES, cg_chatTime.integer, 
+			CG_DrawGenericConsole(&cgs.commonConsole, commonConsoleLines, cg_chatTime.integer, 
 					0, 0, 
 					chatSizeX,
 					chatSizeY
 					);
 		} else {
-			CG_DrawGenericConsole(&cgs.console, CONSOLE_LINES, cg_consoleTime.integer, 
+			CG_DrawGenericConsole(&cgs.console, consoleLines, cg_consoleTime.integer, 
 					0, 0, 
 					consoleSizeX,
 					consoleSizeY
 					);
-			CG_DrawGenericConsole(&cgs.chat, CHAT_LINES, cg_chatTime.integer, 
+			CG_DrawGenericConsole(&cgs.chat, chatLines, cg_chatTime.integer, 
 					0, 
 					CG_ConsoleChatPositionY(consoleSizeY, chatSizeY),
 					chatSizeX,
 					chatSizeY
 					);
 
-			CG_DrawGenericConsole(&cgs.teamChat, TEAMCHAT_LINES, cg_teamChatTime.integer, 
+			CG_DrawGenericConsole(&cgs.teamChat, teamChatLines, cg_teamChatTime.integer, 
 					0, 
-					cg_teamChatY.integer - TEAMCHAT_LINES*teamChatSizeY,
+					cg_teamChatY.integer - teamChatLines*teamChatSizeY,
 					teamChatSizeX,
 					teamChatSizeY
 				       	);
