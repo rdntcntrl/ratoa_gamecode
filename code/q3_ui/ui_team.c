@@ -190,9 +190,9 @@ void TeamMain_MenuInit( void ) {
 	s_teammain.afk.generic.x        = 320;
 	s_teammain.afk.generic.y        = y;
 	if (gametype == GT_TOURNAMENT) {
-		s_teammain.afk.string           = "AFK";
-	} else {
 		s_teammain.afk.string           = "UNQUEUE/AFK";
+	} else {
+		s_teammain.afk.string           = "AFK";
 	}
 	s_teammain.afk.style            = UI_CENTER|UI_SMALLFONT;
 	s_teammain.afk.color            = colorRed;
