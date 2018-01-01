@@ -2008,6 +2008,50 @@ static float CG_DrawPowerups( float y ) {
 #endif // MISSIONPACK
 
 /*
+=================
+CG_DrawFollow
+=================
+*/
+static qboolean CG_DrawFollow( void ) {
+	float		x;
+	vec4_t		color;
+	const char	*name;
+	char string[1024];
+
+	if ( !(cg.snap->ps.pm_flags & PMF_FOLLOW) ) {
+		return qfalse;
+	}
+
+	if ( cg.scoreBoardShowing ) {
+		return qfalse;
+	}
+
+	color[0] = 1;
+	color[1] = 1;
+	color[2] = 1;
+	color[3] = 1;
+
+
+	//CG_DrawSmallString( 320 - 9 * 8, 32, "following", 1.0F );
+
+	name = cgs.clientinfo[ cg.snap->ps.clientNum ].name;
+
+	//Com_sprintf(string, sizeof(string), "following %s", name);
+	Com_sprintf(string, sizeof(string), "%s", name);
+
+	//y -= SMALLCHAR_HEIGHT;
+
+	CG_DrawSmallString( 0.5 * (640 - SMALLCHAR_WIDTH * CG_DrawStrlen(string)), 32, string, 1.0F );
+	//CG_DrawSmallString( SCREEN_WIDTH -  (SMALLCHAR_WIDTH * CG_DrawStrlen(string)), y, string, 1.0F );
+
+	//x = 0.5 * ( 640 - GIANT_WIDTH * CG_DrawStrlen( name ) );
+
+	//CG_DrawStringExt( x, 40, name, color, qfalse, qtrue, GIANT_WIDTH, GIANT_HEIGHT, 0 );
+
+	return qtrue;
+}
+
+/*
 =====================
 CG_DrawLowerRight
 
@@ -2028,6 +2072,8 @@ static void CG_DrawLowerRight( void ) {
 	if ( cgs.gametype >= GT_TEAM && cgs.ffa_gt!=1 && cg_drawTeamOverlay.integer == 4 ) {
 		y = CG_DrawTeamOverlay( y, qtrue, qfalse );
 	} 
+
+	//y = CG_DrawFollow( y );
 
 	y = CG_DrawPowerups( y );
 }
@@ -3484,41 +3530,6 @@ static void CG_DrawIntermission( void ) {
 	cg.scoreBoardShowing = CG_DrawScoreboard();
 }
 
-/*
-=================
-CG_DrawFollow
-=================
-*/
-static qboolean CG_DrawFollow( void ) {
-	float		x;
-	vec4_t		color;
-	const char	*name;
-	char string[1024];
-
-	if ( !(cg.snap->ps.pm_flags & PMF_FOLLOW) ) {
-		return qfalse;
-	}
-	color[0] = 1;
-	color[1] = 1;
-	color[2] = 1;
-	color[3] = 1;
-
-
-	//CG_DrawSmallString( 320 - 9 * 8, 32, "following", 1.0F );
-
-	name = cgs.clientinfo[ cg.snap->ps.clientNum ].name;
-
-	//Com_sprintf(string, sizeof(string), "following %s", name);
-	Com_sprintf(string, sizeof(string), "%s", name);
-
-	CG_DrawSmallString( 0.5 * (640 - SMALLCHAR_WIDTH * CG_DrawStrlen(string)), 32, string, 1.0F );
-
-	//x = 0.5 * ( 640 - GIANT_WIDTH * CG_DrawStrlen( name ) );
-
-	//CG_DrawStringExt( x, 40, name, color, qfalse, qtrue, GIANT_WIDTH, GIANT_HEIGHT, 0 );
-
-	return qtrue;
-}
 
 
 
