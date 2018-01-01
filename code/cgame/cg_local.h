@@ -718,6 +718,7 @@ typedef struct {
 	int readyMask;
 	int numSpawnpoints;
 	spawnpoint_t spawnpoints[MAX_SPAWNPOINTS];
+	int spectatorHelpDrawTime;
 } cg_t;
 
 

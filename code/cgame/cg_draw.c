@@ -3101,12 +3101,21 @@ CG_DrawSpectator
 =================
 */
 static void CG_DrawSpectator(void) {
-	CG_DrawBigString(320 - 9 * 8, 440, "SPECTATOR", 1.0F);
-	if ( cgs.gametype == GT_TOURNAMENT ) {
-		CG_DrawBigString(320 - 15 * 8, 460, "waiting to play", 1.0F);
+	if (cg.spectatorHelpDrawTime == 0) {
+		cg.spectatorHelpDrawTime = cg.time;
 	}
-	else if ( cgs.gametype >= GT_TEAM && cgs.ffa_gt!=1) {
-		CG_DrawBigString(320 - 39 * 8, 460, "press ESC and use the JOIN menu to play", 1.0F);
+	CG_DrawBigString(320 - 9 * 8, 440, "SPECTATOR", 1.0F);
+	if (cg.time <= cg.spectatorHelpDrawTime + 15000) {
+		char *s = va("Try %s\\help%s and %s\\sampleconfig%s for game configuration info",
+				S_COLOR_GREEN, S_COLOR_WHITE, S_COLOR_GREEN, S_COLOR_WHITE);
+		CG_DrawSmallScoreString(320 - (CG_DrawStrlen(s)*SCORESMALLCHAR_WIDTH)/2, 460, s, 1.0F);
+	} else {
+		if ( cgs.gametype == GT_TOURNAMENT ) {
+			CG_DrawBigString(320 - 15 * 8, 460, "waiting to play", 1.0F);
+		}
+		else if ( cgs.gametype >= GT_TEAM && cgs.ffa_gt!=1) {
+			CG_DrawBigString(320 - 39 * 8, 460, "press ESC and use the JOIN menu to play", 1.0F);
+		}
 	}
 }
 
