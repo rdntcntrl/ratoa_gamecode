@@ -2167,12 +2167,20 @@ static void CG_DrawTeamChat( void ) {
 }
 #endif // MISSIONPACK
 
+float CG_FontScale(void) {
+	float f = cg_fontScale.value;
+	if (cgs.glconfig.vidHeight < 1024) {
+		f *= 1024.0/cgs.glconfig.vidHeight;
+	}
+	return f;
+}
+
 float CG_ConsoleAdjustSizeX(float sizeX) {
-	return cg_fontScale.value * (MAX(sizeX,1.0) * ((cgs.screenXScale > cgs.screenYScale) ? (cgs.screenYScale / cgs.screenXScale) : 1.0));
+	return CG_FontScale() * (MAX(sizeX,1.0) * ((cgs.screenXScale > cgs.screenYScale) ? (cgs.screenYScale / cgs.screenXScale) : 1.0));
 }
 
 float CG_ConsoleAdjustSizeY(float sizeY) {
-	return cg_fontScale.value * (MAX(sizeY,1.0) * ((cgs.screenYScale > cgs.screenXScale) ? (cgs.screenXScale / cgs.screenYScale) : 1.0));
+	return CG_FontScale() * (MAX(sizeY,1.0) * ((cgs.screenYScale > cgs.screenXScale) ? (cgs.screenXScale / cgs.screenYScale) : 1.0));
 }
 
 static void CG_DrawGenericConsole( console_t *console, int maxlines, int time, int x, int y, float sizeX, float sizeY ) {
