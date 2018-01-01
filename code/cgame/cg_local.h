@@ -821,6 +821,7 @@ typedef struct {
 
 	qhandle_t	smokePuffShader;
 	qhandle_t	smokePuffRageProShader;
+	qhandle_t	plasmaTrailShader;
 	qhandle_t	shotgunSmokePuffShader;
 	qhandle_t	plasmaBallShader;
 	qhandle_t	waterBubbleShader;
@@ -1362,6 +1363,10 @@ extern vmCvar_t                	cg_ratPredictMissilesPingFactor;
 extern vmCvar_t                	cg_ratPredictMissiles;
 extern vmCvar_t                	cg_ratScoreboard;
 extern vmCvar_t                	cg_ratStatusbar;
+extern vmCvar_t			cg_ratPlasmaTrail;
+extern vmCvar_t			cg_ratPlasmaTrailAlpha;
+extern vmCvar_t			cg_ratPlasmaTrailStep;
+extern vmCvar_t			cg_ratPlasmaTrailTime;
 extern vmCvar_t			cg_ratRocketTrail;
 extern vmCvar_t			cg_ratRocketTrailAlpha;
 extern vmCvar_t			cg_ratRocketTrailRadius;

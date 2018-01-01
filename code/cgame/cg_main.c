@@ -188,6 +188,10 @@ vmCvar_t 	cg_ratPredictMissiles;
 vmCvar_t 	cg_delagProjectileTrail;
 vmCvar_t 	cg_ratScoreboard;
 vmCvar_t 	cg_ratStatusbar;
+vmCvar_t	cg_ratPlasmaTrail;
+vmCvar_t	cg_ratPlasmaTrailAlpha;
+vmCvar_t	cg_ratPlasmaTrailStep;
+vmCvar_t	cg_ratPlasmaTrailTime;
 vmCvar_t	cg_ratRocketTrail;
 vmCvar_t	cg_ratRocketTrailAlpha;
 vmCvar_t	cg_ratRocketTrailRadius;
@@ -505,6 +509,12 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_delagProjectileTrail, "cg_delagProjectileTrail", "1", 0},
 	{ &cg_ratScoreboard, "cg_ratScoreboard", "1", CVAR_ARCHIVE},
 	{ &cg_ratStatusbar, "cg_ratStatusbar", "0", CVAR_ARCHIVE},
+	// TODO: make CVAR_ARCHIVE
+	{ &cg_ratPlasmaTrail, "cg_ratPlasmaTrail", "0", 0},
+	{ &cg_ratPlasmaTrailAlpha, "cg_ratPlasmaTrailAlpha", "0.1", 0},
+	{ &cg_ratPlasmaTrailStep, "cg_ratPlasmaTrailStep", "7", 0},
+	{ &cg_ratPlasmaTrailTime, "cg_ratPlasmaTrailTime", "350", 0},
+	//
 	{ &cg_ratRocketTrail, "cg_ratRocketTrail", "1", CVAR_ARCHIVE},
 	{ &cg_ratRocketTrailAlpha, "cg_ratRocketTrailAlpha", "0.3", CVAR_ARCHIVE},
 	{ &cg_ratRocketTrailRadius, "cg_ratRocketTrailRadius", "1", CVAR_ARCHIVE},
@@ -1278,6 +1288,7 @@ static void CG_RegisterGraphics( void ) {
 
 	cgs.media.smokePuffShader = trap_R_RegisterShader( "smokePuff" );
 	cgs.media.smokePuffRageProShader = trap_R_RegisterShader( "smokePuffRagePro" );
+	cgs.media.plasmaTrailShader = trap_R_RegisterShader( "plasmaTrail" );
 	cgs.media.shotgunSmokePuffShader = trap_R_RegisterShader( "shotgunSmokePuff" );
 	cgs.media.nailPuffShader = trap_R_RegisterShader( "nailtrail" );
 	cgs.media.blueProxMine = trap_R_RegisterModel( "models/weaphits/proxmineb.md3" );
