@@ -3277,7 +3277,8 @@ static void CG_DrawVote(void) {
 	CG_DrawSmallString( 0, 58 + SMALLCHAR_HEIGHT + 2, s, 1.0F );
 #else
 	s = va("VOTE(%i):%s yes:%i no:%i", sec, cgs.voteString, cgs.voteYes, cgs.voteNo );
-	CG_DrawSmallString( 0, 58, s, 1.0F );
+	//CG_DrawSmallString( 0, 58, s, 1.0F );
+	CG_DrawSmallString( SCREEN_WIDTH/2 - (CG_DrawStrlen(s)*SMALLCHAR_WIDTH)/2, 20, s, 1.0F );
 #endif
 }
 
