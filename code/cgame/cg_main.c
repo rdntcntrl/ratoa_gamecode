@@ -630,7 +630,7 @@ static cvarTable_t cvarTable[] = { // bk001129
         { &cg_music, "cg_music", "", CVAR_ARCHIVE},
 //	{ &cg_pmove_fixed, "cg_pmove_fixed", "0", CVAR_USERINFO | CVAR_ARCHIVE }
 
-	{ &cg_fragmsgsize, "cg_fragmsgsize", "0.4", CVAR_ARCHIVE},
+	{ &cg_fragmsgsize, "cg_fragmsgsize", "0.6", CVAR_ARCHIVE},
 	{ &cg_crosshairPulse, "cg_crosshairPulse", "0", CVAR_ARCHIVE},
 	
 	{ &cg_differentCrosshairs, "cg_differentCrosshairs", "0", CVAR_ARCHIVE},
