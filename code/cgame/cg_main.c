@@ -236,6 +236,7 @@ vmCvar_t	cg_commonConsoleLines;
 vmCvar_t	cg_chatLines;
 vmCvar_t	cg_teamChatLines;
 
+vmCvar_t	cg_commonConsole;
 
 vmCvar_t	cg_teamOverlayScaleX;
 vmCvar_t	cg_teamOverlayScaleY;
@@ -587,6 +588,8 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_chatSizeY , "cg_chatSizeY", "10", 0},
 	{ &cg_teamChatSizeX , "cg_teamChatSizeX", "5", 0},
 	{ &cg_teamChatSizeY , "cg_teamChatSizeY", "10", 0},
+
+	{ &cg_commonConsole , "cg_commonConsole", "0", CVAR_ARCHIVE},
 
 	{ &cg_consoleLines , "cg_consoleLines", "3", 0},
 	{ &cg_commonConsoleLines , "cg_commonConsoleLines", "6", 0},

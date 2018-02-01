@@ -1437,6 +1437,8 @@ extern vmCvar_t			cg_commonConsoleLines;
 extern vmCvar_t			cg_chatLines;
 extern vmCvar_t			cg_teamChatLines;
 
+extern vmCvar_t			cg_commonConsole;
+
 extern vmCvar_t			cg_autoHeadColors;
 
 extern vmCvar_t			cg_mySound;

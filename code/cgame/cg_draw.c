@@ -3831,7 +3831,7 @@ static void CG_Draw2D(stereoFrame_t stereoFrame)
 		teamChatSizeX *= f;
 		teamChatSizeY *= f;
 
-		if ( cg.snap->ps.pm_type == PM_INTERMISSION ) {
+		if ( cg.snap->ps.pm_type == PM_INTERMISSION || cg_commonConsole.integer) {
 			CG_DrawGenericConsole(&cgs.commonConsole, commonConsoleLines, cg_chatTime.integer, 
 					0, 0, 
 					chatSizeX,
