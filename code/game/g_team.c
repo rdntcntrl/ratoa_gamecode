@@ -31,8 +31,8 @@ typedef struct teamgame_s {
 	flagStatus_t	redStatus;	// CTF
 	flagStatus_t	blueStatus;	// CTF
 	flagStatus_t	flagStatus;	// One Flag CTF
-	int				redTakenTime;
-	int				blueTakenTime;
+	// int				redTakenTime;
+	// int				blueTakenTime;
 	int				redObeliskAttackedTime;
 	int				blueObeliskAttackedTime;
 } teamgame_t;
@@ -942,25 +942,32 @@ void Team_TakeFlagSound( gentity_t *ent, int team ) {
 		return;
 	}
 
-	// only play sound when the flag was at the base
-	// or not picked up the last 10 seconds
-	switch(team) {
-		case TEAM_RED:
-			if( teamgame.blueStatus != FLAG_ATBASE ) {
-				if (teamgame.blueTakenTime > level.time - 10000 && g_gametype.integer != GT_CTF_ELIMINATION)
-					return;
-			}
-			teamgame.blueTakenTime = level.time;
-			break;
+	// THIS IS SOME WEIRD / BUGGY SHIT
+	// // only play sound when the flag was at the base
+	// // or not picked up the last 10 seconds
+	// switch(team) {
+	// 	case TEAM_RED:
+	// 		if( teamgame.blueStatus != FLAG_ATBASE ) {
+	// 			Com_Printf("Blue at base\n");
+	// 			if (teamgame.blueTakenTime > level.time - 10000 && g_gametype.integer != GT_CTF_ELIMINATION) {
+	// 				Com_Printf("Blue noplay\n");
+	// 				return;
+	// 			}
+	// 		}
+	// 		teamgame.blueTakenTime = level.time;
+	// 		break;
 
-		case TEAM_BLUE:	// CTF
-			if( teamgame.redStatus != FLAG_ATBASE ) {
-				if (teamgame.redTakenTime > level.time - 10000 && g_gametype.integer != GT_CTF_ELIMINATION)
-					return;
-			}
-			teamgame.redTakenTime = level.time;
-			break;
-	}
+	// 	case TEAM_BLUE:	// CTF
+	// 		if( teamgame.redStatus != FLAG_ATBASE ) {
+	// 			Com_Printf("red at base\n");
+	// 			if (teamgame.redTakenTime > level.time - 10000 && g_gametype.integer != GT_CTF_ELIMINATION) {
+	// 				Com_Printf("red noplay\n");
+	// 				return;
+	// 			}
+	// 		}
+	// 		teamgame.redTakenTime = level.time;
+	// 		break;
+	// }
 
 	te = G_TempEntity( ent->s.pos.trBase, EV_GLOBAL_TEAM_SOUND );
 	if( team == TEAM_BLUE ) {
