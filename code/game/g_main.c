@@ -720,6 +720,7 @@ void G_RemapTeamShaders( void ) {
 
 	if (g_shaderremap.integer) {
 		qboolean has_banner = qfalse;
+		qboolean has_bannerq3 = qfalse;
 		trap_Cvar_VariableStringBuffer( "mapname", mapname, sizeof( mapname ) );
 
 		if (Q_stricmp(mapname, "oasago2") == 0
@@ -730,8 +731,27 @@ void G_RemapTeamShaders( void ) {
 				|| Q_stricmp(mapname, "ps37ctf-mmp") == 0
 				|| Q_stricmp(mapname, "oa_ctf2") == 0
 				|| Q_stricmp(mapname, "mlctf1beta") == 0
-				|| Q_stricmp(mapname, "oa_ctf2old") == 0) {
+				|| Q_stricmp(mapname, "oa_ctf2old") == 0
+				|| Q_stricmp(mapname, "czest3ctf") == 0
+				|| Q_stricmp(mapname, "oa_minia") == 0
+				|| Q_stricmp(mapname, "oasago1") == 0
+				|| Q_stricmp(mapname, "oa_thor") == 0
+				|| Q_stricmp(mapname, "wrackdm17") == 0
+				) {
 			has_banner = qtrue;
+		}
+		if (Q_stricmp(mapname, "13dream") == 0
+				|| Q_stricmp(mapname, "ct3ctf2") == 0
+				|| Q_stricmp(mapname, "geit3ctf1") == 0
+				|| Q_stricmp(mapname, "hctf3") == 0
+				|| Q_stricmp(mapname, "mkbase") == 0
+				|| Q_stricmp(mapname, "q3ctfp13") == 0
+				|| Q_stricmp(mapname, "q3ctfp22_final") == 0
+				|| Q_stricmp(mapname, "q3wcp20") == 0
+				|| Q_stricmp(mapname, "rooftopsctf") == 0
+				|| Q_stricmp(mapname, "stchctf9a") == 0
+				|| Q_stricmp(mapname, "woohaa") == 0) {
+			has_bannerq3 = qtrue;
 		}
 		// RATOA
 		if( g_redclan.string[0] ) {
@@ -739,23 +759,34 @@ void G_RemapTeamShaders( void ) {
 				Com_sprintf( string, sizeof(string), "team_icon/ratoa/%s_redflag", g_redclan.string );
 				AddRemap("models/flags/r_flag", string, f); 
 			}
-			if (g_shaderremap_banner.integer && has_banner) {
-				Com_sprintf( string, sizeof(string), "team_icon/ratoa/%s_red_banner", g_redclan.string );
-				if (Q_stricmp(mapname, "mlctf1beta") == 0) {
-					AddRemap("textures/ctf2/red_banner02", string, f); 
-				} else {
-					AddRemap("textures/clown/red_banner", string, f); 
+			if (g_shaderremap_banner.integer) {
+				if (has_banner) {
+					Com_sprintf( string, sizeof(string), "team_icon/ratoa/%s_red_banner", g_redclan.string );
+					if (Q_stricmp(mapname, "mlctf1beta") == 0) {
+						AddRemap("textures/ctf2/red_banner02", string, f); 
+					} else {
+						AddRemap("textures/clown/red_banner", string, f); 
+					}
+				}
+				if (has_bannerq3) {
+					Com_sprintf( string, sizeof(string), "team_icon/ratoa/%s_red_bannerq3", g_redclan.string );
+					AddRemap("textures/ctf/ctf_redflag", string, f); 
 				}
 			}
 		}  else {
 			if (g_shaderremap_flagreset.integer) {
 				AddRemap("models/flags/r_flag", "models/flags/r_flag", f); 
 			}
-			if (g_shaderremap_bannerreset.integer && has_banner) {
-				if (Q_stricmp(mapname, "mlctf1beta") == 0) {
-					AddRemap("textures/ctf2/red_banner02", "textures/ctf2/red_banner02", f); 
-				} else {
-					AddRemap("textures/clown/red_banner", "textures/clown/red_banner", f); 
+			if (g_shaderremap_bannerreset.integer) {
+				if (has_banner) {
+					if (Q_stricmp(mapname, "mlctf1beta") == 0) {
+						AddRemap("textures/ctf2/red_banner02", "textures/ctf2/red_banner02", f); 
+					} else {
+						AddRemap("textures/clown/red_banner", "textures/clown/red_banner", f); 
+					}
+				}
+				if (has_bannerq3) {
+					AddRemap("textures/ctf/ctf_redflag", "textures/ctf_ctf_redflag", f); 
 				}
 			}
 		}
@@ -764,23 +795,34 @@ void G_RemapTeamShaders( void ) {
 				Com_sprintf( string, sizeof(string), "team_icon/ratoa/%s_blueflag", g_blueclan.string );
 				AddRemap("models/flags/b_flag", string, f); 
 			}
-			if (g_shaderremap_banner.integer && has_banner) {
-				Com_sprintf( string, sizeof(string), "team_icon/ratoa/%s_blue_banner", g_blueclan.string );
-				if (Q_stricmp(mapname, "mlctf1beta") == 0) {
-					AddRemap("textures/ctf2/blue_banner02", string, f); 
-				} else {
-					AddRemap("textures/clown/blue_banner", string, f); 
+			if (g_shaderremap_banner.integer) {
+				if (has_banner) {
+					Com_sprintf( string, sizeof(string), "team_icon/ratoa/%s_blue_banner", g_blueclan.string );
+					if (Q_stricmp(mapname, "mlctf1beta") == 0) {
+						AddRemap("textures/ctf2/blue_banner02", string, f); 
+					} else {
+						AddRemap("textures/clown/blue_banner", string, f); 
+					}
+				}
+				if (has_bannerq3) {
+					Com_sprintf( string, sizeof(string), "team_icon/ratoa/%s_blue_bannerq3", g_blueclan.string );
+					AddRemap("textures/ctf/ctf_blueflag", string, f); 
 				}
 			}
 		}  else {
 			if (g_shaderremap_flagreset.integer) {
 				AddRemap("models/flags/b_flag", "models/flags/b_flag", f); 
 			}
-			if (g_shaderremap_bannerreset.integer && has_banner) {
-				if (Q_stricmp(mapname, "mlctf1beta") == 0) {
-					AddRemap("textures/ctf2/blue_banner02", "textures/ctf2/blue_banner02", f); 
-				} else {
-					AddRemap("textures/clown/blue_banner", "textures/clown/blue_banner", f); 
+			if (g_shaderremap_bannerreset.integer) {
+				if (has_banner) {
+					if (Q_stricmp(mapname, "mlctf1beta") == 0) {
+						AddRemap("textures/ctf2/blue_banner02", "textures/ctf2/blue_banner02", f); 
+					} else {
+						AddRemap("textures/clown/blue_banner", "textures/clown/blue_banner", f); 
+					}
+				}
+				if (has_bannerq3) {
+					AddRemap("textures/ctf/ctf_blueflag", "textures/ctf/ctf_blueflag", f); 
 				}
 			}
 		}
