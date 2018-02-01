@@ -3918,12 +3918,6 @@ static void CG_Draw2D(stereoFrame_t stereoFrame)
 	CG_DrawTeamChat();
 #endif
 
-	if ( cg_newConsole.integer && (trap_Key_GetCatcher() & KEYCATCH_MESSAGE)) {
-		float color[4];
-		color[0] = color[1] = color[2] = 0.0;
-		color[3] = 0.8;
-		CG_FillRect(0, 0, 560, 18, color);
-	}
 
 	CG_DrawVote();
 	CG_DrawTeamVote();
@@ -3962,6 +3956,13 @@ static void CG_Draw2D(stereoFrame_t stereoFrame)
 	}
 
         cg.accBoardShowing = CG_DrawAccboard();
+
+	if ( cg_newConsole.integer && (trap_Key_GetCatcher() & KEYCATCH_MESSAGE)) {
+		float color[4];
+		color[0] = color[1] = color[2] = 0.0;
+		color[3] = 0.8;
+		CG_FillRect(0, 0, 560, 18, color);
+	}
 }
 
 
