@@ -657,7 +657,9 @@ static void CG_ConfigStringModified( void ) {
 	} else if ( num == CS_VOTE_TIME ) {
 		cgs.voteTime = atoi( str );
 		cgs.voteModified = qtrue;
-		trap_S_StartLocalSound( cgs.media.voteNow, CHAN_ANNOUNCER );
+		if (cgs.voteTime) {
+			trap_S_StartLocalSound( cgs.media.voteNow, CHAN_ANNOUNCER );
+		}
 	} else if ( num == CS_VOTE_YES ) {
 		cgs.voteYes = atoi( str );
 		cgs.voteModified = qtrue;
