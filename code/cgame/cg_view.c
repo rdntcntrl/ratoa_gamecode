@@ -792,8 +792,8 @@ static void CG_PlayBufferedSounds( void ) {
 			trap_S_StartLocalSound(cg.soundBuffer[cg.soundBufferOut], CHAN_ANNOUNCER);
 			cg.soundBuffer[cg.soundBufferOut] = 0;
 			cg.soundBufferOut = (cg.soundBufferOut + 1) % MAX_SOUNDBUFFER;
-			//cg.soundTime = cg.time + 750;
-			cg.soundTime = cg.time + 1500;
+			cg.soundTime = cg.time + 750;
+			//cg.soundTime = cg.time + 1500;
 		}
 	}
 }
