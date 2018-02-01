@@ -983,6 +983,7 @@ int allowedVote(char *commandStr);
 void CheckVote( void );
 void CountVotes( void );
 void ClientLeaving(int clientNumber);
+void G_SendVoteResult(qboolean passed);
 
 #define MAX_MAPNAME 32
 #define MAPS_PER_PAGE 10
