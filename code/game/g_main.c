@@ -441,7 +441,7 @@ static cvarTable_t		gameCvarTable[] = {
 
         { &g_itemPickup, "g_itemPickup", "0", CVAR_ARCHIVE , 0, qtrue },
         { &g_usesRatVM, "g_usesRatVM", "0", 0, 0, qfalse },
-        { &g_usesRatEngine, "g_usesRatEngine", "0", 0, 0, qfalse },
+        { &g_usesRatEngine, "g_usesRatEngine", "0", 0, 0, CVAR_ROM | CVAR_INIT },
         { &g_broadcastClients, "g_broadcastClients", "0", 0, 0, qfalse },
         { &g_ratVmPredictMissiles, "g_ratVmPredictMissiles", "1", CVAR_ARCHIVE, 0, qfalse },
         { &g_ratVmMissileNudge, "g_ratVmMissileNudge", "58", CVAR_SERVERINFO, 0, qfalse },
@@ -1271,6 +1271,8 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 	}
 
 	SaveRegisteredItems();
+
+	trap_Cvar_Set("g_usesRatEngine", va("%i", trap_Cvar_VariableIntegerValue( "sv_ratEngine" )));
         
         G_Printf ("-----------------------------------\n");
 
