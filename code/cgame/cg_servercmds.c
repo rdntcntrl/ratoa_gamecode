@@ -389,6 +389,16 @@ static void CG_ParseTeam( void ) {
 	trap_Cvar_Set("cl_voipSendTarget",CG_Argv(1));
 }
 
+static void CG_ParseVoteResult( void ) {
+	const char *r = CG_Argv( 1 );
+	if (*r == 'p') {
+		trap_S_StartLocalSound( cgs.media.votePassed, CHAN_ANNOUNCER );
+	} else if (*r == 'f') {
+		trap_S_StartLocalSound( cgs.media.voteFailed, CHAN_ANNOUNCER );
+
+	}
+}
+
 /*
 =================
 CG_ParseAttackingTeam
@@ -1378,7 +1388,7 @@ static void CG_ServerCommand( void ) {
 
 	if ( !strcmp( cmd, "print" ) ) {
 		CG_Printf( "%s", CG_Argv(1) );
-//#ifdef MISSIONPACK
+#ifdef MISSIONPACK
 		cmd = CG_Argv(1);			// yes, this is obviously a hack, but so is the way we hear about
 									// votes passing or failing
 		if ( !Q_stricmp( cmd, "vote failed.\n" ) || !Q_stricmp( cmd, "team vote failed.\n" )) {
@@ -1386,7 +1396,7 @@ static void CG_ServerCommand( void ) {
 		} else if ( !Q_stricmp( cmd, "vote passed.\n" ) || !Q_stricmp( cmd, "team vote passed.\n" ) ) {
 			trap_S_StartLocalSound( cgs.media.votePassed, CHAN_ANNOUNCER );
 		}
-//#endif
+#endif
 		return;
 	}
 
@@ -1551,6 +1561,11 @@ static void CG_ServerCommand( void ) {
 
         if ( !strcmp( cmd, "team" ) ) {
 		CG_ParseTeam();
+		return;
+	}
+
+        if ( !strcmp( cmd, "vresult" ) ) {
+		CG_ParseVoteResult();
 		return;
 	}
 

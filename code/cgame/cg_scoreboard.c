@@ -575,6 +575,46 @@ qboolean CG_DrawRatScoreboard(void) {
 		CG_DrawSmallScoreString(x, y, s, 0.6);
 	}
 
+	// draw gametype
+	if ( cgs.gametype == GT_FFA ) {
+		s = "Free For All";
+	} else if ( cgs.gametype == GT_TOURNAMENT ) {
+		s = "Tournament";
+	} else if ( cgs.gametype == GT_TEAM ) {
+		s = "Team Deathmatch";
+	} else if ( cgs.gametype == GT_CTF ) {
+		s = "Capture the Flag";
+	} else if ( cgs.gametype == GT_ELIMINATION ) {
+		s = "Elimination";
+	} else if ( cgs.gametype == GT_CTF_ELIMINATION ) {
+		s = "CTF Elimination";
+	} else if ( cgs.gametype == GT_LMS ) {
+		s = "Last Man Standing";
+	} else if ( cgs.gametype == GT_DOUBLE_D ) {
+		s = "Double Domination";
+	} else if ( cgs.gametype == GT_1FCTF ) {
+		s = "One Flag CTF";
+	} else if ( cgs.gametype == GT_OBELISK ) {
+		s = "Overload";
+	} else if ( cgs.gametype == GT_HARVESTER ) {
+		s = "Harvester";
+          } else if ( cgs.gametype == GT_DOMINATION ) {
+		s = "Domination";
+	} else {
+		s = "";
+	}
+
+	len = CG_DrawStrlen(s);
+	if (len > 20) {
+		len = 20;
+	}
+	w = len * SCORETINYCHAR_WIDTH;
+	x = (RATSB_PING_X+RATSB_PING_WIDTH - w);
+	y = RATSB_HEADER - 26 - SCORETINYCHAR_HEIGHT;
+	memcpy(color, colorGreen, sizeof(color));
+	color[3] = fade;
+	CG_DrawTinyScoreStringColor(x, y, s, color);
+
 	// draw map name
 	s = va("%s", cgs.mapbasename);
 	len = CG_DrawStrlen(s);

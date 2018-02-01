@@ -3666,46 +3666,47 @@ static void CG_DrawWarmup( void ) {
 					qfalse, qtrue, cw, (int)(cw * 1.5f), 0 );
 #endif
 		}
-	} else {
-		if ( cgs.gametype == GT_FFA ) {
-			s = "Free For All";
-		} else if ( cgs.gametype == GT_TEAM ) {
-			s = "Team Deathmatch";
-		} else if ( cgs.gametype == GT_CTF ) {
-			s = "Capture the Flag";
-		} else if ( cgs.gametype == GT_ELIMINATION ) {
-			s = "Elimination";
-		} else if ( cgs.gametype == GT_CTF_ELIMINATION ) {
-			s = "CTF Elimination";
-		} else if ( cgs.gametype == GT_LMS ) {
-			s = "Last Man Standing";
-		} else if ( cgs.gametype == GT_DOUBLE_D ) {
-			s = "Double Domination";
-		} else if ( cgs.gametype == GT_1FCTF ) {
-			s = "One Flag CTF";
-		} else if ( cgs.gametype == GT_OBELISK ) {
-			s = "Overload";
-		} else if ( cgs.gametype == GT_HARVESTER ) {
-			s = "Harvester";
-                } else if ( cgs.gametype == GT_DOMINATION ) {
-			s = "Domination";
-		} else {
-			s = "";
-		}
-#ifdef MISSIONPACK
-		w = CG_Text_Width(s, 0.6f, 0);
-		CG_Text_Paint(320 - w / 2, 90, 0.6f, colorWhite, s, 0, 0, ITEM_TEXTSTYLE_SHADOWEDMORE);
-#else
-		w = CG_DrawStrlen( s );
-		if ( w > 640 / BIGCHAR_WIDTH ) {
-			cw = 640 / w;
-		} else {
-			cw = BIGCHAR_WIDTH;
-		}
-		CG_DrawStringExt( 320 - w * cw/2, 8,s, colorWhite, 
-				qfalse, qtrue, cw, (int)(cw * 1.1f), 0 );
-#endif
-	}
+	} 
+//	else {
+//		if ( cgs.gametype == GT_FFA ) {
+//			s = "Free For All";
+//		} else if ( cgs.gametype == GT_TEAM ) {
+//			s = "Team Deathmatch";
+//		} else if ( cgs.gametype == GT_CTF ) {
+//			s = "Capture the Flag";
+//		} else if ( cgs.gametype == GT_ELIMINATION ) {
+//			s = "Elimination";
+//		} else if ( cgs.gametype == GT_CTF_ELIMINATION ) {
+//			s = "CTF Elimination";
+//		} else if ( cgs.gametype == GT_LMS ) {
+//			s = "Last Man Standing";
+//		} else if ( cgs.gametype == GT_DOUBLE_D ) {
+//			s = "Double Domination";
+//		} else if ( cgs.gametype == GT_1FCTF ) {
+//			s = "One Flag CTF";
+//		} else if ( cgs.gametype == GT_OBELISK ) {
+//			s = "Overload";
+//		} else if ( cgs.gametype == GT_HARVESTER ) {
+//			s = "Harvester";
+//                } else if ( cgs.gametype == GT_DOMINATION ) {
+//			s = "Domination";
+//		} else {
+//			s = "";
+//		}
+//#ifdef MISSIONPACK
+//		w = CG_Text_Width(s, 0.6f, 0);
+//		CG_Text_Paint(320 - w / 2, 90, 0.6f, colorWhite, s, 0, 0, ITEM_TEXTSTYLE_SHADOWEDMORE);
+//#else
+//		w = CG_DrawStrlen( s );
+//		if ( w > 640 / BIGCHAR_WIDTH ) {
+//			cw = 640 / w;
+//		} else {
+//			cw = BIGCHAR_WIDTH;
+//		}
+//		CG_DrawStringExt( 320 - w * cw/2, 8,s, colorWhite, 
+//				qfalse, qtrue, cw, (int)(cw * 1.1f), 0 );
+//#endif
+//	}
 
 	sec = ( sec - cg.time ) / 1000;
 	if ( sec < 0 ) {
