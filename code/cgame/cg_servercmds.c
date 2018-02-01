@@ -657,6 +657,7 @@ static void CG_ConfigStringModified( void ) {
 	} else if ( num == CS_VOTE_TIME ) {
 		cgs.voteTime = atoi( str );
 		cgs.voteModified = qtrue;
+		trap_S_StartLocalSound( cgs.media.voteNow, CHAN_ANNOUNCER );
 	} else if ( num == CS_VOTE_YES ) {
 		cgs.voteYes = atoi( str );
 		cgs.voteModified = qtrue;
@@ -666,7 +667,7 @@ static void CG_ConfigStringModified( void ) {
 	} else if ( num == CS_VOTE_STRING ) {
 		Q_strncpyz( cgs.voteString, str, sizeof( cgs.voteString ) );
 //#ifdef MISSIONPACK
-		trap_S_StartLocalSound( cgs.media.voteNow, CHAN_ANNOUNCER );
+		//trap_S_StartLocalSound( cgs.media.voteNow, CHAN_ANNOUNCER );
 //#endif //MISSIONPACK
 	} else if ( num >= CS_TEAMVOTE_TIME && num <= CS_TEAMVOTE_TIME + 1) {
 		cgs.teamVoteTime[num-CS_TEAMVOTE_TIME] = atoi( str );
@@ -1413,7 +1414,7 @@ static void CG_ServerCommand( void ) {
 
 	if ( !strcmp( cmd, "tchat" ) ) {
                 if( cg_teamChatBeep.integer )
-                        trap_S_StartLocalSound( cgs.media.talkSound, CHAN_LOCAL_SOUND );
+                        trap_S_StartLocalSound( cgs.media.teamTalkSound, CHAN_LOCAL_SOUND );
 		Q_strncpyz( text, CG_Argv(1), MAX_SAY_TEXT );
 		CG_RemoveChatEscapeChar( text );
 		CG_AddToTeamChat( text );

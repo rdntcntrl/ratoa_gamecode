@@ -1002,6 +1002,7 @@ typedef struct {
 	sfxHandle_t	noAmmoSound;
 	sfxHandle_t	respawnSound;
 	sfxHandle_t talkSound;
+	sfxHandle_t teamTalkSound;
 	sfxHandle_t landSound;
 	sfxHandle_t fallSound;
 	sfxHandle_t jumpPadSound;
