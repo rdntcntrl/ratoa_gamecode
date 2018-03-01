@@ -31,6 +31,8 @@ USER INTERFACE MAIN
 
 #include "ui_local.h"
 
+#define MASTER_SERVER_NAME "dpmaster.deathmask.net"
+
 
 /*
 ================
@@ -191,6 +193,9 @@ vmCvar_t        ui_browserOnlyHumans;
 //new in beta 37:
 vmCvar_t        ui_setupchecked;
 
+vmCvar_t        sv_master1;
+
+
 // bk001129 - made static to avoid aliasing.
 static cvarTable_t		cvarTable[] = {
 	{ &ui_ffa_fraglimit, "ui_ffa_fraglimit", "20", CVAR_ARCHIVE },
@@ -284,6 +289,8 @@ static cvarTable_t		cvarTable[] = {
 
         //new in beta 37:
         { &ui_setupchecked, "ui_setupchecked", "0", CVAR_ARCHIVE },
+
+        { &sv_master1, "sv_master1", MASTER_SERVER_NAME, CVAR_ARCHIVE },
 };
 
 // bk001129 - made static to avoid aliasing
