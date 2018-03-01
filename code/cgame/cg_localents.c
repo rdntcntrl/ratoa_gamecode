@@ -942,11 +942,13 @@ void CG_PredictedExplosion(trace_t *tr, localEntity_t *le) {
 			return;
 		}
 		CG_MissileHitPlayer( le->weapon, tr->endpos, tr->plane.normal, tr->entityNum );
+		//CG_Printf("p: missile hit\n");
 	} else if (tr->surfaceFlags & SURF_METALSTEPS) {
-		CG_MissileHitPlayer( le->weapon, tr->endpos, tr->plane.normal, tr->entityNum );
 		CG_MissileHitWall(le->weapon, 0, tr->endpos, tr->plane.normal, IMPACTSOUND_METAL);
+		//CG_Printf("p: missile wall\n");
 	} else {
 		CG_MissileHitWall(le->weapon, 0, tr->endpos, tr->plane.normal, IMPACTSOUND_DEFAULT);
+		//CG_Printf("p: missile wall\n");
 	}
 }
 
@@ -1013,6 +1015,11 @@ void CG_PredictedMissile( localEntity_t *le ) {
 	}
 }
 
+qboolean CG_IsOwnMissile(centity_t *missile) {
+	return ( (((missile->currentState.otherEntityNum == cg.clientNum && missile->currentState.time2 <= 0)) ||
+	     (missile->currentState.otherEntityNum2 == cg.clientNum && missile->currentState.time2 > 0) ));
+}
+
 void CG_RemovePredictedMissile( centity_t *missile) {
 	localEntity_t	*le, *next;
 
@@ -1024,11 +1031,9 @@ void CG_RemovePredictedMissile( centity_t *missile) {
 		return;
 	}
 
-	if ( ((missile->currentState.otherEntityNum != cg.clientNum && missile->currentState.time2 <= 0)) || 
-	     (missile->currentState.otherEntityNum2 != cg.clientNum && missile->currentState.time2 > 0) ) {
+	if (!CG_IsOwnMissile(missile)) {
 		return;
 	}
-
 
 	le = cg_activeLocalEntities.prev;
 	for ( ; le != &cg_activeLocalEntities ; le = next ) {

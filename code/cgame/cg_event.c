@@ -585,9 +585,11 @@ void CG_PainEvent( centity_t *cent, int health ) {
 
 qboolean CG_ExplosionPredicted(centity_t *cent) {
 	if (cg_predictExplosions.integer 
-			&& cent->currentState.eType == ET_MISSILE) {
+			&& cent->currentState.eType == ET_MISSILE
+			&& CG_IsOwnMissile(cent)) {
 
 		// TODO: is this needed?
+		//CG_Printf("removing it (EV)\n");
 		CG_RemovePredictedMissile(cent);
 
 		if (!cent->removedPredictedMissile) {
@@ -1063,6 +1065,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 			break;
 		}
 		ByteToDir( es->eventParm, dir );
+		//CG_Printf("missile hit!\n");
 		CG_MissileHitPlayer( es->weapon, position, dir, es->otherEntityNum );
 		break;
 
@@ -1072,6 +1075,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 			break;
 		}
 		ByteToDir( es->eventParm, dir );
+		//CG_Printf("missile miss!\n");
 		CG_MissileHitWall( es->weapon, 0, position, dir, IMPACTSOUND_DEFAULT );
 		break;
 
@@ -1081,6 +1085,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 			break;
 		}
 		ByteToDir( es->eventParm, dir );
+		//CG_Printf("missile miss!\n");
 		CG_MissileHitWall( es->weapon, 0, position, dir, IMPACTSOUND_METAL );
 		break;
 

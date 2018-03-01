@@ -1839,6 +1839,7 @@ void	CG_InitLocalEntities( void );
 localEntity_t	*CG_AllocLocalEntity( void );
 void	CG_AddLocalEntities( void );
 void CG_RemovePredictedMissile(centity_t *missile);
+qboolean CG_IsOwnMissile(centity_t *missile);
 
 //
 // cg_effects.c
