@@ -846,6 +846,7 @@ void G_PingEqualizerReset() {
 	}
 	trap_FS_Write( "\n", 1, f );
 	trap_FS_FCloseFile( f );
+	level.pingEqualized = qfalse;
 	trap_SendServerCommand( -1, va("print \"^5Server: resetting ping equalizer...\n"));
 }
 
@@ -3008,6 +3009,9 @@ void CheckTournament( void ) {
 		// pull in a spectator if needed
 		if ( level.numPlayingClients < 2 ) {
 			AddTournamentPlayer();
+			if (level.pingEqualized) {
+				G_PingEqualizerReset();
+			}
 		}
 
 		// if we don't have two players, go back to "waiting for players"
