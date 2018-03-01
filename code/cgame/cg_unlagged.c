@@ -294,7 +294,7 @@ void CG_PredictWeaponEffects( centity_t *cent ) {
 		localEntity_t	*le;
 		refEntity_t	*bolt;
 
-		if (cg.snap->ping > cgs.unlagMissileMaxLatency) {
+		if (CG_ReliablePing() > cgs.unlagMissileMaxLatency) {
 			return;
 		}
 
@@ -374,7 +374,7 @@ localEntity_t *CG_BasePredictMissile( entityState_t *ent,  vec3_t muzzlePoint ) 
 	le->leType = LE_PREDICTEDMISSILE;
 	le->startTime = cg.time;
 	le->endTime = cg.time + (cg_ratPredictMissilesPing.integer > 0 ?
-			cg_ratPredictMissilesPing.integer : cg.snap->ping)
+			cg_ratPredictMissilesPing.integer : CG_ReliablePing())
 		* cg_ratPredictMissilesPingFactor.value;
 	le->weapon = ent->weapon;
 
@@ -396,6 +396,28 @@ localEntity_t *CG_BasePredictMissile( entityState_t *ent,  vec3_t muzzlePoint ) 
 	//		);
 
 	return le;
+}
+
+int CG_ReliablePing( void ) {
+	int ping = 999;
+
+	if (cg.snap) {
+		ping = cg.snap->ping;
+	}
+
+	if (ping >= 999 && cg.snap && cg.nextSnap) {
+		// cg.snap->ping caps out at around 248
+		// so try calculating the ping a different way
+		ping = (cg.snap->serverTime - cg.nextSnap->ps.commandTime);
+	}
+
+	if (ping > 999) {
+		ping = 999;
+	} else if (ping < 0) {
+		ping = 0;
+	}
+
+	return ping;
 }
 
 void CG_FinishPredictMissileModel( entityState_t *ent, localEntity_t *le ) {

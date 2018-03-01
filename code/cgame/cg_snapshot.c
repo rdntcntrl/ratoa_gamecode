@@ -44,7 +44,8 @@ static void CG_ResetEntity( centity_t *cent ) {
 		cent->trailTime = MIN(cent->currentState.pos.trTime+cgs.predictedMissileNudge, cent->trailTime);
 	}
 	if (cent->currentState.eType == ET_MISSILE) {
-		cent->projectileNudge = cg.snap->ping*0.5;
+		//cent->projectileNudge = cg.snap->ping*0.5;
+		cent->projectileNudge = CG_ReliablePing()*0.5;
 	}
 
 	VectorCopy (cent->currentState.origin, cent->lerpOrigin);
