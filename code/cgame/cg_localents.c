@@ -938,8 +938,12 @@ void CG_PredictedExplosion(trace_t *tr, localEntity_t *le) {
 	}
 	hitEnt = &cg_entities[tr->entityNum];
 	if (hitEnt->currentState.eType == ET_PLAYER ) {
+		if (!cg_predictPlayerExplosions.integer) {
+			return;
+		}
 		CG_MissileHitPlayer( le->weapon, tr->endpos, tr->plane.normal, tr->entityNum );
 	} else if (tr->surfaceFlags & SURF_METALSTEPS) {
+		CG_MissileHitPlayer( le->weapon, tr->endpos, tr->plane.normal, tr->entityNum );
 		CG_MissileHitWall(le->weapon, 0, tr->endpos, tr->plane.normal, IMPACTSOUND_METAL);
 	} else {
 		CG_MissileHitWall(le->weapon, 0, tr->endpos, tr->plane.normal, IMPACTSOUND_DEFAULT);
@@ -1016,9 +1020,15 @@ void CG_RemovePredictedMissile( centity_t *missile) {
 		return;
 	}
 
-	if ( missile->currentState.otherEntityNum != cg.clientNum ) {
+	if (missile->removedPredictedMissile) {
 		return;
 	}
+
+	if ( ((missile->currentState.otherEntityNum != cg.clientNum && missile->currentState.time2 <= 0)) || 
+	     (missile->currentState.otherEntityNum2 != cg.clientNum && missile->currentState.time2 > 0) ) {
+		return;
+	}
+
 
 	le = cg_activeLocalEntities.prev;
 	for ( ; le != &cg_activeLocalEntities ; le = next ) {

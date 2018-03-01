@@ -1384,6 +1384,7 @@ extern vmCvar_t                	g_fastWeapons;
 extern vmCvar_t                	cg_predictTeleport;
 extern vmCvar_t                	cg_predictWeapons;
 extern vmCvar_t                	cg_predictExplosions;
+extern vmCvar_t                	cg_predictPlayerExplosions;
 extern vmCvar_t                	cg_ratPredictMissilesPing;
 extern vmCvar_t                	cg_ratPredictMissilesPingFactor;
 extern vmCvar_t                	cg_ratPredictMissiles;

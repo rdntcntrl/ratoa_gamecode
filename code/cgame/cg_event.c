@@ -585,8 +585,7 @@ void CG_PainEvent( centity_t *cent, int health ) {
 
 qboolean CG_ExplosionPredicted(centity_t *cent) {
 	if (cg_predictExplosions.integer 
-			&& cent->currentState.eType == ET_MISSILE
-			&& cent->currentState.otherEntityNum == cg.clientNum) {
+			&& cent->currentState.eType == ET_MISSILE) {
 
 		// TODO: is this needed?
 		CG_RemovePredictedMissile(cent);
@@ -1060,7 +1059,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 	//
 	case EV_MISSILE_HIT:
 		DEBUGNAME("EV_MISSILE_HIT");
-		if (CG_ExplosionPredicted(cent)) {
+		if (cg_predictPlayerExplosions.integer && CG_ExplosionPredicted(cent)) {
 			break;
 		}
 		ByteToDir( es->eventParm, dir );
