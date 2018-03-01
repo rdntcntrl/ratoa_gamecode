@@ -183,6 +183,7 @@ vmCvar_t        g_fastSwitch;
 vmCvar_t        g_fastWeapons;
 vmCvar_t        g_ambientSound; 
 vmCvar_t        g_rocketSpeed; 
+vmCvar_t        g_maxExtrapolatedFrames; 
 vmCvar_t        g_unlagMissileMaxLatency; 
 vmCvar_t        g_unlagMode; 
 vmCvar_t        g_unlagMissileDefaultNudge; 
@@ -396,6 +397,8 @@ static cvarTable_t		gameCvarTable[] = {
 //unlagged - server options
         { &g_ambientSound, "g_ambientSound", "1", CVAR_ARCHIVE, 0, qfalse },
         { &g_rocketSpeed, "g_rocketSpeed", "1000", CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qtrue },
+	// TODO: CVAR_ARCHIVE
+        { &g_maxExtrapolatedFrames, "g_maxExtrapolatedFrames", "2", 0 , 0, qfalse },
         { &g_unlagMissileMaxLatency, "g_unlagMissileMaxLatency", "200", CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qfalse },
         { &g_unlagMode, "g_unlagMode", "1", CVAR_ARCHIVE, 0, qfalse },
         { &g_unlagMissileDefaultNudge, "g_unlagMissileDefaultNudge", "50", CVAR_ARCHIVE, 0, qfalse },

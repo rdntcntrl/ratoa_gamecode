@@ -1387,8 +1387,8 @@ void ClientEndFrame( gentity_t *ent ) {
 	frames = level.framenum - ent->client->lastUpdateFrame - 1;
 
 	// don't extrapolate more than two frames
-	if ( frames > 2 ) {
-		frames = 2;
+	if ( frames > g_maxExtrapolatedFrames.integer ) {
+		frames = g_maxExtrapolatedFrames.integer;
 
 		// if they missed more than two in a row, show the phone jack
 		ent->client->ps.eFlags |= EF_CONNECTION;

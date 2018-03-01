@@ -1195,6 +1195,7 @@ extern  vmCvar_t        g_fastSwitch;
 extern  vmCvar_t        g_fastWeapons;
 extern  vmCvar_t        g_ambientSound;
 extern  vmCvar_t        g_rocketSpeed;
+extern  vmCvar_t        g_maxExtrapolatedFrames;
 extern  vmCvar_t        g_unlagMissileMaxLatency;
 extern  vmCvar_t        g_unlagMode;
 extern  vmCvar_t        g_unlagMissileDefaultNudge;
