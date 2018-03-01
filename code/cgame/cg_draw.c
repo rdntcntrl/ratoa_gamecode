@@ -2988,7 +2988,14 @@ static void CG_DrawCrosshair(void)
 	if ( cg_crosshairHealth.integer ) {
 		vec4_t		hcolor;
 
-		CG_ColorForHealth( hcolor );
+		switch (cg_crosshairHealth.integer) {
+			case 2:
+				CG_ColorForHealth2( hcolor );
+				break;
+			default:
+				CG_ColorForHealth( hcolor );
+				break;
+		}
 		trap_R_SetColor( hcolor );
 	} else {
                 vec4_t         color;

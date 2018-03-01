@@ -583,6 +583,63 @@ void CG_ColorForHealth( vec4_t hcolor ) {
 		cg.snap->ps.stats[STAT_ARMOR], hcolor );
 }
 
+/*
+=================
+CG_GetColorForHealth2
+=================
+*/
+void CG_GetColorForHealth2( int health, int armor, vec4_t hcolor ) {
+	int		count;
+	int		max;
+
+	// calculate the total points of damage that can
+	// be sustained at the current health / armor level
+	if ( health <= 0 ) {
+		VectorClear( hcolor );	// black
+		hcolor[3] = 1;
+		return;
+	}
+
+	count = armor;
+	max = health * ARMOR_PROTECTION / ( 1.0 - ARMOR_PROTECTION );
+	if ( max < count ) {
+		count = max;
+	}
+	health += count;
+
+	// set the color based on health
+	hcolor[0] = 1.0;
+	hcolor[3] = 1.0;
+
+	if (health > 100) {
+		// direct rocket hit survivable = white
+		hcolor[1] = hcolor[2] = 1.0;
+	} else if (health > 80) {
+		// rail hit survivable = yellow
+		hcolor[1] = 1.0;
+		hcolor[2] = 0.0;
+	} else if (health > 50) {
+		// rail deadly = orange;
+		hcolor[1] = 0.4;
+		hcolor[2] = 0.0;
+	} else {
+		// below 50 = red
+		hcolor[1] = 0.0;
+		hcolor[2] = 0.0;
+	}
+}
+
+/*
+=================
+CG_ColorForHealth2
+=================
+*/
+void CG_ColorForHealth2( vec4_t hcolor ) {
+
+	CG_GetColorForHealth2( cg.snap->ps.stats[STAT_HEALTH], 
+		cg.snap->ps.stats[STAT_ARMOR], hcolor );
+}
+
 
 
 
