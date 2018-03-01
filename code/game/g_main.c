@@ -1487,6 +1487,10 @@ void AddTournamentPlayer( void ) {
 		return;
 	}
 
+	if (level.numNonSpectatorClients >= 2) {
+		return;
+	}
+
 	// never change during intermission
 	if ( level.intermissiontime ) {
 		return;
