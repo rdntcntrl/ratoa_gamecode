@@ -1068,6 +1068,11 @@ void ClientThink_real( gentity_t *ent ) {
 	pm.debugLevel = g_debugMove.integer;
 	pm.noFootsteps = ( g_dmflags.integer & DF_NO_FOOTSTEPS ) > 0;
 
+	if (client && client->pers.disoriented) {
+		pm.cmd.forwardmove = -pm.cmd.forwardmove;
+		pm.cmd.rightmove = -pm.cmd.rightmove;
+	}
+
 	pm.pmove_fixed = pmove_fixed.integer | client->pers.pmoveFixed;
 	pm.pmove_msec = pmove_msec.integer;
         pm.pmove_float = pmove_float.integer;

@@ -2995,8 +2995,8 @@ qboolean G_admin_allready( gentity_t *ent, int skiparg )
     if( cl->pers.connected != CON_CONNECTED )
       continue;
 
-    if( cl->sess.sessionTeam == TEAM_NONE )
-      continue;
+    //if( cl->sess.sessionTeam == TEAM_NONE )
+    //  continue;
 
     if (level.intermissiontime) {
 	    cl->readyToExit = 1;
