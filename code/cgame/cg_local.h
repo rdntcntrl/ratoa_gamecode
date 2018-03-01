@@ -227,6 +227,8 @@ typedef struct centity_s {
 	// set if a player entity should not make sounds
 	qboolean		quiet;
 	qboolean		removedPredictedMissile;
+	qboolean		missileTeleported;
+	qboolean		removePredictedMissileRan;
 } centity_t;
 
 

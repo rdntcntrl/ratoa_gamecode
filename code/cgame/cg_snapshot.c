@@ -47,6 +47,8 @@ static void CG_ResetEntity( centity_t *cent ) {
 		//cent->projectileNudge = cg.snap->ping*0.5;
 		cent->projectileNudge = CG_ReliablePing()*0.5;
 		cent->removedPredictedMissile = qfalse;
+		cent->missileTeleported = qfalse;
+		cent->removePredictedMissileRan = qfalse;
 	}
 
 	VectorCopy (cent->currentState.origin, cent->lerpOrigin);

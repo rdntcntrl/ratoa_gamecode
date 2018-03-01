@@ -368,14 +368,17 @@ void CG_PredictWeaponEffects( centity_t *cent ) {
 localEntity_t *CG_BasePredictMissile( entityState_t *ent,  vec3_t muzzlePoint ) {
 	localEntity_t	*le;
 	refEntity_t	*bolt;
-
+	int lifetime = (cg_ratPredictMissilesPing.integer > 0 ?
+			      	cg_ratPredictMissilesPing.integer : CG_ReliablePing())
+		       	* cg_ratPredictMissilesPingFactor.value;
+	if (lifetime < 50 * cg_ratPredictMissilesPingFactor.value) {
+		lifetime = 50 * cg_ratPredictMissilesPingFactor.value;
+	}
 	le = CG_AllocLocalEntity();
 	le->leFlags = 0;
 	le->leType = LE_PREDICTEDMISSILE;
 	le->startTime = cg.time;
-	le->endTime = cg.time + (cg_ratPredictMissilesPing.integer > 0 ?
-			cg_ratPredictMissilesPing.integer : CG_ReliablePing())
-		* cg_ratPredictMissilesPingFactor.value;
+	le->endTime = cg.time + lifetime;
 	le->weapon = ent->weapon;
 
 	bolt = &le->refEntity;

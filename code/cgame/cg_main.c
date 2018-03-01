@@ -533,7 +533,7 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_predictPlayerExplosions, "cg_predictPlayerExplosions", "0", 0},
 
 	{ &cg_ratPredictMissilesPing, "cg_ratPredictMissilesPing", "0", 0},
-	{ &cg_ratPredictMissilesPingFactor, "cg_ratPredictMissilesPingFactor", "1.5", 0},
+	{ &cg_ratPredictMissilesPingFactor, "cg_ratPredictMissilesPingFactor", "2.0", 0},
 	{ &cg_ratPredictMissiles, "cg_ratPredictMissiles", "1", CVAR_ARCHIVE},
 	{ &cg_delagProjectileTrail, "cg_delagProjectileTrail", "1", 0},
 	{ &cg_ratScoreboard, "cg_ratScoreboard", "1", CVAR_ARCHIVE},

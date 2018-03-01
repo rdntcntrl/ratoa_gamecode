@@ -942,13 +942,10 @@ void CG_PredictedExplosion(trace_t *tr, localEntity_t *le) {
 			return;
 		}
 		CG_MissileHitPlayer( le->weapon, tr->endpos, tr->plane.normal, tr->entityNum );
-		//CG_Printf("p: missile hit\n");
 	} else if (tr->surfaceFlags & SURF_METALSTEPS) {
 		CG_MissileHitWall(le->weapon, 0, tr->endpos, tr->plane.normal, IMPACTSOUND_METAL);
-		//CG_Printf("p: missile wall\n");
 	} else {
 		CG_MissileHitWall(le->weapon, 0, tr->endpos, tr->plane.normal, IMPACTSOUND_DEFAULT);
-		//CG_Printf("p: missile wall\n");
 	}
 }
 
@@ -1027,6 +1024,20 @@ void CG_RemovePredictedMissile( centity_t *missile) {
 		return;
 	}
 
+	if (missile->removePredictedMissileRan) {
+		return;
+	}
+
+	missile->removePredictedMissileRan = qtrue;
+
+	if (missile->missileTeleported) {
+		return;
+	}
+
+	if (missile->currentState.eFlags & EF_TELEPORT_BIT) {
+		missile->missileTeleported = qtrue;
+	}
+
 	if (missile->removedPredictedMissile) {
 		return;
 	}
@@ -1047,8 +1058,8 @@ void CG_RemovePredictedMissile( centity_t *missile) {
 			continue;
 		}
 
-		if (missile->currentState.pos.trTime - 10 > le->pos.trTime
-				|| missile->currentState.pos.trTime + 10 < le->pos.trTime) {
+		if (missile->currentState.pos.trTime - 30 > le->pos.trTime
+				|| missile->currentState.pos.trTime + 30 < le->pos.trTime) {
 			continue;
 		}
 
