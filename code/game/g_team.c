@@ -2180,15 +2180,18 @@ ShuffleTeams
 void ShuffleTeams(void) {
     int i;
     int assignedClients=1, nextTeam=TEAM_RED;
+    int clients[MAX_CLIENTS];
+
+    memcpy(clients, level.sortedClients, sizeof(clients));
 
     if ( g_gametype.integer < GT_TEAM || g_ffa_gt==1)
         return; //Can only shuffle team games!
 
     for( i=0;i < level.numConnectedClients; i++ ) {
-        if( g_entities[ &level.clients[level.sortedClients[i]] - level.clients].r.svFlags & SVF_BOT)
+        if( g_entities[ &level.clients[clients[i]] - level.clients].r.svFlags & SVF_BOT)
             continue; //Don't sort bots... they are always equal
         
-        if(level.clients[level.sortedClients[i]].sess.sessionTeam==TEAM_RED || level.clients[level.sortedClients[i]].sess.sessionTeam==TEAM_BLUE ) {
+        if(level.clients[clients[i]].sess.sessionTeam==TEAM_RED || level.clients[clients[i]].sess.sessionTeam==TEAM_BLUE ) {
             //For every second client we chenge team. But we do it a little of to make it slightly more fair
             if(assignedClients>1) {
                 assignedClients=0;
@@ -2200,10 +2203,10 @@ void ShuffleTeams(void) {
 
             //Set the team
             //We do not run all the logic because we shall run map_restart in a moment.
-            level.clients[level.sortedClients[i]].sess.sessionTeam = nextTeam;
+            level.clients[clients[i]].sess.sessionTeam = nextTeam;
 
-            ClientUserinfoChanged( level.sortedClients[i] );
-            ClientBegin( level.sortedClients[i] );
+            ClientUserinfoChanged( clients[i] );
+            ClientBegin( clients[i] );
 
             assignedClients++;
         }
