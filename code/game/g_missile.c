@@ -813,6 +813,8 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 		// set time of explosion so client knows not to render missile anymore
 		ent->s.time2 = level.time > 0 ? level.time : 1;
 		VectorCopy( trace->endpos, ent->s.origin2 );
+		// save owner of missile
+		ent->s.otherEntityNum2 = ent->r.ownerNum;
 	} else {
 		// change over to a normal entity right at the point of impact
 		ent->s.eType = ET_GENERAL;
