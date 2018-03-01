@@ -618,7 +618,9 @@ static void CG_AddScaleFade( localEntity_t *le ) {
 	c = ( le->endTime - cg.time ) * le->lifeRate;
 
 	re->shaderRGBA[3] = 0xff * c * le->color[3];
-	re->radius = le->radius * ( 1.0 - c ) + 8;
+	if (!(le->leFlags & LEF_PUFF_DONT_SCALE)) {
+		re->radius = le->radius * ( 1.0 - c ) + 8;
+	}
 
 	// if the view would be "inside" the sprite, kill the sprite
 	// so it doesn't add too much overdraw

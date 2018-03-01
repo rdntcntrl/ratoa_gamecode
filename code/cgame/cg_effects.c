@@ -133,7 +133,6 @@ localEntity_t *CG_SmokePuff( const vec3_t p, const vec3_t vel,
 	le->color[2] = b;
 	le->color[3] = a;
 
-
 	le->pos.trType = TR_LINEAR_STOP;
 	le->pos.trTime = startTime;
 	VectorCopy( vel, le->pos.trDelta );

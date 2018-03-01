@@ -444,7 +444,7 @@ static void CG_RatRocketTrail( centity_t *ent, const weaponInfo_t *wi ) {
 					  wi->wiTrailTime*cg_ratRocketTrailTime.value, 
 					  t,
 					  0,
-					  0, 
+					  LEF_PUFF_DONT_SCALE, 
 					  cgs.media.smokePuffShader );
 		// use the optimized local entity add
 		smoke->leType = LE_SCALE_FADE;
