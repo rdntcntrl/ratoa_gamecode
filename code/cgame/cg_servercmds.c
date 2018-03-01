@@ -824,6 +824,8 @@ static void CG_MapRestart( void ) {
 	cgs.timeoutOvertime = 0;
 	cgs.timeoutEnd = 0;
 
+	cg.readyMask = 0;
+
 	cg.mapRestart = qtrue;
 
 	CG_StartMusic();
