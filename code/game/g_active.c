@@ -795,13 +795,13 @@ void ClientThink_real( gentity_t *ent ) {
 	// the player).
 	if (g_usesRatVM.integer) {
 		if (!g_broadcastClients.integer || (client->sess.sessionTeam == TEAM_SPECTATOR) || client->isEliminated || client->ps.stats[STAT_HEALTH] <= 0 ) {
-			ent->r.svFlags &= ~SVF_BROADCAST;
 			if (g_usesRatEngine.integer) {
+				ent->r.svFlags &= ~SVF_BROADCAST;
 				ent->r.svFlags &= ~SVF_MARKBCAST;
 			}
 		} else {
-			ent->r.svFlags |= SVF_BROADCAST;
 			if (g_usesRatEngine.integer) {
+				ent->r.svFlags |= SVF_BROADCAST;
 				ent->r.svFlags |= SVF_MARKBCAST;
 			}
 		}
