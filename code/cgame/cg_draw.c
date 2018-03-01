@@ -1104,9 +1104,17 @@ static float CG_DrawTimer( float y ) {
 	w = CG_DrawStrlen( s ) * char_width;
 
 	//CG_DrawBigString( 635 - w, y + 2, s, 1.0F);
-	CG_DrawStringExt( 635-w, y+2, s, color, qfalse, qtrue, char_width, char_height, 0 );
+	switch (cg_timerPosition.integer) {
+		case 1:
+			CG_DrawStringExt( (SCREEN_WIDTH-w)/2.0, 10, s, color, qfalse, qtrue, char_width, char_height, 0 );
+			return y;
+			break;
+		default:
+			CG_DrawStringExt( 635-w, y+2, s, color, qfalse, qtrue, char_width, char_height, 0 );
+			return y + char_height + 4;
+			break;
+	}
 
-	return y + char_height + 4;
 }
 
 /*
