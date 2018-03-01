@@ -178,6 +178,7 @@ vmCvar_t        g_newShotgun;
 vmCvar_t        g_ratPhysics;
 vmCvar_t        g_rampJump;
 vmCvar_t        g_additiveJump;
+vmCvar_t        g_allowTimenudge;
 vmCvar_t        g_fastSwitch;
 vmCvar_t        g_fastWeapons;
 vmCvar_t        g_ambientSound; 
@@ -425,6 +426,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_additiveJump,     "g_additiveJump", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_fastSwitch,   "g_fastSwitch", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_fastWeapons,  "g_fastWeapons", "1", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_allowTimenudge,     "g_allowTimenudge", "1", CVAR_ARCHIVE, 0, qfalse },
 
         { &g_autoClans, "g_autoClans", "0", CVAR_ARCHIVE , 0, qfalse },
 
@@ -1074,6 +1076,10 @@ void G_UpdateRatFlags( void ) {
 
 	if (g_additiveJump.integer) {
 		rflags |= RAT_ADDITIVEJUMP;
+	}
+
+	if (!g_allowTimenudge.integer) {
+		rflags |= RAT_NOTIMENUDGE;
 	}
 
 	// XXX --> also update code where this is called!
