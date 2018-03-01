@@ -2493,8 +2493,13 @@ void ClientDisconnect( int clientNum ) {
 	ent->classname = "disconnected";
 	oldTeam = ent->client->sess.sessionTeam;
 	ent->client->pers.connected = CON_DISCONNECTED;
-	ent->client->ps.persistant[PERS_TEAM] = TEAM_FREE;
-	ent->client->sess.sessionTeam = TEAM_FREE;
+	if (g_gametype.integer == GT_TOURNAMENT) {
+		ent->client->ps.persistant[PERS_TEAM] = TEAM_SPECTATOR;
+		ent->client->sess.sessionTeam = TEAM_SPECTATOR;
+	} else {
+		ent->client->ps.persistant[PERS_TEAM] = TEAM_FREE;
+		ent->client->sess.sessionTeam = TEAM_FREE;
+	}
 
 	trap_SetConfigstring( CS_PLAYERS + clientNum, "");
 
