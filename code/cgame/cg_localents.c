@@ -934,9 +934,11 @@ void CG_PredictedExplosion(trace_t *tr, localEntity_t *le) {
 	if (tr->surfaceFlags & SURF_NOIMPACT) {
 		return;
 	}
-	if (le->weapon == WP_GRENADE_LAUNCHER) {
+	switch (le->weapon) {
 		// TODO: predict grenade bounce
-		return;
+		case WP_GRENADE_LAUNCHER:
+		case WP_PROX_LAUNCHER:
+			return;
 	}
 	hitEnt = &cg_entities[tr->entityNum];
 	if (hitEnt->currentState.eType == ET_PLAYER ) {
