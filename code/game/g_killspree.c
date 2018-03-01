@@ -373,7 +373,7 @@ void G_CheckForSpree( gentity_t *ent, int streak2Test, qboolean checkKillSpree )
             if( position == CENTER_PRINT ) {
                 AP( va("cp \"%s\"", returnedString ) );
             } else {
-                AP( va("print \"%s\"", returnedString ) );
+                AP( va("print \"%s\n\"", returnedString ) );
             }
         } else {
             for( i = 0; deathSprees[ i ]; i++ ) {
@@ -395,7 +395,7 @@ void G_CheckForSpree( gentity_t *ent, int streak2Test, qboolean checkKillSpree )
                     if( position == CENTER_PRINT ) {
                         AP( va("cp \"%s\"", returnedString ) );
                     } else {
-                        AP( va("print \"%s\"", returnedString ) );
+                        AP( va("print \"%s\n\"", returnedString ) );
                     }    
                     break;
                 }
@@ -426,7 +426,7 @@ void G_CheckForSpree( gentity_t *ent, int streak2Test, qboolean checkKillSpree )
                 //Only Center print for player doing the killing spree
                 CP( va("cp \"%s\"", returnedString ) );
             }*/
-            AP( va("print \"%s\"", returnedString ) );
+            AP( va("print \"%s\n\"", returnedString ) );
         } else { 
             for( i = 0; killSprees[ i ]; i++ ) {
                 if( killSprees[ i ]->streakCount == streak2Test ) {
@@ -442,7 +442,7 @@ void G_CheckForSpree( gentity_t *ent, int streak2Test, qboolean checkKillSpree )
                         //Only Center print for player doing the killing spree
                         CP( va("cp \"%s\"", returnedString ) );
                     }*/
-                    AP( va("print \"%s\"", returnedString ) );
+                    AP( va("print \"%s\n\"", returnedString ) );
                     break;
                 }
             }
@@ -484,7 +484,7 @@ void G_checkForMultiKill( gentity_t *ent ) {
         sound = multiKills[ level.mKillUBound ]->sound2Play;
         soundIndex = G_SoundIndex( sound );
         G_Sound(ent, 0, soundIndex );
-        AP( va("print \"%s\"", returnedString ) );
+        AP( va("print \"%s\n\"", returnedString ) );
         return;
     } else {     
         for( i = 0; multiKills[ i ]; i++ ) {
@@ -504,7 +504,7 @@ void G_checkForMultiKill( gentity_t *ent ) {
                 Since we don't want to clutter screens (the player is already going to get the excellent icon)
                 we won't give them an option to centerprint. 
                 */
-                AP( va("print \"%s\"", returnedString ) );
+                AP( va("print \"%s\n\"", returnedString ) );
                 break;
             }
         }   
