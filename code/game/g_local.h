@@ -596,6 +596,8 @@ typedef struct {
     qboolean MustSendObeliskHealth; //Health has changed
 
     qboolean	pingEqualized;
+
+    qboolean	tournamentForfeited;
      
 } level_locals_t;
 

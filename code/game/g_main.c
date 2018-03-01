@@ -2449,6 +2449,11 @@ void CheckExitRules( void ) {
 		}
 	}
 
+	if (g_gametype.integer == GT_TOURNAMENT && level.tournamentForfeited) {
+		LogExit("Match ended due to forfeit!\n");
+		return;
+	}
+
 	if ( level.numPlayingClients < 2 ) {
 		return;
 	}
@@ -2994,6 +2999,11 @@ void CheckTournament( void ) {
 	}
 
 	if ( g_gametype.integer == GT_TOURNAMENT ) {
+
+		if (!level.warmupTime && level.numPlayingClients < 2) {
+			level.tournamentForfeited = qtrue;
+			return;
+		}
 
 		// pull in a spectator if needed
 		if ( level.numPlayingClients < 2 ) {

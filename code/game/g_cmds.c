@@ -1435,6 +1435,66 @@ void G_Timein( void ) {
 	}
 }
 
+qboolean G_Forfeit(gentity_t *ent, qboolean quiet) {
+	int cnum = ent->client->ps.clientNum;
+	int opponentCnum;
+
+	if (ent->client->sess.sessionTeam == TEAM_SPECTATOR) {
+		return qfalse;
+	}
+
+	if (level.intermissiontime) {
+		return qfalse;
+	}
+
+	if (g_gametype.integer != GT_TOURNAMENT 
+			|| level.numPlayingClients != 2) {
+		if (!quiet) {
+			trap_SendServerCommand(ent-g_entities,va("cp \"" S_COLOR_CYAN "Impossible to forfeit!\"" ) );
+		}
+		return qfalse;
+	}
+
+	if (level.warmupTime) {
+		if (!quiet) {
+			trap_SendServerCommand(ent-g_entities,va("cp \"" S_COLOR_CYAN "Can't forfeit during warmup!\"" ) );
+		}
+		return qfalse;
+	}
+
+	if (cnum == level.sortedClients[0]) {
+		opponentCnum = level.sortedClients[1];
+	} else if (cnum == level.sortedClients[1]) {
+		opponentCnum = level.sortedClients[0];
+	} else {
+		return qfalse;
+	}
+
+	if (level.clients[cnum].ps.persistant[PERS_SCORE] >= level.clients[opponentCnum].ps.persistant[PERS_SCORE]) {
+		level.clients[cnum].ps.persistant[PERS_SCORE] = -999;
+		if (level.clients[opponentCnum].ps.persistant[PERS_SCORE] <= -999) {
+			level.clients[opponentCnum].ps.persistant[PERS_SCORE] <= -998;
+		}
+	}
+	CalculateRanks();
+
+	if (!quiet) {
+		trap_SendServerCommand( -1, va("print \"%s" S_COLOR_CYAN " forfeited!\n\"", ent->client->pers.netname) );
+	}
+
+	level.tournamentForfeited = qtrue;
+
+	return qtrue;
+
+}
+
+
+void Cmd_GoodGame_f( gentity_t *ent ) {
+	if (G_Forfeit(ent, qfalse)) {
+		G_Say(ent, NULL, SAY_ALL, "I give up, you win. Good Game!");
+	}
+}
+
 /*
 ==================
 SendReadymask
@@ -2718,6 +2778,8 @@ commands_t cmds[ ] =
 
   { "timein", 0, Cmd_Timein_f },
   { "timeout", 0, Cmd_Timeout_f },
+
+  { "gg", 0, Cmd_GoodGame_f },
 
   { "ready", 0, Cmd_Ready_f },
 
