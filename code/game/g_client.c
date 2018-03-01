@@ -1185,6 +1185,7 @@ static clan_t clans[] = {
 	{ "Guild", NULL, NULL, NULL, NULL, "Guild", "guilda" },
 	{ "raGe|", NULL, NULL, NULL, NULL, "raGe", "rage" },
 	{ "vihmu/", NULL, NULL, NULL, NULL, "vihmu", "vihmu" },
+	{ "{Barry}", NULL, NULL, NULL, NULL, "Barry", "barry" },
 };
 
 #define MAX_CLAN (sizeof(clans)/sizeof(clan_t)) 
