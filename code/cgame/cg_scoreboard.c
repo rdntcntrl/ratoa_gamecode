@@ -164,12 +164,12 @@ static void CG_PingColor(int ping, vec4_t color) {
 	float ratio;
 	color[3] = 1.0;
 	color[2] = 0;
-	if (ping >= 200) {
+	if (ping >= 300) {
 		color[0] = 1.0;
 		color[1] = 0;
 		return;
 	}
-	ratio = (float)ping/200.0;
+	ratio = (float)ping/300.0;
 	color[0] = MIN(2.0*ratio, 1.0);
 	color[1] = MIN(2.0*(1.0-ratio), 1.0);
 
