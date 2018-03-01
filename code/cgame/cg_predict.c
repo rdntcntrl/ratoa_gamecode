@@ -363,6 +363,43 @@ static void CG_TouchItem( centity_t *cent ) {
 }
 
 
+qboolean CG_MissileTouchedPortal(const vec3_t start, const vec3_t end) {
+	int			i;
+	trace_t		trace;
+	entityState_t	*ent;
+	clipHandle_t cmodel;
+	centity_t	*cent;
+
+	for ( i = 0 ; i < cg_numTriggerEntities ; i++ ) {
+		cent = cg_triggerEntities[ i ];
+		ent = &cent->currentState;
+
+		if ( ent->solid != SOLID_BMODEL ) {
+			continue;
+		}
+
+		cmodel = trap_CM_InlineModel( ent->modelindex );
+		if ( !cmodel ) {
+			continue;
+		}
+
+		trap_CM_BoxTrace( &trace, start, end,
+			NULL, NULL, cmodel, -1 );
+
+		//if ( !trace.startsolid ) {
+		//	continue;
+		//}
+		if (trace.fraction == 1.0) {
+			continue;
+		}
+
+		if ( ent->eType == ET_TELEPORT_TRIGGER ) {
+			return qtrue;
+		}
+	}
+	return qfalse;
+}
+
 /*
 =========================
 CG_TouchTriggerPrediction

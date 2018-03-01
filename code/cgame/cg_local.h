@@ -226,6 +226,7 @@ typedef struct centity_s {
 
 	// set if a player entity should not make sounds
 	qboolean		quiet;
+	qboolean		removedPredictedMissile;
 } centity_t;
 
 
@@ -1382,6 +1383,7 @@ extern vmCvar_t                	g_fastSwitch;
 extern vmCvar_t                	g_fastWeapons;
 extern vmCvar_t                	cg_predictTeleport;
 extern vmCvar_t                	cg_predictWeapons;
+extern vmCvar_t                	cg_predictExplosions;
 extern vmCvar_t                	cg_ratPredictMissilesPing;
 extern vmCvar_t                	cg_ratPredictMissilesPingFactor;
 extern vmCvar_t                	cg_ratPredictMissiles;
@@ -1750,6 +1752,7 @@ void CG_Trace( trace_t *result, const vec3_t start, const vec3_t mins, const vec
 					 int skipNumber, int mask );
 void CG_PredictPlayerState( void );
 void CG_LoadDeferredPlayers( void );
+qboolean CG_MissileTouchedPortal(const vec3_t start, const vec3_t end);
 
 
 //

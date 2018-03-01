@@ -924,9 +924,32 @@ void CG_AddRefEntity( localEntity_t *le ) {
 }
 
 
+void CG_PredictedExplosion(trace_t *tr, localEntity_t *le) {
+	centity_t *hitEnt;
+	if (!cg_predictExplosions.integer) {
+		return;
+	}
+	if (tr->surfaceFlags & SURF_NOIMPACT) {
+		return;
+	}
+	if (le->weapon == WP_GRENADE_LAUNCHER) {
+		// TODO: predict grenade bounce
+		return;
+	}
+	hitEnt = &cg_entities[tr->entityNum];
+	if (hitEnt->currentState.eType == ET_PLAYER ) {
+		CG_MissileHitPlayer( le->weapon, tr->endpos, tr->plane.normal, tr->entityNum );
+	} else if (tr->surfaceFlags & SURF_METALSTEPS) {
+		CG_MissileHitWall(le->weapon, 0, tr->endpos, tr->plane.normal, IMPACTSOUND_METAL);
+	} else {
+		CG_MissileHitWall(le->weapon, 0, tr->endpos, tr->plane.normal, IMPACTSOUND_DEFAULT);
+	}
+}
+
 void CG_PredictedMissile( localEntity_t *le ) {
 	vec3_t	newOrigin;
 	trace_t	trace;
+	//trace_t	trace2;
 	int timeshift = 0;
 	int time;
 
@@ -946,7 +969,15 @@ void CG_PredictedMissile( localEntity_t *le ) {
 	//BG_EvaluateTrajectory( &le->pos, cg.time, newOrigin );
 
 	// trace a line from previous position to new position
-	CG_Trace( &trace, le->refEntity.origin, NULL, NULL, newOrigin, -1, MASK_SHOT );
+	if (cg_predictExplosions.integer) {
+		if (CG_MissileTouchedPortal(le->refEntity.origin, newOrigin)) {
+			CG_FreeLocalEntity( le );
+			return; 
+		}
+	}
+	//CG_Trace( &trace, le->refEntity.origin, NULL, NULL, newOrigin, -1, MASK_SHOT );
+	CG_Trace( &trace,  le->refEntity.origin, NULL, NULL, newOrigin, cg.predictedPlayerState.clientNum, MASK_SHOT );
+	//if ( trace.fraction == 1.0 ) {
 	if ( trace.fraction == 1.0 ) {
 
 		// still in free fall
@@ -972,6 +1003,7 @@ void CG_PredictedMissile( localEntity_t *le ) {
 
 		return;
 	} else {
+		CG_PredictedExplosion(&trace, le);
 		CG_FreeLocalEntity( le );
 		return; 
 	}
@@ -1006,8 +1038,8 @@ void CG_RemovePredictedMissile( centity_t *missile) {
 		}
 
 		CG_FreeLocalEntity( le );
-
-
+		missile->removedPredictedMissile = qtrue;
+		return;
 	}
 }
 

@@ -181,6 +181,7 @@ vmCvar_t 	g_fastSwitch;
 vmCvar_t 	g_fastWeapons;
 vmCvar_t 	cg_predictTeleport;
 vmCvar_t 	cg_predictWeapons;
+vmCvar_t 	cg_predictExplosions;
 vmCvar_t 	cg_ratPredictMissilesPing;
 vmCvar_t 	cg_ratPredictMissilesPingFactor;
 vmCvar_t 	cg_ratPredictMissiles;
@@ -527,6 +528,7 @@ static cvarTable_t cvarTable[] = { // bk001129
 	// TODO: make CVAR_ARCHIVE
 	{ &cg_predictTeleport, "cg_predictTeleport", "1", 0},
 	{ &cg_predictWeapons, "cg_predictWeapons", "1", 0},
+	{ &cg_predictExplosions, "cg_predictExplosions", "0", 0},
 
 	{ &cg_ratPredictMissilesPing, "cg_ratPredictMissilesPing", "0", 0},
 	{ &cg_ratPredictMissilesPingFactor, "cg_ratPredictMissilesPingFactor", "1.5", 0},
