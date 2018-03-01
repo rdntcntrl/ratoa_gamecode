@@ -822,7 +822,14 @@ void CG_UpdateCvars( void ) {
 		// closer to -30 and 30, but 50 is nice and round-ish)
 		// might as well not feed the myth, eh?
 		else if ( cv->vmCvar == &cl_timeNudge ) {
-			CG_Cvar_ClampInt( cv->cvarName, cv->vmCvar, -50, 50 );
+			if (cgs.ratFlags & RAT_NOTIMENUDGE) {
+				if (cv->vmCvar->integer != 0) {
+					Com_sprintf( cv->vmCvar->string, MAX_CVAR_VALUE_STRING, "0");
+					trap_Cvar_Set( cv->cvarName, cv->vmCvar->string );
+				}
+			} else {
+				CG_Cvar_ClampInt( cv->cvarName, cv->vmCvar, -50, 50 );
+			}
 		}
 		// don't let this go too high - no point
 		/*else if ( cv->vmCvar == &cg_latentSnaps ) {
