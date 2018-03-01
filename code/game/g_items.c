@@ -43,13 +43,63 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define	RESPAWN_MEGAHEALTH	35//120
 #define	RESPAWN_POWERUP		120
 
+void G_PlayDenied(gentity_t *ent, gentity_t *other) {
+	int i;
+	gclient_t *client;
+
+	// give any nearby players a "denied" anti-reward
+	for ( i = 0 ; i < level.maxclients ; i++ ) {
+		vec3_t		delta;
+		float		len;
+		//vec3_t		forward;
+		trace_t		tr;
+
+		client = &level.clients[i];
+		if ( client == other->client ) {
+			continue;
+		}
+		if ( client->pers.connected == CON_DISCONNECTED ) {
+			continue;
+		}
+		if ( client->ps.stats[STAT_HEALTH] <= 0 ) {
+			continue;
+		}
+
+		// if same team in team game, no sound
+		// cannot use OnSameTeam as it expects to g_entities, not clients
+		if ( g_gametype.integer >= GT_TEAM && g_ffa_gt==0 && other->client->sess.sessionTeam == client->sess.sessionTeam  ) {
+			continue;
+		}
+
+		// if too far away, no sound
+		VectorSubtract( ent->s.pos.trBase, client->ps.origin, delta );
+		len = VectorNormalize( delta );
+		if ( len > 192 ) {
+			continue;
+		}
+
+		//// if not facing, no sound
+		//AngleVectors( client->ps.viewangles, forward, NULL, NULL );
+		//if ( DotProduct( delta, forward ) < 0.4 ) {
+		//	continue;
+		//}
+
+		// if not line of sight, no sound
+		trap_Trace( &tr, client->ps.origin, NULL, NULL, ent->s.pos.trBase, ENTITYNUM_NONE, CONTENTS_SOLID );
+		if ( tr.fraction != 1.0 ) {
+			continue;
+		}
+
+		// anti-reward
+		client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_DENIEDREWARD;
+	}
+}
+
 
 //======================================================================
 
 int Pickup_Powerup( gentity_t *ent, gentity_t *other ) {
 	int			quantity;
-	int			i;
-	gclient_t	*client;
 
 	if ( !other->client->ps.powerups[ent->item->giTag] ) {
 		// round timing to seconds to make multiple powerup timers
@@ -66,52 +116,8 @@ int Pickup_Powerup( gentity_t *ent, gentity_t *other ) {
 
 	other->client->ps.powerups[ent->item->giTag] += quantity * 1000;
 
-	// give any nearby players a "denied" anti-reward
-	for ( i = 0 ; i < level.maxclients ; i++ ) {
-		vec3_t		delta;
-		float		len;
-		vec3_t		forward;
-		trace_t		tr;
+	G_PlayDenied(ent, other);
 
-		client = &level.clients[i];
-		if ( client == other->client ) {
-			continue;
-		}
-		if ( client->pers.connected == CON_DISCONNECTED ) {
-			continue;
-		}
-		if ( client->ps.stats[STAT_HEALTH] <= 0 ) {
-			continue;
-		}
-
-    // if same team in team game, no sound
-    // cannot use OnSameTeam as it expects to g_entities, not clients
-  	if ( g_gametype.integer >= GT_TEAM && g_ffa_gt==0 && other->client->sess.sessionTeam == client->sess.sessionTeam  ) {
-      continue;
-    }
-
-		// if too far away, no sound
-		VectorSubtract( ent->s.pos.trBase, client->ps.origin, delta );
-		len = VectorNormalize( delta );
-		if ( len > 192 ) {
-			continue;
-		}
-
-		// if not facing, no sound
-		AngleVectors( client->ps.viewangles, forward, NULL, NULL );
-		if ( DotProduct( delta, forward ) < 0.4 ) {
-			continue;
-		}
-
-		// if not line of sight, no sound
-		trap_Trace( &tr, client->ps.origin, NULL, NULL, ent->s.pos.trBase, ENTITYNUM_NONE, CONTENTS_SOLID );
-		if ( tr.fraction != 1.0 ) {
-			continue;
-		}
-
-		// anti-reward
-		client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_DENIEDREWARD;
-	}
 	return RESPAWN_POWERUP;
 }
 
@@ -305,6 +311,7 @@ int Pickup_Health (gentity_t *ent, gentity_t *other) {
 	other->client->ps.stats[STAT_HEALTH] = other->health;
 
 	if ( ent->item->quantity == 100 ) {		// mega health respawns slow
+		G_PlayDenied(ent, other);
 		return RESPAWN_MEGAHEALTH;
 	}
 
@@ -327,6 +334,10 @@ int Pickup_Armor( gentity_t *ent, gentity_t *other ) {
 
 	if ( other->client->ps.stats[STAT_ARMOR] > upperBound ) {
 		other->client->ps.stats[STAT_ARMOR] = upperBound;
+	}
+
+	if ( ent->item->quantity == 100 ) {
+		G_PlayDenied(ent, other);
 	}
 
 	return RESPAWN_ARMOR;
