@@ -925,6 +925,9 @@ void CG_AddRefEntity( localEntity_t *le ) {
 	trap_R_AddRefEntityToScene( &le->refEntity );
 }
 
+qboolean CG_ShouldPredictExplosion(void) {
+	return !(CG_ReliablePing() + 20 > cgs.unlagMissileMaxLatency);
+}
 
 void CG_PredictedExplosion(trace_t *tr, localEntity_t *le) {
 	centity_t *hitEnt;
@@ -940,6 +943,11 @@ void CG_PredictedExplosion(trace_t *tr, localEntity_t *le) {
 		case WP_PROX_LAUNCHER:
 			return;
 	}
+
+	if (!CG_ShouldPredictExplosion()) {
+		return;
+	}
+
 	hitEnt = &cg_entities[tr->entityNum];
 	if (hitEnt->currentState.eType == ET_PLAYER ) {
 		if (!cg_predictPlayerExplosions.integer) {

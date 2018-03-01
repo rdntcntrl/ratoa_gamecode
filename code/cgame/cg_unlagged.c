@@ -294,11 +294,11 @@ void CG_PredictWeaponEffects( centity_t *cent ) {
 		localEntity_t	*le;
 		refEntity_t	*bolt;
 
-		if (CG_ReliablePing() > cgs.unlagMissileMaxLatency) {
+		if (cg.snap->ps.pm_flags & PMF_FOLLOW) {
 			return;
 		}
 
-		if (cg.snap->ps.pm_flags & PMF_FOLLOW) {
+		if (CG_ReliablePing() > cgs.unlagMissileMaxLatency) {
 			return;
 		}
 

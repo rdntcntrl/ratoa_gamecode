@@ -591,6 +591,10 @@ qboolean CG_ExplosionPredicted(centity_t *cent) {
 		// TODO: is this needed?
 		CG_RemovePredictedMissile(cent);
 
+		if (!CG_ShouldPredictExplosion()) {
+			return qfalse;
+		}
+
 		switch (cent->currentState.weapon) {
 			case WP_GRENADE_LAUNCHER:
 			case WP_PROX_LAUNCHER:
