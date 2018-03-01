@@ -253,6 +253,47 @@ static void CG_InterpolatePlayerState( qboolean grabAngles ) {
 
 }
 
+qboolean CG_ItemPredictionDangerous(centity_t *item) {
+	int i;
+	centity_t *player;
+	trace_t tr;
+
+	if (cg_predictItemsNearPlayers.integer) {
+		return qfalse;
+	}
+
+	for (i = 0; i < MAX_CLIENTS; ++i) {
+		if (i == cg.clientNum) {
+			continue;
+		}
+		player = &cg_entities[i];
+
+		if (!player->currentValid || player->currentState.eType != ET_PLAYER) {
+			continue;
+		}
+
+		//CG_Printf("porigin = %f %f %f, iorigin = %f %f %f \nDistance = %f\n", 
+		//		player->lerpOrigin[0],
+		//		player->lerpOrigin[1],
+		//		player->lerpOrigin[2],
+		//		item->currentState.origin[0],
+		//		item->currentState.origin[1],
+		//		item->currentState.origin[2],
+		//		Distance(item->currentState.origin, player->currentState.origin));
+
+		if (Distance(item->currentState.origin, player->lerpOrigin) > 192) {
+			continue;
+		}
+
+		// TODO: trace maybe?
+
+		// player is close by, don't predict
+		return qtrue;
+
+	}
+	return qfalse;
+}
+
 /*
 ===================
 CG_TouchItem
@@ -337,6 +378,10 @@ static void CG_TouchItem( centity_t *cent ) {
                             trap_S_StartLocalSound( cgs.media.hitSound , CHAN_ANNOUNCER );
 			return;
 		}	
+	}
+
+	if (CG_ItemPredictionDangerous(cent)) {
+		return;
 	}
 
 	// grab it

@@ -163,6 +163,7 @@ vmCvar_t 	cg_forceModel;
 vmCvar_t	cg_paused;
 vmCvar_t	cg_blood;
 vmCvar_t	cg_predictItems;
+vmCvar_t	cg_predictItemsNearPlayers;
 vmCvar_t	cg_deferPlayers;
 vmCvar_t	cg_drawTeamOverlay;
 vmCvar_t	cg_teamOverlayUserinfo;
@@ -471,6 +472,8 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_teamChatScaleY, "cg_teamChatScaleY", "1", CVAR_ARCHIVE  },
 	{ &cg_forceModel, "cg_forceModel", "0", CVAR_ARCHIVE  },
 	{ &cg_predictItems, "cg_predictItems", "1", CVAR_ARCHIVE },
+	// TODO: CVAR_ARCHIVE
+	{ &cg_predictItemsNearPlayers, "cg_predictItemsNearPlayers", "0", 0 },
 #ifdef MISSIONPACK
 	{ &cg_deferPlayers, "cg_deferPlayers", "0", CVAR_ARCHIVE },
 #else
