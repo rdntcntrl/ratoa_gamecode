@@ -64,6 +64,7 @@ typedef struct {
 	menubitmap_s	go;
         menufield_s	        filter;
 	menulist_s		type;
+	menuradiobutton_s	sort;
 	menubitmap_s	mappics[MAX_MAPSPERPAGE];
 	menubitmap_s	mapbuttons[MAX_MAPSPERPAGE];
 
@@ -196,6 +197,11 @@ static qboolean VoteMaps_Filtered(char *map) {
 
 }
 
+static int QDECL Mapnames_Compare( const void *arg1, const void *arg2 ) {
+	const char *n1 = arg1;
+	const char *n2 = arg2;
+	return Q_stricmp(n1, n2);
+}
 
 static void UpdateFilter(void) {
 	int i;
@@ -205,6 +211,9 @@ static void UpdateFilter(void) {
 			Q_strncpyz(filtered_list.mapname[filtered_list.num_maps], current_list->mapname[i], MAX_MAPNAME_LENGTH);
 			filtered_list.num_maps++;
 		}
+	}
+	if (s_votemenu_map.sort.curvalue) {
+		qsort( filtered_list.mapname, filtered_list.num_maps, MAX_MAPNAME_LENGTH, Mapnames_Compare);
 	}
 }
 
@@ -602,7 +611,7 @@ void UI_VoteMapMenu( void ) {
     s_votemenu_map.filter.generic.id			= ID_FILTER;
     s_votemenu_map.filter.generic.x			= 75;
     s_votemenu_map.filter.generic.y			= 70;
-    s_votemenu_map.filter.field.widthInChars	= 24;
+    s_votemenu_map.filter.field.widthInChars	= 18;
     s_votemenu_map.filter.field.maxchars	= MAX_MAPNAME_LENGTH;
 
     s_votemenu_map.type.generic.type		= MTYPE_SPINCONTROL;
@@ -610,9 +619,17 @@ void UI_VoteMapMenu( void ) {
     s_votemenu_map.type.generic.flags	= QMF_PULSEIFFOCUS|QMF_SMALLFONT;
     s_votemenu_map.type.generic.callback	= VoteMapMenu_TypeEvent;
     s_votemenu_map.type.generic.id		= ID_TYPE;
-    s_votemenu_map.type.generic.x		= 360;
+    s_votemenu_map.type.generic.x		= 280;
     s_votemenu_map.type.generic.y		= 70;
     s_votemenu_map.type.itemnames		= mappage_type_items;
+
+    s_votemenu_map.sort.generic.type        = MTYPE_RADIOBUTTON;
+    s_votemenu_map.sort.generic.name	      = "Sort:";
+    s_votemenu_map.sort.generic.callback	= VoteMapMenu_FilterEvent;
+    s_votemenu_map.sort.generic.id			= ID_FILTER;
+    s_votemenu_map.sort.generic.flags	      = QMF_PULSEIFFOCUS|QMF_SMALLFONT;
+    s_votemenu_map.sort.generic.x	          = 440;
+    s_votemenu_map.sort.generic.y	          = 70;
 
     for (i=0; i<MAX_MAPSPERPAGE; i++)
     {
@@ -711,6 +728,9 @@ void UI_VoteMapMenu( void ) {
     Menu_AddItem( &s_votemenu_map.menu, (void*) &s_votemenu_map.mapname );
     Menu_AddItem( &s_votemenu_map.menu, (void*) &s_votemenu_map.page );
     Menu_AddItem( &s_votemenu_map.menu, (void*) &s_votemenu_map.filter );
+    Menu_AddItem( &s_votemenu_map.menu, (void*) &s_votemenu_map.sort );
+
+    s_votemenu_map.sort.curvalue = 0;
 
     getmappage_cmd = getmappage_all_cmd;
 
