@@ -50,6 +50,26 @@ int G_UnlagLatency(gclient_t *client) {
 			}
 			break;
 	}
+	if (g_unlagLimitVariance.integer && g_unlagLimitVarianceMs.integer > 0 && g_truePing.integer) {
+		int maxping = client->pers.realPing + g_unlagLimitVarianceMs.integer;
+		int minping = client->pers.realPing - g_unlagLimitVarianceMs.integer;
+		qboolean limited = qfalse;
+		int oldping = ping;
+
+		if (minping < 0) {
+			minping = 0;
+		}
+		if (ping > maxping) {
+			ping = maxping;
+			limited = qtrue;
+		} else if (ping < minping) {
+			ping = minping;
+			limited = qtrue;
+		}
+		if (limited && g_unlagDebug.integer) {
+			Com_Printf("Limited projectile delag ping (c %i): %i -> %i, realPing: %i\n", client->ps.clientNum, oldping, ping, client->pers.realPing);
+		}
+	}
 	return MIN(g_unlagMissileMaxLatency.integer, ping);
 }
 

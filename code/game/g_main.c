@@ -185,7 +185,10 @@ vmCvar_t        g_ambientSound;
 vmCvar_t        g_rocketSpeed; 
 vmCvar_t        g_maxExtrapolatedFrames; 
 vmCvar_t        g_unlagMissileMaxLatency; 
+vmCvar_t        g_unlagDebug; 
 vmCvar_t        g_unlagMode; 
+vmCvar_t        g_unlagLimitVariance;
+vmCvar_t        g_unlagLimitVarianceMs;
 vmCvar_t        g_unlagMissileDefaultNudge; 
 vmCvar_t        g_unlagLaunchLagMode; 
 vmCvar_t        g_unlagLatencyMode; 
@@ -400,7 +403,10 @@ static cvarTable_t		gameCvarTable[] = {
 	// TODO: CVAR_ARCHIVE
         { &g_maxExtrapolatedFrames, "g_maxExtrapolatedFrames", "2", 0 , 0, qfalse },
         { &g_unlagMissileMaxLatency, "g_unlagMissileMaxLatency", "200", CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qfalse },
+        { &g_unlagDebug, "g_unlagDebug", "0", 0, 0, qfalse },
         { &g_unlagMode, "g_unlagMode", "1", CVAR_ARCHIVE, 0, qfalse },
+        { &g_unlagLimitVariance, "g_unlagLimitVariance", "1", CVAR_ARCHIVE, 0, qfalse },
+        { &g_unlagLimitVarianceMs, "g_unlagLimitVarianceMs", "25", CVAR_ARCHIVE, 0, qfalse },
         { &g_unlagMissileDefaultNudge, "g_unlagMissileDefaultNudge", "50", CVAR_ARCHIVE, 0, qfalse },
         { &g_unlagLaunchLagMode, "g_unlagLaunchLagMode", "2", CVAR_ARCHIVE, 0, qfalse },
         { &g_unlagLatencyMode, "g_unlagLatencyMode", "3", CVAR_ARCHIVE, 0, qfalse },
