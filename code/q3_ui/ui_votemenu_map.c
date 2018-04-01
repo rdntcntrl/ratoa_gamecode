@@ -486,8 +486,14 @@ void UI_VoteMapMenu_Update( void ) {
 		Q_strncpyz( s_votemenu_map.mapname.string, filtered_list.mapname[top+s_votemenu_map.currentmap], MAX_MAPNAME_LENGTH);
 	}
 	
+	i = filtered_list.num_maps / MAX_MAPSPERPAGE + ((filtered_list.num_maps % MAX_MAPSPERPAGE == 0) ? 0 : 1);
+	if (i <= 0) {
+		i = 1;
+	}
 	Q_strupr( s_votemenu_map.mapname.string );
-	Com_sprintf( pagebuffer, sizeof(pagebuffer), "Page %i", s_votemenu_map.pagenum+1 );
+	Com_sprintf( pagebuffer, sizeof(pagebuffer), "Page %i/%i", 
+			s_votemenu_map.pagenum+1,
+		  	i);
 }
 
 /*
