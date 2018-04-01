@@ -662,6 +662,7 @@ void CG_InitConsoleCommands( void ) {
 	trap_AddCommand ("setviewpos");
 	trap_AddCommand ("callvote");
 	trap_AddCommand ("getmappage");
+	trap_AddCommand ("getrecmappage");
 	trap_AddCommand ("vote");
 	trap_AddCommand ("callteamvote");
 	trap_AddCommand ("teamvote");
