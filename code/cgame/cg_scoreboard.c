@@ -237,7 +237,7 @@ static void CG_RatDrawClientScore(int y, score_t *score, float *color, float fad
 			//CG_DrawSmallScoreStringColor(iconx, ysmall, string, tcolor);
 			CG_DrawTinyScoreStringColor(iconx, ytiny, string, tcolor);
 		}
-		if ( ci->team != TEAM_SPECTATOR && cent &&  cent->currentState.eFlags & EF_TALK ) {
+		if ( ci->team != TEAM_SPECTATOR && cent &&  cent->currentValid && cent->currentState.eFlags & EF_TALK ) {
 			if (largeFormat) {
 				CG_DrawPic(iconx, y - (32 - SCORECHAR_HEIGHT) / 2, 32, 32, cgs.media.balloonShader);
 			} else {
