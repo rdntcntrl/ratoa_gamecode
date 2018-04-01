@@ -645,7 +645,7 @@ qboolean CG_DrawRatScoreboard(void) {
 	CG_DrawTinyScoreString(RATSB_CNUM_CENTER - SCORETINYCHAR_WIDTH, y, "CN", fade);
 	CG_DrawTinyScoreString(RATSB_NAME_X, y, "Name", fade);
 	CG_DrawTinyScoreString(RATSB_KD_CENTER - 1.5 * SCORETINYCHAR_WIDTH, y, "K/D", fade);
-	CG_DrawTinyScoreString(RATSB_DT_CENTER - 2.5 * SCORETINYCHAR_WIDTH, y, "kDG/kDT", fade);
+	CG_DrawTinyScoreString(RATSB_DT_CENTER - 4.5 * SCORETINYCHAR_WIDTH, y, "kDG/kDT", fade);
 	CG_DrawTinyScoreString(RATSB_ACCURACY_CENTER - 1.5 * SCORETINYCHAR_WIDTH, y, "Acc", fade);
 	//CG_DrawTinyScoreString(RATSB_ACCURACY_CENTER - 1.5 * SCORETINYCHAR_WIDTH, y, "Acc", fade);
 	CG_DrawTinyScoreString(RATSB_PING_CENTER - 2 * SCORETINYCHAR_WIDTH, y, "Ping", fade);

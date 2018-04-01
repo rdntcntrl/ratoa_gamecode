@@ -2608,8 +2608,20 @@ static void CG_DrawDisconnect( void ) {
 }
 
 
+vec_t *CG_TableColorAlpha(int colorIndex, vec_t alpha) {
+	static vec4_t color;
+	color[0] = g_color_table[colorIndex][0];
+	color[1] = g_color_table[colorIndex][1];
+	color[2] = g_color_table[colorIndex][2];
+	color[3] = alpha;
+
+	return color;
+}
+
+
 #define	MAX_LAGOMETER_PING	900
 #define	MAX_LAGOMETER_RANGE	300
+#define	LAGOMETER_ALPHA		0.5
 
 /*
 ==============
@@ -2663,6 +2675,7 @@ static void CG_DrawLagometer( void ) {
 			if ( color != 1 ) {
 				color = 1;
 				trap_R_SetColor( g_color_table[ColorIndex(COLOR_YELLOW)] );
+				//trap_R_SetColor( CG_TableColorAlpha(ColorIndex(COLOR_YELLOW), LAGOMETER_ALPHA) );
 			}
 			if ( v > range ) {
 				v = range;
@@ -2672,6 +2685,7 @@ static void CG_DrawLagometer( void ) {
 			if ( color != 2 ) {
 				color = 2;
 				trap_R_SetColor( g_color_table[ColorIndex(COLOR_BLUE)] );
+				//trap_R_SetColor( CG_TableColorAlpha(ColorIndex(COLOR_BLUE), LAGOMETER_ALPHA) );
 			}
 			v = -v;
 			if ( v > range ) {
@@ -2692,12 +2706,14 @@ static void CG_DrawLagometer( void ) {
 			if ( lagometer.snapshotFlags[i] & SNAPFLAG_RATE_DELAYED ) {
 				if ( color != 5 ) {
 					color = 5;	// YELLOW for rate delay
-					trap_R_SetColor( g_color_table[ColorIndex(COLOR_YELLOW)] );
+					//trap_R_SetColor( g_color_table[ColorIndex(COLOR_YELLOW)] );
+					trap_R_SetColor( CG_TableColorAlpha(ColorIndex(COLOR_YELLOW), LAGOMETER_ALPHA) );
 				}
 			} else {
 				if ( color != 3 ) {
 					color = 3;
-					trap_R_SetColor( g_color_table[ColorIndex(COLOR_GREEN)] );
+					//trap_R_SetColor( g_color_table[ColorIndex(COLOR_GREEN)] );
+					trap_R_SetColor( CG_TableColorAlpha(ColorIndex(COLOR_GREEN), LAGOMETER_ALPHA) );
 				}
 			}
 			v = v * vscale;
@@ -2708,7 +2724,8 @@ static void CG_DrawLagometer( void ) {
 		} else if ( v < 0 ) {
 			if ( color != 4 ) {
 				color = 4;		// RED for dropped snapshots
-				trap_R_SetColor( g_color_table[ColorIndex(COLOR_RED)] );
+				//trap_R_SetColor( g_color_table[ColorIndex(COLOR_RED)] );
+				trap_R_SetColor( CG_TableColorAlpha(ColorIndex(COLOR_RED), LAGOMETER_ALPHA) );
 			}
 			trap_R_DrawStretchPic( ax + aw - a, ay + ah - range, 1, range, 0, 0, 0, 0, cgs.media.whiteShader );
 		}
