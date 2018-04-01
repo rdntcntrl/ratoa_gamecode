@@ -71,7 +71,10 @@ void DeathmatchScoreboardMessage( gentity_t *ent, qboolean advanced ) {
 		if (advanced) {
 			Com_sprintf (entry, sizeof(entry),
 					" %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i", level.sortedClients[i],
-					cl->ps.persistant[PERS_SCORE], ping, (level.time - cl->pers.enterTime)/60000,
+					cl->ps.persistant[PERS_SCORE],
+				       	ping,
+				       	//(level.time - cl->pers.enterTime)/60000,
+				       	(level.time - cl->pers.enterTime)/1000,
 					scoreFlags, g_entities[level.sortedClients[i]].s.powerups, accuracy, 
 					cl->ps.persistant[PERS_IMPRESSIVE_COUNT],
 					cl->ps.persistant[PERS_EXCELLENT_COUNT],
@@ -159,7 +162,10 @@ void DeathmatchScoreboardMessageSplit( gentity_t *ent ) {
 
 		Com_sprintf (entry1, sizeof(entry1),
 				" %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i", level.sortedClients[i],
-				cl->ps.persistant[PERS_SCORE], ping, (level.time - cl->pers.enterTime)/60000,
+				cl->ps.persistant[PERS_SCORE],
+			       	ping, 
+				//(level.time - cl->pers.enterTime)/60000,
+				(level.time - cl->pers.enterTime)/1000,
 				scoreFlags, g_entities[level.sortedClients[i]].s.powerups, accuracy, 
 				cl->ps.persistant[PERS_IMPRESSIVE_COUNT],
 				cl->ps.persistant[PERS_EXCELLENT_COUNT],
@@ -185,9 +191,9 @@ void DeathmatchScoreboardMessageSplit( gentity_t *ent ) {
 				cl->pers.dmgTaken,
 				cl->sess.spectatorGroup,
 				cl->pers.teamState.flagrecovery,
-				cl->topweapons[0][1] > 0 ? cl->topweapons[0][0] : WP_NONE,
-				cl->topweapons[1][1] > 0 ? cl->topweapons[1][0] : WP_NONE,
-				cl->topweapons[2][1] > 0 ? cl->topweapons[2][0] : WP_NONE
+				cl->pers.topweapons[0][1] > 0 ? cl->pers.topweapons[0][0] : WP_NONE,
+				cl->pers.topweapons[1][1] > 0 ? cl->pers.topweapons[1][0] : WP_NONE,
+				cl->pers.topweapons[2][1] > 0 ? cl->pers.topweapons[2][0] : WP_NONE
 			    );
 
 		j = strlen(entry2);

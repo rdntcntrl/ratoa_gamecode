@@ -333,6 +333,8 @@ typedef struct {
     
     int		dmgTaken, dmgGiven;
     int		kills, deaths;
+    int		damage[WP_NUM_WEAPONS];
+    int		topweapons[WP_NUM_WEAPONS][2];
 } clientPersistant_t;
 
 //unlagged - backward reconciliation #1
@@ -449,8 +451,6 @@ struct gclient_s {
         qboolean        spawnprotected;
 
         int			accuracy[WP_NUM_WEAPONS][2];
-        int			damage[WP_NUM_WEAPONS];
-	int		topweapons[WP_NUM_WEAPONS][2];
 
 	int		timeouts; // number of timeouts called;
 

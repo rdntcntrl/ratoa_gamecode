@@ -1385,7 +1385,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 				int weapon = G_WeaponForMOD(mod);
 				attacker->client->pers.dmgGiven += dmgTaken;
 				if (weapon != -1) {
-					attacker->client->damage[weapon] += dmgTaken;
+					attacker->client->pers.damage[weapon] += dmgTaken;
 				}
 			}
 		}

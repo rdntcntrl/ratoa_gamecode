@@ -2011,8 +2011,6 @@ void ClientSpawn(gentity_t *ent) {
 //	char	*savedAreaBits;
 	int		accuracy_hits, accuracy_shots,vote;
         int		accuracy[WP_NUM_WEAPONS][2];
-        int		damage[WP_NUM_WEAPONS];
-        int		topweapons[WP_NUM_WEAPONS][2];
 	int		eventSequence;
 	char	userinfo[MAX_INFO_STRING];
 
@@ -2173,8 +2171,6 @@ void ClientSpawn(gentity_t *ent) {
 	accuracy_hits = client->accuracy_hits;
 	accuracy_shots = client->accuracy_shots;
 	memcpy(accuracy,client->accuracy,sizeof(accuracy));
-	memcpy(damage,client->damage,sizeof(damage));
-	memcpy(topweapons,client->topweapons,sizeof(topweapons));
 
     memcpy(persistant,client->ps.persistant,MAX_PERSISTANT*sizeof(int));
 	eventSequence = client->ps.eventSequence;
@@ -2194,9 +2190,7 @@ void ClientSpawn(gentity_t *ent) {
 		client->accuracy[i][0] = accuracy[i][0];
 		client->accuracy[i][1] = accuracy[i][1];
 	}
-	memcpy(client->damage,damage, sizeof(client->damage));
-	memcpy(client->topweapons,topweapons, sizeof(client->topweapons));
-
+	
 	client->lastkilled_client = -1;
 
 	for ( i = 0 ; i < MAX_PERSISTANT ; i++ ) {
@@ -2572,11 +2566,11 @@ int QDECL SortWPDamages( const void *a, const void *b ) {
 void G_UpdateTopWeapons(gclient_t *client) {
 	int i;
 	for (i = 0; i < WP_NUM_WEAPONS; ++i) {
-		client->topweapons[i][0] = i;
-		client->topweapons[i][1] = client->damage[i];
+		client->pers.topweapons[i][0] = i;
+		client->pers.topweapons[i][1] = client->pers.damage[i];
 	}
-	qsort( client->topweapons, WP_NUM_WEAPONS,
-		sizeof(client->topweapons[0]), SortWPDamages );
+	qsort( client->pers.topweapons, WP_NUM_WEAPONS,
+		sizeof(client->pers.topweapons[0]), SortWPDamages );
 }
 
 qboolean G_MixedClientHasRatVM(gclient_t *client) {
