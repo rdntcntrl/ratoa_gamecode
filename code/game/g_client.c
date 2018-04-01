@@ -1987,6 +1987,7 @@ void ClientSpawn(gentity_t *ent) {
 	gclient_t	*client;
 	int		i;
 	qboolean ready;
+	int inactivityTimeSaved;
 	clientPersistant_t	saved;
 	clientSession_t		savedSess;
 	int		persistant[MAX_PERSISTANT];
@@ -2151,6 +2152,7 @@ void ClientSpawn(gentity_t *ent) {
 	saved = client->pers;
 	savedSess = client->sess;
 	savedPing = client->ps.ping;
+	inactivityTimeSaved = client->inactivityTime;
 	vote = client->vote;
 //	savedAreaBits = client->areabits;
 	accuracy_hits = client->accuracy_hits;
@@ -2166,6 +2168,7 @@ void ClientSpawn(gentity_t *ent) {
 	client->pers = saved;
 	client->sess = savedSess;
 	client->ps.ping = savedPing;
+	client->inactivityTime = inactivityTimeSaved;
 	client->vote = vote;
 //	client->areabits = savedAreaBits;
 	client->accuracy_hits = accuracy_hits;
@@ -2344,7 +2347,9 @@ else
 	client->ps.pm_time = 100;
 
 	client->respawnTime = level.time;
-	client->inactivityTime = level.time + g_inactivity.integer * 1000;
+	if (client->inactivityTime == 0 || client->inactivityTime < level.time ) {
+		client->inactivityTime = level.time + g_inactivity.integer * 1000;
+	}
 	client->latched_buttons = 0;
 
 	// set default animations

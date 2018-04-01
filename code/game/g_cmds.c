@@ -977,6 +977,8 @@ void SetTeam( gentity_t *ent, char *s ) {
 	client->sess.spectatorGroup = specGroup;
 	client->sess.spectatorClient = specClient;
 
+	client->inactivityTime = 0;
+
 	client->sess.teamLeader = qfalse;
 	if ( team == TEAM_RED || team == TEAM_BLUE ) {
 		teamLeader = TeamLeader( team );

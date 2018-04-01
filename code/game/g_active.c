@@ -400,7 +400,8 @@ qboolean ClientInactivityTimer( gclient_t *client ) {
 		client->inactivityTime = level.time + g_inactivity.integer * 1000;
 		client->inactivityWarning = qfalse;
 	} else if ( !client->pers.localClient &&
-		     client->sess.sessionTeam != TEAM_SPECTATOR) {
+		     client->sess.sessionTeam != TEAM_SPECTATOR &&
+		     client->inactivityTime > 0 ) {
 		if ( level.time > client->inactivityTime ) {
 			//trap_DropClient( client - level.clients, "Dropped due to inactivity" );
 			SetTeam( &g_entities[ client->ps.clientNum ], "afk" );
