@@ -3288,7 +3288,12 @@ qboolean G_admin_namelog( gentity_t *ent, int skiparg )
 
 qboolean G_admin_mutespec( gentity_t *ent, int skiparg ) 
 {
-  trap_Cvar_Set("g_specMuted", "1");
+  if (g_gametype.integer == GT_TOURNAMENT) {
+	  trap_Cvar_Set("g_tournamentMuteSpec", "3");
+  } else {
+	  trap_Cvar_Set("g_specMuted", "1");
+  }
+
   AP( va( "print \"^3!mutespec: ^7spectators have been muted by %s\n\"",
     ( ent ) ? ent->client->pers.netname : "console" ) );
   return qtrue;
@@ -3297,6 +3302,7 @@ qboolean G_admin_mutespec( gentity_t *ent, int skiparg )
 qboolean G_admin_unmutespec( gentity_t *ent, int skiparg ) 
 {
   trap_Cvar_Set("g_specMuted", "0");
+  trap_Cvar_Set("g_tournamentMuteSpec", "0");
   AP( va( "print \"^3!unmutespec: ^7spectators have been unmuted by %s\n\"",
     ( ent ) ? ent->client->pers.netname : "console" ) );
   return qtrue;
