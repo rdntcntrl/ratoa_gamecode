@@ -584,7 +584,8 @@ void CG_PainEvent( centity_t *cent, int health ) {
 }
 
 qboolean CG_ExplosionPredicted(centity_t *cent) {
-	if (cg_predictExplosions.integer 
+	if ((cgs.ratFlags & RAT_PREDICTMISSILES)
+		       	&& cg_predictExplosions.integer 
 			&& cent->currentState.eType == ET_MISSILE
 			&& CG_IsOwnMissile(cent)) {
 
