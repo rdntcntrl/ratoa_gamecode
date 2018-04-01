@@ -1466,6 +1466,22 @@ void ClientUserinfoChanged( int clientNum ) {
 		Q_strncpyz( headModel, Info_ValueForKey (userinfo, "headmodel"), sizeof( headModel ) );
 	}
 
+	if (!g_allowBrightModels.integer) {
+		// prevent people from manually bright models when they're not supposed to
+		if (Q_stristr(model, "bright") != NULL || Q_stristr(headModel, "bright") != NULL) {
+			if( g_gametype.integer >= GT_TEAM && g_ffa_gt==0) {
+				Info_SetValueForKey( userinfo, "model", "smarine/orange" );
+				Info_SetValueForKey( userinfo, "headmodel", "smarine/orange" );
+			} else {
+				Info_SetValueForKey( userinfo, "team_model", "smarine/orange" );
+				Info_SetValueForKey( userinfo, "team_headmodel", "smarine/orange" );
+			}
+			Q_strncpyz( model, "smarine/orange", sizeof( model ) );
+			Q_strncpyz( headModel, "smarine/orange", sizeof( model ) );
+			trap_SetUserinfo( clientNum, userinfo );
+		}
+	}
+
 	// bots set their team a few frames later
 	if (g_gametype.integer >= GT_TEAM && g_ffa_gt==0 && g_entities[clientNum].r.svFlags & SVF_BOT) {
 		s = Info_ValueForKey( userinfo, "team" );
