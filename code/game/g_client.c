@@ -1662,6 +1662,10 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 		client->pers.localClient = qtrue;
 	client->pers.adminLevel = G_admin_level( ent );
 
+	if (g_tourneylocked.integer && firstTime &&  !G_admin_permission(ent, 'L')) {
+		return "Server is locked for a tournament match!";
+	}
+
 	client->pers.connected = CON_CONNECTING;
 
 	// read or initialize the session data
@@ -1678,9 +1682,6 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 		}
 	}
 
-	if (g_tourneylocked.integer && firstTime &&  !G_admin_permission(ent, 'L')) {
-		return "Server is locked for a tournament match!";
-	}
 
 	//KK-OAX Swapped these in order...seemed to help the connection process.
 	// get and distribute relevent paramters
@@ -2501,7 +2502,7 @@ void ClientDisconnect( int clientNum ) {
 		ent->client->sess.sessionTeam = TEAM_FREE;
 	}
 
-	trap_SetConfigstring( CS_PLAYERS + clientNum, "");
+	trap_SetConfigstring( CS_PLAYERS + clientNum, va("t\\%i", ent->client->sess.sessionTeam));
 
 	CalculateRanks();
         CountVotes();
