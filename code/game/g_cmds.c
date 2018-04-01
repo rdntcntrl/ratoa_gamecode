@@ -115,6 +115,106 @@ void DeathmatchScoreboardMessage( gentity_t *ent, qboolean advanced ) {
 		string ) );
 }
 
+void DeathmatchScoreboardMessageSplit( gentity_t *ent ) {
+	char		entry1[2048];
+	char		string1[4096];
+	char		entry2[2048];
+	char		string2[4096];
+	int		string1length;
+	int		string2length;
+	int			i, j;
+	gclient_t	*cl;
+	int			numSorted, scoreFlags, accuracy, perfect;
+
+	// send the latest information on all clients
+	string1[0] = 0;
+	string2[0] = 0;
+	string1length = 0;
+	string2length = 0;
+	scoreFlags = 0;
+
+	numSorted = level.numConnectedClients;
+	
+	for (i=0 ; i < numSorted ; i++) {
+		int		ping;
+
+		cl = &level.clients[level.sortedClients[i]];
+
+		if ( cl->pers.connected == CON_CONNECTING ) {
+			ping = -1;
+		} else {
+//unlagged - true ping
+			//ping = cl->ps.ping < 999 ? cl->ps.ping : 999;
+			ping = cl->pers.realPing < 999 ? cl->pers.realPing : 999;
+//unlagged - true ping
+		}
+
+		if( cl->accuracy_shots ) {
+			accuracy = cl->accuracy_hits * 100 / cl->accuracy_shots;
+		}
+		else {
+			accuracy = 0;
+		}
+		perfect = ( cl->ps.persistant[PERS_RANK] == 0 && cl->ps.persistant[PERS_KILLED] == 0 ) ? 1 : 0;
+
+		Com_sprintf (entry1, sizeof(entry1),
+				" %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i", level.sortedClients[i],
+				cl->ps.persistant[PERS_SCORE], ping, (level.time - cl->pers.enterTime)/60000,
+				scoreFlags, g_entities[level.sortedClients[i]].s.powerups, accuracy, 
+				cl->ps.persistant[PERS_IMPRESSIVE_COUNT],
+				cl->ps.persistant[PERS_EXCELLENT_COUNT],
+				cl->ps.persistant[PERS_GAUNTLET_FRAG_COUNT], 
+				cl->ps.persistant[PERS_DEFEND_COUNT], 
+				cl->ps.persistant[PERS_ASSIST_COUNT], 
+				perfect,
+				cl->ps.persistant[PERS_CAPTURES],
+				g_gametype.integer == GT_LMS ? cl->pers.livesLeft + (cl->isEliminated?0:1): cl->isEliminated,
+				cl->pers.kills,
+				cl->pers.deaths
+			    );
+
+		j = strlen(entry1);
+		if (string1length + j > 1024)
+			break;
+		strcpy (string1 + string1length, entry1);
+		string1length += j;
+
+		Com_sprintf (entry2, sizeof(entry2),
+				" %i %i %i %i",
+				cl->pers.dmgGiven,
+				cl->pers.dmgTaken,
+				cl->sess.spectatorGroup,
+				cl->pers.teamState.flagrecovery
+			    );
+
+		j = strlen(entry2);
+		if (string2length + j > 1024)
+			break;
+		strcpy (string2 + string2length, entry2);
+		string2length += j;
+	}
+
+	trap_SendServerCommand( ent-g_entities, va("%s %i %i %i %i%s", "ratscores1", i, 
+		level.teamScores[TEAM_RED], level.teamScores[TEAM_BLUE], level.roundStartTime,
+		string1 ) );
+
+	trap_SendServerCommand( ent-g_entities, va("%s %i%s", "ratscores2", i, 
+		string2 ) );
+}
+
+void DeathmatchScoreboardMessageAuto(gentity_t *ent) {
+	if (g_usesRatVM.integer > 0 || G_MixedClientHasRatVM(ent->client)) {
+		if (g_useSplitRatScores.integer) {
+			DeathmatchScoreboardMessageSplit(ent);
+		} else {
+			DeathmatchScoreboardMessage(ent, qtrue);
+		}
+	} else {
+			DeathmatchScoreboardMessage(ent, qfalse);
+	}
+}
+
+
 /*
 ==================
 AccMessage
@@ -355,6 +455,7 @@ void SendCustomVoteCommands(int clientNum) {
 	trap_SendServerCommand( clientNum, va("customvotes %s", custom_vote_info) );
 }
 
+
 /*
 ==================
 Cmd_Score_f
@@ -370,7 +471,8 @@ void Cmd_Score_f( gentity_t *ent ) {
 		// displayed on the scoreboard. (use \serverstatus instead)
 		return;
 	}
-	DeathmatchScoreboardMessage( ent, g_usesRatVM.integer > 0 || G_MixedClientHasRatVM(ent->client));
+	//DeathmatchScoreboardMessage( ent, g_usesRatVM.integer > 0 || G_MixedClientHasRatVM(ent->client));
+	DeathmatchScoreboardMessageAuto(ent);
 }
 
 
