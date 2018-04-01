@@ -702,6 +702,7 @@ void Team_CheckHurtCarrier(gentity_t *targ, gentity_t *attacker)
 
 gentity_t *Team_ResetFlag( int team ) {
 	char *c;
+	int i;
 	gentity_t *ent, *rent = NULL;
 
 	switch (team) {
@@ -719,14 +720,32 @@ gentity_t *Team_ResetFlag( int team ) {
 	}
 
 	ent = NULL;
-	while ((ent = G_Find (ent, FOFS(classname), c)) != NULL) {
+	for ( i = 0; i < level.num_entities; ++i) {
+		ent = &g_entities[i];
+		if (!ent->inuse) {
+			continue;
+		}
+		
+		if (!ent->item || strcmp(ent->item->classname, c) != 0) {
+			continue;
+		}
+
 		if (ent->flags & FL_DROPPED_ITEM)
 			G_FreeEntity(ent);
 		else {
 			rent = ent;
 			RespawnItem(ent);
 		}
+
 	}
+	//while ((ent = G_Find (ent, FOFS(classname), c)) != NULL) {
+	//	if (ent->flags & FL_DROPPED_ITEM)
+	//		G_FreeEntity(ent);
+	//	else {
+	//		rent = ent;
+	//		RespawnItem(ent);
+	//	}
+	//}
 
 	Team_SetFlagStatus( team, FLAG_ATBASE );
 
