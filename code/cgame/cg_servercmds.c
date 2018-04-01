@@ -148,6 +148,133 @@ static void CG_ParseRatScores( void ) {
 }
 
 
+static void CG_PurgeScoreBuf(void) {
+	cg.received_ratscores2 = qfalse;
+	cg.received_ratscores1 = qfalse;
+	cg.numScores_buf = 0;
+	memset( cg.scores_buf, 0, sizeof( cg.scores_buf ) );
+}
+
+static void CG_CheckScoreUpdate(void) {
+	if (!(cg.received_ratscores1 && cg.received_ratscores2)) {
+		return;
+	}
+
+	// TODO: switching pointers would be more efficient
+	memcpy( cg.scores, cg.scores_buf, sizeof(cg.scores));
+	cg.numScores = cg.numScores_buf;
+
+	CG_PurgeScoreBuf();
+}
+
+/*
+=================
+CG_ParseRatScores1
+
+=================
+*/
+static void CG_ParseRatScores1( void ) {
+	int		i, powerups;
+	int numScores;
+
+	numScores = atoi( CG_Argv( 1 ) );
+	if ( numScores > MAX_CLIENTS ) {
+		numScores = MAX_CLIENTS;
+	}
+
+	cg.teamScores[0] = atoi( CG_Argv( 2 ) );
+	cg.teamScores[1] = atoi( CG_Argv( 3 ) );
+
+	cgs.roundStartTime = atoi( CG_Argv( 4 ) );
+
+	//Update thing in lower-right corner
+	if(cgs.gametype == GT_ELIMINATION || cgs.gametype == GT_CTF_ELIMINATION)
+	{
+		cgs.scores1 = cg.teamScores[0];
+		cgs.scores2 = cg.teamScores[1];
+	}
+
+	cg.received_ratscores1 = qtrue;
+	if (cg.received_ratscores2 && numScores != cg.numScores_buf) {
+		CG_PurgeScoreBuf();
+		return;
+	}
+	cg.numScores_buf = numScores;
+	//memset( cg.scores, 0, sizeof( cg.scores ) );
+
+#define NUM_RAT1_DATA 17
+#define FIRST_RAT1_DATA 4
+
+	for ( i = 0 ; i < numScores ; i++ ) {
+		//
+		cg.scores_buf[i].client = atoi( CG_Argv( i * NUM_RAT1_DATA + FIRST_RAT1_DATA + 1 ) );
+		cg.scores_buf[i].score = atoi( CG_Argv( i * NUM_RAT1_DATA + FIRST_RAT1_DATA + 2 ) );
+		cg.scores_buf[i].ping = atoi( CG_Argv( i * NUM_RAT1_DATA + FIRST_RAT1_DATA + 3 ) );
+		cg.scores_buf[i].time = atoi( CG_Argv( i * NUM_RAT1_DATA + FIRST_RAT1_DATA + 4 ) );
+		cg.scores_buf[i].scoreFlags = atoi( CG_Argv( i * NUM_RAT1_DATA + FIRST_RAT1_DATA + 5 ) );
+		powerups = atoi( CG_Argv( i * NUM_RAT1_DATA + FIRST_RAT1_DATA + 6 ) );
+		cg.scores_buf[i].accuracy = atoi(CG_Argv(i * NUM_RAT1_DATA + FIRST_RAT1_DATA + 7));
+		cg.scores_buf[i].impressiveCount = atoi(CG_Argv(i * NUM_RAT1_DATA + FIRST_RAT1_DATA + 8));
+		cg.scores_buf[i].excellentCount = atoi(CG_Argv(i * NUM_RAT1_DATA + FIRST_RAT1_DATA + 9));
+		cg.scores_buf[i].guantletCount = atoi(CG_Argv(i * NUM_RAT1_DATA + FIRST_RAT1_DATA + 10));
+		cg.scores_buf[i].defendCount = atoi(CG_Argv(i * NUM_RAT1_DATA + FIRST_RAT1_DATA + 11));
+		cg.scores_buf[i].assistCount = atoi(CG_Argv(i * NUM_RAT1_DATA + FIRST_RAT1_DATA + 12));
+		cg.scores_buf[i].perfect = atoi(CG_Argv(i * NUM_RAT1_DATA + FIRST_RAT1_DATA + 13));
+		cg.scores_buf[i].captures = atoi(CG_Argv(i * NUM_RAT1_DATA + FIRST_RAT1_DATA + 14));
+		cg.scores_buf[i].isDead = atoi(CG_Argv(i * NUM_RAT1_DATA + FIRST_RAT1_DATA + 15));
+		cg.scores_buf[i].kills = atoi(CG_Argv(i * NUM_RAT1_DATA + FIRST_RAT1_DATA + 16));
+		cg.scores_buf[i].deaths = atoi(CG_Argv(i * NUM_RAT1_DATA + FIRST_RAT1_DATA + 17));
+
+		if ( cg.scores_buf[i].client < 0 || cg.scores_buf[i].client >= MAX_CLIENTS ) {
+			cg.scores_buf[i].client = 0;
+		}
+		cgs.clientinfo[ cg.scores_buf[i].client ].score = cg.scores_buf[i].score;
+		cgs.clientinfo[ cg.scores_buf[i].client ].powerups = powerups;
+		cgs.clientinfo[ cg.scores_buf[i].client ].isDead = cg.scores_buf[i].isDead;
+
+		cg.scores_buf[i].team = cgs.clientinfo[cg.scores_buf[i].client].team;
+	}
+
+	CG_CheckScoreUpdate();
+}
+
+/*
+=================
+CG_ParseRatScores2
+
+=================
+*/
+static void CG_ParseRatScores2( void ) {
+	int		i, powerups;
+	int numScores;
+
+	numScores = atoi( CG_Argv( 1 ) );
+	if ( numScores > MAX_CLIENTS ) {
+		numScores = MAX_CLIENTS;
+	}
+
+	cg.received_ratscores2 = qtrue;
+	if (cg.received_ratscores1 && numScores != cg.numScores_buf) {
+		CG_PurgeScoreBuf();
+		return;
+	}
+	cg.numScores_buf = numScores;
+	//memset( cg.scores, 0, sizeof( cg.scores ) );
+
+#define NUM_RAT2_DATA 4
+#define FIRST_RAT2_DATA 1
+
+	for ( i = 0 ; i < numScores ; i++ ) {
+		cg.scores_buf[i].dmgGiven = atoi(CG_Argv(i * NUM_RAT2_DATA + FIRST_RAT2_DATA + 1));
+		cg.scores_buf[i].dmgTaken = atoi(CG_Argv(i * NUM_RAT2_DATA + FIRST_RAT2_DATA + 2));
+		cg.scores_buf[i].spectatorGroup = atoi(CG_Argv(i * NUM_RAT2_DATA + FIRST_RAT2_DATA + 2));
+		cg.scores_buf[i].flagrecovery = atoi(CG_Argv(i * NUM_RAT2_DATA + FIRST_RAT2_DATA + 3));
+	}
+
+	CG_CheckScoreUpdate();
+}
+
+
 /*
 =================
 CG_ParseScores
@@ -1452,6 +1579,16 @@ static void CG_ServerCommand( void ) {
 
 	if ( !strcmp( cmd, "ratscores" ) ) {
 		CG_ParseRatScores();
+		return;
+	}
+
+	if ( !strcmp( cmd, "ratscores1" ) ) {
+		CG_ParseRatScores1();
+		return;
+	}
+
+	if ( !strcmp( cmd, "ratscores2" ) ) {
+		CG_ParseRatScores2();
 		return;
 	}
 

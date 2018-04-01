@@ -592,6 +592,10 @@ typedef struct {
 	int			selectedScore;
 	int			teamScores[2];
 	score_t		scores[MAX_CLIENTS];
+	int		numScores_buf;
+	qboolean	received_ratscores1;
+	qboolean	received_ratscores2;
+	score_t		scores_buf[MAX_CLIENTS];
 	qboolean	showScores;
 	qboolean	scoreBoardShowing;
 	int			scoreFadeTime;
