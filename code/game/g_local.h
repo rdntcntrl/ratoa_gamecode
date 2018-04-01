@@ -291,6 +291,11 @@ typedef struct {
 	int			delag;
 //	int			debugDelag;
 	int			cmdTimeNudge;
+
+	// if client is completley pure, i.e. runs this cgame and ui qvm
+	// this is not completely reliable
+	int			pure;
+
 //unlagged - client options
 //unlagged - lag simulation #2
 /*	int			latentSnaps;
@@ -838,6 +843,7 @@ void AddScore( gentity_t *ent, vec3_t origin, int score );
 void CalculateRanks( void );
 qboolean SpotWouldTelefrag( gentity_t *spot );
 void motd_chat (gentity_t *ent);
+qboolean G_MixedClientHasRatVM(gclient_t *client);
 
 //
 // g_svcmds.c
@@ -1231,6 +1237,7 @@ extern  vmCvar_t        g_specShowZoom;
 extern  vmCvar_t        g_itemPickup;
 extern  vmCvar_t        g_usesRatVM;
 extern  vmCvar_t        g_usesRatEngine;
+extern  vmCvar_t        g_mixedMode;
 extern  vmCvar_t        g_broadcastClients;
 extern  vmCvar_t        g_ratVmPredictMissiles;
 extern  vmCvar_t        g_ratFlags;

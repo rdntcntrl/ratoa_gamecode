@@ -1302,6 +1302,20 @@ void ClientUserinfoChanged( int clientNum ) {
 		client->pers.localClient = qtrue;
 	}
 
+	if (g_mixedMode.integer) {
+		s = Info_ValueForKey( userinfo, "pure" );
+		if (strlen(s) == 0) {
+			// key not present (most likely the server isn't running the rat engine, assume client is pure)
+			client->pers.pure = 1;
+		} else if ( atoi( s ) ) {
+			client->pers.pure = 1;
+		} else {
+			client->pers.pure = 0;
+		}
+	} else {
+			client->pers.pure = 1;
+	}
+
 	// check the item prediction
 	s = Info_ValueForKey( userinfo, "cg_predictItems" );
 	if ( !atoi( s ) ) {
@@ -2514,6 +2528,10 @@ void ClientDisconnect( int clientNum ) {
 	SendReadymask( -1 );
 
 	G_CheckClan(oldTeam);
+}
+
+qboolean G_MixedClientHasRatVM(gclient_t *client) {
+	return (g_usesRatEngine.integer && g_mixedMode.integer && client->pers.pure);
 }
 
 

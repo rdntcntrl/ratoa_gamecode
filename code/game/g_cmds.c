@@ -370,7 +370,7 @@ void Cmd_Score_f( gentity_t *ent ) {
 		// displayed on the scoreboard. (use \serverstatus instead)
 		return;
 	}
-	DeathmatchScoreboardMessage( ent, g_usesRatVM.integer > 0);
+	DeathmatchScoreboardMessage( ent, g_usesRatVM.integer > 0 || G_MixedClientHasRatVM(ent->client));
 }
 
 
