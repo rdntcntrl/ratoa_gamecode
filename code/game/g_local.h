@@ -449,6 +449,8 @@ struct gclient_s {
         qboolean        spawnprotected;
 
         int			accuracy[WP_NUM_WEAPONS][2];
+        int			damage[WP_NUM_WEAPONS];
+	int		topweapons[WP_NUM_WEAPONS][2];
 
 	int		timeouts; // number of timeouts called;
 
@@ -843,6 +845,7 @@ void AddScore( gentity_t *ent, vec3_t origin, int score );
 void CalculateRanks( void );
 qboolean SpotWouldTelefrag( gentity_t *spot );
 void motd_chat (gentity_t *ent);
+void G_UpdateTopWeapons(gclient_t *client);
 qboolean G_MixedClientHasRatVM(gclient_t *client);
 
 //

@@ -1016,6 +1016,41 @@ static int catchup_damage(int damage, int attacker_points, int target_points) {
     return newdamage;
 }
 
+int G_WeaponForMOD(int mod) {
+	// XXX: not necessarily complete
+	switch (mod) {
+		case MOD_SHOTGUN:
+			return WP_SHOTGUN;
+		case MOD_GAUNTLET:
+			return WP_GAUNTLET;
+		case MOD_MACHINEGUN:
+			return WP_MACHINEGUN;
+		case MOD_GRENADE:
+		case MOD_GRENADE_SPLASH:
+			return WP_GRENADE_LAUNCHER;
+		case MOD_ROCKET:
+		case MOD_ROCKET_SPLASH:
+			return WP_ROCKET_LAUNCHER;
+		case MOD_PLASMA:
+		case MOD_PLASMA_SPLASH:
+			return WP_PLASMAGUN;
+		case MOD_RAILGUN:
+			return WP_RAILGUN;
+		case MOD_LIGHTNING:
+			return WP_LIGHTNING;
+		case MOD_BFG:
+		case MOD_BFG_SPLASH:
+			return WP_BFG;
+		case MOD_NAIL:
+			return WP_NAILGUN;
+		case MOD_CHAINGUN:
+			return WP_CHAINGUN;
+		case MOD_PROXIMITY_MINE:
+			return WP_PROX_LAUNCHER;
+	}
+	return -1;
+}
+
 /*
 ============
 T_Damage
@@ -1346,8 +1381,12 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 			targ->client->pers.dmgTaken += dmgTaken;
 		}
 		if (targ != attacker) {
-			if (attacker && attacker->client) {
+			if (attacker && attacker->client && !OnSameTeam(targ, attacker) ) {
+				int weapon = G_WeaponForMOD(mod);
 				attacker->client->pers.dmgGiven += dmgTaken;
+				if (weapon != -1) {
+					attacker->client->damage[weapon] += dmgTaken;
+				}
 			}
 		}
 		///
