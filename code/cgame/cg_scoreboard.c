@@ -608,8 +608,8 @@ qboolean CG_DrawRatScoreboard(void) {
 	// draw server name
 	if (cgs.sv_hostname[0]) {
 		len = CG_DrawStrlen(cgs.sv_hostname);
-		if (len > 20) {
-			len = 20;
+		if (len > 30) {
+			len = 30;
 		}
 		w = len * SCORETINYCHAR_WIDTH;
 		x = RATSB_SVNAME_X - w;
