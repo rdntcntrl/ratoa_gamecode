@@ -66,6 +66,7 @@ vmCvar_t	g_debugMove;
 vmCvar_t	g_debugDamage;
 vmCvar_t	g_debugAlloc;
 vmCvar_t	g_weaponRespawn;
+vmCvar_t	g_overrideWeaponRespawn;
 vmCvar_t	g_weaponTeamRespawn;
 vmCvar_t	g_motd;
 vmCvar_t        g_motdfile;
@@ -344,6 +345,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_knockback, "g_knockback", "1000", 0, 0, qtrue  },
 	{ &g_quadfactor, "g_quadfactor", "3", 0, 0, qtrue  },
 	{ &g_weaponRespawn, "g_weaponrespawn", "5", 0, 0, qtrue  },
+	{ &g_overrideWeaponRespawn, "g_overrideWeaponRespawn", "0", 0, 0, qtrue  },
 	{ &g_weaponTeamRespawn, "g_weaponTeamRespawn", "30", 0, 0, qtrue },
 	{ &g_forcerespawn, "g_forcerespawn", "20", 0, 0, qtrue },
         { &g_respawntime, "g_respawntime", "0", CVAR_ARCHIVE, 0, qtrue },

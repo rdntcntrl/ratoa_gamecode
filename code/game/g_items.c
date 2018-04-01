@@ -425,6 +425,7 @@ Touch_Item
 void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 	int			respawn;
 	qboolean	predict;
+	int		overrideRespawn = 0;
 
 	//instant gib
 	if ((g_instantgib.integer || g_rockets.integer || g_gametype.integer == GT_CTF_ELIMINATION || g_elimination_allgametypes.integer)
@@ -472,6 +473,7 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 	switch( ent->item->giType ) {
 	case IT_WEAPON:
 		respawn = Pickup_Weapon(ent, other);
+		overrideRespawn = g_overrideWeaponRespawn.integer;
 //		predict = qfalse;
 		break;
 	case IT_AMMO:
@@ -548,12 +550,12 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 	}
 
 	// non zero wait overrides respawn time
-	if ( ent->wait ) {
+	if ( ent->wait && !overrideRespawn ) {
 		respawn = ent->wait;
 	}
 
 	// random can be used to vary the respawn time
-	if ( ent->random ) {
+	if ( ent->random && !overrideRespawn) {
 		respawn += crandom() * ent->random;
 		if ( respawn < 1 ) {
 			respawn = 1;
