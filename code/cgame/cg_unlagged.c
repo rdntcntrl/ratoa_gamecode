@@ -402,16 +402,20 @@ localEntity_t *CG_BasePredictMissile( entityState_t *ent,  vec3_t muzzlePoint ) 
 }
 
 int CG_ReliablePing( void ) {
+	return CG_ReliablePingFromSnaps(cg.snap, cg.nextSnap);
+}
+
+int CG_ReliablePingFromSnaps(snapshot_t *snap, snapshot_t *nextSnap) {
 	int ping = 999;
 
-	if (cg.snap) {
-		ping = cg.snap->ping;
+	if (snap) {
+		ping = snap->ping;
 	}
 
-	if (ping >= 999 && cg.snap && cg.nextSnap) {
+	if (ping >= 999 && snap && nextSnap && (snap != nextSnap)) {
 		// cg.snap->ping caps out at around 248
 		// so try calculating the ping a different way
-		ping = (cg.snap->serverTime - cg.nextSnap->ps.commandTime);
+		ping = (snap->serverTime - nextSnap->ps.commandTime);
 	}
 
 	if (ping > 999) {

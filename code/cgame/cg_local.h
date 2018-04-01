@@ -1605,6 +1605,7 @@ extern vmCvar_t			cg_teamChatBeep;
 //unlagged - cg_unlagged.c
 void CG_PredictWeaponEffects( centity_t *cent );
 int CG_ReliablePing( void );
+int CG_ReliablePingFromSnaps(snapshot_t *snap, snapshot_t *nextsnap);
 //void CG_AddBoundingBox( centity_t *cent );
 qboolean CG_Cvar_ClampInt( const char *name, vmCvar_t *vmCvar, int min, int max );
 //unlagged - cg_unlagged.c
