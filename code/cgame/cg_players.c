@@ -1055,11 +1055,15 @@ void CG_NewClientInfo( int clientNum ) {
 			Q_strncpyz( newInfo.skinName, "default", sizeof( newInfo.skinName ) );
 		} else {
 			trap_Cvar_VariableStringBuffer( "model", modelStr, sizeof( modelStr ) );
+			if (!(cgs.ratFlags & RAT_ALLOWBRIGHTSKINS) && Q_stristr(modelStr, "bright") != NULL) {
+				Q_strncpyz(modelStr, "smarine/orange", sizeof(modelStr));
+			}
 			if ( ( skin = strchr( modelStr, '/' ) ) == NULL) {
 				skin = "default";
 			} else {
 				*skin++ = 0;
 			}
+
 
 			Q_strncpyz( newInfo.skinName, skin, sizeof( newInfo.skinName ) );
 			Q_strncpyz( newInfo.modelName, modelStr, sizeof( newInfo.modelName ) );
@@ -1113,6 +1117,9 @@ void CG_NewClientInfo( int clientNum ) {
 			Q_strncpyz( newInfo.headSkinName, "default", sizeof( newInfo.headSkinName ) );
 		} else {
 			trap_Cvar_VariableStringBuffer( "headmodel", modelStr, sizeof( modelStr ) );
+			if (!(cgs.ratFlags & RAT_ALLOWBRIGHTSKINS) && Q_stristr(modelStr, "bright") != NULL) {
+				Q_strncpyz(modelStr, "smarine/orange", sizeof(modelStr));
+			}
 			if ( ( skin = strchr( modelStr, '/' ) ) == NULL) {
 				skin = "default";
 			} else {
