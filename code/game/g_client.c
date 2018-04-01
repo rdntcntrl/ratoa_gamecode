@@ -2130,14 +2130,29 @@ void ClientSpawn(gentity_t *ent) {
 				}
 			} else if (g_gametype.integer == GT_TOURNAMENT) {
 				CalculateRanks();
-				spawnPoint = SelectTournamentSpawnPoint ( 
-					client,
-					spawn_origin, spawn_angles);
+				if (g_tournamentSpawnsystem.integer == 1) {
+					// select a spawnpoint away from the opponent
+					spawnPoint = SelectTournamentSpawnPoint ( 
+							client,
+							spawn_origin, spawn_angles);
+				} else {
+					// random spawn
+					spawnPoint = SelectSpawnPoint ( 
+							client->ps.origin, 
+							spawn_origin, spawn_angles);
+				}
 			} else {
-				// don't spawn near existing origin if possible
-				spawnPoint = SelectSpawnPoint ( 
-					client->ps.origin, 
-					spawn_origin, spawn_angles);
+				if (g_ffaSpawnsystem.integer == 1) {
+					// don't spawn near existing origin if possible, but otherwise random
+					spawnPoint = SelectSpawnPoint ( 
+							client->ps.origin, 
+							spawn_origin, spawn_angles);
+				} else {
+					// old spawn system, spawn among other half of the points
+					spawnPoint = SelectRandomFurthestSpawnPoint(
+							client->ps.origin,
+						       	spawn_origin, spawn_angles);
+				}
 			}
 
 			// Tim needs to prevent bots from spawning at the initial point

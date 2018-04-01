@@ -197,7 +197,9 @@ vmCvar_t        g_unlagPrestep;
 vmCvar_t        g_unlagImmediateRun; 
 vmCvar_t        g_unlagFlight; 
 
-vmCvar_t	g_tournamentMinSpawnDistance;
+//vmCvar_t	g_tournamentMinSpawnDistance;
+vmCvar_t	g_tournamentSpawnsystem;
+vmCvar_t	g_ffaSpawnsystem;
 
 vmCvar_t	g_enableGreenArmor;
 
@@ -418,7 +420,10 @@ static cvarTable_t		gameCvarTable[] = {
         { &g_unlagImmediateRun, "g_unlagImmediateRun", "1", CVAR_ARCHIVE, 0, qfalse },
         { &g_unlagFlight, "g_unlagFlight", "0", CVAR_ARCHIVE, 0, qfalse },
 
-        { &g_tournamentMinSpawnDistance, "g_tournamentMinSpawnDistance", "900", CVAR_ARCHIVE, 0, qfalse },
+        //{ &g_tournamentMinSpawnDistance, "g_tournamentMinSpawnDistance", "900", CVAR_ARCHIVE, 0, qfalse },
+        { &g_tournamentSpawnsystem, "g_tournamentSpawnsystem", "1", CVAR_ARCHIVE, 0, qfalse },
+
+        { &g_ffaSpawnsystem, "g_ffaSpawnsystem", "1", CVAR_ARCHIVE, 0, qfalse },
 
         { &g_enableGreenArmor, "g_enableGreenArmor", "0", CVAR_ARCHIVE, 0, qfalse },
 
