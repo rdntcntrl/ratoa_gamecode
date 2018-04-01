@@ -261,14 +261,29 @@ static void CG_ParseRatScores2( void ) {
 	cg.numScores_buf = numScores;
 	//memset( cg.scores, 0, sizeof( cg.scores ) );
 
-#define NUM_RAT2_DATA 4
+#define NUM_RAT2_DATA 7
 #define FIRST_RAT2_DATA 1
 
 	for ( i = 0 ; i < numScores ; i++ ) {
 		cg.scores_buf[i].dmgGiven = atoi(CG_Argv(i * NUM_RAT2_DATA + FIRST_RAT2_DATA + 1));
 		cg.scores_buf[i].dmgTaken = atoi(CG_Argv(i * NUM_RAT2_DATA + FIRST_RAT2_DATA + 2));
-		cg.scores_buf[i].spectatorGroup = atoi(CG_Argv(i * NUM_RAT2_DATA + FIRST_RAT2_DATA + 2));
-		cg.scores_buf[i].flagrecovery = atoi(CG_Argv(i * NUM_RAT2_DATA + FIRST_RAT2_DATA + 3));
+		cg.scores_buf[i].spectatorGroup = atoi(CG_Argv(i * NUM_RAT2_DATA + FIRST_RAT2_DATA + 3));
+		cg.scores_buf[i].flagrecovery = atoi(CG_Argv(i * NUM_RAT2_DATA + FIRST_RAT2_DATA + 4));
+		cg.scores_buf[i].topweapon1 = atoi(CG_Argv(i * NUM_RAT2_DATA + FIRST_RAT2_DATA + 5));
+		cg.scores_buf[i].topweapon2 = atoi(CG_Argv(i * NUM_RAT2_DATA + FIRST_RAT2_DATA + 6));
+		cg.scores_buf[i].topweapon3 = atoi(CG_Argv(i * NUM_RAT2_DATA + FIRST_RAT2_DATA + 7));
+
+		if (cg.scores_buf[i].topweapon1 >= WP_NUM_WEAPONS || cg.scores_buf[i].topweapon1 < WP_NONE) {
+			cg.scores_buf[i].topweapon1 = WP_NONE;
+		}
+		if (cg.scores_buf[i].topweapon2 >= WP_NUM_WEAPONS || cg.scores_buf[i].topweapon2 < WP_NONE) {
+			cg.scores_buf[i].topweapon2 = WP_NONE;
+		}
+		if (cg.scores_buf[i].topweapon3 >= WP_NUM_WEAPONS || cg.scores_buf[i].topweapon3 < WP_NONE) {
+			cg.scores_buf[i].topweapon3 = WP_NONE;
+		}
+
+
 	}
 
 	CG_CheckScoreUpdate();

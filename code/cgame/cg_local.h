@@ -348,6 +348,10 @@ typedef struct {
 	int			dmgGiven;
 	int			dmgTaken;
 	spectatorGroup_t	spectatorGroup;
+	int			topweapon1;
+	int			topweapon2;
+	int			topweapon3;
+
 } score_t;
 
 // each client has an associated clientInfo_t

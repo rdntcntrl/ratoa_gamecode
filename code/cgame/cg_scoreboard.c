@@ -89,7 +89,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define RATSB_CNUM_X           (RATSB_TIME_X      + RATSB_TIME_WIDTH      + 1 * SCORESMALLCHAR_WIDTH)
 #define RATSB_NAME_X           (RATSB_CNUM_X      + RATSB_CNUM_WIDTH      + 1 * SCORESMALLCHAR_WIDTH)
 #define RATSB_KD_X	       (RATSB_NAME_X      + RATSB_NAME_WIDTH      + 1 * SCORESMALLCHAR_WIDTH)
-#define RATSB_DT_X	       (RATSB_KD_X        + RATSB_KD_WIDTH	  + 1 * SCORESMALLCHAR_WIDTH)
+#define RATSB_WEAPONS_X	       (RATSB_KD_X        + RATSB_KD_WIDTH	  + 1 * SCORESMALLCHAR_WIDTH)
+#define RATSB_DT_X	       (RATSB_WEAPONS_X   + RATSB_WEAPONS_WIDTH	  + 1 * SCORESMALLCHAR_WIDTH)
+//#define RATSB_DT_X	       (RATSB_KD_X        + RATSB_KD_WIDTH	  + 1 * SCORESMALLCHAR_WIDTH)
 
 #define RATSB_ACCURACY_X       (RATSB_DT_X        + RATSB_DT_WIDTH        + 1 * SCORESMALLCHAR_WIDTH)
 #define RATSB_PING_X           (RATSB_ACCURACY_X  + RATSB_ACCURACY_WIDTH  + 1 * SCORESMALLCHAR_WIDTH)
@@ -97,16 +99,18 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 //#define RATSB_ACCURACY_X       (RATSB_DT_X        + RATSB_DT_WIDTH        + 1 * SCORESMALLCHAR_WIDTH)
 //#define RATSB_PING_X           (RATSB_ACCURACY_X  + RATSB_ACCURACY_WIDTH  + 1 * SCORESMALLCHAR_WIDTH)
 
-#define RATSB_NAME_LENGTH	(25)
+//#define RATSB_NAME_LENGTH	(25)
+#define RATSB_NAME_LENGTH	(24)
 
 #define RATSB_WINS_WIDTH       (2 * SCORESMALLCHAR_WIDTH)
 #define RATSB_WL_WIDTH         (1 * SCORESMALLCHAR_WIDTH)
 #define RATSB_LOSSES_WIDTH     (2 * SCORESMALLCHAR_WIDTH)
 #define RATSB_SCORE_WIDTH      (MAX(4*SCORECHAR_WIDTH,5*SCORESMALLCHAR_WIDTH))
 #define RATSB_TIME_WIDTH       (3 * SCORESMALLCHAR_WIDTH)
-#define RATSB_CNUM_WIDTH       (2 * SCORESMALLCHAR_WIDTH)
+#define RATSB_CNUM_WIDTH       (2 * SCORETINYCHAR_WIDTH)
 #define RATSB_NAME_WIDTH       (RATSB_NAME_LENGTH * SCORECHAR_WIDTH)
-#define RATSB_KD_WIDTH         (7 * SCORETINYCHAR_WIDTH)
+#define RATSB_KD_WIDTH         (5 * SCORETINYCHAR_WIDTH)
+#define RATSB_WEAPONS_WIDTH    (3 * SCORESMALLCHAR_WIDTH)
 #define RATSB_DT_WIDTH         (9 * SCORETINYCHAR_WIDTH)
 #define RATSB_ACCURACY_WIDTH   (4 * SCORETINYCHAR_WIDTH)
 #define RATSB_PING_WIDTH       (3 * SCORESMALLCHAR_WIDTH)
@@ -118,6 +122,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define RATSB_TIME_CENTER      (RATSB_TIME_X + RATSB_TIME_WIDTH/2)
 #define RATSB_CNUM_CENTER      (RATSB_CNUM_X + RATSB_CNUM_WIDTH/2)
 #define RATSB_KD_CENTER        (RATSB_KD_X + RATSB_KD_WIDTH/2)
+#define RATSB_WEAPONS_CENTER   (RATSB_WEAPONS_X + RATSB_WEAPONS_WIDTH/2)
 #define RATSB_DT_CENTER        (RATSB_DT_X + RATSB_DT_WIDTH/2)
 #define RATSB_ACCURACY_CENTER  (RATSB_ACCURACY_X + RATSB_ACCURACY_WIDTH/2)
 #define RATSB_PING_CENTER      (RATSB_PING_X + RATSB_PING_WIDTH/2)
@@ -366,15 +371,26 @@ static void CG_RatDrawClientScore(int y, score_t *score, float *color, float fad
 	tcolor[1] = 0.45;
 	tcolor[2] = 1.0;
 	Com_sprintf(string, sizeof (string), "%2i", score->client);
-	CG_DrawSmallScoreStringColor(RATSB_CNUM_X, ysmall, string, tcolor);
+	//CG_DrawSmallScoreStringColor(RATSB_CNUM_X, ysmall, string, tcolor);
+	CG_DrawTinyScoreStringColor(RATSB_CNUM_X, ytiny, string, tcolor);
 
 	tcolor[0] = tcolor[1] = tcolor[2] = 1.0;
 	Com_sprintf(string, sizeof (string), "%s", ci->name);
 	CG_DrawScoreString(RATSB_NAME_X, y, string, fade, RATSB_NAME_LENGTH);
 
 	CG_RatioColor(score->kills, score->deaths, tcolor);
-	Com_sprintf(string, sizeof (string), "%3i/%-3i", score->kills, score->deaths);
+	Com_sprintf(string, sizeof (string), "%2i/%-2i", score->kills, score->deaths);
 	CG_DrawTinyScoreStringColor(RATSB_KD_X, ytiny, string, tcolor);
+
+	if (score->topweapon1 != WP_NONE && cg_weapons[score->topweapon1].registered) {
+		CG_DrawPic(RATSB_WEAPONS_X, ysmall, SCORESMALLCHAR_WIDTH, SCORESMALLCHAR_WIDTH, cg_weapons[score->topweapon1].weaponIcon);
+	}
+	if (score->topweapon2 != WP_NONE && cg_weapons[score->topweapon2].registered) {
+		CG_DrawPic(RATSB_WEAPONS_X + SCORESMALLCHAR_WIDTH, ysmall, SCORESMALLCHAR_WIDTH, SCORESMALLCHAR_WIDTH, cg_weapons[score->topweapon2].weaponIcon);
+	}
+	if (score->topweapon3 != WP_NONE && cg_weapons[score->topweapon3].registered) {
+		CG_DrawPic(RATSB_WEAPONS_X + 2*SCORESMALLCHAR_WIDTH, ysmall, SCORESMALLCHAR_WIDTH, SCORESMALLCHAR_WIDTH, cg_weapons[score->topweapon3].weaponIcon);
+	}
 
 	CG_RatioColor(score->dmgGiven, score->dmgTaken, tcolor);
 	Com_sprintf(string, sizeof (string), "%2.1f/%-2.1f",
@@ -645,6 +661,7 @@ qboolean CG_DrawRatScoreboard(void) {
 	CG_DrawTinyScoreString(RATSB_CNUM_CENTER - SCORETINYCHAR_WIDTH, y, "CN", fade);
 	CG_DrawTinyScoreString(RATSB_NAME_X, y, "Name", fade);
 	CG_DrawTinyScoreString(RATSB_KD_CENTER - 1.5 * SCORETINYCHAR_WIDTH, y, "K/D", fade);
+	CG_DrawTinyScoreString(RATSB_WEAPONS_CENTER - 2 * SCORETINYCHAR_WIDTH, y, "Weap", fade);
 	CG_DrawTinyScoreString(RATSB_DT_CENTER - 4.5 * SCORETINYCHAR_WIDTH, y, "kDG/kDT", fade);
 	CG_DrawTinyScoreString(RATSB_ACCURACY_CENTER - 1.5 * SCORETINYCHAR_WIDTH, y, "Acc", fade);
 	//CG_DrawTinyScoreString(RATSB_ACCURACY_CENTER - 1.5 * SCORETINYCHAR_WIDTH, y, "Acc", fade);
