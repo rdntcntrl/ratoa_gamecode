@@ -1913,7 +1913,8 @@ void ClientBegin( int clientNum ) {
 		tent->s.clientNum = ent->s.clientNum;
 
 		if ( g_gametype.integer != GT_TOURNAMENT  ) {
-			trap_SendServerCommand( -1, va("print \"%s" S_COLOR_WHITE " entered the game\n\"", client->pers.netname) );
+			trap_SendServerCommand( -1, va("print \"%s" S_COLOR_WHITE " entered the game%s\n\"", client->pers.netname,
+						(g_usesRatEngine.integer && g_mixedMode.integer && !client->pers.pure) ? " (baseoa client)" : "") );
 		}
 	}
         
