@@ -1417,6 +1417,7 @@ extern vmCvar_t			cg_ratRail;
 extern vmCvar_t			cg_ratRailRadius;
 extern vmCvar_t			cg_ratLg;
 extern vmCvar_t			cg_ratLgImpact;
+extern vmCvar_t			cg_consoleStyle;
 extern vmCvar_t			cg_delagProjectileTrail;
 extern vmCvar_t			cg_noBubbleTrail;
 extern vmCvar_t			cg_specShowZoom;

@@ -205,6 +205,7 @@ vmCvar_t	cg_ratRail;
 vmCvar_t	cg_ratRailRadius;
 vmCvar_t	cg_ratLg;
 vmCvar_t	cg_ratLgImpact;
+vmCvar_t	cg_consoleStyle;
 vmCvar_t 	cg_noBubbleTrail;
 vmCvar_t	cg_specShowZoom;
 vmCvar_t	cg_zoomToggle;
@@ -560,6 +561,7 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_ratRailRadius, "cg_ratRailRadius", "0.5", CVAR_ARCHIVE},
 	{ &cg_ratLg, "cg_ratLg", "3", CVAR_ARCHIVE},
 	{ &cg_ratLgImpact, "cg_ratLgImpact", "1", CVAR_ARCHIVE},
+	{ &cg_consoleStyle, "cg_consoleStyle", "1", CVAR_ARCHIVE},
 	{ &cg_noBubbleTrail, "cg_noBubbleTrail", "1", CVAR_ARCHIVE},
 	{ &cg_specShowZoom, "cg_specShowZoom", "1", CVAR_ARCHIVE},
 	{ &cg_zoomToggle, "cg_zoomToggle", "0", CVAR_ARCHIVE},
@@ -758,6 +760,12 @@ void CG_RegisterCvars( void ) {
 	trap_Cvar_Register(NULL, "headmodel", DEFAULT_MODEL, CVAR_USERINFO | CVAR_ARCHIVE );
 	trap_Cvar_Register(NULL, "team_model", DEFAULT_TEAM_MODEL, CVAR_USERINFO | CVAR_ARCHIVE );
 	trap_Cvar_Register(NULL, "team_headmodel", DEFAULT_TEAM_HEAD, CVAR_USERINFO | CVAR_ARCHIVE );
+}
+
+void CG_RatRemapShaders(void) {
+	if (cg_consoleStyle.integer) {
+		trap_R_RemapShader("console", "ratconsole", 0);
+	}
 }
 
 void CG_RatInitDefaults(void)  {
@@ -2570,6 +2578,8 @@ void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum ) {
 	trap_Cvar_Set("snaps", "40");
 
 	CG_LoadForcedSounds();
+
+	CG_RatRemapShaders();
 }
 
 /*
