@@ -128,9 +128,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define RATSB_ACCURACY_CENTER  (RATSB_ACCURACY_X + RATSB_ACCURACY_WIDTH/2)
 #define RATSB_PING_CENTER      (RATSB_PING_X + RATSB_PING_WIDTH/2)
 
-#define RATSB_MAP_Y (RATSB_HEADER - 26)
+#define RATSB_MAP_Y (RATSB_HEADER - 20)
 #define RATSB_MAP_X (RATSB_PING_X + RATSB_PING_WIDTH)
-#define RATSB_GT_Y (RATSB_MAP_Y - SCORETINYCHAR_HEIGHT)
+#define RATSB_TIMELIMIT_Y (RATSB_MAP_Y - SCORETINYCHAR_HEIGHT)
+#define RATSB_TIMELIMIT_X (RATSB_MAP_X)
+#define RATSB_GT_Y (RATSB_TIMELIMIT_Y - SCORETINYCHAR_HEIGHT)
 #define RATSB_GT_X (RATSB_MAP_X)
 #define RATSB_SVNAME_Y (RATSB_GT_Y - SCORETINYCHAR_HEIGHT)
 #define RATSB_SVNAME_X (RATSB_MAP_X)
@@ -654,6 +656,19 @@ qboolean CG_DrawRatScoreboard(void) {
 	x = RATSB_GT_X - w;
 	y = RATSB_GT_Y;
 	memcpy(color, colorGreen, sizeof(color));
+	color[3] = fade;
+	CG_DrawTinyScoreStringColor(x, y, s, color);
+
+	// draw timelimit 
+	s = va("Timelimit %i", cgs.timelimit);
+	len = CG_DrawStrlen(s);
+	if (len > 20) {
+		len = 20;
+	}
+	w = len * SCORETINYCHAR_WIDTH;
+	x = RATSB_TIMELIMIT_X - w;
+	y = RATSB_TIMELIMIT_Y;
+	memcpy(color, colorBlue, sizeof(color));
 	color[3] = fade;
 	CG_DrawTinyScoreStringColor(x, y, s, color);
 
