@@ -1019,7 +1019,7 @@ typedef struct {
 
 extern char custom_vote_info[2048];
 
-extern t_mappage getMappage(int page);
+extern t_mappage getMappage(int page, qboolean recommendedonly);
 extern int allowedMap(char *mapname);
 extern int allowedGametype(char *gametypeStr);
 extern int allowedTimelimit(int limit);
@@ -1090,6 +1090,7 @@ extern	vmCvar_t	g_synchronousClients;
 extern	vmCvar_t	g_motd;
 extern	vmCvar_t	g_motdfile;
 extern  vmCvar_t        g_votemaps;
+extern  vmCvar_t        g_recommenedMapsFile;
 extern  vmCvar_t        g_votecustom;
 extern	vmCvar_t	g_warmup;
 extern	vmCvar_t	g_doWarmup;

@@ -59,7 +59,7 @@ getMappage
 ==================
  */
 
-t_mappage getMappage(int page) {
+t_mappage getMappage(int page, qboolean recommenedonly) {
 	t_mappage result;
 	fileHandle_t	file;
 	char *token,*pointer;
@@ -71,6 +71,10 @@ t_mappage getMappage(int page) {
 
 	//Check if there is a votemaps.cfg
 	trap_FS_FOpenFile(g_votemaps.string,&file,FS_READ);
+	if (!file && recommenedonly) {
+		// if no votemaps.cfg and we only want recommened maps, try recommenedmaps.cfg
+		trap_FS_FOpenFile(g_recommenedMapsFile.string,&file,FS_READ);
+	}
 	if(file)
 	{
 		//there is a votemaps.cfg file, take allowed maps from there
@@ -90,7 +94,7 @@ t_mappage getMappage(int page) {
 		if(!token || token[0]==0) {
 			//Page empty, return to first page
                         trap_FS_FCloseFile(file);
-			return getMappage(0);
+			return getMappage(0, recommenedonly);
 		}
 		//There is an actual page:
                 result.pagenumber = page;
@@ -105,7 +109,7 @@ t_mappage getMappage(int page) {
         nummaps = trap_FS_GetFileList("maps",".bsp",buffer,sizeof(buffer));
 
         if(nummaps && nummaps<=MAPS_PER_PAGE*page)
-            return getMappage(0);
+            return getMappage(0, recommenedonly);
 
         pointer = buffer;
         result.pagenumber = page;
