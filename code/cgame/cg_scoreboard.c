@@ -447,6 +447,10 @@ static int CG_RatTeamScoreboard(int y, team_t team, float fade, int maxClients, 
 		score = &cg.scores[i];
 		ci = &cgs.clientinfo[ score->client ];
 
+		if (!ci->infoValid) {
+			continue;
+		}
+
 		if (team != ci->team) {
 			continue;
 		}
