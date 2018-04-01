@@ -1358,6 +1358,7 @@ extern	vmCvar_t		cg_thirdPerson;
 extern	vmCvar_t		cg_lagometer;
 extern	vmCvar_t		cg_drawAttacker;
 extern	vmCvar_t		cg_drawSpeed;
+extern	vmCvar_t		cg_drawSpeed3D;
 extern	vmCvar_t		cg_synchronousClients;
 extern	vmCvar_t		cg_teamChatTime;
 extern	vmCvar_t		cg_teamChatHeight;

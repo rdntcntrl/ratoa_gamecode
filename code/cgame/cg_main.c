@@ -153,6 +153,7 @@ vmCvar_t	cg_thirdPersonAngle;
 vmCvar_t	cg_lagometer;
 vmCvar_t	cg_drawAttacker;
 vmCvar_t	cg_drawSpeed;
+vmCvar_t	cg_drawSpeed3D;
 vmCvar_t	cg_synchronousClients;
 vmCvar_t 	cg_teamChatHeight;
 vmCvar_t 	cg_teamChatScaleX;
@@ -430,6 +431,7 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_drawAmmoWarning, "cg_drawAmmoWarning", "1", CVAR_ARCHIVE  },
 	{ &cg_drawAttacker, "cg_drawAttacker", "1", CVAR_ARCHIVE  },
 	{ &cg_drawSpeed, "cg_drawSpeed", "1", CVAR_ARCHIVE  },
+	{ &cg_drawSpeed3D, "cg_drawSpeed3D", "0", 0  },
 	{ &cg_drawCrosshair, "cg_drawCrosshair", "19", CVAR_ARCHIVE },
 	{ &cg_drawCrosshairNames, "cg_drawCrosshairNames", "1", CVAR_ARCHIVE },
 	{ &cg_drawRewards, "cg_drawRewards", "1", CVAR_ARCHIVE },

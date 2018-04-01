@@ -977,8 +977,12 @@ static float CG_DrawSpeedMeter( float y ) {
 	}
 
 	vel = cg.snap->ps.velocity;
-	/* ignore vertical component of velocity */
-	speed = sqrt(vel[0] * vel[0] + vel[1] * vel[1]);
+	if (cg_drawSpeed3D.integer) { 
+		speed = VectorLength(vel);
+	} else {
+		/* ignore vertical component of velocity */
+		speed = sqrt(vel[0] * vel[0] + vel[1] * vel[1]);
+	}
 
 	s = va( "%iu/s", speed );
 
