@@ -1449,6 +1449,10 @@ void ClientUserinfoChanged( int clientNum ) {
 	if (client->ps.powerups[PW_GUARD]) {
 		client->pers.maxHealth = 200;
 	} else {
+		if (client->pers.handicapforced) {
+			Info_SetValueForKey( userinfo, "handicap", va("%i", client->pers.handicapforced));
+			trap_SetUserinfo( clientNum, userinfo );
+		}
 		health = atoi( Info_ValueForKey( userinfo, "handicap" ) );
 		client->pers.maxHealth = health;
 		if ( client->pers.maxHealth < 1 || client->pers.maxHealth > 100 ) {

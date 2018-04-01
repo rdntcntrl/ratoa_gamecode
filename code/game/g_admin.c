@@ -89,6 +89,11 @@ g_admin_cmd_t g_admin_cmds[ ] =
 		"disorient a player by flipping player's view and controls",
 		"[^3name|slot#^7] (^hreason^7)"
 	},
+
+    {"handicap", "", G_admin_handicap, "S",
+        "sets a handicap for a player",
+        "[^3name|slot#] [handicap]"
+    },
     //{"fling", G_admin_fling, "d",
     //  "throws the player specified",
     //  "[^3name|slot#^7]"
@@ -2826,6 +2831,51 @@ qboolean G_admin_showbans( gentity_t *ent, int skiparg )
              ( filter[ 0 ] ) ? filter : "" ) );
   ADMBP( "\n" );
   ADMBP_end();
+  return qtrue;
+}
+
+qboolean G_admin_handicap( gentity_t *ent, int skiparg )
+{
+  int pids[ MAX_CLIENTS ], found;
+  char name[ MAX_NAME_LENGTH ], err[ MAX_STRING_CHARS ];
+  char userinfo[ MAX_INFO_STRING ];
+  char handicapstr[ 8 ];
+  int hc;
+  gentity_t *vic;
+
+  if( G_SayArgc() < 3 + skiparg )
+  {
+    ADMP( "^3!handicap: ^7usage: !handicap [name] [handicap]\n" );
+    return qfalse;
+  }
+  G_SayArgv( 1 + skiparg, name, sizeof( name ) );
+
+  if( ( found = G_ClientNumbersFromString( name, pids, MAX_CLIENTS ) ) != 1 )
+  {
+    G_MatchOnePlayer( pids, found, err, sizeof( err ) );
+    ADMP( va( "^3!handicap: ^7%s\n", err ) );
+    return qfalse;
+  }
+  vic = &g_entities[ pids[ 0 ] ];
+  if( !admin_higher( ent, vic ) )
+  {
+    ADMP( "^3!handicap: ^7sorry, but your intended victim has a higher admin"
+        " level than you\n" );
+    return qfalse;
+  }
+
+  G_SayArgv(2 + skiparg, handicapstr, sizeof(handicapstr));
+  hc = atoi(handicapstr);
+  if (hc <= 0 || hc > 100) {
+	  hc = 100;
+  }
+
+  vic->client->pers.handicapforced = hc;
+  trap_GetUserinfo( pids[ 0 ], userinfo, sizeof( userinfo ) );
+  Info_SetValueForKey( userinfo, "handicap", va("%i", hc) );
+  trap_SetUserinfo( pids[ 0 ], userinfo );
+  ClientUserinfoChanged( pids[ 0 ] );
+
   return qtrue;
 }
 

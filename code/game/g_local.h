@@ -335,6 +335,7 @@ typedef struct {
     int		kills, deaths;
     int		damage[WP_NUM_WEAPONS];
     int		topweapons[WP_NUM_WEAPONS][2];
+    int		handicapforced;		
 } clientPersistant_t;
 
 //unlagged - backward reconciliation #1

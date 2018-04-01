@@ -184,6 +184,7 @@ qboolean G_admin_mute( gentity_t *ent, int skiparg );
 qboolean G_admin_mutespec( gentity_t *ent, int skiparg );
 qboolean G_admin_unmutespec( gentity_t *ent, int skiparg );
 qboolean G_admin_showbans( gentity_t *ent, int skiparg );
+qboolean G_admin_handicap( gentity_t *ent, int skiparg );
 qboolean G_admin_help( gentity_t *ent, int skiparg );
 qboolean G_admin_admintest( gentity_t *ent, int skiparg );
 qboolean G_admin_allready( gentity_t *ent, int skiparg );
