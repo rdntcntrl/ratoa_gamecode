@@ -2522,7 +2522,8 @@ void ClientDisconnect( int clientNum ) {
 		ent->client->sess.sessionTeam = TEAM_FREE;
 	}
 
-	trap_SetConfigstring( CS_PLAYERS + clientNum, va("t\\%i", ent->client->sess.sessionTeam));
+	//trap_SetConfigstring( CS_PLAYERS + clientNum, va("t\\%i", ent->client->sess.sessionTeam));
+	trap_SetConfigstring( CS_PLAYERS + clientNum, "");
 
 	CalculateRanks();
         CountVotes();
