@@ -60,16 +60,17 @@ typedef struct {
 	menubitmap_s	back;
 	menubitmap_s	go;
 	menulist_s		type;
-	menubitmap_s	mappics[MAPPAGE_NUM];
-	menubitmap_s	mapbuttons[MAPPAGE_NUM];
+	menubitmap_s	mappics[MAX_MAPSPERPAGE];
+	menubitmap_s	mapbuttons[MAX_MAPSPERPAGE];
 
 	menutext_s		mapname;
 	menutext_s		page;
 
-	int nummaps;
+	//int nummaps;
 	int currentmap;
+	int pagenum;
 
-	int		selected;
+	//int		selected;
 } votemenu_map_t;
 
 static votemenu_map_t	s_votemenu_map;
@@ -89,13 +90,29 @@ static const char *getmappage_cmd = "getmappage";
 
 t_mappage mappage;
 
+// XXX: must be multiple of MAX_MAPSPERPAGE
+#define MAX_MAP_NUMBER 600
+struct {
+	int reset;
+	int num_sent_cmds;
+	int num_cmds;
+	//int pagenum;
+	int num_maps;
+	int loaded_all;
+	char mapname[MAX_MAP_NUMBER][MAX_MAPNAME_LENGTH];
+} maplist;
+
 static void InitMappage(void) {
     int i;
     //We need to initialize the list or it will be impossible to click on the items
-    for(i=0;i<MAPPAGE_NUM;i++) {
+    for(i=0;i<MAX_MAPSPERPAGE;i++) {
         Q_strncpyz(mappage.mapname[i],"----",5);
     }
     mappage.pagenumber = 0;
+}
+
+static void InitMaplist(void) {
+	memset(&maplist, 0, sizeof(maplist));
 }
 
 
@@ -106,6 +123,7 @@ VoteMapMenu_Event
 */
 static void VoteMapMenu_Event( void* ptr, int event )
 {
+	int mapidx;
 	switch (((menucommon_s*)ptr)->id)
 	{
             case ID_BACK:
@@ -117,11 +135,16 @@ static void VoteMapMenu_Event( void* ptr, int event )
                 if( event != QM_ACTIVATED ) {
                     return;
                 }
-		if (s_votemenu_map.currentmap < 0 || s_votemenu_map.currentmap >= MAPPAGE_NUM)
+		if (s_votemenu_map.currentmap < 0 || s_votemenu_map.currentmap >= MAX_MAPSPERPAGE)
 			return;
-                if(!Q_stricmp(mappage.mapname[s_votemenu_map.currentmap],"---"))
+                //if(!Q_stricmp(mappage.mapname[s_votemenu_map.currentmap],"---"))
+		mapidx = s_votemenu_map.pagenum * MAX_MAPSPERPAGE + s_votemenu_map.currentmap;
+		if (mapidx > maplist.num_maps) {
+			return;
+		}
+                if(!Q_stricmp(maplist.mapname[mapidx],"---"))
                     return; //Blank spaces have string "---"
-                trap_Cmd_ExecuteText( EXEC_APPEND, va("callvote map %s", mappage.mapname[s_votemenu_map.currentmap]) );
+                trap_Cmd_ExecuteText( EXEC_APPEND, va("callvote map %s", mappage.mapname[mapidx]) );
                 UI_PopMenu();
                 UI_PopMenu();
                 break;
@@ -150,11 +173,15 @@ static void VoteMapMenu_Event( void* ptr, int event )
 }
 
 static void UI_VoteMapMenu_PreviousPageEvent( void* ptr, int event ) {
-	if (event != QM_ACTIVATED  || mappage.pagenumber<1) {
+	if (event != QM_ACTIVATED ) {
 		return;
 	}
 
-        trap_Cmd_ExecuteText( EXEC_APPEND,va("%s %d",getmappage_cmd, mappage.pagenumber-1) );
+        //trap_Cmd_ExecuteText( EXEC_APPEND,va("%s %d",getmappage_cmd, mappage.pagenumber-1) );
+	if (s_votemenu_map.pagenum > 0) {
+		s_votemenu_map.pagenum--;
+		UI_VoteMapMenu_Update();
+	}
 }
 
 
@@ -163,7 +190,22 @@ static void UI_VoteMapMenu_NextPageEvent( void* ptr, int event ) {
 		return;
 	}
 
-        trap_Cmd_ExecuteText( EXEC_APPEND,va("%s %d",getmappage_cmd, mappage.pagenumber+1) );
+	if (maplist.num_maps > (s_votemenu_map.pagenum + 1) * MAX_MAPSPERPAGE) {
+		s_votemenu_map.pagenum++;
+		UI_VoteMapMenu_Update();
+	}
+
+        //trap_Cmd_ExecuteText( EXEC_APPEND,va("%s %d",getmappage_cmd, mappage.pagenumber+1) );
+}
+
+static void ResetMaplist(void) {
+	InitMaplist();
+	InitMappage();
+	s_votemenu_map.pagenum = 0;
+	s_votemenu_map.currentmap = 0;
+	UI_VoteMapMenu_Update();
+	//trap_Cmd_ExecuteText( EXEC_APPEND,va("%s 0", getmappage_cmd) );
+	//maplist.num_sent_cmds++;
 }
 
 static void VoteMapMenu_TypeEvent( void* ptr, int event ) {
@@ -175,9 +217,13 @@ static void VoteMapMenu_TypeEvent( void* ptr, int event ) {
 	} else {
 		getmappage_cmd = getmappage_all_cmd;
 	}
-	InitMappage();
-	UI_VoteMapMenu_Update();
-	trap_Cmd_ExecuteText( EXEC_APPEND,va("%s 0", getmappage_cmd) );
+	if (maplist.loaded_all) {
+		ResetMaplist();
+		trap_Cmd_ExecuteText( EXEC_APPEND,va("%s 0", getmappage_cmd) );
+		maplist.num_sent_cmds++;
+	} else {
+		maplist.reset = 1;
+	}
 }
 
 /*
@@ -277,12 +323,13 @@ static void VoteMapMenu_LevelshotDraw( void *self ) {
 
 	x += b->width / 2;
 	y += 4;
-	n = b->generic.id - ID_PICTURES;
+	n = s_votemenu_map.pagenum * MAX_MAPSPERPAGE + b->generic.id - ID_PICTURES;
+
+	if (n > MAX_MAP_NUMBER) {
+		n = MAX_MAP_NUMBER;
+	}
         
-	// TODO:
-	//info = UI_GetArenaInfoByNumber( s_votemenu_map.maplist[ n ]);
-	//UI_DrawString( x, y, Info_ValueForKey( info, "map" ), UI_CENTER|UI_SMALLFONT, color_orange );
-	UI_DrawString( x, y, mappage.mapname[n], UI_CENTER|UI_SMALLFONT, color_orange );
+	UI_DrawString( x, y, maplist.mapname[n], UI_CENTER|UI_SMALLFONT, color_orange );
 
 	x = b->generic.x;
 	y = b->generic.y;
@@ -293,25 +340,32 @@ static void VoteMapMenu_LevelshotDraw( void *self ) {
 	}
 }
 
-void UI_VoteMapMenu_Update( void ) {
-	int				i;
-	static	char	picname[MAPPAGE_NUM][64];
-        const char		*info;
-	char			mapname[MAX_MAPNAME_LENGTH];
-
+static int CountMappageMaps( void ) {
+	int i;
 	for (i = 0; i < MAPPAGE_NUM; ++i) {
 		if (!Q_stricmp(mappage.mapname[i],"---")) {
 			break;
 		}
 	}
-	s_votemenu_map.nummaps = i;
+	return i;
+}
 
-	for (i=0; i<MAPPAGE_NUM; i++)
+void UI_VoteMapMenu_Update( void ) {
+	int				i;
+	int 		top;
+	static	char	picname[MAX_MAPSPERPAGE][64];
+        const char		*info;
+	char			mapname[MAX_MAPNAME_LENGTH];
+
+	top = s_votemenu_map.pagenum * MAX_MAPSPERPAGE;
+	//s_votemenu_map.nummaps = maplist.num_maps - s_votemenu_map.pagenumber * MAX_MAPSPERPAGE;
+
+	for (i=0; i<MAX_MAPSPERPAGE; i++)
 	{
-		if (i >= s_votemenu_map.nummaps)
+		if (top + i >= maplist.num_maps)
 			break;
 
-		Q_strncpyz( mapname, mappage.mapname[i], MAX_MAPNAME_LENGTH );
+		Q_strncpyz( mapname, maplist.mapname[top+i], MAX_MAPNAME_LENGTH );
 		Q_strupr( mapname );
 
 		Com_sprintf( picname[i], sizeof(picname[i]), "levelshots/%s", mapname );
@@ -325,7 +379,7 @@ void UI_VoteMapMenu_Update( void ) {
 		s_votemenu_map.mapbuttons[i].generic.flags &= ~((unsigned int)QMF_INACTIVE);
 	}
 
-	for (; i<MAPPAGE_NUM; i++)
+	for (; i<MAX_MAPSPERPAGE; i++)
 	{
 		s_votemenu_map.mappics[i].generic.flags &= ~((unsigned int)QMF_HIGHLIGHT);
 		s_votemenu_map.mappics[i].generic.name   = NULL;
@@ -338,7 +392,7 @@ void UI_VoteMapMenu_Update( void ) {
 
 
 	// no maps to vote for
-	if( !s_votemenu_map.nummaps ) {
+	if( !maplist.num_maps ) {
 		s_votemenu_map.go.generic.flags |= QMF_INACTIVE;
 
 		// set the map name
@@ -348,18 +402,18 @@ void UI_VoteMapMenu_Update( void ) {
 		// set the highlight
 		s_votemenu_map.go.generic.flags &= ~((unsigned int)QMF_INACTIVE);
 		i = s_votemenu_map.currentmap;
-		if ( i >=0 && i < MAPPAGE_NUM ) 
+		if ( i >=0 && i < MAX_MAPSPERPAGE ) 
 		{
 			s_votemenu_map.mappics[i].generic.flags    |= QMF_HIGHLIGHT;
 			s_votemenu_map.mapbuttons[i].generic.flags &= ~((unsigned int)QMF_PULSEIFFOCUS);
 		}
 
 		// set the map name
-		Q_strncpyz( s_votemenu_map.mapname.string, mappage.mapname[s_votemenu_map.currentmap], MAX_MAPNAME_LENGTH);
+		Q_strncpyz( s_votemenu_map.mapname.string, maplist.mapname[top+s_votemenu_map.currentmap], MAX_MAPNAME_LENGTH);
 	}
 	
 	Q_strupr( s_votemenu_map.mapname.string );
-	Com_sprintf( pagebuffer, sizeof(pagebuffer), "Page %i", mappage.pagenumber+1 );
+	Com_sprintf( pagebuffer, sizeof(pagebuffer), "Page %i", s_votemenu_map.pagenum+1 );
 }
 
 /*
@@ -380,13 +434,43 @@ static void VoteMapMenu_MapEvent( void* ptr, int event ) {
 /*
 =================
 UI_VoteMapMenuInternal
- *Used then forcing a redraw
 =================
 */
 void UI_VoteMapMenuInternal( void )
 {
-
-    UI_VoteMapMenu_Update();
+	int i;
+	if (maplist.reset) {
+		ResetMaplist();
+		trap_Cmd_ExecuteText( EXEC_APPEND,va("%s 0",getmappage_cmd ));
+		maplist.num_sent_cmds++;
+		UI_VoteMapMenu_Update();
+		return;
+	}
+	if (maplist.num_cmds > 0) {
+		if (mappage.pagenumber == 0) {
+			// returned to page 0, we're finished loading
+			maplist.loaded_all = 1;
+			Com_Printf("Loaded all maps!\n");
+		}
+	}
+	maplist.num_cmds++;
+	if (uis.activemenu != &s_votemenu_map.menu) {
+		// menu not showing anymore, ignore
+		ResetMaplist();
+		return;
+	}
+	if (!maplist.loaded_all) {
+		for (i = 0; i < CountMappageMaps(); ++i) {
+			Q_strncpyz(maplist.mapname[maplist.num_maps], mappage.mapname[i], MAX_MAPNAME_LENGTH);
+			if (maplist.num_maps < MAX_MAP_NUMBER) {
+				maplist.num_maps++;
+			}
+			Com_Printf("adding map no. %i, %s\n", maplist.num_maps, mappage.mapname[i]);
+		}
+		trap_Cmd_ExecuteText( EXEC_APPEND,va("%s %d",getmappage_cmd, mappage.pagenumber+1) );
+		maplist.num_sent_cmds++;
+	}
+	UI_VoteMapMenu_Update();
 }
 
 
@@ -447,7 +531,7 @@ void UI_VoteMapMenu( void ) {
     s_votemenu_map.type.generic.y		= 70;
     s_votemenu_map.type.itemnames		= mappage_type_items;
 
-    for (i=0; i<MAPPAGE_NUM; i++)
+    for (i=0; i<MAX_MAPSPERPAGE; i++)
     {
     	//x =	(i % MAX_MAPCOLS) * (128+8) + 188;
     	//y = (i / MAX_MAPROWS) * (128+8) + 96;
@@ -529,7 +613,7 @@ void UI_VoteMapMenu( void ) {
     
     Menu_AddItem( &s_votemenu_map.menu, &s_votemenu_map.type );
     
-    for (i=0; i<MAPPAGE_NUM; i++)
+    for (i=0; i<MAX_MAPSPERPAGE; i++)
     {
     	Menu_AddItem( &s_votemenu_map.menu, &s_votemenu_map.mappics[i] );
     	Menu_AddItem( &s_votemenu_map.menu, &s_votemenu_map.mapbuttons[i] );
@@ -544,11 +628,13 @@ void UI_VoteMapMenu( void ) {
     Menu_AddItem( &s_votemenu_map.menu, (void*) &s_votemenu_map.mapname );
     Menu_AddItem( &s_votemenu_map.menu, (void*) &s_votemenu_map.page );
 
-    UI_VoteMapMenuInternal();
-
-    InitMappage();
     getmappage_cmd = getmappage_all_cmd;
+
+    ResetMaplist();
+    UI_VoteMapMenu_Update();
     trap_Cmd_ExecuteText( EXEC_APPEND,va("%s 0", getmappage_cmd) );
+    maplist.num_sent_cmds++;
+
     trap_Cvar_Set( "cl_paused", "0" ); //We cannot send server commands while paused!
 
 
