@@ -1244,7 +1244,7 @@ extern  vmCvar_t        g_usesRatVM;
 extern  vmCvar_t        g_usesRatEngine;
 extern  vmCvar_t        g_mixedMode;
 extern  vmCvar_t        g_broadcastClients;
-extern  vmCvar_t        g_useSplitRatScores;
+extern  vmCvar_t        g_useExtendedScores;
 extern  vmCvar_t        g_ratVmPredictMissiles;
 extern  vmCvar_t        g_ratFlags;
 extern  vmCvar_t        sv_allowDuplicateGuid;

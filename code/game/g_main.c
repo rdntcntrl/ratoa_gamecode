@@ -222,7 +222,7 @@ vmCvar_t        g_usesRatVM;
 vmCvar_t        g_usesRatEngine;
 vmCvar_t        g_mixedMode;
 vmCvar_t        g_broadcastClients;
-vmCvar_t        g_useSplitRatScores;
+vmCvar_t        g_useExtendedScores;
 vmCvar_t        g_ratVmPredictMissiles;
 vmCvar_t        g_ratVmMissileNudge;
 vmCvar_t        g_ratFlags;
@@ -460,7 +460,7 @@ static cvarTable_t		gameCvarTable[] = {
         { &g_usesRatEngine, "g_usesRatEngine", "0", CVAR_ROM | CVAR_INIT, 0, qfalse },
         { &g_mixedMode, "g_mixedMode", "0", CVAR_ARCHIVE, 0, qfalse },
         { &g_broadcastClients, "g_broadcastClients", "0", 0, 0, qfalse },
-        { &g_useSplitRatScores, "g_useSplitRatScores", "0", CVAR_ARCHIVE, 0, qfalse },
+        { &g_useExtendedScores, "g_useExtendedScores", "0", CVAR_ARCHIVE, 0, qfalse },
         { &g_ratVmPredictMissiles, "g_ratVmPredictMissiles", "1", CVAR_ARCHIVE, 0, qfalse },
         { &g_ratVmMissileNudge, "g_ratVmMissileNudge", "58", CVAR_SERVERINFO, 0, qfalse },
         { &g_ratFlags, "g_ratFlags", "0", CVAR_SERVERINFO, 0, qfalse },
