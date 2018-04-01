@@ -318,18 +318,21 @@ void CG_CheckLocalSounds( playerState_t *ps, playerState_t *ops ) {
 			trap_S_StartLocalSound( cgs.media.hitSound, CHAN_LOCAL_SOUND );
 		}
 #else
-		//trap_S_StartLocalSound( cgs.media.hitSound, CHAN_LOCAL_SOUND );
-		damage = ps->persistant[PERS_DAMAGE_DONE] - ops->persistant[PERS_DAMAGE_DONE];
-		if (damage >= 100) {
-			trap_S_StartLocalSound( cgs.media.hitSound0, CHAN_LOCAL_SOUND );
-		} else if (damage >= 75) {
-			trap_S_StartLocalSound( cgs.media.hitSound1, CHAN_LOCAL_SOUND );
-		} else if (damage >= 50) {
-			trap_S_StartLocalSound( cgs.media.hitSound2, CHAN_LOCAL_SOUND );
-		} else if (damage >= 25) {
-			trap_S_StartLocalSound( cgs.media.hitSound3, CHAN_LOCAL_SOUND );
+		if (cg_hitsound.integer == 2) {
+			trap_S_StartLocalSound( cgs.media.hitSound, CHAN_LOCAL_SOUND );
 		} else {
-			trap_S_StartLocalSound( cgs.media.hitSound4, CHAN_LOCAL_SOUND );
+			damage = ps->persistant[PERS_DAMAGE_DONE] - ops->persistant[PERS_DAMAGE_DONE];
+			if (damage >= 100) {
+				trap_S_StartLocalSound( cgs.media.hitSound0, CHAN_LOCAL_SOUND );
+			} else if (damage >= 75) {
+				trap_S_StartLocalSound( cgs.media.hitSound1, CHAN_LOCAL_SOUND );
+			} else if (damage >= 50) {
+				trap_S_StartLocalSound( cgs.media.hitSound2, CHAN_LOCAL_SOUND );
+			} else if (damage >= 25) {
+				trap_S_StartLocalSound( cgs.media.hitSound3, CHAN_LOCAL_SOUND );
+			} else {
+				trap_S_StartLocalSound( cgs.media.hitSound4, CHAN_LOCAL_SOUND );
+			}
 		}
 #endif
 	} else if ( ps->persistant[PERS_HITS] < ops->persistant[PERS_HITS] ) {
