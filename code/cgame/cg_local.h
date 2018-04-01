@@ -1295,6 +1295,7 @@ typedef struct {
     int		ratFlags;
     int		timeoutEnd;
     int		timeoutOvertime;
+    char	sv_hostname[MAX_QPATH];
 } cgs_t;
 
 //==============================================================================

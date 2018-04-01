@@ -339,6 +339,8 @@ static void CG_ParseScores( void ) {
 		cg.scores[i].captures = atoi(CG_Argv(i * NUM_DATA + FIRST_DATA + 14));
 		cg.scores[i].isDead = atoi(CG_Argv(i * NUM_DATA + FIRST_DATA + 15));
 		//cgs.roundStartTime = 
+		
+		cg.scores[i].time *= 60;
 
 		if ( cg.scores[i].client < 0 || cg.scores[i].client >= MAX_CLIENTS ) {
 			cg.scores[i].client = 0;
@@ -640,6 +642,8 @@ void CG_ParseServerinfo( void ) {
 	trap_Cvar_Set("g_redTeam", cgs.redTeam);
 	Q_strncpyz( cgs.blueTeam, Info_ValueForKey( info, "g_blueTeam" ), sizeof(cgs.blueTeam) );
 	trap_Cvar_Set("g_blueTeam", cgs.blueTeam);
+	
+	Q_strncpyz( cgs.sv_hostname, Info_ValueForKey( info, "sv_hostname" ), sizeof(cgs.sv_hostname) );
 
 //unlagged - server options
 	// we'll need this for deciding whether or not to predict weapon effects

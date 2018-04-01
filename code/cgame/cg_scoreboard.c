@@ -106,7 +106,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define RATSB_WL_WIDTH         (1 * SCORESMALLCHAR_WIDTH)
 #define RATSB_LOSSES_WIDTH     (2 * SCORESMALLCHAR_WIDTH)
 #define RATSB_SCORE_WIDTH      (MAX(4*SCORECHAR_WIDTH,5*SCORESMALLCHAR_WIDTH))
-#define RATSB_TIME_WIDTH       (3 * SCORESMALLCHAR_WIDTH)
+//#define RATSB_TIME_WIDTH       (3 * SCORESMALLCHAR_WIDTH)
+#define RATSB_TIME_WIDTH       (5 * SCORETINYCHAR_WIDTH)
 #define RATSB_CNUM_WIDTH       (2 * SCORETINYCHAR_WIDTH)
 #define RATSB_NAME_WIDTH       (RATSB_NAME_LENGTH * SCORECHAR_WIDTH)
 #define RATSB_KD_WIDTH         (5 * SCORETINYCHAR_WIDTH)
@@ -126,6 +127,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define RATSB_DT_CENTER        (RATSB_DT_X + RATSB_DT_WIDTH/2)
 #define RATSB_ACCURACY_CENTER  (RATSB_ACCURACY_X + RATSB_ACCURACY_WIDTH/2)
 #define RATSB_PING_CENTER      (RATSB_PING_X + RATSB_PING_WIDTH/2)
+
+#define RATSB_MAP_Y (RATSB_HEADER - 26)
+#define RATSB_MAP_X (RATSB_PING_X + RATSB_PING_WIDTH)
+#define RATSB_GT_Y (RATSB_MAP_Y - SCORETINYCHAR_HEIGHT)
+#define RATSB_GT_X (RATSB_MAP_X)
+#define RATSB_SVNAME_Y (RATSB_GT_Y - SCORETINYCHAR_HEIGHT)
+#define RATSB_SVNAME_X (RATSB_MAP_X)
 
 // The new and improved score board
 //
@@ -364,8 +372,10 @@ static void CG_RatDrawClientScore(int y, score_t *score, float *color, float fad
 	}
 
 	tcolor[0] = tcolor[1] = tcolor[2] = 1.0;
-	Com_sprintf(string, sizeof (string), "%3i", score->time);
-	CG_DrawSmallScoreStringColor(RATSB_TIME_X, ysmall, string, tcolor);
+	//Com_sprintf(string, sizeof (string), "%3i", score->time);
+	//CG_DrawSmallScoreStringColor(RATSB_TIME_X, ysmall, string, tcolor);
+	Com_sprintf(string, sizeof (string), "%2i:%02i", score->time/60, score->time - (score->time/60)*60);
+	CG_DrawTinyScoreStringColor(RATSB_TIME_X, ytiny, string, tcolor);
 
 	tcolor[0] = 0;
 	tcolor[1] = 0.45;
@@ -595,6 +605,18 @@ qboolean CG_DrawRatScoreboard(void) {
 		CG_DrawSmallScoreString(x, y, s, 0.6);
 	}
 
+	// draw server name
+	if (cgs.sv_hostname[0]) {
+		len = CG_DrawStrlen(cgs.sv_hostname);
+		if (len > 20) {
+			len = 20;
+		}
+		w = len * SCORETINYCHAR_WIDTH;
+		x = RATSB_SVNAME_X - w;
+		y = RATSB_SVNAME_Y;
+		CG_DrawTinyScoreString(x, y, cgs.sv_hostname, fade);
+	}
+
 	// draw gametype
 	if ( cgs.gametype == GT_FFA ) {
 		s = "Free For All";
@@ -629,8 +651,8 @@ qboolean CG_DrawRatScoreboard(void) {
 		len = 20;
 	}
 	w = len * SCORETINYCHAR_WIDTH;
-	x = (RATSB_PING_X+RATSB_PING_WIDTH - w);
-	y = RATSB_HEADER - 26 - SCORETINYCHAR_HEIGHT;
+	x = RATSB_GT_X - w;
+	y = RATSB_GT_Y;
 	memcpy(color, colorGreen, sizeof(color));
 	color[3] = fade;
 	CG_DrawTinyScoreStringColor(x, y, s, color);
@@ -642,8 +664,8 @@ qboolean CG_DrawRatScoreboard(void) {
 		len = 20;
 	}
 	w = len * SCORETINYCHAR_WIDTH;
-	x = (RATSB_PING_X+RATSB_PING_WIDTH - w);
-	y = RATSB_HEADER - 26;
+	x = RATSB_MAP_X - w;
+	y = RATSB_MAP_Y;
 	memcpy(color, colorCyan, sizeof(color));
 	color[3] = fade;
 	CG_DrawTinyScoreStringColor(x, y, s, color);
@@ -841,7 +863,7 @@ static void CG_DrawClientScore( int y, score_t *score, float *color, float fade,
 			" connecting    %s", ci->name);
 	} else if ( ci->team == TEAM_SPECTATOR ) {
 		Com_sprintf(string, sizeof(string),
-			" SPECT %3i %4i %s", score->ping, score->time, ci->name);
+			" SPECT %3i %4i %s", score->ping, score->time/60, ci->name);
 	} else {
 		/*if(cgs.gametype == GT_LMS)
 			Com_sprintf(string, sizeof(string),
@@ -852,7 +874,7 @@ static void CG_DrawClientScore( int y, score_t *score, float *color, float fade,
 				"%5i %4i %4i %s *DEAD*", score->score, score->ping, score->time, ci->name);
 		else*/
 			Com_sprintf(string, sizeof(string),
-				"%5i %4i %4i %s", score->score, score->ping, score->time, ci->name);
+				"%5i %4i %4i %s", score->score, score->ping, score->time/60, ci->name);
 	}
 
 	// highlight your position
