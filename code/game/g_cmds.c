@@ -1679,8 +1679,14 @@ void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText ) 
 	if ((ent->r.svFlags & SVF_BOT) && trap_Cvar_VariableValue( "bot_nochat" )>1)
 	       	return;
 
+	//if ( (g_gametype.integer < GT_TEAM || g_ffa_gt == 1) && mode == SAY_TEAM &&
+	//		!(g_gametype.integer == GT_TOURNAMENT && ent->client->sess.sessionTeam == TEAM_SPECTATOR)) {
+	//	mode = SAY_ALL;
+	//}
+	
+	// in FFA gamemodes, allow teamchat only for spectators
 	if ( (g_gametype.integer < GT_TEAM || g_ffa_gt == 1) && mode == SAY_TEAM &&
-			!(g_gametype.integer == GT_TOURNAMENT && ent->client->sess.sessionTeam == TEAM_SPECTATOR)) {
+			!(ent->client->sess.sessionTeam == TEAM_SPECTATOR)) {
 		mode = SAY_ALL;
 	}
 
