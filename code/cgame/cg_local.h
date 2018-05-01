@@ -351,6 +351,7 @@ typedef struct {
 	int			topweapon1;
 	int			topweapon2;
 	int			topweapon3;
+	int			ratclient;
 
 } score_t;
 
@@ -883,6 +884,8 @@ typedef struct {
 	qhandle_t	shadowMarkShader;
 
 	qhandle_t	botSkillShaders[5];
+
+	qhandle_t	ratSmallIcon;
 
 	// wall mark shaders
 	qhandle_t	wakeMarkShader;

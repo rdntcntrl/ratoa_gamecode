@@ -379,9 +379,19 @@ static void CG_RatDrawClientScore(int y, score_t *score, float *color, float fad
 	Com_sprintf(string, sizeof (string), "%2i:%02i", score->time/60, score->time - (score->time/60)*60);
 	CG_DrawTinyScoreStringColor(RATSB_TIME_X, ytiny, string, tcolor);
 
+	if (score->ratclient) {
+		tcolor[0] = 1.0;
+		tcolor[1] = 1.0;
+		tcolor[2] = 1.0;
+		tcolor[3] = 0.4;
+		trap_R_SetColor(tcolor);
+		CG_DrawPic(RATSB_CNUM_X, y, RATSB_CNUM_WIDTH, SCORECHAR_HEIGHT, cgs.media.ratSmallIcon);
+		trap_R_SetColor(NULL);
+	}
 	tcolor[0] = 0;
 	tcolor[1] = 0.45;
 	tcolor[2] = 1.0;
+	tcolor[3] = 1.0;
 	Com_sprintf(string, sizeof (string), "%2i", score->client);
 	//CG_DrawSmallScoreStringColor(RATSB_CNUM_X, ysmall, string, tcolor);
 	CG_DrawTinyScoreStringColor(RATSB_CNUM_X, ytiny, string, tcolor);
