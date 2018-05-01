@@ -3911,7 +3911,8 @@ static void CG_Draw2D(stereoFrame_t stereoFrame)
 		teamChatSizeX *= f;
 		teamChatSizeY *= f;
 
-		if ( cg.snap->ps.pm_type == PM_INTERMISSION || cg_commonConsole.integer) {
+		if ( cg.snap->ps.pm_type == PM_INTERMISSION || cg_commonConsole.integer ||
+				((cgs.gametype == GT_ELIMINATION || cgs.gametype == GT_CTF_ELIMINATION) && cg.warmup != -1 && cg.time < cgs.roundStartTime)) {
 			CG_DrawGenericConsole(&cgs.commonConsole, commonConsoleLines, cg_chatTime.integer, 
 					0, 0, 
 					chatSizeX,
