@@ -858,7 +858,7 @@ void G_RemapTeamShaders( void ) {
 	trap_SetConfigstring(CS_SHADERSTATE, BuildShaderStateConfig());
 }
 
-void G_PingEqualizerReset() {
+void G_PingEqualizerReset(void) {
 	fileHandle_t f;
 	int len;
 	if (!g_pingEqualizer.integer) {

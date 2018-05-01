@@ -90,6 +90,11 @@ g_admin_cmd_t g_admin_cmds[ ] =
 		"[^3name|slot#^7] (^hreason^7)"
 	},
 
+    {"eqping", "", G_admin_eqping,	"E",
+		"Toggle ping equalizer",
+		""
+	},
+
     {"handicap", "", G_admin_handicap, "S",
         "sets a handicap for a player",
         "[^3name|slot#] [handicap]"
@@ -3508,6 +3513,19 @@ qboolean G_admin_orient(gentity_t *ent, int skiparg)
 			(ent?ent->client->pers.netname:"^3SERVER CONSOLE")));
 	return qtrue;
 }
+
+qboolean G_admin_eqping(gentity_t *ent, int skiparg) {
+	if (g_pingEqualizer.integer == 0) {
+		trap_Cvar_Set("g_pingEqualizer", "1");
+		AP( va( "print \"^3!eqping: ping equalizer ON\n"));
+	} else {
+		G_PingEqualizerReset();
+		trap_Cvar_Set("g_pingEqualizer", "0");
+		AP( va( "print \"^3!eqping: ping equalizer OFF\n"));
+	}
+	return qtrue;
+}
+
 
 qboolean G_admin_slap( gentity_t *ent, int skiparg )
 {
