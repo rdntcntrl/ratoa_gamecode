@@ -63,6 +63,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 //#define	MISSILE_PRESTEP_MAX_LATENCY 250
 #define	UNLAG_MAX_BACKTRACK (g_unlagMissileMaxLatency.integer + 1000/sv_fps.integer * 2)
 
+#define MUTED_ALWAYS 1
+#define MUTED_GAME 2
+#define MUTED_INTERMISSION 4
+#define MUTED_RENAME 8
+
 // movers are things like doors, plats, buttons, etc
 typedef enum {
 	MOVER_POS1,

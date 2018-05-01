@@ -1675,10 +1675,22 @@ void Cmd_Ready_f( gentity_t *ent ) {
 }
 
 qboolean G_TournamentSpecMuted(void) {
-	return (g_gametype.integer == GT_TOURNAMENT) 
-		&& ((g_tournamentMuteSpec.integer == 1)
-		    || (g_tournamentMuteSpec.integer >= 2 && level.warmupTime != -1)
-		   );
+	if (g_tournamentMuteSpec.integer & MUTED_ALWAYS) {
+		// always muted
+		return qtrue;
+	}
+	if (g_tournamentMuteSpec.integer & MUTED_GAME && level.warmupTime != -1) {
+		if (level.intermissiontime && !(g_tournamentMuteSpec.integer & MUTED_INTERMISSION)) {
+			return qfalse;
+		}
+		return qtrue;
+	}
+	return qfalse;
+	// only applies to GT_TOURNAMENT
+	//return (g_gametype.integer == GT_TOURNAMENT) 
+	//	&& ((g_tournamentMuteSpec.integer == 1)
+	//	    || (g_tournamentMuteSpec.integer >= 2 && level.warmupTime != -1)
+	//	   );
 }
 
 /*
@@ -1719,8 +1731,8 @@ static void G_SayTo( gentity_t *ent, gentity_t *other, int mode, int color, cons
 
 	// no chatting to players in tournements
 	if (G_TournamentSpecMuted() 
-			&& other->client->sess.sessionTeam == TEAM_FREE
-			&& ent->client->sess.sessionTeam != TEAM_FREE ) {
+			&& other->client->sess.sessionTeam != TEAM_SPECTATOR
+			&& ent->client->sess.sessionTeam == TEAM_SPECTATOR ) {
 		return;
 	}
 

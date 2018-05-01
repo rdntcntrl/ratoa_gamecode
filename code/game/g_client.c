@@ -1390,7 +1390,7 @@ void ClientUserinfoChanged( int clientNum ) {
                 "print \"You cannot change your name while you are muted\n\"" );
             revertName = qtrue;
         }
-        else if( G_TournamentSpecMuted() && g_tournamentMuteSpec.integer == 3
+        else if( G_TournamentSpecMuted() && g_tournamentMuteSpec.integer & MUTED_RENAME
 		       	&& ( client->sess.sessionTeam == TEAM_SPECTATOR 
 				&& client->pers.connected == CON_CONNECTED )) {
             trap_SendServerCommand( ent - g_entities,
