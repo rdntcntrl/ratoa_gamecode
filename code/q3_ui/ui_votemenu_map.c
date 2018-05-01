@@ -245,6 +245,7 @@ static void VoteMapMenu_FilterEvent( void* ptr, int event ) {
 	if (event != QM_ACTIVATED ) {
 		return;
 	}
+	trap_Cvar_Set( "ui_mapvote_filter", va("%s", s_votemenu_map.filter.field.buffer));
 	ResetMaplist();
 	//s_votemenu_map.pagenum = 0;
 	//s_votemenu_map.currentmap = 0;
@@ -432,7 +433,6 @@ void UI_VoteMapMenu_Update( void ) {
 
 	top = s_votemenu_map.pagenum * MAX_MAPSPERPAGE;
 	//s_votemenu_map.nummaps = maplist.num_maps - s_votemenu_map.pagenumber * MAX_MAPSPERPAGE;
-	
 
 	for (i=0; i<MAX_MAPSPERPAGE; i++)
 	{
@@ -557,6 +557,8 @@ void UI_VoteMapMenuInternal( void )
 		//current_list->num_sent_cmds++;
 		Maplist_RequestNextPage(current_list);
 	}
+
+	
 	UpdateFilter();
 	UI_VoteMapMenu_Update();
 }
@@ -572,7 +574,7 @@ void UI_VoteMapMenu( void ) {
     int x,y,i;
     static char mapnamebuffer[MAX_MAPNAME_LENGTH*2];
     //memset( &s_votemenu_map, 0 ,sizeof(votemenu_map_t) );
-
+    
     VoteMapMenu_Cache();
 
     memset( &s_votemenu_map, 0 ,sizeof(votemenu_map_t) );
@@ -619,6 +621,7 @@ void UI_VoteMapMenu( void ) {
     s_votemenu_map.filter.generic.y			= 70;
     s_votemenu_map.filter.field.widthInChars	= 18;
     s_votemenu_map.filter.field.maxchars	= MAX_MAPNAME_LENGTH;
+
 
     s_votemenu_map.type.generic.type		= MTYPE_SPINCONTROL;
     s_votemenu_map.type.generic.name		= "Type:";
@@ -737,6 +740,10 @@ void UI_VoteMapMenu( void ) {
     Menu_AddItem( &s_votemenu_map.menu, (void*) &s_votemenu_map.sort );
 
     s_votemenu_map.sort.curvalue = 0;
+
+    trap_Cvar_VariableStringBuffer( "ui_mapvote_filter", 
+		    s_votemenu_map.filter.field.buffer,
+		    sizeof(s_votemenu_map.filter.field.buffer));
 
     getmappage_cmd = getmappage_all_cmd;
 
