@@ -734,6 +734,8 @@ typedef struct {
 	int numSpawnpoints;
 	spawnpoint_t spawnpoints[MAX_SPAWNPOINTS];
 	int spectatorHelpDrawTime;
+
+	int elimLastPlayerTime;
 } cg_t;
 
 

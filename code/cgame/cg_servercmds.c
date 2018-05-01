@@ -582,10 +582,12 @@ static void CG_ParseTeamPlayerCounts( void ) {
 	totalBlue = atoi ( CG_Argv ( 4 ) );
 
 	if ( totalRed != 1 && livingRed == 1 && livingRed != cgs.redLivingCount && cgs.clientinfo[cg.clientNum].team == TEAM_RED && !cgs.clientinfo[cg.clientNum].isDead ) {
-		CG_CenterPrint ( va ( "You are the chosen one!" ), 100, BIGCHAR_WIDTH );
+		cg.elimLastPlayerTime = cg.time;
+		//CG_CenterPrint ( va ( "You are the chosen one!" ), 100, BIGCHAR_WIDTH );
 	}
 	if ( totalBlue != 1 && livingBlue == 1 && livingBlue != cgs.blueLivingCount && cgs.clientinfo[cg.clientNum].team == TEAM_BLUE && !cgs.clientinfo[cg.clientNum].isDead ) {
-		CG_CenterPrint ( va ( "You are the chosen one!" ), 100, BIGCHAR_WIDTH );
+		cg.elimLastPlayerTime = cg.time;
+		//CG_CenterPrint ( va ( "You are the chosen one!" ), 100, BIGCHAR_WIDTH );
 	}
 
 	cgs.redLivingCount = livingRed;

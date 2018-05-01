@@ -1659,6 +1659,18 @@ void CG_DrawEliminationStatus(void) {
 	if (cgs.gametype != GT_ELIMINATION) {
 		return;
 	}
+	
+	if (cg.elimLastPlayerTime && cg.elimLastPlayerTime + 3000 > cg.time) {
+		int w;
+		float *c;
+		s = "You are the chosen one!";
+		c = CG_FadeColor( cg.elimLastPlayerTime, 3000);
+		w = BIGCHAR_WIDTH * CG_DrawStrlen(s);
+		x = ( SCREEN_WIDTH - w) / 2;
+		CG_DrawStringExt( x, 70 , s, c,
+				qfalse, qtrue, BIGCHAR_WIDTH, BIGCHAR_WIDTH * 1.5, 0 );
+	}
+
 	y = 240;
 	x = 640;
 	color[0] = 0.0f;
