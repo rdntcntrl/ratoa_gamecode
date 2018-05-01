@@ -566,6 +566,17 @@ static void CG_ParseAttackingTeam( void ) {
 
 static void CG_ParseTeamPlayerCounts( void ) {
 	int livingRed, livingBlue, totalRed, totalBlue;
+	int team;
+	qboolean dead;
+
+	if (cg.snap->ps.pm_flags & PMF_FOLLOW) {
+		team = cg.snap->ps.persistant[PERS_TEAM];
+		dead = (cg.snap->ps.pm_type == PM_DEAD);
+	} else {
+		team = cg.predictedPlayerState.persistant[PERS_TEAM];
+		dead = (cg.predictedPlayerState.pm_type == PM_DEAD);
+	}
+		
 
 	totalRed = atoi ( CG_Argv ( 3 ) );
 	totalBlue = atoi ( CG_Argv ( 4 ) );
@@ -581,11 +592,12 @@ static void CG_ParseTeamPlayerCounts( void ) {
 	totalRed = atoi ( CG_Argv ( 3 ) );
 	totalBlue = atoi ( CG_Argv ( 4 ) );
 
-	if ( totalRed != 1 && livingRed == 1 && livingRed != cgs.redLivingCount && cgs.clientinfo[cg.clientNum].team == TEAM_RED && !cgs.clientinfo[cg.clientNum].isDead ) {
+
+	if ( totalRed != 1 && livingRed == 1 && livingRed != cgs.redLivingCount && team == TEAM_RED && !dead ) {
 		cg.elimLastPlayerTime = cg.time;
 		//CG_CenterPrint ( va ( "You are the chosen one!" ), 100, BIGCHAR_WIDTH );
 	}
-	if ( totalBlue != 1 && livingBlue == 1 && livingBlue != cgs.blueLivingCount && cgs.clientinfo[cg.clientNum].team == TEAM_BLUE && !cgs.clientinfo[cg.clientNum].isDead ) {
+	if ( totalBlue != 1 && livingBlue == 1 && livingBlue != cgs.blueLivingCount && team == TEAM_BLUE && !dead ) {
 		cg.elimLastPlayerTime = cg.time;
 		//CG_CenterPrint ( va ( "You are the chosen one!" ), 100, BIGCHAR_WIDTH );
 	}
