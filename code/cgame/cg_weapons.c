@@ -3034,11 +3034,16 @@ CG_WeaponSelectable
 ===============
 */
 static qboolean CG_WeaponSelectable( int i ) {
-	if ( !cg.snap->ps.ammo[i] ) {
+	snapshot_t *snap = cg.nextSnap ? cg.nextSnap : cg.snap;
+	if ( !snap->ps.ammo[i] ) {
 		return qfalse;
 	}
-	if ( ! (cg.snap->ps.stats[ STAT_WEAPONS ] & ( 1 << i ) ) ) {
-		return qfalse;
+	if (cg_predictWeapons.integer) {
+		if ( ! (cg.predictedPlayerState.stats[ STAT_WEAPONS ] & ( 1 << i ))) {
+			return qfalse;
+		}
+	} else if ( ! (snap->ps.stats[ STAT_WEAPONS ] & ( 1 << i ) ) ) {
+			return qfalse;
 	}
 
 	return qtrue;
