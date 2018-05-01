@@ -330,6 +330,12 @@ static void CG_TouchItem( centity_t *cent ) {
 		return;		// can't hold it
 	}
 
+	if (cent->currentState.time && cent->currentState.time + 500 > cg.time) {
+		// item was recently dropped by player using \drop, prevent
+		// pickup (so dropping player doesn't re-pickup it immediately
+		return;
+	}
+
 	item = &bg_itemlist[ cent->currentState.modelindex ];
 
 	// Special case for flags.  
