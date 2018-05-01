@@ -27,6 +27,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "cg_local.h"
 #include "../../ui/menudef.h" // bk001205 - for Q3_ui as well
 
+#define MAX_NETNAME 32
+#define MAX_CHAT_TEXT (MAX_NETNAME + MAX_RAT_SAY_TEXT + 6)
+
 typedef struct {
 	const char *order;
 	int taskNum;
@@ -1349,8 +1352,8 @@ typedef struct bufferedVoiceChat_s
 	int clientNum;
 	sfxHandle_t snd;
 	int voiceOnly;
-	char cmd[MAX_SAY_TEXT];
-	char message[MAX_SAY_TEXT];
+	char cmd[MAX_RAT_SAY_TEXT];
+	char message[MAX_RAT_SAY_TEXT];
 } bufferedVoiceChat_t;
 
 bufferedVoiceChat_t voiceChatBuffer[MAX_VOICECHATBUFFER];
@@ -1553,7 +1556,7 @@ Cmd_Argc() / Cmd_Argv()
 */
 static void CG_ServerCommand( void ) {
 	const char	*cmd;
-	char		text[MAX_SAY_TEXT];
+	char		text[MAX_CHAT_TEXT];
 
 	cmd = CG_Argv(0);
 
@@ -1595,7 +1598,7 @@ static void CG_ServerCommand( void ) {
 		if ( !cg_teamChatsOnly.integer ) {
                         if( cg_chatBeep.integer )
                                 trap_S_StartLocalSound( cgs.media.talkSound, CHAN_LOCAL_SOUND );
-			Q_strncpyz( text, CG_Argv(1), MAX_SAY_TEXT );
+			Q_strncpyz( text, CG_Argv(1), MAX_CHAT_TEXT );
 			CG_RemoveChatEscapeChar( text );
 			CG_PrintfChat( qfalse, "%s\n", text );
 		}
@@ -1605,7 +1608,7 @@ static void CG_ServerCommand( void ) {
 	if ( !strcmp( cmd, "tchat" ) ) {
                 if( cg_teamChatBeep.integer )
                         trap_S_StartLocalSound( cgs.media.teamTalkSound, CHAN_LOCAL_SOUND );
-		Q_strncpyz( text, CG_Argv(1), MAX_SAY_TEXT );
+		Q_strncpyz( text, CG_Argv(1), MAX_CHAT_TEXT );
 		CG_RemoveChatEscapeChar( text );
 		CG_AddToTeamChat( text );
 		CG_PrintfChat( qtrue, "%s\n", text );
