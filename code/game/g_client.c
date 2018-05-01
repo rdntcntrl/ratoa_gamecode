@@ -1746,12 +1746,12 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 	// announce it
 	
 	if (g_unlagMode.integer && g_unlagMissileMaxLatency.integer > 0) {
-		trap_SendServerCommand( clientNum, va("print \"Full lag compensation is %s, projectile lag compensation up to %ims!\n\"", 
+		trap_SendServerCommand( clientNum, va("print \"Hitscan de-lag is %s, projectile de-lag is ON up to %ims!\n\"", 
 					g_delagHitscan.integer ? "ON" : "OFF",
 					g_unlagMissileMaxLatency.integer
 					));
 	} else {
-		trap_SendServerCommand( clientNum, va("print \"Full lag compensation is %s!\n\"", 
+		trap_SendServerCommand( clientNum, va("print \"Hitscan de-lag is %s, projectile de-lag is OFF!\n\"", 
 					g_delagHitscan.integer ? "ON" : "OFF"
 					));
 	}
