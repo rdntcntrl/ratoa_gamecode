@@ -186,14 +186,15 @@ void DeathmatchScoreboardMessageSplit( gentity_t *ent ) {
 		string1length += j;
 
 		Com_sprintf (entry2, sizeof(entry2),
-				" %i %i %i %i %i %i %i",
+				" %i %i %i %i %i %i %i %i",
 				cl->pers.dmgGiven,
 				cl->pers.dmgTaken,
 				cl->sess.spectatorGroup,
 				cl->pers.teamState.flagrecovery,
 				cl->pers.topweapons[0][1] > 0 ? cl->pers.topweapons[0][0] : WP_NONE,
 				cl->pers.topweapons[1][1] > 0 ? cl->pers.topweapons[1][0] : WP_NONE,
-				cl->pers.topweapons[2][1] > 0 ? cl->pers.topweapons[2][0] : WP_NONE
+				cl->pers.topweapons[2][1] > 0 ? cl->pers.topweapons[2][0] : WP_NONE,
+				((g_usesRatVM.integer > 0 || G_MixedClientHasRatVM(cl)) ? 1 : 0)
 			    );
 
 		j = strlen(entry2);
