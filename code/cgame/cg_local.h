@@ -1436,6 +1436,7 @@ extern vmCvar_t			cg_crosshairNamesScaleY;
 extern vmCvar_t			cg_crosshairNamesHealth;
 extern vmCvar_t			cg_friendFloatHealth;
 extern vmCvar_t			cg_friendFloatHealthSize;
+extern vmCvar_t			cg_soundBufferDelay;
 extern vmCvar_t			cg_bloodOnHit;
 extern vmCvar_t			cg_drawSpawnpoints;
 extern vmCvar_t			cg_teamOverlayScaleX;
