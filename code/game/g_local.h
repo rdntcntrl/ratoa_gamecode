@@ -1187,6 +1187,8 @@ extern vmCvar_t        g_voteMinTimelimit;
 extern vmCvar_t        g_voteMaxTimelimit;
 extern vmCvar_t        g_voteMinFraglimit;
 extern vmCvar_t        g_voteMaxFraglimit;
+extern vmCvar_t        g_voteMinBots;
+extern vmCvar_t        g_voteMaxBots;
 extern vmCvar_t        g_maxvotes;
 
 extern vmCvar_t        g_humanplayers;

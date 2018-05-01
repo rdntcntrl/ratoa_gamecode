@@ -221,6 +221,21 @@ int allowedTimelimit(int limit) {
 
 /*
 ==================
+allowedBots
+==================
+ */
+int allowedBots(int numbots) {
+    int min, max;
+    min = g_voteMinBots.integer;
+    max = g_voteMaxBots.integer;
+    if (numbots <= max && numbots >= min) {
+	    return qtrue;
+    }
+    return qfalse;
+}
+
+/*
+==================
 allowedFraglimit
 ==================
  */

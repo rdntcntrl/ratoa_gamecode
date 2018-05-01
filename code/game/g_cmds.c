@@ -2239,6 +2239,42 @@ static const char *gameNames[] = {
 };
 
 
+void G_PrintVoteCommands(gentity_t *ent) {
+        char    buffer[2048];
+	//trap_SendServerCommand( ent-g_entities, "print \"Vote commands are: map_restart, nextmap, map <mapname>, g_gametype <n>, kick <player>, clientkick <clientnum>, g_doWarmup, timelimit <time>, fraglimit <frags>.\n\"" );
+	buffer[0] = 0;
+	strcat(buffer,"print \"Vote commands are: \n");
+	if(allowedVote("map_restart"))
+		strcat(buffer, " map_restart\n");
+	if(allowedVote("nextmap"))
+		strcat(buffer, " nextmap\n");
+	if(allowedVote("map"))
+		strcat(buffer, " map <mapname>\n");
+	if(allowedVote("g_gametype"))
+		strcat(buffer, " g_gametype <n>\n");
+	if(allowedVote("kick"))
+		strcat(buffer, " kick <player>\n");
+	if(allowedVote("clientkick"))
+		strcat(buffer, " clientkick <clientnum>\n");
+	if(allowedVote("g_doWarmup"))
+		strcat(buffer, " g_doWarmup\n");
+	if(allowedVote("timelimit"))
+		strcat(buffer, " timelimit <time>\n");
+	if(allowedVote("fraglimit"))
+		strcat(buffer, " fraglimit <frags>\n");
+	if(allowedVote("shuffle"))
+		strcat(buffer, " shuffle\n");
+	if(allowedVote("bots"))
+		strcat(buffer, " bots <n>\n");
+	if(allowedVote("botskill"))
+		strcat(buffer, " botskill <n>\n");
+	if(allowedVote("custom"))
+		strcat(buffer, " custom <special>\n");
+	buffer[strlen(buffer)-1] = 0;
+	strcat(buffer, "\n\"");
+	trap_SendServerCommand( ent-g_entities, buffer);
+}
+
 
 /*
 ==================
@@ -2298,68 +2334,17 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 	} else if ( !Q_stricmp( arg1, "fraglimit" ) ) {
         } else if ( !Q_stricmp( arg1, "custom" ) ) {
         } else if ( !Q_stricmp( arg1, "shuffle" ) ) {
+        } else if ( !Q_stricmp( arg1, "bots" ) ) {
+        } else if ( !Q_stricmp( arg1, "botskill" ) ) {
 	} else {
 		trap_SendServerCommand( ent-g_entities, "print \"Invalid vote string.\n\"" );
-		//trap_SendServerCommand( ent-g_entities, "print \"Vote commands are: map_restart, nextmap, map <mapname>, g_gametype <n>, kick <player>, clientkick <clientnum>, g_doWarmup, timelimit <time>, fraglimit <frags>.\n\"" );
-                buffer[0] = 0;
-                strcat(buffer,"print \"Vote commands are: ");
-                if(allowedVote("map_restart"))
-                    strcat(buffer, "map_restart, ");
-                if(allowedVote("nextmap"))
-                    strcat(buffer, "nextmap, ");
-                if(allowedVote("map"))
-                    strcat(buffer, "map <mapname>, ");
-                if(allowedVote("g_gametype"))
-                    strcat(buffer, "g_gametype <n>, ");
-                if(allowedVote("kick"))
-                    strcat(buffer, "kick <player>, ");
-                if(allowedVote("clientkick"))
-                    strcat(buffer, "clientkick <clientnum>, ");
-                if(allowedVote("g_doWarmup"))
-                    strcat(buffer, "g_doWarmup, ");
-                if(allowedVote("timelimit"))
-                    strcat(buffer, "timelimit <time>, ");
-                if(allowedVote("fraglimit"))
-                    strcat(buffer, "fraglimit <frags>, ");
-                if(allowedVote("shuffle"))
-                    strcat(buffer, "shuffle, ");
-                if(allowedVote("custom"))
-                    strcat(buffer, "custom <special>, ");
-                buffer[strlen(buffer)-2] = 0;
-                strcat(buffer, ".\"");
-                trap_SendServerCommand( ent-g_entities, buffer);
+		G_PrintVoteCommands(ent);
 		return;
 	}
         
         if(!allowedVote(arg1)) {
                 trap_SendServerCommand( ent-g_entities, "print \"Not allowed here.\n\"" );
-                buffer[0] = 0;
-                strcat(buffer,"print \"Vote commands are: ");
-                if(allowedVote("map_restart"))
-                    strcat(buffer, "map_restart, ");
-                if(allowedVote("nextmap"))
-                    strcat(buffer, "nextmap, ");
-                if(allowedVote("map"))
-                    strcat(buffer, "map <mapname>, ");
-                if(allowedVote("g_gametype"))
-                    strcat(buffer, "g_gametype <n>, ");
-                if(allowedVote("kick"))
-                    strcat(buffer, "kick <player>, ");
-                if(allowedVote("clientkick"))
-                    strcat(buffer, "clientkick <clientnum>, ");
-                if(allowedVote("shuffle"))
-                    strcat(buffer, "shuffle, ");
-                if(allowedVote("g_doWarmup"))
-                    strcat(buffer, "g_doWarmup, ");
-                if(allowedVote("timelimit"))
-                    strcat(buffer, "timelimit <time>, ");
-                if(allowedVote("fraglimit"))
-                    strcat(buffer, "fraglimit <frags>, ");
-                if(allowedVote("custom"))
-                    strcat(buffer, "custom <special>, ");
-                buffer[strlen(buffer)-2] = 0;
-                strcat(buffer, ".\"");
-                trap_SendServerCommand( ent-g_entities, buffer);
+		G_PrintVoteCommands(ent);
 		return;
         }
 
@@ -2472,6 +2457,31 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 			Com_sprintf( level.voteString, sizeof( level.voteString ), "map_restart" );
 		}
 		Com_sprintf( level.voteDisplayString, sizeof( level.voteDisplayString ), "Restart map?" );
+        } else if ( !Q_stricmp( arg1, "bots" ) ) {
+                i = atoi(arg2);
+                if(!allowedBots(i)) {
+                    trap_SendServerCommand( ent-g_entities, va("print \"Cannot set the requested number of bots. Allowed values are %d-%d\n\"", g_voteMinBots.integer, g_voteMaxBots.integer) );
+                    return;
+                }
+            
+		if (trap_Cvar_VariableIntegerValue("bot_minplayers") < i && i > 0) {
+			Com_sprintf( level.voteString, sizeof( level.voteString ), "bot_minplayers \"%d\"", i );
+		} else {
+			Com_sprintf( level.voteString, sizeof( level.voteString ), "bot_minplayers \"%d\"; kickbots", i );
+		}
+                if(i)
+                    Com_sprintf( level.voteDisplayString, sizeof( level.voteDisplayString ), "Add %d bots", i );
+                else
+                    Com_sprintf( level.voteDisplayString, sizeof( level.voteDisplayString ), "Kick bots?");
+        } else if ( !Q_stricmp( arg1, "botskill" ) ) {
+                i = atoi(arg2);
+                if(i < 1 || i > 5) {
+                    trap_SendServerCommand( ent-g_entities, "print \"Cannot set bot skill to that number.\n\"");
+                    return;
+                }
+            
+		Com_sprintf( level.voteString, sizeof( level.voteString ), "g_spskill \"%d\"", i );
+		Com_sprintf( level.voteDisplayString, sizeof( level.voteDisplayString ), "Set bot skill level to %d", i );
         } else if ( !Q_stricmp( arg1, "g_doWarmup" ) ) {
                 i = atoi(arg2);
                 if(i) {
