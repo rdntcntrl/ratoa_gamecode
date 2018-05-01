@@ -495,6 +495,42 @@ void Cmd_Acc_f( gentity_t *ent ) {
     AccMessage( ent );
 }
 
+/*
+==================
+ Cmd_Rules_f
+ Print server ruleset
+==================
+*/
+void Cmd_Rules_f( gentity_t *ent ) {
+	trap_SendServerCommand( ent-g_entities, va("print \""
+				"Server rules:\n"
+				" -Fast weapon switch:    %i\n"
+				" -Fast weapons:          %i\n"
+				" -Smooth/Additive Jump:  %i\n"
+				" -Forced Bright Models:  %i\n"
+				" -Bright Shells:         %i\n"
+				" -Pickup height:         %s\n"
+				" -Powerup glows:         %i\n"
+				" -Screen shake upon hit: %i\n"
+				" -Rat Physics:           %i\n"
+				" -Jumppad grenades:      %i\n"
+				" -Tele Missiles:         %i\n"
+				"\"", 
+				g_fastSwitch.integer,
+				g_fastWeapons.integer,
+				g_additiveJump.integer,
+				g_allowBrightModels.integer,
+				g_brightPlayerShells.integer,
+				g_itemPickup.integer ? "high" : "low",
+				g_powerupGlows.integer,
+				g_screenShake.integer,
+				g_ratPhysics.integer,
+				g_pushGrenades.integer,
+				g_teleMissiles.integer
+				));
+}
+
+
 
 /*
 ==================
@@ -2918,6 +2954,8 @@ commands_t cmds[ ] =
 
   { "score", CMD_INTERMISSION, Cmd_Score_f },
   { "acc", CMD_INTERMISSION, Cmd_Acc_f},
+
+  { "rules", 0, Cmd_Rules_f},
 
   // cheats
   { "give", CMD_CHEAT|CMD_LIVING, Cmd_Give_f },

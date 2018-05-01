@@ -501,6 +501,7 @@ struct
   { "say_team", qtrue, Svcmd_TeamMessage_f },
   { "say", qtrue, Svcmd_MessageWrapper },
   { "chat", qtrue, Svcmd_Chat_f },
+  { "ruleset", qtrue, Svcmd_Ruleset_f },
   /*{ "m", qtrue, Svcmd_MessageWrapper },
   { "a", qtrue, Svcmd_MessageWrapper },
   { "bp", qtrue, Svcmd_BannerPrint_f }, */

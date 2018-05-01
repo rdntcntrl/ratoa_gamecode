@@ -216,6 +216,24 @@ void Svcmd_Chat_f( void )
     G_LogPrintf("chat: %s\n", ConcatArgs( 1 ) );
 }
 
+void Svcmd_Ruleset_f( void )
+{
+    char buf[ MAX_STRING_CHARS ];
+
+    if (trap_Argc( ) < 2 ) {
+	    G_Printf("usage: ruleset [slow|fast]\n");
+	    return;
+    }
+    trap_Argv(1, buf, sizeof(buf));
+    if (Q_stricmp(buf, "slow") == 0) {
+	    G_SetRuleset(RULES_SLOW);
+    } else if (Q_stricmp(buf, "fast") == 0) {
+	    G_SetRuleset(RULES_FAST);
+    } else {
+	    G_Printf("usage: ruleset [slow|fast]\n");
+    }
+}
+
 /*
 =============
 Svcmd_ListIP_f

@@ -68,6 +68,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define MUTED_INTERMISSION 4
 #define MUTED_RENAME 8
 
+#define RULES_FAST 0
+#define RULES_SLOW 1
+
 // movers are things like doors, plats, buttons, etc
 typedef enum {
 	MOVER_POS1,
@@ -919,6 +922,7 @@ void QDECL G_Error( const char *fmt, ... ) __attribute__((noreturn));
 void LogExit( const char *string ); 
 void CheckTeamVote( int team );
 void G_PingEqualizerReset(void);
+void G_SetRuleset(int ruleset);
 
 //
 // g_client.c
@@ -1555,6 +1559,7 @@ void Svcmd_BannerPrint_f( void );
 void Svcmd_EjectClient_f( void );
 void Svcmd_DumpUser_f( void );
 void Svcmd_Chat_f( void );
+void Svcmd_Ruleset_f( void );
 void Svcmd_ListIP_f( void );
 void Svcmd_MessageWrapper( void );
 
