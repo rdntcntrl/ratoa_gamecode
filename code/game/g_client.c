@@ -1945,7 +1945,9 @@ void ClientBegin( int clientNum ) {
 		tent->s.clientNum = ent->s.clientNum;
 
 		if ( g_gametype.integer != GT_TOURNAMENT  ) {
-			trap_SendServerCommand( -1, va("print \"%s" S_COLOR_WHITE " entered the game%s\n\"", client->pers.netname,
+			trap_SendServerCommand( -1, va("print%s \"%s" S_COLOR_WHITE " entered the game%s\n\"", 
+						g_usesRatVM.integer ? "Chat" : "",
+						client->pers.netname,
 						(g_usesRatEngine.integer && g_mixedMode.integer && !client->pers.pure) ? " (baseoa client)" : "") );
 		}
 	}
@@ -2540,6 +2542,11 @@ void ClientDisconnect( int clientNum ) {
 
         if ( ent->client->pers.connected == CON_CONNECTED && ent->client->sess.sessionTeam != TEAM_SPECTATOR)
             PlayerStore_store(Info_ValueForKey(userinfo,"cl_guid"),ent->client->ps);
+
+	if (g_usesRatVM.integer) {
+		trap_SendServerCommand( -1, va("printChat \"%s" S_COLOR_WHITE " left the game\n\"", 
+					ent->client->pers.netname));
+	}
 
 	G_LogPrintf( "ClientDisconnect: %i\n", clientNum );
 
