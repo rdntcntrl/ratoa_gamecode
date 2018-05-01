@@ -434,6 +434,9 @@ struct gclient_s {
 	char		*areabits;
 
 	qboolean	isEliminated;			//Has been killed in this round
+	int		elimRoundDmgDone;
+	int		elimRoundDmgTaken;
+	int		elimRoundKills;
 
         //New vote system. The votes are saved in the client info, so we know who voted on what and can cancel votes on leave.
         //0=not voted, 1=voted yes, -1=voted no

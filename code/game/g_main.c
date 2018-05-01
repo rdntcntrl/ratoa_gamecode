@@ -2569,9 +2569,64 @@ void StartLMSRound(void) {
 	EnableWeapons();
 }
 
+void PrintElimRoundStats(void) {
+	gclient_t *client;
+	int maxKills = -1;
+	int maxKillsClient = -1;
+	int maxDG = -1;
+	int maxDGClient = -1;
+	int minDT = INT_MAX;
+	int minDTClient = -1;
+	int i;
+
+	for ( i = 0 ; i < level.maxclients ; i++ ) {
+		client = &level.clients[i];
+
+		if ( client->pers.connected != CON_CONNECTED ) {
+			continue;
+		}
+		if ( client->sess.sessionTeam == TEAM_SPECTATOR ) {
+			continue;
+		}
+
+		if (client->elimRoundKills > maxKills 
+				|| (client->elimRoundKills == maxKills && maxKillsClient != -1 && client->elimRoundDmgDone > level.clients[maxKillsClient].elimRoundDmgDone)) {
+			maxKills = client->elimRoundKills;
+			maxKillsClient = i;
+		}
+
+		if (client->elimRoundDmgDone > maxDG) {
+			maxDG = client->elimRoundDmgDone;
+			maxDGClient = i;
+		}
+
+		if (client->elimRoundDmgTaken < minDT) {
+			minDT = client->elimRoundDmgTaken;
+			minDTClient = i;
+		}
+
+	}
+
+	if (maxKillsClient != -1) {
+		trap_SendServerCommand(-1, va("printChat \"Most kills: %s ^2%i\n\"", 
+					level.clients[maxKillsClient].pers.netname,
+					maxKills));
+	}
+	if (minDTClient != -1) {
+		trap_SendServerCommand(-1, va("printChat \"Least Damage Taken: %s ^2%i\n\"", 
+					level.clients[minDTClient].pers.netname,
+					minDT));
+	}
+	if (maxDGClient != -1) {
+		trap_SendServerCommand(-1, va("printChat \"Most Damage Given: %s ^2%i\n\"", 
+					level.clients[maxDGClient].pers.netname,
+					maxDG));
+	}
+}
+
 //the elimination start function
 void StartEliminationRound(void) {
-
+	int i;
 	int		countsLiving[TEAM_NUM_TEAMS];
 	countsLiving[TEAM_BLUE] = TeamLivingCount( -1, TEAM_BLUE );
 	countsLiving[TEAM_RED] = TeamLivingCount( -1, TEAM_RED );
@@ -2605,11 +2660,19 @@ void StartEliminationRound(void) {
 		SendAttackingTeamMessageToAllClients(); //Ensure that evaryone know who should attack.
 	EnableWeapons();
 	G_SendTeamPlayerCounts();
+
+	for ( i = 0 ; i < level.maxclients ; i++ ) {
+		gclient_t *client = &level.clients[i];
+		client->elimRoundDmgDone = 0;
+		client->elimRoundDmgTaken = 0;
+		client->elimRoundKills = 0;
+	}
 }
 
 //things to do at end of round:
 void EndEliminationRound(void)
 {
+	PrintElimRoundStats();
 	DisableWeapons();
 	level.roundNumber++;
 	level.roundStartTime = level.time+1000*g_elimination_warmup.integer;

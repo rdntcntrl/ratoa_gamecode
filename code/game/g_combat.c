@@ -499,7 +499,13 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 	}
 
 	if (self->client) {
-		self->client->pers.deaths += 1;
+		if (g_gametype.integer == GT_ELIMINATION || g_gametype.integer == GT_CTF_ELIMINATION) {
+			if (level.roundNumber == level.roundNumberStarted) {
+				self->client->pers.deaths += 1;
+			}
+		} else {
+			self->client->pers.deaths += 1;
+		}
 	}
 
 //unlagged - backward reconciliation #2
@@ -529,7 +535,14 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 		if ( attacker->client ) {
 			killerName = attacker->client->pers.netname;
 			if (self != attacker) {
-				attacker->client->pers.kills += 1;
+				if (g_gametype.integer == GT_ELIMINATION || g_gametype.integer == GT_CTF_ELIMINATION) {
+					attacker->client->elimRoundKills += 1;
+					if (level.roundNumber == level.roundNumberStarted) {
+						attacker->client->pers.kills += 1;
+					}
+				} else {
+					attacker->client->pers.kills += 1;
+				}
 			}
 		} else {
 			killerName = "<non-client>";
@@ -1382,14 +1395,31 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 			}
 		}
 		if (targ->client) {
-			targ->client->pers.dmgTaken += dmgTaken;
+			if (g_gametype.integer == GT_ELIMINATION || g_gametype.integer == GT_CTF_ELIMINATION) {
+				targ->client->elimRoundDmgTaken += dmgTaken;
+				if (level.roundNumber == level.roundNumberStarted) {
+					targ->client->pers.dmgTaken += dmgTaken;
+				}
+			} else {
+				targ->client->pers.dmgTaken += dmgTaken;
+			}
 		}
 		if (targ != attacker) {
 			if (attacker && attacker->client && !OnSameTeam(targ, attacker) ) {
 				int weapon = G_WeaponForMOD(mod);
-				attacker->client->pers.dmgGiven += dmgTaken;
-				if (weapon != -1) {
-					attacker->client->pers.damage[weapon] += dmgTaken;
+				if (g_gametype.integer == GT_ELIMINATION || g_gametype.integer == GT_CTF_ELIMINATION) {
+					attacker->client->elimRoundDmgDone += dmgTaken;
+					if (level.roundNumber == level.roundNumberStarted) {
+						attacker->client->pers.dmgGiven += dmgTaken;
+						if (weapon != -1) {
+							attacker->client->pers.damage[weapon] += dmgTaken;
+						}
+					}
+				} else {
+					attacker->client->pers.dmgGiven += dmgTaken;
+					if (weapon != -1) {
+						attacker->client->pers.damage[weapon] += dmgTaken;
+					}
 				}
 			}
 		}
