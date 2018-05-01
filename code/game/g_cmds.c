@@ -1692,8 +1692,12 @@ gentity_t *DropWeapon( gentity_t *ent ) {
 	ammo = ent->client->ps.ammo[weapon];
 
 	if (ammo == 0) {
-		// don't allow drop of empty guns
-		return NULL;
+		// make sure that whoever picks this up doesn't get the default
+		// ammo for this weapon
+		ammo = -1;
+
+		//// don't allow drop of empty guns
+		//return NULL;
 	}
 
 	ent->client->ps.ammo[weapon] = 0;	
