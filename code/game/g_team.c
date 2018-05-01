@@ -164,6 +164,9 @@ AddTeamScore
 void AddTeamScore(vec3_t origin, int team, int score) {
 	gentity_t	*te;
 
+	if (level.warmupTime) {
+		return;
+	}
 
 	if ( g_gametype.integer != GT_DOMINATION ) {
 		te = G_TempEntity(origin, EV_GLOBAL_TEAM_SOUND );
