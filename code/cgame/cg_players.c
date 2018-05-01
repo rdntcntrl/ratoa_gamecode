@@ -2357,7 +2357,7 @@ Adds a piece with modifications or duplications for powerups
 Also called by CG_Missile for quad rockets, but nobody can tell...
 ===============
 */
-void CG_AddRefEntityWithPowerups( refEntity_t *ent, entityState_t *state, int team, qboolean isMissile ) {
+void CG_AddRefEntityWithPowerups( refEntity_t *ent, entityState_t *state, int team, qboolean isMissile, int orderIndicator ) {
 
 	if ( state->powerups & ( 1 << PW_INVIS ) ) {
             if( (cgs.dmflags & DF_INVIS) == 0) {
@@ -2399,18 +2399,76 @@ void CG_AddRefEntityWithPowerups( refEntity_t *ent, entityState_t *state, int te
 			//	ent->customShader = cgs.media.redQuadShader;
 			//else
 			//	ent->customShader = cgs.media.quadShader;
+
 			ent->customShader = cgs.media.quadShader;
-			trap_R_AddRefEntityToScene( ent );
+			if (cg_powerupBlink.integer && orderIndicator) {
+				switch  (cg_powerupBlink.integer) {
+					case 1:
+					case 2:
+						if ((cg.time / 100) % 12 == orderIndicator-1) {
+							trap_R_AddRefEntityToScene( ent );
+						}
+						break;
+					case 3:
+					default:
+						if ((cg.time / 100) % 9 == 0) {
+							trap_R_AddRefEntityToScene( ent );
+						}
+						break;
+
+				}
+			} else {
+				trap_R_AddRefEntityToScene( ent );
+			}
 		}
 		if ( state->powerups & ( 1 << PW_REGEN ) ) {
-			if ( ( ( cg.time / 100 ) % 10 ) == 1 ) {
-				ent->customShader = cgs.media.regenShader;
-				trap_R_AddRefEntityToScene( ent );
+			ent->customShader = cgs.media.regenShader;
+			if (cg_powerupBlink.integer && orderIndicator) {
+				switch (cg_powerupBlink.integer) {
+					case 1:
+						if ((cg.time / 100) % 12 == orderIndicator-1+4) {
+							trap_R_AddRefEntityToScene( ent );
+						}
+						break;
+					case 2:
+						if (((cg.time / 100) % 12 ) >= 4 && ((cg.time / 100 ) % 12) <= 6 ) {
+							trap_R_AddRefEntityToScene( ent );
+						}
+						break;
+					case 3:
+					default:
+						if (((cg.time / 100) % 9 ) == 3 ) {
+							trap_R_AddRefEntityToScene( ent );
+						}
+						break;
+
+				}
+			} else {
+				if (((cg.time / 100) % 10 ) == 1 ) {
+					trap_R_AddRefEntityToScene( ent );
+				}
 			}
 		}
 		if ( state->powerups & ( 1 << PW_BATTLESUIT ) ) {
 			ent->customShader = cgs.media.battleSuitShader;
-			trap_R_AddRefEntityToScene( ent );
+			if (cg_powerupBlink.integer && orderIndicator) {
+				switch (cg_powerupBlink.integer) {
+					case 1:
+					case 2:
+						if (((cg.time / 100) % 12) == orderIndicator-1+8) {
+							trap_R_AddRefEntityToScene( ent );
+						}
+						break;
+					case 3:
+					default:
+						if (((cg.time / 100) % 9) == 6) {
+							trap_R_AddRefEntityToScene( ent );
+						}
+						break;
+				}
+			} else {
+				trap_R_AddRefEntityToScene( ent );
+			}
 		}
 
 		if(!isMissile && 
@@ -2778,7 +2836,7 @@ void CG_Player( centity_t *cent ) {
 	legs.renderfx = renderfx;
 	VectorCopy (legs.origin, legs.oldorigin);	// don't positionally lerp at all
 
-	CG_AddRefEntityWithPowerups( &legs, &cent->currentState, ci->team, qfalse );
+	CG_AddRefEntityWithPowerups( &legs, &cent->currentState, ci->team, qfalse, 3 );
 
 	// if the model failed, allow the default nullmodel to be displayed
 	if (!legs.hModel) {
@@ -2802,7 +2860,7 @@ void CG_Player( centity_t *cent ) {
 	torso.shadowPlane = shadowPlane;
 	torso.renderfx = renderfx;
 
-	CG_AddRefEntityWithPowerups( &torso, &cent->currentState, ci->team, qfalse );
+	CG_AddRefEntityWithPowerups( &torso, &cent->currentState, ci->team, qfalse, 2 );
 
 	if ( cent->currentState.eFlags & EF_KAMIKAZE ) {
 
@@ -3022,7 +3080,7 @@ void CG_Player( centity_t *cent ) {
 	head.shadowPlane = shadowPlane;
 	head.renderfx = renderfx;
 
-	CG_AddRefEntityWithPowerups( &head, &cent->currentState, ci->team, qfalse );
+	CG_AddRefEntityWithPowerups( &head, &cent->currentState, ci->team, qfalse, 1 );
 
 	CG_BreathPuffs(cent, &head);
 

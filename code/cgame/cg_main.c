@@ -218,6 +218,7 @@ vmCvar_t	cg_crosshairNamesHealth;
 vmCvar_t	cg_friendFloatHealth;
 vmCvar_t	cg_friendFloatHealthSize;
 vmCvar_t	cg_soundBufferDelay;
+vmCvar_t	cg_powerupBlink;
 vmCvar_t	cg_bloodOnHit;
 vmCvar_t	cg_drawSpawnpoints;
 vmCvar_t	cg_newFont;
@@ -575,6 +576,7 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_friendFloatHealth, "cg_friendFloatHealth", "1", CVAR_ARCHIVE},
 	{ &cg_friendFloatHealthSize, "cg_friendFloatHealthSize", "8", CVAR_ARCHIVE},
 	{ &cg_soundBufferDelay, "cg_soundBufferDelay", "750", 0},
+	{ &cg_powerupBlink, "cg_powerupBlink", "0", CVAR_ARCHIVE},
 	{ &cg_bloodOnHit, "cg_bloodOnHit", "0", CVAR_ARCHIVE},
 	{ &cg_drawSpawnpoints, "cg_drawSpawnpoints", "0", CVAR_ARCHIVE},
 	{ &cg_teamOverlayScaleX, "cg_teamOverlayScaleX", "0.7", CVAR_ARCHIVE},
