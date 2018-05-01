@@ -216,6 +216,7 @@ vmCvar_t	g_pingEqualizer;
 vmCvar_t        g_autoClans;
 vmCvar_t        g_killDropsFlag;
 vmCvar_t        g_startWhenReady;
+vmCvar_t        g_autoStartTime;
 vmCvar_t        g_countDownHealthArmor;
 vmCvar_t        g_powerupGlows;
 vmCvar_t        g_screenShake;
@@ -460,6 +461,7 @@ static cvarTable_t		gameCvarTable[] = {
         { &g_killDropsFlag, "g_killDropsFlag", "1", CVAR_ARCHIVE , 0, qtrue },
 
         { &g_startWhenReady, "g_startWhenReady", "0", CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qfalse },
+        { &g_autoStartTime, "g_autoStartTime", "0", CVAR_ARCHIVE, 0, qfalse },
 
         { &g_countDownHealthArmor, "g_countDownHealthArmor", "1", CVAR_ARCHIVE , 0, qfalse },
 	
@@ -1218,6 +1220,10 @@ void G_UpdateCvars( void ) {
 	if (updateRatFlags) {
 		G_UpdateRatFlags();
 	}
+}
+
+qboolean G_AutoStartReady( void ) {
+	return	(g_autoStartTime.integer > 0 && g_autoStartTime.integer*1000 < (level.time - level.startTime));
 }
 
 /*
@@ -3152,7 +3158,7 @@ void CheckTournament( void ) {
 				if ( ( g_startWhenReady.integer && 
 				       ( g_entities[level.sortedClients[0]].client->ready || ( g_entities[level.sortedClients[0]].r.svFlags & SVF_BOT ) ) && 
 				       ( g_entities[level.sortedClients[1]].client->ready || ( g_entities[level.sortedClients[1]].r.svFlags & SVF_BOT ) ) 
-				      ) || !g_startWhenReady.integer || !g_doWarmup.integer ) {
+				      ) || !g_startWhenReady.integer || !g_doWarmup.integer || G_AutoStartReady()) {
 					// fudge by -1 to account for extra delays
 					if ( g_warmup.integer > 1 ) {
 						level.warmupTime = level.time + ( g_warmup.integer - 1 ) * 1000;
@@ -3199,10 +3205,12 @@ void CheckTournament( void ) {
 		}
 
 		if ( g_doWarmup.integer && g_startWhenReady.integer == 1 
-				&& ( clientsReady < level.numPlayingClients/2 + 1 )) {
+				&& ( clientsReady < level.numPlayingClients/2 + 1 )
+				&& !G_AutoStartReady()) {
 			notEnough = qtrue;
 		} else if ( g_doWarmup.integer && g_startWhenReady.integer == 2 
-				&& ( clientsReady < level.numPlayingClients )) {
+				&& ( clientsReady < level.numPlayingClients )
+				&& !G_AutoStartReady()) {
 			notEnough = qtrue;
 		}
 
@@ -3213,7 +3221,7 @@ void CheckTournament( void ) {
 				G_LogPrintf( "Warmup:\n" );
 			}
 			return; // still waiting for team members
-		}
+		} 
 
 		if ( level.warmupTime == 0 ) {
 			return;
