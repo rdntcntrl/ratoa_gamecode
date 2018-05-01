@@ -2897,18 +2897,35 @@ void Cmd_Stats_f( gentity_t *ent ) {
 }
 void Cmd_GetMappage_f_impl( gentity_t *ent, qboolean recommendedmaps) {
         t_mappage page;
-        char string[(MAX_MAPNAME+1)*MAPS_PER_PAGE+1];
+        char string[(MAX_MAPNAME+1)*MAPS_PER_LARGEPAGE+1];
         char arg[MAX_STRING_TOKENS];
 	int pagenum;
+	qboolean largepage = qfalse;
+
+	if (g_usesRatVM.integer > 0 || G_MixedClientHasRatVM(ent->client)) {
+		largepage = qtrue;
+	}
+
         trap_Argv( 1, arg, sizeof( arg ) );
 	pagenum = atoi(arg);
 	if (pagenum < 0) {
 		pagenum = 0;
 	}
-	page = getMappage(pagenum, recommendedmaps);
-        Q_strncpyz(string,va("mappage %d %s %s %s %s %s %s %s %s %s %s",page.pagenumber,page.mapname[0],\
-                page.mapname[1],page.mapname[2],page.mapname[3],page.mapname[4],page.mapname[5],\
-                page.mapname[6],page.mapname[7],page.mapname[8],page.mapname[9]),sizeof(string));
+	page = getMappage(pagenum, largepage, recommendedmaps);
+	if (largepage) {
+		int i;
+		string[0] = '\0';
+		Q_strcat(string, sizeof(string), va("mappagel %d ", page.pagenumber));
+		for (i = 0; i < MAPS_PER_LARGEPAGE; ++i) {
+			Q_strcat(string, sizeof(string), va("%s%s", 
+					page.mapname[i],
+					i + 1 >= MAPS_PER_LARGEPAGE ? "" : " "));
+		}
+	} else {
+		Q_strncpyz(string,va("mappage %d %s %s %s %s %s %s %s %s %s %s",page.pagenumber,page.mapname[0],\
+					page.mapname[1],page.mapname[2],page.mapname[3],page.mapname[4],page.mapname[5],\
+					page.mapname[6],page.mapname[7],page.mapname[8],page.mapname[9]),sizeof(string));
+	}
         //G_Printf("Mappage sent: \"%s\"\n", string);
 	trap_SendServerCommand( ent-g_entities, string );
 }

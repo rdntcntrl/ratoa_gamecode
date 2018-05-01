@@ -59,12 +59,13 @@ getMappage
 ==================
  */
 
-t_mappage getMappage(int page, qboolean recommenedonly) {
+t_mappage getMappage(int page, qboolean largepage, qboolean recommenedonly) {
 	t_mappage result;
 	fileHandle_t	file;
 	char *token,*pointer;
 	char buffer[MAX_MAPNAME_BUFFER];
 	int i, nummaps,maplen;
+	int maps_in_page = largepage ? MAPS_PER_LARGEPAGE : MAPS_PER_PAGE;
 
 	memset(&result,0,sizeof(result));
         memset(&buffer,0,sizeof(buffer));
@@ -88,17 +89,17 @@ t_mappage getMappage(int page, qboolean recommenedonly) {
 			return result;
 		}
 		//Skip the first pages
-		for(i=0;i<MAPS_PER_PAGE*page;i++) {
+		for(i=0;i<maps_in_page*page;i++) {
 			token = COM_Parse(&pointer);
 		}
 		if(!token || token[0]==0) {
 			//Page empty, return to first page
                         trap_FS_FCloseFile(file);
-			return getMappage(0, recommenedonly);
+			return getMappage(0, largepage, recommenedonly);
 		}
 		//There is an actual page:
                 result.pagenumber = page;
-		for(i=0;i<MAPS_PER_PAGE && token;i++) {
+		for(i=0;i<maps_in_page && token;i++) {
 			Q_strncpyz(result.mapname[i],token,MAX_MAPNAME);
 			token = COM_Parse(&pointer);
 		}
@@ -108,16 +109,16 @@ t_mappage getMappage(int page, qboolean recommenedonly) {
         //There is no votemaps.cfg file, find filelist of maps
         nummaps = trap_FS_GetFileList("maps",".bsp",buffer,sizeof(buffer));
 
-        if(nummaps && nummaps<=MAPS_PER_PAGE*page)
-            return getMappage(0, recommenedonly);
+        if(nummaps && nummaps<=maps_in_page*page)
+            return getMappage(0, largepage, recommenedonly);
 
         pointer = buffer;
         result.pagenumber = page;
 
         for (i = 0; i < nummaps; i++, pointer += maplen+1) {
 		maplen = strlen(pointer);
-                if(i>=MAPS_PER_PAGE*page && i<MAPS_PER_PAGE*(page+1)) {
-                    Q_strncpyz(result.mapname[i-MAPS_PER_PAGE*page],pointer,maplen-3);
+                if(i>=maps_in_page*page && i<maps_in_page*(page+1)) {
+                    Q_strncpyz(result.mapname[i-maps_in_page*page],pointer,maplen-3);
                 }
 	}
         return result;

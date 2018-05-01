@@ -1010,6 +1010,7 @@ void G_SendVoteResult(qboolean passed);
 
 #define MAX_MAPNAME 32
 #define MAPS_PER_PAGE 10
+#define MAPS_PER_LARGEPAGE 30
 #define MAX_MAPNAME_BUFFER MAX_MAPNAME*600
 #define MAX_MAPNAME_LENGTH 34
 #define MAX_CUSTOMNAME  MAX_MAPNAME
@@ -1018,7 +1019,7 @@ void G_SendVoteResult(qboolean passed);
 
 typedef struct {
 	int pagenumber;
-	char mapname[MAPS_PER_PAGE][MAX_MAPNAME];
+	char mapname[MAPS_PER_LARGEPAGE][MAX_MAPNAME];
 } t_mappage;
 
 typedef struct {
@@ -1029,7 +1030,7 @@ typedef struct {
 
 extern char custom_vote_info[2048];
 
-extern t_mappage getMappage(int page, qboolean recommendedonly);
+extern t_mappage getMappage(int page, qboolean largepage, qboolean recommendedonly);
 extern int allowedMap(char *mapname);
 extern int allowedGametype(char *gametypeStr);
 extern int allowedTimelimit(int limit);
