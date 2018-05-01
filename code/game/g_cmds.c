@@ -1684,7 +1684,7 @@ void SendReadymask( int clientnum ) {
 		playerCount++;
 		if ( cl->ready || ( g_entities[cl->ps.clientNum].r.svFlags & SVF_BOT ) ) {
 			ready++;
-			if ( i < 16 ) {
+			if ( i < 32 ) {
 			    readyMask |= 1 << i;
 			}
 		} else {
