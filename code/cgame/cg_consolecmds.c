@@ -666,6 +666,9 @@ void CG_InitConsoleCommands( void ) {
 	trap_AddCommand ("vote");
 	trap_AddCommand ("callteamvote");
 	trap_AddCommand ("teamvote");
+	trap_AddCommand ("rules");
+	trap_AddCommand ("drop");
+	trap_AddCommand ("followauto");
 	trap_AddCommand ("stats");
 	trap_AddCommand ("teamtask");
 	trap_AddCommand ("loaddefered");	// spelled wrong, but not changing for demo
