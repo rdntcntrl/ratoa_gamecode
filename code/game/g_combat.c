@@ -86,9 +86,10 @@ void AddScore( gentity_t *ent, vec3_t origin, int score ) {
             ent->client->ps.persistant[PERS_SCORE] += score;
             if ( g_gametype.integer == GT_TEAM ) {
                 int team = ent->client->ps.persistant[PERS_TEAM];
-                    level.teamScores[ team ] += score;
-                    G_LogPrintf("TeamScore: %i %i: Team %d now has %d points\n",
-                        team, level.teamScores[ team ], team, level.teamScores[ team ] );
+		AddTeamScore(ent->s.pos.trBase, team, score);
+		//level.teamScores[ team ] += score;
+		G_LogPrintf("TeamScore: %i %i: Team %d now has %d points\n",
+				team, level.teamScores[ team ], team, level.teamScores[ team ] );
             }
         }
         G_LogPrintf("PlayerScore: %i %i: %s now has %d points\n",

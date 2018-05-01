@@ -157,53 +157,73 @@ team_t G_TeamFromString( char *str )
 ==============
 AddTeamScore
 
- used for gametype > GT_TEAM
- for gametype GT_TEAM the level.teamScores is updated in AddScore in g_combat.c
+ used for gametype >= GT_TEAM
 ==============
 */
 void AddTeamScore(vec3_t origin, int team, int score) {
-	gentity_t	*te;
+	gentity_t	*te = NULL;
 
 	if (level.warmupTime) {
 		return;
 	}
 
 	if ( g_gametype.integer != GT_DOMINATION ) {
-		te = G_TempEntity(origin, EV_GLOBAL_TEAM_SOUND );
-		te->r.svFlags |= SVF_BROADCAST;
+		//te = G_TempEntity(origin, EV_GLOBAL_TEAM_SOUND );
+		//te->r.svFlags |= SVF_BROADCAST;
 
 	
 	
 		if ( team == TEAM_RED ) {
 			if ( level.teamScores[ TEAM_RED ] + score == level.teamScores[ TEAM_BLUE ] ) {
 				//teams are tied sound
+				te = G_TempEntity(origin, EV_GLOBAL_TEAM_SOUND );
 				te->s.eventParm = GTS_TEAMS_ARE_TIED;
 			}
 			else if ( level.teamScores[ TEAM_RED ] <= level.teamScores[ TEAM_BLUE ] &&
 						level.teamScores[ TEAM_RED ] + score > level.teamScores[ TEAM_BLUE ]) {
 				// red took the lead sound
+				te = G_TempEntity(origin, EV_GLOBAL_TEAM_SOUND );
 				te->s.eventParm = GTS_REDTEAM_TOOK_LEAD;
 			}
-			else {
+			else if ( level.teamScores[ TEAM_RED ] >= level.teamScores[ TEAM_BLUE ] &&
+						level.teamScores[ TEAM_RED ] + score < level.teamScores[ TEAM_BLUE ]) {
+				// blue took the lead sound
+				te = G_TempEntity(origin, EV_GLOBAL_TEAM_SOUND );
+				te->s.eventParm = GTS_BLUETEAM_TOOK_LEAD;
+			}
+			else if (g_gametype.integer != GT_TEAM) {
 				// red scored sound
+				te = G_TempEntity(origin, EV_GLOBAL_TEAM_SOUND );
 				te->s.eventParm = GTS_REDTEAM_SCORED;
 			}
 		}
 		else {
 			if ( level.teamScores[ TEAM_BLUE ] + score == level.teamScores[ TEAM_RED ] ) {
 				//teams are tied sound
+				te = G_TempEntity(origin, EV_GLOBAL_TEAM_SOUND );
 				te->s.eventParm = GTS_TEAMS_ARE_TIED;
 			}
 			else if ( level.teamScores[ TEAM_BLUE ] <= level.teamScores[ TEAM_RED ] &&
 						level.teamScores[ TEAM_BLUE ] + score > level.teamScores[ TEAM_RED ]) {
 				// blue took the lead sound
+				te = G_TempEntity(origin, EV_GLOBAL_TEAM_SOUND );
 				te->s.eventParm = GTS_BLUETEAM_TOOK_LEAD;
 			}
-			else {
+			else if ( level.teamScores[ TEAM_BLUE ] >= level.teamScores[ TEAM_RED ] &&
+						level.teamScores[ TEAM_BLUE ] + score < level.teamScores[ TEAM_RED ]) {
+				// red took the lead sound
+				te = G_TempEntity(origin, EV_GLOBAL_TEAM_SOUND );
+				te->s.eventParm = GTS_REDTEAM_TOOK_LEAD;
+			}
+			else if (g_gametype.integer != GT_TEAM) {
 				// blue scored sound
+				te = G_TempEntity(origin, EV_GLOBAL_TEAM_SOUND );
 				te->s.eventParm = GTS_BLUETEAM_SCORED;
 			}
 		}
+	}
+	if (te) {
+		te->r.svFlags |= SVF_BROADCAST;
 	}
 	level.teamScores[ team ] += score;
 }
