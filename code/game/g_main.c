@@ -71,7 +71,7 @@ vmCvar_t	g_weaponTeamRespawn;
 vmCvar_t	g_motd;
 vmCvar_t        g_motdfile;
 vmCvar_t        g_votemaps;
-vmCvar_t        g_recommenedMapsFile;
+vmCvar_t        g_recommendedMapsFile;
 vmCvar_t        g_votecustom;
 vmCvar_t	g_synchronousClients;
 vmCvar_t	g_warmup;
@@ -377,7 +377,7 @@ static cvarTable_t		gameCvarTable[] = {
         { &g_votemaps, "g_votemapsfile", "votemaps.cfg", 0, 0, qfalse },
         { &g_votecustom, "g_votecustomfile", "votecustom.cfg", 0, 0, qfalse },
         
-        { &g_recommenedMapsFile, "g_recommenedMapsFile", "recommendedmaps.cfg", 0, 0, qfalse },
+        { &g_recommendedMapsFile, "g_recommendedMapsFile", "recommendedmaps.cfg", 0, 0, qfalse },
 
 	{ &g_listEntity, "g_listEntity", "0", 0, 0, qfalse },
 

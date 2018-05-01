@@ -1101,7 +1101,7 @@ extern	vmCvar_t	g_synchronousClients;
 extern	vmCvar_t	g_motd;
 extern	vmCvar_t	g_motdfile;
 extern  vmCvar_t        g_votemaps;
-extern  vmCvar_t        g_recommenedMapsFile;
+extern  vmCvar_t        g_recommendedMapsFile;
 extern  vmCvar_t        g_votecustom;
 extern	vmCvar_t	g_warmup;
 extern	vmCvar_t	g_doWarmup;

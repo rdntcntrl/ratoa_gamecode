@@ -73,7 +73,7 @@ t_mappage getMappage(int page, qboolean recommenedonly) {
 	trap_FS_FOpenFile(g_votemaps.string,&file,FS_READ);
 	if (!file && recommenedonly) {
 		// if no votemaps.cfg and we only want recommened maps, try recommenedmaps.cfg
-		trap_FS_FOpenFile(g_recommenedMapsFile.string,&file,FS_READ);
+		trap_FS_FOpenFile(g_recommendedMapsFile.string,&file,FS_READ);
 	}
 	if(file)
 	{
