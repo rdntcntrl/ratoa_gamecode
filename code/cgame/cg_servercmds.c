@@ -1586,6 +1586,11 @@ static void CG_ServerCommand( void ) {
 		return;
 	}
 
+	if ( !strcmp( cmd, "printChat" ) ) {
+		CG_PrintfChat(qfalse, "%s", CG_Argv(1) );
+		return;
+	}
+
 	if ( !strcmp( cmd, "chat" ) ) {
 		if ( !cg_teamChatsOnly.integer ) {
                         if( cg_chatBeep.integer )
