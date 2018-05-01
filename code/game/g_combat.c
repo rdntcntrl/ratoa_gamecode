@@ -1112,6 +1112,15 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 	if ( level.intermissionQueued ) {
 		return;
 	}
+
+	if (g_gametype.integer == GT_ELIMINATION || g_gametype.integer == GT_CTF_ELIMINATION) {
+		// avoid doing damage w/ gaunt during elimination warmup
+		if( (( level.time <= level.roundStartTime ) && ( level.time>level.roundStartTime-1000*g_elimination_activewarmup.integer ))
+				&& mod != MOD_FALLING && mod != MOD_SUICIDE && mod != MOD_TELEFRAG && mod != MOD_SUICIDE) {
+			return;
+		}
+	}
+
 	if ( targ->client && mod != MOD_JUICED) {
 		if ( targ->client->invulnerabilityTime > level.time) {
 			if ( dir && point ) {
