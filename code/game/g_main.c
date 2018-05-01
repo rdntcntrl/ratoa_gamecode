@@ -2579,6 +2579,10 @@ void PrintElimRoundStats(void) {
 	int minDTClient = -1;
 	int i;
 
+	if (!g_usesRatVM.integer) {
+		return;
+	}
+
 	for ( i = 0 ; i < level.maxclients ; i++ ) {
 		client = &level.clients[i];
 

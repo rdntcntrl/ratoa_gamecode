@@ -1713,6 +1713,10 @@ static int QDECL SortClients( const void *a, const void *b ) {
 void G_SendTeamPlayerCounts(void) {
 	char buf[256];
 
+	if (!g_usesRatVM.integer) {
+		return;
+	}
+
 	if (level.roundRespawned) {
 		Com_sprintf(buf, sizeof(buf), "%i %i %i %i",
 			       	TeamLivingCount(-1, TEAM_RED),
