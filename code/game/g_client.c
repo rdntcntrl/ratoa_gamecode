@@ -2493,6 +2493,12 @@ void ClientDisconnect( int clientNum ) {
 		}
 	}
 
+	if (g_gametype.integer == GT_ELIMINATION || g_gametype.integer == GT_CTF_ELIMINATION) {
+		if (ent->client->sess.sessionTeam != TEAM_SPECTATOR && !ent->client->isEliminated) {
+			G_SendTeamPlayerCounts();
+		}
+	}
+
 	// send effect if they were completely connected
         /*
          *Sago: I have removed this. A little dangerous but I make him suicide in a moment.

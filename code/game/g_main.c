@@ -2604,6 +2604,7 @@ void StartEliminationRound(void) {
 	if(g_elimination_ctf_oneway.integer)
 		SendAttackingTeamMessageToAllClients(); //Ensure that evaryone know who should attack.
 	EnableWeapons();
+	G_SendTeamPlayerCounts();
 }
 
 //things to do at end of round:
@@ -2617,6 +2618,7 @@ void EndEliminationRound(void)
 	level.roundRespawned = qfalse;
 	if(g_elimination_ctf_oneway.integer)
 		SendAttackingTeamMessageToAllClients();
+	G_SendTeamPlayerCounts();
 }
 
 //Things to do if we don't want to move the roundNumber

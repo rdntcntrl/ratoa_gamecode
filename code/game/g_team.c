@@ -1710,6 +1710,26 @@ static int QDECL SortClients( const void *a, const void *b ) {
 	return *(int *)a - *(int *)b;
 }
 
+void G_SendTeamPlayerCounts(void) {
+	char buf[256];
+
+	if (level.roundRespawned) {
+		Com_sprintf(buf, sizeof(buf), "%i %i %i %i",
+			       	TeamLivingCount(-1, TEAM_RED),
+			       	TeamLivingCount(-1, TEAM_BLUE),
+			       	TeamCount(-1, TEAM_RED, qtrue),
+			       	TeamCount(-1, TEAM_BLUE, qtrue));
+	} else {
+		Com_sprintf(buf, sizeof(buf), "%i %i %i %i",
+			       	TeamCount(-1, TEAM_RED, qtrue),
+			       	TeamCount(-1, TEAM_BLUE, qtrue),
+			       	TeamCount(-1, TEAM_RED, qtrue),
+			       	TeamCount(-1, TEAM_BLUE, qtrue));
+	}
+	
+	trap_SendServerCommand(-1, va("tplayerCounts %s", buf));
+}
+
 
 /*
 ==================
