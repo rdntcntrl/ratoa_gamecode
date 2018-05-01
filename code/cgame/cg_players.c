@@ -2395,12 +2395,39 @@ void CG_AddRefEntityWithPowerups( refEntity_t *ent, entityState_t *state, int te
                         
 		if ( state->powerups & ( 1 << PW_QUAD ) )
 		{
+			byte color_bak[4] = {0,0,0,0};
+			float color[4];
 			//if (team == TEAM_RED)
 			//	ent->customShader = cgs.media.redQuadShader;
 			//else
 			//	ent->customShader = cgs.media.quadShader;
 
-			ent->customShader = cgs.media.quadShader;
+			if (cg_quadStyle.integer > 0) {
+				int hue;
+				ent->customShader = cgs.media.quadShaderSpots;
+				trap_R_AddRefEntityToScene( ent );
+
+				ent->customShader = cgs.media.quadShaderBase;
+				memcpy(color_bak, ent->shaderRGBA, sizeof(color_bak));
+
+				if (cg_quadStyle.integer == 2) {
+					// hue range 200-285
+					hue = (cg.time / 3) % 170;
+					if (hue < 85) {
+						hue = 200 + hue;
+					} else {
+						hue = 285 - (hue % 85);
+					}
+				} else {
+					hue = (cg.time / 3) % 360;
+				}
+				
+				CG_HSV2RGB(hue,1.0,1.0, color);
+				CG_FloatColorToRGBA(color, ent->shaderRGBA);
+			} else {
+				ent->customShader = cgs.media.quadShader;
+			}
+
 			if (cg_powerupBlink.integer && orderIndicator) {
 				switch  (cg_powerupBlink.integer) {
 					case 1:
@@ -2419,6 +2446,9 @@ void CG_AddRefEntityWithPowerups( refEntity_t *ent, entityState_t *state, int te
 				}
 			} else {
 				trap_R_AddRefEntityToScene( ent );
+			}
+			if (cg_quadStyle.integer) {
+				memcpy(ent->shaderRGBA, color_bak, sizeof(color_bak));
 			}
 		}
 		if ( state->powerups & ( 1 << PW_REGEN ) ) {

@@ -897,6 +897,8 @@ typedef struct {
 
 	// powerup shaders
 	qhandle_t	quadShader;
+	qhandle_t	quadShaderBase;
+	qhandle_t	quadShaderSpots;
 	qhandle_t	redQuadShader;
 	qhandle_t	quadWeaponShader;
 	qhandle_t	invisShader;
@@ -1441,6 +1443,7 @@ extern vmCvar_t			cg_friendFloatHealth;
 extern vmCvar_t			cg_friendFloatHealthSize;
 extern vmCvar_t			cg_soundBufferDelay;
 extern vmCvar_t			cg_powerupBlink;
+extern vmCvar_t			cg_quadStyle;
 extern vmCvar_t			cg_bloodOnHit;
 extern vmCvar_t			cg_drawSpawnpoints;
 extern vmCvar_t			cg_teamOverlayScaleX;
