@@ -1047,17 +1047,11 @@ qboolean UI_ConsoleCommand( int realTime ) {
 	}
 
         if ( Q_stricmp (cmd, "ui_mappage") == 0 ) {
+		int i;
 		mappage.pagenumber = atoi(UI_Argv( 1 ));
-                Q_strncpyz(mappage.mapname[0],UI_Argv(2),32);
-                Q_strncpyz(mappage.mapname[1],UI_Argv(3),32);
-                Q_strncpyz(mappage.mapname[2],UI_Argv(4),32);
-                Q_strncpyz(mappage.mapname[3],UI_Argv(5),32);
-                Q_strncpyz(mappage.mapname[4],UI_Argv(6),32);
-                Q_strncpyz(mappage.mapname[5],UI_Argv(7),32);
-                Q_strncpyz(mappage.mapname[6],UI_Argv(8),32);
-                Q_strncpyz(mappage.mapname[7],UI_Argv(9),32);
-                Q_strncpyz(mappage.mapname[8],UI_Argv(10),32);
-                Q_strncpyz(mappage.mapname[9],UI_Argv(11),32);
+		for (i = 0; i < MAPPAGE_NUM; ++i) {
+			Q_strncpyz(mappage.mapname[i],UI_Argv(i+2),32);
+		}
 
                 UI_VoteMapMenuInternal();
 		return qtrue;

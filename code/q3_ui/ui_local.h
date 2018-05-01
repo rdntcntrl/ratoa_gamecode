@@ -296,7 +296,8 @@ typedef struct
 } menutext_s;
 
 #define MAX_MAPNAME_LENGTH 32
-#define MAPPAGE_NUM 10
+//#define MAPPAGE_NUM 10
+#define MAPPAGE_NUM 30
 
 typedef struct {
 	int pagenumber;

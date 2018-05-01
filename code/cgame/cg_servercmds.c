@@ -398,6 +398,7 @@ static void CG_ParseMappage( void ) {
     const char *temp;
     const char*	c;
     int i;
+    int nummaps = 30;
 
     temp = CG_Argv( 1 );
     for( c = temp; *c; ++c) {
@@ -410,8 +411,8 @@ static void CG_ParseMappage( void ) {
 			break;
 		}
         }
-    Q_strncpyz(command,va("ui_mappage %s",temp),1024);
-    for(i=2;i<12;i++) {
+    Q_strncpyz(command,va("ui_mappage %s",temp),sizeof(command));
+    for(i=2;i<nummaps+2;i++) {
         temp = CG_Argv( i );
         for( c = temp; *c; ++c) {
                     switch(*c) {
@@ -425,7 +426,7 @@ static void CG_ParseMappage( void ) {
             }
         if(strlen(temp)<1)
             temp = "---";
-        Q_strcat(command,1024,va(" %s ",temp));
+        Q_strcat(command,sizeof(command),va(" %s ",temp));
     }
     trap_SendConsoleCommand(command);
 
@@ -1648,7 +1649,7 @@ static void CG_ServerCommand( void ) {
 		return;
 	}
 
-	if ( !strcmp( cmd, "mappage" ) ) {
+	if ( !strcmp( cmd, "mappage" ) || !strcmp( cmd, "mappagel" ) ) {
 		CG_ParseMappage();
 		return;
 	}
