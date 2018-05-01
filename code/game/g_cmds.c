@@ -1859,12 +1859,16 @@ static void G_SayTo( gentity_t *ent, gentity_t *other, int mode, int color, cons
 }
 
 char * G_TeamSayTokens(gentity_t *ent, const char *message) {
-	static char text[MAX_SAY_TEXT];
+	static char text[MAX_RAT_SAY_TEXT];
+	int textSize = MAX_RAT_SAY_TEXT;
 	char location[64];
 	char *p1 = message;
 	char *token = NULL;
 	int i = 0;
-	while (i < MAX_SAY_TEXT-1) {
+	if (!g_usesRatVM.integer && MAX_SAY_TEXT < MAX_RAT_SAY_TEXT) {
+		textSize = MAX_SAY_TEXT;
+	}
+	while (i < textSize-1) {
 		if (token && *token) {
 			text[i++] = *(token++);
 			continue;
@@ -1908,9 +1912,14 @@ void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText ) 
 	int			color;
 	char		name[64];
 	// don't let text be too long for malicious reasons
-	char		text[MAX_SAY_TEXT];
+	char		text[MAX_RAT_SAY_TEXT];
+	int		textSize = MAX_RAT_SAY_TEXT;
 	char		location[64];
 	int 		intendedMode = mode;
+
+	if (!g_usesRatVM.integer && MAX_SAY_TEXT < MAX_RAT_SAY_TEXT) {
+		textSize = MAX_SAY_TEXT;
+	}
 
 	if (ent && ent->client) {
 		ClientInactivityHeartBeat(ent->client);
@@ -1968,9 +1977,9 @@ void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText ) 
 	}
 
 	if (intendedMode == SAY_TEAM && mode == SAY_TEAM) {
-		Q_strncpyz( text, G_TeamSayTokens(ent, chatText), sizeof(text) );
+		Q_strncpyz( text, G_TeamSayTokens(ent, chatText), textSize );
 	} else {
-		Q_strncpyz( text, chatText, sizeof(text) );
+		Q_strncpyz( text, chatText, textSize );
 	}
 
 	if ( target ) {
