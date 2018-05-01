@@ -224,6 +224,7 @@ vmCvar_t        g_brightPlayerShells;
 vmCvar_t        g_friendsWallHack;
 vmCvar_t        g_specShowZoom;
 vmCvar_t        g_itemPickup;
+vmCvar_t        g_itemDrop;
 vmCvar_t        g_usesRatVM;
 vmCvar_t        g_usesRatEngine;
 vmCvar_t        g_mixedMode;
@@ -470,6 +471,7 @@ static cvarTable_t		gameCvarTable[] = {
         { &g_specShowZoom, "g_specShowZoom", "1", CVAR_ARCHIVE, 0, qfalse },
 
         { &g_itemPickup, "g_itemPickup", "0", CVAR_ARCHIVE , 0, qtrue },
+        { &g_itemDrop, "g_itemDrop", "0", CVAR_ARCHIVE , 0, qtrue },
         { &g_usesRatVM, "g_usesRatVM", "0", 0, 0, qfalse },
         { &g_usesRatEngine, "g_usesRatEngine", "0", CVAR_ROM | CVAR_INIT, 0, qfalse },
         { &g_mixedMode, "g_mixedMode", "0", CVAR_ARCHIVE, 0, qfalse },

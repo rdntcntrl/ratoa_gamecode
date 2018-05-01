@@ -1646,6 +1646,85 @@ void Cmd_GoodGame_f( gentity_t *ent ) {
 	}
 }
 
+gentity_t *DropFlag( gentity_t *ent ) {
+	int item = 0;
+
+	if (!(g_itemDrop.integer & ITEMDROP_FLAG)) {
+		return NULL;
+	}
+
+	if (ent->client->ps.pm_type == PM_DEAD) {
+		return NULL;
+	}
+
+	if (ent->client->ps.powerups[PW_REDFLAG]) {
+		item = PW_REDFLAG;
+	} else if (ent->client->ps.powerups[PW_BLUEFLAG]) {
+		item = PW_BLUEFLAG;
+	} else if (ent->client->ps.powerups[PW_NEUTRALFLAG]) {
+		item = PW_NEUTRALFLAG;
+	} else {
+		return NULL;
+	}
+	ent->client->ps.powerups[item] = 0;
+	return Drop_ItemNonRandom(ent, BG_FindItemForPowerup( item ), 0 );
+}
+
+gentity_t *DropWeapon( gentity_t *ent ) {
+	int weapon;
+	int ammo;
+	gentity_t *item;
+
+	if (!(g_itemDrop.integer & ITEMDROP_WEAPON)) {
+		return NULL;
+	}
+
+	if (ent->client->ps.pm_type == PM_DEAD) {
+		return NULL;
+	}
+
+	weapon = ent->s.weapon;
+
+	if ( weapon <= WP_GAUNTLET || weapon >= WP_NUM_WEAPONS) {
+		return NULL;
+	}
+
+	ammo = ent->client->ps.ammo[weapon];
+
+	if (ammo == 0) {
+		// don't allow drop of empty guns
+		return NULL;
+	}
+
+	ent->client->ps.ammo[weapon] = 0;	
+	ent->client->ps.stats[STAT_WEAPONS] &= ~(1 << weapon );	
+
+	item = Drop_ItemNonRandom(ent, BG_FindItemForWeapon(weapon), 0);
+	item->count = ammo;
+	BG_AddPredictableEventToPlayerstate(EV_NOAMMO, 0, &ent->client->ps);
+	ent->client->ps.weaponTime += 500;
+	return item;
+}
+
+void Cmd_Drop_f( gentity_t *ent ) {
+	gentity_t *item = NULL;
+	if (g_itemDrop.integer & ITEMDROP_FLAG && 
+				(ent->client->ps.powerups[PW_REDFLAG] 
+				 || ent->client->ps.powerups[PW_BLUEFLAG]
+				 || ent->client->ps.powerups[PW_NEUTRALFLAG]
+				)) {
+		item = DropFlag(ent);
+	} else if (g_itemDrop.integer & ITEMDROP_WEAPON) {
+		item = DropWeapon(ent);
+	}
+	
+	if (item != NULL) {
+		item->dropTime = level.time;
+		item->s.time = level.time; // so client can know about it and avoid predicting pickup
+	}
+
+}
+
 /*
 ==================
 SendReadymask
@@ -2998,6 +3077,8 @@ commands_t cmds[ ] =
   { "timeout", 0, Cmd_Timeout_f },
 
   { "gg", 0, Cmd_GoodGame_f },
+
+  { "drop", 0, Cmd_Drop_f },
 
   { "ready", 0, Cmd_Ready_f },
 

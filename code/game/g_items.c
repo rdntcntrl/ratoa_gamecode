@@ -465,6 +465,10 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 				return;
 	}
 
+	if (ent->dropTime && ent->dropTime + 500 > level.time) {
+		return;
+	}
+
 	G_LogPrintf( "Item: %i %s\n", other->s.number, ent->item->classname );
 
 	predict = other->client->pers.predictItemPickup;
@@ -657,6 +661,41 @@ gentity_t *Drop_Item( gentity_t *ent, gitem_t *item, float angle ) {
 	velocity[2] += 200 + crandom() * 50;
 	
 	return LaunchItem( item, ent->s.pos.trBase, velocity );
+}
+
+/*
+================
+Drop_ItemNonRamdom
+
+Spawns an item and tosses it forward
+================
+*/
+gentity_t *Drop_ItemNonRandom( gentity_t *ent, gitem_t *item, float angle ) {
+	vec3_t forward, right, up;
+	vec3_t muzzle;
+	gentity_t *item_ent;
+
+	if (!ent->client) {
+		return;
+	}
+	AngleVectors (ent->client->ps.viewangles, forward, right, up );
+
+	CalcMuzzlePoint ( ent, forward, right, up, muzzle );
+
+	forward[2] += 0.2f;
+	VectorNormalize(forward);
+	VectorScale( forward, 350, forward );
+
+	// add player inertia
+	//VectorAdd(forward, ent->client->ps.velocity, forward);
+	
+	//velocity[2] += 250;
+	
+	item_ent = LaunchItem( item, muzzle, forward );
+	if (item_ent && ent->client) {
+		item_ent->s.pos.trTime -= G_MissilePrestep(ent->client);
+	}
+	return item_ent;
 }
 
 

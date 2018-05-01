@@ -71,6 +71,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define RULES_FAST 0
 #define RULES_SLOW 1
 
+#define ITEMDROP_FLAG 1
+#define ITEMDROP_WEAPON 2
+
 // movers are things like doors, plats, buttons, etc
 typedef enum {
 	MOVER_POS1,
@@ -172,6 +175,8 @@ struct gentity_s {
 	int			splashMethodOfDeath;
 
 	int			count;
+
+	int			dropTime;
 
 	gentity_t	*chain;
 	gentity_t	*enemy;
@@ -691,6 +696,7 @@ void RespawnItem( gentity_t *ent );
 void UseHoldableItem( gentity_t *ent );
 void PrecacheItem (gitem_t *it);
 gentity_t *Drop_Item( gentity_t *ent, gitem_t *item, float angle );
+gentity_t *Drop_ItemNonRandom( gentity_t *ent, gitem_t *item, float angle );
 gentity_t *LaunchItem( gitem_t *item, vec3_t origin, vec3_t velocity );
 void SetRespawn (gentity_t *ent, float delay);
 void G_SpawnItem (gentity_t *ent, gitem_t *item);
@@ -765,6 +771,7 @@ void TossClientCubes( gentity_t *self );
 // g_missile.c
 //
 void G_RunMissile( gentity_t *ent );
+int G_MissilePrestep( gclient_t *client);
 void G_MissileRunPrestep( gentity_t *ent, int stepmsec);
 void G_ImmediateRunMissiles(gentity_t *client);
 void G_ImmediateLaunchMissile(gentity_t *ent);
@@ -1258,6 +1265,7 @@ extern  vmCvar_t        g_friendsWallHack;
 extern  vmCvar_t        g_specShowZoom;
 
 extern  vmCvar_t        g_itemPickup;
+extern  vmCvar_t        g_itemDrop;
 extern  vmCvar_t        g_usesRatVM;
 extern  vmCvar_t        g_usesRatEngine;
 extern  vmCvar_t        g_mixedMode;
