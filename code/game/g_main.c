@@ -2612,17 +2612,17 @@ void PrintElimRoundStats(void) {
 	}
 
 	if (maxKillsClient != -1) {
-		trap_SendServerCommand(-1, va("printChat \"Most kills: %s ^2%i\n\"", 
+		trap_SendServerCommand(-1, va("print \"Most kills: %s " S_COLOR_RED "%i\n\"", 
 					level.clients[maxKillsClient].pers.netname,
 					maxKills));
 	}
 	if (minDTClient != -1) {
-		trap_SendServerCommand(-1, va("printChat \"Least Damage Taken: %s ^2%i\n\"", 
+		trap_SendServerCommand(-1, va("print\"Least Damage Taken: %s " S_COLOR_RED "%i\n\"", 
 					level.clients[minDTClient].pers.netname,
 					minDT));
 	}
 	if (maxDGClient != -1) {
-		trap_SendServerCommand(-1, va("printChat \"Most Damage Given: %s ^2%i\n\"", 
+		trap_SendServerCommand(-1, va("print\"Most Damage Given: %s " S_COLOR_RED "%i\n\"", 
 					level.clients[maxDGClient].pers.netname,
 					maxDG));
 	}
