@@ -349,6 +349,11 @@ typedef struct {
     int		damage[WP_NUM_WEAPONS];
     int		topweapons[WP_NUM_WEAPONS][2];
     int		handicapforced;		
+
+    // quad whore detection
+    int quadTime;
+    int quadNum;
+    int quadWhore;
 } clientPersistant_t;
 
 //unlagged - backward reconciliation #1
@@ -1258,6 +1263,9 @@ extern vmCvar_t		g_damageThroughWalls;
 extern  vmCvar_t	g_pingEqualizer;
 
 extern  vmCvar_t        g_autoClans;
+
+extern  vmCvar_t        g_quadWhore;
+
 extern  vmCvar_t        g_killDropsFlag;
 extern  vmCvar_t        g_startWhenReady;
 extern  vmCvar_t        g_autoStartTime;

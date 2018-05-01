@@ -214,6 +214,9 @@ vmCvar_t	g_damageThroughWalls;
 vmCvar_t	g_pingEqualizer;
 
 vmCvar_t        g_autoClans;
+
+vmCvar_t        g_quadWhore;
+
 vmCvar_t        g_killDropsFlag;
 vmCvar_t        g_startWhenReady;
 vmCvar_t        g_autoStartTime;
@@ -457,6 +460,8 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_allowTimenudge,     "g_allowTimenudge", "1", CVAR_ARCHIVE, 0, qfalse },
 
         { &g_autoClans, "g_autoClans", "0", CVAR_ARCHIVE , 0, qfalse },
+
+        { &g_quadWhore, "g_quadWhore", "0", CVAR_ARCHIVE , 0, qfalse },
 
         { &g_killDropsFlag, "g_killDropsFlag", "1", CVAR_ARCHIVE , 0, qtrue },
 

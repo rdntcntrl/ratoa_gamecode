@@ -95,6 +95,41 @@ void G_PlayDenied(gentity_t *ent, gentity_t *other) {
 	}
 }
 
+void CheckQuadwhore( gentity_t *item, gentity_t *player) {
+	if (!g_quadWhore.integer) {
+		return;
+	}
+
+	if (item->item->giTag != PW_QUAD) {
+		return;
+	}
+
+	player->client->pers.quadNum++;
+
+	if (player->client->pers.quadTime > 0 
+			&& item->flags & FL_DROPPED_ITEM 
+			&& player->client->pers.quadTime + (item->item->quantity)*1000*1.5 >= level.time) {
+		// ignore re-pickup
+		player->client->pers.quadTime = level.time;
+		return;
+	}
+
+	//if ( item->flags & FL_DROPPED_ITEM ) {
+	//}
+
+	player->client->pers.quadWhore = 0;
+
+	if ((player->client->pers.quadTime > 0 && player->client->pers.quadTime + 3*60*1000 < level.time)
+			|| (player->client->pers.quadNum > 1 && (float)player->client->pers.quadNum / (float)((level.time - level.startTime)/1000) > 1.0/180.0 )) {
+		// quad whore alert!
+		trap_SendServerCommand( -1, va("print \"%s" S_COLOR_WHITE " is a " S_COLOR_RED "QUAD WHORE!!!\n\"", player->client->pers.netname) );
+		trap_SendServerCommand(player - g_entities, "cp \"QUAD WHORE!!!\"" );
+		player->client->pers.quadWhore = 1;
+	}
+
+	player->client->pers.quadTime = level.time;
+}
+
 
 //======================================================================
 
@@ -117,6 +152,8 @@ int Pickup_Powerup( gentity_t *ent, gentity_t *other ) {
 	other->client->ps.powerups[ent->item->giTag] += quantity * 1000;
 
 	G_PlayDenied(ent, other);
+
+	CheckQuadwhore(ent, other);
 
 	return RESPAWN_POWERUP;
 }
