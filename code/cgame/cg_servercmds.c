@@ -561,6 +561,35 @@ static void CG_ParseAttackingTeam( void ) {
 		cgs.attackingTeam = TEAM_NONE; //Should never happen.
 }
 
+static void CG_ParseTeamPlayerCounts( void ) {
+	int livingRed, livingBlue, totalRed, totalBlue;
+
+	totalRed = atoi ( CG_Argv ( 3 ) );
+	totalBlue = atoi ( CG_Argv ( 4 ) );
+
+	if ( cg.warmup < 0 ) {
+		cgs.redLivingCount = totalRed;
+		cgs.blueLivingCount = totalBlue;
+		return;
+	}
+
+	livingRed = atoi ( CG_Argv ( 1 ) );
+	livingBlue = atoi ( CG_Argv ( 2 ) );
+	totalRed = atoi ( CG_Argv ( 3 ) );
+	totalBlue = atoi ( CG_Argv ( 4 ) );
+
+	if ( totalRed != 1 && livingRed == 1 && livingRed != cgs.redLivingCount && cgs.clientinfo[cg.clientNum].team == TEAM_RED && !cgs.clientinfo[cg.clientNum].isDead ) {
+		CG_CenterPrint ( va ( "You are the chosen one!" ), 100, BIGCHAR_WIDTH );
+	}
+	if ( totalBlue != 1 && livingBlue == 1 && livingBlue != cgs.blueLivingCount && cgs.clientinfo[cg.clientNum].team == TEAM_BLUE && !cgs.clientinfo[cg.clientNum].isDead ) {
+		CG_CenterPrint ( va ( "You are the chosen one!" ), 100, BIGCHAR_WIDTH );
+	}
+
+	cgs.redLivingCount = livingRed;
+	cgs.blueLivingCount = livingBlue;
+
+}
+
 /*
 =================
 CG_ParseTeamInfo
@@ -1659,10 +1688,16 @@ static void CG_ServerCommand( void ) {
 		return;
 	}
 
+	if ( !strcmp( cmd, "tplayerCounts" ) ) {
+		CG_ParseTeamPlayerCounts();
+		return;
+	}
+
 	if ( !strcmp( cmd, "tinfo" ) ) {
 		CG_ParseTeamInfo();
 		return;
 	}
+
 
 	if ( !strcmp( cmd, "map_restart" ) ) {
 		CG_MapRestart();

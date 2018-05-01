@@ -1230,6 +1230,10 @@ typedef struct {
 	int				redflag, blueflag;		// flag status from configstrings
 	int				flagStatus;
 
+	// for elimination modes
+	int redLivingCount;
+	int blueLivingCount;
+
 	qboolean  newHud;
 
 	//
@@ -1761,6 +1765,7 @@ void CG_NewClientInfo( int clientNum );
 sfxHandle_t	CG_CustomSound( int clientNum, const char *soundName );
 void CG_HSV2RGB(float h, float s, float v, float *out);
 void CG_LoadForcedSounds(void);
+int CG_CountPlayers(team_t team);
 
 //
 // cg_predict.c
