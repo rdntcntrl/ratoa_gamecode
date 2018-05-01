@@ -507,6 +507,7 @@ void Cmd_Rules_f( gentity_t *ent ) {
 				" -Fast weapon switch:    %i\n"
 				" -Fast weapons:          %i\n"
 				" -Smooth/Additive Jump:  %i\n"
+				" -Ramp Jump:             %i\n"
 				" -Forced Bright Models:  %i\n"
 				" -Bright Shells:         %i\n"
 				" -Pickup height:         %s\n"
@@ -519,6 +520,7 @@ void Cmd_Rules_f( gentity_t *ent ) {
 				g_fastSwitch.integer,
 				g_fastWeapons.integer,
 				g_additiveJump.integer,
+				g_rampJump.integer,
 				g_allowBrightModels.integer,
 				g_brightPlayerShells.integer,
 				g_itemPickup.integer ? "high" : "low",
