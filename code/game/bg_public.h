@@ -604,7 +604,8 @@ typedef enum {
 #define TEAM_NONE TEAM_SPECTATOR
 
 // Time between location updates
-#define TEAM_LOCATION_UPDATE_TIME		1000
+//#define TEAM_LOCATION_UPDATE_TIME		1000
+#define TEAM_LOCATION_UPDATE_TIME		500
 
 // How many players on the overlay
 #define TEAM_MAXOVERLAY		32
