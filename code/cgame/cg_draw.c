@@ -3693,6 +3693,9 @@ CG_DrawSpectator
 =================
 */
 static void CG_DrawSpectator(void) {
+	if (cg.scoreBoardShowing) {
+		return;
+	}
 	if (cg.spectatorHelpDrawTime == 0) {
 		cg.spectatorHelpDrawTime = cg.time;
 	}
