@@ -3268,14 +3268,28 @@ static void CG_ScanForCrosshairEntity( void ) {
 	trace_t		trace;
 	vec3_t		start, end;
 	int			content;
+	qboolean throughwall = (cgs.ratFlags & RAT_FRIENDSWALLHACK && cg.snap->ps.persistant[PERS_TEAM] != TEAM_SPECTATOR);
+	qboolean lookedThroughWall = qfalse;
 
 	VectorCopy( cg.refdef.vieworg, start );
 	VectorMA( start, 131072, cg.refdef.viewaxis[0], end );
 
+
 	CG_Trace( &trace, start, vec3_origin, vec3_origin, end, 
-		cg.snap->ps.clientNum, CONTENTS_SOLID|CONTENTS_BODY );
+		cg.snap->ps.clientNum, 
+		CONTENTS_SOLID |CONTENTS_BODY );
 	if ( trace.entityNum >= MAX_CLIENTS ) {
-		return;
+		if (throughwall) {
+			CG_Trace( &trace, start, vec3_origin, vec3_origin, end, 
+					cg.snap->ps.clientNum, 
+					CONTENTS_BODY );
+			if ( trace.entityNum >= MAX_CLIENTS ) {
+				return;
+			}
+			lookedThroughWall = qtrue;
+		}  else {
+			return;
+		}
 	}
 
 	// if the player is in fog, don't show it
@@ -3287,6 +3301,19 @@ static void CG_ScanForCrosshairEntity( void ) {
 	// if the player is invisible, don't show it
 	if ( cg_entities[ trace.entityNum ].currentState.powerups & ( 1 << PW_INVIS ) ) {
 		return;
+	}
+
+	if (throughwall && lookedThroughWall) {
+		// XXX: technically, this could give an enemy's position away
+		// when he obscures the position of a friend
+		clientInfo_t	*ci;
+		ci = &cgs.clientinfo[trace.entityNum];
+	       	if (!ci->infoValid) {
+			return;
+		}
+		if (ci->team != cg.snap->ps.persistant[PERS_TEAM]) {
+			return;
+		}
 	}
 
 	// update the fade timer
