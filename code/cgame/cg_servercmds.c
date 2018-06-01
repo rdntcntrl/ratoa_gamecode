@@ -896,6 +896,10 @@ static void CG_ConfigStringModified( void ) {
 		}
 	} else if ( num >= CS_PLAYERS && num < CS_PLAYERS+MAX_CLIENTS ) {
 		CG_NewClientInfo( num - CS_PLAYERS );
+		if (num - CS_PLAYERS == cg.clientNum) {
+			// make sure to update all other player models in case we switched teams
+			CG_ForceModelChange();
+		}
 		CG_BuildSpectatorString();
 	} else if ( num == CS_FLAGSTATUS ) {
 		if( cgs.gametype == GT_CTF || cgs.gametype == GT_CTF_ELIMINATION || cgs.gametype == GT_DOUBLE_D) {
