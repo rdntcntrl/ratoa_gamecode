@@ -580,7 +580,7 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_powerupBlink, "cg_powerupBlink", "0", CVAR_ARCHIVE},
 	{ &cg_quadStyle, "cg_quadStyle", "0", 0},
 	{ &cg_bloodOnHit, "cg_bloodOnHit", "0", CVAR_ARCHIVE},
-	{ &cg_drawSpawnpoints, "cg_drawSpawnpoints", "0", CVAR_ARCHIVE},
+	{ &cg_drawSpawnpoints, "cg_drawSpawnpoints", "1", CVAR_ARCHIVE},
 	{ &cg_teamOverlayScaleX, "cg_teamOverlayScaleX", "0.7", CVAR_ARCHIVE},
 	{ &cg_teamOverlayScaleY, "cg_teamOverlayScaleY", "1", CVAR_ARCHIVE},
 	{ &cg_drawTeamBackground, "cg_drawTeamBackground", "0", CVAR_ARCHIVE},
@@ -779,22 +779,47 @@ void CG_RatInitDefaults(void)  {
 	char *cvars[] = { "color1", "color2" };
 	int i;
 	int seed;
-	if (cg_ratInitialized.integer) {
-		return;
+
+	if (cg_ratInitialized.integer < 1) {
+		if (cg_drawCrosshair.integer < 10) {
+			trap_Cvar_Set( "cg_drawCrosshair", "19" );
+		}
+		seed = trap_Milliseconds();
+		for ( i = 0; i < sizeof(cvars)/sizeof(char *); ++i) {
+			memset(buf, 0, sizeof(buf));
+			trap_Cvar_VariableStringBuffer(cvars[i], buf, sizeof(buf));
+			if (buf[0] != 'H') {
+				trap_Cvar_Set(cvars[i], va("H%i", (int)(Q_random(&seed)*360.0)));	
+			}
+		}
+		trap_Cvar_Set( "cg_ratInitialized", "1" );
 	}
 
-	if (cg_drawCrosshair.integer < 10) {
-		trap_Cvar_Set( "cg_drawCrosshair", "19" );
-	}
-	seed = trap_Milliseconds();
-	for ( i = 0; i < sizeof(cvars)/sizeof(char *); ++i) {
-		memset(buf, 0, sizeof(buf));
-		trap_Cvar_VariableStringBuffer(cvars[i], buf, sizeof(buf));
-		if (buf[0] != 'H') {
-			trap_Cvar_Set(cvars[i], va("H%i", (int)(Q_random(&seed)*360.0)));	
+	if (cg_ratInitialized.integer < 2) {
+		trap_Cvar_Set( "cg_delag", "1" );
+		trap_Cvar_Set( "cg_drawTimer", "1" );
+		trap_Cvar_Set( "cg_drawSpeed", "1" );
+		trap_Cvar_Set( "cg_drawFPS", "1" );
+		trap_Cvar_Set( "cg_drawSpawnpoints", "1" );
+		trap_Cvar_Set( "cg_bobpitch", "0.0" );
+		trap_Cvar_Set( "cg_bobroll", "0.0" );
+		trap_Cvar_Set( "cg_hitsound", "1");
+
+		trap_Cvar_Set( "cg_forceBrightModels", "2");
+
+		if (cg_drawTeamOverlay.integer <= 0) {
+			trap_Cvar_Set( "cg_drawTeamOverlay", "4" );
 		}
+		if (cg_fragmsgsize.value == 1.0) {
+			trap_Cvar_Set( "cg_fragmsgsize", "0.75" );
+		}
+
+		// non-cgame settings
+		trap_Cvar_Set( "cl_maxpackets", "125" );
+
+		trap_Cvar_Set( "cg_ratInitialized", "2" );
 	}
-	trap_Cvar_Set( "cg_ratInitialized", "1" );
+
 }
 
 /*																																			
