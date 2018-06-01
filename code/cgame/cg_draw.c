@@ -3287,6 +3287,8 @@ static void CG_DrawCrosshair(void)
 
 	if ( cgs.screenXScale > cgs.screenYScale ) {
 		w = w * cgs.screenYScale / cgs.screenXScale;
+	} else if ( cgs.screenXScale < cgs.screenYScale ) {
+		h = h * cgs.screenXScale / cgs.screenYScale;
 	}
 	
 	if( cg_crosshairPulse.integer ){
