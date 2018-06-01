@@ -893,7 +893,7 @@ void CG_UpdateCvars( void ) {
 			CG_Cvar_ClampInt( cv->cvarName, cv->vmCvar, 0, 250 );
 		}
                 else if ( cv->vmCvar == &com_maxfps ) {
-			CG_Cvar_ClampInt( cv->cvarName, cv->vmCvar, 0, 125 );
+			CG_Cvar_ClampInt( cv->cvarName, cv->vmCvar, 0, 166 );
 		}
                 else if ( cv->vmCvar == &con_notifytime ) {
 			if (cg_newConsole.integer ) {
