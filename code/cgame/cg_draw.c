@@ -2090,9 +2090,11 @@ static float CG_DrawPowerups( float y ) {
 }
 #endif // MISSIONPACK
 
-#define RADAR_SIZE 42
+#define RADAR_SIZE 50
 #define RADARDOT_SIZE 6
 #define RADAR_RADIUS 16
+#define RADAR_MINRADIUS 4
+#define RADAR_RANGE 2000.0
 
 static qboolean CG_DrawRadar( void ) {
 	float		color[4];
@@ -2105,7 +2107,14 @@ static qboolean CG_DrawRadar( void ) {
 	float flagangle;
 	float u,r;
 	float w;
+	float distance;
 
+
+	if (cgs.gametype != GT_CTF &&
+			cgs.gametype != GT_CTF_ELIMINATION &&
+			cgs.gametype != GT_1FCTF) {
+		return;
+	}
 
 	if (!(cgs.ratFlags & RAT_FLAGINDICATOR)
 			|| !cg_radar.integer
@@ -2154,8 +2163,10 @@ static qboolean CG_DrawRadar( void ) {
 
 	flagangle = flagangle*M_PI/180.0;
 
-	u = RADAR_RADIUS * cos(flagangle);
-	r = RADAR_RADIUS * sin(flagangle);
+	distance = VectorLength(viewvec);
+
+	u = (RADAR_RADIUS * MIN(1.0, distance/RADAR_RANGE) + RADAR_MINRADIUS) * cos(flagangle);
+	r = (RADAR_RADIUS * MIN(1.0, distance/RADAR_RANGE) + RADAR_MINRADIUS) * sin(flagangle);
 
 	color[0] = 0.8;
 	color[1] = 0.8;
