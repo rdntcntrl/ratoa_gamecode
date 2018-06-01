@@ -2196,6 +2196,7 @@ static float CG_DrawRadar( float y ) {
 
 	if (!(cgs.ratFlags & RAT_FLAGINDICATOR)
 			|| !cg_radar.integer
+			|| (cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR)
 			|| (cg.snap->ps.pm_flags & PMF_FOLLOW)
 			|| cg.scoreBoardShowing) {
 		return y;
