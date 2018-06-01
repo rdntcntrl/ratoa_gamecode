@@ -253,7 +253,7 @@ int allowedFraglimit(int limit) {
     return qtrue;
 }
 
-#define MAX_CUSTOM_VOTES    24
+#define MAX_CUSTOM_VOTES    48
 
 char            custom_vote_info[2048];
 
@@ -266,7 +266,7 @@ VoteParseCustomVotes
  */
 int VoteParseCustomVotes( void ) {
     fileHandle_t	file;
-    char            buffer[4*1024];
+    char            buffer[8*1024];
     int             commands;
     char	*token,*pointer;
 
@@ -310,7 +310,7 @@ getCustomVote
 t_customvote getCustomVote(char* votecommand) {
     t_customvote result;
     fileHandle_t	file;
-    char            buffer[4*1024];
+    char            buffer[8*1024];
     char	*token,*pointer;
     char	key[MAX_TOKEN_CHARS];
 
