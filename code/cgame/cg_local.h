@@ -1461,6 +1461,7 @@ extern vmCvar_t			cg_bloodOnHit;
 extern vmCvar_t			cg_drawSpawnpoints;
 extern vmCvar_t			cg_teamOverlayScaleX;
 extern vmCvar_t			cg_teamOverlayScaleY;
+extern vmCvar_t			cg_teamOverlayAutoColor;
 extern vmCvar_t			cg_drawTeamBackground;
 
 extern vmCvar_t			cg_newFont;

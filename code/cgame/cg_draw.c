@@ -1500,6 +1500,20 @@ static void CG_DrawHealthBar(float x, float y, float width, float height, int he
 
 }
 
+static vec_t *CG_GetColorFromLocation(const char *loc) {
+	qboolean red = Q_stristr(loc, "red") != NULL;
+	qboolean blue = Q_stristr(loc, "blue") != NULL;
+
+	if (red && !blue) {
+		return g_color_table[ColorIndex(COLOR_RED)];
+	} else if (blue && !red) {
+		return g_color_table[ColorIndex(COLOR_BLUE)];
+	} else if (Q_stristr(loc, "mega")) {
+		return  g_color_table[ColorIndex(COLOR_CYAN)];
+	}
+	return g_color_table[ColorIndex(COLOR_WHITE)];
+}
+
 /*
 =================
 CG_DrawTeamOverlay
@@ -1642,12 +1656,17 @@ static float CG_DrawTeamOverlay( float y, qboolean right, qboolean upper ) {
 					cgs.media.deferShader );
 			}
 
-			trap_R_SetColor( NULL );
+
+			hcolor[0] = hcolor[1] = hcolor[2] = hcolor[3] = 1.0;
 
 			if (lwidth) {
+				vec_t *autocolor = hcolor;
 				p = CG_ConfigString(CS_LOCATIONS + ci->location);
-				if (!p || !*p)
+				if (!p || !*p) {
 					p = "unknown";
+				} else if (cg_teamOverlayAutoColor.integer) {
+					autocolor = CG_GetColorFromLocation(p);
+				}
 				//len = CG_DrawStrlen(p);
 				//if (len > lwidth)
 				//	len = lwidth;
@@ -1656,7 +1675,7 @@ static float CG_DrawTeamOverlay( float y, qboolean right, qboolean upper ) {
 //					((lwidth/2 - len/2) * TINYCHAR_WIDTH);
 				xx = x + cg_teamOverlayScaleX.value * TINYCHAR_WIDTH * (3 + pwidth + 9);
 				CG_DrawStringExt( xx, y,
-					p, hcolor, qfalse, qfalse, TINYCHAR_WIDTH * cg_teamOverlayScaleX.value, TINYCHAR_HEIGHT * cg_teamOverlayScaleY.value,
+					p, autocolor, qfalse, qfalse, TINYCHAR_WIDTH * cg_teamOverlayScaleX.value, TINYCHAR_HEIGHT * cg_teamOverlayScaleY.value,
 					lwidth);
 			}
 

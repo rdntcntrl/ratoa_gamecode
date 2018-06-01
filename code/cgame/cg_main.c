@@ -250,6 +250,7 @@ vmCvar_t	cg_commonConsole;
 
 vmCvar_t	cg_teamOverlayScaleX;
 vmCvar_t	cg_teamOverlayScaleY;
+vmCvar_t	cg_teamOverlayAutoColor;
 
 
 vmCvar_t	cg_autoHeadColors;
@@ -585,6 +586,7 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_drawSpawnpoints, "cg_drawSpawnpoints", "1", CVAR_ARCHIVE},
 	{ &cg_teamOverlayScaleX, "cg_teamOverlayScaleX", "0.7", CVAR_ARCHIVE},
 	{ &cg_teamOverlayScaleY, "cg_teamOverlayScaleY", "1", CVAR_ARCHIVE},
+	{ &cg_teamOverlayAutoColor, "cg_teamOverlayAutoColor", "1", CVAR_ARCHIVE},
 	{ &cg_drawTeamBackground, "cg_drawTeamBackground", "0", CVAR_ARCHIVE},
 	{ &cg_timerAlpha  ,     "cg_timerAlpha", "1", CVAR_ARCHIVE},
 	{ &cg_fpsAlpha    ,     "cg_fpsAlpha", "0.5", CVAR_ARCHIVE},
