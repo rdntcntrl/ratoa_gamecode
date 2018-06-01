@@ -757,6 +757,7 @@ qboolean	BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const play
 #define RAT_NEWSHOTGUN 		4096
 #define RAT_ADDITIVEJUMP 	8192
 #define RAT_NOTIMENUDGE 	16384
+#define RAT_FLAGINDICATOR 	32768
 
 #define MAX_RAT_SAY_TEXT 256
 

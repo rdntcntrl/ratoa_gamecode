@@ -226,6 +226,7 @@ vmCvar_t        g_screenShake;
 vmCvar_t        g_allowBrightModels;
 vmCvar_t        g_brightPlayerShells;
 vmCvar_t        g_friendsWallHack;
+vmCvar_t        g_friendsFlagIndicator;
 vmCvar_t        g_specShowZoom;
 vmCvar_t        g_itemPickup;
 vmCvar_t        g_itemDrop;
@@ -475,6 +476,7 @@ static cvarTable_t		gameCvarTable[] = {
         { &g_allowBrightModels, "g_allowBrightModels", "1", CVAR_ARCHIVE, 0, qfalse },
         { &g_brightPlayerShells, "g_brightPlayerShells", "1", CVAR_ARCHIVE, 0, qfalse },
         { &g_friendsWallHack, "g_friendsWallHack", "0", CVAR_ARCHIVE, 0, qfalse },
+        { &g_friendsFlagIndicator, "g_friendsFlagIndicator", "0", CVAR_ARCHIVE, 0, qfalse },
         { &g_specShowZoom, "g_specShowZoom", "1", CVAR_ARCHIVE, 0, qfalse },
 
         { &g_itemPickup, "g_itemPickup", "0", CVAR_ARCHIVE , 0, qtrue },
@@ -1121,6 +1123,10 @@ void G_UpdateRatFlags( void ) {
 		rflags |= RAT_NOTIMENUDGE;
 	}
 
+	if (g_friendsFlagIndicator.integer) {
+		rflags |= RAT_FLAGINDICATOR;
+	}
+
 	// XXX --> also update code where this is called!
 
 	trap_Cvar_Set("g_ratFlags",va("%i",rflags));
@@ -1211,6 +1217,7 @@ void G_UpdateCvars( void ) {
 						|| cv->vmCvar == &g_brightPlayerShells
 						|| cv->vmCvar == &g_newShotgun
 						|| cv->vmCvar == &g_additiveJump
+						|| cv->vmCvar == &g_friendsFlagIndicator
 						) {
 					updateRatFlags = qtrue;
 				}
