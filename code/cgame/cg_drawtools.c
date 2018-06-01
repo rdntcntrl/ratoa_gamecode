@@ -535,9 +535,6 @@ CG_GetColorForHealth
 =================
 */
 void CG_GetColorForHealth( int health, int armor, vec4_t hcolor ) {
-	int		count;
-	int		max;
-
 	// calculate the total points of damage that can
 	// be sustained at the current health / armor level
 	if ( health <= 0 ) {
@@ -545,12 +542,8 @@ void CG_GetColorForHealth( int health, int armor, vec4_t hcolor ) {
 		hcolor[3] = 1;
 		return;
 	}
-	count = armor;
-	max = health * ARMOR_PROTECTION / ( 1.0 - ARMOR_PROTECTION );
-	if ( max < count ) {
-		count = max;
-	}
-	health += count;
+
+	health = CG_GetTotalHitPoints(health, armor);
 
 	// set the color based on health
 	hcolor[0] = 1.0;
@@ -589,9 +582,6 @@ CG_GetColorForHealth2
 =================
 */
 void CG_GetColorForHealth2( int health, int armor, vec4_t hcolor ) {
-	int		count;
-	int		max;
-
 	// calculate the total points of damage that can
 	// be sustained at the current health / armor level
 	if ( health <= 0 ) {
@@ -600,12 +590,7 @@ void CG_GetColorForHealth2( int health, int armor, vec4_t hcolor ) {
 		return;
 	}
 
-	count = armor;
-	max = health * ARMOR_PROTECTION / ( 1.0 - ARMOR_PROTECTION );
-	if ( max < count ) {
-		count = max;
-	}
-	health += count;
+	health = CG_GetTotalHitPoints(health, armor);
 
 	// set the color based on health
 	hcolor[0] = 1.0;

@@ -1776,6 +1776,7 @@ sfxHandle_t	CG_CustomSound( int clientNum, const char *soundName );
 void CG_HSV2RGB(float h, float s, float v, float *out);
 void CG_LoadForcedSounds(void);
 int CG_CountPlayers(team_t team);
+int CG_GetTotalHitPoints(int health, int armor);
 
 //
 // cg_predict.c

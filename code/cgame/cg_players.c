@@ -3165,3 +3165,29 @@ void CG_ResetPlayerEntity( centity_t *cent ) {
 	}
 }
 
+
+/*
+===============
+CG_GetTotalHitPoints
+
+calculates the total points of damage that can be sustained at a specific
+health / armor level
+===============
+*/
+int CG_GetTotalHitPoints(int health, int armor) {
+	int count, max;
+
+
+	if (health <= 0) {
+		return 0;
+	}
+
+	count = armor;
+	max = health * ARMOR_PROTECTION / ( 1.0 - ARMOR_PROTECTION );
+	if ( max < count ) {
+		count = max;
+	}
+	health += count;
+
+	return health;
+}
