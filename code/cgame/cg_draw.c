@@ -1453,6 +1453,53 @@ Lots of stuff
 }
 
 
+static void CG_DrawHealthBar(float x, float y, float width, float height, int health, int armor) {
+	int hp = CG_GetTotalHitPoints(health, armor);
+	float r = hp/400.0;
+	float color[4];
+
+	
+	if (r > 1.0) {
+		r = 1.0;
+	}
+
+	// CROSSREF CG_GetPlayerSpriteShader()
+	if (hp > 300) {
+		color[0] = 0.0;
+		color[1] = 0.31;
+		color[2] = 1.0;
+	} else if (hp > 200) {
+		color[0] = 0.0;
+		color[1] = 1.0;
+		color[2] = 1.0;
+	} else if (hp > 150) {
+		color[0] = 0.0;
+		color[1] = 1.0;
+		color[2] = 0.0;
+	} else if (hp > 100) {
+		color[0] = 1.0;
+		color[1] = 1.0;
+		color[2] = 0.0;
+	} else if (hp > 80) {
+		color[0] = 1.0;
+		color[1] = 0.47;
+		color[2] = 0.0;
+	} else {
+		color[0] = 1.0;
+		color[1] = 0.0;
+		color[2] = 0.0;
+	}
+
+	color[3] = 0.6;
+	CG_FillRect(x, y, r*width, height, color);
+	color[0] = 0.5;
+	color[1] = 0.5;
+	color[2] = 0.5;
+	color[3] = 0.6;
+	CG_DrawRect(x, y, width, height, 1, color);
+
+}
+
 /*
 =================
 CG_DrawTeamOverlay
@@ -1582,6 +1629,12 @@ static float CG_DrawTeamOverlay( float y, qboolean right, qboolean upper ) {
 					p, hcolor, qfalse, qfalse, TINYCHAR_WIDTH * cg_teamOverlayScaleX.value, TINYCHAR_HEIGHT * cg_teamOverlayScaleY.value,
 					TEAM_OVERLAY_MAXLOCATION_WIDTH);
 			}
+
+			CG_DrawHealthBar(x + cg_teamOverlayScaleX.value * TINYCHAR_WIDTH *(pwidth + lwidth),
+					       	y,
+					       	TINYCHAR_WIDTH * 11 * cg_teamOverlayScaleX.value,
+					       	TINYCHAR_HEIGHT * cg_teamOverlayScaleY.value,
+					      	ci->health, ci->armor);
 
 			CG_GetColorForHealth( ci->health, ci->armor, hcolor );
 

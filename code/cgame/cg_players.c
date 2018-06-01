@@ -2149,6 +2149,7 @@ static qhandle_t CG_GetPlayerSpriteShader(centity_t *cent) {
 		totalhp = 100;
 	}
 
+	// CROSSREF CG_DrawHealthBar()
 	if (totalhp > 300) {
 		return shaderarr[0];
 	} else if (totalhp > 200) {
