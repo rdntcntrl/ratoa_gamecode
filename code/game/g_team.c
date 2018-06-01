@@ -2244,38 +2244,52 @@ ShuffleTeams
 ================
 */
 void ShuffleTeams(void) {
-    int i;
+    int i, j, r,k;
     int assignedClients=1, nextTeam=TEAM_RED;
     int clients[MAX_CLIENTS];
-
-    memcpy(clients, level.sortedClients, sizeof(clients));
+    qboolean takenClients[MAX_CLIENTS];
 
     if ( g_gametype.integer < GT_TEAM || g_ffa_gt==1)
         return; //Can only shuffle team games!
 
-    for( i=0;i < level.numConnectedClients; i++ ) {
-        if( g_entities[ &level.clients[clients[i]] - level.clients].r.svFlags & SVF_BOT)
-            continue; //Don't sort bots... they are always equal
-        
-        if(level.clients[clients[i]].sess.sessionTeam==TEAM_RED || level.clients[clients[i]].sess.sessionTeam==TEAM_BLUE ) {
-            //For every second client we chenge team. But we do it a little of to make it slightly more fair
-            if(assignedClients>1) {
-                assignedClients=0;
-                if(nextTeam == TEAM_RED)
-                    nextTeam = TEAM_BLUE;
-                else
-                    nextTeam = TEAM_RED;
-            }
+    memcpy(clients, level.sortedClients, sizeof(clients));
+    memset(takenClients, 0, sizeof(takenClients));
 
-            //Set the team
-            //We do not run all the logic because we shall run map_restart in a moment.
-            level.clients[clients[i]].sess.sessionTeam = nextTeam;
+    for( i=0;i < level.numPlayingClients; i++ ) {
+	    r = random()*(level.numPlayingClients-i);
+	    k = 0;
+	    for (j=0; j < level.numPlayingClients; ++j) {
+		    if (takenClients[j]) {
+			    continue;
+		    }
+		    if (k < r) {
+			    ++k;
+			    continue;
+		    } 
+		    takenClients[j] = qtrue;
+		    if( g_entities[ &level.clients[clients[j]] - level.clients].r.svFlags & SVF_BOT)
+			    continue; //Don't sort bots... they are always equal
 
-            ClientUserinfoChanged( clients[i] );
-            ClientBegin( clients[i] );
+		    //if(level.clients[clients[j]].sess.sessionTeam==TEAM_RED || level.clients[clients[j]].sess.sessionTeam==TEAM_BLUE ) {
+		    //For every second client we chenge team. But we do it a little of to make it slightly more fair
+		    if(assignedClients>1) {
+			    assignedClients=0;
+			    if(nextTeam == TEAM_RED)
+				    nextTeam = TEAM_BLUE;
+			    else
+				    nextTeam = TEAM_RED;
+		    }
 
-            assignedClients++;
-        }
+		    //Set the team
+		    //We do not run all the logic because we shall run map_restart in a moment.
+		    level.clients[clients[j]].sess.sessionTeam = nextTeam;
+
+		    ClientUserinfoChanged( clients[j] );
+		    ClientBegin( clients[j] );
+
+		    assignedClients++;
+		    //}
+	    }
     }
 
     //Restart!
