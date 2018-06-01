@@ -1692,6 +1692,11 @@ gentity_t *DropWeapon( gentity_t *ent ) {
 
 	ammo = ent->client->ps.ammo[weapon];
 
+	if (!(ent->client->ps.stats[STAT_WEAPONS] & (1 << weapon))) {
+		// doesn't have the weapon
+		return NULL;
+	}
+
 	if (ammo == 0) {
 		// make sure that whoever picks this up doesn't get the default
 		// ammo for this weapon
