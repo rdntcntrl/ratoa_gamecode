@@ -1109,6 +1109,8 @@ typedef struct {
 	sfxHandle_t	takenYourTeamSound;
 	sfxHandle_t	takenOpponentSound;
 
+	sfxHandle_t	flagDroppedSound;
+
 	sfxHandle_t redFlagReturnedSound;
 	sfxHandle_t blueFlagReturnedSound;
 	sfxHandle_t neutralFlagReturnedSound;
