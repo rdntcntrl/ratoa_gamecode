@@ -2164,6 +2164,75 @@ static qhandle_t CG_GetPlayerSpriteShader(centity_t *cent) {
 	}
 }
 
+static qboolean CG_FriendVisible(centity_t *cent) {
+	vec3_t start, end;
+	trace_t trace;
+
+	VectorCopy( cg.refdef.vieworg, start );
+	CG_Trace(&trace, start, vec3_origin, vec3_origin, cent->lerpOrigin, 
+			cg.snap->ps.clientNum,
+			CONTENTS_SOLID );
+
+	if (trace.fraction == 1.0) {
+		return qtrue;
+	}
+	return qfalse;
+
+	//VectorCopy( cg.refdef.vieworg, start );
+	//CG_Trace(&trace, start, vec3_origin, vec3_origin, cent->lerpOrigin, 
+	//		cg.snap->ps.clientNum,
+	//		CONTENTS_SOLID |CONTENTS_BODY );
+
+	//if (trace.entityNum <= MAX_CLIENTS && trace.entityNum == cent->currentState.clientNum) {
+	//	return qtrue;
+	//}
+	//return qfalse;
+}
+
+static void CG_FriendFlagIndicator(centity_t *cent) {
+	int powerups = cent->currentState.powerups;
+	qhandle_t shader = 0;
+	refEntity_t ent;
+	int rf;
+
+	if (powerups & ( 1 << PW_REDFLAG)) {
+		shader = cgs.media.friendFlagShaderRed;
+	} else if (powerups & ( 1 << PW_BLUEFLAG)) {
+		shader = cgs.media.friendFlagShaderBlue;
+	} else if (powerups & (1 << PW_NEUTRALFLAG)) {
+		shader = cgs.media.friendFlagShaderNeutral;
+	} else {
+		return;
+	}
+
+	//if (CG_FriendVisible(cent)) {
+	//	return;
+	//}
+
+
+	if ( cent->currentState.number == cg.snap->ps.clientNum && !cg.renderingThirdPerson ) {
+		rf = RF_THIRD_PERSON;		// only show in mirrors
+	} else {
+		rf = 0;
+	}
+
+	memset( &ent, 0, sizeof( ent ) );
+	VectorCopy( cent->lerpOrigin, ent.origin );
+	ent.origin[2] += 0;
+	ent.reType = RT_SPRITE;
+	ent.customShader = shader;
+	ent.radius = 32;
+	ent.renderfx = rf;
+	ent.shaderRGBA[0] = 255;
+	ent.shaderRGBA[1] = 255;
+	ent.shaderRGBA[2] = 255;
+	ent.shaderRGBA[3] = 255;
+	trap_R_AddRefEntityToScene( &ent );
+
+}
+
+static void CG_PlayerTeamSprites(centity_t *cent) {
+}
 
 /*
 ===============
@@ -2174,6 +2243,28 @@ Float sprites over the player's head
 */
 static void CG_PlayerSprites( centity_t *cent ) {
 	int		team;
+	qboolean 	drawFriendInfo = qfalse;
+
+	team = cgs.clientinfo[ cent->currentState.clientNum ].team;
+	if ( cgs.gametype >= GT_TEAM && cgs.ffa_gt!=1 &&
+		cg.snap->ps.persistant[PERS_TEAM] == team &&
+		!(cent->currentState.eFlags & EF_DEAD) && 
+		cg_drawFriend.integer) {
+
+		drawFriendInfo = qtrue;
+
+		if (cgs.ratFlags & (RAT_FRIENDSWALLHACK | RAT_FLAGINDICATOR)) {
+				if (!CG_FriendVisible(cent)) { 
+					if (cgs.ratFlags & RAT_FLAGINDICATOR) {
+						CG_FriendFlagIndicator(cent);
+					}
+					if (cgs.ratFlags & RAT_FRIENDSWALLHACK) {
+						CG_PlayerFloatSprite( cent, CG_GetPlayerSpriteShader(cent));
+					}
+					return;
+				}
+		}
+	}
 
 	if ( cent->currentState.eFlags & EF_CONNECTION ) {
 		CG_PlayerFloatSprite( cent, cgs.media.connectionShader );
@@ -2215,20 +2306,30 @@ static void CG_PlayerSprites( centity_t *cent ) {
 		return;
 	}
 
-	team = cgs.clientinfo[ cent->currentState.clientNum ].team;
-	if ( !(cent->currentState.eFlags & EF_DEAD) && 
-		cg.snap->ps.persistant[PERS_TEAM] == team &&
-		cgs.gametype >= GT_TEAM && cgs.ffa_gt!=1) {
-		if (cg_drawFriend.integer) {
-			if (cgs.ratFlags & RAT_FRIENDSWALLHACK || cg_friendFloatHealth.integer != 2) {
-				CG_PlayerFloatSprite( cent, CG_GetPlayerSpriteShader(cent));
-			} else {
-				CG_PlayerFloatHealth( cent, qfalse );
-				CG_PlayerFloatHealth( cent, qtrue );
-			}
+	if (drawFriendInfo) {
+		if (cgs.ratFlags & RAT_FRIENDSWALLHACK || cg_friendFloatHealth.integer != 2) {
+			CG_PlayerFloatSprite( cent, CG_GetPlayerSpriteShader(cent));
+		} else {
+			CG_PlayerFloatHealth( cent, qfalse );
+			CG_PlayerFloatHealth( cent, qtrue );
 		}
 		return;
 	}
+
+	//team = cgs.clientinfo[ cent->currentState.clientNum ].team;
+	//if ( !(cent->currentState.eFlags & EF_DEAD) && 
+	//	cg.snap->ps.persistant[PERS_TEAM] == team &&
+	//	cgs.gametype >= GT_TEAM && cgs.ffa_gt!=1) {
+	//	if (cg_drawFriend.integer) {
+	//		if (cgs.ratFlags & RAT_FRIENDSWALLHACK || cg_friendFloatHealth.integer != 2) {
+	//			CG_PlayerFloatSprite( cent, CG_GetPlayerSpriteShader(cent));
+	//		} else {
+	//			CG_PlayerFloatHealth( cent, qfalse );
+	//			CG_PlayerFloatHealth( cent, qtrue );
+	//		}
+	//	}
+	//	return;
+	//}
 }
 
 /*

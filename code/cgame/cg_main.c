@@ -1574,11 +1574,18 @@ static void CG_RegisterGraphics( void ) {
 		cgs.media.friendThroughWallColorShaders[4] = trap_R_RegisterShader("sprites/friendIOrange.tga");
 		cgs.media.friendThroughWallColorShaders[5] = trap_R_RegisterShader("sprites/friendIRed.tga");
 
+		cgs.media.friendFlagShaderNeutral = trap_R_RegisterShader("sprites/flagINeutral.tga");
+		cgs.media.friendFlagShaderRed = trap_R_RegisterShader("sprites/flagIRed.tga");
+		cgs.media.friendFlagShaderBlue = trap_R_RegisterShader("sprites/flagIBlue.tga");
+
 		cgs.media.redQuadShader = trap_R_RegisterShader("powerups/blueflag" );
 		//cgs.media.teamStatusBar = trap_R_RegisterShader( "gfx/2d/colorbar.tga" ); - moved outside, used by accuracy
 		cgs.media.blueKamikazeShader = trap_R_RegisterShader( "models/weaphits/kamikblu" );
 	}
+
+
 	cgs.media.teamStatusBar = trap_R_RegisterShader( "gfx/2d/colorbar.tga" );
+
 
 	cgs.media.armorModel = trap_R_RegisterModel( "models/powerups/armor/armor_yel.md3" );
 	cgs.media.armorIcon  = trap_R_RegisterShaderNoMip( "icons/iconr_yellow" );

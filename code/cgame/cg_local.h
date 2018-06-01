@@ -833,6 +833,10 @@ typedef struct {
 	qhandle_t	friendColorShaders[6];
 	qhandle_t	friendThroughWallColorShaders[6];
 
+	qhandle_t	friendFlagShaderNeutral;
+	qhandle_t	friendFlagShaderBlue;
+	qhandle_t	friendFlagShaderRed;
+
 	qhandle_t	balloonShader;
 	qhandle_t	connectionShader;
 
