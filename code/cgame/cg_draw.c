@@ -1671,6 +1671,27 @@ void CG_DrawEliminationStatus(void) {
 				qfalse, qtrue, BIGCHAR_WIDTH, BIGCHAR_WIDTH * 1.5, 0 );
 	}
 
+	if (cg_drawTeamOverlay.integer) {
+		int i;
+		int totalhp = 0;
+		y = 240 - BIGCHAR_HEIGHT-8;
+		x = 640;
+		for (i = 0; i < MAX_CLIENTS; ++i) {
+			clientInfo_t *ci = &cgs.clientinfo[i];
+			if (!ci->infoValid) {
+				continue;
+			}
+			if (ci->team != cg.snap->ps.persistant[PERS_TEAM]) {
+				continue;
+			}
+			totalhp += CG_GetTotalHitPoints(ci->health, ci->armor);
+		}
+		s = va( "%4i", totalhp );
+		w = CG_DrawStrlen( s ) * BIGCHAR_WIDTH + 8;
+		x -= w;
+		CG_DrawBigString( x + 4, y, s, 1.0F);
+	}
+
 	y = 240;
 	x = 640;
 	color[0] = 0.0f;
