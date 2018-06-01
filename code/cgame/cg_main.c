@@ -540,7 +540,7 @@ static cvarTable_t cvarTable[] = { // bk001129
 	// TODO: make CVAR_ARCHIVE
 	{ &cg_predictTeleport, "cg_predictTeleport", "1", 0},
 	{ &cg_predictWeapons, "cg_predictWeapons", "1", 0},
-	{ &cg_predictExplosions, "cg_predictExplosions", "0", 0},
+	{ &cg_predictExplosions, "cg_predictExplosions", "1", 0},
 	{ &cg_predictPlayerExplosions, "cg_predictPlayerExplosions", "0", 0},
 
 	{ &cg_ratPredictMissilesPing, "cg_ratPredictMissilesPing", "0", 0},
