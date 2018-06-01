@@ -128,6 +128,7 @@ void DeathmatchScoreboardMessageSplit( gentity_t *ent ) {
 	int			i, j;
 	gclient_t	*cl;
 	int			numSorted, scoreFlags, accuracy, perfect;
+	int teamsLocked = 0;
 
 	// send the latest information on all clients
 	string1[0] = 0;
@@ -204,8 +205,13 @@ void DeathmatchScoreboardMessageSplit( gentity_t *ent ) {
 		string2length += j;
 	}
 
-	trap_SendServerCommand( ent-g_entities, va("%s %i %i %i %i%s", "ratscores1", i, 
-		level.teamScores[TEAM_RED], level.teamScores[TEAM_BLUE], level.roundStartTime,
+	if (g_gametype.integer >= GT_TEAM && g_ffa_gt != 1) {
+		teamsLocked = (level.RedTeamLocked && level.BlueTeamLocked) ? 1 : 0;
+	} else {
+		teamsLocked = level.FFALocked ? 1 : 0;
+	}
+	trap_SendServerCommand( ent-g_entities, va("%s %i %i %i %i %i%s", "ratscores1", i, 
+		level.teamScores[TEAM_RED], level.teamScores[TEAM_BLUE], level.roundStartTime, teamsLocked,
 		string1 ) );
 
 	trap_SendServerCommand( ent-g_entities, va("%s %i%s", "ratscores2", i, 
