@@ -3394,22 +3394,44 @@ static void CG_DrawCrosshairNames( void ) {
 		       	char_height, 0 );
 	if (cgs.gametype >= GT_TEAM && cgs.ffa_gt!=1 && cg_crosshairNamesHealth.integer) {
 		if (cgs.clientinfo[cg.crosshairClientNum].team == cg.snap->ps.persistant[PERS_TEAM]) {
+			int health = cgs.clientinfo[cg.crosshairClientNum].health;
+			int armor = cgs.clientinfo[cg.crosshairClientNum].armor;
+			vec4_t *healthcolor;
 			w = 8 * char_width;
-			color[0] = color[2] = 0.0;
-			color[1] = 1.0;
+			if (health >= 100) {
+				healthcolor = &colorGreen;
+			} else if (health >= 50) {
+				healthcolor = &colorYellow;
+			} else {
+				healthcolor = &colorRed;
+			}
 			CG_DrawStringExt( 320 - 3 * char_width - 3,
 				       	cg_crosshairNamesY.integer + (char_height*1.20),
 				       	va("%3i", cgs.clientinfo[cg.crosshairClientNum].health),
-					color, qfalse, qfalse,
+					*healthcolor,
+				       	qfalse, qfalse,
 					char_width,
 					char_height,
 				       	0 );
-			color[1] = color[2] = 0.0;
-			color[0] = 1.0;
+			CG_DrawStringExt( 320 - 1 * char_width/2.0,
+				       	cg_crosshairNamesY.integer + (char_height*1.20),
+					"|",
+					colorWhite, qfalse, qfalse,
+					char_width,
+					char_height,
+				       	0 );
+			if (armor >= 100) {
+				healthcolor = &colorGreen;
+			} else if (armor >= 50) {
+				healthcolor = &colorYellow;
+			} else {
+				healthcolor = &colorRed;
+			}
 			CG_DrawStringExt( 320 + 3,
 				       	cg_crosshairNamesY.integer + (char_height*1.20),
-				       	va("%3i", cgs.clientinfo[cg.crosshairClientNum].armor),
-					color, qfalse, qfalse,
+				       	va("%i", cgs.clientinfo[cg.crosshairClientNum].armor),
+					*healthcolor,
+				       	qfalse, qfalse,
 					char_width,
 					char_height,
 					0 );
