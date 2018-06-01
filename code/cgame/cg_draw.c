@@ -1656,7 +1656,7 @@ void CG_DrawEliminationStatus(void) {
 	int		x, w, y;
 	vec4_t		color;
 
-	if (cgs.gametype != GT_ELIMINATION) {
+	if (cgs.gametype != GT_ELIMINATION && cgs.gametype != GT_CTF_ELIMINATION) {
 		return;
 	}
 	
