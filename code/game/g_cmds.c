@@ -1718,6 +1718,9 @@ gentity_t *DropWeapon( gentity_t *ent ) {
 
 void Cmd_Drop_f( gentity_t *ent ) {
 	gentity_t *item = NULL;
+	if (ent->client->sess.sessionTeam == TEAM_SPECTATOR || ent->client->isEliminated) {
+		return;
+	}
 	if (g_itemDrop.integer & ITEMDROP_FLAG && 
 				(ent->client->ps.powerups[PW_REDFLAG] 
 				 || ent->client->ps.powerups[PW_BLUEFLAG]
@@ -3097,7 +3100,7 @@ commands_t cmds[ ] =
 
   { "gg", 0, Cmd_GoodGame_f },
 
-  { "drop", 0, Cmd_Drop_f },
+  { "drop", CMD_LIVING, Cmd_Drop_f },
 
   { "ready", 0, Cmd_Ready_f },
 
