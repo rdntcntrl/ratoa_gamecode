@@ -992,6 +992,17 @@ void G_ApplyUnlag (gentity_t *self, gentity_t *bolt) {
 	bolt->s.pos.trTime -= G_MissilePrestep(self->client);
 	bolt->needsDelag = qtrue;
 	bolt->launchTime = bolt->s.pos.trTime;
+	
+	if ((g_gametype.integer == GT_ELIMINATION || g_gametype.integer == GT_CTF_ELIMINATION || g_gametype.integer == GT_LMS) 
+			&& level.time > level.roundStartTime - 1000*g_elimination_activewarmup.integer) {
+		if (bolt->launchTime < level.roundStartTime) {
+			// FIXME: does not factor in default nudge etc.
+			bolt->s.pos.trTime = level.roundStartTime;
+			bolt->launchTime = level.roundStartTime;
+			bolt->launchLag = 0;
+
+		}
+	}
 }
 
 //=============================================================================
