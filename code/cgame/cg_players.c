@@ -2774,12 +2774,13 @@ void CG_PlayerGetColors(clientInfo_t *ci, qboolean isDead, byte *outColor) {
 	clientInfo_t *player = &cgs.clientinfo[cg.clientNum];
 	float color[4];
 	float h,s,v;
-	int myteam = cg.snap->ps.persistant[PERS_TEAM];
+	//int myteam = cg.snap->ps.persistant[PERS_TEAM];
+	int myteam = player->team;
 	color[0] = color[1] = color[2] = color[3] = 1.0;
 
-	if (cg.snap->ps.pm_flags & PMF_FOLLOW) {
-		myteam = player->team;
-	} 
+	//if (cg.snap->ps.pm_flags & PMF_FOLLOW) {
+	//	myteam = player->team;
+	//} 
 
 
 	if (!((cgs.ratFlags & RAT_BRIGHTSHELL && cg_brightShells.integer)) && (!cg_forceBrightModels.integer || !(cgs.ratFlags & RAT_ALLOWBRIGHTSKINS))) {
