@@ -617,11 +617,11 @@ static void admin_default_levels( void )
 
   Q_strncpyz( g_admin_levels[ 3 ]->name, "^2Junior Admin",
     sizeof( l->name ) );
-  Q_strncpyz( g_admin_levels[ 3 ]->flags, "qiahCpPwrkmfKncN?T", sizeof( l->flags ) );
+  Q_strncpyz( g_admin_levels[ 3 ]->flags, "qiahCpPwrkmfKncN?Tyt", sizeof( l->flags ) );
 
   Q_strncpyz( g_admin_levels[ 4 ]->name, "^3Senior Admin",
     sizeof( l->name ) );
-  Q_strncpyz( g_admin_levels[ 4 ]->flags, "qiahCpPwrkmfKncN?MVdBbeDS51tT", sizeof( l->flags ) );
+  Q_strncpyz( g_admin_levels[ 4 ]->flags, "qiahCpPwrkmfKncN?MVdBbDS51tTy", sizeof( l->flags ) );
 
   Q_strncpyz( g_admin_levels[ 5 ]->name, "^1Server Operator",
     sizeof( l->name ) );
