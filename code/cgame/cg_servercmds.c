@@ -190,6 +190,8 @@ static void CG_ParseRatScores1( void ) {
 
 	cgs.roundStartTime = atoi( CG_Argv( 4 ) );
 
+	cg.teamsLocked = (qboolean)atoi( CG_Argv( 5 ) );
+
 	//Update thing in lower-right corner
 	if(cgs.gametype == GT_ELIMINATION || cgs.gametype == GT_CTF_ELIMINATION)
 	{
@@ -206,7 +208,7 @@ static void CG_ParseRatScores1( void ) {
 	//memset( cg.scores, 0, sizeof( cg.scores ) );
 
 #define NUM_RAT1_DATA 17
-#define FIRST_RAT1_DATA 4
+#define FIRST_RAT1_DATA 5
 
 	for ( i = 0 ; i < numScores ; i++ ) {
 		//

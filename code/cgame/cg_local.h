@@ -605,6 +605,8 @@ typedef struct {
 	qboolean	scoreBoardShowing;
 	int			scoreFadeTime;
 
+	qboolean teamsLocked;
+
         int		accuracys[WP_NUM_WEAPONS][2];
 	int		accRequestTime;
 	qboolean	showAcc;

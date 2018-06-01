@@ -587,7 +587,7 @@ qboolean CG_DrawRatScoreboard(void) {
 			s = va("%i players", CG_CountPlayers(TEAM_FREE));
 			w = CG_DrawStrlen(s) * SCORESMALLCHAR_WIDTH;
 			x = (SCREEN_WIDTH - w) / 2;
-			y = RATSB_HEADER - 16;
+			y = RATSB_HEADER - 18;
 			CG_DrawSmallScoreString(x, y, s, 0.6);
 		}
 	} else {
@@ -613,8 +613,16 @@ qboolean CG_DrawRatScoreboard(void) {
 		}
 		w = CG_DrawStrlen(s) * SCORESMALLCHAR_WIDTH;
 		x = (SCREEN_WIDTH - w) / 2;
-		y = RATSB_HEADER - 16;
+		y = RATSB_HEADER - 18;
 		CG_DrawSmallScoreString(x, y, s, 0.6);
+	}
+
+	if (cg.teamsLocked) {
+		s = "Teams locked";
+		w = CG_DrawStrlen(s) * SCORETINYCHAR_WIDTH;
+		x = (SCREEN_WIDTH - w) / 2;
+		y = RATSB_HEADER - 18 + SCORETINYCHAR_HEIGHT + 1;
+		CG_DrawTinyScoreString(x, y, s, 0.6);
 	}
 
 	// draw server name
