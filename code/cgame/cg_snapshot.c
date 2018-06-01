@@ -119,6 +119,7 @@ void CG_SetInitialSnapshot( snapshot_t *snap ) {
 	cg.snap = snap;
 
 	BG_PlayerStateToEntityState( &snap->ps, &cg_entities[ snap->ps.clientNum ].currentState, qfalse );
+	cg_entities[ cg.snap->ps.clientNum ].quiet = qfalse;
 
 	// sort out solid entities
 	CG_BuildSolidList();
@@ -186,6 +187,7 @@ static void CG_TransitionSnapshot( void ) {
 
 	BG_PlayerStateToEntityState( &cg.snap->ps, &cg_entities[ cg.snap->ps.clientNum ].currentState, qfalse );
 	cg_entities[ cg.snap->ps.clientNum ].interpolate = qfalse;
+	cg_entities[ cg.snap->ps.clientNum ].quiet = qfalse;
 
 	for ( i = 0 ; i < cg.snap->numEntities ; i++ ) {
 		cent = &cg_entities[ cg.snap->entities[ i ].number ];
