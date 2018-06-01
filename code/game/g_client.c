@@ -1947,7 +1947,7 @@ void ClientBegin( int clientNum ) {
 		tent = G_TempEntity( ent->client->ps.origin, EV_PLAYER_TELEPORT_IN );
 		tent->s.clientNum = ent->s.clientNum;
 
-		if ( g_gametype.integer != GT_TOURNAMENT  ) {
+		if ( g_gametype.integer != GT_TOURNAMENT && !level.shuffling_teams ) {
 			trap_SendServerCommand( -1, va("print \"%s" S_COLOR_WHITE " entered the game%s\n\"", 
 						client->pers.netname,
 						(g_usesRatEngine.integer && g_mixedMode.integer && !client->pers.pure) ? " (baseoa client)" : "") );

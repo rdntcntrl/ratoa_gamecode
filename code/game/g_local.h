@@ -627,6 +627,8 @@ typedef struct {
     qboolean	pingEqualized;
 
     qboolean	tournamentForfeited;
+
+    qboolean	shuffling_teams;
      
 } level_locals_t;
 

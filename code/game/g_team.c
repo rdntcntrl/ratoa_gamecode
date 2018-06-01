@@ -2255,6 +2255,8 @@ void ShuffleTeams(void) {
     memcpy(clients, level.sortedClients, sizeof(clients));
     memset(takenClients, 0, sizeof(takenClients));
 
+    level.shuffling_teams = qtrue;
+
     for( i=0;i < level.numPlayingClients; i++ ) {
 	    r = random()*(level.numPlayingClients-i);
 	    k = 0;
@@ -2292,8 +2294,10 @@ void ShuffleTeams(void) {
 	    }
     }
 
+    level.shuffling_teams = qfalse;
+
     //Restart!
-    trap_SendConsoleCommand( EXEC_APPEND, "map_restart 0\n" );
+    //trap_SendConsoleCommand( EXEC_APPEND, "map_restart 0\n" );
 
 }
 
