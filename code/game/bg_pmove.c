@@ -390,8 +390,8 @@ static qboolean PM_CheckJump( void ) {
 
 	pm->ps->groundEntityNum = ENTITYNUM_NONE;
 
-	if ( (g_ratPhysics.integer || g_rampJump.integer || g_additiveJump.integer) && (pm->ps->velocity[2] >= 0) ) {
-		if (pm->ps->stats[STAT_JUMPTIME] > 0 && (g_rampJump.integer || g_ratPhysics.integer)) {
+	if ( (g_rampJump.integer || g_additiveJump.integer) && (pm->ps->velocity[2] >= 0) ) {
+		if (pm->ps->stats[STAT_JUMPTIME] > 0 && (g_rampJump.integer)) {
 			//float speed = sqrt(pml.forward[0]*pml.forward[0] + pml.forward[1]*pml.forward[1]);
 			//pm->ps->velocity[0] += (pml.forward[0]/speed)*80;
 			//pm->ps->velocity[1] += (pml.forward[1]/speed)*80;
@@ -658,7 +658,9 @@ static void PM_AirMove( void ) {
 	wishspeed = VectorNormalize(wishdir);
 	wishspeed *= scale;
 
-	if (g_ratPhysics.integer) {
+	if (g_ratPhysics.integer == 1) {
+		accel = 3.0f;
+	} else if (g_ratPhysics.integer == 2) {
 		if (fmove == 0 && smove != 0) {
 			if (wishspeed > 30.0) {
 				wishspeed = 30.0;
@@ -669,7 +671,7 @@ static void PM_AirMove( void ) {
 
 	// not on ground, so little effect on velocity
 	PM_Accelerate (wishdir, wishspeed, accel);
-	if (g_ratPhysics.integer) {
+	if (g_ratPhysics.integer == 2) {
 		if (smove == 0 && wishspeed != 0) {
 			vec3_t vel;
 			float speed;
