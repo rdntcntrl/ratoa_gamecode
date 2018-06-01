@@ -387,6 +387,12 @@ localEntity_t *CG_BasePredictMissile( entityState_t *ent,  vec3_t muzzlePoint ) 
 	//le->pos.trTime = cg.time-50;
 	le->pos.trTime = cg.time-cgs.predictedMissileNudge-cg.cmdMsecDelta;
 
+	if ((cgs.gametype == GT_ELIMINATION || cgs.gametype == GT_CTF_ELIMINATION || cgs.gametype == GT_LMS)
+			&& cg.warmup == 0 && cgs.roundStartTime 
+			&& (le->pos.trTime + cgs.predictedMissileNudge) < cgs.roundStartTime) {
+		le->pos.trTime = cgs.roundStartTime - cgs.predictedMissileNudge;
+	}
+
 	VectorCopy( muzzlePoint, bolt->origin );
 	VectorCopy( muzzlePoint, bolt->oldorigin );
 
