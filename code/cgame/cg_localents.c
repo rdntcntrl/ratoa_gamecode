@@ -1046,10 +1046,6 @@ void CG_RemovePredictedMissile( centity_t *missile) {
 		return;
 	}
 
-	if (missile->currentState.eFlags & EF_TELEPORT_BIT) {
-		missile->missileTeleported = qtrue;
-	}
-
 	if (missile->removedPredictedMissile) {
 		return;
 	}

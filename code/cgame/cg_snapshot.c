@@ -47,7 +47,7 @@ static void CG_ResetEntity( centity_t *cent ) {
 		//cent->projectileNudge = cg.snap->ping*0.5;
 		cent->projectileNudge = CG_ReliablePing()*0.5;
 		cent->removedPredictedMissile = qfalse;
-		cent->missileTeleported = qfalse;
+		//cent->missileTeleported = qfalse;
 		cent->removePredictedMissileRan = qfalse;
 	}
 
@@ -250,6 +250,19 @@ static void CG_SetNextSnap( snapshot_t *snap ) {
 			cent->interpolate = qfalse;
 		} else {
 			cent->interpolate = qtrue;
+		}
+
+		if (es->eType == ET_MISSILE) {
+			// either teleport bit was flipped or it's at least set
+			// ( can happen if the missile teleported already the
+			// first tiem it's seen)
+			if (cent->currentValid) {
+				cent->missileTeleported |= ( ( cent->currentState.eFlags ^ es->eFlags ) & EF_TELEPORT_BIT );
+			} else {
+				cent->missileTeleported = es->eFlags & EF_TELEPORT_BIT;
+			}
+		} else {
+			cent->missileTeleported = qfalse;
 		}
 	}
 
