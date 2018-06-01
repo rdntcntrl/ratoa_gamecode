@@ -2104,24 +2104,15 @@ static qboolean CG_DrawRadar( void ) {
 	vec3_t angles;
 	float flagangle;
 	float u,r;
+	float w;
 
 
-	if (!(cgs.ratFlags & RAT_FLAGINDICATOR)) {
+	if (!(cgs.ratFlags & RAT_FLAGINDICATOR)
+			|| !cg_radar.integer
+			|| (cg.snap->ps.pm_flags & PMF_FOLLOW)
+			|| cg.scoreBoardShowing) {
 		return qfalse;
 	}
-
-	if (!cg_radar.integer) {
-		return qfalse;
-	}
-
-	if ( (cg.snap->ps.pm_flags & PMF_FOLLOW) ) {
-		return qfalse;
-	}
-
-	if ( cg.scoreBoardShowing ) {
-		return qfalse;
-	}
-
 
 	for (i = 0; i < MAX_CLIENTS; ++i) {
 		if (i == cg.clientNum) {
@@ -2173,7 +2164,12 @@ static qboolean CG_DrawRadar( void ) {
 
 	trap_R_SetColor(color);
 
-	CG_DrawPic(320-RADAR_SIZE/2.0, 32 - RADAR_SIZE/2.0, RADAR_SIZE, RADAR_SIZE, cgs.media.radarShader);
+	w = RADAR_SIZE;
+	if ( cgs.screenXScale > cgs.screenYScale ) {
+		w = w * cgs.screenYScale / cgs.screenXScale;
+		r = r * cgs.screenYScale / cgs.screenXScale;
+	}
+	CG_DrawPic(320-w/2.0, 32 - RADAR_SIZE/2.0, w, RADAR_SIZE, cgs.media.radarShader);
 	if (fc->currentState.powerups & ( 1 << PW_REDFLAG)) {
 		color[0] = 1.0;
 		color[1] = 0.0;
@@ -2188,8 +2184,12 @@ static qboolean CG_DrawRadar( void ) {
 		color[2] = 1.0;
 	}
 	trap_R_SetColor(color);
-	CG_DrawPic(320 + r - RADARDOT_SIZE/2.0, 
-			32 - u - RADARDOT_SIZE/2.0, RADARDOT_SIZE, RADARDOT_SIZE, cgs.media.radarDotShader);
+	w = RADARDOT_SIZE;
+	if ( cgs.screenXScale > cgs.screenYScale ) {
+		w = w * cgs.screenYScale / cgs.screenXScale;
+	}
+	CG_DrawPic(320 + r - w/2.0, 
+			32 - u - RADARDOT_SIZE/2.0, w, RADARDOT_SIZE, cgs.media.radarDotShader);
 
 	return qtrue;
 }
