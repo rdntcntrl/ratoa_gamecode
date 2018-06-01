@@ -1795,7 +1795,7 @@ static void CG_ServerCommand( void ) {
 	}
 
         if ( !strcmp( cmd, "customvotes" ) ) {
-            char infoString[1024];
+            char infoString[2048];
             int i;
             //TODO: Create a ParseCustomvotes function
             memset(&infoString,0,sizeof(infoString));
