@@ -303,15 +303,32 @@ void Team_SetFlagStatus( int team, flagStatus_t status ) {
 }
 
 void Team_CheckDroppedItem( gentity_t *dropped ) {
+	gentity_t *te;
 	if( dropped->item->giTag == PW_REDFLAG ) {
 		Team_SetFlagStatus( TEAM_RED, FLAG_DROPPED );
+
+		if (g_usesRatVM.integer) {
+			te = G_TempEntity( dropped->s.pos.trBase, EV_GLOBAL_TEAM_SOUND);
+			te->s.eventParm = GTS_RED_DROPPED;
+		}
 	}
 	else if( dropped->item->giTag == PW_BLUEFLAG ) {
 		Team_SetFlagStatus( TEAM_BLUE, FLAG_DROPPED );
+
+		if (g_usesRatVM.integer) {
+			te = G_TempEntity( dropped->s.pos.trBase, EV_GLOBAL_TEAM_SOUND);
+			te->s.eventParm = GTS_BLUE_DROPPED;
+		}
 	}
 	else if( dropped->item->giTag == PW_NEUTRALFLAG ) {
 		Team_SetFlagStatus( TEAM_FREE, FLAG_DROPPED );
+
+		if (g_usesRatVM.integer) {
+			te = G_TempEntity( dropped->s.pos.trBase, EV_GLOBAL_TEAM_SOUND);
+			te->s.eventParm = GTS_NEUTRAL_DROPPED;
+		}
 	}
+
 }
 
 /*
