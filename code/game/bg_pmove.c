@@ -659,7 +659,7 @@ static void PM_AirMove( void ) {
 	wishspeed *= scale;
 
 	if (g_ratPhysics.integer == 1) {
-		accel = 5.0f;
+		accel = 4.0f;
 		if (fmove == 0 && smove != 0) {
 			if (wishspeed > 80.0) {
 				wishspeed = 80.0;
