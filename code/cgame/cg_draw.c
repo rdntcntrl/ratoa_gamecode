@@ -2106,7 +2106,7 @@ static qboolean CG_DrawRadar( void ) {
 	vec3_t angles;
 	float flagangle;
 	float u,r;
-	float w;
+	float w,h;
 	float distance;
 
 
@@ -2175,12 +2175,15 @@ static qboolean CG_DrawRadar( void ) {
 
 	trap_R_SetColor(color);
 
-	w = RADAR_SIZE;
+	w = h = RADAR_SIZE;
 	if ( cgs.screenXScale > cgs.screenYScale ) {
 		w = w * cgs.screenYScale / cgs.screenXScale;
 		r = r * cgs.screenYScale / cgs.screenXScale;
+	} else if ( cgs.screenXScale < cgs.screenYScale ) {
+		h = h * cgs.screenXScale / cgs.screenYScale;
+		r = r * cgs.screenXScale / cgs.screenYScale;
 	}
-	CG_DrawPic(320-w/2.0, 32 - RADAR_SIZE/2.0, w, RADAR_SIZE, cgs.media.radarShader);
+	CG_DrawPic(320-w/2.0, 32 - h/2.0, w, h, cgs.media.radarShader);
 
 	color[3] = 1.0;
 	if (fc->currentState.powerups & ( 1 << PW_REDFLAG)) {
@@ -2197,12 +2200,14 @@ static qboolean CG_DrawRadar( void ) {
 		color[2] = 1.0;
 	}
 	trap_R_SetColor(color);
-	w = RADARDOT_SIZE;
+	w = h = RADARDOT_SIZE;
 	if ( cgs.screenXScale > cgs.screenYScale ) {
 		w = w * cgs.screenYScale / cgs.screenXScale;
+	} else if ( cgs.screenXScale < cgs.screenYScale ) {
+		h = h * cgs.screenXScale / cgs.screenYScale;
 	}
 	CG_DrawPic(320 + r - w/2.0, 
-			32 - u - RADARDOT_SIZE/2.0, w, RADARDOT_SIZE, cgs.media.radarDotShader);
+			32 - u - h/2.0, w, h, cgs.media.radarDotShader);
 
 	return qtrue;
 }
