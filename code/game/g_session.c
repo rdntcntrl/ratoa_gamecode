@@ -106,11 +106,13 @@ G_InitSessionData
 Called on a first-time connect
 ================
 */
-void G_InitSessionData( gclient_t *client, char *userinfo ) {
+void G_InitSessionData( gclient_t *client, char *userinfo, qboolean firstTime, qboolean levelNewSession ) {
 	clientSession_t	*sess;
 	const char		*value;
 
 	sess = &client->sess;
+
+	sess->spectatorGroup = SPECTATORGROUP_QUEUED;
 
 	// initial team determination
 	if ( g_gametype.integer >= GT_TEAM && g_ffa_gt!=1) {
@@ -126,13 +128,20 @@ void G_InitSessionData( gclient_t *client, char *userinfo ) {
 		if ( value[0] == 's' ) {
 			// a willing spectator, not a waiting-in-line
 			sess->sessionTeam = TEAM_SPECTATOR;
+			if (g_gametype.integer == GT_TOURNAMENT) {
+				sess->spectatorGroup = SPECTATORGROUP_AFK;
+			}
 		} else {
 			switch ( g_gametype.integer ) {
 			default:
 			case GT_FFA:
 			case GT_LMS:
 			case GT_SINGLE_PLAYER:
-				if ( g_maxGameClients.integer > 0 && 
+				if (levelNewSession && !firstTime) {
+					// GT changed, make sure previous lurkers don't join
+					sess->sessionTeam = TEAM_SPECTATOR;
+					sess->spectatorGroup = SPECTATORGROUP_AFK;
+				} else if ( g_maxGameClients.integer > 0 && 
 					level.numNonSpectatorClients >= g_maxGameClients.integer ) {
 					sess->sessionTeam = TEAM_SPECTATOR;
 				} else {
@@ -146,12 +155,16 @@ void G_InitSessionData( gclient_t *client, char *userinfo ) {
 				} else {
 					sess->sessionTeam = TEAM_FREE;
 				}
+				if (levelNewSession && !firstTime) {
+					// GT changed, make sure previous lurkers don't block duel
+					sess->sessionTeam = TEAM_SPECTATOR;
+					sess->spectatorGroup = SPECTATORGROUP_AFK;
+				}
 				break;
 			}
 		}
 	}
 
-	sess->spectatorGroup = SPECTATORGROUP_QUEUED;
 
 	sess->spectatorState = SPECTATOR_FREE;
 	 AddTournamentQueue(client);
