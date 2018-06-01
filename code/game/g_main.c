@@ -798,7 +798,7 @@ void G_RemapTeamShaders( void ) {
 		}
 		// RATOA
 		if( g_redclan.string[0] ) {
-			if (g_shaderremap_flag.integer) {
+			if (g_shaderremap_flag.integer && (g_gametype.integer == GT_CTF || g_gametype.integer == GT_CTF_ELIMINATION)) {
 				Com_sprintf( string, sizeof(string), "team_icon/ratoa/%s_redflag", g_redclan.string );
 				AddRemap("models/flags/r_flag", string, f); 
 			}
@@ -817,7 +817,7 @@ void G_RemapTeamShaders( void ) {
 				}
 			}
 		}  else {
-			if (g_shaderremap_flagreset.integer) {
+			if (g_shaderremap_flagreset.integer && (g_gametype.integer == GT_CTF || g_gametype.integer == GT_CTF_ELIMINATION)) {
 				AddRemap("models/flags/r_flag", "models/flags/r_flag", f); 
 			}
 			if (g_shaderremap_bannerreset.integer) {
@@ -834,7 +834,7 @@ void G_RemapTeamShaders( void ) {
 			}
 		}
 		if( g_blueclan.string[0] ) {
-			if (g_shaderremap_flag.integer) {
+			if (g_shaderremap_flag.integer && (g_gametype.integer == GT_CTF || g_gametype.integer == GT_CTF_ELIMINATION)) {
 				Com_sprintf( string, sizeof(string), "team_icon/ratoa/%s_blueflag", g_blueclan.string );
 				AddRemap("models/flags/b_flag", string, f); 
 			}
@@ -853,7 +853,7 @@ void G_RemapTeamShaders( void ) {
 				}
 			}
 		}  else {
-			if (g_shaderremap_flagreset.integer) {
+			if (g_shaderremap_flagreset.integer && (g_gametype.integer == GT_CTF || g_gametype.integer == GT_CTF_ELIMINATION)) {
 				AddRemap("models/flags/b_flag", "models/flags/b_flag", f); 
 			}
 			if (g_shaderremap_bannerreset.integer) {
