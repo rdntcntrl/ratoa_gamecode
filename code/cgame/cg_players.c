@@ -2133,6 +2133,37 @@ static void CG_PlayerFloatSprite( centity_t *cent, qhandle_t shader ) {
 }
 
 
+static qhandle_t CG_GetPlayerSpriteShader(centity_t *cent) {
+	qhandle_t *shaderarr = cgs.media.friendColorShaders;
+	int totalhp;
+
+
+	if (cgs.ratFlags & RAT_FRIENDSWALLHACK) {
+		shaderarr = cgs.media.friendThroughWallColorShaders;
+	}
+
+	if (cgs.clientinfo[cent->currentState.number].infoValid) {
+		totalhp = CG_GetTotalHitPoints(cgs.clientinfo[cent->currentState.number].health,
+				cgs.clientinfo[cent->currentState.number].armor);
+	} else {
+		totalhp = 100;
+	}
+
+	if (totalhp > 300) {
+		return shaderarr[0];
+	} else if (totalhp > 200) {
+		return shaderarr[1];
+	} else if (totalhp > 150) {
+		return shaderarr[2];
+	} else if (totalhp > 100) {
+		return shaderarr[3];
+	} else if (totalhp > 80) {
+		return shaderarr[4];
+	} else {
+		return shaderarr[5];
+	}
+}
+
 
 /*
 ===============
@@ -2189,13 +2220,11 @@ static void CG_PlayerSprites( centity_t *cent ) {
 		cg.snap->ps.persistant[PERS_TEAM] == team &&
 		cgs.gametype >= GT_TEAM && cgs.ffa_gt!=1) {
 		if (cg_drawFriend.integer) {
-			if (cgs.ratFlags & RAT_FRIENDSWALLHACK) {
-				CG_PlayerFloatSprite( cent, cgs.media.friendShaderThroughWalls );
-			} else if (cg_friendFloatHealth.integer) {
+			if (cgs.ratFlags & RAT_FRIENDSWALLHACK || cg_friendFloatHealth.integer != 2) {
+				CG_PlayerFloatSprite( cent, CG_GetPlayerSpriteShader(cent));
+			} else {
 				CG_PlayerFloatHealth( cent, qfalse );
 				CG_PlayerFloatHealth( cent, qtrue );
-			} else {
-				CG_PlayerFloatSprite( cent, cgs.media.friendShader );
 			}
 		}
 		return;

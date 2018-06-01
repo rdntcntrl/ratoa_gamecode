@@ -1557,8 +1557,23 @@ static void CG_RegisterGraphics( void ) {
 	if ( ( ( cgs.gametype >= GT_TEAM ) && ( cgs.ffa_gt != 1 ) ) ||
 		cg_buildScript.integer ) {
 
-		cgs.media.friendShader = trap_R_RegisterShader( "sprites/foe" );
-		cgs.media.friendShaderThroughWalls = trap_R_RegisterShader( "sprites/friendthroughwall" );
+		//cgs.media.friendShader = trap_R_RegisterShader( "sprites/foe" );
+		//cgs.media.friendShaderThroughWalls = trap_R_RegisterShader( "sprites/friendthroughwall" );
+
+		cgs.media.friendColorShaders[0] = trap_R_RegisterShader("sprites/friendBlue");
+		cgs.media.friendColorShaders[1] = trap_R_RegisterShader("sprites/friendCyan");
+		cgs.media.friendColorShaders[2] = trap_R_RegisterShader("sprites/friendGreen");
+		cgs.media.friendColorShaders[3] = trap_R_RegisterShader("sprites/friendYellow");
+		cgs.media.friendColorShaders[4] = trap_R_RegisterShader("sprites/friendOrange");
+		cgs.media.friendColorShaders[5] = trap_R_RegisterShader("sprites/friendRed");
+
+		cgs.media.friendThroughWallColorShaders[0] = trap_R_RegisterShader("sprites/friendIBlue.tga");
+		cgs.media.friendThroughWallColorShaders[1] = trap_R_RegisterShader("sprites/friendICyan.tga");
+		cgs.media.friendThroughWallColorShaders[2] = trap_R_RegisterShader("sprites/friendIGreen.tga");
+		cgs.media.friendThroughWallColorShaders[3] = trap_R_RegisterShader("sprites/friendIYellow.tga");
+		cgs.media.friendThroughWallColorShaders[4] = trap_R_RegisterShader("sprites/friendIOrange.tga");
+		cgs.media.friendThroughWallColorShaders[5] = trap_R_RegisterShader("sprites/friendIRed.tga");
+
 		cgs.media.redQuadShader = trap_R_RegisterShader("powerups/blueflag" );
 		//cgs.media.teamStatusBar = trap_R_RegisterShader( "gfx/2d/colorbar.tga" ); - moved outside, used by accuracy
 		cgs.media.blueKamikazeShader = trap_R_RegisterShader( "models/weaphits/kamikblu" );
