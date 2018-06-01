@@ -2157,10 +2157,10 @@ static qboolean CG_DrawRadar( void ) {
 	u = RADAR_RADIUS * cos(flagangle);
 	r = RADAR_RADIUS * sin(flagangle);
 
-	color[0] = 0.9;
-	color[1] = 0.9;
-	color[2] = 0.9;
-	color[3] = 1.0;
+	color[0] = 0.8;
+	color[1] = 0.8;
+	color[2] = 0.8;
+	color[3] = 0.75;
 
 	trap_R_SetColor(color);
 
@@ -2170,6 +2170,8 @@ static qboolean CG_DrawRadar( void ) {
 		r = r * cgs.screenYScale / cgs.screenXScale;
 	}
 	CG_DrawPic(320-w/2.0, 32 - RADAR_SIZE/2.0, w, RADAR_SIZE, cgs.media.radarShader);
+
+	color[3] = 1.0;
 	if (fc->currentState.powerups & ( 1 << PW_REDFLAG)) {
 		color[0] = 1.0;
 		color[1] = 0.0;
