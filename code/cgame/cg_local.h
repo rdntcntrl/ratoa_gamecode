@@ -837,6 +837,9 @@ typedef struct {
 	qhandle_t	friendFlagShaderBlue;
 	qhandle_t	friendFlagShaderRed;
 
+	qhandle_t	radarShader;
+	qhandle_t	radarDotShader;
+
 	qhandle_t	balloonShader;
 	qhandle_t	connectionShader;
 
@@ -1448,6 +1451,7 @@ extern vmCvar_t			cg_crosshairNamesScaleY;
 extern vmCvar_t			cg_crosshairNamesHealth;
 extern vmCvar_t			cg_friendFloatHealth;
 extern vmCvar_t			cg_friendFloatHealthSize;
+extern vmCvar_t			cg_radar;
 extern vmCvar_t			cg_soundBufferDelay;
 extern vmCvar_t			cg_powerupBlink;
 extern vmCvar_t			cg_quadStyle;

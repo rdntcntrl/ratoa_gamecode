@@ -217,6 +217,7 @@ vmCvar_t	cg_crosshairNamesScaleY;
 vmCvar_t	cg_crosshairNamesHealth;
 vmCvar_t	cg_friendFloatHealth;
 vmCvar_t	cg_friendFloatHealthSize;
+vmCvar_t	cg_radar;
 vmCvar_t	cg_soundBufferDelay;
 vmCvar_t	cg_powerupBlink;
 vmCvar_t	cg_quadStyle;
@@ -576,6 +577,7 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_crosshairNamesHealth, "cg_crosshairNamesHealth", "1", CVAR_ARCHIVE},
 	{ &cg_friendFloatHealth, "cg_friendFloatHealth", "1", CVAR_ARCHIVE},
 	{ &cg_friendFloatHealthSize, "cg_friendFloatHealthSize", "8", CVAR_ARCHIVE},
+	{ &cg_radar, "cg_radar", "0", 0},
 	{ &cg_soundBufferDelay, "cg_soundBufferDelay", "750", 0},
 	{ &cg_powerupBlink, "cg_powerupBlink", "0", CVAR_ARCHIVE},
 	{ &cg_quadStyle, "cg_quadStyle", "0", 0},
@@ -1577,6 +1579,9 @@ static void CG_RegisterGraphics( void ) {
 		cgs.media.friendFlagShaderNeutral = trap_R_RegisterShader("sprites/flagINeutral.tga");
 		cgs.media.friendFlagShaderRed = trap_R_RegisterShader("sprites/flagIRed.tga");
 		cgs.media.friendFlagShaderBlue = trap_R_RegisterShader("sprites/flagIBlue.tga");
+
+		cgs.media.radarShader = trap_R_RegisterShader("radar");
+		cgs.media.radarDotShader = trap_R_RegisterShader("radardot");
 
 		cgs.media.redQuadShader = trap_R_RegisterShader("powerups/blueflag" );
 		//cgs.media.teamStatusBar = trap_R_RegisterShader( "gfx/2d/colorbar.tga" ); - moved outside, used by accuracy

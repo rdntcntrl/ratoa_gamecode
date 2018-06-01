@@ -2090,6 +2090,110 @@ static float CG_DrawPowerups( float y ) {
 }
 #endif // MISSIONPACK
 
+#define RADAR_SIZE 42
+#define RADARDOT_SIZE 6
+#define RADAR_RADIUS 16
+
+static qboolean CG_DrawRadar( void ) {
+	float		color[4];
+	centity_t *cent;
+	int i;
+	clientInfo_t *ci;
+	centity_t *fc = NULL;
+	vec3_t viewvec;
+	vec3_t angles;
+	float flagangle;
+	float u,r;
+
+
+	if (!(cgs.ratFlags & RAT_FLAGINDICATOR)) {
+		return qfalse;
+	}
+
+	if (!cg_radar.integer) {
+		return qfalse;
+	}
+
+	if ( (cg.snap->ps.pm_flags & PMF_FOLLOW) ) {
+		return qfalse;
+	}
+
+	if ( cg.scoreBoardShowing ) {
+		return qfalse;
+	}
+
+
+	for (i = 0; i < MAX_CLIENTS; ++i) {
+		if (i == cg.clientNum) {
+			continue;
+		}
+		cent = &cg_entities[i];
+
+		if (!cent->currentValid || cent->currentState.eType != ET_PLAYER) {
+			continue;
+		}
+
+		ci = &cgs.clientinfo[cent->currentState.clientNum];
+
+		if (cg.snap->ps.persistant[PERS_TEAM] != ci->team) {
+			continue;
+		}
+
+		if (cent->currentState.powerups & 
+				( ( 1 << PW_REDFLAG)
+				 |( 1 << PW_BLUEFLAG)
+				 |( 1 << PW_NEUTRALFLAG))) {
+			fc = cent;
+			break;
+		}
+	}
+
+	if (!fc) {
+		return qfalse;
+	}
+
+	vectoangles(cg.refdef.viewaxis[0], angles);
+	flagangle = angles[1];
+	VectorSubtract( cent->lerpOrigin, cg.refdef.vieworg, viewvec);
+	vectoangles(viewvec, angles);
+	flagangle = flagangle - angles[1];
+	if (flagangle < 0.0) {
+		flagangle += 360.0;
+	}
+
+	flagangle = flagangle*M_PI/180.0;
+
+	u = RADAR_RADIUS * cos(flagangle);
+	r = RADAR_RADIUS * sin(flagangle);
+
+	color[0] = 0.9;
+	color[1] = 0.9;
+	color[2] = 0.9;
+	color[3] = 1.0;
+
+	trap_R_SetColor(color);
+
+	CG_DrawPic(320-RADAR_SIZE/2.0, 32 - RADAR_SIZE/2.0, RADAR_SIZE, RADAR_SIZE, cgs.media.radarShader);
+	if (fc->currentState.powerups & ( 1 << PW_REDFLAG)) {
+		color[0] = 1.0;
+		color[1] = 0.0;
+		color[2] = 0.0;
+	} else if (fc->currentState.powerups & ( 1 << PW_BLUEFLAG)) {
+		color[0] = 0.0;
+		color[1] = 0.33;
+		color[2] = 1.0;
+	} else {
+		color[0] = 1.0;
+		color[1] = 1.0;
+		color[2] = 1.0;
+	}
+	trap_R_SetColor(color);
+	CG_DrawPic(320 + r - RADARDOT_SIZE/2.0, 
+			32 - u - RADARDOT_SIZE/2.0, RADARDOT_SIZE, RADARDOT_SIZE, cgs.media.radarDotShader);
+
+	return qtrue;
+}
+
 /*
 =================
 CG_DrawFollow
@@ -4106,6 +4210,8 @@ static void CG_Draw2D(stereoFrame_t stereoFrame)
 	
 	CG_DrawFollow();
 	CG_DrawWarmup();
+
+	CG_DrawRadar();
 
 	// don't draw center string if scoreboard is up
 	cg.scoreBoardShowing = CG_DrawScoreboard();
