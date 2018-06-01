@@ -59,6 +59,38 @@ void CG_TargetCommand_f( void ) {
 	trap_SendConsoleCommand( va( "gc %i %i", targetNum, atoi( test ) ) );
 }
 
+static char *ConcatArgs( int start ) {
+	int		i, c, tlen;
+	static char	line[MAX_STRING_CHARS];
+	int		len;
+	char	arg[MAX_STRING_CHARS];
+
+	len = 0;
+	c = trap_Argc();
+	for ( i = start ; i < c ; i++ ) {
+		trap_Argv( i, arg, sizeof( arg ) );
+		tlen = strlen( arg );
+		if ( len + tlen >= MAX_STRING_CHARS - 1 ) {
+			break;
+		}
+		memcpy( line + len, arg, tlen );
+		len += tlen;
+		if ( i != c - 1 ) {
+			line[len] = ' ';
+			len++;
+		}
+	}
+
+	line[len] = 0;
+
+	return line;
+}
+
+void CG_Echo_f( void ) {
+	CG_Printf("%s\n", ConcatArgs(1));
+
+}
+
 #define MAX_SAMPLECFGSIZE (24*1024)
 void CG_SampleConfig_f( void ) {
 	char *source_fn = "configs/samplecfg.cfg";
@@ -561,6 +593,7 @@ static consoleCommand_t	commands[] = {
 	{ "vtell_attacker", CG_VoiceTellAttacker_f },
 	{ "tcmd", CG_TargetCommand_f },
 	{ "sampleconfig", CG_SampleConfig_f },
+	{ "cecho", CG_Echo_f },
 #ifdef MISSIONPACK
 	{ "loadhud", CG_LoadHud_f },
 	{ "nextTeamMember", CG_NextTeamMember_f },
