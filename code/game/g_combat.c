@@ -536,7 +536,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 		if ( attacker->client ) {
 			killerName = attacker->client->pers.netname;
 			if (self != attacker) {
-				if (g_gametype.integer == GT_ELIMINATION || g_gametype.integer == GT_CTF_ELIMINATION) {
+				if (g_gametype.integer == GT_ELIMINATION || g_gametype.integer == GT_CTF_ELIMINATION || g_gametype.integer == GT_LMS) {
 					attacker->client->elimRoundKills += 1;
 					if (level.roundNumber == level.roundNumberStarted) {
 						attacker->client->pers.kills += 1;
@@ -1405,7 +1405,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 			}
 		}
 		if (targ->client) {
-			if (g_gametype.integer == GT_ELIMINATION || g_gametype.integer == GT_CTF_ELIMINATION) {
+			if (g_gametype.integer == GT_ELIMINATION || g_gametype.integer == GT_CTF_ELIMINATION || g_gametype.integer == GT_LMS) {
 				targ->client->elimRoundDmgTaken += dmgTaken;
 				if (level.roundNumber == level.roundNumberStarted) {
 					targ->client->pers.dmgTaken += dmgTaken;
@@ -1417,7 +1417,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		if (targ != attacker) {
 			if (attacker && attacker->client && !OnSameTeam(targ, attacker) ) {
 				int weapon = G_WeaponForMOD(mod);
-				if (g_gametype.integer == GT_ELIMINATION || g_gametype.integer == GT_CTF_ELIMINATION) {
+				if (g_gametype.integer == GT_ELIMINATION || g_gametype.integer == GT_CTF_ELIMINATION || g_gametype.integer == GT_LMS) {
 					attacker->client->elimRoundDmgDone += dmgTaken;
 					if (level.roundNumber == level.roundNumberStarted) {
 						attacker->client->pers.dmgGiven += dmgTaken;

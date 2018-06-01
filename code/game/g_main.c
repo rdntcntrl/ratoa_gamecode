@@ -2627,7 +2627,7 @@ void PrintElimRoundStats(void) {
 					level.clients[maxKillsClient].pers.netname,
 					maxKills));
 	}
-	if (minDTClient != -1) {
+	if (minDTClient != -1 && g_gametype.integer != GT_LMS) {
 		trap_SendServerCommand(-1, va("print\"Least Damage Taken: %s " S_COLOR_RED "%i\n\"", 
 					level.clients[minDTClient].pers.netname,
 					minDT));
