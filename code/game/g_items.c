@@ -1046,8 +1046,13 @@ void G_SpawnItem (gentity_t *ent, gitem_t *item) {
 		//Registrer flags anyway in CTF Elimination:
 		if (g_gametype.integer == GT_CTF_ELIMINATION && item->giType == IT_TEAM)
 			RegisterItem( item );
-		if ( G_ItemDisabled(item) )
+		if ( G_ItemDisabled(item) ) {
+			// XXX FIXME:
+			// this is to prevent this entity to be registered into a team (item group), which will cause an error later on
+			// Maybe this entity should be free()d completely instead?
+			ent->team = 0;
 			return;
+		}
 	}
         if(!g_persistantpowerups.integer && item->giType == IT_PERSISTANT_POWERUP)
             return;
