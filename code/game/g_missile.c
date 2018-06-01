@@ -984,6 +984,15 @@ void G_RunMissile( gentity_t *ent ) {
 	G_RunThink( ent );
 }
 
+void G_ApplyUnlag (gentity_t *self, gentity_t *bolt) {
+	if (!self->client) {
+		return;
+	}
+	bolt->launchLag = G_LaunchLag(self->client);
+	bolt->s.pos.trTime -= G_MissilePrestep(self->client);
+	bolt->needsDelag = qtrue;
+	bolt->launchTime = bolt->s.pos.trTime;
+}
 
 //=============================================================================
 
@@ -1025,12 +1034,7 @@ gentity_t *fire_plasma (gentity_t *self, vec3_t start, vec3_t dir) {
 	bolt->s.pos.trType = TR_LINEAR;
 	bolt->s.pos.trTime = level.time;
 	//bolt->s.pos.trTime = level.time;
-	if (self->client != NULL) {
-		bolt->launchLag = G_LaunchLag(self->client);
-		bolt->s.pos.trTime -= G_MissilePrestep(self->client);
-		bolt->needsDelag = qtrue;
-		bolt->launchTime = bolt->s.pos.trTime;
-	}
+	G_ApplyUnlag(self, bolt);
 	VectorCopy( start, bolt->s.pos.trBase );
 	VectorScale( dir, 2000, bolt->s.pos.trDelta );
 	SnapVector( bolt->s.pos.trDelta );			// save net bandwidth
@@ -1081,12 +1085,7 @@ gentity_t *fire_grenade (gentity_t *self, vec3_t start, vec3_t dir) {
 	bolt->s.pos.trType = TR_GRAVITY;
 	bolt->s.pos.trTime = level.time;
 	//bolt->s.pos.trTime = level.time;
-	if (self->client != NULL) {
-		bolt->launchLag = G_LaunchLag(self->client);
-		bolt->s.pos.trTime -= G_MissilePrestep(self->client);
-		bolt->needsDelag = qtrue;
-		bolt->launchTime = bolt->s.pos.trTime;
-	}
+	G_ApplyUnlag(self, bolt);
 	VectorCopy( start, bolt->s.pos.trBase );
 	VectorScale( dir, 700, bolt->s.pos.trDelta );
 	SnapVector( bolt->s.pos.trDelta );			// save net bandwidth
@@ -1136,12 +1135,7 @@ gentity_t *fire_bfg (gentity_t *self, vec3_t start, vec3_t dir) {
 	bolt->s.pos.trType = TR_LINEAR;
 	bolt->s.pos.trTime = level.time;
 	//bolt->s.pos.trTime = level.time;
-	if (self->client != NULL) {
-		bolt->launchLag = G_LaunchLag(self->client);
-		bolt->s.pos.trTime -= G_MissilePrestep(self->client);
-		bolt->needsDelag = qtrue;
-		bolt->launchTime = bolt->s.pos.trTime;
-	}
+	G_ApplyUnlag(self, bolt);
 	VectorCopy( start, bolt->s.pos.trBase );
 	VectorScale( dir, 2000, bolt->s.pos.trDelta );
 	SnapVector( bolt->s.pos.trDelta );			// save net bandwidth
@@ -1190,13 +1184,7 @@ gentity_t *fire_rocket (gentity_t *self, vec3_t start, vec3_t dir) {
 	bolt->s.pos.trType = TR_LINEAR;
 	bolt->s.pos.trTime = level.time;
 	//bolt->s.pos.trTime = level.time;
-	if (self->client != NULL) {
-		bolt->launchLag = G_LaunchLag(self->client);
-		bolt->s.pos.trTime -= G_MissilePrestep(self->client);
-		bolt->needsDelag = qtrue;
-		bolt->launchTime = bolt->s.pos.trTime;
-		//Com_Printf("fire_rocket at level.time = %d\n", level.time);
-	}
+	G_ApplyUnlag(self, bolt);
 	VectorCopy( start, bolt->s.pos.trBase );
 	//VectorScale( dir, 900, bolt->s.pos.trDelta );
 	//VectorScale( dir, 1000, bolt->s.pos.trDelta );
@@ -1234,12 +1222,7 @@ gentity_t *fire_grapple (gentity_t *self, vec3_t start, vec3_t dir) {
 	hook->s.otherEntityNum = self->s.number;
 
 	hook->s.pos.trTime = level.time;
-	if (self->client != NULL) {
-		hook->launchLag = G_LaunchLag(self->client);
-		hook->s.pos.trTime -= G_MissilePrestep(self->client);
-		hook->needsDelag = qtrue;
-		hook->launchTime = hook->s.pos.trTime;
-	} 
+	G_ApplyUnlag(self, hook);
 
 //unlagged - grapple
 
@@ -1294,12 +1277,7 @@ gentity_t *fire_nail( gentity_t *self, vec3_t start, vec3_t forward, vec3_t righ
 
 	bolt->s.pos.trType = TR_LINEAR;
 	bolt->s.pos.trTime = level.time;
-	if (self->client != NULL) {
-		bolt->launchLag = G_LaunchLag(self->client);
-		bolt->s.pos.trTime -= G_MissilePrestep(self->client);
-		bolt->needsDelag = qtrue;
-		bolt->launchTime = bolt->s.pos.trTime;
-	}
+	G_ApplyUnlag(self, bolt);
 	VectorCopy( start, bolt->s.pos.trBase );
 
 	//r = random() * M_PI * 2.0f;
@@ -1366,12 +1344,7 @@ gentity_t *fire_prox( gentity_t *self, vec3_t start, vec3_t dir ) {
 	bolt->s.pos.trType = TR_GRAVITY;
 	bolt->s.pos.trTime = level.time;
 	//bolt->s.pos.trTime = level.time;
-	if (self->client != NULL) {
-		bolt->launchLag = G_LaunchLag(self->client);
-		bolt->s.pos.trTime -= G_MissilePrestep(self->client);
-		bolt->needsDelag = qtrue;
-		bolt->launchTime = bolt->s.pos.trTime;
-	}
+	G_ApplyUnlag(self, bolt);
 	VectorCopy( start, bolt->s.pos.trBase );
 	VectorScale( dir, 700, bolt->s.pos.trDelta );
 	SnapVector( bolt->s.pos.trDelta );			// save net bandwidth
