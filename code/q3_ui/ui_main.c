@@ -196,6 +196,7 @@ vmCvar_t        ui_setupchecked;
 vmCvar_t        sv_master1;
 
 vmCvar_t        ui_mapvote_filter;
+vmCvar_t        ui_mapvote_sort;
 
 
 // bk001129 - made static to avoid aliasing.
@@ -295,6 +296,7 @@ static cvarTable_t		cvarTable[] = {
         { &sv_master1, "sv_master1", MASTER_SERVER_NAME, CVAR_ARCHIVE },
 
         { &ui_mapvote_filter, "ui_mapvote_filter", "", 0 },
+        { &ui_mapvote_sort, "ui_mapvote_sort", "0", CVAR_ARCHIVE },
 };
 
 // bk001129 - made static to avoid aliasing

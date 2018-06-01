@@ -246,6 +246,7 @@ static void VoteMapMenu_FilterEvent( void* ptr, int event ) {
 		return;
 	}
 	trap_Cvar_Set( "ui_mapvote_filter", va("%s", s_votemenu_map.filter.field.buffer));
+	trap_Cvar_Set( "ui_mapvote_sort", va("%i", s_votemenu_map.sort.curvalue));
 	ResetMaplist();
 	//s_votemenu_map.pagenum = 0;
 	//s_votemenu_map.currentmap = 0;
@@ -739,7 +740,7 @@ void UI_VoteMapMenu( void ) {
     Menu_AddItem( &s_votemenu_map.menu, (void*) &s_votemenu_map.filter );
     Menu_AddItem( &s_votemenu_map.menu, (void*) &s_votemenu_map.sort );
 
-    s_votemenu_map.sort.curvalue = 0;
+    s_votemenu_map.sort.curvalue = trap_Cvar_VariableValue( "ui_mapvote_sort") ? 1 : 0;
 
     trap_Cvar_VariableStringBuffer( "ui_mapvote_filter", 
 		    s_votemenu_map.filter.field.buffer,

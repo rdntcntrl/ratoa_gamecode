@@ -123,6 +123,7 @@ extern vmCvar_t	ui_server15;
 extern vmCvar_t	ui_server16;
 
 extern vmCvar_t	ui_mapvote_filter;
+extern vmCvar_t	ui_mapvote_sort;
 
 //extern vmCvar_t	ui_cdkey;
 //extern vmCvar_t	ui_cdkeychecked;
