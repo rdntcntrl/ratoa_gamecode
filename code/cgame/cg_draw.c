@@ -2096,7 +2096,7 @@ static float CG_DrawPowerups( float y ) {
 #define RADAR_MINRADIUS 4
 #define RADAR_RANGE 2000.0
 
-static qboolean CG_DrawRadar( void ) {
+static float CG_DrawRadar( float y ) {
 	float		color[4];
 	centity_t *cent;
 	int i;
@@ -2107,20 +2107,21 @@ static qboolean CG_DrawRadar( void ) {
 	float flagangle;
 	float u,r;
 	float w,h;
+	float x, y2 = 0;
 	float distance;
 
 
 	if (cgs.gametype != GT_CTF &&
 			cgs.gametype != GT_CTF_ELIMINATION &&
 			cgs.gametype != GT_1FCTF) {
-		return;
+		return y;
 	}
 
 	if (!(cgs.ratFlags & RAT_FLAGINDICATOR)
 			|| !cg_radar.integer
 			|| (cg.snap->ps.pm_flags & PMF_FOLLOW)
 			|| cg.scoreBoardShowing) {
-		return qfalse;
+		return y;
 	}
 
 	for (i = 0; i < MAX_CLIENTS; ++i) {
@@ -2149,7 +2150,7 @@ static qboolean CG_DrawRadar( void ) {
 	}
 
 	if (!fc) {
-		return qfalse;
+		return y;
 	}
 
 	vectoangles(cg.refdef.viewaxis[0], angles);
@@ -2183,7 +2184,23 @@ static qboolean CG_DrawRadar( void ) {
 		h = h * cgs.screenXScale / cgs.screenYScale;
 		r = r * cgs.screenXScale / cgs.screenYScale;
 	}
-	CG_DrawPic(320-w/2.0, 32 - h/2.0, w, h, cgs.media.radarShader);
+
+	switch (cg_radar.integer) {
+		case 2:
+			x = SCREEN_WIDTH - w/2.0 - 2.0;
+			y = y - 2.0  - h/2.0;
+			y2 = y - h/2.0;
+			break;
+		case 1:
+		default:
+			x = SCREEN_WIDTH/2.0;
+			y = 32;
+			break;
+	}
+
+
+	//CG_DrawPic(320-w/2.0, 32 - h/2.0, w, h, cgs.media.radarShader);
+	CG_DrawPic(x-w/2.0, y - h/2.0, w, h, cgs.media.radarShader);
 
 	color[3] = 1.0;
 	if (fc->currentState.powerups & ( 1 << PW_REDFLAG)) {
@@ -2206,10 +2223,12 @@ static qboolean CG_DrawRadar( void ) {
 	} else if ( cgs.screenXScale < cgs.screenYScale ) {
 		h = h * cgs.screenXScale / cgs.screenYScale;
 	}
-	CG_DrawPic(320 + r - w/2.0, 
-			32 - u - h/2.0, w, h, cgs.media.radarDotShader);
+	CG_DrawPic(x + r - w/2.0, 
+			y - u - h/2.0, w, h, cgs.media.radarDotShader);
+	//CG_DrawPic(320 + r - w/2.0, 
+	//		32 - u - h/2.0, w, h, cgs.media.radarDotShader);
 
-	return qtrue;
+	return y2;
 }
 
 /*
@@ -2277,6 +2296,8 @@ static void CG_DrawLowerRight( void ) {
 	if ( cgs.gametype >= GT_TEAM && cgs.ffa_gt!=1 && cg_drawTeamOverlay.integer == 4 ) {
 		y = CG_DrawTeamOverlay( y, qtrue, qfalse );
 	} 
+
+	y = CG_DrawRadar( y );
 
 	//y = CG_DrawFollow( y );
 
@@ -4231,7 +4252,7 @@ static void CG_Draw2D(stereoFrame_t stereoFrame)
 	CG_DrawFollow();
 	CG_DrawWarmup();
 
-	CG_DrawRadar();
+	CG_DrawRadar(0);
 
 	// don't draw center string if scoreboard is up
 	cg.scoreBoardShowing = CG_DrawScoreboard();
