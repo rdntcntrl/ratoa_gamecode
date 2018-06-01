@@ -822,6 +822,13 @@ void CG_RatInitDefaults(void)  {
 		trap_Cvar_Set( "cg_ratInitialized", "2" );
 	}
 
+	if (cg_ratInitialized.integer < 3) {
+		if (cg_teamOverlayScaleX.value == 0.7) {
+			trap_Cvar_Set("cg_teamOverlayScaleX", "0.63");
+		}
+		trap_Cvar_Set( "cg_ratInitialized", "3" );
+	}
+
 }
 
 /*																																			

@@ -1507,7 +1507,7 @@ CG_DrawTeamOverlay
 */
 
 static float CG_DrawTeamOverlay( float y, qboolean right, qboolean upper ) {
-	int x, w, h, xx;
+	float x, w, h, xx;
 	int i, j, len;
 	const char *p;
 	vec4_t		hcolor;
@@ -1561,7 +1561,7 @@ static float CG_DrawTeamOverlay( float y, qboolean right, qboolean upper ) {
 	if (lwidth > TEAM_OVERLAY_MAXLOCATION_WIDTH)
 		lwidth = TEAM_OVERLAY_MAXLOCATION_WIDTH;
 
-	w = (pwidth + lwidth + 4 + 7) * TINYCHAR_WIDTH * cg_teamOverlayScaleX.value;
+	w = (pwidth + lwidth + 5 + 7) * TINYCHAR_WIDTH * cg_teamOverlayScaleX.value;
 
 	if ( right )
 		x = 640 - w;
@@ -1600,9 +1600,9 @@ static float CG_DrawTeamOverlay( float y, qboolean right, qboolean upper ) {
 				hcolor[0] = 1.0f;
 				hcolor[1] = 1.0f;
 				hcolor[2] = 1.0f;
-				hcolor[3] = 0.66f;
+				hcolor[3] = 0.25;
 				trap_R_SetColor( hcolor );
-				CG_DrawPic( x, y, w, TINYCHAR_HEIGHT * cg_teamOverlayScaleY.value , cgs.media.teamStatusBar );
+				CG_FillRect( x, y, w, TINYCHAR_HEIGHT * cg_teamOverlayScaleY.value, hcolor);
 				trap_R_SetColor( NULL );
 			}
 
@@ -1612,36 +1612,20 @@ static float CG_DrawTeamOverlay( float y, qboolean right, qboolean upper ) {
 
 			CG_DrawStringExt( xx, y,
 				ci->name, hcolor, qfalse, qfalse,
-				TINYCHAR_WIDTH * cg_teamOverlayScaleX.value, TINYCHAR_HEIGHT * cg_teamOverlayScaleY.value, TEAM_OVERLAY_MAXNAME_WIDTH);
+				TINYCHAR_WIDTH * cg_teamOverlayScaleX.value, TINYCHAR_HEIGHT * cg_teamOverlayScaleY.value, pwidth);
 
-			if (lwidth) {
-				p = CG_ConfigString(CS_LOCATIONS + ci->location);
-				if (!p || !*p)
-					p = "unknown";
-				len = CG_DrawStrlen(p);
-				if (len > lwidth)
-					len = lwidth;
+			xx = x + cg_teamOverlayScaleX.value * TINYCHAR_WIDTH * (pwidth + 2);
 
-//				xx = x + TINYCHAR_WIDTH * 2 + TINYCHAR_WIDTH * pwidth + 
-//					((lwidth/2 - len/2) * TINYCHAR_WIDTH);
-				xx = x + TINYCHAR_WIDTH * 2 * cg_teamOverlayScaleX.value + TINYCHAR_WIDTH * pwidth *cg_teamOverlayScaleX.value;
-				CG_DrawStringExt( xx, y,
-					p, hcolor, qfalse, qfalse, TINYCHAR_WIDTH * cg_teamOverlayScaleX.value, TINYCHAR_HEIGHT * cg_teamOverlayScaleY.value,
-					TEAM_OVERLAY_MAXLOCATION_WIDTH);
-			}
-
-			CG_DrawHealthBar(x + cg_teamOverlayScaleX.value * TINYCHAR_WIDTH *(pwidth + lwidth),
-					       	y,
-					       	TINYCHAR_WIDTH * 11 * cg_teamOverlayScaleX.value,
+			CG_DrawHealthBar(xx, y,
+					       	TINYCHAR_WIDTH * 9 * cg_teamOverlayScaleX.value,
 					       	TINYCHAR_HEIGHT * cg_teamOverlayScaleY.value,
 					      	ci->health, ci->armor);
 
 			CG_GetColorForHealth( ci->health, ci->armor, hcolor );
 
-			Com_sprintf (st, sizeof(st), "%3i %3i", ci->health,	ci->armor);
+			Com_sprintf (st, sizeof(st), "%3i %i", ci->health,	ci->armor);
 
-			xx = x + TINYCHAR_WIDTH * 3 * cg_teamOverlayScaleX.value + 
-				TINYCHAR_WIDTH * cg_teamOverlayScaleX.value * pwidth + TINYCHAR_WIDTH * cg_teamOverlayScaleX.value * lwidth;
+			xx = x + cg_teamOverlayScaleX.value * TINYCHAR_WIDTH * (pwidth + 2 + 1);
 
 			CG_DrawStringExt( xx, y,
 				st, hcolor, qfalse, qfalse,
@@ -1656,6 +1640,24 @@ static float CG_DrawTeamOverlay( float y, qboolean right, qboolean upper ) {
 			} else {
 				CG_DrawPic( xx, y, TINYCHAR_WIDTH * cg_teamOverlayScaleX.value, TINYCHAR_HEIGHT * cg_teamOverlayScaleY.value, 
 					cgs.media.deferShader );
+			}
+
+			trap_R_SetColor( NULL );
+
+			if (lwidth) {
+				p = CG_ConfigString(CS_LOCATIONS + ci->location);
+				if (!p || !*p)
+					p = "unknown";
+				//len = CG_DrawStrlen(p);
+				//if (len > lwidth)
+				//	len = lwidth;
+
+//				xx = x + TINYCHAR_WIDTH * 2 + TINYCHAR_WIDTH * pwidth + 
+//					((lwidth/2 - len/2) * TINYCHAR_WIDTH);
+				xx = x + cg_teamOverlayScaleX.value * TINYCHAR_WIDTH * (3 + pwidth + 9);
+				CG_DrawStringExt( xx, y,
+					p, hcolor, qfalse, qfalse, TINYCHAR_WIDTH * cg_teamOverlayScaleX.value, TINYCHAR_HEIGHT * cg_teamOverlayScaleY.value,
+					lwidth);
 			}
 
 			// Draw powerup icons
