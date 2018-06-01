@@ -1086,7 +1086,7 @@ void G_UpdateRatFlags( void ) {
 		rflags |= RAT_FASTWEAPONS;
 	}
 
-	if (g_ratPhysics.integer) {
+	if (g_ratPhysics.integer == 1) {
 		rflags |= RAT_RATPHYSICS;
 	}
 
