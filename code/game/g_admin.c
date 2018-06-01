@@ -3316,10 +3316,7 @@ qboolean G_admin_unmutespec( gentity_t *ent, int skiparg )
 
 qboolean G_admin_lockall( gentity_t *ent, int skiparg ) 
 {
-  level.RedTeamLocked = qtrue;
-  level.BlueTeamLocked = qtrue;
-  level.FFALocked = qtrue;
-  trap_Cvar_Set("g_teamslocked", "1");
+  G_LockTeams();
   AP( va( "print \"^3!lockall: ^7All teams has been locked by %s\n\"",
     ( ent ) ? ent->client->pers.netname : "console" ) );
   return qtrue;
@@ -3327,10 +3324,7 @@ qboolean G_admin_lockall( gentity_t *ent, int skiparg )
 
 qboolean G_admin_unlockall( gentity_t *ent, int skiparg ) 
 {
-  level.RedTeamLocked = qfalse;
-  level.BlueTeamLocked = qfalse;
-  level.FFALocked = qfalse;
-  trap_Cvar_Set("g_teamslocked", "0");
+  G_UnlockTeams();
   AP( va( "print \"^3!unlockall: ^7All teams has been unlocked by %s\n\"",
     ( ent ) ? ent->client->pers.netname : "console" ) );
   return qtrue;

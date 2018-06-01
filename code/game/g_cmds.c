@@ -1069,17 +1069,17 @@ void SetTeam( gentity_t *ent, char *s ) {
 	if ( !force ) {
 		if ( team == TEAM_RED && level.RedTeamLocked ) {
 			trap_SendServerCommand( ent - g_entities,
-					"cp \"The Red Team has been locked by the Admin! \n\"" );
+					"cp \"Red Team is locked!\n\"" );
 			return;    
 		}
 		if ( team == TEAM_BLUE && level.BlueTeamLocked ) {
 			trap_SendServerCommand( ent - g_entities,
-					"cp \"The Blue Team has been locked by the Admin! \n\"" );
+					"cp \"Blue Team is locked!\n\"" );
 			return;
 		}
 		if ( team == TEAM_FREE && level.FFALocked ) {
 			trap_SendServerCommand( ent - g_entities,
-					"cp \"This Deathmatch has been locked by the Admin! \n\"" );
+					"cp \"This Deathmatch is locked!\n\"" );
 			return;
 		}
 	}

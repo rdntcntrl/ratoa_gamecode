@@ -940,6 +940,9 @@ void LogExit( const char *string );
 void CheckTeamVote( int team );
 void G_PingEqualizerReset(void);
 void G_SetRuleset(int ruleset);
+void G_LockTeams(void);
+void G_UnlockTeams(void);
+void G_CheckUnlockTeams(void);
 
 //
 // g_client.c
@@ -1305,6 +1308,7 @@ extern vmCvar_t        g_railgunDamage;
 extern vmCvar_t        g_lgDamage;
 
 extern vmCvar_t	       g_teamslocked;
+extern vmCvar_t	       g_autoTeamsUnlock;
 extern vmCvar_t	       g_tourneylocked;
 extern vmCvar_t	       g_specMuted;
 extern vmCvar_t	       g_tournamentMuteSpec;

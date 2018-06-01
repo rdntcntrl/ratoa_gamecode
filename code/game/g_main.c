@@ -254,6 +254,7 @@ vmCvar_t        g_railgunDamage;
 vmCvar_t        g_lgDamage;
 
 vmCvar_t        g_teamslocked;
+vmCvar_t        g_autoTeamsUnlock;
 vmCvar_t        g_tourneylocked;
 vmCvar_t        g_specMuted;
 vmCvar_t        g_tournamentMuteSpec;
@@ -504,6 +505,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_lgDamage, 			"g_lgDamage", "7", 0, 0, qtrue },
 
 	{ &g_teamslocked, 		"g_teamslocked", "0", 0, 0, qfalse },
+	{ &g_autoTeamsUnlock, 		"g_autoTeamsUnlock", "0", CVAR_ARCHIVE, 0, qfalse },
 	{ &g_tourneylocked, 		"g_tourneylocked", "0", 0, 0, qfalse },
 	{ &g_specMuted, 		"g_specMuted", "0", 0, 0, qfalse },
 	{ &g_tournamentMuteSpec,        "g_tournamentMuteSpec", "0", CVAR_ARCHIVE, 0, qtrue },
@@ -1446,14 +1448,15 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
             trap_Cvar_Set("voteflags",va("%i",voteflags));
         }
 
+
+	G_PingEqualizerReset();
+
 	if (g_teamslocked.integer > 0 ) {
 		level.RedTeamLocked = qtrue;
 		level.BlueTeamLocked = qtrue;
 		level.FFALocked = qtrue;
 		trap_Cvar_Set("g_teamslocked",va("%i", g_teamslocked.integer - 1));
 	}
-
-	G_PingEqualizerReset();
 }
 
 
@@ -3692,6 +3695,7 @@ end = trap_Milliseconds();
 
 	G_PingEqualizerWrite();
 
+	G_CheckUnlockTeams();
 
 //unlagged - backward reconciliation #4
 	// record the time at the end of this frame - it should be about
@@ -3723,5 +3727,57 @@ void G_SetRuleset(int ruleset) {
 		trap_Cvar_Set("g_screenShake", "0");
 		trap_Cvar_Set("g_teleMissiles", "1");
 		trap_Cvar_Set("g_pushGrenades", "1");
+	}
+}
+
+void G_LockTeams(void) {
+	level.RedTeamLocked = qtrue;
+	level.BlueTeamLocked = qtrue;
+	level.FFALocked = qtrue;
+	if (level.warmupTime != 0) {
+		// during warmup, make sure teams stay locked when the game starts
+		trap_Cvar_Set("g_teamslocked", "1");
+	} else {
+		// game already started, don't lock next game
+		trap_Cvar_Set("g_teamslocked", "0");
+	}
+	trap_SendServerCommand( -1, va("print \"^5Server: teams locked!\n"));
+}
+
+void G_UnlockTeams(void) {
+	level.RedTeamLocked = qfalse;
+	level.BlueTeamLocked = qfalse;
+	level.FFALocked = qfalse;
+	trap_Cvar_Set("g_teamslocked", "0");
+	trap_SendServerCommand( -1, va("print \"^5Server: teams unlocked!\n"));
+}
+
+void G_CheckUnlockTeams(void) {
+	qboolean unlock = qfalse;
+
+	if (!g_autoTeamsUnlock.integer) {
+		return;
+	}
+
+	if (level.time - level.startTime < 15000) {
+		return;
+	}
+
+	if (!(level.RedTeamLocked || level.BlueTeamLocked || level.FFALocked)) {
+		return;
+	}
+	if (g_gametype.integer >= GT_TEAM && g_ffa_gt != 1) {
+		if (G_CountHumanPlayers(TEAM_RED) == 0 
+				|| G_CountHumanPlayers(TEAM_BLUE) == 0) {
+			unlock = qtrue;
+		}
+	} else {
+		if (G_CountHumanPlayers(TEAM_FREE) == 0) {
+			unlock = qtrue;
+		}
+	}
+	if (unlock) {
+		trap_SendServerCommand( -1, va("print \"^5Server: unlocking teams due to lack of human players!\n"));
+		G_UnlockTeams();
 	}
 }

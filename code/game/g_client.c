@@ -1055,7 +1055,7 @@ team_t PickTeam( int ignoreClientNum ) {
     
 	//KK-OAX Both Teams locked...forget about it, print an error message, keep as spec
 	if ( level.RedTeamLocked && level.BlueTeamLocked ) {
-		G_Printf( "Both teams have been locked by the Admin! \n" );
+		G_Printf( "Both teams are locked! \n" );
 		return TEAM_NONE;
 	}	
 	if ( ( counts[TEAM_BLUE] > counts[TEAM_RED] ) && ( !level.RedTeamLocked ) ) {
