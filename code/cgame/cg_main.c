@@ -578,7 +578,7 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_crosshairNamesHealth, "cg_crosshairNamesHealth", "1", CVAR_ARCHIVE},
 	{ &cg_friendFloatHealth, "cg_friendFloatHealth", "1", CVAR_ARCHIVE},
 	{ &cg_friendFloatHealthSize, "cg_friendFloatHealthSize", "8", CVAR_ARCHIVE},
-	{ &cg_radar, "cg_radar", "0", 0},
+	{ &cg_radar, "cg_radar", "1", CVAR_ARCHIVE},
 	{ &cg_soundBufferDelay, "cg_soundBufferDelay", "750", 0},
 	{ &cg_powerupBlink, "cg_powerupBlink", "0", CVAR_ARCHIVE},
 	{ &cg_quadStyle, "cg_quadStyle", "0", 0},
