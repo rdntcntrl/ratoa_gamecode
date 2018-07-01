@@ -2361,6 +2361,10 @@ void ShuffleTeams(void) {
 
 
 void Token_die(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod) {
+	if (level.th_hideActive) {
+		Team_TH_TokenDestroyed(self);
+		return;
+	}
 	if (self->spawnflags == TEAM_RED) {
 		AddTeamScore(level.intermission_origin, TEAM_BLUE, 1);
 		if (attacker && attacker->client) {

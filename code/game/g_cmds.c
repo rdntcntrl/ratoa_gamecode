@@ -400,6 +400,24 @@ void DominationPointNamesMessage( gentity_t *ent ) {
 	trap_SendServerCommand( ent-g_entities, va("dompointnames %i \"%s\"", level.domination_points_count, text));
 }
 
+///*
+//==================
+//TreasureHuntMessage
+//
+//==================
+//*/
+//
+//void TreasureHuntMessage(gentity_t *ent) {
+//	trap_SendServerCommand( ent-g_entities, va("treasureHunt %i %i %i",
+//				g_treasureHideTime.integer,
+//				g_treasureSeekTime.integer,
+//				level.th_hideTime,
+//				level.th_seekTime,
+//				level.th_hideActive ? 1 : 0,
+//				level.th_seekActive ? 1 : 0,
+//				) )
+//}
+
 /*
 ==================
 YourTeamMessage
@@ -1827,7 +1845,10 @@ void Cmd_PlaceToken_f( gentity_t *ent ) {
 	token->think = NULL;
 	token->nextthink = 0;
 
-	token->health = g_treasureTokenHealth.integer;
+	token->health = 50;
+	token->die = Token_die;
+	token->takedamage = qtrue;
+	token->r.contents |= CONTENTS_CORPSE;
 
 	token->spawnflags = ent->client->sess.sessionTeam;
 	token->s.generic1 = 0;

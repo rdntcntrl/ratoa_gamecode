@@ -3191,39 +3191,32 @@ qboolean ScheduleTreasureHunterRound( void ) {
 	return qtrue;
 }
 
-void UpdateToken(gentity_t *token, qboolean vulnerable) {
+void UpdateToken(gentity_t *token, qboolean vulnerable, int setHealth) {
+	if (setHealth) {
+		token->health = setHealth;
+	}
 	if (vulnerable) {
+		// used for pickup prediction
 		token->s.generic1 = 1;
-
-		if (g_treasureTokensDestructible.integer) {
-			// only if tokens are shootable
-			token->die = Token_die;
-			token->takedamage = qtrue;
-			token->r.contents |= CONTENTS_CORPSE;
-		}
 	} else {
+		// used for pickup prediction
 		token->s.generic1 = 0;
-
-		// only if tokens are shootable
-		token->die = NULL;
-		token->takedamage = qfalse;
-		token->r.contents &= ~CONTENTS_CORPSE;
 	}
 }
 
-void UpdateTreasureVisibility( qboolean hiddenFromEnemy ) {
+void UpdateTreasureVisibility( qboolean hiddenFromEnemy, int setHealth) {
 	gentity_t	*token;
 
 	token = NULL;
 	while ((token = G_Find (token, FOFS(classname), "item_redcube")) != NULL) {
 		token->r.singleClient = hiddenFromEnemy ? level.th_redClientMask : level.th_redClientMask | level.th_blueClientMask;
-		UpdateToken(token, !hiddenFromEnemy);
+		UpdateToken(token, !hiddenFromEnemy, setHealth);
 
 	}
 	token = NULL;
 	while ((token = G_Find (token, FOFS(classname), "item_bluecube")) != NULL) {
 		token->r.singleClient = hiddenFromEnemy ? level.th_blueClientMask : level.th_blueClientMask | level.th_redClientMask;
-		UpdateToken(token, !hiddenFromEnemy);
+		UpdateToken(token, !hiddenFromEnemy, setHealth);
 	}
 }
 
@@ -3338,11 +3331,11 @@ void CheckTreasureHunter(void) {
 
 	// set the token visiblity for each phase
 	if (level.th_hideActive) {
-		UpdateTreasureVisibility(qtrue);
+		UpdateTreasureVisibility(qtrue, 0);
 	} else if (level.th_seekActive) {
-		UpdateTreasureVisibility(qfalse);
+		UpdateTreasureVisibility(qfalse, 0);
 	} else if (level.time >= level.th_hideTime) {
-		UpdateTreasureVisibility(qtrue);
+		UpdateTreasureVisibility(qtrue, 0);
 	}
 
 	tokens_red = CountTreasures(TEAM_RED);
@@ -3416,6 +3409,7 @@ void CheckTreasureHunter(void) {
 			Com_sprintf(str, sizeof(str), "\nSeeking phase lasts until %i:%02i", min, s);
 		}
 		level.th_seekActive = qtrue;
+		UpdateTreasureVisibility(qfalse, g_treasureTokenHealth.integer);
 		trap_SendServerCommand( -1, va("cp \"Find your opponent's tokens!"
 					"%s\n\"", str));
 		trap_SendServerCommand( -1, va("print \"" S_COLOR_CYAN "Find your opponent's tokens!"

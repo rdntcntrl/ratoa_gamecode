@@ -1034,6 +1034,35 @@ static int catchup_damage(int damage, int attacker_points, int target_points) {
     return newdamage;
 }
 
+qboolean G_TreasureHuntDamage( gentity_t *targ, gentity_t *attacker, int mod ) {
+	if (!attacker || !attacker->client) {
+		return qtrue;
+	}
+	if (targ->client && !OnSameTeam(targ, attacker)) {
+		// don't do any damage to enemy players
+		return qfalse;
+	} else if (targ->s.eType == ET_ITEM 
+			&& targ->item 
+			&& targ->item->giType == IT_TEAM) {
+		if (g_treasureTokensDestructible.integer 
+				&& targ->spawnflags != attacker->client->sess.sessionTeam
+				&& level.th_seekActive) {
+			// only allow enemies to attack cubes during seek time
+			return qtrue;
+		} else if (targ->spawnflags == attacker->client->sess.sessionTeam
+				&& level.th_hideActive
+				&& targ->parent == attacker
+				&& (mod == MOD_MACHINEGUN || mod == MOD_SHOTGUN || mod == MOD_GAUNTLET 
+						|| mod == MOD_RAILGUN || mod == MOD_LIGHTNING || mod == MOD_CHAINGUN)) {
+			// players can destroy their own tokens during hiding phase, but only with hitscan weapons
+			return qtrue;
+		} else {
+			return qfalse;
+		}
+	}
+	return qtrue;
+}
+
 int G_WeaponForMOD(int mod) {
 	// XXX: not necessarily complete
 	switch (mod) {
@@ -1121,16 +1150,8 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 			return;
 		}
 	} else if (g_gametype.integer == GT_TREASURE_HUNTER) {
-		if (attacker && attacker->client) {
-			if (targ->client && !OnSameTeam(targ, attacker)) {
-				// don't do any damage to enemy players
-				return;
-			} else if (targ->s.eType == ET_ITEM 
-					&& targ->item 
-					&& targ->item->giType == IT_TEAM 
-					&& targ->spawnflags == attacker->client->sess.sessionTeam) {
-				return;
-			}
+		if (!G_TreasureHuntDamage(targ, attacker, mod)) {
+			return;
 		}
 	}
 
