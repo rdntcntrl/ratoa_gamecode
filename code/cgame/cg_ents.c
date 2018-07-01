@@ -254,17 +254,19 @@ static void CG_TreasureHuntToken ( centity_t *cent ) {
 		VectorSet( cent->lerpAngles, 0, 0, 0);
 		AnglesToAxis(cent->lerpAngles, ent.axis);
 		if (item->giTag == HARVESTER_REDCUBE && team == TEAM_RED) {
-			ent.customShader = cgs.media.thTokenTeamShader;
-			ent.shaderRGBA[0] = 255;
-			ent.shaderRGBA[1] = 0;
-			ent.shaderRGBA[2] = 0;
-			ent.shaderRGBA[3] = 255;
+			ent.customShader = cgs.media.thTokenRedShader;
+			//ent.customShader = cgs.media.thTokenTeamShader;
+			//ent.shaderRGBA[0] = 255;
+			//ent.shaderRGBA[1] = 0;
+			//ent.shaderRGBA[2] = 0;
+			//ent.shaderRGBA[3] = 255;
 		} else if (item->giTag == HARVESTER_BLUECUBE && team == TEAM_BLUE) {
-			ent.customShader = cgs.media.thTokenTeamShader;
-			ent.shaderRGBA[0] = 0;
-			ent.shaderRGBA[1] = 0;
-			ent.shaderRGBA[2] = 255;
-			ent.shaderRGBA[3] = 255;
+			ent.customShader = cgs.media.thTokenBlueShader;
+			//ent.customShader = cgs.media.thTokenTeamShader;
+			//ent.shaderRGBA[0] = 0;
+			//ent.shaderRGBA[1] = 0;
+			//ent.shaderRGBA[2] = 255;
+			//ent.shaderRGBA[3] = 255;
 		}
 	}
 
