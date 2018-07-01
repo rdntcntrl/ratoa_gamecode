@@ -1498,29 +1498,24 @@ extern vmCvar_t			cg_enemySound;
 
 extern vmCvar_t			cg_brightShells;
 
+
+extern vmCvar_t			cg_teamHueBlue;
+extern vmCvar_t			cg_teamHueDefault;
+extern vmCvar_t			cg_teamHueRed;
+
 extern vmCvar_t			cg_forceBrightModels;
-extern vmCvar_t			cg_forceEnemyModelColor;
-extern vmCvar_t			cg_forceModelColor;
-extern vmCvar_t			cg_modelHueBlue;
-extern vmCvar_t			cg_modelHueDefault;
-extern vmCvar_t			cg_modelHueRed;
 
-extern vmCvar_t			cg_forceEnemyModelHue;
-extern vmCvar_t			cg_forceEnemyModelSaturation;
-extern vmCvar_t			cg_forceEnemyModelValue;
-extern vmCvar_t			cg_forceModelHue;
-extern vmCvar_t			cg_forceModelSaturation;
-extern vmCvar_t			cg_forceModelValue;
+extern vmCvar_t			cg_teamHueBlue;
+extern vmCvar_t			cg_teamHueDefault;
+extern vmCvar_t			cg_teamHueRed;
 
-extern vmCvar_t			cg_forceEnemyCorpseColor;
-extern vmCvar_t			cg_forceCorpseColor;
+extern vmCvar_t			cg_enemyColor;
+extern vmCvar_t			cg_teamColor;
 
-//extern vmCvar_t			cg_forceEnemyCorpseHue;
-extern vmCvar_t			cg_forceEnemyCorpseSaturation;
-extern vmCvar_t			cg_forceEnemyCorpseValue;
-//extern vmCvar_t			cg_forceCorpseHue;
-extern vmCvar_t			cg_forceCorpseSaturation;
-extern vmCvar_t			cg_forceCorpseValue;
+extern vmCvar_t			cg_enemyCorpseSaturation;
+extern vmCvar_t			cg_enemyCorpseValue;
+extern vmCvar_t			cg_teamCorpseSaturation;
+extern vmCvar_t			cg_teamCorpseValue;
 
 extern vmCvar_t			cg_timerAlpha;
 extern vmCvar_t			cg_fpsAlpha;

@@ -38,6 +38,7 @@ int enemySoundModificationCount = -1;
 void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum );
 void CG_Shutdown( void );
 
+static float CG_Cvar_Get(const char *cvar);
 
 /*
 ================
@@ -264,28 +265,22 @@ vmCvar_t	cg_enemySound;
 vmCvar_t	cg_brightShells;
 
 vmCvar_t	cg_forceBrightModels;
-vmCvar_t	cg_forceEnemyModelColor;
-vmCvar_t	cg_forceModelColor;
-vmCvar_t	cg_modelHueBlue;
-vmCvar_t	cg_modelHueDefault;
-vmCvar_t	cg_modelHueRed;
 
-vmCvar_t	cg_forceEnemyModelHue;
-vmCvar_t	cg_forceEnemyModelSaturation;
-vmCvar_t	cg_forceEnemyModelValue;
-vmCvar_t	cg_forceModelHue;
-vmCvar_t	cg_forceModelSaturation;
-vmCvar_t	cg_forceModelValue;
+vmCvar_t	cg_teamHueBlue;
+vmCvar_t	cg_teamHueDefault;
+vmCvar_t	cg_teamHueRed;
 
-vmCvar_t	cg_forceEnemyCorpseColor;
-vmCvar_t	cg_forceCorpseColor;
+vmCvar_t	cg_teamHueBlue;
+vmCvar_t	cg_teamHueDefault;
+vmCvar_t	cg_teamHueRed;
 
-//vmCvar_t	cg_forceEnemyCorpseHue;
-vmCvar_t	cg_forceEnemyCorpseSaturation;
-vmCvar_t	cg_forceEnemyCorpseValue;
-//vmCvar_t	cg_forceCorpseHue;
-vmCvar_t	cg_forceCorpseSaturation;
-vmCvar_t	cg_forceCorpseValue;
+vmCvar_t	cg_enemyColor;
+vmCvar_t	cg_teamColor;
+
+vmCvar_t	cg_enemyCorpseSaturation;
+vmCvar_t	cg_enemyCorpseValue;
+vmCvar_t	cg_teamCorpseSaturation;
+vmCvar_t	cg_teamCorpseValue;
 
 vmCvar_t	cg_timerAlpha;
 vmCvar_t	cg_fpsAlpha;
@@ -630,7 +625,6 @@ static cvarTable_t cvarTable[] = { // bk001129
 
 	{ &cg_fontScale , "cg_fontScale", "1.0", CVAR_ARCHIVE},
 	{ &cg_fontShadow , "cg_fontShadow", "1", CVAR_ARCHIVE},
-	
 
 	{ &cg_autoHeadColors ,     "cg_autoHeadColors", "0", CVAR_ARCHIVE},
 
@@ -641,28 +635,20 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_brightShells ,     "cg_brightShells", "1", CVAR_ARCHIVE},
 
 	{ &cg_forceBrightModels ,     "cg_forceBrightModels", "2", CVAR_ARCHIVE},
-	{ &cg_forceEnemyModelColor ,     "cg_forceEnemyModelColor", "0", CVAR_ARCHIVE},
-	{ &cg_forceModelColor ,     "cg_forceModelColor", "0", CVAR_ARCHIVE},
-	{ &cg_modelHueBlue ,     "cg_modelHueBlue", "185", CVAR_ARCHIVE},
-	{ &cg_modelHueDefault ,     "cg_modelHueDefault", "125", CVAR_ARCHIVE},
-	{ &cg_modelHueRed ,     "cg_modelHueRed", "10", CVAR_ARCHIVE},
 
-	{ &cg_forceEnemyModelHue ,     "cg_forceEnemyModelHue", "125", CVAR_ARCHIVE},
-	{ &cg_forceEnemyModelSaturation ,     "cg_forceEnemyModelSaturation", "1", CVAR_ARCHIVE},
-	{ &cg_forceEnemyModelValue ,     "cg_forceEnemyModelValue", "1", CVAR_ARCHIVE},
-	{ &cg_forceModelHue ,     "cg_forceModelHue", "280", CVAR_ARCHIVE},
-	{ &cg_forceModelSaturation ,     "cg_forceModelSaturation", "1", CVAR_ARCHIVE},
-	{ &cg_forceModelValue ,     "cg_forceModelValue", "1", CVAR_ARCHIVE},
+	{ &cg_teamHueBlue ,     "cg_teamHueBlue", "210", CVAR_ARCHIVE},
+	{ &cg_teamHueDefault ,  "cg_teamHueDefault", "125", CVAR_ARCHIVE},
+	{ &cg_teamHueRed ,      "cg_teamHueRed", "0", CVAR_ARCHIVE},
 
-	{ &cg_forceEnemyCorpseColor ,     "cg_forceEnemyCorpseColor", "1", CVAR_ARCHIVE},
-	{ &cg_forceCorpseColor ,     "cg_forceCorpseColor", "1", CVAR_ARCHIVE},
+	// either color name ("green", "white"), color index, or 
+	// HSV color in the format 'H125 1.0 1.0" (H<H> <S> <V>)
+	{ &cg_enemyColor ,     "cg_enemyColor", "", CVAR_ARCHIVE},
+	{ &cg_teamColor ,      "cg_teamColor", "", CVAR_ARCHIVE},
 
-	//{ &cg_forceEnemyCorpseHue ,     "cg_forceEnemyCorpseHue", "0", CVAR_ARCHIVE},
-	{ &cg_forceEnemyCorpseSaturation ,     "cg_forceEnemyCorpseSaturation", "0.75", CVAR_ARCHIVE},
-	{ &cg_forceEnemyCorpseValue ,     "cg_forceEnemyCorpseValue", "0.5", CVAR_ARCHIVE},
-	//{ &cg_forceCorpseHue ,     "cg_forceCorpseHue", "204", CVAR_ARCHIVE},
-	{ &cg_forceCorpseSaturation ,     "cg_forceCorpseSaturation", "0.75", CVAR_ARCHIVE},
-	{ &cg_forceCorpseValue ,     "cg_forceCorpseValue", "0.5", CVAR_ARCHIVE},
+	{ &cg_enemyCorpseSaturation ,     "cg_enemyCorpseSaturation", "", CVAR_ARCHIVE},
+	{ &cg_enemyCorpseValue ,          "cg_enemyCorpseValue", "0.25", CVAR_ARCHIVE},
+	{ &cg_teamCorpseSaturation ,      "cg_teamCorpseSaturation", "", CVAR_ARCHIVE},
+	{ &cg_teamCorpseValue ,           "cg_teamCorpseValue", "0.25", CVAR_ARCHIVE},
 
 	// / RAT ===================
 
@@ -864,6 +850,73 @@ void CG_RatInitDefaults(void)  {
 		trap_Cvar_Set("snaps", "40");
 
 		trap_Cvar_Set( "cg_ratInitialized", "6" );
+	}
+
+	if (cg_ratInitialized.integer < 7) {
+		int h;
+		float s,v;
+
+		// Update corpse color cvars
+		trap_Cvar_Set( "cg_corpseSaturation", "" );
+		trap_Cvar_Set( "cg_enemyCorpseSaturation", "" );
+		if (!CG_Cvar_Get("cg_forceCorpseColor")) {
+			trap_Cvar_Set( "cg_teamCorpseValue", "" );
+		} else {
+			trap_Cvar_Set( "cg_teamCorpseValue", "0.25" );
+		}
+		if (!CG_Cvar_Get("cg_forceEnemyCorpseColor")) {
+			trap_Cvar_Set( "cg_enemyCorpseValue", "" );
+		} else {
+			trap_Cvar_Set( "cg_enemyCorpseValue", "0.25" );
+		}
+		//trap_SendConsoleCommand("unset cg_forceEnemyCorpseColor");
+		//trap_SendConsoleCommand("unset cg_forceEnemyCorpseSaturation");
+		//trap_SendConsoleCommand("unset cg_forceEnemyCorpseValue");
+		//trap_SendConsoleCommand("unset cg_forceCorpseColor");
+		//trap_SendConsoleCommand("unset cg_forceCorpseSaturation");
+		//trap_SendConsoleCommand("unset cg_forceCorpseValue");
+
+		// Update default team colors
+		h = CG_Cvar_Get("cg_modelHueBlue");
+		if (h == 185) {
+			trap_Cvar_Set( "cg_teamHueBlue", va("%i", h));
+		} else {
+			trap_Cvar_Set( "cg_teamHueBlue", "210" );
+		}
+		h = CG_Cvar_Get("cg_modelHueRed");
+		if (h == 10) {
+			trap_Cvar_Set( "cg_teamHueRed", va("%i", h));
+		} else {
+			trap_Cvar_Set( "cg_teamHueRed", "0" );
+		}
+		trap_Cvar_Set( "cg_teamHueDefault", "125" );
+
+		//trap_SendConsoleCommand("unset cg_modelHueBlue");
+		//trap_SendConsoleCommand("unset cg_modelHueDefault");
+		//trap_SendConsoleCommand("unset cg_modelHueRed");
+
+		// update forced colors
+		if (CG_Cvar_Get("cg_forceEnemyModelColor")) {
+			h = CG_Cvar_Get("cg_forceEnemyModelHue");
+			s = CG_Cvar_Get("cg_forceEnemyModelSaturation");
+			v = CG_Cvar_Get("cg_forceEnemyModelValue");
+
+			trap_Cvar_Set( "cg_enemyColor", va("H%i %.2f %.2f", h, s, v) );
+		} else {
+			trap_Cvar_Set( "cg_enemyColor", "" );
+		}
+
+		if (CG_Cvar_Get("cg_forceModelColor")) {
+			h = CG_Cvar_Get("cg_forceModelHue");
+			s = CG_Cvar_Get("cg_forceModelSaturation");
+			v = CG_Cvar_Get("cg_forceModelValue");
+
+			trap_Cvar_Set( "cg_teamColor", va("H%i %.2f %.2f", h, s, v) );
+		} else {
+			trap_Cvar_Set( "cg_teamColor", "" );
+		}
+
+		//trap_Cvar_Set( "cg_ratInitialized", "7" );
 	}
 
 }
@@ -2412,14 +2465,12 @@ static void CG_FeederSelection(float feederID, int index) {
 }
 #endif
 
-#ifdef MISSIONPACK // bk001204 - only needed there
 static float CG_Cvar_Get(const char *cvar) {
 	char buff[128];
 	memset(buff, 0, sizeof(buff));
 	trap_Cvar_VariableStringBuffer(cvar, buff, sizeof(buff));
 	return atof(buff);
 }
-#endif
 
 #ifdef MISSIONPACK
 void CG_Text_PaintWithCursor(float x, float y, float scale, vec4_t color, const char *text, int cursorPos, char cursor, int limit, int style) {

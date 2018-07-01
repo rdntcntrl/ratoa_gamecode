@@ -2685,6 +2685,47 @@ int CG_LightVerts( vec3_t normal, int numVerts, polyVert_t *verts )
 	return qtrue;
 }
 
+void CG_RGB2HSV(float *in, float *h, float *s, float *v) {
+	float min, max, delta;
+
+	min = in[0] < in[1] ? in[0] : in[1];
+	min = min   < in[2] ? min   : in[2];
+
+	max = in[0] > in[1] ? in[0] : in[1];
+	max = max   > in[2] ? max   : in[2];
+
+	*v = max;
+	delta = max - min;
+
+	if (delta < 0.00001) {
+		*s = 0.0;
+		*h = 0.0;
+		return;
+	}
+
+	if (max > 0.0 ) {
+		*s = delta/max;
+	} else {
+		*s = 0.0;
+		*h = 0.0;
+		return;
+	}
+	if ( in[0] >= max ) {
+		*h = (in[1] - in[2])/delta;
+	} else if ( in[1] >= max ) {
+		*h = 2.0 + (in[2] - in[0])/delta;
+	} else {
+		*h = 4.0 + (in[0] - in[1])/delta;
+	}
+
+	*h *= 60.0;
+
+	if (*h < 0.0) {
+		*h += 360.0;
+	}
+
+}
+
 void CG_HSV2RGB(float h, float s, float v, float *out) {
 	float	hh, p, q, t, ff;
 	int     i;
@@ -2765,6 +2806,75 @@ void CG_FloatColorToRGBA(float *color, byte *out) {
 	out[3] = color[3]*0xff;
 }
 
+void CG_PlayerColorFromString(char *str, float *h, float *s, float *v) {
+	char *p;
+
+	*h = 125.0;
+	*s = 1.0;
+	*v = 1.0;
+	if (!str[0]) {
+		*s = 0.0;
+		*v = 0.0;
+		return;
+	}
+	if (isalpha(str[0])) {
+		switch (toupper(str[0])) {
+			case 'H':
+				// HSV color
+				p = &str[1];
+				*h = atof(p);
+				if ((p = strchr(p, ' ')) != NULL) {
+					*s = atof(p);
+					if ((p = strchr(p+1, ' ')) != NULL) {
+						*v = atof(p);
+					}
+				}
+				*h = MAX(MIN(*h, 360.0), 0.0);
+				*s = MAX(MIN(*s, 1.0), 0.0);
+				*v = MAX(MIN(*v, 1.0), 0.0);
+				break;
+			case 'R':
+				*h = 0.0;
+				break;
+			case 'G':
+				*h = 125.0;
+				break;
+			case 'Y':
+				*h = 60.0;
+				break;
+			case 'B':
+				*h = 230.0;
+				break;
+			case 'C':
+				*h = 180.0;
+				break;
+			case 'P':
+				*h = 300.0;
+				break;
+			case 'W':
+				*h = 180.0;
+				*s = 0.0;
+				break;
+			case 'O':
+				*h = 20.0;
+				break;
+
+		}
+	} else {
+		char cs[3];
+		// this is just so we don't have to replicate the color index
+		// checks here and cause an implicit dependency
+		cs[0] = Q_COLOR_ESCAPE;
+		cs[1] = str[0];
+		cs[2] = '\0';
+		p = cs;
+		if (Q_IsColorString(p)) {
+			CG_RGB2HSV(g_color_table[ColorIndex(*(p+1))], h, s, v);
+		}
+	}
+
+}
+
 void CG_PlayerGetColors(clientInfo_t *ci, qboolean isDead, byte *outColor) {
 	clientInfo_t *player = &cgs.clientinfo[cg.clientNum];
 	float color[4];
@@ -2798,13 +2908,13 @@ void CG_PlayerGetColors(clientInfo_t *ci, qboolean isDead, byte *outColor) {
 
 	switch (ci->team) {
 		case TEAM_BLUE:
-			h = cg_modelHueBlue.value;
+			h = cg_teamHueBlue.value;
 			break;
 		case TEAM_RED:
-			h = cg_modelHueRed.value;
+			h = cg_teamHueRed.value;
 			break;
 		default:
-			h = cg_modelHueDefault.value;
+			h = cg_teamHueDefault.value;
 			break;
 	}
 	if (myteam == TEAM_SPECTATOR && cgs.gametype >= GT_TEAM && cgs.ffa_gt!=1) {
@@ -2816,24 +2926,28 @@ void CG_PlayerGetColors(clientInfo_t *ci, qboolean isDead, byte *outColor) {
 	if ((myteam == TEAM_FREE && player != ci)
 			|| (myteam != ci->team)) {
 		// is enemy
-		if (cg_forceEnemyModelColor.integer) {
-			h = cg_forceEnemyModelHue.value;
-			s = cg_forceEnemyModelSaturation.value;
-			v = cg_forceEnemyModelValue.value;
+		if (cg_enemyColor.string[0]) {
+			CG_PlayerColorFromString(cg_enemyColor.string, &h, &s, &v);
 		}
-		if (isDead && cg_forceEnemyCorpseColor.integer) {
-			s = cg_forceEnemyCorpseSaturation.value;
-			v = cg_forceEnemyCorpseValue.value;
+		if (isDead) {
+			if (cg_enemyCorpseSaturation.string[0]) {
+				s = cg_enemyCorpseSaturation.value;
+			}
+			if (cg_enemyCorpseValue.string[0]) {
+				v = cg_enemyCorpseValue.value;
+			}
 		}
 	} else {
-		if (cg_forceModelColor.integer) {
-			h = cg_forceModelHue.value;
-			s = cg_forceModelSaturation.value;
-			v = cg_forceModelValue.value;
+		if (cg_teamColor.string[0]) {
+			CG_PlayerColorFromString(cg_teamColor.string, &h, &s, &v);
 		}
-		if (isDead && cg_forceCorpseColor.integer) {
-			s = cg_forceCorpseSaturation.value;
-			v = cg_forceCorpseValue.value;
+		if (isDead) { 
+			if (cg_teamCorpseSaturation.string[0]) {
+				s = cg_teamCorpseSaturation.value;
+			}
+			if (cg_teamCorpseValue.string[0]) {
+				v = cg_teamCorpseValue.value;
+			}
 		}
 	}
 	CG_HSV2RGB(h,s,v, color);
