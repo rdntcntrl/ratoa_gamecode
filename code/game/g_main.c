@@ -3292,6 +3292,7 @@ void CheckTreasureHunter(void) {
 	int i;
 	int tokens_red;
 	int tokens_blue;
+	qboolean needsUpdate = qfalse;
 
 	if (g_gametype.integer != GT_TREASURE_HUNTER) {
 		return;
@@ -3354,6 +3355,12 @@ void CheckTreasureHunter(void) {
 
 	tokens_red = CountTreasures(TEAM_RED);
 	tokens_blue = CountTreasures(TEAM_BLUE);
+	if (level.th_redTokens != tokens_red ||
+			level.th_blueTokens != tokens_blue) {
+		level.th_redTokens = tokens_red;
+		level.th_blueTokens = tokens_blue;
+		needsUpdate = qtrue;
+	}
 
 	// TODO: remaining token indicator
 
@@ -3374,7 +3381,7 @@ void CheckTreasureHunter(void) {
 		// give players their tokens
 		SetPlayerTokens((g_treasureTokens.integer <= 0) ? 1 : g_treasureTokens.integer);
 
-		SendTreasureHuntMessageToAllClients();
+		needsUpdate = qtrue;
 
 	} else if (level.th_phase == TH_HIDE 
 			&& g_treasureHideTime.integer > 0
@@ -3410,7 +3417,7 @@ void CheckTreasureHunter(void) {
 				trap_SendServerCommand( -1, va("print \"Red gets %i leftover tokens from blue!\n\"", leftover_tokens_blue));
 				AddTeamScore(level.intermission_origin, TEAM_RED, leftover_tokens_blue);
 			}
-			SendTreasureHuntMessageToAllClients();
+			needsUpdate = qtrue;
 		}
 	} else if (level.th_phase == TH_INTER 
 			&& level.time >= level.th_seekTime) {
@@ -3429,6 +3436,7 @@ void CheckTreasureHunter(void) {
 		// make enemy tokens visible
 		// enables pickup of enemy tokens
 		SendTreasureHuntMessageToAllClients();
+		needsUpdate = qfalse;
 	} else if (level.th_phase == TH_SEEK) {
 		gentity_t	*token;
 
@@ -3463,9 +3471,13 @@ void CheckTreasureHunter(void) {
 
 			// schedule next round
 			ScheduleTreasureHunterRound();
-			SendTreasureHuntMessageToAllClients();
+			needsUpdate = qtrue;
 		}
 
+	}
+
+	if (needsUpdate) {
+		SendTreasureHuntMessageToAllClients();
 	}
 }
 
