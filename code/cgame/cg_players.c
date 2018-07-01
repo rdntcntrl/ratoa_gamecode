@@ -71,8 +71,7 @@ sfxHandle_t	CG_CustomSound( int clientNum, const char *soundName ) {
 
 	for ( i = 0 ; i < MAX_CUSTOM_SOUNDS && cg_customSoundNames[i] ; i++ ) {
 		if ( !strcmp( soundName, cg_customSoundNames[i] ) ) {
-			if ((cgs.gametype >= GT_TEAM && cgs.ffa_gt!=1)
-					|| cgs.gametype == GT_TOURNAMENT) {
+			if ((cgs.ratFlags & RAT_ALLOWBRIGHTSKINS)) {
 				if (ci == myself && cgs.mySounds[i]) {
 					return cgs.mySounds[i];
 				} else if ((myteam != TEAM_FREE && ci->team == myteam) && cgs.teamSounds[i]) {
