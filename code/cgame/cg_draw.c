@@ -1914,6 +1914,46 @@ void CG_DrawEliminationStatus(void) {
 	CG_DrawBigString( x + 4, y, s, 1.0F);
 }
 
+void CG_DrawTreasureHunterStatus(void) {
+	const char	*s;
+	int		x, w, y;
+	vec4_t		color;
+
+	if (cgs.gametype != GT_TREASURE_HUNTER) {
+		return;
+	}
+
+
+	y = 240;
+	x = 640;
+	color[0] = 0.0f;
+	color[1] = 0.0f;
+	color[2] = 1.0f;
+	color[3] = 0.33f;
+	s = va( "%2i", cgs.th_blueTokens );
+	w = CG_DrawStrlen( s ) * BIGCHAR_WIDTH + 8;
+	x -= w;
+	CG_FillRect( x, y-4,  w, BIGCHAR_HEIGHT+8, color );
+	if ( cg.snap->ps.persistant[PERS_TEAM] == TEAM_BLUE ) {
+		CG_DrawPic( x, y-4, w, BIGCHAR_HEIGHT+8, cgs.media.selectShader );
+	}
+	CG_DrawBigString( x + 4, y, s, 1.0F);
+
+
+	color[0] = 1.0f;
+	color[1] = 0.0f;
+	color[2] = 0.0f;
+	color[3] = 0.33f;
+	s = va( "%2i", cgs.th_redTokens );
+	w = CG_DrawStrlen( s ) * BIGCHAR_WIDTH + 8;
+	x -= w;
+	CG_FillRect( x, y-4,  w, BIGCHAR_HEIGHT+8, color );
+	if ( cg.snap->ps.persistant[PERS_TEAM] == TEAM_RED ) {
+		CG_DrawPic( x, y-4, w, BIGCHAR_HEIGHT+8, cgs.media.selectShader );
+	}
+	CG_DrawBigString( x + 4, y, s, 1.0F);
+}
+
 
 /*
 =====================
@@ -4510,6 +4550,7 @@ static void CG_Draw2D(stereoFrame_t stereoFrame)
 	cg.scoreBoardShowing = CG_DrawScoreboard();
 	if ( !cg.scoreBoardShowing) {
 		CG_DrawEliminationStatus();
+		CG_DrawTreasureHunterStatus();
                 CG_DrawCenterDDString();
                 CG_DrawCenter1FctfString();
 		CG_DrawCenterString();

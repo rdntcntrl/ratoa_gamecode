@@ -1250,6 +1250,8 @@ typedef struct {
 	treasurehunter_t th_phase;
 	int th_roundStart;
 	int th_roundDuration;
+	int th_redTokens;
+	int th_blueTokens;
 
 //CTF Elimination
 	int				attackingTeam;
