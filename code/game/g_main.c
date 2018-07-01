@@ -3179,14 +3179,17 @@ qboolean ScheduleTreasureHunterRound( void ) {
 
 void UpdateTreasureVisibility( qboolean hiddenFromEnemy ) {
 	gentity_t	*token;
+	int collectible = hiddenFromEnemy ? 0 : 1;
 
 	token = NULL;
 	while ((token = G_Find (token, FOFS(classname), "item_redcube")) != NULL) {
 		token->r.singleClient = hiddenFromEnemy ? level.th_redClientMask : level.th_redClientMask | level.th_blueClientMask;
+		token->s.generic1 = collectible;
 	}
 	token = NULL;
 	while ((token = G_Find (token, FOFS(classname), "item_bluecube")) != NULL) {
 		token->r.singleClient = hiddenFromEnemy ? level.th_blueClientMask : level.th_blueClientMask | level.th_redClientMask;
+		token->s.generic1 = collectible;
 	}
 }
 

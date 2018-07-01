@@ -1363,11 +1363,13 @@ qboolean BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const play
 		}
 
 		if( gametype == GT_TREASURE_HUNTER ) {
-			if (ps->persistant[PERS_TEAM] == TEAM_RED) {
-				if (item->giTag == HARVESTER_BLUECUBE)
+			if (!ent->generic1) {
+				// this is set during seeking phase
+				return qfalse;
+			}
+			if (ps->persistant[PERS_TEAM] == TEAM_RED && item->giTag == HARVESTER_BLUECUBE) {
 					return qtrue;
-			} else if (ps->persistant[PERS_TEAM] == TEAM_BLUE) {
-				if (item->giTag == HARVESTER_REDCUBE)
+			} else if (ps->persistant[PERS_TEAM] == TEAM_BLUE && item->giTag == HARVESTER_REDCUBE) {
 					return qtrue;
 			}
 		}

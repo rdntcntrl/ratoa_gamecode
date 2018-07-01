@@ -1818,7 +1818,7 @@ void Cmd_PlaceToken_f( gentity_t *ent ) {
 		return;
 	}
 	ent->client->pers.th_tokens--;
-	ent->client->ps.generic1 = ent->client->pers.th_tokens;
+	ent->client->ps.generic1 = 0;
 
 	item = ent->client->sess.sessionTeam == TEAM_RED ? BG_FindItem("Red Cube") : BG_FindItem("Blue Cube");
 
@@ -1829,6 +1829,7 @@ void Cmd_PlaceToken_f( gentity_t *ent ) {
 	//token->takedamage = qtrue;
 
 	token->spawnflags = ent->client->sess.sessionTeam;
+	token->s.generic1 = ent->client->sess.sessionTeam;
 
 	token->r.svFlags |= SVF_CLIENTMASK;
 	token->r.singleClient = ent->client->sess.sessionTeam == TEAM_BLUE ? level.th_blueClientMask : level.th_redClientMask;

@@ -967,6 +967,7 @@ void Team_TH_TokenDestroyed( gentity_t *ent ) {
 	} else if (ent->item->giTag == HARVESTER_REDCUBE) {
 		AddTeamScore(level.intermission_origin, TEAM_RED, 1);
 	}
+	G_FreeEntity( ent );
 }
 
 void Team_ResetFlags( void ) {
