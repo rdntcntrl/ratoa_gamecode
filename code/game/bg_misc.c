@@ -845,7 +845,7 @@ Only in One Flag CTF games
 /* pickup */	"Red Cube",
 		0,
 		IT_TEAM,
-		0,
+		HARVESTER_REDCUBE,
 /* precache */ "",
 /* sounds */ ""
 	},
@@ -859,7 +859,7 @@ Only in One Flag CTF games
 /* pickup */	"Blue Cube",
 		0,
 		IT_TEAM,
-		0,
+		HARVESTER_BLUECUBE,
 /* precache */ "",
 /* sounds */ ""
 	},
@@ -1247,6 +1247,9 @@ qboolean BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const play
 		return qtrue;
 
 	case IT_ARMOR:
+		upperBound = ps->stats[STAT_MAX_HEALTH] * 2;
+
+#ifdef HAVE_STAT_PERSISTANT_POWERUP
 		if( bg_itemlist[ps->stats[STAT_PERSISTANT_POWERUP]].giTag == PW_SCOUT ) {
 			return qfalse;
 		}
@@ -1255,9 +1258,7 @@ qboolean BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const play
 		if( bg_itemlist[ps->stats[STAT_PERSISTANT_POWERUP]].giTag == PW_GUARD ) {
 			upperBound = ps->stats[STAT_MAX_HEALTH];
 		}
-		else {
-			upperBound = ps->stats[STAT_MAX_HEALTH] * 2;
-		}
+#endif
 
 		if ( ps->stats[STAT_ARMOR] >= upperBound ) {
 			return qfalse;
@@ -1265,12 +1266,14 @@ qboolean BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const play
 		return qtrue;
 
 	case IT_HEALTH:
+#ifdef HAVE_STAT_PERSISTANT_POWERUP
 		// small and mega healths will go over the max, otherwise
 		// don't pick up if already at max
 		if( bg_itemlist[ps->stats[STAT_PERSISTANT_POWERUP]].giTag == PW_GUARD ) {
 			upperBound = ps->stats[STAT_MAX_HEALTH];
 		}
 		else
+#endif
 		if ( item->quantity == 5 || item->quantity == 100 ) {
 			if ( ps->stats[STAT_HEALTH] >= ps->stats[STAT_MAX_HEALTH] * 2 ) {
 				return qfalse;
@@ -1286,6 +1289,7 @@ qboolean BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const play
 	case IT_POWERUP:
 		return qtrue;	// powerups are always picked up
 
+#ifdef HAVE_STAT_PERSISTANT_POWERUP
 	case IT_PERSISTANT_POWERUP:
 
 		//In Double D we don't want persistant Powerups (or maybe, can be discussed)
@@ -1306,6 +1310,7 @@ qboolean BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const play
 		}
 
 		return qtrue;
+#endif
 
 	case IT_TEAM: // team items, such as flags	
 		if( gametype == GT_1FCTF ) {
@@ -1361,6 +1366,17 @@ qboolean BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const play
 		if( gametype == GT_HARVESTER ) {
 			return qtrue;
 		}
+
+		if( gametype == GT_TREASURE_HUNTER ) {
+			if (ps->persistant[PERS_TEAM] == TEAM_RED) {
+				if (item->giTag == HARVESTER_BLUECUBE)
+					return qtrue;
+			} else if (ps->persistant[PERS_TEAM] == TEAM_BLUE) {
+				if (item->giTag == HARVESTER_REDCUBE)
+					return qtrue;
+			}
+		}
+
 		return qfalse;
 
 	case IT_HOLDABLE:
