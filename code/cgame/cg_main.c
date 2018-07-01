@@ -1682,6 +1682,10 @@ static void CG_RegisterGraphics( void ) {
 		cgs.media.redCubeIcon = trap_R_RegisterShader( "icons/skull_red" );
 		cgs.media.blueCubeIcon = trap_R_RegisterShader( "icons/skull_blue" );
 	}
+
+	if (cgs.gametype == GT_TREASURE_HUNTER) {
+		cgs.media.thEnemyToken = trap_R_RegisterModel( "models/powerups/overload_base.md3" );
+	}
         
         if( ( cgs.gametype >= GT_TEAM ) && ( cgs.ffa_gt != 1 ) ) {
                 cgs.media.redOverlay = trap_R_RegisterShader( "playeroverlays/playerSuit1_Red");

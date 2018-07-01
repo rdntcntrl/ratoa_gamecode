@@ -219,6 +219,49 @@ static void CG_Speaker( centity_t *cent ) {
 	cent->miscTime = cg.time + cent->currentState.frame * 100 + cent->currentState.clientNum * 100 * crandom();
 }
 
+static void CG_TreasureHuntToken ( centity_t *cent ) {
+	refEntity_t		ent;
+	entityState_t	*es;
+	gitem_t			*item;
+	float			scale;
+	int team = cgs.clientinfo[ cg.clientNum ].team;
+
+	es = &cent->currentState;
+	item = &bg_itemlist[ es->modelindex ];
+
+	memset (&ent, 0, sizeof(ent));
+
+	if (cgs.th_tokenStyle >= 1 || 
+			((item->giTag == HARVESTER_REDCUBE && team == TEAM_RED)
+			 || (item->giTag == HARVESTER_BLUECUBE && team == TEAM_BLUE)
+			 )) {
+		ent.hModel = cg_items[es->modelindex].models[0];
+
+		// items bob up and down continuously
+		scale = 0.005 + cent->currentState.number * 0.00001;
+		cent->lerpOrigin[2] += 4 + cos( ( cg.time + 1000 ) *  scale ) * 4;
+		VectorCopy( cg.autoAngles, cent->lerpAngles );
+		AxisCopy( cg.autoAxis, ent.axis );
+
+		//cent->lerpOrigin[2] -= 10;
+	} else {
+		// tokenstyle == 0 -> make enemy token harder to see
+		ent.hModel = cgs.media.thEnemyToken;
+		cent->lerpOrigin[2] += 8;
+		// make it stationary
+		VectorSet( cent->lerpAngles, 0, 0, 0);
+		AnglesToAxis(cent->lerpAngles, ent.axis);
+	}
+
+	VectorCopy( cent->lerpOrigin, ent.origin);
+	VectorCopy( cent->lerpOrigin, ent.oldorigin);
+
+
+	ent.nonNormalizedAxes = qfalse;
+
+	trap_R_AddRefEntityToScene(&ent);
+}
+
 /*
 ==================
 CG_Item
@@ -255,6 +298,11 @@ static void CG_Item( centity_t *cent ) {
 		ent.shaderRGBA[2] = 255;
 		ent.shaderRGBA[3] = 255;
 		trap_R_AddRefEntityToScene(&ent);
+		return;
+	}
+
+	if (cgs.gametype == GT_TREASURE_HUNTER && item->giType == IT_TEAM) {
+		CG_TreasureHuntToken( cent );
 		return;
 	}
 

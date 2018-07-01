@@ -411,6 +411,7 @@ static void CG_ParseTreasureHunt( void ) {
 	cgs.th_roundStart = atoi( CG_Argv( 3 ) );
 	cgs.th_redTokens = atoi( CG_Argv( 4 ) );
 	cgs.th_blueTokens = atoi( CG_Argv( 5 ) );
+	cgs.th_tokenStyle = atoi( CG_Argv( 6 ) );
 }
 
 /*

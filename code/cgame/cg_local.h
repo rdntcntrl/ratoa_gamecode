@@ -772,6 +772,9 @@ typedef struct {
 	qhandle_t	blueFlagShader[3];
 	qhandle_t	flagShader[4];
 
+// For Treasure Hunter:
+	qhandle_t	thEnemyToken;
+
 //For Double Domination:
 	//qhandle_t	ddPointA;
 	//qhandle_t	ddPointB;
@@ -1252,6 +1255,7 @@ typedef struct {
 	int th_roundDuration;
 	int th_redTokens;
 	int th_blueTokens;
+	int th_tokenStyle;
 
 //CTF Elimination
 	int				attackingTeam;
