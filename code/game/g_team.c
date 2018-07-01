@@ -1455,8 +1455,12 @@ int Pickup_Team( gentity_t *ent, gentity_t *other ) {
 	}
 
 	if( g_gametype.integer == GT_TREASURE_HUNTER ) {
+		if (!level.th_seekActive) {
+			return 0;
+		}
 		// the only team items that can be picked up in treasure hunter are the tokens
 		if( ent->spawnflags != cl->sess.sessionTeam ) {
+			AddTeamScore(level.intermission_origin, cl->sess.sessionTeam, 1);
                         G_LogPrintf("TREASURE_HUNTER: %i %i: %s picked up a token.\n",
                             cl->ps.clientNum,cl->sess.sessionTeam,
                             cl->pers.netname);

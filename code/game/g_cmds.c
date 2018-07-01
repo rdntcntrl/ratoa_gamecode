@@ -1802,18 +1802,22 @@ void Cmd_PlaceToken_f( gentity_t *ent ) {
 		return;
 	}
 
-	if (ent->client->sess.sessionTeam == TEAM_SPECTATOR || ent->client->isEliminated) {
+	if (ent->client->sess.sessionTeam == TEAM_SPECTATOR 
+			|| ent->client->isEliminated
+			|| ent->client->ps.pm_type == PM_DEAD) {
 		return;
 	}
 
-	if (ent->client->ps.pm_type == PM_DEAD) {
+	if (!level.th_hideActive) {
+		trap_SendServerCommand( ent - g_entities, "cp \"Can only drop tokens during the hiding phase!\n");
 		return;
 	}
 
-	//if (!ent->client->ps.generic1) {
-	//	return;
-	//}
-	//ent->client->ps.generic1--;
+	if (!ent->client->ps.generic1) {
+		trap_SendServerCommand( ent - g_entities, "cp \"No tokens left!\n");
+		return;
+	}
+	ent->client->ps.generic1--;
 
 	item = ent->client->sess.sessionTeam == TEAM_RED ? BG_FindItem("Red Cube") : BG_FindItem("Blue Cube");
 

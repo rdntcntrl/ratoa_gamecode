@@ -3155,6 +3155,121 @@ void CheckDomination(void) {
 	}
 }
 
+qboolean ScheduleTreasureHunterRound( void ) {
+	if (level.th_round == (g_treasureRounds.integer ? g_treasureRounds.integer : 1)) {
+		level.th_hideTime = 0;
+		level.th_seekTime = 0;
+		return qfalse;
+	}
+
+	level.th_round++;
+
+	level.th_hideTime = level.time + 1000*10;
+	level.th_seekTime = level.th_hideTime + 1000*10 + g_treasureHideTime.integer * 1000;
+
+	return qtrue;
+}
+
+/*
+=============
+CheckTreasureHunter
+=============
+*/
+void CheckTreasureHunter(void) {
+	int i;
+
+	if (g_gametype.integer != GT_TREASURE_HUNTER) {
+		return;
+	}
+
+	if (level.intermissiontime
+			|| level.warmupTime != 0) {
+		return;
+	}
+
+	if (!level.th_hideTime) {
+		 if (!ScheduleTreasureHunterRound()) {
+			 return;
+		 }
+	}
+
+	if (!level.th_hideActive 
+			&& level.time >= level.th_hideTime 
+			&& level.time < level.th_hideTime + g_treasureHideTime.integer * 1000) {
+		level.th_hideActive = qtrue;
+		trap_SendServerCommand( -1, va("cp \"Hide your tokens!\nUse \\placeToken.\""));
+		// enables placeToken
+		// give players their tokens
+		for( i=0;i < level.numPlayingClients; i++ ) {
+			gentity_t *ent = &g_entities[level.sortedClients[i]];
+			if (!ent->inuse || ent->client->sess.sessionTeam == TEAM_SPECTATOR) {
+				continue;
+			}
+			ent->client->ps.generic1 = (g_treasureTokens.integer >= 0) ? 1 : g_treasureTokens.integer;
+		}
+	} else if (level.th_hideActive 
+			&& level.time >= level.th_hideTime + g_treasureHideTime.integer * 1000)  {
+		int leftover_tokens_red = 0;
+		int leftover_tokens_blue = 0;
+		level.th_hideActive = qfalse;
+		trap_SendServerCommand( -1, va("cp \"Hiding phase finished!\nPrepare to seek!\""));
+		// disables placeToken
+		// give leftovers to other team
+		for( i=0;i < level.numPlayingClients; i++ ) {
+			gentity_t *ent = &g_entities[level.sortedClients[i]];
+
+			if (!ent->inuse || ent->client->sess.sessionTeam == TEAM_SPECTATOR) {
+				continue;
+			}
+			if (ent->client->ps.generic1 <= 0) {
+				continue;
+			}
+
+			if (ent->client->sess.sessionTeam == TEAM_BLUE) {
+				leftover_tokens_blue += ent->client->ps.generic1;
+			} else {
+				leftover_tokens_red += ent->client->ps.generic1;
+			}
+
+			ent->client->ps.generic1 = 0;
+
+		}
+		if (leftover_tokens_red) {
+			trap_SendServerCommand( -1, va("print \"Blue gets %i leftover tokens from red!\n\"", leftover_tokens_red));
+			AddTeamScore(level.intermission_origin, TEAM_BLUE, leftover_tokens_red);
+		}
+		if (leftover_tokens_blue) {
+			trap_SendServerCommand( -1, va("print \"Red gets %i leftover tokens from blue!\n\"", leftover_tokens_blue));
+			AddTeamScore(level.intermission_origin, TEAM_RED, leftover_tokens_blue);
+		}
+	} else if (!level.th_seekActive 
+			&& level.time >= level.th_seekTime) {
+		level.th_seekActive = qtrue;
+		trap_SendServerCommand( -1, va("cp \"Find your opponent's tokens!\""));
+		// make enemy tokens visible
+		// enable pickup of enemy tokens
+	} else if (level.th_seekActive 
+			&& level.time >= level.th_seekTime + g_treasureSeekTime.integer * 1000)  {
+		gentity_t	*token;
+
+		level.th_seekActive = qfalse;
+		trap_SendServerCommand( -1, va("cp \"Seeking phase finished!\n\""));
+
+		// finish, clear tokens from map!
+		token = NULL;
+		while ((token = G_Find (token, FOFS(classname), "item_redcube")) != NULL) {
+			G_FreeEntity(token);
+		}
+		token = NULL;
+		while ((token = G_Find (token, FOFS(classname), "item_bluecube")) != NULL) {
+			G_FreeEntity(token);
+		}
+
+		// schedule next round
+		ScheduleTreasureHunterRound();
+	}
+}
+
 /*
 =============
 CheckTournament
@@ -3705,6 +3820,8 @@ void G_RunFrame( int levelTime ) {
 	//Sago: I just need to think why I placed this here... they should only spawn once
 	if(g_gametype.integer == GT_DOMINATION)
 		Team_Dom_SpawnPoints();
+
+	CheckTreasureHunter();
 
 	// see if it is time to end the level
 	CheckExitRules();

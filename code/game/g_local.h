@@ -602,6 +602,12 @@ typedef struct {
 	int domination_points_count;
 	char domination_points_names[MAX_DOMINATION_POINTS][MAX_DOMINATION_POINTS_NAMES];
 
+	int th_round;
+	int th_hideTime;
+	qboolean th_hideActive;
+	int th_seekTime;
+	qboolean th_seekActive;
+
 	//Added to keep track of challenges (can only be completed against humanplayers)
 	qboolean hadBots;	//There was bots in the level
 	int teamSize;		//The highest number of players on the least populated team when there was most players
