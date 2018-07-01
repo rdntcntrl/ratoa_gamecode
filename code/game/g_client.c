@@ -2265,6 +2265,9 @@ void ClientSpawn(gentity_t *ent) {
 	ent->classname = "player";
 	ent->r.contents = CONTENTS_BODY;
 	ent->clipmask = MASK_PLAYERSOLID;
+	if (g_passThroughInvisWalls.integer) {
+		ent->clipmask &= ~CONTENTS_PLAYERCLIP;
+	}
 	ent->die = player_die;
 	ent->waterlevel = 0;
 	ent->watertype = 0;

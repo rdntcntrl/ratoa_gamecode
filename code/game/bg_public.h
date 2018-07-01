@@ -747,23 +747,24 @@ qboolean	BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const play
 
 //g_ratFlags->integer
 // autoparsed from various ratmod cvars
-#define RAT_EASYPICKUP		1
-#define RAT_POWERUPGLOWS 	2
-#define RAT_SCREENSHAKE 	4
-#define RAT_PREDICTMISSILES 	8
-#define RAT_FASTSWITCH 		16
-#define RAT_FASTWEAPONS 	32
-#define RAT_RATPHYSICS 		64
-#define RAT_RAMPJUMP 		128
-#define RAT_ALLOWBRIGHTSKINS 	256
-#define RAT_FRIENDSWALLHACK 	512
-#define RAT_SPECSHOWZOOM 	1024
-#define RAT_BRIGHTSHELL 	2048
-#define RAT_NEWSHOTGUN 		4096
-#define RAT_ADDITIVEJUMP 	8192
-#define RAT_NOTIMENUDGE 	16384
-#define RAT_FLAGINDICATOR 	32768
-#define RAT_REGULARFOOTSTEPS 	65536
+#define RAT_EASYPICKUP		(1 << 0)
+#define RAT_POWERUPGLOWS 	(1 << 1)
+#define RAT_SCREENSHAKE 	(1 << 2)
+#define RAT_PREDICTMISSILES 	(1 << 3)
+#define RAT_FASTSWITCH 		(1 << 4)
+#define RAT_FASTWEAPONS 	(1 << 5)
+#define RAT_RATPHYSICS 		(1 << 6)
+#define RAT_RAMPJUMP 		(1 << 7)
+#define RAT_ALLOWBRIGHTSKINS 	(1 << 8)
+#define RAT_FRIENDSWALLHACK 	(1 << 9)
+#define RAT_SPECSHOWZOOM 	(1 << 10)
+#define RAT_BRIGHTSHELL 	(1 << 11)
+#define RAT_NEWSHOTGUN 		(1 << 12)
+#define RAT_ADDITIVEJUMP 	(1 << 13)
+#define RAT_NOTIMENUDGE 	(1 << 14)
+#define RAT_FLAGINDICATOR 	(1 << 15)
+#define RAT_REGULARFOOTSTEPS 	(1 << 16)
+#define RAT_NOINVISWALLS 	(1 << 17)
 
 #define MAX_RAT_SAY_TEXT 256
 

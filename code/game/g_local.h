@@ -1251,6 +1251,7 @@ extern  vmCvar_t        g_allowTimenudge;
 extern  vmCvar_t        g_fastSwitch;
 extern  vmCvar_t        g_fastWeapons;
 extern  vmCvar_t        g_regularFootsteps;
+extern  vmCvar_t        g_passThroughInvisWalls;
 extern  vmCvar_t        g_ambientSound;
 extern  vmCvar_t        g_rocketSpeed;
 extern  vmCvar_t        g_maxExtrapolatedFrames;

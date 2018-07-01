@@ -189,6 +189,7 @@ vmCvar_t        g_allowTimenudge;
 vmCvar_t        g_fastSwitch;
 vmCvar_t        g_fastWeapons;
 vmCvar_t        g_regularFootsteps;
+vmCvar_t        g_passThroughInvisWalls;
 vmCvar_t        g_ambientSound; 
 vmCvar_t        g_rocketSpeed; 
 vmCvar_t        g_maxExtrapolatedFrames; 
@@ -467,6 +468,8 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_fastSwitch,   "g_fastSwitch", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_fastWeapons,  "g_fastWeapons", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_regularFootsteps,  "g_regularFootsteps", "1", CVAR_ARCHIVE, 0, qfalse },
+	// TODO: CVAR_ARCHIVE
+	{ &g_passThroughInvisWalls,  "g_passThroughInvisWalls", "0", 0, 0, qtrue },
 	{ &g_allowTimenudge,     "g_allowTimenudge", "1", CVAR_ARCHIVE, 0, qfalse },
 
         { &g_autoClans, "g_autoClans", "0", CVAR_ARCHIVE , 0, qfalse },
@@ -1141,6 +1144,10 @@ void G_UpdateRatFlags( void ) {
 		rflags |= RAT_REGULARFOOTSTEPS;
 	}
 
+	if (g_passThroughInvisWalls.integer) {
+		rflags |= RAT_NOINVISWALLS;
+	}
+
 	// XXX --> also update code where this is called!
 
 	trap_Cvar_Set("g_ratFlags",va("%i",rflags));
@@ -1233,6 +1240,7 @@ void G_UpdateCvars( void ) {
 						|| cv->vmCvar == &g_additiveJump
 						|| cv->vmCvar == &g_friendsFlagIndicator
 						|| cv->vmCvar == &g_regularFootsteps
+						|| cv->vmCvar == &g_passThroughInvisWalls
 						) {
 					updateRatFlags = qtrue;
 				}
