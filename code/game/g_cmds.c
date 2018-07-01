@@ -1793,6 +1793,7 @@ void Cmd_Drop_f( gentity_t *ent ) {
 
 }
 
+
 void Cmd_PlaceToken_f( gentity_t *ent ) {
 	gentity_t *token = NULL;
 	gitem_t *item;
@@ -1825,8 +1826,7 @@ void Cmd_PlaceToken_f( gentity_t *ent ) {
 	token = LaunchItem(item, ent->s.pos.trBase, velocity);
 	token->think = NULL;
 	token->nextthink = 0;
-	//token->health = 100;
-	//token->takedamage = qtrue;
+
 
 	token->spawnflags = ent->client->sess.sessionTeam;
 	token->s.generic1 = 0;

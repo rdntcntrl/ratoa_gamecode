@@ -991,6 +991,7 @@ void ShuffleTeams(void);
 //KK-OAX Added for Command Handling Changes (r24)
 team_t G_TeamFromString( char *str );
 void G_SendTeamPlayerCounts(void);
+void Token_die(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod);
 
 //KK-OAX Removed these in Code in favor of bg_alloc.c from Tremulous
 // g_mem.c

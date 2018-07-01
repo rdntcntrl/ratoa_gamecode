@@ -1120,6 +1120,18 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 				&& mod != MOD_FALLING && mod != MOD_SUICIDE && mod != MOD_TELEFRAG && mod != MOD_SUICIDE) {
 			return;
 		}
+	} else if (g_gametype.integer == GT_TREASURE_HUNTER) {
+		if (attacker && attacker->client) {
+			if (targ->client && !OnSameTeam(targ, attacker)) {
+				// don't do any damage to enemy players
+				return;
+			} else if (targ->s.eType == ET_ITEM 
+					&& targ->item 
+					&& targ->item->giType == IT_TEAM 
+					&& targ->spawnflags == attacker->client->sess.sessionTeam) {
+				return;
+			}
+		}
 	}
 
 	if ( targ->client && mod != MOD_JUICED) {

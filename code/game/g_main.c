@@ -3187,19 +3187,39 @@ qboolean ScheduleTreasureHunterRound( void ) {
 	return qtrue;
 }
 
+void UpdateToken(gentity_t *token, qboolean vulnerable) {
+	if (vulnerable) {
+		token->s.generic1 = 1;
+
+		// only if tokens are shootable
+		token->health = 50;
+		token->die = Token_die;
+		token->takedamage = qtrue;
+		token->r.contents |= CONTENTS_CORPSE;
+	} else {
+		token->s.generic1 = 0;
+
+		// only if tokens are shootable
+		token->health = 50;
+		token->die = NULL;
+		token->takedamage = qfalse;
+		token->r.contents &= ~CONTENTS_CORPSE;
+	}
+}
+
 void UpdateTreasureVisibility( qboolean hiddenFromEnemy ) {
 	gentity_t	*token;
-	int collectible = hiddenFromEnemy ? 0 : 1;
 
 	token = NULL;
 	while ((token = G_Find (token, FOFS(classname), "item_redcube")) != NULL) {
 		token->r.singleClient = hiddenFromEnemy ? level.th_redClientMask : level.th_redClientMask | level.th_blueClientMask;
-		token->s.generic1 = collectible;
+		UpdateToken(token, !hiddenFromEnemy);
+
 	}
 	token = NULL;
 	while ((token = G_Find (token, FOFS(classname), "item_bluecube")) != NULL) {
 		token->r.singleClient = hiddenFromEnemy ? level.th_blueClientMask : level.th_blueClientMask | level.th_redClientMask;
-		token->s.generic1 = collectible;
+		UpdateToken(token, !hiddenFromEnemy);
 	}
 }
 

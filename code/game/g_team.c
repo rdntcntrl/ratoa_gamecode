@@ -2347,3 +2347,19 @@ void ShuffleTeams(void) {
 
 }
 
+
+void Token_die(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod) {
+	if (self->spawnflags == TEAM_RED) {
+		AddTeamScore(level.intermission_origin, TEAM_BLUE, 1);
+		if (attacker && attacker->client) {
+			AddScore(attacker, self->r.currentOrigin, 3);
+		}
+	} else if (self->spawnflags == TEAM_BLUE) {
+		AddTeamScore(level.intermission_origin, TEAM_RED, 1);
+		if (attacker && attacker->client) {
+			AddScore(attacker, self->r.currentOrigin, 3);
+		}
+	}
+	G_FreeEntity(self);
+}
+
