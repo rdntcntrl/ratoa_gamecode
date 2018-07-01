@@ -41,6 +41,9 @@ float	pm_airaccelerate = 1.0f;
 float	pm_wateraccelerate = 4.0f;
 float	pm_flyaccelerate = 8.0f;
 
+float	pm_rat_accelerate = 14.0f;
+float	pm_rat_airaccelerate = 2.4f;
+
 float	pm_friction = 6.0f;
 float	pm_waterfriction = 1.0f;
 float	pm_flightfriction = 3.0f;
@@ -615,6 +618,23 @@ static void PM_FlyMove( void ) {
 	PM_StepSlideMove( qfalse );
 }
 
+static float PM_GetAccelerate(void) {
+	switch (g_ratPhysics.integer) {
+		case 1:
+			return pm_rat_accelerate;
+			break;
+	}
+	return pm_accelerate;
+}
+
+static float PM_GetAirAccelerate(void) {
+	switch (g_ratPhysics.integer) {
+		case 1:
+			return pm_rat_airaccelerate;
+	}
+	return pm_airaccelerate;
+}
+
 
 /*
 ===================
@@ -630,7 +650,7 @@ static void PM_AirMove( void ) {
 	float		wishspeed;
 	float		scale;
 	usercmd_t	cmd;
-	float		accel = pm_airaccelerate;
+	float		accel = PM_GetAirAccelerate();
 
 	PM_Friction();
 
@@ -659,7 +679,6 @@ static void PM_AirMove( void ) {
 	wishspeed *= scale;
 
 	if (g_ratPhysics.integer == 1) {
-		accel = 2.5f;
 		if (fmove == 0 && smove != 0) {
 			if (wishspeed > 42.0) {
 				wishspeed = 42.0;
@@ -824,19 +843,21 @@ static void PM_WalkMove( void ) {
 	if ( pm->waterlevel ) {
 		float	waterScale;
 
-		waterScale = pm->waterlevel / 3.0;
-		waterScale = 1.0 - ( 1.0 - pm_swimScale ) * waterScale;
-		if ( wishspeed > pm->ps->speed * waterScale ) {
-			wishspeed = pm->ps->speed * waterScale;
+		if (g_ratPhysics.integer != 1 || pm->waterlevel != 1) {
+			waterScale = pm->waterlevel / 3.0;
+			waterScale = 1.0 - ( 1.0 - pm_swimScale ) * waterScale;
+			if ( wishspeed > pm->ps->speed * waterScale ) {
+				wishspeed = pm->ps->speed * waterScale;
+			}
 		}
 	}
 
 	// when a player gets hit, they temporarily lose
 	// full control, which allows them to be moved a bit
 	if ( ( pml.groundTrace.surfaceFlags & SURF_SLICK ) || pm->ps->pm_flags & PMF_TIME_KNOCKBACK ) {
-		accelerate = pm_airaccelerate;
+		accelerate = PM_GetAirAccelerate();
 	} else {
-		accelerate = pm_accelerate;
+		accelerate = PM_GetAccelerate();
 	}
 
 	PM_Accelerate (wishdir, wishspeed, accelerate);
@@ -952,7 +973,7 @@ static void PM_NoclipMove( void ) {
 	wishspeed = VectorNormalize(wishdir);
 	wishspeed *= scale;
 
-	PM_Accelerate( wishdir, wishspeed, pm_accelerate );
+	PM_Accelerate( wishdir, wishspeed, PM_GetAccelerate() );
 
 	// move
 	VectorMA (pm->ps->origin, pml.frametime, pm->ps->velocity, pm->ps->origin);
