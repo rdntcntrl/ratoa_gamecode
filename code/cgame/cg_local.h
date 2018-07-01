@@ -1246,6 +1246,11 @@ typedef struct {
 	int				roundStartTime;	
 	int				roundtime;
 
+// Treasure Hunter
+	treasurehunter_t th_phase;
+	int th_roundStart;
+	int th_roundDuration;
+
 //CTF Elimination
 	int				attackingTeam;
 

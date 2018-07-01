@@ -1455,6 +1455,121 @@ Lots of stuff
 	return y + BIGCHAR_HEIGHT + 4;
 }
 
+/*
+=================
+CG_DrawTreasureHuntTimer
+=================
+*/
+static float CG_DrawTreasureHuntTimer( float y ) {
+	char		*s, *phase;
+	int			w;
+	int			mins, seconds, sec;
+	int			msec = -1;
+	vec4_t			*color;
+	const char	*st;
+	int cw;
+	int rst;
+
+
+	rst = cgs.th_roundStart;
+
+	//default color is white
+	color = &g_color_table[ColorIndex(COLOR_WHITE)];
+
+	if (rst == 0) {
+		return y;
+	}
+
+	switch (cgs.th_phase) {
+		case TH_INIT:
+		case TH_HIDE:
+			phase = "Hiding";
+			break;
+		case TH_INTER:
+		case TH_SEEK:
+			phase = "Seeking";
+			break;
+		default:
+			return y;
+			break;
+	}
+
+	//msec = cg.time - cgs.levelStartTime;
+	if(cg.time > rst) { //We are started
+		if (cgs.th_roundDuration > 0) {
+			msec = cgs.th_roundDuration*1000 - (cg.time - rst);
+			if(msec<=30*1000-1) //<= 30 seconds
+				color = &g_color_table[ColorIndex(COLOR_YELLOW)];
+			if(msec<=10*1000-1) //<= 10 seconds
+				color = &g_color_table[ColorIndex(COLOR_RED)];
+			msec += 1000; //120-1 instead of 119-0
+		}
+	}
+	else
+	{
+		//Warmup
+		msec = - cg.time + rst;
+		color = &g_color_table[ColorIndex(COLOR_GREEN)];
+		sec = msec/1000;
+		msec += 1000; //5-1 instead of 4-0
+
+		if(cg.warmup == 0)
+		{
+			st = va( "%s in: %i", phase,sec + 1 );
+			if ( sec != cg.warmupCount ) {
+				cg.warmupCount = sec;
+				switch ( sec ) {
+					case 0:
+						trap_S_StartLocalSound( cgs.media.count1Sound, CHAN_ANNOUNCER );
+						break;
+					case 1:
+						trap_S_StartLocalSound( cgs.media.count2Sound, CHAN_ANNOUNCER );
+						break;
+					case 2:
+						trap_S_StartLocalSound( cgs.media.count3Sound, CHAN_ANNOUNCER );
+						break;
+					default:
+						break;
+				}
+			} 
+			switch ( cg.warmupCount ) {
+				case 0:
+					cw = 28;
+					break;
+				case 1:
+					cw = 24;
+					break;
+				case 2:
+					cw = 20;
+					break;
+				default:
+					cw = 16;
+					break;
+			}
+
+
+			w = CG_DrawStrlen( st );
+			CG_DrawStringExt( 320 - w * cw/2, 70, st, colorWhite,
+					qfalse, qtrue, cw, (int)(cw * 1.5), 0 );
+		}
+	}
+
+	seconds = msec / 1000;
+	mins = seconds / 60;
+	seconds -= mins * 60;
+
+
+	if(msec>=0)
+		s = va( "%.1s %i:%02i", phase, mins, seconds );
+	else
+		s = va( "%s", phase);
+	w = CG_DrawStrlen( s ) * BIGCHAR_WIDTH;
+	
+	CG_DrawBigStringColor( 635 - w, y + 2, s, *color);
+
+	return y + BIGCHAR_HEIGHT + 4;
+}
+
 
 static void CG_DrawHealthBar(float x, float y, float width, float height, int health, int armor) {
 	int hp = CG_GetTotalHitPoints(health, armor);
@@ -1841,6 +1956,10 @@ static void CG_DrawUpperRight(stereoFrame_t stereoFrame)
 		y = CG_DrawEliminationTimer( y );
 		/*if (cgs.clientinfo[ cg.clientNum ].isDead)
 			y = CG_DrawEliminationDeathMessage( y);*/
+	}
+
+	if (cgs.gametype==GT_TREASURE_HUNTER) {
+		y = CG_DrawTreasureHuntTimer( y );
 	}
 
 	//y = CG_DrawFollowMessage( y );
