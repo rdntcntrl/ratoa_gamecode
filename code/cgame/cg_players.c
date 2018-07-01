@@ -2535,9 +2535,11 @@ void CG_AddRefEntityWithPowerups( refEntity_t *ent, entityState_t *state, int te
 		if(!isMissile && 
 				((cgs.ratFlags & RAT_BRIGHTSHELL && cg_brightShells.integer) && 
 				 (ci && !ci->forcedBrightModel ))) {
+			byte alpha_save = ent->shaderRGBA[3];
 			       	//&& !(state->eFlags & EF_DEAD)  ) {
 			ent->shaderRGBA[3] = CG_GetBrightShellAlpha();
 			ent->customShader = cgs.media.brightShell;
+			ent->shaderRGBA[3] = alpha_save;
 			trap_R_AddRefEntityToScene( ent );
 		}
 		

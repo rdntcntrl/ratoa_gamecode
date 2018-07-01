@@ -1080,7 +1080,7 @@ void CG_UpdateCvars( void ) {
 	}
 	i = cg_enemyModel.modificationCount + cg_teamModel.modificationCount;
 	if ( enemyTeamModelModificationCounts != i ) {
-		enemySoundModificationCount = i;
+		enemyTeamModelModificationCounts = i;
 		CG_ForceModelChange();
 	}
 	if ( mySoundModificationCount != cg_mySound.modificationCount
