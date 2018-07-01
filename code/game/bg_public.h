@@ -776,6 +776,14 @@ qboolean	BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const play
 
 #define MAX_RAT_SAY_TEXT 256
 
+// for treasure hunter
+typedef enum {
+	TH_INIT,
+	TH_HIDE,
+	TH_INTER,
+	TH_SEEK,
+} treasurehunter_t;
+
 // content masks
 #define	MASK_ALL				(-1)
 #define	MASK_SOLID				(CONTENTS_SOLID)

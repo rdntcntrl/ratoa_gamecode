@@ -608,10 +608,11 @@ typedef struct {
 	int th_round;
 	int th_roundFinished;
 	int th_hideTime;
-	qboolean th_hideActive;
-	qboolean th_hideFinished;
+	//qboolean th_hideActive;
+	//qboolean th_hideFinished;
+	//qboolean th_seekActive;
+	treasurehunter_t th_phase;
 	int th_seekTime;
-	qboolean th_seekActive;
 	int th_redClientMask;
 	int th_blueClientMask;
 	int th_specClientMask;
@@ -932,6 +933,7 @@ void DominationPointNamesMessage (gentity_t *client);
 void DominationPointStatusMessage( gentity_t *ent );
 void ChallengeMessage( gentity_t *ent, int challengeNumber );
 void SendCustomVoteCommands(int clientNum);
+void TreasureHuntMessage(gentity_t *ent);
 
 //
 // g_pweapon.c
@@ -952,6 +954,7 @@ void SendScoreboardMessageToAllClients( void );
 void SendEliminationMessageToAllClients( void );
 void SendDDtimetakenMessageToAllClients( void );
 void SendDominationPointsStatusMessageToAllClients( void );
+void SendTreasureHuntMessageToAllClients( void );
 void SendYourTeamMessageToTeam( team_t team );
 void QDECL G_Printf( const char *fmt, ... );
 void QDECL G_Error( const char *fmt, ... ) __attribute__((noreturn));

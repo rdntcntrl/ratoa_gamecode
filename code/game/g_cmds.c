@@ -400,23 +400,32 @@ void DominationPointNamesMessage( gentity_t *ent ) {
 	trap_SendServerCommand( ent-g_entities, va("dompointnames %i \"%s\"", level.domination_points_count, text));
 }
 
-///*
-//==================
-//TreasureHuntMessage
-//
-//==================
-//*/
-//
-//void TreasureHuntMessage(gentity_t *ent) {
-//	trap_SendServerCommand( ent-g_entities, va("treasureHunt %i %i %i",
-//				g_treasureHideTime.integer,
-//				g_treasureSeekTime.integer,
-//				level.th_hideTime,
-//				level.th_seekTime,
-//				level.th_hideActive ? 1 : 0,
-//				level.th_seekActive ? 1 : 0,
-//				) )
-//}
+/*
+==================
+TreasureHuntMessage
+
+==================
+*/
+void TreasureHuntMessage(gentity_t *ent) {
+	switch (level.th_phase) {
+		case TH_INIT:
+		case TH_HIDE:
+			trap_SendServerCommand( ent-g_entities, va("treasureHunt %i %i %i",
+						level.th_phase,
+						g_treasureHideTime.integer,
+						level.th_hideTime
+						) );
+			break;
+		case TH_INTER:
+		case TH_SEEK:
+			trap_SendServerCommand( ent-g_entities, va("treasureHunt %i %i %i",
+						level.th_phase,
+						g_treasureSeekTime.integer,
+						level.th_seekTime
+						) );
+			break;
+	}
+}
 
 /*
 ==================
@@ -1827,7 +1836,7 @@ void Cmd_PlaceToken_f( gentity_t *ent ) {
 		return;
 	}
 
-	if (!level.th_hideActive) {
+	if (level.th_phase != TH_HIDE) {
 		trap_SendServerCommand( ent - g_entities, "cp \"Can only drop tokens \nduring the hiding phase!\n");
 		return;
 	}

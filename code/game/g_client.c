@@ -2013,6 +2013,10 @@ void ClientBegin( int clientNum ) {
 		G_SendSpawnpoints( ent );
 	}
 
+	if (g_gametype.integer == GT_TREASURE_HUNTER) {
+		TreasureHuntMessage(ent);
+	}
+
 }
 
 /*

@@ -962,7 +962,7 @@ void Team_DD_makeB2team( gentity_t *target, int team ) {
 }
 
 void Team_TH_TokenDestroyed( gentity_t *ent ) {
-	if (level.th_hideActive && ent->parent && ent->parent->inuse) {
+	if (level.th_phase == TH_HIDE && ent->parent && ent->parent->inuse) {
 		gentity_t *player = ent->parent;
 		if (player->client && player->client->pers.connected  == CON_CONNECTED &&
 				player->client->sess.sessionTeam != TEAM_SPECTATOR) {
@@ -1479,7 +1479,7 @@ int Pickup_Team( gentity_t *ent, gentity_t *other ) {
 	}
 
 	if( g_gametype.integer == GT_TREASURE_HUNTER ) {
-		if (!level.th_seekActive) {
+		if (level.th_phase != TH_SEEK) {
 			return 0;
 		}
 		// the only team items that can be picked up in treasure hunter are the tokens
@@ -2361,7 +2361,7 @@ void ShuffleTeams(void) {
 
 
 void Token_die(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod) {
-	if (level.th_hideActive) {
+	if (level.th_phase == TH_HIDE) {
 		Team_TH_TokenDestroyed(self);
 		return;
 	}

@@ -1046,11 +1046,11 @@ qboolean G_TreasureHuntDamage( gentity_t *targ, gentity_t *attacker, int mod ) {
 			&& targ->item->giType == IT_TEAM) {
 		if (g_treasureTokensDestructible.integer 
 				&& targ->spawnflags != attacker->client->sess.sessionTeam
-				&& level.th_seekActive) {
+				&& level.th_phase == TH_SEEK) {
 			// only allow enemies to attack cubes during seek time
 			return qtrue;
 		} else if (targ->spawnflags == attacker->client->sess.sessionTeam
-				&& level.th_hideActive
+				&& level.th_phase == TH_HIDE
 				&& targ->parent == attacker
 				&& (mod == MOD_MACHINEGUN || mod == MOD_SHOTGUN || mod == MOD_GAUNTLET 
 						|| mod == MOD_RAILGUN || mod == MOD_LIGHTNING || mod == MOD_CHAINGUN)) {
