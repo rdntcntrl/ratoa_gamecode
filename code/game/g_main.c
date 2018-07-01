@@ -111,6 +111,8 @@ vmCvar_t	g_treasureTokens;
 vmCvar_t	g_treasureHideTime;
 vmCvar_t	g_treasureSeekTime;
 vmCvar_t	g_treasureRounds;
+vmCvar_t	g_treasureTokensDestructible;
+vmCvar_t	g_treasureTokenHealth;
 
 vmCvar_t	g_enableDust;
 vmCvar_t	g_enableBreath;
@@ -421,6 +423,8 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_treasureHideTime, "g_treasureHideTime", "180", CVAR_ARCHIVE, 0, qfalse },
 	{ &g_treasureSeekTime, "g_treasureSeekTime", "600", CVAR_ARCHIVE, 0, qfalse },
 	{ &g_treasureRounds, "g_treasureRounds", "5", CVAR_ARCHIVE, 0, qfalse },
+	{ &g_treasureTokenHealth, "g_treasureTokenHealth", "50", CVAR_ARCHIVE, 0, qfalse },
+	{ &g_treasureTokensDestructible, "g_treasureTokensDestructible", "1", CVAR_ARCHIVE, 0, qfalse },
 
 	{ &g_enableDust, "g_enableDust", "0", 0, 0, qtrue, qfalse },
 	{ &g_enableBreath, "g_enableBreath", "0", 0, 0, qtrue, qfalse },
@@ -3191,10 +3195,12 @@ void UpdateToken(gentity_t *token, qboolean vulnerable) {
 	if (vulnerable) {
 		token->s.generic1 = 1;
 
-		// only if tokens are shootable
-		token->die = Token_die;
-		token->takedamage = qtrue;
-		token->r.contents |= CONTENTS_CORPSE;
+		if (g_treasureTokensDestructible.integer) {
+			// only if tokens are shootable
+			token->die = Token_die;
+			token->takedamage = qtrue;
+			token->r.contents |= CONTENTS_CORPSE;
+		}
 	} else {
 		token->s.generic1 = 0;
 
@@ -3374,7 +3380,7 @@ void CheckTreasureHunter(void) {
 		int leftover_tokens_red = CountPlayerTokens(TEAM_RED);
 		int leftover_tokens_blue = CountPlayerTokens(TEAM_BLUE);
 		char *s = NULL;
-		
+
 		if (g_treasureHideTime.integer > 0 && level.time >= level.th_hideTime + g_treasureHideTime.integer * 1000)  {
 			s = "Time is up!";
 		} else if (leftover_tokens_red + leftover_tokens_blue == 0)  {

@@ -1827,7 +1827,7 @@ void Cmd_PlaceToken_f( gentity_t *ent ) {
 	token->think = NULL;
 	token->nextthink = 0;
 
-	token->health = 50;
+	token->health = g_treasureTokenHealth.integer;
 
 	token->spawnflags = ent->client->sess.sessionTeam;
 	token->s.generic1 = 0;
