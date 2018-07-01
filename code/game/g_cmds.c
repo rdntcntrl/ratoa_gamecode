@@ -221,6 +221,7 @@ void DeathmatchScoreboardMessageSplit( gentity_t *ent ) {
 void DeathmatchScoreboardMessageAuto(gentity_t *ent) {
 	if (g_usesRatVM.integer > 0 || G_MixedClientHasRatVM(ent->client)) {
 		if (g_useExtendedScores.integer) {
+			AccMessage(ent);
 			DeathmatchScoreboardMessageSplit(ent);
 		} else {
 			DeathmatchScoreboardMessage(ent, qtrue);
