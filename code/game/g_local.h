@@ -177,6 +177,7 @@ struct gentity_s {
 	int			count;
 
 	int			dropTime;
+	int			dropClientNum;
 
 	gentity_t	*chain;
 	gentity_t	*enemy;

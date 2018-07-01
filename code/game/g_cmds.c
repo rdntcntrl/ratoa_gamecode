@@ -1741,6 +1741,7 @@ void Cmd_Drop_f( gentity_t *ent ) {
 	}
 	
 	if (item != NULL) {
+		item->dropClientNum = ent->client->ps.clientNum;
 		item->dropTime = level.time;
 		item->s.time = level.time; // so client can know about it and avoid predicting pickup
 	}
