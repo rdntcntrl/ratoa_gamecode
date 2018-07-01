@@ -1510,14 +1510,11 @@ extern vmCvar_t			cg_teamSound;
 extern vmCvar_t			cg_enemySound;
 
 extern vmCvar_t			cg_brightShells;
+extern vmCvar_t			cg_brightShellAlpha;
 
 
 extern vmCvar_t			cg_enemyModel;
 extern vmCvar_t			cg_teamModel;
-
-extern vmCvar_t			cg_teamHueBlue;
-extern vmCvar_t			cg_teamHueDefault;
-extern vmCvar_t			cg_teamHueRed;
 
 extern vmCvar_t			cg_teamHueBlue;
 extern vmCvar_t			cg_teamHueDefault;
@@ -1814,6 +1811,7 @@ int CG_GetTotalHitPoints(int health, int armor);
 void CG_PlayerAutoHeadColor(clientInfo_t *ci, byte *outColor);
 void CG_FloatColorToRGBA(float *color, byte *out);
 void CG_ParseForcedColors( void );
+byte CG_GetBrightShellAlpha(void);
 
 //
 // cg_predict.c

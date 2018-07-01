@@ -2498,6 +2498,10 @@ static void CG_PlayerSplash( centity_t *cent ) {
 	trap_R_AddPolyToScene( cgs.media.wakeMarkShader, 4, verts );
 }
 
+byte CG_GetBrightShellAlpha(void) {
+	// 0.8 is the maximum allowed alpha
+	return (byte)0xff * MAX(MIN(cg_brightShellAlpha.value, 0.7), 0.1);
+}
 
 
 /*
@@ -2656,6 +2660,7 @@ void CG_AddRefEntityWithPowerups( refEntity_t *ent, entityState_t *state, int te
 				((cgs.ratFlags & RAT_BRIGHTSHELL && cg_brightShells.integer) && 
 				 (ci && !ci->forcedBrightModel ))) {
 			       	//&& !(state->eFlags & EF_DEAD)  ) {
+			ent->shaderRGBA[3] = CG_GetBrightShellAlpha();
 			ent->customShader = cgs.media.brightShell;
 			trap_R_AddRefEntityToScene( ent );
 		}
@@ -3172,7 +3177,7 @@ void CG_Player( centity_t *cent ) {
 	CG_PlayerGetColors(ci, cent->currentState.eFlags & EF_DEAD ? qtrue : qfalse, playercolor);
 	memcpy(&legs.shaderRGBA, playercolor, sizeof(playercolor));
 	memcpy(&torso.shaderRGBA, playercolor, sizeof(playercolor));
-	if ((cgs.ratFlags & RAT_ALLOWBRIGHTSKINS || (cgs.ratFlags & RAT_BRIGHTSHELL && (cgs.gametype >= GT_TEAM || cgs.ffa_gt != 1))) 
+	if ((ci->forcedBrightModel || (cgs.ratFlags & RAT_BRIGHTSHELL && cg_brightShells.integer && cgs.gametype != GT_FFA))
 			&& ci->team != TEAM_SPECTATOR &&
 			( (cg_teamHeadColorAuto.integer && ci->team == cg.snap->ps.persistant[PERS_TEAM])
 			  || (cg_enemyHeadColorAuto.integer && ci->team != cg.snap->ps.persistant[PERS_TEAM])

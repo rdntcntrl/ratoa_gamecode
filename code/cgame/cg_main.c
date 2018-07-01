@@ -262,13 +262,10 @@ vmCvar_t	cg_teamSound;
 vmCvar_t	cg_enemySound;
 
 vmCvar_t	cg_brightShells;
+vmCvar_t	cg_brightShellAlpha;
 
 vmCvar_t	cg_enemyModel;
 vmCvar_t	cg_teamModel;
-
-vmCvar_t	cg_teamHueBlue;
-vmCvar_t	cg_teamHueDefault;
-vmCvar_t	cg_teamHueRed;
 
 vmCvar_t	cg_teamHueBlue;
 vmCvar_t	cg_teamHueDefault;
@@ -634,6 +631,7 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_enemySound ,  "cg_enemySound", "", CVAR_ARCHIVE},
 
 	{ &cg_brightShells ,     "cg_brightShells", "1", CVAR_ARCHIVE},
+	{ &cg_brightShellAlpha , "cg_brightShellAlpha", "1.0", CVAR_ARCHIVE},
 
 	{ &cg_enemyModel ,     "cg_enemyModel", "smarine/bright", CVAR_ARCHIVE},
 	{ &cg_teamModel ,      "cg_teamModel", "sarge/bright", CVAR_ARCHIVE},
