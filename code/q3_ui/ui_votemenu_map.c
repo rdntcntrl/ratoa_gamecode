@@ -429,7 +429,6 @@ void UI_VoteMapMenu_Update( void ) {
 	int				i;
 	int 		top;
 	static	char	picname[MAX_MAPSPERPAGE][64];
-        const char		*info;
 	char			mapname[MAX_MAPNAME_LENGTH];
 
 	top = s_votemenu_map.pagenum * MAX_MAPSPERPAGE;

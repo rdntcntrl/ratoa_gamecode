@@ -108,7 +108,7 @@ void Main_MenuEvent (void* ptr, int event) {
 		UI_ArenaServersMenu();
             else
                 UI_FirstConnectMenu();
-		break;
+	    break;
 
 	case ID_SETUP:
 		UI_SetupMenu();

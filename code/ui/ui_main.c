@@ -95,35 +95,35 @@ static const char *teamArenaGameTypes[] = {
 static int const numTeamArenaGameTypes = sizeof(teamArenaGameTypes) / sizeof(const char*);
 
 
-static const char *teamArenaGameNames[] = {
-	"Free For All",
-	"Tournament",
-	"Single Player",
-	"Team Deathmatch",
-	"Capture the Flag",
-	"One Flag CTF",
-	"Overload",
-	"Harvester",
-	"Elimination",
-	"CTF Elimination",
-	"Last Man Standing",
-	"Double Domination",
-        "Domination"
-};
-
-static int const numTeamArenaGameNames = sizeof(teamArenaGameNames) / sizeof(const char*);
+//static const char *teamArenaGameNames[] = {
+//	"Free For All",
+//	"Tournament",
+//	"Single Player",
+//	"Team Deathmatch",
+//	"Capture the Flag",
+//	"One Flag CTF",
+//	"Overload",
+//	"Harvester",
+//	"Elimination",
+//	"CTF Elimination",
+//	"Last Man Standing",
+//	"Double Domination",
+//        "Domination"
+//};
+//
+//static int const numTeamArenaGameNames = sizeof(teamArenaGameNames) / sizeof(const char*);
 
 
 static const int numServerFilters = sizeof(serverFilters) / sizeof(serverFilter_t);
 
-static const char *sortKeys[] = {
-	"Server Name",
-	"Map Name",
-	"Open Player Spots",
-	"Game Type",
-	"Ping Time"
-};
-static const int numSortKeys = sizeof(sortKeys) / sizeof(const char*);
+//static const char *sortKeys[] = {
+//	"Server Name",
+//	"Map Name",
+//	"Open Player Spots",
+//	"Game Type",
+//	"Ping Time"
+//};
+//static const int numSortKeys = sizeof(sortKeys) / sizeof(const char*);
 
 static char* netnames[] = {
 	"???",
@@ -4227,7 +4227,7 @@ static void UI_BuildFindPlayerList(qboolean force) {
 	else {
 		// add a line that shows the number of servers found
 		if (!uiInfo.numFoundPlayerServers) {
-			Com_sprintf(uiInfo.foundPlayerServerNames[uiInfo.numFoundPlayerServers-1], sizeof(uiInfo.foundPlayerServerAddresses[0]), "no servers found");
+			Com_sprintf(uiInfo.foundPlayerServerNames[0], sizeof(uiInfo.foundPlayerServerAddresses[0]), "no servers found");
 		}
 		else {
 			Com_sprintf(uiInfo.foundPlayerServerNames[uiInfo.numFoundPlayerServers-1], sizeof(uiInfo.foundPlayerServerAddresses[0]),
@@ -5109,7 +5109,6 @@ UI_Init
 */
 void _UI_Init( qboolean inGameLoad ) {
 	const char *menuSet;
-	int start;
 
 	//uiInfo.inGameLoad = inGameLoad;
 
@@ -5193,7 +5192,6 @@ void _UI_Init( qboolean inGameLoad ) {
 
 	AssetCache();
 
-	start = trap_Milliseconds();
 
   uiInfo.teamCount = 0;
   uiInfo.characterCount = 0;
