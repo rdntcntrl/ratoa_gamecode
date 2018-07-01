@@ -340,7 +340,7 @@ void CG_Draw3DHead( float x, float y, float w, float h, qhandle_t model, qhandle
 	ent.customSkin = skin;
 	ent.renderfx = RF_NOSHADOW;		// no stencil shadows
 
-	if ((ci->forcedBrightModel || (cgs.ratFlags & RAT_BRIGHTSHELL && cg_brightShells.integer && cgs.gametype != GT_FFA ))
+	if ((ci->forcedBrightModel || (cgs.ratFlags & RAT_BRIGHTSHELL && cg_brightShells.integer && (cgs.gametype != GT_FFA || cgs.ratFlags & RAT_ALLOWBRIGHTSKINS)))
 			&& ci->team != TEAM_SPECTATOR &&
 			( (cg_teamHeadColorAuto.integer && ci->team == cg.snap->ps.persistant[PERS_TEAM])
 			  || (cg_enemyHeadColorAuto.integer && ci->team != cg.snap->ps.persistant[PERS_TEAM])

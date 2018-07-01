@@ -2925,7 +2925,7 @@ void CG_PlayerGetColors(clientInfo_t *ci, qboolean isDead, int bodyPart, byte *o
 
 	if ((!(ci->forcedBrightModel)
 			&& (cg_brightShells.integer && cgs.ratFlags & RAT_BRIGHTSHELL)
-		       ) && (cgs.gametype == GT_FFA)) {
+		       ) && (cgs.gametype == GT_FFA && !(cgs.ratFlags & RAT_ALLOWBRIGHTSKINS))) {
 		float color[4];
 		color[0] = ci->color2[0];
 		color[1] = ci->color2[1];
@@ -3200,7 +3200,7 @@ void CG_Player( centity_t *cent ) {
 
 	CG_PlayerGetColors(ci, cent->currentState.eFlags & EF_DEAD ? qtrue : qfalse, MCIDX_TORSO, torso.shaderRGBA);
 	CG_PlayerGetColors(ci, cent->currentState.eFlags & EF_DEAD ? qtrue : qfalse, MCIDX_LEGS, legs.shaderRGBA);
-	if ((ci->forcedBrightModel || (cgs.ratFlags & RAT_BRIGHTSHELL && cg_brightShells.integer && cgs.gametype != GT_FFA))
+	if ((ci->forcedBrightModel || (cgs.ratFlags & RAT_BRIGHTSHELL && cg_brightShells.integer && (cgs.gametype != GT_FFA || cgs.ratFlags & RAT_ALLOWBRIGHTSKINS)))
 			&& ci->team != TEAM_SPECTATOR &&
 			( (cg_teamHeadColorAuto.integer && ci->team == cg.snap->ps.persistant[PERS_TEAM])
 			  || (cg_enemyHeadColorAuto.integer && ci->team != cg.snap->ps.persistant[PERS_TEAM])
