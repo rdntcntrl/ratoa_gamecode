@@ -1453,7 +1453,7 @@ static void CG_RegisterGraphics( void ) {
 	cgs.media.smokePuffRageProShader = trap_R_RegisterShader( "smokePuffRagePro" );
 	cgs.media.plasmaTrailShader = trap_R_RegisterShader( "plasmaTrail" );
 	cgs.media.shotgunSmokePuffShader = trap_R_RegisterShader( "shotgunSmokePuff" );
-	cgs.media.nailPuffShader = trap_R_RegisterShader( "nailtrail" );
+	cgs.media.nailPuffShader = trap_R_RegisterShader( "nailtrail2" );
 	cgs.media.blueProxMine = trap_R_RegisterModel( "models/weaphits/proxmineb.md3" );
 	cgs.media.plasmaBallShader = trap_R_RegisterShader( "sprites/plasma1" );
 	cgs.media.bloodTrailShader = trap_R_RegisterShader( "bloodTrail" );
