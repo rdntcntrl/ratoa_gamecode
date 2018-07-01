@@ -1580,16 +1580,16 @@ static void CG_RegisterGraphics( void ) {
 		cgs.media.friendColorShaders[4] = trap_R_RegisterShader("sprites/friendOrange");
 		cgs.media.friendColorShaders[5] = trap_R_RegisterShader("sprites/friendRed");
 
-		cgs.media.friendThroughWallColorShaders[0] = trap_R_RegisterShader("sprites/friendIBlue.tga");
-		cgs.media.friendThroughWallColorShaders[1] = trap_R_RegisterShader("sprites/friendICyan.tga");
-		cgs.media.friendThroughWallColorShaders[2] = trap_R_RegisterShader("sprites/friendIGreen.tga");
-		cgs.media.friendThroughWallColorShaders[3] = trap_R_RegisterShader("sprites/friendIYellow.tga");
-		cgs.media.friendThroughWallColorShaders[4] = trap_R_RegisterShader("sprites/friendIOrange.tga");
-		cgs.media.friendThroughWallColorShaders[5] = trap_R_RegisterShader("sprites/friendIRed.tga");
+		cgs.media.friendThroughWallColorShaders[0] = trap_R_RegisterShaderNoMip("sprites/friendIBlue.tga");
+		cgs.media.friendThroughWallColorShaders[1] = trap_R_RegisterShaderNoMip("sprites/friendICyan.tga");
+		cgs.media.friendThroughWallColorShaders[2] = trap_R_RegisterShaderNoMip("sprites/friendIGreen.tga");
+		cgs.media.friendThroughWallColorShaders[3] = trap_R_RegisterShaderNoMip("sprites/friendIYellow.tga");
+		cgs.media.friendThroughWallColorShaders[4] = trap_R_RegisterShaderNoMip("sprites/friendIOrange.tga");
+		cgs.media.friendThroughWallColorShaders[5] = trap_R_RegisterShaderNoMip("sprites/friendIRed.tga");
 
-		cgs.media.friendFlagShaderNeutral = trap_R_RegisterShader("sprites/flagINeutral.tga");
-		cgs.media.friendFlagShaderRed = trap_R_RegisterShader("sprites/flagIRed.tga");
-		cgs.media.friendFlagShaderBlue = trap_R_RegisterShader("sprites/flagIBlue.tga");
+		cgs.media.friendFlagShaderNeutral = trap_R_RegisterShaderNoMip("sprites/flagINeutral.tga");
+		cgs.media.friendFlagShaderRed = trap_R_RegisterShaderNoMip("sprites/flagIRed.tga");
+		cgs.media.friendFlagShaderBlue = trap_R_RegisterShaderNoMip("sprites/flagIBlue.tga");
 
 		cgs.media.radarShader = trap_R_RegisterShader("radar");
 		cgs.media.radarDotShader = trap_R_RegisterShader("radardot");
