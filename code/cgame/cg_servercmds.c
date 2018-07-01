@@ -35,6 +35,8 @@ typedef struct {
 	int taskNum;
 } orderTask_t;
 
+#ifdef MISSIONPACK // bk001204
+
 static const orderTask_t validOrders[] = {
 	{ VOICECHAT_GETFLAG,						TEAMTASK_OFFENSE },
 	{ VOICECHAT_OFFENSE,						TEAMTASK_OFFENSE },
@@ -49,7 +51,6 @@ static const orderTask_t validOrders[] = {
 
 static const int numValidOrders = sizeof(validOrders) / sizeof(orderTask_t);
 
-#ifdef MISSIONPACK // bk001204
 static int CG_ValidOrder(const char *p) {
 	int i;
 	for (i = 0; i < numValidOrders; i++) {
@@ -250,7 +251,7 @@ CG_ParseRatScores2
 =================
 */
 static void CG_ParseRatScores2( void ) {
-	int		i, powerups;
+	int		i;
 	int numScores;
 
 	numScores = atoi( CG_Argv( 1 ) );

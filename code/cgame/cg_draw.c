@@ -343,8 +343,8 @@ void CG_Draw3DHead( float x, float y, float w, float h, qhandle_t model, qhandle
 	if (cgs.ratFlags & RAT_ALLOWBRIGHTSKINS) {
 		if (cg_forceBrightModels.integer && ci->team != TEAM_SPECTATOR &&
 				( cg_autoHeadColors.integer == 1  // both teams
-				  || cg_autoHeadColors.integer == 2 && ci->team != cg.snap->ps.persistant[PERS_TEAM] // only for enemies
-				  || cg_autoHeadColors.integer == 3 && ci->team == cg.snap->ps.persistant[PERS_TEAM] // only for teammates
+				  || (cg_autoHeadColors.integer == 2 && ci->team != cg.snap->ps.persistant[PERS_TEAM]) // only for enemies
+				  || (cg_autoHeadColors.integer == 3 && ci->team == cg.snap->ps.persistant[PERS_TEAM]) // only for teammates
 				)) {
 			CG_PlayerAutoHeadColor(ci, ent.shaderRGBA);
 		} else if (cg_forceBrightModels.integer) {
@@ -1346,7 +1346,7 @@ static float CG_DrawEliminationTimer( float y ) {
 	int			msec;
 	vec4_t			color;
 	const char	*st;
-	float scale;
+	//float scale;
 	int cw;
 	int rst;
 
@@ -1400,23 +1400,23 @@ Lots of stuff
 				break;
 			}
 		} 
-		scale = 0.45f;
+		//scale = 0.45f;
 		switch ( cg.warmupCount ) {
 		case 0:
 			cw = 28;
-			scale = 0.54f;
+			//scale = 0.54f;
 			break;
 		case 1:
 			cw = 24;
-			scale = 0.51f;
+			//scale = 0.51f;
 			break;
 		case 2:
 			cw = 20;
-			scale = 0.48f;
+			//scale = 0.48f;
 			break;
 		default:
 			cw = 16;
-			scale = 0.45f;
+			//scale = 0.45f;
 			break;
 		}
 
@@ -1710,20 +1710,20 @@ static float CG_DrawTeamOverlay( float y, qboolean right, qboolean upper ) {
 //#endif
 }
 
-static float CG_DrawFollowMessage( float y ) {
-	char		*s;
-	int			w;	
-
-	if ( !(cg.snap->ps.pm_flags & PMF_FOLLOW) || ( ( cgs.elimflags & EF_NO_FREESPEC ) && (cgs.gametype == GT_ELIMINATION || cgs.gametype == GT_CTF_ELIMINATION ) ) ) {
-		return y;
-	}
-
-	s = va("USE_ITEM to stop following");
-	w = CG_DrawStrlen( s ) * SMALLCHAR_WIDTH;
-	CG_DrawSmallString( 635 - w, y + 2, s, 1.0F);
-
-	return y + SMALLCHAR_HEIGHT+4;
-}
+//static float CG_DrawFollowMessage( float y ) {
+//	char		*s;
+//	int			w;	
+//
+//	if ( !(cg.snap->ps.pm_flags & PMF_FOLLOW) || ( ( cgs.elimflags & EF_NO_FREESPEC ) && (cgs.gametype == GT_ELIMINATION || cgs.gametype == GT_CTF_ELIMINATION ) ) ) {
+//		return y;
+//	}
+//
+//	s = va("USE_ITEM to stop following");
+//	w = CG_DrawStrlen( s ) * SMALLCHAR_WIDTH;
+//	CG_DrawSmallString( 635 - w, y + 2, s, 1.0F);
+//
+//	return y + SMALLCHAR_HEIGHT+4;
+//}
 
 void CG_DrawEliminationStatus(void) {
 	const char	*s;
@@ -2334,8 +2334,8 @@ CG_DrawFollow
 =================
 */
 static qboolean CG_DrawFollow( void ) {
-	float		x;
-	vec4_t		color;
+	//float		x;
+	//vec4_t		color;
 	const char	*name;
 	char string[1024];
 
@@ -2347,10 +2347,10 @@ static qboolean CG_DrawFollow( void ) {
 		return qfalse;
 	}
 
-	color[0] = 1;
-	color[1] = 1;
-	color[2] = 1;
-	color[3] = 1;
+	//color[0] = 1;
+	//color[1] = 1;
+	//color[2] = 1;
+	//color[3] = 1;
 
 
 	//CG_DrawSmallString( 320 - 9 * 8, 32, "following", 1.0F );
@@ -2465,7 +2465,8 @@ CG_DrawTeamChat
 */
 #ifndef MISSIONPACK
 static void CG_DrawTeamChat( void ) {
-	int w, h;
+	//int w, h;
+	int w;
 	int i, len;
 	vec4_t		hcolor;
 	int		chatHeight;
@@ -2489,7 +2490,7 @@ static void CG_DrawTeamChat( void ) {
 			cgs.teamLastChatPos++;
 		}
 
-		h = (cgs.teamChatPos - cgs.teamLastChatPos) * TINYCHAR_HEIGHT * cg_teamChatScaleY.value;
+		//h = (cgs.teamChatPos - cgs.teamLastChatPos) * TINYCHAR_HEIGHT * cg_teamChatScaleY.value;
 
 		w = 0;
 
@@ -2544,9 +2545,6 @@ float CG_FontResAdjust(void) {
 	return f;
 }
 
-float CG_ConsoleScaleFitFactor(float consoleSizeY, float chatSizeY) {
-}
-
 float CG_ConsoleDistortionFactorX(void) {
 	return ((cgs.screenXScale > cgs.screenYScale) ? (cgs.screenYScale / cgs.screenXScale) : 1.0);
 }
@@ -2586,7 +2584,7 @@ void CG_ConsoleUpdateIdx(console_t *console, int chatHeight) {
 
 
 static void CG_DrawGenericConsole( console_t *console, int maxlines, int time, int x, int y, float sizeX, float sizeY ) {
-	int i, j, len;
+	int i, j;
 	vec4_t	hcolor;
 	int	chatHeight;
 
@@ -3225,11 +3223,12 @@ static void CG_DrawCenterDDString( void ) {
     static int lastDDSec = -100;
 
     
-    if(cgs.gametype != GT_DOUBLE_D)
+    if (cgs.gametype != GT_DOUBLE_D) {
         return;
+    }
     
-    	statusA = cgs.redflag;
-	statusB = cgs.blueflag;
+    statusA = cgs.redflag;
+    statusB = cgs.blueflag;
     
     if( ( ( statusB == statusA ) && ( statusA == TEAM_RED ) ) ||
             ( ( statusB == statusA ) && ( statusA == TEAM_BLUE ) ) ) {
@@ -4020,7 +4019,9 @@ static void CG_DrawWarmup( void ) {
 	int			w;
 	int			sec;
 	int			i;
+#ifdef MISSIONPACK
 	float scale;
+#endif 
 	clientInfo_t	*ci1, *ci2;
 	int			cw;
 	const char	*s;
@@ -4136,23 +4137,33 @@ static void CG_DrawWarmup( void ) {
 			break;
 		}
 	}
+#ifdef MISSIONPACK
 	scale = 0.45f;
+#endif
 	switch ( cg.warmupCount ) {
 	case 0:
 		cw = 28;
+#ifdef MISSIONPACK
 		scale = 0.54f;
+#endif
 		break;
 	case 1:
 		cw = 24;
+#ifdef MISSIONPACK
 		scale = 0.51f;
+#endif
 		break;
 	case 2:
 		cw = 20;
+#ifdef MISSIONPACK
 		scale = 0.48f;
+#endif
 		break;
 	default:
 		cw = 16;
+#ifdef MISSIONPACK
 		scale = 0.45f;
+#endif
 		break;
 	}
 

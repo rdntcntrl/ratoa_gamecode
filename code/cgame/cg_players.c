@@ -1695,7 +1695,6 @@ CG_DustTrail
 */
 static void CG_DustTrail( centity_t *cent ) {
 	int				anim;
-	localEntity_t	*dust;
 	vec3_t end, vel;
 	trace_t tr;
 
@@ -1727,7 +1726,7 @@ static void CG_DustTrail( centity_t *cent ) {
 	end[2] -= 16;
 
 	VectorSet(vel, 0, 0, -30);
-	dust = CG_SmokePuff( end, vel,
+	CG_SmokePuff( end, vel,
 				  24,
 				  .8f, .8f, 0.7f, 0.33f,
 				  500,
@@ -2027,7 +2026,7 @@ CG_PlayerFloatHealth
 void CG_PlayerFloatHealth( centity_t *cent, qboolean armor ) {
 	refEntity_t	re;
 	vec3_t		origin, delta, dir, vec, up = {0, 0, 1};
-	float		c, len;
+	float		len;
 	int			i, score, digits[10], numdigits;
 	int rf;
 	//int xoffset = armor ? - 1 - 3 * HEALTHNUMBER_SIZE : 1 + 3 * HEALTHNUMBER_SIZE;
@@ -2073,8 +2072,6 @@ void CG_PlayerFloatHealth( centity_t *cent, qboolean armor ) {
 	VectorSubtract(cg.refdef.vieworg, origin, dir);
 	CrossProduct(dir, up, vec);
 	VectorNormalize(vec);
-
-	//VectorMA(origin, -10 + 20 * sin(c * 2 * M_PI), vec, origin);
 
 	// if the view would be "inside" the sprite, kill the sprite
 	// so it doesn't add too much overdraw
@@ -2166,7 +2163,7 @@ static qhandle_t CG_GetPlayerSpriteShader(centity_t *cent) {
 }
 
 static qboolean CG_FriendVisible(centity_t *cent) {
-	vec3_t start, end;
+	vec3_t start;
 	trace_t trace;
 
 	VectorCopy( cg.refdef.vieworg, start );
@@ -2230,9 +2227,6 @@ static void CG_FriendFlagIndicator(centity_t *cent) {
 	ent.shaderRGBA[3] = 255;
 	trap_R_AddRefEntityToScene( &ent );
 
-}
-
-static void CG_PlayerTeamSprites(centity_t *cent) {
 }
 
 /*
@@ -2957,8 +2951,8 @@ void CG_Player( centity_t *cent ) {
 	memcpy(&torso.shaderRGBA, playercolor, sizeof(playercolor));
 	if (cgs.ratFlags & RAT_ALLOWBRIGHTSKINS && cg_forceBrightModels.integer && ci->team != TEAM_SPECTATOR &&
 			( cg_autoHeadColors.integer == 1  // both teams
-			  || cg_autoHeadColors.integer == 2 && ci->team != cg.snap->ps.persistant[PERS_TEAM] // only for enemies
-			  || cg_autoHeadColors.integer == 3 && ci->team == cg.snap->ps.persistant[PERS_TEAM] // only for teammates
+			  || (cg_autoHeadColors.integer == 2 && ci->team != cg.snap->ps.persistant[PERS_TEAM]) // only for enemies
+			  || (cg_autoHeadColors.integer == 3 && ci->team == cg.snap->ps.persistant[PERS_TEAM]) // only for teammates
 			)) {
 		CG_PlayerAutoHeadColor(ci, playercolor);
 		memcpy(&head.shaderRGBA, playercolor, sizeof(playercolor));

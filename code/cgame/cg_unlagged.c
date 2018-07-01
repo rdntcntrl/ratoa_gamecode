@@ -446,7 +446,6 @@ void CG_FinishPredictMissileModel( entityState_t *ent, localEntity_t *le ) {
 #define NUM_NAILSHOTS 15
 void CG_PredictNailgunMissile( entityState_t *ent, vec3_t muzzlePoint, vec3_t forward, vec3_t right, vec3_t up ) {
 	localEntity_t	*le;
-	refEntity_t	*bolt;
 	int i;
 	int seed = cg.oldTime % 256;
 	float		r, u, scale;

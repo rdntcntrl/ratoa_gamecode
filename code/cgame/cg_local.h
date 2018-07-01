@@ -1674,6 +1674,7 @@ void CG_RankRunFrame( void );
 void CG_SetScoreSelection(void *menu);
 //score_t *CG_GetSelectedScore( void );
 void CG_BuildSpectatorString( void );
+void CG_ForceModelChange( void );
 
 //unlagged, sagos modfication
 void SnapVectorTowards( vec3_t v, vec3_t to );
@@ -1793,6 +1794,8 @@ void CG_HSV2RGB(float h, float s, float v, float *out);
 void CG_LoadForcedSounds(void);
 int CG_CountPlayers(team_t team);
 int CG_GetTotalHitPoints(int health, int armor);
+void CG_PlayerAutoHeadColor(clientInfo_t *ci, byte *outColor);
+void CG_FloatColorToRGBA(float *color, byte *out);
 
 //
 // cg_predict.c

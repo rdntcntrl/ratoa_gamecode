@@ -256,7 +256,6 @@ static void CG_InterpolatePlayerState( qboolean grabAngles ) {
 qboolean CG_ItemPredictionDangerous(centity_t *item) {
 	int i;
 	centity_t *player;
-	trace_t tr;
 
 	if (cg_predictItemsNearPlayers.integer) {
 		return qfalse;

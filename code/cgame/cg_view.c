@@ -802,7 +802,6 @@ static void CG_PlayBufferedSounds( void ) {
 
 
 void CG_AddSpawnpoints( void ){
-	refEntity_t		re;
 	int i;
 	refEntity_t		legs;
 	refEntity_t		torso;
@@ -825,15 +824,7 @@ void CG_AddSpawnpoints( void ){
 	torso.customShader = cgs.media.spawnPointShader;
 	head.customShader = cgs.media.spawnPointShader;
 	
-	//memset( &re, 0, sizeof(re));
-	//re.hModel = cgs.media.spawnPoint;
-	//re.customShader = cgs.media.spawnPointShader;
-	
 	for( i=0; i < cg.numSpawnpoints; i++ ){
-	//    CG_Printf("origin = %f %f %f\n",
-	//		    cg.spawnpoints[i].origin[0],
-	//		    cg.spawnpoints[i].origin[1],
-	//		    cg.spawnpoints[i].origin[2]);
 	    VectorCopy( cg.spawnpoints[i].origin, legs.origin);
 	    AnglesToAxis(cg.spawnpoints[i].angle, legs.axis);
 	    AnglesToAxis(cg.spawnpoints[i].angle, torso.axis);
