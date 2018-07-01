@@ -3327,30 +3327,25 @@ void CheckTreasureHunter(void) {
 
 	if (!level.th_hideActive 
 			&& !level.th_hideFinished
-			&& level.time >= level.th_hideTime 
-			&& level.time < level.th_hideTime + g_treasureHideTime.integer * 1000) {
-		int min = (level.th_hideTime + g_treasureHideTime.integer * 1000 - level.startTime)/(60*1000);
-		int s = (level.th_hideTime + g_treasureHideTime.integer * 1000 - level.startTime)/1000 - min * 60;
+			&& level.time >= level.th_hideTime) {
+		char str[256] = "";
+		if (g_treasureHideTime.integer > 0) {
+			int min = (level.th_hideTime + g_treasureHideTime.integer * 1000 - level.startTime)/(60*1000);
+			int s = (level.th_hideTime + g_treasureHideTime.integer * 1000 - level.startTime)/1000 - min * 60;
+			Com_sprintf(str, sizeof(str), "\nHiding phase lasts until %i:%02i", min, s);
+		}
 		level.th_hideActive = qtrue;
-		trap_SendServerCommand( -1, va("cp \"Hide your tokens!\nUse \\placeToken.\n"
-					"Hiding phase lasts until %i:%02i\n\"",
-					min, s));
-		trap_SendServerCommand( -1, va("print \"" S_COLOR_CYAN "Hide your tokens using \\placeToken.\n"
-					"Hiding phase lasts until %i:%02i\n\"",
-					min, s));
+		trap_SendServerCommand( -1, va("cp \"Hide your tokens!\nUse \\placeToken."
+					"%s\n\"", str));
+		trap_SendServerCommand( -1, va("print \"" S_COLOR_CYAN "Hide your tokens using \\placeToken."
+					"%s\n\"", str));
 		// enables placeToken
 		// give players their tokens
 		SetPlayerTokens((g_treasureTokens.integer <= 0) ? 1 : g_treasureTokens.integer);
 
-		//for( i=0;i < level.numPlayingClients; i++ ) {
-		//	gentity_t *ent = &g_entities[level.sortedClients[i]];
-		//	if (!ent->inuse || ent->client->sess.sessionTeam == TEAM_SPECTATOR) {
-		//		continue;
-		//	}
-		//	ent->client->pers.th_tokens = (g_treasureTokens.integer <= 0) ? 1 : g_treasureTokens.integer;
-		//	ent->client->ps.generic1 = ent->client->pers.th_tokens;
-		//}
-	} else if (level.th_hideActive && !level.th_hideFinished
+	} else if (level.th_hideActive 
+			&& !level.th_hideFinished
+			&& g_treasureHideTime.integer > 0
 			&& level.time == level.th_hideTime + g_treasureHideTime.integer * 1000 - 10000)  {
 		trap_SendServerCommand( -1, va("cp \"10s left to hide!\n"));
 		// TODO: what if tokens get destroyed (e.g. by lava)
@@ -3360,7 +3355,7 @@ void CheckTreasureHunter(void) {
 		int leftover_tokens_blue = CountPlayerTokens(TEAM_BLUE);
 		char *s = NULL;
 		
-		if (level.time >= level.th_hideTime + g_treasureHideTime.integer * 1000)  {
+		if (g_treasureHideTime.integer > 0 && level.time >= level.th_hideTime + g_treasureHideTime.integer * 1000)  {
 			s = "Time is up!";
 		} else if (leftover_tokens_red + leftover_tokens_blue == 0)  {
 			s = "All tokens hidden!";
@@ -3388,15 +3383,17 @@ void CheckTreasureHunter(void) {
 	} else if (!level.th_seekActive 
 			&& level.th_seekTime != 0
 			&& level.time >= level.th_seekTime) {
-		int min = (level.th_seekTime + g_treasureSeekTime.integer * 1000 - level.startTime)/(60*1000);
-		int s = (level.th_seekTime + g_treasureSeekTime.integer * 1000 - level.startTime)/1000 - min * 60;
+		char str[256] = "";
+		if (g_treasureSeekTime.integer > 0) {
+			int min = (level.th_seekTime + g_treasureSeekTime.integer * 1000 - level.startTime)/(60*1000);
+			int s = (level.th_seekTime + g_treasureSeekTime.integer * 1000 - level.startTime)/1000 - min * 60;
+			Com_sprintf(str, sizeof(str), "\nSeeking phase lasts until %i:%02i", min, s);
+		}
 		level.th_seekActive = qtrue;
-		trap_SendServerCommand( -1, va("cp \"Find your opponent's tokens!\n"
-					"Seeking phase lasts until %i:%02i\n\"",
-					min, s));
-		trap_SendServerCommand( -1, va("print \"" S_COLOR_CYAN "Find your opponent's tokens!\n"
-					"Seeking phase lasts until %i:%02i\n\"",
-					min, s));
+		trap_SendServerCommand( -1, va("cp \"Find your opponent's tokens!"
+					"%s\n\"", str));
+		trap_SendServerCommand( -1, va("print \"" S_COLOR_CYAN "Find your opponent's tokens!"
+					"%s\n\"", str));
 		// make enemy tokens visible
 		// enables pickup of enemy tokens
 	} else if (level.th_seekActive) {
@@ -3404,7 +3401,7 @@ void CheckTreasureHunter(void) {
 
 		if (tokens_red == 0 
 				|| tokens_blue == 0
-				|| level.time >= level.th_seekTime + g_treasureSeekTime.integer * 1000) {
+				|| (g_treasureSeekTime.integer > 0 && level.time >= level.th_seekTime + g_treasureSeekTime.integer * 1000)) {
 			char *s = NULL;
 
 			if (tokens_red + tokens_blue == 0) {
