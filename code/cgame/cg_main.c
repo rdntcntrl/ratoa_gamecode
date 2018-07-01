@@ -553,10 +553,10 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_ratScoreboardAccuracy, "cg_ratScoreboardAccuracy", "1", 0},
 	{ &cg_ratStatusbar, "cg_ratStatusbar", "0", CVAR_ARCHIVE},
 	// TODO: make CVAR_ARCHIVE
-	{ &cg_ratPlasmaTrail, "cg_ratPlasmaTrail", "0", 0},
-	{ &cg_ratPlasmaTrailAlpha, "cg_ratPlasmaTrailAlpha", "0.1", 0},
-	{ &cg_ratPlasmaTrailStep, "cg_ratPlasmaTrailStep", "12", 0},
-	{ &cg_ratPlasmaTrailTime, "cg_ratPlasmaTrailTime", "400", 0},
+	{ &cg_ratPlasmaTrail, "cg_ratPlasmaTrail", "0", CVAR_ARCHIVE},
+	{ &cg_ratPlasmaTrailAlpha, "cg_ratPlasmaTrailAlpha", "0.1", CVAR_ARCHIVE},
+	{ &cg_ratPlasmaTrailStep, "cg_ratPlasmaTrailStep", "12", CVAR_ARCHIVE},
+	{ &cg_ratPlasmaTrailTime, "cg_ratPlasmaTrailTime", "500", CVAR_ARCHIVE},
 	//
 	{ &cg_ratRocketTrail, "cg_ratRocketTrail", "1", CVAR_ARCHIVE},
 	{ &cg_ratRocketTrailAlpha, "cg_ratRocketTrailAlpha2", "0.6", CVAR_ARCHIVE},
