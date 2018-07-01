@@ -3160,6 +3160,9 @@ qboolean ScheduleTreasureHunterRound( void ) {
 	if (level.th_round == (g_treasureRounds.integer ? g_treasureRounds.integer : 1)) {
 		level.th_hideTime = 0;
 		level.th_seekTime = 0;
+		level.th_hideActive = qfalse;
+		level.th_seekActive = qfalse;
+		level.th_hideFinished = qfalse;
 		return qfalse;
 	}
 
@@ -3167,6 +3170,9 @@ qboolean ScheduleTreasureHunterRound( void ) {
 
 	level.th_hideTime = level.time + 1000*5;
 	level.th_seekTime = level.th_hideTime + 1000*5 + g_treasureHideTime.integer * 1000;
+	level.th_hideActive = qfalse;
+	level.th_seekActive = qfalse;
+	level.th_hideFinished = qfalse;
 
 	return qtrue;
 }
@@ -3184,6 +3190,57 @@ void UpdateTreasureVisibility( qboolean hiddenFromEnemy ) {
 	}
 }
 
+int CountTreasures(int team) {
+	gentity_t	*token;
+	int count = 0;
+
+	token = NULL;
+	while ((token = G_Find (token, FOFS(classname), team == TEAM_RED ? "item_redcube" : "item_bluecube")) != NULL) {
+		count++;
+	}
+	return count;
+}
+
+int CountPlayerTokens(int team) {
+	int i;
+	gentity_t *ent;
+	int count = 0;
+
+	for( i=0;i < level.numPlayingClients; i++ ) {
+		ent = &g_entities[level.sortedClients[i]];
+
+		if (!ent->inuse) {
+			continue;
+		}
+		if (ent->client->pers.th_tokens <= 0) {
+			continue;
+		}
+
+		if (ent->client->sess.sessionTeam == team) {
+			count += ent->client->pers.th_tokens;
+		}
+	}
+
+	return count;
+}
+
+void SetPlayerTokens(int num) {
+	int i;
+	gentity_t *ent;
+
+	for( i=0;i < level.numPlayingClients; i++ ) {
+		gentity_t *ent = &g_entities[level.sortedClients[i]];
+
+		if (!ent->inuse || ent->client->sess.sessionTeam == TEAM_SPECTATOR) {
+			continue;
+		}
+
+		ent->client->pers.th_tokens = num;
+		ent->client->ps.generic1 = ent->client->pers.th_tokens;
+
+	}
+}
+
 /*
 =============
 CheckTreasureHunter
@@ -3191,6 +3248,8 @@ CheckTreasureHunter
 */
 void CheckTreasureHunter(void) {
 	int i;
+	int tokens_red;
+	int tokens_blue;
 
 	if (g_gametype.integer != GT_TREASURE_HUNTER) {
 		return;
@@ -3201,7 +3260,7 @@ void CheckTreasureHunter(void) {
 		return;
 	}
 
-	if (!level.th_hideTime) {
+	if (!level.th_hideTime && !level.th_seekTime) {
 		 if (!ScheduleTreasureHunterRound()) {
 			 return;
 		 }
@@ -3240,11 +3299,14 @@ void CheckTreasureHunter(void) {
 		UpdateTreasureVisibility(qtrue);
 	}
 
-	// TODO: advance if ONE team found all the tokens
+	tokens_red = CountTreasures(TEAM_RED);
+	tokens_blue = CountTreasures(TEAM_BLUE);
+
 	// TODO: remaining token indicator
 	// TODO: make tokens drop to the floor! and fix lava damage
 
 	if (!level.th_hideActive 
+			&& !level.th_hideFinished
 			&& level.time >= level.th_hideTime 
 			&& level.time < level.th_hideTime + g_treasureHideTime.integer * 1000) {
 		int min = (level.th_hideTime + g_treasureHideTime.integer * 1000 - level.startTime)/(60*1000);
@@ -3258,54 +3320,51 @@ void CheckTreasureHunter(void) {
 					min, s));
 		// enables placeToken
 		// give players their tokens
-		for( i=0;i < level.numPlayingClients; i++ ) {
-			gentity_t *ent = &g_entities[level.sortedClients[i]];
-			if (!ent->inuse || ent->client->sess.sessionTeam == TEAM_SPECTATOR) {
-				continue;
-			}
-			ent->client->pers.th_tokens = (g_treasureTokens.integer <= 0) ? 1 : g_treasureTokens.integer;
-			ent->client->ps.generic1 = ent->client->pers.th_tokens;
-		}
-	} else if (level.th_hideActive 
+		SetPlayerTokens((g_treasureTokens.integer <= 0) ? 1 : g_treasureTokens.integer);
+
+		//for( i=0;i < level.numPlayingClients; i++ ) {
+		//	gentity_t *ent = &g_entities[level.sortedClients[i]];
+		//	if (!ent->inuse || ent->client->sess.sessionTeam == TEAM_SPECTATOR) {
+		//		continue;
+		//	}
+		//	ent->client->pers.th_tokens = (g_treasureTokens.integer <= 0) ? 1 : g_treasureTokens.integer;
+		//	ent->client->ps.generic1 = ent->client->pers.th_tokens;
+		//}
+	} else if (level.th_hideActive && !level.th_hideFinished
 			&& level.time == level.th_hideTime + g_treasureHideTime.integer * 1000 - 10000)  {
 		trap_SendServerCommand( -1, va("cp \"10s left to hide!\n"));
 		// TODO: what if tokens get destroyed (e.g. by lava)
 		// TODO: make sure it advances if everything is hidden
-	} else if (level.th_hideActive 
-			&& level.time >= level.th_hideTime + g_treasureHideTime.integer * 1000)  {
-		int leftover_tokens_red = 0;
-		int leftover_tokens_blue = 0;
-		level.th_hideActive = qfalse;
-		trap_SendServerCommand( -1, va("cp \"Hiding phase finished!\nPrepare to seek!\""));
-		// disables placeToken
-		// give leftovers to other team
-		for( i=0;i < level.numPlayingClients; i++ ) {
-			gentity_t *ent = &g_entities[level.sortedClients[i]];
+	} else if (level.th_hideActive) {
+		int leftover_tokens_red = CountPlayerTokens(TEAM_RED);
+		int leftover_tokens_blue = CountPlayerTokens(TEAM_BLUE);
+		char *s = NULL;
+		
+		if (level.time >= level.th_hideTime + g_treasureHideTime.integer * 1000)  {
+			s = "Time is up!";
+		} else if (leftover_tokens_red + leftover_tokens_blue == 0)  {
+			s = "All tokens hidden!";
 
-			if (!ent->inuse || ent->client->sess.sessionTeam == TEAM_SPECTATOR) {
-				continue;
-			}
-			if (ent->client->pers.th_tokens <= 0) {
-				continue;
-			}
-
-			if (ent->client->sess.sessionTeam == TEAM_BLUE) {
-				leftover_tokens_blue += ent->client->pers.th_tokens;
-			} else {
-				leftover_tokens_red += ent->client->pers.th_tokens;
-			}
-
-			ent->client->pers.th_tokens = 0;
-			ent->client->ps.generic1 = ent->client->pers.th_tokens;
-
+			// schedule seeking in 5s
+			level.th_seekTime = level.time + 1000*5;
 		}
-		if (leftover_tokens_red) {
-			trap_SendServerCommand( -1, va("print \"Blue gets %i leftover tokens from red!\n\"", leftover_tokens_red));
-			AddTeamScore(level.intermission_origin, TEAM_BLUE, leftover_tokens_red);
-		}
-		if (leftover_tokens_blue) {
-			trap_SendServerCommand( -1, va("print \"Red gets %i leftover tokens from blue!\n\"", leftover_tokens_blue));
-			AddTeamScore(level.intermission_origin, TEAM_RED, leftover_tokens_blue);
+
+		if (s) {
+			level.th_hideActive = qfalse;
+			level.th_hideFinished = qtrue;
+
+			trap_SendServerCommand( -1, va("cp \"Hiding phase finished!\n%s\nPrepare to seek!\"", s));
+			// disables placeToken
+			// give leftovers to other team
+
+			if (leftover_tokens_red) {
+				trap_SendServerCommand( -1, va("print \"Blue gets %i leftover tokens from red!\n\"", leftover_tokens_red));
+				AddTeamScore(level.intermission_origin, TEAM_BLUE, leftover_tokens_red);
+			}
+			if (leftover_tokens_blue) {
+				trap_SendServerCommand( -1, va("print \"Red gets %i leftover tokens from blue!\n\"", leftover_tokens_blue));
+				AddTeamScore(level.intermission_origin, TEAM_RED, leftover_tokens_blue);
+			}
 		}
 	} else if (!level.th_seekActive 
 			&& level.time >= level.th_seekTime) {
@@ -3321,24 +3380,24 @@ void CheckTreasureHunter(void) {
 		// make enemy tokens visible
 		// enables pickup of enemy tokens
 	} else if (level.th_seekActive) {
-		int tokens_total = 0;
 		gentity_t	*token;
 
-		token = NULL;
-		while ((token = G_Find (token, FOFS(classname), "item_redcube")) != NULL) {
-			tokens_total++;
-		}
-		token = NULL;
-		while ((token = G_Find (token, FOFS(classname), "item_bluecube")) != NULL) {
-			tokens_total++;
-		}
-
-		if (tokens_total == 0 
+		if (tokens_red == 0 
+				|| tokens_blue == 0
 				|| level.time >= level.th_seekTime + g_treasureSeekTime.integer * 1000) {
+			char *s = NULL;
 
+			if (tokens_red + tokens_blue == 0) {
+				s = "No tokens left!";
+			} else if (tokens_red == 0) {
+				s = "Blue found all tokens!";
+			} else if (tokens_blue == 0) {
+				s = "Red found all tokens!";
+			} else {
+				s = "Time is up!";
+			}
 			level.th_seekActive = qfalse;
-			trap_SendServerCommand( -1, va("cp \"%s\nSeeking phase finished!\n\"", 
-						tokens_total == 0 ? "All tokens discovered!" : "Time is up!"));
+			trap_SendServerCommand( -1, va("cp \"%s\nSeeking phase finished!\n\"", s));
 
 			// finish, clear tokens from map!
 			token = NULL;

@@ -608,6 +608,7 @@ typedef struct {
 	int th_round;
 	int th_hideTime;
 	qboolean th_hideActive;
+	qboolean th_hideFinished;
 	int th_seekTime;
 	qboolean th_seekActive;
 	int th_redClientMask;
