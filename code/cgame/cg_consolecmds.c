@@ -706,4 +706,8 @@ void CG_InitConsoleCommands( void ) {
 	trap_AddCommand ("stats");
 	trap_AddCommand ("teamtask");
 	trap_AddCommand ("loaddefered");	// spelled wrong, but not changing for demo
+	trap_AddCommand ("timeout");
+	trap_AddCommand ("timein");
+	trap_AddCommand ("pause");
+	trap_AddCommand ("unpause");
 }
