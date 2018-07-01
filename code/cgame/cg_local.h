@@ -777,6 +777,8 @@ typedef struct {
 	//qhandle_t	thTokenTeamShader;
 	qhandle_t	thTokenRedShader;
 	qhandle_t	thTokenBlueShader;
+	qhandle_t	thTokenRedIShader;
+	qhandle_t	thTokenBlueIShader;
 
 //For Double Domination:
 	//qhandle_t	ddPointA;

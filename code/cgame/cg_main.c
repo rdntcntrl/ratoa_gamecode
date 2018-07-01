@@ -1689,6 +1689,8 @@ static void CG_RegisterGraphics( void ) {
 		//cgs.media.thTokenTeamShader = trap_R_RegisterShader( "models/powerups/treasure/thTokenTeam" );
 		cgs.media.thTokenRedShader = trap_R_RegisterShader( "models/powerups/treasure/thTokenRed" );
 		cgs.media.thTokenBlueShader = trap_R_RegisterShader( "models/powerups/treasure/thTokenBlue" );
+		cgs.media.thTokenBlueIShader = trap_R_RegisterShaderNoMip("sprites/thTokenIndicatorBlue.tga");
+		cgs.media.thTokenRedIShader = trap_R_RegisterShaderNoMip("sprites/thTokenIndicatorRed.tga");
 	}
         
         if( ( cgs.gametype >= GT_TEAM ) && ( cgs.ffa_gt != 1 ) ) {

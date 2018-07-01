@@ -231,6 +231,7 @@ static void CG_TreasureHuntToken ( centity_t *cent ) {
 
 	memset (&ent, 0, sizeof(ent));
 
+
 	if (cgs.th_tokenStyle >= 1
 			//((item->giTag == HARVESTER_REDCUBE && team == TEAM_RED)
 			// || (item->giTag == HARVESTER_BLUECUBE && team == TEAM_BLUE)
@@ -273,10 +274,26 @@ static void CG_TreasureHuntToken ( centity_t *cent ) {
 	VectorCopy( cent->lerpOrigin, ent.origin);
 	VectorCopy( cent->lerpOrigin, ent.oldorigin);
 
-
 	ent.nonNormalizedAxes = qfalse;
 
 	trap_R_AddRefEntityToScene(&ent);
+
+	if (cgs.th_tokenStyle == 0 && 
+			((item->giTag == HARVESTER_REDCUBE && team == TEAM_RED)
+			  || (item->giTag == HARVESTER_BLUECUBE && team == TEAM_BLUE))) {
+		ent.reType = RT_SPRITE;
+		//ent.radius = 16;
+		//ent.radius = 15;
+		ent.radius = 17;
+		ent.origin[2] += 1; 
+		ent.oldorigin[2] += 1; 
+		ent.customShader = (team == TEAM_BLUE) ? cgs.media.thTokenBlueIShader : cgs.media.thTokenRedIShader;
+		ent.shaderRGBA[0] = 255;
+		ent.shaderRGBA[1] = 255;
+		ent.shaderRGBA[2] = 255;
+		ent.shaderRGBA[3] = 255;
+		trap_R_AddRefEntityToScene(&ent);
+	}
 }
 
 /*
