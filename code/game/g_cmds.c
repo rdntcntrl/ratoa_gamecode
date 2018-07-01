@@ -1832,6 +1832,8 @@ void Cmd_PlaceToken_f( gentity_t *ent ) {
 	token->spawnflags = ent->client->sess.sessionTeam;
 	token->s.generic1 = 0;
 
+	token->parent = ent;
+
 	token->r.svFlags |= SVF_CLIENTMASK;
 	token->r.singleClient = ent->client->sess.sessionTeam == TEAM_BLUE ? level.th_blueClientMask : level.th_redClientMask;
 }

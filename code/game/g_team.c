@@ -962,6 +962,18 @@ void Team_DD_makeB2team( gentity_t *target, int team ) {
 }
 
 void Team_TH_TokenDestroyed( gentity_t *ent ) {
+	if (level.th_hideActive && ent->parent && ent->parent->inuse) {
+		gentity_t *player = ent->parent;
+		if (player->client && player->client->pers.connected  == CON_CONNECTED &&
+				player->client->sess.sessionTeam != TEAM_SPECTATOR) {
+			// give token back to player if it gets destroyed during hiding phase
+			player->client->pers.th_tokens++;
+			player->client->ps.generic1 = player->client->pers.th_tokens;
+			trap_SendServerCommand( player - g_entities, "cp \"Token got destroyed!\n");
+			G_FreeEntity(ent);
+			return;
+		}
+	}
 	if (ent->item->giTag == HARVESTER_REDCUBE) {
 		AddTeamScore(level.intermission_origin, TEAM_BLUE, 1);
 	} else if (ent->item->giTag == HARVESTER_BLUECUBE) {
