@@ -1159,6 +1159,12 @@ extern	vmCvar_t	g_blueteam;
 #endif
 extern	vmCvar_t	g_redclan;
 extern	vmCvar_t	g_blueclan;
+
+extern vmCvar_t		g_treasureTokens;
+extern vmCvar_t		g_treasureHideTime;
+extern vmCvar_t		g_treasureSeekTime;
+extern vmCvar_t		g_treasureRounds;
+
 extern	vmCvar_t	g_enableDust;
 extern	vmCvar_t	g_enableBreath;
 extern	vmCvar_t	g_proxMineTimeout;

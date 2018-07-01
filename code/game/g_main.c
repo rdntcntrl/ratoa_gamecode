@@ -106,6 +106,12 @@ vmCvar_t	g_singlePlayer;
 #endif
 vmCvar_t	g_redclan;
 vmCvar_t	g_blueclan;
+
+vmCvar_t	g_treasureTokens;
+vmCvar_t	g_treasureHideTime;
+vmCvar_t	g_treasureSeekTime;
+vmCvar_t	g_treasureRounds;
+
 vmCvar_t	g_enableDust;
 vmCvar_t	g_enableBreath;
 vmCvar_t	g_proxMineTimeout;
@@ -410,6 +416,11 @@ static cvarTable_t		gameCvarTable[] = {
         #endif
 	{ &g_redclan, "g_redclan", "rat", 0 , 0, qtrue, qtrue },
 	{ &g_blueclan, "g_blueclan", "rat", 0, 0, qtrue, qtrue  },
+
+	{ &g_treasureTokens, "g_treasureTokens", "5", CVAR_ARCHIVE, 0, qfalse },
+	{ &g_treasureHideTime, "g_treasureHideTime", "180", CVAR_ARCHIVE, 0, qfalse },
+	{ &g_treasureSeekTime, "g_treasureSeekTime", "600", CVAR_ARCHIVE, 0, qfalse },
+	{ &g_treasureRounds, "g_treasureRounds", "5", CVAR_ARCHIVE, 0, qfalse },
 
 	{ &g_enableDust, "g_enableDust", "0", 0, 0, qtrue, qfalse },
 	{ &g_enableBreath, "g_enableBreath", "0", 0, 0, qtrue, qfalse },

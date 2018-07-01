@@ -1793,6 +1793,46 @@ void Cmd_Drop_f( gentity_t *ent ) {
 
 }
 
+void Cmd_PlaceToken_f( gentity_t *ent ) {
+	gentity_t *token = NULL;
+	gitem_t *item;
+	vec3_t velocity = {0.0, 0.0, 0.0};
+
+	if (g_gametype.integer != GT_TREASURE_HUNTER) {
+		return;
+	}
+
+	if (ent->client->sess.sessionTeam == TEAM_SPECTATOR || ent->client->isEliminated) {
+		return;
+	}
+
+	if (ent->client->ps.pm_type == PM_DEAD) {
+		return;
+	}
+
+	//if (!ent->client->ps.generic1) {
+	//	return;
+	//}
+	//ent->client->ps.generic1--;
+
+	item = ent->client->sess.sessionTeam == TEAM_RED ? BG_FindItem("Red Cube") : BG_FindItem("Blue Cube");
+
+	token = LaunchItem(item, ent->s.pos.trBase, velocity);
+	token->think = NULL;
+	token->nextthink = 0;
+	//token->health = 100;
+	//token->takedamage = qtrue;
+
+	if ( ent->client->sess.sessionTeam == TEAM_RED ) {
+		token->spawnflags = TEAM_BLUE;
+	} else {
+		token->spawnflags = TEAM_RED;
+	}
+
+
+
+}
+
 /*
 ==================
 SendReadymask
@@ -3169,6 +3209,8 @@ commands_t cmds[ ] =
   { "gg", 0, Cmd_GoodGame_f },
 
   { "drop", CMD_LIVING, Cmd_Drop_f },
+
+  { "placeToken", CMD_LIVING, Cmd_PlaceToken_f },
 
   { "ready", 0, Cmd_Ready_f },
 

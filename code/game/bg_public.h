@@ -373,6 +373,12 @@ typedef enum {
 	WP_NUM_WEAPONS
 } weapon_t;
 
+typedef enum {
+	HARVESTER_NONE,
+	HARVESTER_BLUECUBE,
+	HARVESTER_REDCUBE
+} harvester_t;
+
 
 // reward sounds (stored in ps->persistant[PERS_PLAYEREVENTS])
 #define	PLAYEREVENT_DENIEDREWARD		0x0001

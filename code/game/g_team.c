@@ -1453,6 +1453,18 @@ int Pickup_Team( gentity_t *ent, gentity_t *other ) {
 		G_FreeEntity( ent ); //Destory skull
 		return 0;
 	}
+
+	if( g_gametype.integer == GT_TREASURE_HUNTER ) {
+		// the only team items that can be picked up in treasure hunter are the tokens
+		if( ent->spawnflags != cl->sess.sessionTeam ) {
+                        G_LogPrintf("TREASURE_HUNTER: %i %i: %s picked up a token.\n",
+                            cl->ps.clientNum,cl->sess.sessionTeam,
+                            cl->pers.netname);
+		} 
+		G_FreeEntity( ent ); //Destory token
+		return 0;
+	}
+
 	if ( g_gametype.integer == GT_DOMINATION ) {
 		Team_Dom_TakePoint(ent, cl->sess.sessionTeam,cl->ps.clientNum);
 		return 0;

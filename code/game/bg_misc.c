@@ -845,7 +845,7 @@ Only in One Flag CTF games
 /* pickup */	"Red Cube",
 		0,
 		IT_TEAM,
-		0,
+		HARVESTER_REDCUBE,
 /* precache */ "",
 /* sounds */ ""
 	},
@@ -859,7 +859,7 @@ Only in One Flag CTF games
 /* pickup */	"Blue Cube",
 		0,
 		IT_TEAM,
-		0,
+		HARVESTER_BLUECUBE,
 /* precache */ "",
 /* sounds */ ""
 	},
@@ -1361,6 +1361,17 @@ qboolean BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const play
 		if( gametype == GT_HARVESTER ) {
 			return qtrue;
 		}
+
+		if( gametype == GT_TREASURE_HUNTER ) {
+			if (ps->persistant[PERS_TEAM] == TEAM_RED) {
+				if (item->giTag == HARVESTER_BLUECUBE)
+					return qtrue;
+			} else if (ps->persistant[PERS_TEAM] == TEAM_BLUE) {
+				if (item->giTag == HARVESTER_REDCUBE)
+					return qtrue;
+			}
+		}
+
 		return qfalse;
 
 	case IT_HOLDABLE:
