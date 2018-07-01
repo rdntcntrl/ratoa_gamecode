@@ -73,7 +73,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define RATSB_NORMAL_HEIGHT 40
 #define RATSB_INTER_HEIGHT  16 // interleaved height
 
-#define RATSB_MAXCLIENTS_INTER   ((RATSB_STATUSBAR - RATSB_TOP) / RATSB_INTER_HEIGHT - 1)
+//#define RATSB_MAXCLIENTS_INTER   ((RATSB_STATUSBAR - RATSB_TOP) / RATSB_INTER_HEIGHT - 1)
+#define RATSB_MAXCLIENTS_INTER   ((SCREEN_HEIGHT-44 - RATSB_TOP) / RATSB_INTER_HEIGHT - 1)
 
 #define RATSB_BOTICON_X  (RATSCOREBOARD_X+10)
 #define RATSB_HEAD_X   (RATSB_BOTICON_X+32)
@@ -815,7 +816,8 @@ qboolean CG_DrawRatScoreboard(void) {
 			maxClients -= n2;
 		}
 		n1 = CG_RatTeamScoreboard(y, TEAM_SPECTATOR, fade, maxClients, lineHeight, qfalse);
-		y += (n1 * lineHeight) + SCORECHAR_HEIGHT;
+		if (n1) 
+			y += (n1 * lineHeight) + SCORECHAR_HEIGHT;
 
 	} else {
 		//
