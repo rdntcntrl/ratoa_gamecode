@@ -347,7 +347,7 @@ void CG_Draw3DHead( float x, float y, float w, float h, qhandle_t model, qhandle
 			)) {
 		CG_PlayerAutoHeadColor(ci, ent.shaderRGBA);
 	} else {
-		CG_PlayerGetColors(ci, qfalse, ent.shaderRGBA);
+		CG_PlayerGetColors(ci, qfalse, MCIDX_HEAD, ent.shaderRGBA);
 	}
 
 	refdef.rdflags = RDF_NOWORLDMODEL;

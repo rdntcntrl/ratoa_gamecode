@@ -273,6 +273,12 @@ vmCvar_t	cg_teamHueRed;
 
 vmCvar_t	cg_enemyColor;
 vmCvar_t	cg_teamColor;
+vmCvar_t	cg_enemyHeadColor;
+vmCvar_t	cg_teamHeadColor;
+vmCvar_t	cg_enemyTorsoColor;
+vmCvar_t	cg_teamTorsoColor;
+vmCvar_t	cg_enemyLegsColor;
+vmCvar_t	cg_teamLegsColor;
 
 vmCvar_t	cg_teamHeadColorAuto;
 vmCvar_t	cg_enemyHeadColorAuto;
@@ -644,14 +650,20 @@ static cvarTable_t cvarTable[] = { // bk001129
 	// HSV color in the format 'H125 1.0 1.0" (H<H> <S> <V>)
 	{ &cg_enemyColor ,     "cg_enemyColor", "", CVAR_ARCHIVE},
 	{ &cg_teamColor ,      "cg_teamColor", "", CVAR_ARCHIVE},
+	{ &cg_enemyHeadColor ,     "cg_enemyHeadColor", "", CVAR_ARCHIVE},
+	{ &cg_teamHeadColor ,      "cg_teamHeadColor", "", CVAR_ARCHIVE},
+	{ &cg_enemyTorsoColor ,     "cg_enemyTorsoColor", "", CVAR_ARCHIVE},
+	{ &cg_teamTorsoColor ,      "cg_teamTorsoColor", "", CVAR_ARCHIVE},
+	{ &cg_enemyLegsColor ,     "cg_enemyLegsColor", "", CVAR_ARCHIVE},
+	{ &cg_teamLegsColor ,      "cg_teamLegsColor", "", CVAR_ARCHIVE},
 
 	{ &cg_teamHeadColorAuto ,      "cg_teamHeadColorAuto", "1", CVAR_ARCHIVE},
 	{ &cg_enemyHeadColorAuto ,      "cg_enemyHeadColorAuto", "1", CVAR_ARCHIVE},
 
 	{ &cg_enemyCorpseSaturation ,     "cg_enemyCorpseSaturation", "", CVAR_ARCHIVE},
-	{ &cg_enemyCorpseValue ,          "cg_enemyCorpseValue", "0.25", CVAR_ARCHIVE},
+	{ &cg_enemyCorpseValue ,          "cg_enemyCorpseValue", "0.2", CVAR_ARCHIVE},
 	{ &cg_teamCorpseSaturation ,      "cg_teamCorpseSaturation", "", CVAR_ARCHIVE},
-	{ &cg_teamCorpseValue ,           "cg_teamCorpseValue", "0.25", CVAR_ARCHIVE},
+	{ &cg_teamCorpseValue ,           "cg_teamCorpseValue", "0.2", CVAR_ARCHIVE},
 
 	// / RAT ===================
 
@@ -804,7 +816,7 @@ void CG_RatInitDefaults(void)  {
 		trap_Cvar_Set( "cg_bobroll", "0.0" );
 		trap_Cvar_Set( "cg_hitsound", "1");
 
-		trap_Cvar_Set( "cg_forceBrightModels", "2");
+		//trap_Cvar_Set( "cg_forceBrightModels", "2");
 
 		if (cg_drawTeamOverlay.integer <= 0) {
 			trap_Cvar_Set( "cg_drawTeamOverlay", "4" );
@@ -862,16 +874,9 @@ void CG_RatInitDefaults(void)  {
 		// Update corpse color cvars
 		trap_Cvar_Set( "cg_corpseSaturation", "" );
 		trap_Cvar_Set( "cg_enemyCorpseSaturation", "" );
-		if (!CG_Cvar_Get("cg_forceCorpseColor")) {
-			trap_Cvar_Set( "cg_teamCorpseValue", "" );
-		} else {
-			trap_Cvar_Set( "cg_teamCorpseValue", "0.25" );
-		}
-		if (!CG_Cvar_Get("cg_forceEnemyCorpseColor")) {
-			trap_Cvar_Set( "cg_enemyCorpseValue", "" );
-		} else {
-			trap_Cvar_Set( "cg_enemyCorpseValue", "0.25" );
-		}
+
+		trap_Cvar_Set( "cg_teamCorpseValue", "0.2" );
+		trap_Cvar_Set( "cg_enemyCorpseValue", "0.2" );
 
 		// Update default team colors
 		h = CG_Cvar_Get("cg_modelHueBlue");
@@ -1092,6 +1097,12 @@ void CG_UpdateCvars( void ) {
 		+ cg_teamHueRed.modificationCount
 		+ cg_enemyColor.modificationCount
 		+ cg_teamColor.modificationCount
+		+ cg_enemyHeadColor.modificationCount
+		+  cg_teamHeadColor.modificationCount
+		+ cg_enemyTorsoColor.modificationCount
+		+  cg_teamTorsoColor.modificationCount
+		+ cg_enemyLegsColor.modificationCount
+		+  cg_teamLegsColor.modificationCount
 		+ cg_enemyCorpseSaturation.modificationCount
 		+ cg_enemyCorpseValue.modificationCount
 		+ cg_teamCorpseSaturation.modificationCount

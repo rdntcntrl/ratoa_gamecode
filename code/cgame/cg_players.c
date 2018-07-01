@@ -2532,6 +2532,15 @@ void CG_AddRefEntityWithPowerups( refEntity_t *ent, entityState_t *state, int te
 			trap_R_AddRefEntityToScene( ent );
 		//}
 		
+		if(!isMissile && 
+				((cgs.ratFlags & RAT_BRIGHTSHELL && cg_brightShells.integer) && 
+				 (ci && !ci->forcedBrightModel ))) {
+			       	//&& !(state->eFlags & EF_DEAD)  ) {
+			ent->shaderRGBA[3] = CG_GetBrightShellAlpha();
+			ent->customShader = cgs.media.brightShell;
+			trap_R_AddRefEntityToScene( ent );
+		}
+		
 		if(!isMissile && (cgs.dmflags & DF_PLAYER_OVERLAY) && !(state->eFlags & EF_DEAD)  ) {
 		    switch(team) {
 			case TEAM_RED:
@@ -2656,14 +2665,6 @@ void CG_AddRefEntityWithPowerups( refEntity_t *ent, entityState_t *state, int te
 			}
 		}
 
-		if(!isMissile && 
-				((cgs.ratFlags & RAT_BRIGHTSHELL && cg_brightShells.integer) && 
-				 (ci && !ci->forcedBrightModel ))) {
-			       	//&& !(state->eFlags & EF_DEAD)  ) {
-			ent->shaderRGBA[3] = CG_GetBrightShellAlpha();
-			ent->customShader = cgs.media.brightShell;
-			trap_R_AddRefEntityToScene( ent );
-		}
 	}
 }
 
@@ -2907,9 +2908,13 @@ void CG_PlayerColorFromString(char *str, float *h, float *s, float *v) {
 }
 
 #define RGBA_SIZE (4*sizeof(byte))
-void CG_PlayerGetColors(clientInfo_t *ci, qboolean isDead, byte *outColor) {
+void CG_PlayerGetColors(clientInfo_t *ci, qboolean isDead, int bodyPart, byte *outColor) {
 	clientInfo_t *player = &cgs.clientinfo[cg.clientNum];
 	int myteam = player->team;
+
+	if (bodyPart < 0 || bodyPart > MCIDX_LEGS) {
+		CG_Error( "CG_PlayerGetColors: Invalid body part!\n");
+	}
 
 	if (!((cgs.ratFlags & RAT_BRIGHTSHELL && cg_brightShells.integer)) && (!ci->forcedBrightModel)) {
 		float color[4];
@@ -2932,13 +2937,13 @@ void CG_PlayerGetColors(clientInfo_t *ci, qboolean isDead, byte *outColor) {
 	if (myteam == TEAM_SPECTATOR && cgs.gametype >= GT_TEAM && cgs.ffa_gt!=1) {
 		switch (ci->team) {
 			case TEAM_BLUE:
-				memcpy(outColor, cgs.modelRGBA[MODELCOLOR_BLUE], RGBA_SIZE);
+				memcpy(outColor, cgs.modelRGBA[bodyPart][MODELCOLOR_BLUE], RGBA_SIZE);
 				break;
 			case TEAM_RED:
-				memcpy(outColor, cgs.modelRGBA[MODELCOLOR_RED], RGBA_SIZE);
+				memcpy(outColor, cgs.modelRGBA[bodyPart][MODELCOLOR_RED], RGBA_SIZE);
 				break;
 			default:
-				memcpy(outColor, cgs.modelRGBA[MODELCOLOR_DEFAULT], RGBA_SIZE);
+				memcpy(outColor, cgs.modelRGBA[bodyPart][MODELCOLOR_DEFAULT], RGBA_SIZE);
 				break;
 		}
 		return;
@@ -2948,17 +2953,17 @@ void CG_PlayerGetColors(clientInfo_t *ci, qboolean isDead, byte *outColor) {
 			|| (myteam != ci->team)) {
 		// is enemy
 		if (isDead) {
-			memcpy(outColor, cgs.corpseRGBA[MODELCOLOR_ENEMY], RGBA_SIZE);
+			memcpy(outColor, cgs.corpseRGBA[bodyPart][MODELCOLOR_ENEMY], RGBA_SIZE);
 		} else {
-			memcpy(outColor, cgs.modelRGBA[MODELCOLOR_ENEMY], RGBA_SIZE);
+			memcpy(outColor, cgs.modelRGBA[bodyPart][MODELCOLOR_ENEMY], RGBA_SIZE);
 		}
 		return;
 	} 
 	// teammate/self
 	if (isDead) {
-		memcpy(outColor, cgs.corpseRGBA[MODELCOLOR_TEAM], RGBA_SIZE);
+		memcpy(outColor, cgs.corpseRGBA[bodyPart][MODELCOLOR_TEAM], RGBA_SIZE);
 	} else {
-		memcpy(outColor, cgs.modelRGBA[MODELCOLOR_TEAM], RGBA_SIZE);
+		memcpy(outColor, cgs.modelRGBA[bodyPart][MODELCOLOR_TEAM], RGBA_SIZE);
 	}
 
 }
@@ -2988,6 +2993,8 @@ void CG_ParseForcedColors( void ) {
 	int myteam = player->team;
 	float h,s,v;
 	float color[4];
+	int bodyPart;
+
 	color[0] = color[1] = color[2] = color[3] = 1.0;
 
 
@@ -2996,96 +3003,114 @@ void CG_ParseForcedColors( void ) {
 
 	s = v = 1.0;
 
-	h = cg_teamHueDefault.value;
-	CG_HSV2RGB(h,s,v, color);
-	CG_FloatColorToRGBA(color, cgs.modelRGBA[MODELCOLOR_DEFAULT]);
-	if (cg_enemyCorpseSaturation.string[0]) {
-		s = cg_enemyCorpseSaturation.value;
+	for (bodyPart = MCIDX_HEAD; bodyPart < MCIDX_NUM; ++bodyPart) {
+		h = cg_teamHueDefault.value;
+		CG_HSV2RGB(h,s,v, color);
+		CG_FloatColorToRGBA(color, cgs.modelRGBA[bodyPart][MODELCOLOR_DEFAULT]);
+		if (cg_enemyCorpseSaturation.string[0]) {
+			s = cg_enemyCorpseSaturation.value;
+		}
+		if (cg_enemyCorpseValue.string[0]) {
+			v = cg_enemyCorpseValue.value;
+		}
+		CG_HSV2RGB(h,s,v, color);
+		CG_FloatColorToRGBA(color, cgs.corpseRGBA[bodyPart][MODELCOLOR_DEFAULT]);
 	}
-	if (cg_enemyCorpseValue.string[0]) {
-		v = cg_enemyCorpseValue.value;
-	}
-	CG_HSV2RGB(h,s,v, color);
-	CG_FloatColorToRGBA(color, cgs.corpseRGBA[MODELCOLOR_DEFAULT]);
 
 	if (myteam == TEAM_SPECTATOR && cgs.gametype >= GT_TEAM && cgs.ffa_gt!=1) {
 		// When spectating team modes, don't apply forced colors to
 		// avoid confusion
 		
-		s = v = 1.0;
+		for (bodyPart = MCIDX_HEAD; bodyPart < MCIDX_NUM; ++bodyPart) {
+			s = v = 1.0;
 
-		h = cg_teamHueBlue.value;
-		CG_HSV2RGB(h,s,v, color);
-		CG_FloatColorToRGBA(color, cgs.modelRGBA[MODELCOLOR_BLUE]);
-		if (cg_enemyCorpseSaturation.string[0]) {
-			s = cg_enemyCorpseSaturation.value;
-		}
-		if (cg_enemyCorpseValue.string[0]) {
-			v = cg_enemyCorpseValue.value;
-		}
-		CG_HSV2RGB(h,s,v, color);
-		CG_FloatColorToRGBA(color, cgs.corpseRGBA[MODELCOLOR_BLUE]);
+			h = cg_teamHueBlue.value;
+			CG_HSV2RGB(h,s,v, color);
+			CG_FloatColorToRGBA(color, cgs.modelRGBA[bodyPart][MODELCOLOR_BLUE]);
+			if (cg_enemyCorpseSaturation.string[0]) {
+				s = cg_enemyCorpseSaturation.value;
+			}
+			if (cg_enemyCorpseValue.string[0]) {
+				v = cg_enemyCorpseValue.value;
+			}
+			CG_HSV2RGB(h,s,v, color);
+			CG_FloatColorToRGBA(color, cgs.corpseRGBA[bodyPart][MODELCOLOR_BLUE]);
 
-		s = v = 1.0;
+			s = v = 1.0;
 
-		h = cg_teamHueRed.value;
-		CG_HSV2RGB(h,s,v, color);
-		CG_FloatColorToRGBA(color, cgs.modelRGBA[MODELCOLOR_RED]);
-		if (cg_enemyCorpseSaturation.string[0]) {
-			s = cg_enemyCorpseSaturation.value;
+			h = cg_teamHueRed.value;
+			CG_HSV2RGB(h,s,v, color);
+			CG_FloatColorToRGBA(color, cgs.modelRGBA[bodyPart][MODELCOLOR_RED]);
+			if (cg_enemyCorpseSaturation.string[0]) {
+				s = cg_enemyCorpseSaturation.value;
+			}
+			if (cg_enemyCorpseValue.string[0]) {
+				v = cg_enemyCorpseValue.value;
+			}
+			CG_HSV2RGB(h,s,v, color);
+			CG_FloatColorToRGBA(color, cgs.corpseRGBA[bodyPart][MODELCOLOR_RED]);
 		}
-		if (cg_enemyCorpseValue.string[0]) {
-			v = cg_enemyCorpseValue.value;
-		}
-		CG_HSV2RGB(h,s,v, color);
-		CG_FloatColorToRGBA(color, cgs.corpseRGBA[MODELCOLOR_RED]);
 
 		return;
 	}
 
-	s = v = 1.0;
-	// team color:
-	if (cg_teamColor.string[0]) {
-		CG_PlayerColorFromString(cg_teamColor.string, &h, &s, &v);
-	} else if (myteam == TEAM_BLUE) {
-		h = cg_teamHueBlue.value;
-	} else if (myteam == TEAM_RED) {
-		h = cg_teamHueRed.value;
-	} else {
-		h = cg_teamHueDefault.value;
-	}
-	CG_HSV2RGB(h,s,v, color);
-	CG_FloatColorToRGBA(color, cgs.modelRGBA[MODELCOLOR_TEAM]);
-	if (cg_teamCorpseSaturation.string[0]) {
-		s = cg_teamCorpseSaturation.value;
-	}
-	if (cg_teamCorpseValue.string[0]) {
-		v = cg_teamCorpseValue.value;
-	}
-	CG_HSV2RGB(h,s,v, color);
-	CG_FloatColorToRGBA(color, cgs.corpseRGBA[MODELCOLOR_TEAM]);
+	for (bodyPart = MCIDX_HEAD; bodyPart < MCIDX_NUM; ++bodyPart) {
+		s = v = 1.0;
+		// team color:
+		if (bodyPart == MCIDX_HEAD && cg_teamHeadColor.string[0]) {
+			CG_PlayerColorFromString(cg_teamHeadColor.string, &h, &s, &v);
+		} else if (bodyPart == MCIDX_TORSO && cg_teamTorsoColor.string[0]) {
+			CG_PlayerColorFromString(cg_teamTorsoColor.string, &h, &s, &v);
+		} else if (bodyPart == MCIDX_LEGS && cg_teamLegsColor.string[0]) {
+			CG_PlayerColorFromString(cg_teamLegsColor.string, &h, &s, &v);
+		} else if (cg_teamColor.string[0]) {
+			CG_PlayerColorFromString(cg_teamColor.string, &h, &s, &v);
+		} else if (myteam == TEAM_BLUE) {
+			h = cg_teamHueBlue.value;
+		} else if (myteam == TEAM_RED) {
+			h = cg_teamHueRed.value;
+		} else {
+			h = cg_teamHueDefault.value;
+		}
+		CG_HSV2RGB(h,s,v, color);
+		CG_FloatColorToRGBA(color, cgs.modelRGBA[bodyPart][MODELCOLOR_TEAM]);
+		if (cg_teamCorpseSaturation.string[0]) {
+			s = cg_teamCorpseSaturation.value;
+		}
+		if (cg_teamCorpseValue.string[0]) {
+			v = cg_teamCorpseValue.value;
+		}
+		CG_HSV2RGB(h,s,v, color);
+		CG_FloatColorToRGBA(color, cgs.corpseRGBA[bodyPart][MODELCOLOR_TEAM]);
 
-	s = v = 1.0;
-	// enemy color:
-	if (cg_enemyColor.string[0]) {
-		CG_PlayerColorFromString(cg_enemyColor.string, &h, &s, &v);
-	} else if (myteam == TEAM_BLUE) {
-		h = cg_teamHueRed.value;
-	} else if (myteam == TEAM_RED) {
-		h = cg_teamHueBlue.value;
-	} else {
-		h = cg_teamHueDefault.value;
+		s = v = 1.0;
+		// enemy color:
+		if (bodyPart == MCIDX_HEAD && cg_enemyHeadColor.string[0]) {
+			CG_PlayerColorFromString(cg_enemyHeadColor.string, &h, &s, &v);
+		} else if (bodyPart == MCIDX_TORSO && cg_enemyTorsoColor.string[0]) {
+			CG_PlayerColorFromString(cg_enemyTorsoColor.string, &h, &s, &v);
+		} else if (bodyPart == MCIDX_LEGS && cg_enemyLegsColor.string[0]) {
+			CG_PlayerColorFromString(cg_enemyLegsColor.string, &h, &s, &v);
+		} else if (cg_enemyColor.string[0]) {
+			CG_PlayerColorFromString(cg_enemyColor.string, &h, &s, &v);
+		} else if (myteam == TEAM_BLUE) {
+			h = cg_teamHueRed.value;
+		} else if (myteam == TEAM_RED) {
+			h = cg_teamHueBlue.value;
+		} else {
+			h = cg_teamHueDefault.value;
+		}
+		CG_HSV2RGB(h,s,v, color);
+		CG_FloatColorToRGBA(color, cgs.modelRGBA[bodyPart][MODELCOLOR_ENEMY]);
+		if (cg_enemyCorpseSaturation.string[0]) {
+			s = cg_enemyCorpseSaturation.value;
+		}
+		if (cg_enemyCorpseValue.string[0]) {
+			v = cg_enemyCorpseValue.value;
+		}
+		CG_HSV2RGB(h,s,v, color);
+		CG_FloatColorToRGBA(color, cgs.corpseRGBA[bodyPart][MODELCOLOR_ENEMY]);
 	}
-	CG_HSV2RGB(h,s,v, color);
-	CG_FloatColorToRGBA(color, cgs.modelRGBA[MODELCOLOR_ENEMY]);
-	if (cg_enemyCorpseSaturation.string[0]) {
-		s = cg_enemyCorpseSaturation.value;
-	}
-	if (cg_enemyCorpseValue.string[0]) {
-		v = cg_enemyCorpseValue.value;
-	}
-	CG_HSV2RGB(h,s,v, color);
-	CG_FloatColorToRGBA(color, cgs.corpseRGBA[MODELCOLOR_ENEMY]);
 
 }
 
@@ -3140,7 +3165,6 @@ void CG_Player( centity_t *cent ) {
 	float			c;
 	float			angle;
 	vec3_t			dir, angles;
-	byte			playercolor[4];
 
 	// the client number is stored in clientNum.  It can't be derived
 	// from the entity number, because a single client may have
@@ -3174,18 +3198,16 @@ void CG_Player( centity_t *cent ) {
 	memset( &torso, 0, sizeof(torso) );
 	memset( &head, 0, sizeof(head) );
 
-	CG_PlayerGetColors(ci, cent->currentState.eFlags & EF_DEAD ? qtrue : qfalse, playercolor);
-	memcpy(&legs.shaderRGBA, playercolor, sizeof(playercolor));
-	memcpy(&torso.shaderRGBA, playercolor, sizeof(playercolor));
+	CG_PlayerGetColors(ci, cent->currentState.eFlags & EF_DEAD ? qtrue : qfalse, MCIDX_TORSO, torso.shaderRGBA);
+	CG_PlayerGetColors(ci, cent->currentState.eFlags & EF_DEAD ? qtrue : qfalse, MCIDX_LEGS, legs.shaderRGBA);
 	if ((ci->forcedBrightModel || (cgs.ratFlags & RAT_BRIGHTSHELL && cg_brightShells.integer && cgs.gametype != GT_FFA))
 			&& ci->team != TEAM_SPECTATOR &&
 			( (cg_teamHeadColorAuto.integer && ci->team == cg.snap->ps.persistant[PERS_TEAM])
 			  || (cg_enemyHeadColorAuto.integer && ci->team != cg.snap->ps.persistant[PERS_TEAM])
 			)) {
-		CG_PlayerAutoHeadColor(ci, playercolor);
-		memcpy(&head.shaderRGBA, playercolor, sizeof(playercolor));
+		CG_PlayerAutoHeadColor(ci, head.shaderRGBA);
 	} else {
-		memcpy(&head.shaderRGBA, playercolor, sizeof(playercolor));
+		CG_PlayerGetColors(ci, cent->currentState.eFlags & EF_DEAD ? qtrue : qfalse, MCIDX_HEAD, head.shaderRGBA);
 	}
 
 	// get the rotation information

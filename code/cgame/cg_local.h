@@ -1180,6 +1180,10 @@ typedef struct {
 	int	displayIdx;
 } console_t;
 
+#define MCIDX_HEAD 0
+#define MCIDX_TORSO 1
+#define MCIDX_LEGS 2
+#define MCIDX_NUM 3
 #define MODELCOLOR_DEFAULT 0
 #define MODELCOLOR_ENEMY 1
 #define MODELCOLOR_TEAM 2
@@ -1314,8 +1318,8 @@ typedef struct {
 	sfxHandle_t		enemySounds[MAX_CUSTOM_SOUNDS];
 	
 	// player colors
-	byte modelRGBA[MODELCOLOR_NUM][4];
-	byte corpseRGBA[MODELCOLOR_NUM][4];
+	byte modelRGBA[MCIDX_NUM][MODELCOLOR_NUM][4];
+	byte corpseRGBA[MCIDX_NUM][MODELCOLOR_NUM][4];
 
 	// media
 	cgMedia_t		media;
@@ -1522,6 +1526,12 @@ extern vmCvar_t			cg_teamHueRed;
 
 extern vmCvar_t			cg_enemyColor;
 extern vmCvar_t			cg_teamColor;
+extern vmCvar_t			cg_enemyHeadColor;
+extern vmCvar_t			cg_teamHeadColor;
+extern vmCvar_t			cg_enemyTorsoColor;
+extern vmCvar_t			cg_teamTorsoColor;
+extern vmCvar_t			cg_enemyLegsColor;
+extern vmCvar_t			cg_teamLegsColor;
 
 extern vmCvar_t			cg_teamHeadColorAuto;
 extern vmCvar_t			cg_enemyHeadColorAuto;
@@ -1799,7 +1809,7 @@ void CG_AddToGenericConsole( const char *str, console_t *console );
 // cg_player.c
 //
 void CG_Player( centity_t *cent );
-void CG_PlayerGetColors(clientInfo_t *ci, qboolean isDead, byte *outColor);
+void CG_PlayerGetColors(clientInfo_t *ci, qboolean isDead, int bodyPart, byte *outColor);
 void CG_ResetPlayerEntity( centity_t *cent );
 void CG_AddRefEntityWithPowerups( refEntity_t *ent, entityState_t *state, int team, qboolean isMissile , clientInfo_t *ci, int orderIndicator);
 void CG_NewClientInfo( int clientNum );
