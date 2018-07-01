@@ -1429,6 +1429,7 @@ extern vmCvar_t                	cg_ratPredictMissilesPing;
 extern vmCvar_t                	cg_ratPredictMissilesPingFactor;
 extern vmCvar_t                	cg_ratPredictMissiles;
 extern vmCvar_t                	cg_ratScoreboard;
+extern vmCvar_t                	cg_ratScoreboardAccuracy;
 extern vmCvar_t                	cg_ratStatusbar;
 extern vmCvar_t			cg_ratPlasmaTrail;
 extern vmCvar_t			cg_ratPlasmaTrailAlpha;

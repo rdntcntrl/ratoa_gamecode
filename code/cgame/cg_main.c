@@ -192,6 +192,7 @@ vmCvar_t 	cg_ratPredictMissilesPingFactor;
 vmCvar_t 	cg_ratPredictMissiles;
 vmCvar_t 	cg_delagProjectileTrail;
 vmCvar_t 	cg_ratScoreboard;
+vmCvar_t 	cg_ratScoreboardAccuracy;
 vmCvar_t 	cg_ratStatusbar;
 vmCvar_t	cg_ratPlasmaTrail;
 vmCvar_t	cg_ratPlasmaTrailAlpha;
@@ -552,6 +553,7 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_ratPredictMissiles, "cg_ratPredictMissiles", "1", CVAR_ARCHIVE},
 	{ &cg_delagProjectileTrail, "cg_delagProjectileTrail", "1", 0},
 	{ &cg_ratScoreboard, "cg_ratScoreboard", "1", CVAR_ARCHIVE},
+	{ &cg_ratScoreboardAccuracy, "cg_ratScoreboardAccuracy", "1", 0},
 	{ &cg_ratStatusbar, "cg_ratStatusbar", "0", CVAR_ARCHIVE},
 	// TODO: make CVAR_ARCHIVE
 	{ &cg_ratPlasmaTrail, "cg_ratPlasmaTrail", "0", 0},

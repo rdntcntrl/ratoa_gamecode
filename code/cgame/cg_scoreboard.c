@@ -190,6 +190,59 @@ static void CG_PingColor(int ping, vec4_t color) {
 
 }
 
+#define RAT_ACCBOARD_YPOS (SCREEN_HEIGHT-2)
+#define RAT_ACCITEM_SIZE 16
+#define RAT_ACCCOLUMN_WIDTH (RAT_ACCITEM_SIZE + SCORETINYCHAR_WIDTH*6)
+
+qboolean CG_DrawRatAccboard( void ) {
+        int counter, i;
+	int x;
+	
+
+	if (!cg_ratScoreboardAccuracy.integer) {
+		return qfalse;
+	}
+
+	if ( cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR 
+			|| cg.snap->ps.pm_flags & PMF_FOLLOW) {
+		return qfalse;
+	}
+
+        i = 0;
+
+        trap_R_SetColor( colorWhite );
+
+        for( counter = 0; counter < WP_NUM_WEAPONS ; counter++ ){
+                if( cg_weapons[counter+2].weaponIcon && counter != WP_PROX_LAUNCHER && counter != WP_GRAPPLING_HOOK )
+                        i++;
+        }
+
+	x = (SCREEN_WIDTH - RAT_ACCCOLUMN_WIDTH*i)/2.0;
+        i = 0;
+
+        for( counter = 0 ; counter < WP_NUM_WEAPONS ; counter++ ){
+                if( cg_weapons[counter+2].weaponIcon && counter != WP_PROX_LAUNCHER && counter != WP_GRAPPLING_HOOK ){
+                        CG_DrawPic( x , RAT_ACCBOARD_YPOS - RAT_ACCITEM_SIZE , RAT_ACCITEM_SIZE, RAT_ACCITEM_SIZE, cg_weapons[counter+2].weaponIcon );
+                        if( cg.accuracys[counter][0] > 0 ) {
+				CG_DrawTinyScoreStringColor(x + RAT_ACCITEM_SIZE + SCORETINYCHAR_WIDTH/2.0,
+					       	RAT_ACCBOARD_YPOS - RAT_ACCITEM_SIZE/2.0 - SCORETINYCHAR_HEIGHT/2.0,
+						va("%i%s",(int)(((float)cg.accuracys[counter][1]*100)/((float)(cg.accuracys[counter][0]))),"%"),
+					       	colorWhite);
+			} else {
+				CG_DrawTinyScoreStringColor(x + RAT_ACCITEM_SIZE + SCORETINYCHAR_WIDTH/2.0,
+					       	RAT_ACCBOARD_YPOS - RAT_ACCITEM_SIZE/2.0 - SCORETINYCHAR_HEIGHT/2.0,
+						"-%",
+					       	colorWhite);
+			}
+                        i++;
+			x += RAT_ACCCOLUMN_WIDTH;
+                }
+        }
+
+        trap_R_SetColor(NULL);
+        return qtrue;
+}
+
 
 /*
 =================
@@ -782,6 +835,10 @@ qboolean CG_DrawRatScoreboard(void) {
 				break;
 			}
 		}
+	}
+
+	if ( cg.showScores || cg.predictedPlayerState.pm_type == PM_DEAD || cg.predictedPlayerState.pm_type == PM_INTERMISSION ) {
+		CG_DrawRatAccboard();
 	}
 
 	// load any models that have been deferred

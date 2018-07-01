@@ -218,9 +218,7 @@ static void CG_AccDown_f( void ) {
 		cg.accRequestTime = cg.time;
 		trap_SendClientCommand( "acc" );
 
-		if ( !cg.showAcc ) {
-			cg.showAcc = qtrue;
-		}
+		cg.showAcc = qtrue;
 
 	} else {
 		cg.showAcc = qtrue;
