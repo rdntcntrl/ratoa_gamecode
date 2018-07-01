@@ -3699,6 +3699,11 @@ static void CG_ScanForCrosshairEntity( void ) {
 		return;
 	}
 
+	// hide enemies during Treasure Hunter Hiding phase
+	if (cgs.gametype == GT_TREASURE_HUNTER && !CG_THPlayerVisible(&cg_entities[ trace.entityNum ])) {
+		return;
+	}
+
 	if (throughwall && lookedThroughWall) {
 		// XXX: technically, this could give an enemy's position away
 		// when he obscures the position of a friend

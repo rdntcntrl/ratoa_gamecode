@@ -1839,6 +1839,7 @@ void CG_PlayerAutoHeadColor(clientInfo_t *ci, byte *outColor);
 void CG_FloatColorToRGBA(float *color, byte *out);
 void CG_ParseForcedColors( void );
 byte CG_GetBrightShellAlpha(void);
+qboolean CG_THPlayerVisible(centity_t *cent);
 
 //
 // cg_predict.c
