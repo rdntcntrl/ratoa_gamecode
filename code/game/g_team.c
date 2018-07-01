@@ -964,7 +964,7 @@ void Team_DD_makeB2team( gentity_t *target, int team ) {
 void Team_TH_TokenDestroyed( gentity_t *ent ) {
 	if (ent->item->giTag == HARVESTER_REDCUBE) {
 		AddTeamScore(level.intermission_origin, TEAM_BLUE, 1);
-	} else if (ent->item->giTag == HARVESTER_REDCUBE) {
+	} else if (ent->item->giTag == HARVESTER_BLUECUBE) {
 		AddTeamScore(level.intermission_origin, TEAM_RED, 1);
 	}
 	G_FreeEntity( ent );
