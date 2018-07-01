@@ -860,6 +860,12 @@ void CG_RatInitDefaults(void)  {
 		trap_Cvar_Set( "cg_ratInitialized", "5" );
 	}
 
+	if (cg_ratInitialized.integer < 6) {
+		trap_Cvar_Set("snaps", "40");
+
+		trap_Cvar_Set( "cg_ratInitialized", "6" );
+	}
+
 }
 
 /*																																			
@@ -2676,8 +2682,6 @@ void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum ) {
 	addChallenge(GENERAL_TEST);
 
 	trap_S_ClearLoopingSounds( qtrue );
-
-	trap_Cvar_Set("snaps", "40");
 
 	CG_LoadForcedSounds();
 
