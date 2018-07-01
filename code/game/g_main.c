@@ -3290,6 +3290,8 @@ void CheckTreasureHunter(void) {
 		return;
 	}
 
+	CalculateRanks();
+
 	if (TeamCount(-1, TEAM_BLUE, qfalse) == 0 
 			|| TeamCount(-1, TEAM_RED, qfalse) == 0) {
 		return;
