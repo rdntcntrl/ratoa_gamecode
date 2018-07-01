@@ -2261,7 +2261,7 @@ static float CG_DrawRadar( float y ) {
 		case 2:
 			x = SCREEN_WIDTH - w/2.0 - 2.0;
 			y = y - 2.0 - h/2.0;
-			y2 = y - h/2.0;
+			y2 = y - h/2.0 - RADAR_CARRIERINFO_HEIGHT;
 			break;
 		case 1:
 		default:
@@ -2394,7 +2394,9 @@ static void CG_DrawLowerRight( void ) {
 		y = CG_DrawTeamOverlay( y, qtrue, qfalse );
 	} 
 
-	y = CG_DrawRadar( y );
+	if (cg_radar.integer == 2) {
+		y = CG_DrawRadar( y );
+	}
 
 	//y = CG_DrawFollow( y );
 
@@ -4363,7 +4365,9 @@ static void CG_Draw2D(stereoFrame_t stereoFrame)
 	CG_DrawFollow();
 	CG_DrawWarmup();
 
-	CG_DrawRadar(0);
+	if (cg_radar.integer == 1) {
+		CG_DrawRadar(0);
+	}
 
 	// don't draw center string if scoreboard is up
 	cg.scoreBoardShowing = CG_DrawScoreboard();
