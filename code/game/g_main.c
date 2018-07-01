@@ -3156,6 +3156,7 @@ void CheckDomination(void) {
 }
 
 qboolean ScheduleTreasureHunterRound( void ) {
+	// TODO: what happens if we didn't reach capturelimit yet?
 	if (level.th_round == (g_treasureRounds.integer ? g_treasureRounds.integer : 1)) {
 		level.th_hideTime = 0;
 		level.th_seekTime = 0;
@@ -3164,8 +3165,8 @@ qboolean ScheduleTreasureHunterRound( void ) {
 
 	level.th_round++;
 
-	level.th_hideTime = level.time + 1000*10;
-	level.th_seekTime = level.th_hideTime + 1000*10 + g_treasureHideTime.integer * 1000;
+	level.th_hideTime = level.time + 1000*5;
+	level.th_seekTime = level.th_hideTime + 1000*5 + g_treasureHideTime.integer * 1000;
 
 	return qtrue;
 }
@@ -3196,8 +3197,15 @@ void CheckTreasureHunter(void) {
 	if (!level.th_hideActive 
 			&& level.time >= level.th_hideTime 
 			&& level.time < level.th_hideTime + g_treasureHideTime.integer * 1000) {
+		int min = (level.th_hideTime + g_treasureHideTime.integer * 1000 - level.startTime)/(60*1000);
+		int s = (level.th_hideTime + g_treasureHideTime.integer * 1000 - level.startTime)/1000 - min * 60;
 		level.th_hideActive = qtrue;
-		trap_SendServerCommand( -1, va("cp \"Hide your tokens!\nUse \\placeToken.\""));
+		trap_SendServerCommand( -1, va("cp \"Hide your tokens!\nUse \\placeToken.\n"
+					"Hiding phase lasts until %i:%02i\n\"",
+					min, s));
+		trap_SendServerCommand( -1, va("print \"" S_COLOR_CYAN "Hide your tokens using \\placeToken.\n"
+					"Hiding phase lasts until %i:%02i\n\"",
+					min, s));
 		// enables placeToken
 		// give players their tokens
 		for( i=0;i < level.numPlayingClients; i++ ) {
@@ -3205,8 +3213,14 @@ void CheckTreasureHunter(void) {
 			if (!ent->inuse || ent->client->sess.sessionTeam == TEAM_SPECTATOR) {
 				continue;
 			}
-			ent->client->ps.generic1 = (g_treasureTokens.integer >= 0) ? 1 : g_treasureTokens.integer;
+			ent->client->pers.th_tokens = (g_treasureTokens.integer <= 0) ? 1 : g_treasureTokens.integer;
+			ent->client->ps.generic1 = ent->client->pers.th_tokens;
 		}
+	} else if (level.th_hideActive 
+			&& level.time == level.th_hideTime + g_treasureHideTime.integer * 1000 - 10000)  {
+		trap_SendServerCommand( -1, va("cp \"10s left to hide!\n"));
+		// TODO: what if tokens get destroyed (e.g. by lava)
+		// TODO: make sure it advances if everything is hidden
 	} else if (level.th_hideActive 
 			&& level.time >= level.th_hideTime + g_treasureHideTime.integer * 1000)  {
 		int leftover_tokens_red = 0;
@@ -3221,17 +3235,18 @@ void CheckTreasureHunter(void) {
 			if (!ent->inuse || ent->client->sess.sessionTeam == TEAM_SPECTATOR) {
 				continue;
 			}
-			if (ent->client->ps.generic1 <= 0) {
+			if (ent->client->pers.th_tokens <= 0) {
 				continue;
 			}
 
 			if (ent->client->sess.sessionTeam == TEAM_BLUE) {
-				leftover_tokens_blue += ent->client->ps.generic1;
+				leftover_tokens_blue += ent->client->pers.th_tokens;
 			} else {
-				leftover_tokens_red += ent->client->ps.generic1;
+				leftover_tokens_red += ent->client->pers.th_tokens;
 			}
 
-			ent->client->ps.generic1 = 0;
+			ent->client->pers.th_tokens = 0;
+			ent->client->ps.generic1 = ent->client->pers.th_tokens;
 
 		}
 		if (leftover_tokens_red) {
@@ -3244,29 +3259,51 @@ void CheckTreasureHunter(void) {
 		}
 	} else if (!level.th_seekActive 
 			&& level.time >= level.th_seekTime) {
+		int min = (level.th_seekTime + g_treasureSeekTime.integer * 1000 - level.startTime)/(60*1000);
+		int s = (level.th_seekTime + g_treasureSeekTime.integer * 1000 - level.startTime)/1000 - min * 60;
 		level.th_seekActive = qtrue;
-		trap_SendServerCommand( -1, va("cp \"Find your opponent's tokens!\""));
+		trap_SendServerCommand( -1, va("cp \"Find your opponent's tokens!\n"
+					"Seeking phase lasts until %i:%02i\n\"",
+					min, s));
+		trap_SendServerCommand( -1, va("print \"" S_COLOR_CYAN "Find your opponent's tokens!\n"
+					"Seeking phase lasts until %i:%02i\n\"",
+					min, s));
 		// make enemy tokens visible
-		// enable pickup of enemy tokens
-	} else if (level.th_seekActive 
-			&& level.time >= level.th_seekTime + g_treasureSeekTime.integer * 1000)  {
+		// enables pickup of enemy tokens
+	} else if (level.th_seekActive) {
+		int tokens_total = 0;
 		gentity_t	*token;
 
-		level.th_seekActive = qfalse;
-		trap_SendServerCommand( -1, va("cp \"Seeking phase finished!\n\""));
-
-		// finish, clear tokens from map!
 		token = NULL;
 		while ((token = G_Find (token, FOFS(classname), "item_redcube")) != NULL) {
-			G_FreeEntity(token);
+			tokens_total++;
 		}
 		token = NULL;
 		while ((token = G_Find (token, FOFS(classname), "item_bluecube")) != NULL) {
-			G_FreeEntity(token);
+			tokens_total++;
 		}
 
-		// schedule next round
-		ScheduleTreasureHunterRound();
+		if (tokens_total == 0 
+				|| level.time >= level.th_seekTime + g_treasureSeekTime.integer * 1000) {
+
+			level.th_seekActive = qfalse;
+			trap_SendServerCommand( -1, va("cp \"%s\nSeeking phase finished!\n\"", 
+						tokens_total == 0 ? "All tokens discovered!" : "Time is up!"));
+
+			// finish, clear tokens from map!
+			token = NULL;
+			while ((token = G_Find (token, FOFS(classname), "item_redcube")) != NULL) {
+				G_FreeEntity(token);
+			}
+			token = NULL;
+			while ((token = G_Find (token, FOFS(classname), "item_bluecube")) != NULL) {
+				G_FreeEntity(token);
+			}
+
+			// schedule next round
+			ScheduleTreasureHunterRound();
+		}
+
 	}
 }
 

@@ -2375,6 +2375,10 @@ else
 		client->ps.ammo[WP_ROCKET_LAUNCHER] = 999;
 	}
 
+	if (g_gametype.integer == GT_TREASURE_HUNTER) {
+		ent->client->ps.generic1 = ent->client->pers.th_tokens;
+	}
+
 	G_SetOrigin( ent, spawn_origin );
 	VectorCopy( spawn_origin, client->ps.origin );
 

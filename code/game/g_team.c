@@ -961,6 +961,14 @@ void Team_DD_makeB2team( gentity_t *target, int team ) {
 	FinishSpawningItem(ddB );
 }
 
+void Team_TH_TokenDestroyed( gentity_t *ent ) {
+	if (ent->item->giTag == HARVESTER_REDCUBE) {
+		AddTeamScore(level.intermission_origin, TEAM_BLUE, 1);
+	} else if (ent->item->giTag == HARVESTER_REDCUBE) {
+		AddTeamScore(level.intermission_origin, TEAM_RED, 1);
+	}
+}
+
 void Team_ResetFlags( void ) {
 	if( g_gametype.integer == GT_CTF || g_gametype.integer == GT_CTF_ELIMINATION) {
 		Team_ResetFlag( TEAM_RED );
@@ -1084,6 +1092,9 @@ void Team_FreeEntity( gentity_t *ent ) {
 	}
 	else if( ent->item->giTag == PW_NEUTRALFLAG ) {
 		Team_ReturnFlag( TEAM_FREE );
+	}
+	if (g_gametype.integer == GT_TREASURE_HUNTER) {
+		Team_TH_TokenDestroyed( ent );
 	}
 }
 
@@ -1431,7 +1442,7 @@ int Team_TouchEnemyFlag( gentity_t *ent, gentity_t *other, int team ) {
 int Pickup_Team( gentity_t *ent, gentity_t *other ) {
 	int team;
 	gclient_t *cl = other->client;
-	
+
 	if( g_gametype.integer == GT_OBELISK ) {
 		// there are no team items that can be picked up in obelisk
 		G_FreeEntity( ent );
@@ -1461,12 +1472,13 @@ int Pickup_Team( gentity_t *ent, gentity_t *other ) {
 		// the only team items that can be picked up in treasure hunter are the tokens
 		if( ent->spawnflags != cl->sess.sessionTeam ) {
 			AddTeamScore(level.intermission_origin, cl->sess.sessionTeam, 1);
+			AddScore(other, ent->r.currentOrigin, 3);
                         G_LogPrintf("TREASURE_HUNTER: %i %i: %s picked up a token.\n",
                             cl->ps.clientNum,cl->sess.sessionTeam,
                             cl->pers.netname);
+			G_FreeEntity( ent ); //Destory token
+			return 0;
 		} 
-		G_FreeEntity( ent ); //Destory token
-		return 0;
 	}
 
 	if ( g_gametype.integer == GT_DOMINATION ) {

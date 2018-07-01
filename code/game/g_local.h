@@ -355,6 +355,9 @@ typedef struct {
     int quadTime;
     int quadNum;
     int quadWhore;
+
+    int th_tokens;
+
 } clientPersistant_t;
 
 //unlagged - backward reconciliation #1
