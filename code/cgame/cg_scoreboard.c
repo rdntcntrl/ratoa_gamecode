@@ -213,21 +213,20 @@ qboolean CG_DrawRatAccboard( void ) {
 
         trap_R_SetColor( colorWhite );
 
-        for( counter = 0; counter < WP_NUM_WEAPONS ; counter++ ){
-                if( cg_weapons[counter+2].weaponIcon && counter != WP_PROX_LAUNCHER && counter != WP_GRAPPLING_HOOK )
+        for( counter = WP_MACHINEGUN; counter < WP_NUM_WEAPONS ; counter++ ){
+                if( cg_weapons[counter].weaponIcon && counter != WP_PROX_LAUNCHER && counter != WP_GRAPPLING_HOOK )
                         i++;
         }
 
 	x = (SCREEN_WIDTH - RAT_ACCCOLUMN_WIDTH*i)/2.0;
-        i = 0;
 
-        for( counter = 0 ; counter < WP_NUM_WEAPONS ; counter++ ){
-                if( cg_weapons[counter+2].weaponIcon && counter != WP_PROX_LAUNCHER && counter != WP_GRAPPLING_HOOK ){
-                        CG_DrawPic( x , RAT_ACCBOARD_YPOS - RAT_ACCITEM_SIZE , RAT_ACCITEM_SIZE, RAT_ACCITEM_SIZE, cg_weapons[counter+2].weaponIcon );
-                        if( cg.accuracys[counter][0] > 0 ) {
+        for( counter = WP_MACHINEGUN ; counter < WP_NUM_WEAPONS ; counter++ ){
+                if( cg_weapons[counter].weaponIcon && counter != WP_PROX_LAUNCHER && counter != WP_GRAPPLING_HOOK ){
+                        CG_DrawPic( x , RAT_ACCBOARD_YPOS - RAT_ACCITEM_SIZE , RAT_ACCITEM_SIZE, RAT_ACCITEM_SIZE, cg_weapons[counter].weaponIcon );
+                        if( cg.accuracys[counter-WP_MACHINEGUN][0] > 0 ) {
 				CG_DrawTinyScoreStringColor(x + RAT_ACCITEM_SIZE + SCORETINYCHAR_WIDTH/2.0,
 					       	RAT_ACCBOARD_YPOS - RAT_ACCITEM_SIZE/2.0 - SCORETINYCHAR_HEIGHT/2.0,
-						va("%i%s",(int)(((float)cg.accuracys[counter][1]*100)/((float)(cg.accuracys[counter][0]))),"%"),
+						va("%i%s",(int)(((float)cg.accuracys[counter-WP_MACHINEGUN][1]*100)/((float)(cg.accuracys[counter-WP_MACHINEGUN][0]))),"%"),
 					       	colorWhite);
 			} else {
 				CG_DrawTinyScoreStringColor(x + RAT_ACCITEM_SIZE + SCORETINYCHAR_WIDTH/2.0,
@@ -235,7 +234,6 @@ qboolean CG_DrawRatAccboard( void ) {
 						"-%",
 					       	colorWhite);
 			}
-                        i++;
 			x += RAT_ACCCOLUMN_WIDTH;
                 }
         }
