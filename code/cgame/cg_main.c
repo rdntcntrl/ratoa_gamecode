@@ -872,7 +872,7 @@ void CG_RatInitDefaults(void)  {
 		float s,v;
 
 		// Update corpse color cvars
-		trap_Cvar_Set( "cg_corpseSaturation", "" );
+		trap_Cvar_Set( "cg_teamCorpseSaturation", "" );
 		trap_Cvar_Set( "cg_enemyCorpseSaturation", "" );
 
 		trap_Cvar_Set( "cg_teamCorpseValue", "0.2" );
@@ -967,6 +967,10 @@ void CG_RatInitDefaults(void)  {
 
 		trap_Cvar_Set( "cg_ratInitialized", "7" );
 	}
+	//if (cg_ratInitialized.integer < 8) {
+	//	trap_SendConsoleCommand("unset cg_corpseSaturation;");
+	//	trap_Cvar_Set( "cg_ratInitialized", "8" );
+	//}
 
 }
 
