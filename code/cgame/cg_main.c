@@ -552,7 +552,7 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_ratScoreboard, "cg_ratScoreboard", "1", CVAR_ARCHIVE},
 	{ &cg_ratScoreboardAccuracy, "cg_ratScoreboardAccuracy", "1", 0},
 	{ &cg_ratStatusbar, "cg_ratStatusbar", "0", CVAR_ARCHIVE},
-	// TODO: make CVAR_ARCHIVE
+
 	{ &cg_ratPlasmaTrail, "cg_ratPlasmaTrail", "0", CVAR_ARCHIVE},
 	{ &cg_ratPlasmaTrailAlpha, "cg_ratPlasmaTrailAlpha", "0.1", CVAR_ARCHIVE},
 	{ &cg_ratPlasmaTrailStep, "cg_ratPlasmaTrailStep", "12", CVAR_ARCHIVE},
@@ -872,12 +872,6 @@ void CG_RatInitDefaults(void)  {
 		} else {
 			trap_Cvar_Set( "cg_enemyCorpseValue", "0.25" );
 		}
-		//trap_SendConsoleCommand("unset cg_forceEnemyCorpseColor");
-		//trap_SendConsoleCommand("unset cg_forceEnemyCorpseSaturation");
-		//trap_SendConsoleCommand("unset cg_forceEnemyCorpseValue");
-		//trap_SendConsoleCommand("unset cg_forceCorpseColor");
-		//trap_SendConsoleCommand("unset cg_forceCorpseSaturation");
-		//trap_SendConsoleCommand("unset cg_forceCorpseValue");
 
 		// Update default team colors
 		h = CG_Cvar_Get("cg_modelHueBlue");
@@ -893,10 +887,6 @@ void CG_RatInitDefaults(void)  {
 			trap_Cvar_Set( "cg_teamHueRed", "0" );
 		}
 		trap_Cvar_Set( "cg_teamHueDefault", "125" );
-
-		//trap_SendConsoleCommand("unset cg_modelHueBlue");
-		//trap_SendConsoleCommand("unset cg_modelHueDefault");
-		//trap_SendConsoleCommand("unset cg_modelHueRed");
 
 		// update forced colors
 		if (CG_Cvar_Get("cg_forceEnemyModelColor")) {
@@ -918,14 +908,6 @@ void CG_RatInitDefaults(void)  {
 		} else {
 			trap_Cvar_Set( "cg_teamColor", "" );
 		}
-		//trap_SendConsoleCommand("unset cg_forceModelColor");
-		//trap_SendConsoleCommand("unset cg_forceModelHue");
-		//trap_SendConsoleCommand("unset cg_forceModelSaturation");
-		//trap_SendConsoleCommand("unset cg_forceModelValue");
-		//trap_SendConsoleCommand("unset cg_forceEnemyModelColor");
-		//trap_SendConsoleCommand("unset cg_forceEnemyModelHue");
-		//trap_SendConsoleCommand("unset cg_forceEnemyModelSaturation");
-		//trap_SendConsoleCommand("unset cg_forceEnemyModelValue");
 
 		switch ((int)CG_Cvar_Get("cg_autoHeadColors")) {
 			case 2:
@@ -954,9 +936,31 @@ void CG_RatInitDefaults(void)  {
 				trap_Cvar_Set( "cg_teamModel", "sarge/bright");
 				break;
 		}
-		//trap_SendConsoleCommand("unset cg_forceBrightModels");
+		
 
-		//trap_Cvar_Set( "cg_ratInitialized", "7" );
+		// unset old variables
+		trap_SendConsoleCommand("unset cg_forceEnemyCorpseColor;"
+			       		"unset cg_forceEnemyCorpseSaturation;"
+				        "unset cg_forceEnemyCorpseValue;"
+				        "unset cg_forceCorpseColor;"
+				        "unset cg_forceCorpseSaturation;"
+				        "unset cg_forceCorpseValue;"
+				        "unset cg_modelHueBlue;"
+				        "unset cg_modelHueDefault;"
+				        "unset cg_modelHueRed;"
+				        "unset cg_forceModelColor;"
+				        "unset cg_forceModelHue;"
+				        "unset cg_forceModelSaturation;"
+				        "unset cg_forceModelValue;"
+				        "unset cg_forceEnemyModelColor;"
+				        "unset cg_forceEnemyModelHue;"
+				        "unset cg_forceEnemyModelSaturation;"
+				        "unset cg_forceEnemyModelValue;"
+				        "unset cg_autoHeadColors;"
+				        "unset cg_forceBrightModels;"
+					);
+
+		trap_Cvar_Set( "cg_ratInitialized", "7" );
 	}
 
 }
