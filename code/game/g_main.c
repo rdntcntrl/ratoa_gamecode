@@ -3232,7 +3232,7 @@ void SetPlayerTokens(int num) {
 	gentity_t *ent;
 
 	for( i=0;i < level.numPlayingClients; i++ ) {
-		gentity_t *ent = &g_entities[level.sortedClients[i]];
+		ent = &g_entities[level.sortedClients[i]];
 
 		if (!ent->inuse || ent->client->sess.sessionTeam == TEAM_SPECTATOR) {
 			continue;
@@ -3240,7 +3240,6 @@ void SetPlayerTokens(int num) {
 
 		ent->client->pers.th_tokens = num;
 		ent->client->ps.generic1 = ent->client->pers.th_tokens;
-
 	}
 }
 
@@ -3260,6 +3259,11 @@ void CheckTreasureHunter(void) {
 
 	if (level.intermissiontime
 			|| level.warmupTime != 0) {
+		return;
+	}
+
+	if (TeamCount(-1, TEAM_BLUE, qfalse) == 0 
+			|| TeamCount(-1, TEAM_RED, qfalse) == 0) {
 		return;
 	}
 
