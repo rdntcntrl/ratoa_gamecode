@@ -3191,6 +3191,8 @@ qboolean ScheduleTreasureHunterRound( void ) {
 		level.th_hideTime = 0;
 		level.th_seekTime = 0;
 		level.th_phase = TH_INIT;
+		level.th_teamTokensRed = 0;
+		level.th_teamTokensBlue = 0;
 		return qfalse;
 	}
 
@@ -3200,6 +3202,8 @@ qboolean ScheduleTreasureHunterRound( void ) {
 	//level.th_seekTime = level.th_hideTime + 1000*5 + g_treasureHideTime.integer * 1000;
 	level.th_seekTime = 0;
 	level.th_phase = TH_INIT;
+	level.th_teamTokensRed = 0;
+	level.th_teamTokensBlue = 0;
 
 	return qtrue;
 }
@@ -3267,7 +3271,7 @@ int CountPlayerTokens(int team) {
 	return count;
 }
 
-void SetPlayerTokens(int num) {
+void SetPlayerTokens(int num, qboolean updateOnly) {
 	int i;
 	gentity_t *ent;
 
@@ -3278,8 +3282,11 @@ void SetPlayerTokens(int num) {
 			continue;
 		}
 
-		ent->client->pers.th_tokens = num;
-		ent->client->ps.generic1 = ent->client->pers.th_tokens;
+		if (!updateOnly) {
+			ent->client->pers.th_tokens = num;
+		}
+		ent->client->ps.generic1 = ent->client->pers.th_tokens 
+			+ ((ent->client->sess.sessionTeam == TEAM_RED) ? level.th_teamTokensRed : level.th_teamTokensBlue);
 	}
 }
 
@@ -3355,10 +3362,10 @@ void CheckTreasureHunter(void) {
 
 	tokens_red = CountTreasures(TEAM_RED);
 	tokens_blue = CountTreasures(TEAM_BLUE);
-	if (level.th_redTokens != tokens_red ||
-			level.th_blueTokens != tokens_blue) {
-		level.th_redTokens = tokens_red;
-		level.th_blueTokens = tokens_blue;
+	if (level.th_placedTokensRed != tokens_red ||
+			level.th_placedTokensBlue != tokens_blue) {
+		level.th_placedTokensRed = tokens_red;
+		level.th_placedTokensBlue = tokens_blue;
 		needsUpdate = qtrue;
 	}
 
@@ -3379,7 +3386,7 @@ void CheckTreasureHunter(void) {
 					"%s\n\"", str));
 		// enables placeToken
 		// give players their tokens
-		SetPlayerTokens((g_treasureTokens.integer <= 0) ? 1 : g_treasureTokens.integer);
+		SetPlayerTokens((g_treasureTokens.integer <= 0) ? 1 : g_treasureTokens.integer, qfalse);
 
 		needsUpdate = qtrue;
 
@@ -3392,7 +3399,23 @@ void CheckTreasureHunter(void) {
 	} else if (level.th_phase == TH_HIDE) {
 		int leftover_tokens_red = CountPlayerTokens(TEAM_RED);
 		int leftover_tokens_blue = CountPlayerTokens(TEAM_BLUE);
+		int teamTokenDiff = 0;
 		char *s = NULL;
+
+		teamTokenDiff = (level.th_placedTokensRed + level.th_teamTokensRed +leftover_tokens_red) -
+		       (level.th_placedTokensBlue + level.th_teamTokensBlue + leftover_tokens_blue);	
+
+		if (teamTokenDiff < 0) {
+			level.th_teamTokensRed -= teamTokenDiff;
+			// update generic1 only:
+			SetPlayerTokens(0, qtrue);
+		} else if (teamTokenDiff > 0) {
+			level.th_teamTokensBlue += teamTokenDiff;
+			// update generic1 only:
+			SetPlayerTokens(0, qtrue);
+		}
+		leftover_tokens_red += level.th_teamTokensRed;
+		leftover_tokens_blue += level.th_teamTokensBlue;
 
 		if (g_treasureHideTime.integer > 0 && level.time >= level.th_hideTime + g_treasureHideTime.integer * 1000)  {
 			s = "Time is up!";

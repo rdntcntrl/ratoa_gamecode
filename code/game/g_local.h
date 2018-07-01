@@ -616,8 +616,10 @@ typedef struct {
 	int th_redClientMask;
 	int th_blueClientMask;
 	int th_specClientMask;
-	int th_blueTokens;
-	int th_redTokens;
+	int th_placedTokensBlue;
+	int th_placedTokensRed;
+	int th_teamTokensRed;
+	int th_teamTokensBlue;
 	int th_lastClientTokenUpdate;
 
 	//Added to keep track of challenges (can only be completed against humanplayers)

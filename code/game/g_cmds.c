@@ -414,8 +414,8 @@ void TreasureHuntMessage(gentity_t *ent) {
 						level.th_phase,
 						g_treasureHideTime.integer,
 						level.th_hideTime,
-						level.th_redTokens,
-						level.th_blueTokens
+						level.th_placedTokensRed,
+						level.th_placedTokensBlue
 						) );
 			break;
 		case TH_INTER:
@@ -424,8 +424,8 @@ void TreasureHuntMessage(gentity_t *ent) {
 						level.th_phase,
 						g_treasureSeekTime.integer,
 						level.th_seekTime,
-						level.th_redTokens,
-						level.th_blueTokens
+						level.th_placedTokensRed,
+						level.th_placedTokensBlue
 						) );
 			break;
 	}
@@ -1845,12 +1845,18 @@ void Cmd_PlaceToken_f( gentity_t *ent ) {
 		return;
 	}
 
-	if (!ent->client->pers.th_tokens) {
+	if (ent->client->pers.th_tokens) {
+		ent->client->pers.th_tokens--;
+	} else if (ent->client->sess.sessionTeam == TEAM_RED && level.th_teamTokensRed) {
+		level.th_teamTokensRed--;
+	} else if (ent->client->sess.sessionTeam == TEAM_BLUE && level.th_teamTokensBlue) {
+		level.th_teamTokensBlue--;
+	} else {
 		trap_SendServerCommand( ent - g_entities, "cp \"No tokens left!\n");
 		return;
 	}
-	ent->client->pers.th_tokens--;
-	ent->client->ps.generic1 = ent->client->pers.th_tokens;
+	ent->client->ps.generic1 = ent->client->pers.th_tokens 
+		+ ((ent->client->sess.sessionTeam == TEAM_RED) ? level.th_teamTokensRed : level.th_teamTokensBlue);
 
 	item = ent->client->sess.sessionTeam == TEAM_RED ? BG_FindItem("Red Cube") : BG_FindItem("Blue Cube");
 

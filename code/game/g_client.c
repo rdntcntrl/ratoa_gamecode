@@ -2380,7 +2380,8 @@ else
 	}
 
 	if (g_gametype.integer == GT_TREASURE_HUNTER) {
-		ent->client->ps.generic1 = ent->client->pers.th_tokens;
+		ent->client->ps.generic1 = ent->client->pers.th_tokens 
+			+ ((ent->client->sess.sessionTeam == TEAM_RED) ? level.th_teamTokensRed : level.th_teamTokensBlue);
 	}
 
 	G_SetOrigin( ent, spawn_origin );

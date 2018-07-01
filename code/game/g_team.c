@@ -968,7 +968,8 @@ void Team_TH_TokenDestroyed( gentity_t *ent ) {
 				player->client->sess.sessionTeam != TEAM_SPECTATOR) {
 			// give token back to player if it gets destroyed during hiding phase
 			player->client->pers.th_tokens++;
-			player->client->ps.generic1 = player->client->pers.th_tokens;
+			player->client->ps.generic1 = player->client->pers.th_tokens 
+				+ ((player->client->sess.sessionTeam == TEAM_RED) ? level.th_teamTokensRed : level.th_teamTokensBlue);
 			trap_SendServerCommand( player - g_entities, "cp \"Token got destroyed!\n");
 			G_FreeEntity(ent);
 			return;
