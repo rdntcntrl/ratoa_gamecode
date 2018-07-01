@@ -231,10 +231,10 @@ static void CG_TreasureHuntToken ( centity_t *cent ) {
 
 	memset (&ent, 0, sizeof(ent));
 
-	if (cgs.th_tokenStyle >= 1 || 
-			((item->giTag == HARVESTER_REDCUBE && team == TEAM_RED)
-			 || (item->giTag == HARVESTER_BLUECUBE && team == TEAM_BLUE)
-			 )) {
+	if (cgs.th_tokenStyle >= 1
+			//((item->giTag == HARVESTER_REDCUBE && team == TEAM_RED)
+			// || (item->giTag == HARVESTER_BLUECUBE && team == TEAM_BLUE)
+			 ) {
 		ent.hModel = cg_items[es->modelindex].models[0];
 
 		// items bob up and down continuously
@@ -246,12 +246,26 @@ static void CG_TreasureHuntToken ( centity_t *cent ) {
 		//cent->lerpOrigin[2] -= 10;
 	} else {
 		// tokenstyle == 0 -> make enemy token harder to see
-		ent.hModel = cgs.media.thEnemyToken;
+		ent.hModel = cgs.media.thToken;
 		//cent->lerpOrigin[2] += 8; // good for OA model
-		cent->lerpOrigin[2] -= 9; // for new token model
+		//cent->lerpOrigin[2] -= 9; // for new token model
+		cent->lerpOrigin[2] -= 4; // for new token model
 		// make it stationary
 		VectorSet( cent->lerpAngles, 0, 0, 0);
 		AnglesToAxis(cent->lerpAngles, ent.axis);
+		if (item->giTag == HARVESTER_REDCUBE && team == TEAM_RED) {
+			ent.customShader = cgs.media.thTokenTeamShader;
+			ent.shaderRGBA[0] = 255;
+			ent.shaderRGBA[1] = 0;
+			ent.shaderRGBA[2] = 0;
+			ent.shaderRGBA[3] = 255;
+		} else if (item->giTag == HARVESTER_BLUECUBE && team == TEAM_BLUE) {
+			ent.customShader = cgs.media.thTokenTeamShader;
+			ent.shaderRGBA[0] = 0;
+			ent.shaderRGBA[1] = 0;
+			ent.shaderRGBA[2] = 255;
+			ent.shaderRGBA[3] = 255;
+		}
 	}
 
 	VectorCopy( cent->lerpOrigin, ent.origin);
