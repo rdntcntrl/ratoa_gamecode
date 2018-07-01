@@ -2582,14 +2582,14 @@ void CG_AddRefEntityWithPowerups( refEntity_t *ent, entityState_t *state, int te
 			//	ent->customShader = cgs.media.redQuadShader;
 			//else
 			//	ent->customShader = cgs.media.quadShader;
+			memcpy(color_bak, ent->shaderRGBA, sizeof(color_bak));
 
-			if (cg_quadStyle.integer > 0) {
+			if (cg_quadStyle.integer >= 1 && cg_quadStyle.integer <= 2) {
 				int hue;
 				ent->customShader = cgs.media.quadShaderSpots;
 				trap_R_AddRefEntityToScene( ent );
 
 				ent->customShader = cgs.media.quadShaderBase;
-				memcpy(color_bak, ent->shaderRGBA, sizeof(color_bak));
 
 				if (cg_quadStyle.integer == 2) {
 					// hue range 200-285
@@ -2605,8 +2605,19 @@ void CG_AddRefEntityWithPowerups( refEntity_t *ent, entityState_t *state, int te
 				
 				CG_HSV2RGB(hue,1.0,1.0, color);
 				CG_FloatColorToRGBA(color, ent->shaderRGBA);
+				ent->shaderRGBA[3] = (byte)0xff * MAX(MIN(cg_quadAlpha.value, 1.0), 0.0);
 			} else {
-				ent->customShader = cgs.media.quadShader;
+				int hue;
+				ent->customShader = cgs.media.quadShaderSpots;
+				trap_R_AddRefEntityToScene( ent );
+
+				ent->customShader = cgs.media.quadShaderBase;
+
+				hue = cg_quadHue.integer;
+				
+				CG_HSV2RGB(hue,1.0,1.0, color);
+				CG_FloatColorToRGBA(color, ent->shaderRGBA);
+				ent->shaderRGBA[3] = (byte)0xff * MAX(MIN(cg_quadAlpha.value, 1.0), 0.0);
 			}
 
 			if (cg_powerupBlink.integer && orderIndicator) {
@@ -2626,11 +2637,10 @@ void CG_AddRefEntityWithPowerups( refEntity_t *ent, entityState_t *state, int te
 
 				}
 			} else {
-				trap_R_AddRefEntityToScene( ent );
+				trap_R_AddRefEntityToScene(ent);
 			}
-			if (cg_quadStyle.integer) {
-				memcpy(ent->shaderRGBA, color_bak, sizeof(color_bak));
-			}
+
+			memcpy(ent->shaderRGBA, color_bak, sizeof(color_bak));
 		}
 		if ( state->powerups & ( 1 << PW_REGEN ) ) {
 			ent->customShader = cgs.media.regenShader;

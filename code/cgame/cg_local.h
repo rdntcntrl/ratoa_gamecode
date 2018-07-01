@@ -1482,6 +1482,8 @@ extern vmCvar_t			cg_radar;
 extern vmCvar_t			cg_soundBufferDelay;
 extern vmCvar_t			cg_powerupBlink;
 extern vmCvar_t			cg_quadStyle;
+extern vmCvar_t			cg_quadAlpha;
+extern vmCvar_t			cg_quadHue;
 extern vmCvar_t			cg_bloodOnHit;
 extern vmCvar_t			cg_drawSpawnpoints;
 extern vmCvar_t			cg_teamOverlayScaleX;
