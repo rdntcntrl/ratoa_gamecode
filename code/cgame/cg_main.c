@@ -30,7 +30,7 @@ displayContextDef_t cgDC;
 #endif
 
 int forceModelModificationCount = -1;
-int forceBrightModelModificationCount = -1;
+int enemyTeamModelModificationCounts = -1;
 int mySoundModificationCount = -1;
 int teamSoundModificationCount = -1;
 int enemySoundModificationCount = -1;
@@ -263,7 +263,8 @@ vmCvar_t	cg_enemySound;
 
 vmCvar_t	cg_brightShells;
 
-vmCvar_t	cg_forceBrightModels;
+vmCvar_t	cg_enemyModel;
+vmCvar_t	cg_teamModel;
 
 vmCvar_t	cg_teamHueBlue;
 vmCvar_t	cg_teamHueDefault;
@@ -634,7 +635,8 @@ static cvarTable_t cvarTable[] = { // bk001129
 
 	{ &cg_brightShells ,     "cg_brightShells", "1", CVAR_ARCHIVE},
 
-	{ &cg_forceBrightModels ,     "cg_forceBrightModels", "2", CVAR_ARCHIVE},
+	{ &cg_enemyModel ,     "cg_enemyModel", "smarine/bright", CVAR_ARCHIVE},
+	{ &cg_teamModel ,      "cg_teamModel", "sarge/bright", CVAR_ARCHIVE},
 
 	{ &cg_teamHueBlue ,     "cg_teamHueBlue", "210", CVAR_ARCHIVE},
 	{ &cg_teamHueDefault ,  "cg_teamHueDefault", "125", CVAR_ARCHIVE},
@@ -759,7 +761,7 @@ void CG_RegisterCvars( void ) {
 	cgs.localServer = atoi( var );
 
 	forceModelModificationCount = cg_forceModel.modificationCount;
-	forceBrightModelModificationCount = cg_forceBrightModels.modificationCount;
+	enemyTeamModelModificationCounts = cg_enemyModel.modificationCount + cg_teamModel.modificationCount;
 
 	trap_Cvar_Register(NULL, "model", DEFAULT_MODEL, CVAR_USERINFO | CVAR_ARCHIVE );
 	trap_Cvar_Register(NULL, "headmodel", DEFAULT_MODEL, CVAR_USERINFO | CVAR_ARCHIVE );
@@ -939,6 +941,23 @@ void CG_RatInitDefaults(void)  {
 		}
 		//trap_SendConsoleCommand("unset cg_autoHeadColors");
 
+		switch ((int)CG_Cvar_Get("cg_forceBrightModels")) {
+			case 1:
+				trap_Cvar_Set( "cg_teamModel", "sarge/bright");
+				trap_Cvar_Set( "cg_enemyModel","sarge/bright");
+				break;
+			case 3:
+				trap_Cvar_Set( "cg_teamModel", "smarine/bright");
+				trap_Cvar_Set( "cg_enemyModel","smarine/bright");
+				break;
+			case 2:
+			default:
+				trap_Cvar_Set( "cg_enemyModel","smarine/bright");
+				trap_Cvar_Set( "cg_teamModel", "sarge/bright");
+				break;
+		}
+		//trap_SendConsoleCommand("unset cg_forceBrightModels");
+
 		//trap_Cvar_Set( "cg_ratInitialized", "7" );
 	}
 
@@ -1052,8 +1071,9 @@ void CG_UpdateCvars( void ) {
 		forceModelModificationCount = cg_forceModel.modificationCount;
 		CG_ForceModelChange();
 	}
-	if ( forceBrightModelModificationCount != cg_forceBrightModels.modificationCount ) {
-		forceBrightModelModificationCount = cg_forceBrightModels.modificationCount;
+	i = cg_enemyModel.modificationCount + cg_teamModel.modificationCount;
+	if ( enemyTeamModelModificationCounts != i ) {
+		enemySoundModificationCount = i;
 		CG_ForceModelChange();
 	}
 	if ( mySoundModificationCount != cg_mySound.modificationCount

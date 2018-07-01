@@ -363,7 +363,7 @@ static qboolean	CG_FindClientModelFile( char *filename, int length, clientInfo_t
 				return qtrue;
 			}
 			if ( cgs.gametype >= GT_TEAM && cgs.ffa_gt!=1) {
-				const char *tmpTeam = (cg_forceBrightModels.integer && cgs.ratFlags & RAT_ALLOWBRIGHTSKINS) ? skinName : team;
+				const char *tmpTeam = (ci->forcedModel) ? skinName : team;
 				if ( i == 0 && teamName && *teamName ) {
 					//								"models/players/characters/sergei/stroggs/lower_red.skin"
 					Com_sprintf( filename, length, "models/players/%s%s/%s%s_%s.%s", charactersFolder, modelName, teamName, base, tmpTeam, ext );
@@ -444,7 +444,7 @@ static qboolean	CG_FindClientHeadFile( char *filename, int length, clientInfo_t 
 				return qtrue;
 			}
 			if ( cgs.gametype >= GT_TEAM && cgs.ffa_gt!=1) {
-				const char *tmpTeam = (cg_forceBrightModels.integer && cgs.ratFlags & RAT_ALLOWBRIGHTSKINS) ? headSkinName : team;
+				const char *tmpTeam = (ci->forcedModel) ? headSkinName : team;
 				if ( i == 0 &&  teamName && *teamName ) {
 					Com_sprintf( filename, length, "models/players/%s%s/%s%s_%s.%s", headsFolder, headModelName, teamName, base, tmpTeam, ext );
 				}
@@ -968,6 +968,9 @@ void CG_NewClientInfo( int clientNum ) {
 	// the old value
 	memset( &newInfo, 0, sizeof( newInfo ) );
 
+	newInfo.forcedModel = qfalse;
+	newInfo.forcedBrightModel = qfalse;
+
 	// isolate the player's name
 	v = Info_ValueForKey(configstring, "n");
 	Q_strncpyz( newInfo.name, v, sizeof( newInfo.name ) );
@@ -1029,20 +1032,32 @@ void CG_NewClientInfo( int clientNum ) {
 		}
 	}
 
-	if (cg_forceBrightModels.integer == 3 && cgs.ratFlags & RAT_ALLOWBRIGHTSKINS) {
-		Q_strncpyz( newInfo.modelName, "smarine", sizeof( newInfo.modelName ) );
-		Q_strncpyz( newInfo.skinName, "bright", sizeof( newInfo.skinName ) );
-	} else if (cg_forceBrightModels.integer == 2 && cgs.ratFlags & RAT_ALLOWBRIGHTSKINS) {
+	if (cgs.ratFlags & RAT_ALLOWBRIGHTSKINS && 
+			(  (!enemy && cg_teamModel.string[0]) ||
+			   ( enemy && cg_enemyModel.string[0])
+			)) {
 		if (enemy) {
-			Q_strncpyz( newInfo.modelName, "smarine", sizeof( newInfo.modelName ) );
-			Q_strncpyz( newInfo.skinName, "bright", sizeof( newInfo.skinName ) );
+			Q_strncpyz( newInfo.modelName, cg_enemyModel.string, sizeof( newInfo.modelName ) );
 		} else {
-			Q_strncpyz( newInfo.modelName, DEFAULT_TEAM_MODEL, sizeof( newInfo.modelName ) );
+			Q_strncpyz( newInfo.modelName, cg_teamModel.string, sizeof( newInfo.modelName ) );
+		}
+
+		slash = strchr( newInfo.modelName, '/' );
+		if ( !slash ) {
+			// modelName didn not include a skin name
+			Q_strncpyz( newInfo.skinName, "default", sizeof( newInfo.skinName ) );
+		} else {
+			Q_strncpyz( newInfo.skinName, slash + 1, sizeof( newInfo.skinName ) );
+			// truncate modelName
+			*slash = 0;
+		}
+		// replace "pm" with "bright" models for compatibility with
+		// configs from other mods
+		if (strcmp(newInfo.skinName, "pm") == 0) {
 			Q_strncpyz( newInfo.skinName, "bright", sizeof( newInfo.skinName ) );
 		}
-	} else if (cg_forceBrightModels.integer && cgs.ratFlags & RAT_ALLOWBRIGHTSKINS) {
-		Q_strncpyz( newInfo.modelName, DEFAULT_TEAM_MODEL, sizeof( newInfo.modelName ) );
-		Q_strncpyz( newInfo.skinName, "bright", sizeof( newInfo.skinName ) );
+		newInfo.forcedBrightModel = (strcmp(newInfo.skinName, "bright") == 0);
+		newInfo.forcedModel = qtrue;
 	} else if ( cg_forceModel.integer ) {
 		// forcemodel makes everyone use a single model
 		// to prevent load hitches
@@ -1091,20 +1106,32 @@ void CG_NewClientInfo( int clientNum ) {
 
 	// head model
 	v = Info_ValueForKey( configstring, "hmodel" );
-	if (cg_forceBrightModels.integer == 3 && cgs.ratFlags & RAT_ALLOWBRIGHTSKINS) {
-		Q_strncpyz( newInfo.headModelName, "smarine", sizeof( newInfo.headModelName ) );
-		Q_strncpyz( newInfo.headSkinName, "bright", sizeof( newInfo.headSkinName ) );
-	} else if (cg_forceBrightModels.integer == 2 && cgs.ratFlags & RAT_ALLOWBRIGHTSKINS) {
+	if (cgs.ratFlags & RAT_ALLOWBRIGHTSKINS && 
+			(  (!enemy && cg_teamModel.string[0]) ||
+			   ( enemy && cg_enemyModel.string[0])
+			)) {
 		if (enemy) {
-			Q_strncpyz( newInfo.headModelName, "smarine", sizeof( newInfo.headModelName ) );
-			Q_strncpyz( newInfo.headSkinName, "bright", sizeof( newInfo.headSkinName ) );
+			Q_strncpyz( newInfo.headModelName, cg_enemyModel.string, sizeof( newInfo.headModelName ) );
 		} else {
-			Q_strncpyz( newInfo.headModelName, DEFAULT_TEAM_MODEL, sizeof( newInfo.headModelName ) );
+			Q_strncpyz( newInfo.headModelName, cg_teamModel.string, sizeof( newInfo.headModelName ) );
+		}
+
+		slash = strchr( newInfo.headModelName, '/' );
+		if ( !slash ) {
+			// headModelName didn not include a skin name
+			Q_strncpyz( newInfo.headSkinName, "default", sizeof( newInfo.headSkinName ) );
+		} else {
+			Q_strncpyz( newInfo.headSkinName, slash + 1, sizeof( newInfo.headSkinName ) );
+			// truncate headModelName
+			*slash = 0;
+		}
+		// replace "pm" with "bright" models for compatibility with
+		// configs from other mods
+		if (strcmp(newInfo.headSkinName, "pm") == 0) {
 			Q_strncpyz( newInfo.headSkinName, "bright", sizeof( newInfo.headSkinName ) );
 		}
-	} else if (cg_forceBrightModels.integer && cgs.ratFlags & RAT_ALLOWBRIGHTSKINS) {
-		Q_strncpyz( newInfo.headModelName, DEFAULT_TEAM_MODEL, sizeof( newInfo.headModelName ) );
-		Q_strncpyz( newInfo.headSkinName, "bright", sizeof( newInfo.headSkinName ) );
+		newInfo.forcedBrightModel = (strcmp(newInfo.skinName, "bright") == 0);
+		newInfo.forcedModel = qtrue;
 	} else if ( cg_forceModel.integer ) {
 		// forcemodel makes everyone use a single model
 		// to prevent load hitches
@@ -2481,7 +2508,7 @@ Adds a piece with modifications or duplications for powerups
 Also called by CG_Missile for quad rockets, but nobody can tell...
 ===============
 */
-void CG_AddRefEntityWithPowerups( refEntity_t *ent, entityState_t *state, int team, qboolean isMissile, int orderIndicator ) {
+void CG_AddRefEntityWithPowerups( refEntity_t *ent, entityState_t *state, int team, qboolean isMissile, clientInfo_t *ci, int orderIndicator ) {
 
 	if ( state->powerups & ( 1 << PW_INVIS ) ) {
             if( (cgs.dmflags & DF_INVIS) == 0) {
@@ -2627,8 +2654,8 @@ void CG_AddRefEntityWithPowerups( refEntity_t *ent, entityState_t *state, int te
 
 		if(!isMissile && 
 				((cgs.ratFlags & RAT_BRIGHTSHELL && cg_brightShells.integer) && 
-				 (!cg_forceBrightModels.integer || !(cgs.ratFlags & RAT_ALLOWBRIGHTSKINS)))
-			       	&& !(state->eFlags & EF_DEAD)  ) {
+				 (ci && !ci->forcedBrightModel ))) {
+			       	//&& !(state->eFlags & EF_DEAD)  ) {
 			ent->customShader = cgs.media.brightShell;
 			trap_R_AddRefEntityToScene( ent );
 		}
@@ -2879,16 +2906,16 @@ void CG_PlayerGetColors(clientInfo_t *ci, qboolean isDead, byte *outColor) {
 	clientInfo_t *player = &cgs.clientinfo[cg.clientNum];
 	int myteam = player->team;
 
-	if (!((cgs.ratFlags & RAT_BRIGHTSHELL && cg_brightShells.integer)) && (!cg_forceBrightModels.integer || !(cgs.ratFlags & RAT_ALLOWBRIGHTSKINS))) {
+	if (!((cgs.ratFlags & RAT_BRIGHTSHELL && cg_brightShells.integer)) && (!ci->forcedBrightModel)) {
 		float color[4];
 		color[0] = color[1] = color[2] = color[3] = 1.0;
 		CG_FloatColorToRGBA(color, outColor);
 		return;
 	}
 
-	if ((!(cg_forceBrightModels.integer && cgs.ratFlags & RAT_ALLOWBRIGHTSKINS) 
+	if ((!(ci->forcedBrightModel)
 			&& (cg_brightShells.integer && cgs.ratFlags & RAT_BRIGHTSHELL)
-		       ) && (cgs.gametype < GT_TEAM || cgs.ffa_gt==1)) {
+		       ) && (cgs.gametype == GT_FFA)) {
 		float color[4];
 		color[0] = ci->color2[0];
 		color[1] = ci->color2[1];
@@ -3145,7 +3172,8 @@ void CG_Player( centity_t *cent ) {
 	CG_PlayerGetColors(ci, cent->currentState.eFlags & EF_DEAD ? qtrue : qfalse, playercolor);
 	memcpy(&legs.shaderRGBA, playercolor, sizeof(playercolor));
 	memcpy(&torso.shaderRGBA, playercolor, sizeof(playercolor));
-	if (cgs.ratFlags & RAT_ALLOWBRIGHTSKINS && cg_forceBrightModels.integer && ci->team != TEAM_SPECTATOR &&
+	if ((cgs.ratFlags & RAT_ALLOWBRIGHTSKINS || (cgs.ratFlags & RAT_BRIGHTSHELL && (cgs.gametype >= GT_TEAM || cgs.ffa_gt != 1))) 
+			&& ci->team != TEAM_SPECTATOR &&
 			( (cg_teamHeadColorAuto.integer && ci->team == cg.snap->ps.persistant[PERS_TEAM])
 			  || (cg_enemyHeadColorAuto.integer && ci->team != cg.snap->ps.persistant[PERS_TEAM])
 			)) {
@@ -3191,7 +3219,7 @@ void CG_Player( centity_t *cent ) {
 	legs.renderfx = renderfx;
 	VectorCopy (legs.origin, legs.oldorigin);	// don't positionally lerp at all
 
-	CG_AddRefEntityWithPowerups( &legs, &cent->currentState, ci->team, qfalse, 3 );
+	CG_AddRefEntityWithPowerups( &legs, &cent->currentState, ci->team, qfalse, ci, 3 );
 
 	// if the model failed, allow the default nullmodel to be displayed
 	if (!legs.hModel) {
@@ -3215,7 +3243,7 @@ void CG_Player( centity_t *cent ) {
 	torso.shadowPlane = shadowPlane;
 	torso.renderfx = renderfx;
 
-	CG_AddRefEntityWithPowerups( &torso, &cent->currentState, ci->team, qfalse, 2 );
+	CG_AddRefEntityWithPowerups( &torso, &cent->currentState, ci->team, qfalse, ci, 2 );
 
 	if ( cent->currentState.eFlags & EF_KAMIKAZE ) {
 
@@ -3435,7 +3463,7 @@ void CG_Player( centity_t *cent ) {
 	head.shadowPlane = shadowPlane;
 	head.renderfx = renderfx;
 
-	CG_AddRefEntityWithPowerups( &head, &cent->currentState, ci->team, qfalse, 1 );
+	CG_AddRefEntityWithPowerups( &head, &cent->currentState, ci->team, qfalse, ci, 1 );
 
 	CG_BreathPuffs(cent, &head);
 

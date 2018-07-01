@@ -405,6 +405,9 @@ typedef struct {
 	char			blueTeam[MAX_TEAMNAME];
 	qboolean		deferred;
 
+	qboolean	forcedModel; 			// true if the model was forced through cg_teamModel or cg_enemyModel
+	qboolean	forcedBrightModel; 		// true if it's a forced bright model (e.g. cg_teamModel smarine/bright)
+
 	qboolean		newAnims;		// true if using the new mission pack animations
 	qboolean		fixedlegs;		// true if legs yaw is always the same as torso yaw
 	qboolean		fixedtorso;		// true if torso never changes yaw
@@ -429,6 +432,7 @@ typedef struct {
 	sfxHandle_t		sounds[MAX_CUSTOM_SOUNDS];
 
 	int		isDead;
+
 } clientInfo_t;
 
 
@@ -1508,11 +1512,12 @@ extern vmCvar_t			cg_enemySound;
 extern vmCvar_t			cg_brightShells;
 
 
+extern vmCvar_t			cg_enemyModel;
+extern vmCvar_t			cg_teamModel;
+
 extern vmCvar_t			cg_teamHueBlue;
 extern vmCvar_t			cg_teamHueDefault;
 extern vmCvar_t			cg_teamHueRed;
-
-extern vmCvar_t			cg_forceBrightModels;
 
 extern vmCvar_t			cg_teamHueBlue;
 extern vmCvar_t			cg_teamHueDefault;
@@ -1799,7 +1804,7 @@ void CG_AddToGenericConsole( const char *str, console_t *console );
 void CG_Player( centity_t *cent );
 void CG_PlayerGetColors(clientInfo_t *ci, qboolean isDead, byte *outColor);
 void CG_ResetPlayerEntity( centity_t *cent );
-void CG_AddRefEntityWithPowerups( refEntity_t *ent, entityState_t *state, int team, qboolean isMissile , int orderIndicator);
+void CG_AddRefEntityWithPowerups( refEntity_t *ent, entityState_t *state, int team, qboolean isMissile , clientInfo_t *ci, int orderIndicator);
 void CG_NewClientInfo( int clientNum );
 sfxHandle_t	CG_CustomSound( int clientNum, const char *soundName );
 void CG_HSV2RGB(float h, float s, float v, float *out);

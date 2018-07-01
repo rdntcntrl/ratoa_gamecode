@@ -341,12 +341,12 @@ void CG_Draw3DHead( float x, float y, float w, float h, qhandle_t model, qhandle
 	ent.renderfx = RF_NOSHADOW;		// no stencil shadows
 
 	if (cgs.ratFlags & RAT_ALLOWBRIGHTSKINS) {
-		if (cg_forceBrightModels.integer && ci->team != TEAM_SPECTATOR &&
+		if (ci->team != TEAM_SPECTATOR &&
 				( (cg_teamHeadColorAuto.integer && ci->team == cg.snap->ps.persistant[PERS_TEAM])
 				  || (cg_enemyHeadColorAuto.integer && ci->team != cg.snap->ps.persistant[PERS_TEAM])
 				)) {
 			CG_PlayerAutoHeadColor(ci, ent.shaderRGBA);
-		} else if (cg_forceBrightModels.integer) {
+		} else {
 			CG_PlayerGetColors(ci, qfalse, ent.shaderRGBA);
 		}
 	}
@@ -367,6 +367,10 @@ void CG_Draw3DHead( float x, float y, float w, float h, qhandle_t model, qhandle
 
 	trap_R_ClearScene();
 	trap_R_AddRefEntityToScene( &ent );
+	if (cgs.ratFlags & RAT_BRIGHTSHELL && !ci->forcedBrightModel) {
+		ent.customShader = cgs.media.brightShell;
+		trap_R_AddRefEntityToScene( &ent );
+	}
 	trap_R_RenderScene( &refdef );
 }
 
