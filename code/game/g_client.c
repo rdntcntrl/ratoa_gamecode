@@ -2014,6 +2014,7 @@ void ClientBegin( int clientNum ) {
 	}
 
 	if (g_gametype.integer == GT_TREASURE_HUNTER) {
+		client->pers.th_tokens = 0;		
 		TreasureHuntMessage(ent);
 	}
 
