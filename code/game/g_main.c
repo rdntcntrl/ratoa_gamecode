@@ -3271,24 +3271,6 @@ int CountPlayerTokens(int team) {
 	return count;
 }
 
-void SetPlayerTokens(int num, qboolean updateOnly) {
-	int i;
-	gentity_t *ent;
-
-	for( i=0;i < level.numPlayingClients; i++ ) {
-		ent = &g_entities[level.sortedClients[i]];
-
-		if (!ent->inuse || ent->client->sess.sessionTeam == TEAM_SPECTATOR) {
-			continue;
-		}
-
-		if (!updateOnly) {
-			ent->client->pers.th_tokens = num;
-		}
-		ent->client->ps.generic1 = ent->client->pers.th_tokens 
-			+ ((ent->client->sess.sessionTeam == TEAM_RED) ? level.th_teamTokensRed : level.th_teamTokensBlue);
-	}
-}
 
 /*
 =============

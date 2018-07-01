@@ -964,13 +964,24 @@ void Team_DD_makeB2team( gentity_t *target, int team ) {
 void Team_TH_TokenDestroyed( gentity_t *ent ) {
 	if (level.th_phase == TH_HIDE && ent->parent && ent->parent->inuse) {
 		gentity_t *player = ent->parent;
-		if (player->client && player->client->pers.connected  == CON_CONNECTED &&
+		if (!ent->teamToken && player && player->client 
+				&& player->client->pers.connected  == CON_CONNECTED &&
 				player->client->sess.sessionTeam != TEAM_SPECTATOR) {
 			// give token back to player if it gets destroyed during hiding phase
 			player->client->pers.th_tokens++;
 			player->client->ps.generic1 = player->client->pers.th_tokens 
 				+ ((player->client->sess.sessionTeam == TEAM_RED) ? level.th_teamTokensRed : level.th_teamTokensBlue);
 			trap_SendServerCommand( player - g_entities, "cp \"Token got destroyed!\n");
+			G_FreeEntity(ent);
+			return;
+		} else {
+			// give token back to team
+			if (ent->item->giTag == HARVESTER_REDCUBE) {
+				level.th_teamTokensRed++;
+			} else if (ent->item->giTag == HARVESTER_BLUECUBE) {
+				level.th_teamTokensBlue++;
+			}
+			SetPlayerTokens(0, qtrue);
 			G_FreeEntity(ent);
 			return;
 		}
@@ -2380,3 +2391,21 @@ void Token_die(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int d
 	G_FreeEntity(self);
 }
 
+void SetPlayerTokens(int num, qboolean updateOnly) {
+	int i;
+	gentity_t *ent;
+
+	for( i=0;i < level.numPlayingClients; i++ ) {
+		ent = &g_entities[level.sortedClients[i]];
+
+		if (!ent->inuse || ent->client->sess.sessionTeam == TEAM_SPECTATOR) {
+			continue;
+		}
+
+		if (!updateOnly) {
+			ent->client->pers.th_tokens = num;
+		}
+		ent->client->ps.generic1 = ent->client->pers.th_tokens 
+			+ ((ent->client->sess.sessionTeam == TEAM_RED) ? level.th_teamTokensRed : level.th_teamTokensBlue);
+	}
+}

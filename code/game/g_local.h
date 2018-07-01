@@ -208,6 +208,8 @@ struct gentity_s {
 	int		pushed_at;
 
 	qboolean	missileExploded;
+
+	qboolean	teamToken;
 };
 
 
@@ -1001,6 +1003,7 @@ team_t G_TeamFromString( char *str );
 void G_SendTeamPlayerCounts(void);
 void Token_die(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod);
 void Team_TH_TokenDestroyed( gentity_t *ent );
+void SetPlayerTokens(int num, qboolean updateOnly);
 
 //KK-OAX Removed these in Code in favor of bg_alloc.c from Tremulous
 // g_mem.c

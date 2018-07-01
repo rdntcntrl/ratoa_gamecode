@@ -1829,6 +1829,7 @@ void Cmd_PlaceToken_f( gentity_t *ent ) {
 	gentity_t *token = NULL;
 	gitem_t *item;
 	vec3_t velocity = {0.0, 0.0, 0.0};
+	qboolean teamToken = qtrue;
 
 	if (g_gametype.integer != GT_TREASURE_HUNTER) {
 		return;
@@ -1847,16 +1848,19 @@ void Cmd_PlaceToken_f( gentity_t *ent ) {
 
 	if (ent->client->pers.th_tokens) {
 		ent->client->pers.th_tokens--;
+		ent->client->ps.generic1 = ent->client->pers.th_tokens 
+			+ ((ent->client->sess.sessionTeam == TEAM_RED) ? level.th_teamTokensRed : level.th_teamTokensBlue);
+		teamToken = qfalse;
 	} else if (ent->client->sess.sessionTeam == TEAM_RED && level.th_teamTokensRed) {
 		level.th_teamTokensRed--;
+		SetPlayerTokens(0, qtrue);
 	} else if (ent->client->sess.sessionTeam == TEAM_BLUE && level.th_teamTokensBlue) {
 		level.th_teamTokensBlue--;
+		SetPlayerTokens(0, qtrue);
 	} else {
 		trap_SendServerCommand( ent - g_entities, "cp \"No tokens left!\n");
 		return;
 	}
-	ent->client->ps.generic1 = ent->client->pers.th_tokens 
-		+ ((ent->client->sess.sessionTeam == TEAM_RED) ? level.th_teamTokensRed : level.th_teamTokensBlue);
 
 	item = ent->client->sess.sessionTeam == TEAM_RED ? BG_FindItem("Red Cube") : BG_FindItem("Blue Cube");
 
@@ -1873,6 +1877,8 @@ void Cmd_PlaceToken_f( gentity_t *ent ) {
 	token->s.generic1 = 0;
 
 	token->parent = ent;
+
+	token->teamToken = teamToken;
 
 	token->r.svFlags |= SVF_CLIENTMASK;
 	token->r.singleClient = ent->client->sess.sessionTeam == TEAM_BLUE ? level.th_blueClientMask : level.th_redClientMask;
