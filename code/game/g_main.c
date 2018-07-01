@@ -3294,23 +3294,6 @@ void CheckTreasureHunter(void) {
 		return;
 	}
 
-	CalculateRanks();
-
-	if (TeamCount(-1, TEAM_BLUE, qfalse) == 0 
-			|| TeamCount(-1, TEAM_RED, qfalse) == 0) {
-		return;
-	}
-	if (!level.th_round) {
-		level.th_roundFinished = 0;
-	}
-
-	if (!level.th_hideTime && !level.th_seekTime) {
-		 if (!ScheduleTreasureHunterRound()) {
-			 return;
-		 }
-		 SendTreasureHuntMessageToAllClients();
-	}
-
 	// update client masks for the tokens
 	level.th_blueClientMask = 0;
 	level.th_redClientMask = 0;
@@ -3342,6 +3325,24 @@ void CheckTreasureHunter(void) {
 		UpdateTreasureVisibility(qfalse, 0);
 	} else if (level.time >= level.th_hideTime) {
 		UpdateTreasureVisibility(qtrue, 0);
+	}
+
+
+	CalculateRanks();
+
+	if (TeamCount(-1, TEAM_BLUE, qfalse) == 0 
+			|| TeamCount(-1, TEAM_RED, qfalse) == 0) {
+		return;
+	}
+	if (!level.th_round) {
+		level.th_roundFinished = 0;
+	}
+
+	if (!level.th_hideTime && !level.th_seekTime) {
+		 if (!ScheduleTreasureHunterRound()) {
+			 return;
+		 }
+		 SendTreasureHuntMessageToAllClients();
 	}
 
 	tokens_red = CountTreasures(TEAM_RED);
