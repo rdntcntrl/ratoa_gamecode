@@ -160,7 +160,8 @@ Keybinding command
 =================
 */
 static void CG_SizeDown_f (void) {
-	trap_Cvar_Set("cg_viewsize", va("%i",(int)(cg_viewsize.integer-10)));
+	CG_Printf("if you really want to decrease the view size, decrease \\cg_viewsize directly.\n");
+	//trap_Cvar_Set("cg_viewsize", va("%i",(int)(cg_viewsize.integer-10)));
 }
 
 
