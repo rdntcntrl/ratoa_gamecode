@@ -2605,6 +2605,15 @@ void CheckExitRules( void ) {
 			return;
 		}
 	}
+
+	if ( (g_gametype.integer == GT_TREASURE_HUNTER ) ) {
+		if (level.th_round == level.th_roundFinished && 
+				level.th_roundFinished >= (g_treasureRounds.integer ? g_treasureRounds.integer : 1)) {
+			trap_SendServerCommand( -1, "print \"Reached the round limit.\n\"" );
+			LogExit( "Roundlimit hit." );
+			return;
+		}
+	}
 }
 
 //LMS - Last man Stading functions:
@@ -3156,8 +3165,8 @@ void CheckDomination(void) {
 }
 
 qboolean ScheduleTreasureHunterRound( void ) {
-	// TODO: what happens if we didn't reach capturelimit yet?
-	if (level.th_round == (g_treasureRounds.integer ? g_treasureRounds.integer : 1)) {
+	if (level.th_round >= (g_treasureRounds.integer ? g_treasureRounds.integer : 1) 
+			&& !ScoreIsTied()) {
 		level.th_hideTime = 0;
 		level.th_seekTime = 0;
 		level.th_hideActive = qfalse;
@@ -3266,6 +3275,9 @@ void CheckTreasureHunter(void) {
 	if (TeamCount(-1, TEAM_BLUE, qfalse) == 0 
 			|| TeamCount(-1, TEAM_RED, qfalse) == 0) {
 		return;
+	}
+	if (!level.th_round) {
+		level.th_roundFinished = 0;
 	}
 
 	if (!level.th_hideTime && !level.th_seekTime) {
@@ -3416,6 +3428,8 @@ void CheckTreasureHunter(void) {
 			while ((token = G_Find (token, FOFS(classname), "item_bluecube")) != NULL) {
 				G_FreeEntity(token);
 			}
+
+			level.th_roundFinished = level.th_round;
 
 			// schedule next round
 			ScheduleTreasureHunterRound();

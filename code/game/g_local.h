@@ -606,6 +606,7 @@ typedef struct {
 	char domination_points_names[MAX_DOMINATION_POINTS][MAX_DOMINATION_POINTS_NAMES];
 
 	int th_round;
+	int th_roundFinished;
 	int th_hideTime;
 	qboolean th_hideActive;
 	qboolean th_hideFinished;
