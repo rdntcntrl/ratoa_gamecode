@@ -3169,7 +3169,8 @@ qboolean ScheduleTreasureHunterRound( void ) {
 	level.th_round++;
 
 	level.th_hideTime = level.time + 1000*5;
-	level.th_seekTime = level.th_hideTime + 1000*5 + g_treasureHideTime.integer * 1000;
+	//level.th_seekTime = level.th_hideTime + 1000*5 + g_treasureHideTime.integer * 1000;
+	level.th_seekTime = 0;
 	level.th_hideActive = qfalse;
 	level.th_seekActive = qfalse;
 	level.th_hideFinished = qfalse;
@@ -3351,16 +3352,15 @@ void CheckTreasureHunter(void) {
 			s = "Time is up!";
 		} else if (leftover_tokens_red + leftover_tokens_blue == 0)  {
 			s = "All tokens hidden!";
-
-			// schedule seeking in 5s
-			level.th_seekTime = level.time + 1000*5;
 		}
 
 		if (s) {
+			// schedule seeking in 5s
+			level.th_seekTime = level.time + 1000*5;
 			level.th_hideActive = qfalse;
 			level.th_hideFinished = qtrue;
 
-			trap_SendServerCommand( -1, va("cp \"Hiding phase finished!\n%s\nPrepare to seek!\"", s));
+			trap_SendServerCommand( -1, va("cp \"%s\nHiding phase finished!\nPrepare to seek!\"", s));
 			// disables placeToken
 			// give leftovers to other team
 
@@ -3374,6 +3374,7 @@ void CheckTreasureHunter(void) {
 			}
 		}
 	} else if (!level.th_seekActive 
+			&& level.th_seekTime != 0
 			&& level.time >= level.th_seekTime) {
 		int min = (level.th_seekTime + g_treasureSeekTime.integer * 1000 - level.startTime)/(60*1000);
 		int s = (level.th_seekTime + g_treasureSeekTime.integer * 1000 - level.startTime)/1000 - min * 60;
