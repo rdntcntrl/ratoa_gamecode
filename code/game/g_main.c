@@ -3192,7 +3192,6 @@ void UpdateToken(gentity_t *token, qboolean vulnerable) {
 		token->s.generic1 = 1;
 
 		// only if tokens are shootable
-		token->health = 50;
 		token->die = Token_die;
 		token->takedamage = qtrue;
 		token->r.contents |= CONTENTS_CORPSE;
@@ -3200,7 +3199,6 @@ void UpdateToken(gentity_t *token, qboolean vulnerable) {
 		token->s.generic1 = 0;
 
 		// only if tokens are shootable
-		token->health = 50;
 		token->die = NULL;
 		token->takedamage = qfalse;
 		token->r.contents &= ~CONTENTS_CORPSE;
