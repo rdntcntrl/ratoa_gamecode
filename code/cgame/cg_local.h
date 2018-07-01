@@ -1176,6 +1176,12 @@ typedef struct {
 	int	displayIdx;
 } console_t;
 
+#define MODELCOLOR_DEFAULT 0
+#define MODELCOLOR_ENEMY 1
+#define MODELCOLOR_TEAM 2
+#define MODELCOLOR_RED 1
+#define MODELCOLOR_BLUE 2
+#define MODELCOLOR_NUM 3
 
 // The client game static (cgs) structure hold everything
 // loaded or calculated from the gamestate.  It will NOT
@@ -1302,6 +1308,10 @@ typedef struct {
 	sfxHandle_t		mySounds[MAX_CUSTOM_SOUNDS];
 	sfxHandle_t		teamSounds[MAX_CUSTOM_SOUNDS];
 	sfxHandle_t		enemySounds[MAX_CUSTOM_SOUNDS];
+	
+	// player colors
+	byte modelRGBA[MODELCOLOR_NUM][4];
+	byte corpseRGBA[MODELCOLOR_NUM][4];
 
 	// media
 	cgMedia_t		media;
@@ -1793,6 +1803,7 @@ int CG_CountPlayers(team_t team);
 int CG_GetTotalHitPoints(int health, int armor);
 void CG_PlayerAutoHeadColor(clientInfo_t *ci, byte *outColor);
 void CG_FloatColorToRGBA(float *color, byte *out);
+void CG_ParseForcedColors( void );
 
 //
 // cg_predict.c

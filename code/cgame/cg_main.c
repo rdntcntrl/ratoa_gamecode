@@ -34,6 +34,7 @@ int forceBrightModelModificationCount = -1;
 int mySoundModificationCount = -1;
 int teamSoundModificationCount = -1;
 int enemySoundModificationCount = -1;
+int forceColorModificationCounts = -1;
 
 void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum );
 void CG_Shutdown( void );
@@ -1040,6 +1041,20 @@ void CG_UpdateCvars( void ) {
 		mySoundModificationCount = cg_mySound.modificationCount;
 		teamSoundModificationCount = cg_teamSound.modificationCount;
 		enemySoundModificationCount = cg_enemySound.modificationCount;
+	}
+
+	i = cg_teamHueBlue.modificationCount
+		+ cg_teamHueDefault.modificationCount
+		+ cg_teamHueRed.modificationCount
+		+ cg_enemyColor.modificationCount
+		+ cg_teamColor.modificationCount
+		+ cg_enemyCorpseSaturation.modificationCount
+		+ cg_enemyCorpseValue.modificationCount
+		+ cg_teamCorpseSaturation.modificationCount
+		+ cg_teamCorpseValue.modificationCount;
+	if ( forceColorModificationCounts != i) {
+		CG_ParseForcedColors();
+		forceColorModificationCounts = i;
 	}
 }
 
@@ -2735,6 +2750,7 @@ void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum ) {
 	trap_S_ClearLoopingSounds( qtrue );
 
 	CG_LoadForcedSounds();
+	CG_ParseForcedColors();
 
 	CG_RatRemapShaders();
 }

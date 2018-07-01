@@ -2875,20 +2875,14 @@ void CG_PlayerColorFromString(char *str, float *h, float *s, float *v) {
 
 }
 
+#define RGBA_SIZE (4*sizeof(byte))
 void CG_PlayerGetColors(clientInfo_t *ci, qboolean isDead, byte *outColor) {
 	clientInfo_t *player = &cgs.clientinfo[cg.clientNum];
-	float color[4];
-	float h,s,v;
-	//int myteam = cg.snap->ps.persistant[PERS_TEAM];
 	int myteam = player->team;
-	color[0] = color[1] = color[2] = color[3] = 1.0;
-
-	//if (cg.snap->ps.pm_flags & PMF_FOLLOW) {
-	//	myteam = player->team;
-	//} 
-
 
 	if (!((cgs.ratFlags & RAT_BRIGHTSHELL && cg_brightShells.integer)) && (!cg_forceBrightModels.integer || !(cgs.ratFlags & RAT_ALLOWBRIGHTSKINS))) {
+		float color[4];
+		color[0] = color[1] = color[2] = color[3] = 1.0;
 		CG_FloatColorToRGBA(color, outColor);
 		return;
 	}
@@ -2896,6 +2890,7 @@ void CG_PlayerGetColors(clientInfo_t *ci, qboolean isDead, byte *outColor) {
 	if ((!(cg_forceBrightModels.integer && cgs.ratFlags & RAT_ALLOWBRIGHTSKINS) 
 			&& (cg_brightShells.integer && cgs.ratFlags & RAT_BRIGHTSHELL)
 		       ) && (cgs.gametype < GT_TEAM || cgs.ffa_gt==1)) {
+		float color[4];
 		color[0] = ci->color2[0];
 		color[1] = ci->color2[1];
 		color[2] = ci->color2[2];
@@ -2903,55 +2898,37 @@ void CG_PlayerGetColors(clientInfo_t *ci, qboolean isDead, byte *outColor) {
 		return;
 	}
 
-	s = v = 1.0;
-
-
-	switch (ci->team) {
-		case TEAM_BLUE:
-			h = cg_teamHueBlue.value;
-			break;
-		case TEAM_RED:
-			h = cg_teamHueRed.value;
-			break;
-		default:
-			h = cg_teamHueDefault.value;
-			break;
-	}
 	if (myteam == TEAM_SPECTATOR && cgs.gametype >= GT_TEAM && cgs.ffa_gt!=1) {
-		CG_HSV2RGB(h,s,v, color);
-		CG_FloatColorToRGBA(color, outColor);
+		switch (ci->team) {
+			case TEAM_BLUE:
+				memcpy(outColor, cgs.modelRGBA[MODELCOLOR_BLUE], RGBA_SIZE);
+				break;
+			case TEAM_RED:
+				memcpy(outColor, cgs.modelRGBA[MODELCOLOR_RED], RGBA_SIZE);
+				break;
+			default:
+				memcpy(outColor, cgs.modelRGBA[MODELCOLOR_DEFAULT], RGBA_SIZE);
+				break;
+		}
 		return;
 	}
 
 	if ((myteam == TEAM_FREE && player != ci)
 			|| (myteam != ci->team)) {
 		// is enemy
-		if (cg_enemyColor.string[0]) {
-			CG_PlayerColorFromString(cg_enemyColor.string, &h, &s, &v);
-		}
 		if (isDead) {
-			if (cg_enemyCorpseSaturation.string[0]) {
-				s = cg_enemyCorpseSaturation.value;
-			}
-			if (cg_enemyCorpseValue.string[0]) {
-				v = cg_enemyCorpseValue.value;
-			}
+			memcpy(outColor, cgs.corpseRGBA[MODELCOLOR_ENEMY], RGBA_SIZE);
+		} else {
+			memcpy(outColor, cgs.modelRGBA[MODELCOLOR_ENEMY], RGBA_SIZE);
 		}
+		return;
+	} 
+	// teammate/self
+	if (isDead) {
+		memcpy(outColor, cgs.corpseRGBA[MODELCOLOR_TEAM], RGBA_SIZE);
 	} else {
-		if (cg_teamColor.string[0]) {
-			CG_PlayerColorFromString(cg_teamColor.string, &h, &s, &v);
-		}
-		if (isDead) { 
-			if (cg_teamCorpseSaturation.string[0]) {
-				s = cg_teamCorpseSaturation.value;
-			}
-			if (cg_teamCorpseValue.string[0]) {
-				v = cg_teamCorpseValue.value;
-			}
-		}
+		memcpy(outColor, cgs.modelRGBA[MODELCOLOR_TEAM], RGBA_SIZE);
 	}
-	CG_HSV2RGB(h,s,v, color);
-	CG_FloatColorToRGBA(color, outColor);
 
 }
 
@@ -2973,6 +2950,111 @@ int CG_CountPlayers(team_t team) {
 		}
 	}
 	return count;
+}
+
+void CG_ParseForcedColors( void ) {
+	clientInfo_t *player = &cgs.clientinfo[cg.clientNum];
+	int myteam = player->team;
+	float h,s,v;
+	float color[4];
+	color[0] = color[1] = color[2] = color[3] = 1.0;
+
+	memset(cgs.modelRGBA, 255, sizeof(cgs.modelRGBA));
+	memset(cgs.corpseRGBA, 255, sizeof(cgs.corpseRGBA));
+
+	s = v = 1.0;
+
+	h = cg_teamHueDefault.value;
+	CG_HSV2RGB(h,s,v, color);
+	CG_FloatColorToRGBA(color, cgs.modelRGBA[MODELCOLOR_DEFAULT]);
+	if (cg_enemyCorpseSaturation.string[0]) {
+		s = cg_enemyCorpseSaturation.value;
+	}
+	if (cg_enemyCorpseValue.string[0]) {
+		v = cg_enemyCorpseValue.value;
+	}
+	CG_HSV2RGB(h,s,v, color);
+	CG_FloatColorToRGBA(color, cgs.corpseRGBA[MODELCOLOR_DEFAULT]);
+
+	if (myteam == TEAM_SPECTATOR && cgs.gametype >= GT_TEAM && cgs.ffa_gt!=1) {
+		// When spectating team modes, don't apply forced colors to
+		// avoid confusion
+		
+		s = v = 1.0;
+
+		h = cg_teamHueBlue.value;
+		CG_HSV2RGB(h,s,v, color);
+		CG_FloatColorToRGBA(color, cgs.modelRGBA[MODELCOLOR_BLUE]);
+		if (cg_enemyCorpseSaturation.string[0]) {
+			s = cg_enemyCorpseSaturation.value;
+		}
+		if (cg_enemyCorpseValue.string[0]) {
+			v = cg_enemyCorpseValue.value;
+		}
+		CG_HSV2RGB(h,s,v, color);
+		CG_FloatColorToRGBA(color, cgs.corpseRGBA[MODELCOLOR_BLUE]);
+
+		s = v = 1.0;
+
+		h = cg_teamHueRed.value;
+		CG_HSV2RGB(h,s,v, color);
+		CG_FloatColorToRGBA(color, cgs.modelRGBA[MODELCOLOR_RED]);
+		if (cg_enemyCorpseSaturation.string[0]) {
+			s = cg_enemyCorpseSaturation.value;
+		}
+		if (cg_enemyCorpseValue.string[0]) {
+			v = cg_enemyCorpseValue.value;
+		}
+		CG_HSV2RGB(h,s,v, color);
+		CG_FloatColorToRGBA(color, cgs.corpseRGBA[MODELCOLOR_RED]);
+
+		return;
+	}
+
+	s = v = 1.0;
+	// team color:
+	if (cg_teamColor.string[0]) {
+		CG_PlayerColorFromString(cg_teamColor.string, &h, &s, &v);
+	} else if (myteam == TEAM_BLUE) {
+		h = cg_teamHueBlue.value;
+	} else if (myteam == TEAM_RED) {
+		h = cg_teamHueRed.value;
+	} else {
+		h = cg_teamHueDefault.value;
+	}
+	CG_HSV2RGB(h,s,v, color);
+	CG_FloatColorToRGBA(color, cgs.modelRGBA[MODELCOLOR_TEAM]);
+	if (cg_teamCorpseSaturation.string[0]) {
+		s = cg_teamCorpseSaturation.value;
+	}
+	if (cg_teamCorpseValue.string[0]) {
+		v = cg_teamCorpseValue.value;
+	}
+	CG_HSV2RGB(h,s,v, color);
+	CG_FloatColorToRGBA(color, cgs.corpseRGBA[MODELCOLOR_TEAM]);
+
+	s = v = 1.0;
+	// enemy color:
+	if (cg_enemyColor.string[0]) {
+		CG_PlayerColorFromString(cg_enemyColor.string, &h, &s, &v);
+	} else if (myteam == TEAM_BLUE) {
+		h = cg_teamHueRed.value;
+	} else if (myteam == TEAM_RED) {
+		h = cg_teamHueBlue.value;
+	} else {
+		h = cg_teamHueDefault.value;
+	}
+	CG_HSV2RGB(h,s,v, color);
+	CG_FloatColorToRGBA(color, cgs.modelRGBA[MODELCOLOR_ENEMY]);
+	if (cg_enemyCorpseSaturation.string[0]) {
+		s = cg_enemyCorpseSaturation.value;
+	}
+	if (cg_enemyCorpseValue.string[0]) {
+		v = cg_enemyCorpseValue.value;
+	}
+	CG_HSV2RGB(h,s,v, color);
+	CG_FloatColorToRGBA(color, cgs.corpseRGBA[MODELCOLOR_ENEMY]);
+
 }
 
 void CG_PlayerAutoHeadColor(clientInfo_t *ci, byte *outColor) {

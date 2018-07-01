@@ -901,6 +901,7 @@ static void CG_ConfigStringModified( void ) {
 		if (num - CS_PLAYERS == cg.clientNum) {
 			// make sure to update all other player models in case we switched teams
 			CG_ForceModelChange();
+			CG_ParseForcedColors();
 		}
 		CG_BuildSpectatorString();
 	} else if ( num == CS_FLAGSTATUS ) {
