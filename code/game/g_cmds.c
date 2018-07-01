@@ -1887,6 +1887,7 @@ void Cmd_PlaceToken_f( gentity_t *ent ) {
 	token->teamToken = teamToken;
 
 	token->r.svFlags |= SVF_CLIENTMASK;
+	token->r.svFlags |= SVF_BROADCAST;
 	token->r.singleClient = ent->client->sess.sessionTeam == TEAM_BLUE ? level.th_blueClientMask : level.th_redClientMask;
 }
 
