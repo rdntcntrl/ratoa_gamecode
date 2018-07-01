@@ -204,8 +204,8 @@ qboolean CG_DrawRatAccboard( void ) {
 		return qfalse;
 	}
 
-	if ( cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR 
-			|| cg.snap->ps.pm_flags & PMF_FOLLOW) {
+	if ( cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR ||
+			cgs.clientinfo[cg.clientNum].team == TEAM_SPECTATOR) {
 		return qfalse;
 	}
 
