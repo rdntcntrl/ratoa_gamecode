@@ -257,8 +257,6 @@ vmCvar_t	cg_teamOverlayScaleY;
 vmCvar_t	cg_teamOverlayAutoColor;
 
 
-vmCvar_t	cg_autoHeadColors;
-
 vmCvar_t	cg_mySound;
 vmCvar_t	cg_teamSound;
 vmCvar_t	cg_enemySound;
@@ -277,6 +275,9 @@ vmCvar_t	cg_teamHueRed;
 
 vmCvar_t	cg_enemyColor;
 vmCvar_t	cg_teamColor;
+
+vmCvar_t	cg_teamHeadColorAuto;
+vmCvar_t	cg_enemyHeadColorAuto;
 
 vmCvar_t	cg_enemyCorpseSaturation;
 vmCvar_t	cg_enemyCorpseValue;
@@ -627,8 +628,6 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_fontScale , "cg_fontScale", "1.0", CVAR_ARCHIVE},
 	{ &cg_fontShadow , "cg_fontShadow", "1", CVAR_ARCHIVE},
 
-	{ &cg_autoHeadColors ,     "cg_autoHeadColors", "0", CVAR_ARCHIVE},
-
 	{ &cg_mySound ,     "cg_mySound", "", CVAR_ARCHIVE},
 	{ &cg_teamSound ,   "cg_teamSound", "", CVAR_ARCHIVE},
 	{ &cg_enemySound ,  "cg_enemySound", "", CVAR_ARCHIVE},
@@ -645,6 +644,9 @@ static cvarTable_t cvarTable[] = { // bk001129
 	// HSV color in the format 'H125 1.0 1.0" (H<H> <S> <V>)
 	{ &cg_enemyColor ,     "cg_enemyColor", "", CVAR_ARCHIVE},
 	{ &cg_teamColor ,      "cg_teamColor", "", CVAR_ARCHIVE},
+
+	{ &cg_teamHeadColorAuto ,      "cg_teamHeadColorAuto", "1", CVAR_ARCHIVE},
+	{ &cg_enemyHeadColorAuto ,      "cg_enemyHeadColorAuto", "1", CVAR_ARCHIVE},
 
 	{ &cg_enemyCorpseSaturation ,     "cg_enemyCorpseSaturation", "", CVAR_ARCHIVE},
 	{ &cg_enemyCorpseValue ,          "cg_enemyCorpseValue", "0.25", CVAR_ARCHIVE},
@@ -916,6 +918,26 @@ void CG_RatInitDefaults(void)  {
 		} else {
 			trap_Cvar_Set( "cg_teamColor", "" );
 		}
+		//trap_SendConsoleCommand("unset cg_forceModelColor");
+		//trap_SendConsoleCommand("unset cg_forceModelHue");
+		//trap_SendConsoleCommand("unset cg_forceModelSaturation");
+		//trap_SendConsoleCommand("unset cg_forceModelValue");
+		//trap_SendConsoleCommand("unset cg_forceEnemyModelColor");
+		//trap_SendConsoleCommand("unset cg_forceEnemyModelHue");
+		//trap_SendConsoleCommand("unset cg_forceEnemyModelSaturation");
+		//trap_SendConsoleCommand("unset cg_forceEnemyModelValue");
+
+		switch ((int)CG_Cvar_Get("cg_autoHeadColors")) {
+			case 2:
+				trap_Cvar_Set( "cg_teamHeadColorAuto", "0");
+				trap_Cvar_Set( "cg_enemyHeadColorAuto", "1");
+				break;
+			case 3:
+				trap_Cvar_Set( "cg_teamHeadColorAuto", "1");
+				trap_Cvar_Set( "cg_enemyHeadColorAuto", "0");
+				break;
+		}
+		//trap_SendConsoleCommand("unset cg_autoHeadColors");
 
 		//trap_Cvar_Set( "cg_ratInitialized", "7" );
 	}

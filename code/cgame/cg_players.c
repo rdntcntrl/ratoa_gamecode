@@ -2959,6 +2959,7 @@ void CG_ParseForcedColors( void ) {
 	float color[4];
 	color[0] = color[1] = color[2] = color[3] = 1.0;
 
+
 	memset(cgs.modelRGBA, 255, sizeof(cgs.modelRGBA));
 	memset(cgs.corpseRGBA, 255, sizeof(cgs.corpseRGBA));
 
@@ -3146,9 +3147,8 @@ void CG_Player( centity_t *cent ) {
 	memcpy(&legs.shaderRGBA, playercolor, sizeof(playercolor));
 	memcpy(&torso.shaderRGBA, playercolor, sizeof(playercolor));
 	if (cgs.ratFlags & RAT_ALLOWBRIGHTSKINS && cg_forceBrightModels.integer && ci->team != TEAM_SPECTATOR &&
-			( cg_autoHeadColors.integer == 1  // both teams
-			  || (cg_autoHeadColors.integer == 2 && ci->team != cg.snap->ps.persistant[PERS_TEAM]) // only for enemies
-			  || (cg_autoHeadColors.integer == 3 && ci->team == cg.snap->ps.persistant[PERS_TEAM]) // only for teammates
+			( (cg_teamHeadColorAuto.integer && ci->team == cg.snap->ps.persistant[PERS_TEAM])
+			  || (cg_enemyHeadColorAuto.integer && ci->team != cg.snap->ps.persistant[PERS_TEAM])
 			)) {
 		CG_PlayerAutoHeadColor(ci, playercolor);
 		memcpy(&head.shaderRGBA, playercolor, sizeof(playercolor));

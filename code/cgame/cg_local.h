@@ -1500,7 +1500,6 @@ extern vmCvar_t			cg_teamChatLines;
 
 extern vmCvar_t			cg_commonConsole;
 
-extern vmCvar_t			cg_autoHeadColors;
 
 extern vmCvar_t			cg_mySound;
 extern vmCvar_t			cg_teamSound;
@@ -1521,6 +1520,12 @@ extern vmCvar_t			cg_teamHueRed;
 
 extern vmCvar_t			cg_enemyColor;
 extern vmCvar_t			cg_teamColor;
+
+extern vmCvar_t			cg_teamHeadColorAuto;
+extern vmCvar_t			cg_enemyHeadColorAuto;
+
+extern vmCvar_t			cg_teamHeadColorAuto;
+extern vmCvar_t			cg_enemyHeadColorAuto;
 
 extern vmCvar_t			cg_enemyCorpseSaturation;
 extern vmCvar_t			cg_enemyCorpseValue;

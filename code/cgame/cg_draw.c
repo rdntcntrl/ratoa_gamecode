@@ -342,9 +342,8 @@ void CG_Draw3DHead( float x, float y, float w, float h, qhandle_t model, qhandle
 
 	if (cgs.ratFlags & RAT_ALLOWBRIGHTSKINS) {
 		if (cg_forceBrightModels.integer && ci->team != TEAM_SPECTATOR &&
-				( cg_autoHeadColors.integer == 1  // both teams
-				  || (cg_autoHeadColors.integer == 2 && ci->team != cg.snap->ps.persistant[PERS_TEAM]) // only for enemies
-				  || (cg_autoHeadColors.integer == 3 && ci->team == cg.snap->ps.persistant[PERS_TEAM]) // only for teammates
+				( (cg_teamHeadColorAuto.integer && ci->team == cg.snap->ps.persistant[PERS_TEAM])
+				  || (cg_enemyHeadColorAuto.integer && ci->team != cg.snap->ps.persistant[PERS_TEAM])
 				)) {
 			CG_PlayerAutoHeadColor(ci, ent.shaderRGBA);
 		} else if (cg_forceBrightModels.integer) {
