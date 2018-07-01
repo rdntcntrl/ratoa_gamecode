@@ -785,6 +785,7 @@ int G_MissilePrestep( gclient_t *client);
 void G_MissileRunPrestep( gentity_t *ent, int stepmsec);
 void G_ImmediateRunMissiles(gentity_t *client);
 void G_ImmediateLaunchMissile(gentity_t *ent);
+void G_ImmediateRunClientMissiles(gentity_t *client);
 void ProximityMine_RemoveAll( void );
 
 gentity_t *fire_blaster (gentity_t *self, vec3_t start, vec3_t aimdir);
@@ -839,6 +840,7 @@ void G_UnTimeShiftAllClients( gentity_t *skip );
 void G_DoTimeShiftFor( gentity_t *ent );
 void G_UndoTimeShiftFor( gentity_t *ent );
 void G_UnTimeShiftClient( gentity_t *client );
+void G_TimeShiftClient( gentity_t *ent, int time, qboolean debug, gentity_t *debugger );
 void G_PredictPlayerMove( gentity_t *ent, float frametime );
 //unlagged - g_unlagged.c
 
@@ -1011,6 +1013,7 @@ qboolean G_BotConnect( int clientNum, qboolean restart );
 void Svcmd_AddBot_f( void );
 void Svcmd_BotList_f( void );
 void BotInterbreedEndMatch( void );
+int G_CountHumanPlayers( int team );
 
 //
 // g_playerstore.c
@@ -1056,6 +1059,7 @@ extern int allowedMap(char *mapname);
 extern int allowedGametype(char *gametypeStr);
 extern int allowedTimelimit(int limit);
 extern int allowedFraglimit(int limit);
+extern int allowedBots(int numbots);
 extern int VoteParseCustomVotes( void );
 extern t_customvote getCustomVote(char* votecommand);
 

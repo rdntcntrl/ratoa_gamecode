@@ -713,7 +713,7 @@ gentity_t *Drop_ItemNonRandom( gentity_t *ent, gitem_t *item, float angle ) {
 	gentity_t *item_ent;
 
 	if (!ent->client) {
-		return;
+		return NULL;
 	}
 	AngleVectors (ent->client->ps.viewangles, forward, right, up );
 

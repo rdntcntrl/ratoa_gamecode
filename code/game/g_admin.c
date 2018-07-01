@@ -1020,7 +1020,7 @@ qboolean G_admin_cmd_check( gentity_t *ent, qboolean say )
   for( i = 0; i < adminNumCmds; i++ )
   {
     if( Q_stricmp( cmd, g_admin_cmds[ i ].keyword ) ) {
-	    if (*g_admin_cmds[i].alias == NULL || Q_stricmp(cmd, g_admin_cmds[ i ].alias)) {
+	    if (*g_admin_cmds[i].alias == '\0' || Q_stricmp(cmd, g_admin_cmds[ i ].alias)) {
 		    continue;
 	    }
     }
@@ -1103,7 +1103,7 @@ void G_admin_namelog_update( gclient_t *client, qboolean disconnect )
     return;
   }
   namelog = BG_Alloc( sizeof( g_admin_namelog_t ) );
-  memset( namelog, 0, sizeof( namelog ) );
+  memset( namelog, 0, sizeof( g_admin_namelog_t ) );
   for( j = 0; j < MAX_ADMIN_NAMELOG_NAMES; j++ )
     namelog->name[ j ][ 0 ] = '\0';
   Q_strncpyz( namelog->ip, client->pers.ip, sizeof( namelog->ip ) );
@@ -1145,6 +1145,7 @@ qboolean G_admin_record( gentity_t *ent, int skiparg ) {
 		       	va( "demo_record \"%s\"\n",
 					demoname
 			       	 ) );
+	return qtrue;
 }
 
 //KK-OAX Added Parsing Warnings
@@ -2571,9 +2572,10 @@ qboolean G_admin_listplayers( gentity_t *ent, int skiparg )
       continue;
     }
 
-    for( j = 0; j < 8; j++ )
+    for( j = 0; j < 8; j++ ) {
         guid_stub[ j ] = p->pers.guid[ j + 24 ];
-        guid_stub[ j ] = '\0';
+    }
+    guid_stub[ j ] = '\0';
 
     muted[ 0 ] = '\0';
     if( p->pers.muted )

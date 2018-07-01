@@ -634,16 +634,18 @@ void ClientRespawn( gentity_t *ent ) {
 	}
 
 	if((g_gametype.integer==GT_ELIMINATION || g_gametype.integer==GT_CTF_ELIMINATION || g_gametype.integer==GT_LMS) 
-			&& ent->client->ps.pm_type == PM_SPECTATOR && ent->client->ps.stats[STAT_HEALTH] > 0)
+			&& ent->client->ps.pm_type == PM_SPECTATOR && ent->client->ps.stats[STAT_HEALTH] > 0) {
 		return;
-		ClientSpawn(ent);
+	}
 
-		// add a teleportation effect
-		if(g_gametype.integer!=GT_ELIMINATION && g_gametype.integer!=GT_CTF_ELIMINATION && g_gametype.integer!=GT_LMS)
-		{	
-			tent = G_TempEntity( ent->client->ps.origin, EV_PLAYER_TELEPORT_IN );
-			tent->s.clientNum = ent->s.clientNum;
-		}
+	ClientSpawn(ent);
+
+	// add a teleportation effect
+	if(g_gametype.integer!=GT_ELIMINATION && g_gametype.integer!=GT_CTF_ELIMINATION && g_gametype.integer!=GT_LMS)
+	{	
+		tent = G_TempEntity( ent->client->ps.origin, EV_PLAYER_TELEPORT_IN );
+		tent->s.clientNum = ent->s.clientNum;
+	}
 }
 
 /*
@@ -2604,8 +2606,8 @@ void ClientDisconnect( int clientNum ) {
 }
 
 int QDECL SortWPDamages( const void *a, const void *b ) {
-	int *wpdmg1 = a;
-	int *wpdmg2 = b;
+	const int *wpdmg1 = a;
+	const int *wpdmg2 = b;
 
 	if (wpdmg1[1] > wpdmg2[1]) {
 		return -1;

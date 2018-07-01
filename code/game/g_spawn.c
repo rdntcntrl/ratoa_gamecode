@@ -595,7 +595,7 @@ qboolean G_ParseSpawnVars( void ) {
 	return qtrue;
 }
 
-qboolean G_ParseSpawnVarsFromString( const char **string ) {
+qboolean G_ParseSpawnVarsFromString( char **string ) {
 	char		keyname[MAX_TOKEN_CHARS];
 	char *token = NULL;
 

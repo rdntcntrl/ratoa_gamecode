@@ -1395,11 +1395,11 @@ void Cmd_FollowCycle_f( gentity_t *ent ) {
 	// leave it where it was
 }
 
-int timeoutend_minutes() {
+int timeoutend_minutes(void) {
 	return (level.timeoutEnd-level.startTime)/(60*1000);
 }
 
-int timeoutend_seconds() {
+int timeoutend_seconds(void) {
 	return (level.timeoutEnd-level.startTime)/1000 - timeoutend_minutes()*60;
 }
 
@@ -1631,7 +1631,7 @@ qboolean G_Forfeit(gentity_t *ent, qboolean quiet) {
 	if (level.clients[cnum].ps.persistant[PERS_SCORE] >= level.clients[opponentCnum].ps.persistant[PERS_SCORE]) {
 		level.clients[cnum].ps.persistant[PERS_SCORE] = -999;
 		if (level.clients[opponentCnum].ps.persistant[PERS_SCORE] <= -999) {
-			level.clients[opponentCnum].ps.persistant[PERS_SCORE] <= -998;
+			level.clients[opponentCnum].ps.persistant[PERS_SCORE] = -998;
 		}
 	}
 	CalculateRanks();
@@ -1881,7 +1881,7 @@ char * G_TeamSayTokens(gentity_t *ent, const char *message) {
 	static char text[MAX_RAT_SAY_TEXT];
 	int textSize = MAX_RAT_SAY_TEXT;
 	char location[64];
-	char *p1 = message;
+	const char *p1 = message;
 	char *token = NULL;
 	int i = 0;
 	if (!g_usesRatVM.integer && MAX_SAY_TEXT < MAX_RAT_SAY_TEXT) {
@@ -2431,7 +2431,6 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 	int		i;
 	char	arg1[MAX_STRING_TOKENS];
 	char	arg2[MAX_STRING_TOKENS];
-        char    buffer[256];
 
 	if ( !g_allowVote.integer ) {
 		trap_SendServerCommand( ent-g_entities, "print \"Voting not allowed here.\n\"" );
@@ -3150,10 +3149,11 @@ void ClientCommand( int clientNum )
     
     if( i == numCmds )
     {   // KK-OAX Admin Command Check
-        if( !G_admin_cmd_check( ent, qfalse ) )
+        if( !G_admin_cmd_check( ent, qfalse ) )  {
             trap_SendServerCommand( clientNum,
                 va( "print \"Unknown command %s\n\"", cmd ) );
-            return;
+	}
+	return;
     }
 
   // do tests here to reduce the amount of repeated code
