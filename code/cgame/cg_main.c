@@ -456,9 +456,12 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_gun_y, "cg_gunY", "0", CVAR_CHEAT },
 	{ &cg_gun_z, "cg_gunZ", "0", CVAR_CHEAT },
 	{ &cg_centertime, "cg_centertime", "3", CVAR_CHEAT },
-	{ &cg_runpitch, "cg_runpitch", "0.002", CVAR_ARCHIVE},
-	{ &cg_runroll, "cg_runroll", "0.005", CVAR_ARCHIVE },
-	{ &cg_bobup , "cg_bobup", "0.005", CVAR_CHEAT },
+	{ &cg_runpitch, "cg_runpitch", "0.000", CVAR_ARCHIVE},
+	{ &cg_runroll, "cg_runroll", "0.000", CVAR_ARCHIVE },
+	//{ &cg_runpitch, "cg_runpitch", "0.002", CVAR_ARCHIVE},
+	//{ &cg_runroll, "cg_runroll", "0.005", CVAR_ARCHIVE },
+	//{ &cg_bobup , "cg_bobup", "0.005", CVAR_CHEAT },
+	{ &cg_bobup , "cg_bobup", "0.000", CVAR_CHEAT },
 	{ &cg_bobpitch, "cg_bobpitch", "0.0", CVAR_ARCHIVE },
 	{ &cg_bobroll, "cg_bobroll", "0.0", CVAR_ARCHIVE },
 	{ &cg_swingSpeed, "cg_swingSpeed", "0.3", CVAR_CHEAT },
@@ -849,6 +852,13 @@ void CG_RatInitDefaults(void)  {
 		}
 
 		trap_Cvar_Set( "cg_ratInitialized", "4" );
+	}
+	
+	if (cg_ratInitialized.integer < 5) {
+		trap_Cvar_Set("cg_runpitch", "0.0");
+		trap_Cvar_Set("cg_runroll", "0.0");
+
+		trap_Cvar_Set( "cg_ratInitialized", "5" );
 	}
 
 }
