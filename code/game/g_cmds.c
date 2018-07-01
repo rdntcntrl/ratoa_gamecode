@@ -410,22 +410,24 @@ void TreasureHuntMessage(gentity_t *ent) {
 	switch (level.th_phase) {
 		case TH_INIT:
 		case TH_HIDE:
-			trap_SendServerCommand( ent-g_entities, va("treasureHunt %i %i %i %i %i",
+			trap_SendServerCommand( ent-g_entities, va("treasureHunt %i %i %i %i %i %i",
 						level.th_phase,
 						g_treasureHideTime.integer,
 						level.th_hideTime,
 						level.th_placedTokensRed,
-						level.th_placedTokensBlue
+						level.th_placedTokensBlue,
+						g_treasureTokenStyle.integer
 						) );
 			break;
 		case TH_INTER:
 		case TH_SEEK:
-			trap_SendServerCommand( ent-g_entities, va("treasureHunt %i %i %i %i %i",
+			trap_SendServerCommand( ent-g_entities, va("treasureHunt %i %i %i %i %i %i",
 						level.th_phase,
 						g_treasureSeekTime.integer,
 						level.th_seekTime,
 						level.th_placedTokensRed,
-						level.th_placedTokensBlue
+						level.th_placedTokensBlue,
+						g_treasureTokenStyle.integer
 						) );
 			break;
 	}

@@ -1193,6 +1193,7 @@ extern vmCvar_t		g_treasureSeekTime;
 extern vmCvar_t		g_treasureRounds;
 extern vmCvar_t		g_treasureTokensDestructible;
 extern vmCvar_t		g_treasureTokenHealth;
+extern vmCvar_t		g_treasureTokenStyle;
 
 extern	vmCvar_t	g_enableDust;
 extern	vmCvar_t	g_enableBreath;

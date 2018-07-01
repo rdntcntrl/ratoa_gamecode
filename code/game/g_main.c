@@ -113,6 +113,7 @@ vmCvar_t	g_treasureSeekTime;
 vmCvar_t	g_treasureRounds;
 vmCvar_t	g_treasureTokensDestructible;
 vmCvar_t	g_treasureTokenHealth;
+vmCvar_t	g_treasureTokenStyle;
 
 vmCvar_t	g_enableDust;
 vmCvar_t	g_enableBreath;
@@ -425,6 +426,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_treasureRounds, "g_treasureRounds", "5", CVAR_ARCHIVE, 0, qfalse },
 	{ &g_treasureTokenHealth, "g_treasureTokenHealth", "50", CVAR_ARCHIVE, 0, qfalse },
 	{ &g_treasureTokensDestructible, "g_treasureTokensDestructible", "1", CVAR_ARCHIVE, 0, qfalse },
+	{ &g_treasureTokenStyle, "g_treasureTokenStyle", "0", CVAR_ARCHIVE, 0, qfalse },
 
 	{ &g_enableDust, "g_enableDust", "0", 0, 0, qtrue, qfalse },
 	{ &g_enableBreath, "g_enableBreath", "0", 0, 0, qtrue, qfalse },
