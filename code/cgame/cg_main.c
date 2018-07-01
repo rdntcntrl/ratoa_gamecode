@@ -748,7 +748,8 @@ static cvarTable_t cvarTable[] = { // bk001129
         { &cg_crosshairColorBlue, "cg_crosshairColorBlue", "0.0", CVAR_ARCHIVE},
 
 	{ &cg_weaponBarStyle, "cg_weaponBarStyle", "8", CVAR_ARCHIVE},
-        { &cg_weaponOrder,"cg_weaponOrder", "/1/2/4/3/6/7/8/9/5/", CVAR_ARCHIVE},
+        //{ &cg_weaponOrder,"cg_weaponOrder", "/1/2/4/3/6/7/8/9/5/", CVAR_ARCHIVE},
+        { &cg_weaponOrder,"cg_weaponOrder", "/1/2/4/3/7/6/8/5/13/11/9/", CVAR_ARCHIVE},
         {&cg_chatBeep, "cg_chatBeep", "1", CVAR_ARCHIVE },
         {&cg_teamChatBeep, "cg_teamChatBeep", "1", CVAR_ARCHIVE }
 };
@@ -971,10 +972,14 @@ void CG_RatInitDefaults(void)  {
 
 		trap_Cvar_Set( "cg_ratInitialized", "7" );
 	}
-	//if (cg_ratInitialized.integer < 8) {
-	//	trap_SendConsoleCommand("unset cg_corpseSaturation;");
-	//	trap_Cvar_Set( "cg_ratInitialized", "8" );
-	//}
+
+	if (cg_ratInitialized.integer < 8) {
+		trap_SendConsoleCommand("unset cg_corpseSaturation;");
+
+		trap_Cvar_Set("cg_weaponOrder", "/1/2/4/3/7/6/8/5/13/11/9/");
+
+		trap_Cvar_Set( "cg_ratInitialized", "8" );
+	}
 
 }
 

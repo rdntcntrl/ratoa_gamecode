@@ -3192,8 +3192,54 @@ The current weapon has just run out of ammo
 */
 void CG_OutOfAmmoChange( void ) {
 	int		i;
+	char *p1, *p2;
+	qboolean formatError = qfalse;
 
 	cg.weaponSelectTime = cg.time;
+
+	p1 = cg_weaponOrder.string;
+	p2 = p1 + strlen(p1);
+
+	do {
+		if (p2 <= p1) {
+			// in case of empty string
+			break;
+		}
+		p2--;
+		if (*p2 != '/') {
+			formatError = qtrue;
+			break;
+		}
+		if (p2 <= p1) {
+			// we just passed the first '/', stop
+			break;
+		}
+		do {
+			p2--;
+			if (!isdigit(*p2)) {
+				formatError = qtrue;
+				break;
+			}
+		} while (p2 > p1 && *(p2-1) != '/');
+		if (formatError) {
+			break;
+		}
+		i = atoi(p2);
+
+		if (i <= WP_NONE || i >= WP_NUM_WEAPONS) {
+			CG_Printf("Error: weapon in cg_weaponOrder out of range!\n");
+			continue;
+		}
+
+		if ( CG_WeaponSelectable( i ) ) {
+			cg.weaponSelect = i;
+			return;
+		}
+	} while (p2 > p1);
+
+	if (formatError) {
+		CG_Printf("Error: invalid cg_weaponOrder format\n");
+	}
 
 	for ( i = MAX_WEAPONS-1 ; i > 0 ; i-- ) {
 		if ( CG_WeaponSelectable( i ) && i != WP_GRAPPLING_HOOK ) {
