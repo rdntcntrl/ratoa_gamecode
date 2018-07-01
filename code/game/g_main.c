@@ -53,6 +53,7 @@ vmCvar_t	g_maxclients;
 vmCvar_t	g_maxGameClients;
 vmCvar_t	g_dedicated;
 vmCvar_t	g_speed;
+vmCvar_t	g_spectatorSpeed;
 vmCvar_t	g_gravity;
 vmCvar_t	g_gravityModifier;
 vmCvar_t        g_damageModifier;
@@ -351,6 +352,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_dedicated, "dedicated", "0", 0, 0, qfalse  },
 
 	{ &g_speed, "g_speed", "320", 0, 0, qtrue  },
+	{ &g_spectatorSpeed, "g_spectatorSpeed", "400", CVAR_ARCHIVE, 0, qfalse  },
 	{ &g_gravity, "g_gravity", "800", 0, 0, qtrue  },
 	{ &g_gravityModifier, "g_gravityModifier", "1", 0, 0, qtrue  },
         { &g_damageModifier, "g_damageModifier", "0", 0, 0, qtrue },

@@ -1115,6 +1115,7 @@ extern	vmCvar_t	g_gravity;
 extern	vmCvar_t	g_gravityModifier;
 extern  vmCvar_t        g_damageModifier;
 extern	vmCvar_t	g_speed;
+extern	vmCvar_t	g_spectatorSpeed;
 extern	vmCvar_t	g_knockback;
 extern	vmCvar_t	g_quadfactor;
 extern	vmCvar_t	g_forcerespawn;
