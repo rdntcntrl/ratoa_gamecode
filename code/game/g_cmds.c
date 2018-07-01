@@ -1449,6 +1449,10 @@ void G_TimeoutModTimes(int delta) {
 		}
 	}
 
+	if (g_gametype.integer == GT_ELIMINATION || g_gametype.integer == GT_CTF_ELIMINATION || g_gametype.integer == GT_LMS) {
+		level.roundStartTime += delta;
+	}
+
 }
 
 int timeout_overtimestep(int duration) {
@@ -1494,6 +1498,9 @@ void G_Timeout(gentity_t *caller) {
 				level.timeoutAdd/1000,
 				timeoutend_minutes(),
 				timeoutend_seconds()));
+	if (g_gametype.integer == GT_ELIMINATION || g_gametype.integer == GT_CTF_ELIMINATION || g_gametype.integer == GT_LMS) {
+		SendEliminationMessageToAllClients();
+	}
 }
 
 
@@ -1540,6 +1547,10 @@ void G_TimeinCommand(gentity_t *caller) {
 
 	if (g_usesRatVM.integer) {
 		trap_SendServerCommand(-1, va("timeout %i", level.timeoutEnd));
+	}
+
+	if (g_gametype.integer == GT_ELIMINATION || g_gametype.integer == GT_CTF_ELIMINATION || g_gametype.integer == GT_LMS) {
+		SendEliminationMessageToAllClients();
 	}
 	// leave overtime 
 	//level.timeoutOvertime += delta;
