@@ -2500,7 +2500,7 @@ static void CG_PlayerSplash( centity_t *cent ) {
 
 byte CG_GetBrightShellAlpha(void) {
 	// 0.8 is the maximum allowed alpha
-	return (byte)0xff * MAX(MIN(cg_brightShellAlpha.value, 0.7), 0.1);
+	return (byte)0xff * MAX(MIN(cg_brightShellAlpha.value, 0.8), 0.1);
 }
 
 
@@ -2539,8 +2539,8 @@ void CG_AddRefEntityWithPowerups( refEntity_t *ent, entityState_t *state, int te
 			       	//&& !(state->eFlags & EF_DEAD)  ) {
 			ent->shaderRGBA[3] = CG_GetBrightShellAlpha();
 			ent->customShader = cgs.media.brightShell;
-			ent->shaderRGBA[3] = alpha_save;
 			trap_R_AddRefEntityToScene( ent );
+			ent->shaderRGBA[3] = alpha_save;
 		}
 		
 		if(!isMissile && (cgs.dmflags & DF_PLAYER_OVERLAY) && !(state->eFlags & EF_DEAD)  ) {
