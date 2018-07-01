@@ -796,15 +796,15 @@ static void CG_DrawStatusBar( void ) {
 					   cgs.media.armorModel, 0, origin, angles );
 	}
         
-        if( cgs.gametype == GT_HARVESTER ) {
+        if( cgs.gametype == GT_HARVESTER || cgs.gametype == GT_TREASURE_HUNTER) {
 		origin[0] = 90;
 		origin[1] = 0;
 		origin[2] = -10;
 		angles[YAW] = ( cg.time & 2047 ) * 360 / 2048.0;
 		if( cg.snap->ps.persistant[PERS_TEAM] == TEAM_BLUE ) {
-			handle = cgs.media.redCubeModel;
+			handle = cgs.gametype == GT_HARVESTER ? cgs.media.redCubeModel : cgs.media.blueCubeModel;
 		} else {
-			handle = cgs.media.blueCubeModel;
+			handle = cgs.gametype == GT_HARVESTER ? cgs.media.blueCubeModel : cgs.media.redCubeModel;
 		}
 		CG_Draw3DModel( 470 + CHAR_WIDTH*3 + TEXT_ICON_SPACE, 432, ICON_SIZE, ICON_SIZE, handle, 0, origin, angles );
 	}
@@ -881,7 +881,7 @@ static void CG_DrawStatusBar( void ) {
 	}
         
         //Skulls!
-        if(cgs.gametype == GT_HARVESTER)
+        if(cgs.gametype == GT_HARVESTER || cgs.gametype == GT_TREASURE_HUNTER)
         {
             value = ps->generic1;
             if (value > 0 ) {
@@ -891,9 +891,9 @@ static void CG_DrawStatusBar( void ) {
                     // if we didn't draw a 3D icon, draw a 2D icon for skull
                     if ( !cg_draw3dIcons.integer && cg_drawIcons.integer ) {
                             if( cg.snap->ps.persistant[PERS_TEAM] == TEAM_BLUE ) {
-                                    handle = cgs.media.redCubeIcon;
+                                    handle = cgs.gametype == GT_HARVESTER ? cgs.media.redCubeIcon : cgs.media.blueCubeIcon;
                             } else {
-                                    handle = cgs.media.blueCubeIcon;
+                                    handle = cgs.gametype == GT_HARVESTER ? cgs.media.blueCubeIcon : cgs.media.redCubeIcon;
                             }
                             CG_DrawPic( 470 + CHAR_WIDTH*3 + TEXT_ICON_SPACE, 432, ICON_SIZE, ICON_SIZE, handle );
                     }
@@ -4323,7 +4323,7 @@ static void CG_Draw2D(stereoFrame_t stereoFrame)
 				CG_DrawTimedMenus();
 			}
 #else
-			if (cg_ratStatusbar.integer && cgs.gametype != GT_HARVESTER) {
+			if (cg_ratStatusbar.integer && cgs.gametype != GT_HARVESTER && cgs.gametype != GT_TREASURE_HUNTER) {
 				CG_DrawRatStatusBar();
 			} else {
 				CG_DrawStatusBar();
