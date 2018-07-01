@@ -1872,6 +1872,10 @@ void Cmd_PlaceToken_f( gentity_t *ent ) {
 	token->die = Token_die;
 	token->takedamage = qtrue;
 	token->r.contents |= CONTENTS_CORPSE;
+	token->clipmask = MASK_PLAYERSOLID & ~CONTENTS_BODY;
+	if (g_passThroughInvisWalls.integer) {
+		token->clipmask &= ~CONTENTS_PLAYERCLIP;
+	}
 
 	token->spawnflags = ent->client->sess.sessionTeam;
 	token->s.generic1 = 0;
