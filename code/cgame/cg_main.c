@@ -833,6 +833,22 @@ void CG_RatInitDefaults(void)  {
 		trap_Cvar_Set( "cg_ratInitialized", "3" );
 	}
 
+	if (cg_ratInitialized.integer < 4) {
+		trap_Cvar_Set("cg_alwaysWeaponBar", "1");
+		switch (cg_weaponBarStyle.integer) {
+			case 2:
+			case 3:
+			case 4:
+				trap_Cvar_Set("cg_weaponBarStyle", "9");
+				break;
+			default:
+				trap_Cvar_Set("cg_weaponBarStyle", "8");
+				break;
+		}
+
+		trap_Cvar_Set( "cg_ratInitialized", "4" );
+	}
+
 }
 
 /*																																			
