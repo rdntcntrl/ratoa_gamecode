@@ -610,6 +610,9 @@ typedef struct {
 	qboolean th_hideActive;
 	int th_seekTime;
 	qboolean th_seekActive;
+	int th_redClientMask;
+	int th_blueClientMask;
+	int th_specClientMask;
 
 	//Added to keep track of challenges (can only be completed against humanplayers)
 	qboolean hadBots;	//There was bots in the level

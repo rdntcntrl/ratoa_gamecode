@@ -3171,6 +3171,19 @@ qboolean ScheduleTreasureHunterRound( void ) {
 	return qtrue;
 }
 
+void UpdateTreasureVisibility( qboolean hiddenFromEnemy ) {
+	gentity_t	*token;
+
+	token = NULL;
+	while ((token = G_Find (token, FOFS(classname), "item_redcube")) != NULL) {
+		token->r.singleClient = hiddenFromEnemy ? level.th_redClientMask : level.th_redClientMask | level.th_blueClientMask;
+	}
+	token = NULL;
+	while ((token = G_Find (token, FOFS(classname), "item_bluecube")) != NULL) {
+		token->r.singleClient = hiddenFromEnemy ? level.th_blueClientMask : level.th_blueClientMask | level.th_redClientMask;
+	}
+}
+
 /*
 =============
 CheckTreasureHunter
@@ -3193,6 +3206,43 @@ void CheckTreasureHunter(void) {
 			 return;
 		 }
 	}
+
+	// update client masks for the tokens
+	level.th_blueClientMask = 0;
+	level.th_redClientMask = 0;
+	level.th_specClientMask = 0;
+	for( i=0;i < level.numPlayingClients; i++ ) {
+		int cNum = level.sortedClients[i];
+		gentity_t *ent = &g_entities[cNum];
+		if (!ent->inuse) {
+			continue;
+		}
+
+		if (cNum > 32) {
+			continue;
+		}
+
+		if (ent->client->sess.sessionTeam == TEAM_BLUE) {
+			level.th_blueClientMask |= (1 << cNum);
+		} else if (ent->client->sess.sessionTeam == TEAM_RED) {
+			level.th_redClientMask |= (1 << cNum);
+		} else {
+			level.th_specClientMask |= (1 << cNum);
+		}
+	}
+
+	// set the token visiblity for each phase
+	if (level.th_hideActive) {
+		UpdateTreasureVisibility(qtrue);
+	} else if (level.th_seekActive) {
+		UpdateTreasureVisibility(qfalse);
+	} else if (level.time >= level.th_hideTime) {
+		UpdateTreasureVisibility(qtrue);
+	}
+
+	// TODO: advance if ONE team found all the tokens
+	// TODO: remaining token indicator
+	// TODO: make tokens drop to the floor! and fix lava damage
 
 	if (!level.th_hideActive 
 			&& level.time >= level.th_hideTime 
