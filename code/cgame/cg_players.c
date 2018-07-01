@@ -724,6 +724,8 @@ static void CG_LoadClientInfo( int clientNum, clientInfo_t *ci ) {
 	const char	*s;
 	char		teamname[MAX_QPATH];
 
+	fallback = DEFAULT_MODEL;;
+
 	teamname[0] = 0;
 #ifdef MISSIONPACK
 	if( cgs.gametype >= GT_TEAM && cgs.ffa_gt!=1) {
@@ -743,8 +745,21 @@ static void CG_LoadClientInfo( int clientNum, clientInfo_t *ci ) {
 			CG_Error( "CG_RegisterClientModelname( %s, %s, %s, %s %s ) failed", ci->modelName, ci->skinName, ci->headModelName, ci->headSkinName, teamname );
 		}
 
+		if (ci->forcedModel && ci->forcedBrightModel) {
+			Q_strncpyz(teamname, "/", sizeof(teamname));
+			if ( !CG_RegisterClientModelname( ci, DEFAULT_FORCED_MODEL, DEFAULT_FORCED_BRIGHT_SKIN, DEFAULT_FORCED_MODEL, DEFAULT_FORCED_BRIGHT_SKIN, teamname ) ) {
+				CG_Error( "DEFAULT_FORCED_MODEL / DEFAULT_FORCED_BRIGHT_SKIN (%s/%s) failed to register", DEFAULT_FORCED_MODEL, DEFAULT_FORCED_BRIGHT_SKIN );
+			}
+			fallback = DEFAULT_FORCED_MODEL;;
+		} else if (ci->forcedModel) {
+			Q_strncpyz(teamname, "/", sizeof(teamname));
+			if ( !CG_RegisterClientModelname( ci, DEFAULT_FORCED_MODEL, "default", DEFAULT_FORCED_MODEL, "default", teamname ) ) {
+				CG_Error( "DEFAULT_FORCED_MODEL (%s) failed to register", DEFAULT_FORCED_MODEL);
+			}
+			fallback = DEFAULT_FORCED_MODEL;;
+		}
 		// fall back to default team name
-		if( cgs.gametype >= GT_TEAM && cgs.ffa_gt!=1) {
+	       	else if( cgs.gametype >= GT_TEAM && cgs.ffa_gt!=1) {
 			// keep skin name
 			if( ci->team == TEAM_BLUE ) {
 				Q_strncpyz(teamname, DEFAULT_BLUETEAM_NAME, sizeof(teamname) );
@@ -754,6 +769,7 @@ static void CG_LoadClientInfo( int clientNum, clientInfo_t *ci ) {
 			if ( !CG_RegisterClientModelname( ci, DEFAULT_TEAM_MODEL, ci->skinName, DEFAULT_TEAM_HEAD, ci->skinName, teamname ) ) {
 				CG_Error( "DEFAULT_TEAM_MODEL / skin (%s/%s) failed to register", DEFAULT_TEAM_MODEL, ci->skinName );
 			}
+			fallback = DEFAULT_TEAM_MODEL;
 		} else {
 			if ( !CG_RegisterClientModelname( ci, DEFAULT_MODEL, "default", DEFAULT_MODEL, "default", teamname ) ) {
 				CG_Error( "DEFAULT_MODEL (%s) failed to register", DEFAULT_MODEL );
@@ -773,7 +789,6 @@ static void CG_LoadClientInfo( int clientNum, clientInfo_t *ci ) {
 
 	// sounds
 	dir = ci->modelName;
-	fallback = (cgs.gametype >= GT_TEAM && cgs.ffa_gt!=1) ? DEFAULT_TEAM_MODEL : DEFAULT_MODEL;
 
 	for ( i = 0 ; i < MAX_CUSTOM_SOUNDS ; i++ ) {
 		s = cg_customSoundNames[i];

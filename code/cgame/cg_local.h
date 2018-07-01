@@ -98,6 +98,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define	DEFAULT_TEAM_HEAD		"sarge"
 #endif
 
+#define DEFAULT_FORCED_MODEL		"sarge"
+#define DEFAULT_FORCED_BRIGHT_SKIN	"bright"
+
 #define MAX(a,b) (((a) > (b)) ? (a) : (b))
 
 #define DEFAULT_REDTEAM_NAME		"Vim supporters"
