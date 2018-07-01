@@ -136,6 +136,7 @@ vmCvar_t	g_rampJump;
 vmCvar_t	g_additiveJump;
 vmCvar_t	g_fastSwitch;
 vmCvar_t	g_fastWeapons;
+vmCvar_t	g_regularFootsteps;
 
 //dmn_clowns suggestions (with my idea of implementing):
 vmCvar_t	g_instantgib;
@@ -363,6 +364,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_additiveJump, "g_additiveJump", "0", CVAR_ARCHIVE, qtrue},
 	{ &g_fastSwitch, "g_fastSwitch", "0", CVAR_ARCHIVE, qtrue},
 	{ &g_fastWeapons, "g_fastWeapons", "0", CVAR_ARCHIVE, qtrue},
+	{ &g_regularFootsteps, "g_regularFootsteps", "1", CVAR_ARCHIVE, qfalse},
 
 	//Instantgib and Vampire thingies
 	{ &g_instantgib, "g_instantgib", "0", CVAR_SERVERINFO | CVAR_LATCH, 0, qfalse },

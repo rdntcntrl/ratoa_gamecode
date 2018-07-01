@@ -239,7 +239,8 @@ typedef enum {
 	STAT_CLIENTS_READY,				// bit mask of clients wishing to exit the intermission (FIXME: configstring?)
 	STAT_MAX_HEALTH,				// health / armor limit, changable by handicap
 	STAT_JUMPTIME,					// rampjump
-	STAT_EXTFLAGS					// extended playerstate flags
+	STAT_EXTFLAGS,					// extended playerstate flags
+	STAT_BOBCYCLEREM				// used to store fractions of bobCycle for consistent, FPS-independent footsteps
 } statIndex_t;
 
 
@@ -269,6 +270,7 @@ typedef enum {
 
 // stats[STAT_EXTFLAGS]
 #define EXTFL_ZOOMING 1
+
 
 // entityState_t->eFlags
 #define	EF_DEAD				0x00000001		// don't draw a foe marker over players with EF_DEAD
@@ -606,7 +608,8 @@ typedef enum {
 #define TEAM_NONE TEAM_SPECTATOR
 
 // Time between location updates
-#define TEAM_LOCATION_UPDATE_TIME		1000
+//#define TEAM_LOCATION_UPDATE_TIME		1000
+#define TEAM_LOCATION_UPDATE_TIME		500
 
 // How many players on the overlay
 #define TEAM_MAXOVERLAY		32
@@ -760,6 +763,7 @@ qboolean	BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const play
 #define RAT_ADDITIVEJUMP 	8192
 #define RAT_NOTIMENUDGE 	16384
 #define RAT_FLAGINDICATOR 	32768
+#define RAT_REGULARFOOTSTEPS 	65536
 
 #define MAX_RAT_SAY_TEXT 256
 

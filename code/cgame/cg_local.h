@@ -1420,6 +1420,7 @@ extern vmCvar_t                	g_rampJump;
 extern vmCvar_t                	g_additiveJump;
 extern vmCvar_t                	g_fastSwitch;
 extern vmCvar_t                	g_fastWeapons;
+extern vmCvar_t                	g_regularFootsteps;
 extern vmCvar_t                	cg_predictTeleport;
 extern vmCvar_t                	cg_predictWeapons;
 extern vmCvar_t                	cg_predictExplosions;

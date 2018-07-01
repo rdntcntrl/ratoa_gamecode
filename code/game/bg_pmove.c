@@ -1083,6 +1083,7 @@ static void PM_CrashLand( void ) {
 
 	// start footstep cycle over
 	pm->ps->bobCycle = 0;
+	pm->ps->stats[STAT_BOBCYCLEREM] = 0;
 }
 
 /*
@@ -1432,6 +1433,7 @@ static void PM_Footsteps( void ) {
 	if ( !pm->cmd.forwardmove && !pm->cmd.rightmove ) {
 		if (  pm->xyspeed < 5 ) {
 			pm->ps->bobCycle = 0;	// start at beginning of cycle again
+			pm->ps->stats[STAT_BOBCYCLEREM] = 0;
 			if ( pm->ps->pm_flags & PMF_DUCKED ) {
 				PM_ContinueLegsAnim( LEGS_IDLECR );
 			} else {
@@ -1486,7 +1488,26 @@ static void PM_Footsteps( void ) {
 
 	// check for footstep / splash sounds
 	old = pm->ps->bobCycle;
-	pm->ps->bobCycle = (int)( old + bobmove * pml.msec ) & 255;
+	//pm->ps->bobCycle = (int)( old + bobmove * pml.msec ) & 255;
+	
+	if (g_regularFootsteps.integer) {
+		// make sure that players with high FPS do make enough footsteps
+		// this solution is not ideal, but is far simpler than switching
+		// everything to floating-point arithmetic
+		float inc = bobmove * pml.msec;
+		float bobCycleRem = ((float)pm->ps->stats[STAT_BOBCYCLEREM])/1000.0;
+		int newBobCycle1 = (int)( old + inc);
+		int newBobCycle2 = (int)( old + inc + bobCycleRem);
+		if (newBobCycle1 != newBobCycle2) {
+			pm->ps->bobCycle = newBobCycle2 & 255;
+			pm->ps->stats[STAT_BOBCYCLEREM] = (int)((old + inc + bobCycleRem - newBobCycle2)*1000.0);
+		} else {
+			pm->ps->bobCycle = newBobCycle1 & 255;
+			pm->ps->stats[STAT_BOBCYCLEREM] += (int)((inc -  (int)inc)*1000.0);
+		}
+	} else {
+		pm->ps->bobCycle = (int)( old + bobmove * pml.msec ) & 255;
+	}
 
 	// if we just crossed a cycle boundary, play an apropriate footstep event
 	if ( ( ( old + 64 ) ^ ( pm->ps->bobCycle + 64 ) ) & 128 ) {

@@ -182,6 +182,7 @@ vmCvar_t 	g_rampJump;
 vmCvar_t 	g_additiveJump;
 vmCvar_t 	g_fastSwitch;
 vmCvar_t 	g_fastWeapons;
+vmCvar_t 	g_regularFootsteps;
 vmCvar_t 	cg_predictTeleport;
 vmCvar_t 	cg_predictWeapons;
 vmCvar_t 	cg_predictExplosions;
@@ -538,6 +539,7 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &g_additiveJump, "g_additiveJump", "0", CVAR_SYSTEMINFO},
 	{ &g_fastSwitch, "g_fastSwitch", "1", CVAR_SYSTEMINFO},
 	{ &g_fastWeapons, "g_fastWeapons", "1", CVAR_SYSTEMINFO},
+	{ &g_regularFootsteps, "g_regularFootsteps", "1", CVAR_SYSTEMINFO},
 
 	// TODO: make CVAR_ARCHIVE
 	{ &cg_predictTeleport, "cg_predictTeleport", "1", 0},
@@ -904,7 +906,7 @@ void CG_UpdateCvars( void ) {
 			CG_Cvar_ClampInt( cv->cvarName, cv->vmCvar, 0, 250 );
 		}
                 else if ( cv->vmCvar == &com_maxfps ) {
-			CG_Cvar_ClampInt( cv->cvarName, cv->vmCvar, 0, 166 );
+			CG_Cvar_ClampInt( cv->cvarName, cv->vmCvar, 0, 500 );
 		}
                 else if ( cv->vmCvar == &con_notifytime ) {
 			if (cg_newConsole.integer ) {
