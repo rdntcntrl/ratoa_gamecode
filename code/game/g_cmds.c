@@ -3104,8 +3104,10 @@ commands_t cmds[ ] =
   { "followprev", CMD_NOTEAM, Cmd_FollowCycle_f },
   { "followauto", CMD_NOTEAM, Cmd_FollowAuto_f },
 
-  { "timein", 0, Cmd_Timein_f },
   { "timeout", 0, Cmd_Timeout_f },
+  { "timein", 0, Cmd_Timein_f },
+  { "pause", 0, Cmd_Timeout_f },
+  { "unpause", 0, Cmd_Timein_f },
 
   { "gg", 0, Cmd_GoodGame_f },
 
