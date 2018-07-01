@@ -669,6 +669,7 @@ void G_TimeoutReminder(gentity_t *ent);
 void SendReadymask(int clientnum);
 void G_SendSpawnpoints(gentity_t *ent);
 qboolean G_TournamentSpecMuted(void);
+void AccMessage( gentity_t *ent );
 
 
 // KK-OAX Added these in a seperate file to keep g_cmds.c familiar. 
