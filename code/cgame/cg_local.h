@@ -779,6 +779,8 @@ typedef struct {
 	qhandle_t	thTokenBlueShader;
 	qhandle_t	thTokenRedIShader;
 	qhandle_t	thTokenBlueIShader;
+	qhandle_t	thTokenRedISolidShader;
+	qhandle_t	thTokenBlueISolidShader;
 
 //For Double Domination:
 	//qhandle_t	ddPointA;
@@ -1569,6 +1571,8 @@ extern vmCvar_t			cg_enemyCorpseSaturation;
 extern vmCvar_t			cg_enemyCorpseValue;
 extern vmCvar_t			cg_teamCorpseSaturation;
 extern vmCvar_t			cg_teamCorpseValue;
+
+extern vmCvar_t			cg_thTokenIndicator;
 
 extern vmCvar_t			cg_timerAlpha;
 extern vmCvar_t			cg_fpsAlpha;

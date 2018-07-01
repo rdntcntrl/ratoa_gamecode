@@ -295,6 +295,8 @@ vmCvar_t	cg_enemyCorpseValue;
 vmCvar_t	cg_teamCorpseSaturation;
 vmCvar_t	cg_teamCorpseValue;
 
+vmCvar_t	cg_thTokenIndicator;
+
 vmCvar_t	cg_timerAlpha;
 vmCvar_t	cg_fpsAlpha;
 vmCvar_t	cg_speedAlpha;
@@ -683,6 +685,9 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_enemyCorpseValue ,          "cg_enemyCorpseValue", "0.2", CVAR_ARCHIVE},
 	{ &cg_teamCorpseSaturation ,      "cg_teamCorpseSaturation", "", CVAR_ARCHIVE},
 	{ &cg_teamCorpseValue ,           "cg_teamCorpseValue", "0.2", CVAR_ARCHIVE},
+
+	// TREASURE HUNTER:
+	{ &cg_thTokenIndicator ,           "cg_thTokenIndicator", "1", CVAR_ARCHIVE},
 
 	// / RAT ===================
 
@@ -1691,6 +1696,8 @@ static void CG_RegisterGraphics( void ) {
 		cgs.media.thTokenBlueShader = trap_R_RegisterShader( "models/powerups/treasure/thTokenBlue" );
 		cgs.media.thTokenBlueIShader = trap_R_RegisterShaderNoMip("sprites/thTokenIndicatorBlue.tga");
 		cgs.media.thTokenRedIShader = trap_R_RegisterShaderNoMip("sprites/thTokenIndicatorRed.tga");
+		cgs.media.thTokenBlueISolidShader= trap_R_RegisterShaderNoMip("sprites/thTokenIndicatorBlueSolid.tga");
+		cgs.media.thTokenRedISolidShader= trap_R_RegisterShaderNoMip("sprites/thTokenIndicatorRedSolid.tga");
 	}
         
         if( ( cgs.gametype >= GT_TEAM ) && ( cgs.ffa_gt != 1 ) ) {

@@ -250,7 +250,8 @@ static void CG_TreasureHuntToken ( centity_t *cent ) {
 		ent.hModel = cgs.media.thToken;
 		//cent->lerpOrigin[2] += 8; // good for OA model
 		//cent->lerpOrigin[2] -= 9; // for new token model
-		cent->lerpOrigin[2] -= 4; // for new token model
+		//cent->lerpOrigin[2] -= 4; // for new token model
+		cent->lerpOrigin[2] -= 5; // for new token model
 		// make it stationary
 		VectorSet( cent->lerpAngles, 0, 0, 0);
 		AnglesToAxis(cent->lerpAngles, ent.axis);
@@ -276,22 +277,37 @@ static void CG_TreasureHuntToken ( centity_t *cent ) {
 
 	ent.nonNormalizedAxes = qfalse;
 
-	trap_R_AddRefEntityToScene(&ent);
-
-	if (cgs.th_tokenStyle == 0 && 
-			((item->giTag == HARVESTER_REDCUBE && team == TEAM_RED)
-			  || (item->giTag == HARVESTER_BLUECUBE && team == TEAM_BLUE))) {
+	if (cgs.th_tokenStyle != 1 && ((item->giTag == HARVESTER_REDCUBE && team == TEAM_RED)
+				|| (item->giTag == HARVESTER_BLUECUBE && team == TEAM_BLUE))) {
+		switch (cg_thTokenIndicator.integer) {
+			case 1:
+				if (cgs.th_phase != TH_SEEK) {
+					trap_R_AddRefEntityToScene(&ent);
+				}
+				//ent.radius = 7;
+				ent.radius = 8;
+				ent.origin[2] += 21; 
+				ent.oldorigin[2] += 21; 
+				ent.customShader = (team == TEAM_BLUE) ? cgs.media.thTokenBlueISolidShader : cgs.media.thTokenRedISolidShader;
+				break;
+			case 2:
+				trap_R_AddRefEntityToScene(&ent);
+				ent.radius = 17;
+				ent.origin[2] += 1; 
+				ent.oldorigin[2] += 1; 
+				ent.customShader = (team == TEAM_BLUE) ? cgs.media.thTokenBlueIShader : cgs.media.thTokenRedIShader;
+				break;
+			default:
+				return;
+		}
 		ent.reType = RT_SPRITE;
-		//ent.radius = 16;
-		//ent.radius = 15;
-		ent.radius = 17;
-		ent.origin[2] += 1; 
-		ent.oldorigin[2] += 1; 
-		ent.customShader = (team == TEAM_BLUE) ? cgs.media.thTokenBlueIShader : cgs.media.thTokenRedIShader;
 		ent.shaderRGBA[0] = 255;
 		ent.shaderRGBA[1] = 255;
 		ent.shaderRGBA[2] = 255;
 		ent.shaderRGBA[3] = 255;
+		trap_R_AddRefEntityToScene(&ent);
+	} else {
+		// always add enemy tokens
 		trap_R_AddRefEntityToScene(&ent);
 	}
 }
