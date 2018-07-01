@@ -145,20 +145,31 @@ void P_WorldEffects( gentity_t *ent ) {
 	//
 	if (waterlevel && 
 		(ent->watertype&(CONTENTS_LAVA|CONTENTS_SLIME)) ) {
+		//if (ent->health > 0
+		//	&& ent->pain_debounce_time <= level.time	) {
 		if (ent->health > 0
-			&& ent->pain_debounce_time <= level.time	) {
+			&& ent->client->lavaDmgTime <= level.time ) {
+
+			// apply damage every 500ms
+			ent->client->lavaDmgTime = level.time + 250;
+			// make sure pain sounds are synchronized w/ actual damage application
+			ent->pain_debounce_time = level.time + 250;
 
 			if ( envirosuit ) {
 				G_AddEvent( ent, EV_POWERUP_BATTLESUIT, 0 );
 			} else {
 				if (ent->watertype & CONTENTS_LAVA) {
+					//G_Damage (ent, NULL, NULL, NULL, NULL, 
+					//	30*waterlevel, 0, MOD_LAVA);
 					G_Damage (ent, NULL, NULL, NULL, NULL, 
-						30*waterlevel, 0, MOD_LAVA);
+						g_lavaDamage.integer*waterlevel, 0, MOD_LAVA);
 				}
 
 				if (ent->watertype & CONTENTS_SLIME) {
+					//G_Damage (ent, NULL, NULL, NULL, NULL, 
+					//	10*waterlevel, 0, MOD_SLIME);
 					G_Damage (ent, NULL, NULL, NULL, NULL, 
-						10*waterlevel, 0, MOD_SLIME);
+						g_slimeDamage.integer*waterlevel, 0, MOD_SLIME);
 				}
 			}
 		}
