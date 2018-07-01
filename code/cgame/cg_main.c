@@ -1684,7 +1684,8 @@ static void CG_RegisterGraphics( void ) {
 	}
 
 	if (cgs.gametype == GT_TREASURE_HUNTER) {
-		cgs.media.thEnemyToken = trap_R_RegisterModel( "models/powerups/overload_base.md3" );
+		//cgs.media.thEnemyToken = trap_R_RegisterModel( "models/powerups/overload_base.md3" );
+		cgs.media.thEnemyToken = trap_R_RegisterModel( "models/powerups/treasure/thToken.md3" );
 	}
         
         if( ( cgs.gametype >= GT_TEAM ) && ( cgs.ffa_gt != 1 ) ) {

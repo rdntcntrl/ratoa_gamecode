@@ -247,7 +247,8 @@ static void CG_TreasureHuntToken ( centity_t *cent ) {
 	} else {
 		// tokenstyle == 0 -> make enemy token harder to see
 		ent.hModel = cgs.media.thEnemyToken;
-		cent->lerpOrigin[2] += 8;
+		//cent->lerpOrigin[2] += 8; // good for OA model
+		cent->lerpOrigin[2] -= 9; // for new token model
 		// make it stationary
 		VectorSet( cent->lerpAngles, 0, 0, 0);
 		AnglesToAxis(cent->lerpAngles, ent.axis);
