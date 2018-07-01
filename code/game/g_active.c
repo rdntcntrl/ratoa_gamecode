@@ -782,6 +782,9 @@ void ClientThink_real( gentity_t *ent ) {
 		ClientInactivityHeartBeat(ent->client);
 		return;
 	}
+	if (level.intermissiontime) {
+		ClientInactivityHeartBeat(ent->client);
+	}
 
 	client = ent->client;
 
