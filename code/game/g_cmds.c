@@ -938,16 +938,16 @@ Let everyone know about a team change
 */
 void BroadcastTeamChange( gclient_t *client, int oldTeam )
 {
-	if ( client->sess.sessionTeam == TEAM_RED ) {
+	if ( client->sess.sessionTeam == TEAM_RED && oldTeam != TEAM_RED) {
 		trap_SendServerCommand( -1, va("cp \"%s" S_COLOR_WHITE " joined the red team.\n\"",
 			client->pers.netname) );
-	} else if ( client->sess.sessionTeam == TEAM_BLUE ) {
+	} else if ( client->sess.sessionTeam == TEAM_BLUE && oldTeam != TEAM_BLUE) {
 		trap_SendServerCommand( -1, va("cp \"%s" S_COLOR_WHITE " joined the blue team.\n\"",
 		client->pers.netname));
 	} else if ( client->sess.sessionTeam == TEAM_SPECTATOR && oldTeam != TEAM_SPECTATOR ) {
 		trap_SendServerCommand( -1, va("cp \"%s" S_COLOR_WHITE " joined the spectators.\n\"",
 		client->pers.netname));
-	} else if ( client->sess.sessionTeam == TEAM_FREE ) {
+	} else if ( client->sess.sessionTeam == TEAM_FREE && oldTeam != TEAM_FREE) {
 		trap_SendServerCommand( -1, va("cp \"%s" S_COLOR_WHITE " joined the battle.\n\"",
 		client->pers.netname));
 	}
@@ -1191,10 +1191,10 @@ void Cmd_Team_f( gentity_t *ent ) {
 	int			oldSpecGroup;
 	char		s[MAX_TOKEN_CHARS];
 	qboolean    force;
+	oldTeam = ent->client->sess.sessionTeam;
+	oldSpecGroup = ent->client->sess.spectatorGroup;
 
 	if ( trap_Argc() != 2 ) {
-		oldTeam = ent->client->sess.sessionTeam;
-		oldSpecGroup = ent->client->sess.spectatorGroup;
 		switch ( oldTeam ) {
 		case TEAM_BLUE:
 			trap_SendServerCommand( ent-g_entities, "print \"Blue team\n\"" );
@@ -1242,7 +1242,10 @@ void Cmd_Team_f( gentity_t *ent ) {
 
 	SetTeam( ent, s );
 
-	ent->client->switchTeamTime = level.time + 3000;
+	if (ent->client->sess.sessionTeam != oldTeam 
+			|| ent->client->sess.spectatorGroup != oldSpecGroup) {
+		ent->client->switchTeamTime = level.time + 3000;
+	}
 }
 
 
