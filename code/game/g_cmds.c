@@ -3170,9 +3170,9 @@ void ClientCommand( int clientNum )
         return;
     }
     //KK-OAX When the corresponding code is integrated, I will activate these. 
-    //if( cmds[ i ].cmdFlags & CMD_MESSAGE && 
-    //    ( ent->client->pers.muted || G_FloodLimited( ent ) ) )
-    //    return;
+    if( cmds[ i ].cmdFlags & CMD_MESSAGE && 
+        ( ent->client->pers.muted || G_FloodLimited( ent ) ) )
+        return;
     
     //KK-OAX Do I need to change this for FFA gametype?
     if( cmds[ i ].cmdFlags & CMD_TEAM &&
