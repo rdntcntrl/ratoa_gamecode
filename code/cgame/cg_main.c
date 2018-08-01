@@ -1690,7 +1690,7 @@ static void CG_RegisterGraphics( void ) {
 
 	if (cgs.gametype == GT_TREASURE_HUNTER) {
 		//cgs.media.thEnemyToken = trap_R_RegisterModel( "models/powerups/overload_base.md3" );
-		cgs.media.thToken = trap_R_RegisterModel( "models/powerups/treasure/thToken.md3" );
+		cgs.th_oldTokenStyle = -1;
 		//cgs.media.thTokenTeamShader = trap_R_RegisterShader( "models/powerups/treasure/thTokenTeam" );
 		cgs.media.thTokenRedShader = trap_R_RegisterShader( "models/powerups/treasure/thTokenRed" );
 		cgs.media.thTokenBlueShader = trap_R_RegisterShader( "models/powerups/treasure/thTokenBlue" );

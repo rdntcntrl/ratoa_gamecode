@@ -231,8 +231,18 @@ static void CG_TreasureHuntToken ( centity_t *cent ) {
 
 	memset (&ent, 0, sizeof(ent));
 
+	if (cgs.th_oldTokenStyle != cgs.th_tokenStyle) {
+		cgs.media.thToken = trap_R_RegisterModel( 
+				cgs.th_tokenStyle > 0 ? 
+					va("models/powerups/treasure/thToken%i.md3", cgs.th_tokenStyle )
+					:
+					"models/powerups/treasure/thToken.md3" 
+				);
+		cgs.th_oldTokenStyle = cgs.th_tokenStyle;
+	}
 
-	if (cgs.th_tokenStyle >= 1
+
+	if (cgs.th_tokenStyle == -1
 			//((item->giTag == HARVESTER_REDCUBE && team == TEAM_RED)
 			// || (item->giTag == HARVESTER_BLUECUBE && team == TEAM_BLUE)
 			 ) {
@@ -251,7 +261,10 @@ static void CG_TreasureHuntToken ( centity_t *cent ) {
 		//cent->lerpOrigin[2] += 8; // good for OA model
 		//cent->lerpOrigin[2] -= 9; // for new token model
 		//cent->lerpOrigin[2] -= 4; // for new token model
-		cent->lerpOrigin[2] -= 5; // for new token model
+		//cent->lerpOrigin[2] -= 5; // for new token model
+
+		cent->lerpOrigin[2] -= ITEM_RADIUS; // for new token model with anchor at the bottom
+
 		// make it stationary
 		VectorSet( cent->lerpAngles, 0, 0, 0);
 		AnglesToAxis(cent->lerpAngles, ent.axis);
@@ -277,7 +290,7 @@ static void CG_TreasureHuntToken ( centity_t *cent ) {
 
 	ent.nonNormalizedAxes = qfalse;
 
-	if (cgs.th_tokenStyle != 1 && ((item->giTag == HARVESTER_REDCUBE && team == TEAM_RED)
+	if (cgs.th_tokenStyle != -1 && ((item->giTag == HARVESTER_REDCUBE && team == TEAM_RED)
 				|| (item->giTag == HARVESTER_BLUECUBE && team == TEAM_BLUE))) {
 		switch (cg_thTokenIndicator.integer) {
 			case 1:
@@ -286,15 +299,17 @@ static void CG_TreasureHuntToken ( centity_t *cent ) {
 				}
 				//ent.radius = 7;
 				ent.radius = 8;
-				ent.origin[2] += 21; 
-				ent.oldorigin[2] += 21; 
+				//ent.origin[2] += 21; 
+				//ent.oldorigin[2] += 21; 
+				ent.origin[2] += ITEM_RADIUS * 2 + 1;
+				ent.oldorigin[2] += ITEM_RADIUS * 2 + 1;
 				ent.customShader = (team == TEAM_BLUE) ? cgs.media.thTokenBlueISolidShader : cgs.media.thTokenRedISolidShader;
 				break;
 			case 2:
 				trap_R_AddRefEntityToScene(&ent);
 				ent.radius = 17;
-				ent.origin[2] += 1; 
-				ent.oldorigin[2] += 1; 
+				ent.origin[2] += 11; 
+				ent.oldorigin[2] += 11; 
 				ent.customShader = (team == TEAM_BLUE) ? cgs.media.thTokenBlueIShader : cgs.media.thTokenRedIShader;
 				break;
 			default:

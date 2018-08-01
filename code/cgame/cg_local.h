@@ -1262,6 +1262,7 @@ typedef struct {
 	int th_roundDuration;
 	int th_redTokens;
 	int th_blueTokens;
+	int th_oldTokenStyle;
 	int th_tokenStyle;
 
 //CTF Elimination
