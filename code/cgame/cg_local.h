@@ -1629,6 +1629,8 @@ extern  vmCvar_t                cg_vote_custom_commands;
 
 extern  vmCvar_t                cg_autovertex;
 
+extern  vmCvar_t                cg_picmipBackup;
+
 //Cvar to adjust the size of the fragmessage
 extern	vmCvar_t		cg_fragmsgsize;
 

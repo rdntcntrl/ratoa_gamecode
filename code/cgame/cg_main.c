@@ -374,6 +374,8 @@ vmCvar_t        cg_vote_custom_commands;
 
 vmCvar_t                cg_autovertex;
 
+vmCvar_t                cg_picmipBackup;
+
 vmCvar_t	cg_fragmsgsize;
 
 vmCvar_t	cg_crosshairPulse;
@@ -515,6 +517,8 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_synchronousClients, "g_synchronousClients", "0", CVAR_SYSTEMINFO },	// communicated by systeminfo
 
         { &cg_autovertex, "cg_autovertex", "0", CVAR_ARCHIVE },
+
+        { &cg_picmipBackup, "cg_picmipBackup", "-1", CVAR_ARCHIVE },
 #ifdef MISSIONPACK
 	{ &cg_redTeamName, "g_redteam", DEFAULT_REDTEAM_NAME, CVAR_ARCHIVE | CVAR_SERVERINFO | CVAR_USERINFO },
 	{ &cg_blueTeamName, "g_blueteam", DEFAULT_BLUETEAM_NAME, CVAR_ARCHIVE | CVAR_SERVERINFO | CVAR_USERINFO },
@@ -2970,6 +2974,23 @@ void CG_FairCvars() {
             trap_Cvar_Set("r_vertexlight","1");
             vid_restart_required = qtrue;
         }
+    }
+
+    if(cgs.videoflags & VF_LOCK_PICMIP) {
+	    int picmip = 0;
+	    trap_Cvar_VariableStringBuffer("r_picmip",rendererinfos,sizeof(rendererinfos) );
+	    picmip = atoi(rendererinfos);
+	    if(picmip != 0) {
+		    trap_Cvar_Set("r_picmip","0");
+		    // store picmip value
+		    trap_Cvar_Set("cg_picmipBackup",va("%i", picmip));
+		    vid_restart_required = qtrue;
+	    }
+    } else if (cg_picmipBackup.integer > 0) {
+	    // restore old value the user set for r_picmip before lock was enabled
+            trap_Cvar_Set("r_picmip",va("%i", cg_picmipBackup.integer));
+            trap_Cvar_Set("cg_picmipBackup","-1");
+            vid_restart_required = qtrue;
     }
 
     if(vid_restart_required && do_vid_restart)
