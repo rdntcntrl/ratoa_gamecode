@@ -1284,6 +1284,9 @@ extern  vmCvar_t        g_autoClans;
 extern  vmCvar_t        g_quadWhore;
 
 extern  vmCvar_t        g_killDropsFlag;
+
+extern  vmCvar_t        g_killSafety;
+
 extern  vmCvar_t        g_startWhenReady;
 extern  vmCvar_t        g_autoStartTime;
 extern  vmCvar_t        g_countDownHealthArmor;

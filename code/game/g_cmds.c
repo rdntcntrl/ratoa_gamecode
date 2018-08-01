@@ -912,6 +912,19 @@ void Cmd_Kill_f( gentity_t *ent ) {
 	if (ent->health <= 0) {
 		return;
 	}
+
+	if ( g_killSafety.integer && !level.warmupTime) {
+		if ((g_gametype.integer == GT_ELIMINATION || g_gametype.integer == GT_CTF_ELIMINATION || g_gametype.integer == GT_LMS) 
+				&& ( 
+					  (level.roundNumber == level.roundNumberStarted && level.time < level.roundStartTime + g_killSafety.integer) 
+					|| (level.time <= level.roundStartTime && level.time > level.roundStartTime-g_killSafety.integer)
+				   )) {
+			return;
+		} else if (level.time < level.startTime + g_killSafety.integer) {
+			return;
+		}
+	}
+
 	ent->flags &= ~FL_GODMODE;
 	ent->client->ps.stats[STAT_HEALTH] = ent->health = -999;
         if(ent->client->lastSentFlying>-1)
