@@ -775,8 +775,8 @@ typedef struct {
 // For Treasure Hunter:
 	qhandle_t	thToken;
 	//qhandle_t	thTokenTeamShader;
-	qhandle_t	thTokenRedShader;
-	qhandle_t	thTokenBlueShader;
+	//qhandle_t	thTokenRedShader;
+	//qhandle_t	thTokenBlueShader;
 	qhandle_t	thTokenRedIShader;
 	qhandle_t	thTokenBlueIShader;
 	qhandle_t	thTokenRedISolidShader;
