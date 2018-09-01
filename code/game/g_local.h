@@ -623,6 +623,7 @@ typedef struct {
 	int th_teamTokensRed;
 	int th_teamTokensBlue;
 	int th_lastClientTokenUpdate;
+	int th_allTokensHiddenTime;
 
 	//Added to keep track of challenges (can only be completed against humanplayers)
 	qboolean hadBots;	//There was bots in the level

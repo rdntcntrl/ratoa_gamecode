@@ -3453,7 +3453,14 @@ void CheckTreasureHunter(void) {
 		if (g_treasureHideTime.integer > 0 && level.time >= level.th_hideTime + g_treasureHideTime.integer * 1000)  {
 			s = "Time is up!";
 		} else if (leftover_tokens_red + leftover_tokens_blue == 0)  {
-			s = "All tokens hidden!";
+			// wait 5 seconds to allow the player to remove the token again if it's misplaced
+			if (level.th_allTokensHiddenTime == 0) {
+				level.th_allTokensHiddenTime = level.time;
+			} else if (level.time >=  level.th_allTokensHiddenTime + 5000) {
+				s = "All tokens hidden!";
+			} 
+		} else {
+			level.th_allTokensHiddenTime = 0;
 		}
 
 		if (s) {
