@@ -2254,13 +2254,13 @@ qboolean G_admin_putteam( gentity_t *ent, int skiparg )
   gentity_t *vic;
   team_t teamnum = TEAM_NONE;
 
-  G_SayArgv( 1 + skiparg, name, sizeof( name ) );
-  G_SayArgv( 2 + skiparg, team, sizeof( team ) );
-  if( G_SayArgc() < 3 + skiparg )
+  if( G_SayArgc() < 2 + skiparg )
   {
     ADMP( "^3!putteam: ^7usage: !putteam [name] [h|a|s]\n" );
     return qfalse;
   }
+
+  G_SayArgv( 1 + skiparg, name, sizeof( name ) );
 
   if( ( found = G_ClientNumbersFromString( name, pids, MAX_CLIENTS ) ) != 1 )
   {
@@ -2275,14 +2275,29 @@ qboolean G_admin_putteam( gentity_t *ent, int skiparg )
     return qfalse;
   }
   vic = &g_entities[ pids[ 0 ] ];
+  if( G_SayArgc() == 3 + skiparg ) {
+	  G_SayArgv( 2 + skiparg, team, sizeof( team ) );
+  } else {
+	  // put players to spec, and force specs to auto-join by default
+	  switch (vic->client->sess.sessionTeam) {
+		  case TEAM_SPECTATOR:
+			  Q_strncpyz( team, "f", sizeof( team ) );
+			  break;
+		  default:
+			  Q_strncpyz( team, "s", sizeof( team ) );
+			  break;
+	  }
+  }
+
   teamnum = G_TeamFromString( team );
   if( teamnum == TEAM_NUM_TEAMS )
   {
-    ADMP( va( "^3!putteam: ^7unknown team %s\n", team ) );
-    return qfalse;
+	  ADMP( va( "^3!putteam: ^7unknown team %s\n", team ) );
+	  return qfalse;
   }
-  if( vic->client->sess.sessionTeam == teamnum )
-    return qfalse;
+  //if( vic->client->sess.sessionTeam == teamnum )
+  //  return qfalse;
+
   
   SetTeam( vic, team );
 
