@@ -168,6 +168,7 @@ vmCvar_t	cg_blood;
 vmCvar_t	cg_predictItems;
 vmCvar_t	cg_predictItemsNearPlayers;
 vmCvar_t	cg_deferPlayers;
+vmCvar_t	cg_drawFollowPosition;
 vmCvar_t	cg_drawTeamOverlay;
 vmCvar_t	cg_teamOverlayUserinfo;
 vmCvar_t	cg_drawFriend;
@@ -496,6 +497,8 @@ static cvarTable_t cvarTable[] = { // bk001129
 #else
 	{ &cg_deferPlayers, "cg_deferPlayers", "1", CVAR_ARCHIVE },
 #endif
+	{ &cg_drawFollowPosition, "cg_drawFollowPosition", "1", CVAR_ARCHIVE },
+
 	{ &cg_drawTeamOverlay, "cg_drawTeamOverlay", "4", CVAR_ARCHIVE },
 	{ &cg_teamOverlayUserinfo, "teamoverlay", "0", CVAR_ROM | CVAR_USERINFO },
 	{ &cg_stats, "cg_stats", "0", 0 },

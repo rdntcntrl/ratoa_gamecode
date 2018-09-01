@@ -2365,7 +2365,17 @@ static qboolean CG_DrawFollow( void ) {
 
 	//y -= SMALLCHAR_HEIGHT;
 
-	CG_DrawSmallString( 0.5 * (640 - SMALLCHAR_WIDTH * CG_DrawStrlen(string)), 32, string, 1.0F );
+	switch (cg_drawFollowPosition.integer) {
+		case 1:
+			CG_DrawSmallString( 0.85 * 640 - (SMALLCHAR_WIDTH * CG_DrawStrlen(string)), 4, string, 1.0F );
+			break;
+		//case 2:
+		//	CG_DrawStringExt( 0.85 * 640 - (TINYCHAR_WIDTH * CG_DrawStrlen(string)), 4,  name, colorWhite, qfalse, qfalse, TINYCHAR_WIDTH, TINYCHAR_HEIGHT, 0 );
+		//	break;
+		default:
+			CG_DrawSmallString( 0.5 * (640 - SMALLCHAR_WIDTH * CG_DrawStrlen(string)), 32, string, 1.0F );
+			break;
+	}
 	//CG_DrawSmallString( SCREEN_WIDTH -  (SMALLCHAR_WIDTH * CG_DrawStrlen(string)), y, string, 1.0F );
 
 	//x = 0.5 * ( 640 - GIANT_WIDTH * CG_DrawStrlen( name ) );
