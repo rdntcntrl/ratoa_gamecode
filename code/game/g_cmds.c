@@ -975,10 +975,19 @@ void BroadcastTeamChange( gclient_t *client, int oldTeam )
 /*
 =================
 SetTeam
-KK-OAX Modded this to accept a forced admin change. 
 =================
 */
 void SetTeam( gentity_t *ent, char *s ) {
+	SetTeam_Force(ent, s, ent);
+}
+
+/*
+=================
+SetTeam_Force
+KK-OAX Modded this to accept a forced admin change. 
+=================
+*/
+void SetTeam_Force( gentity_t *ent, char *s, gentity_t *by ) {
 	int					team, oldTeam;
 	gclient_t			*client;
 	int					clientNum;
@@ -990,7 +999,11 @@ void SetTeam( gentity_t *ent, char *s ) {
     char	            userinfo[MAX_INFO_STRING];
     qboolean            force;
 
-	force = G_admin_permission(ent, ADMF_FORCETEAMCHANGE);
+    	if (by == NULL) {
+		force = qtrue;
+	} else {
+		force = G_admin_permission(by, ADMF_FORCETEAMCHANGE);
+	}
 	
 	//
 	// see what change is requested
