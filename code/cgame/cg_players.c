@@ -925,12 +925,15 @@ static void CG_SetDeferredClientInfo( int clientNum, clientInfo_t *ci ) {
 			CG_CopyClientInfoModel( match, ci );
 			return;
 		}
-		// load the full model, because we don't ever want to show
-		// an improper team skin.  This will cause a hitch for the first
-		// player, when the second enters.  Combat shouldn't be going on
-		// yet, so it shouldn't matter
-		CG_LoadClientInfo( clientNum, ci );
-		return;
+
+		if (ci->team != TEAM_SPECTATOR) {
+			// load the full model, because we don't ever want to show
+			// an improper team skin.  This will cause a hitch for the first
+			// player, when the second enters.  Combat shouldn't be going on
+			// yet, so it shouldn't matter
+			CG_LoadClientInfo( clientNum, ci );
+			return;
+		}
 	}
 
 	// find the first valid clientinfo and grab its stuff
