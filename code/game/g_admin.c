@@ -3357,8 +3357,13 @@ qboolean G_admin_lock( gentity_t *ent, int skiparg )
 
   if( G_SayArgc() < 2 + skiparg )
   {
-    ADMP( "^3!lock: ^7usage: !lock [r|b|f]\n" );
-    return qfalse;
+    //ADMP( "^3!lock: ^7usage: !lock [r|b|f]\n" );
+    //return qfalse;
+    
+    G_LockTeams();
+    AP( va( "print \"^3!lock: ^7All teams has been locked by %s\n\"",
+          		  ( ent ) ? ent->client->pers.netname : "console" ) );
+    return qtrue;
   }
   G_SayArgv( 1 + skiparg, teamName, sizeof( teamName ) );
   team = G_TeamFromString( teamName );
@@ -3407,8 +3412,12 @@ qboolean G_admin_unlock( gentity_t *ent, int skiparg )
 
   if( G_SayArgc() < 2 + skiparg )
   {
-    ADMP( "^3!unlock: ^7usage: !unlock [r|b|f]\n" );
-    return qfalse;
+    //ADMP( "^3!unlock: ^7usage: !unlock [r|b|f]\n" );
+    //return qfalse;
+    G_UnlockTeams();
+    AP( va( "print \"^3!unlock: ^7All teams has been unlocked by %s\n\"",
+      ( ent ) ? ent->client->pers.netname : "console" ) );
+    return qtrue;
   }
   G_SayArgv( 1 + skiparg, teamName, sizeof( teamName ) );
   team = G_TeamFromString( teamName );
