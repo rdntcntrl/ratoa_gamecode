@@ -2273,6 +2273,10 @@ void ClientSpawn(gentity_t *ent) {
 	if (g_passThroughInvisWalls.integer) {
 		ent->clipmask &= ~CONTENTS_PLAYERCLIP;
 	}
+	if (g_gametype.integer == GT_TREASURE_HUNTER) {
+		// allow players to pass through each other
+		ent->r.contents = CONTENTS_CORPSE;
+	}
 	ent->die = player_die;
 	ent->waterlevel = 0;
 	ent->watertype = 0;

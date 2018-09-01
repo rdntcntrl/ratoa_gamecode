@@ -3223,6 +3223,47 @@ void UpdateToken(gentity_t *token, qboolean vulnerable, int setHealth) {
 	}
 }
 
+void UpdateTreasureEntityVisiblity(qboolean hiddenFromEnemy) {
+	gentity_t	*ent;
+	int i;
+
+	ent = &g_entities[0];
+	for (i=0 ; i<level.num_entities ; i++, ent++) {
+		int team = TEAM_SPECTATOR;
+		if (!ent->inuse) {
+			continue;
+		}
+
+		switch (ent->s.eType) {
+			case ET_PLAYER:
+				if (!ent->client) {
+					continue;
+				}
+				team = ent->client->sess.sessionTeam;
+				break;
+			case ET_MISSILE:
+				if (!ent->parent || !ent->parent->client) {
+					continue;
+				}
+				team = ent->parent->client->sess.sessionTeam;
+				break;
+			default:
+				continue;
+				break;
+		}
+		if (!hiddenFromEnemy || team == TEAM_SPECTATOR) {
+			ent->r.svFlags &= ~SVF_CLIENTMASK;
+			ent->r.singleClient = 0;
+		} else if (team == TEAM_BLUE) {
+			ent->r.svFlags |= SVF_CLIENTMASK;
+			ent->r.singleClient = level.th_blueClientMask | level.th_specClientMask;
+		} else if (team == TEAM_RED) {
+			ent->r.svFlags |= SVF_CLIENTMASK;
+			ent->r.singleClient = level.th_redClientMask | level.th_specClientMask;
+		}
+	}
+}
+
 void UpdateTreasureVisibility( qboolean hiddenFromEnemy, int setHealth) {
 	gentity_t	*token;
 
@@ -3325,6 +3366,13 @@ void CheckTreasureHunter(void) {
 		UpdateTreasureVisibility(qfalse, 0);
 	} else if (level.time >= level.th_hideTime) {
 		UpdateTreasureVisibility(qtrue, 0);
+	}
+
+	// hide players / missiles during hiding phase
+	if (level.th_phase == TH_HIDE) {
+		UpdateTreasureEntityVisiblity(qtrue);
+	} else {
+		UpdateTreasureEntityVisiblity(qfalse);
 	}
 
 
