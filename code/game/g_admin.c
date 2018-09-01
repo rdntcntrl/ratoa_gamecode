@@ -1862,14 +1862,17 @@ qboolean G_admin_kick( gentity_t *ent, int skiparg )
     ADMP( "^3!kick: ^7disconnecting the host would end the game\n" );
     return qfalse;
   }
-  admin_create_ban( ent,
-    vic->client->pers.netname,
-    vic->client->pers.guid,
-    vic->client->pers.ip,
-    G_admin_parse_time( va( "1s%s", g_adminTempBan.string ) ),
-    ( *reason ) ? reason : "kicked by admin" );
-  if( g_admin.string[ 0 ] )
-    admin_writeconfig();
+  if (!(vic->r.svFlags & SVF_BOT)) {
+	  admin_create_ban( ent,
+			  vic->client->pers.netname,
+			  vic->client->pers.guid,
+			  vic->client->pers.ip,
+			  G_admin_parse_time( va( "1s%s", g_adminTempBan.string ) ),
+			  ( *reason ) ? reason : "kicked by admin" );
+
+	  if( g_admin.string[ 0 ] )
+		  admin_writeconfig();
+  }
 
   trap_SendServerCommand( pids[ 0 ],
     va( "disconnect \"You have been kicked.\n%s^7\nreason:\n%s\"",
