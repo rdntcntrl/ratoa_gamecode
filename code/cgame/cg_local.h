@@ -1574,6 +1574,7 @@ extern vmCvar_t			cg_teamCorpseSaturation;
 extern vmCvar_t			cg_teamCorpseValue;
 
 extern vmCvar_t			cg_thTokenIndicator;
+extern vmCvar_t			cg_thTokenstyle;
 
 extern vmCvar_t			cg_timerAlpha;
 extern vmCvar_t			cg_fpsAlpha;

@@ -296,6 +296,7 @@ vmCvar_t	cg_teamCorpseSaturation;
 vmCvar_t	cg_teamCorpseValue;
 
 vmCvar_t	cg_thTokenIndicator;
+vmCvar_t	cg_thTokenstyle;
 
 vmCvar_t	cg_timerAlpha;
 vmCvar_t	cg_fpsAlpha;
@@ -688,6 +689,7 @@ static cvarTable_t cvarTable[] = { // bk001129
 
 	// TREASURE HUNTER:
 	{ &cg_thTokenIndicator ,           "cg_thTokenIndicator", "1", CVAR_ARCHIVE},
+	{ &cg_thTokenstyle ,           	   "cg_thTokenstyle", "-999", CVAR_ROM},
 
 	// / RAT ===================
 
@@ -1690,7 +1692,8 @@ static void CG_RegisterGraphics( void ) {
 
 	if (cgs.gametype == GT_TREASURE_HUNTER) {
 		//cgs.media.thEnemyToken = trap_R_RegisterModel( "models/powerups/overload_base.md3" );
-		cgs.th_oldTokenStyle = -1;
+		cgs.th_oldTokenStyle = -1000;
+		cgs.th_tokenStyle = -999;
 		//cgs.media.thTokenTeamShader = trap_R_RegisterShader( "models/powerups/treasure/thTokenTeam" );
 		//cgs.media.thTokenRedShader = trap_R_RegisterShader( "models/powerups/treasure/thTokenRed" );
 		//cgs.media.thTokenBlueShader = trap_R_RegisterShader( "models/powerups/treasure/thTokenBlue" );

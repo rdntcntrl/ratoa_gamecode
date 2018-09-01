@@ -231,6 +231,11 @@ static void CG_TreasureHuntToken ( centity_t *cent ) {
 
 	memset (&ent, 0, sizeof(ent));
 
+	if (cgs.th_tokenStyle == -999) {
+		// restore tokenstyle after vid_restart
+		cgs.th_tokenStyle = cg_thTokenstyle.integer;
+	}
+
 	if (cgs.th_oldTokenStyle != cgs.th_tokenStyle) {
 		cgs.media.thToken = trap_R_RegisterModel( 
 				cgs.th_tokenStyle > 0 ? 
@@ -239,6 +244,7 @@ static void CG_TreasureHuntToken ( centity_t *cent ) {
 					"models/powerups/treasure/thToken.md3" 
 				);
 		cgs.th_oldTokenStyle = cgs.th_tokenStyle;
+		trap_Cvar_Set("cg_thTokenstyle", va("%i", cgs.th_tokenStyle));
 	}
 
 
