@@ -2462,6 +2462,10 @@ void G_PrintVoteCommands(gentity_t *ent) {
 		strcat(buffer, " bots <n>\n");
 	if(allowedVote("botskill"))
 		strcat(buffer, " botskill <n>\n");
+	if(allowedVote("lock"))
+		strcat(buffer, " lock\n");
+	if(allowedVote("unlock"))
+		strcat(buffer, " unlock\n");
 	if(allowedVote("custom"))
 		strcat(buffer, " custom <special>\n");
 	buffer[strlen(buffer)-1] = 0;
@@ -2529,6 +2533,8 @@ void Cmd_CallVote_f( gentity_t *ent ) {
         } else if ( !Q_stricmp( arg1, "shuffle" ) ) {
         } else if ( !Q_stricmp( arg1, "bots" ) ) {
         } else if ( !Q_stricmp( arg1, "botskill" ) ) {
+        } else if ( !Q_stricmp( arg1, "lock" ) ) {
+        } else if ( !Q_stricmp( arg1, "unlock" ) ) {
 	} else {
 		trap_SendServerCommand( ent-g_entities, "print \"Invalid vote string.\n\"" );
 		G_PrintVoteCommands(ent);
@@ -2675,6 +2681,12 @@ void Cmd_CallVote_f( gentity_t *ent ) {
             
 		Com_sprintf( level.voteString, sizeof( level.voteString ), "g_spskill \"%d\"", i );
 		Com_sprintf( level.voteDisplayString, sizeof( level.voteDisplayString ), "Set bot skill level to %d", i );
+        } else if ( !Q_stricmp( arg1, "lock" ) ) {
+		Com_sprintf( level.voteString, sizeof( level.voteString ), "!lock" );
+		Com_sprintf( level.voteDisplayString, sizeof( level.voteDisplayString ), "Lock teams?");
+        } else if ( !Q_stricmp( arg1, "unlock" ) ) {
+		Com_sprintf( level.voteString, sizeof( level.voteString ), "!unlock");
+		Com_sprintf( level.voteDisplayString, sizeof( level.voteDisplayString ), "Unlock teams?");
         } else if ( !Q_stricmp( arg1, "g_doWarmup" ) ) {
                 i = atoi(arg2);
                 if(i) {
