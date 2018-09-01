@@ -1465,7 +1465,7 @@ qboolean G_admin_teams( gentity_t *ent, int skiparg )
 		while (diff >= 2) {
 			// move a player to smaller team
 			gentity_t *player = g_entities + G_FindPlayerLastJoined(largeTeam);
-			SetTeam_Force(player, smallTeam == TEAM_RED ? "r" : "b", ent);
+			SetTeam_Force(player, smallTeam == TEAM_RED ? "r" : "b", ent, qtrue);
 			moved += 1;
 			diff -= 2;
 		}
@@ -1474,7 +1474,7 @@ qboolean G_admin_teams( gentity_t *ent, int skiparg )
 		if (diff == 1 && level.teamScores[smallTeam] < level.teamScores[largeTeam]) {
 			// move a player to smaller team
 			gentity_t *player = g_entities + G_FindPlayerLastJoined(largeTeam);
-			SetTeam_Force(player, smallTeam == TEAM_RED ? "r" : "b", ent);
+			SetTeam_Force(player, smallTeam == TEAM_RED ? "r" : "b", ent, qtrue);
 			moved += 1;
 		}
 		if (moved) {
@@ -2302,7 +2302,7 @@ qboolean G_admin_putteam( gentity_t *ent, int skiparg )
   //  return qfalse;
 
   
-  SetTeam_Force( vic, team, ent );
+  SetTeam_Force( vic, team, ent, qtrue );
 
   AP( va( "print \"^3!putteam: ^7%s^7 put %s^7 on to the %s team\n\"",
           ( ent ) ? ent->client->pers.netname : "console",
@@ -2363,8 +2363,8 @@ qboolean G_admin_swap( gentity_t *ent, int skiparg )
   if( teams[0] == teams[1])
     return qfalse;
   
-  SetTeam_Force( victims[0], teams[1], ent );
-  SetTeam_Force( victims[1], teams[0], ent );
+  SetTeam_Force( victims[0], teams[1], ent, qtrue);
+  SetTeam_Force( victims[1], teams[0], ent, qtrue );
 
   AP( va( "print \"^3!swap: ^7%s^7 swapped %s^7 with %s\n\"",
           ( ent ) ? ent->client->pers.netname : "console",

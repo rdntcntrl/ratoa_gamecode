@@ -978,7 +978,7 @@ SetTeam
 =================
 */
 void SetTeam( gentity_t *ent, char *s ) {
-	SetTeam_Force(ent, s, ent);
+	SetTeam_Force(ent, s, ent, qfalse);
 }
 
 /*
@@ -987,7 +987,7 @@ SetTeam_Force
 KK-OAX Modded this to accept a forced admin change. 
 =================
 */
-void SetTeam_Force( gentity_t *ent, char *s, gentity_t *by ) {
+void SetTeam_Force( gentity_t *ent, char *s, gentity_t *by, qboolean tryforce ) {
 	int					team, oldTeam;
 	gclient_t			*client;
 	int					clientNum;
@@ -997,12 +997,14 @@ void SetTeam_Force( gentity_t *ent, char *s, gentity_t *by ) {
 	int					specClient;
 	int					teamLeader;
     char	            userinfo[MAX_INFO_STRING];
-    qboolean            force;
+    qboolean            force = qfalse;
 
-    	if (by == NULL) {
-		force = qtrue;
-	} else {
-		force = G_admin_permission(by, ADMF_FORCETEAMCHANGE);
+    	if (tryforce) {
+		if (by == NULL) {
+			force = qtrue;
+		} else {
+			force = G_admin_permission(by, ADMF_FORCETEAMCHANGE);
+		}
 	}
 	
 	//
