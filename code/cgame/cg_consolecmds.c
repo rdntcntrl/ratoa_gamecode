@@ -94,14 +94,13 @@ void CG_Echo_f( void ) {
 void CG_Mapvote_f( void ) {
 	int n = trap_Argc();
 
-	trap_Cvar_Set("ui_cgame_launchmenu", "mapvote");
 	if (n > 1) {
 		trap_Cvar_Set("ui_mapvote_filter", ConcatArgs(1));
 	} 
 	if (trap_Key_GetCatcher() & KEYCATCH_CONSOLE) {
 		trap_SendConsoleCommand("toggleconsole;");
 	}
-	trap_SendConsoleCommand("togglemenu;");
+	trap_SendConsoleCommand("ui_votemapmenu;");
 
 }
 

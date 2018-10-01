@@ -122,8 +122,6 @@ extern vmCvar_t	ui_server14;
 extern vmCvar_t	ui_server15;
 extern vmCvar_t	ui_server16;
 
-extern vmCvar_t	ui_cgame_launchmenu;
-
 extern vmCvar_t	ui_mapvote_filter;
 extern vmCvar_t	ui_mapvote_sort;
 

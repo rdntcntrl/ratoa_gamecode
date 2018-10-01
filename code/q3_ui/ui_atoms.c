@@ -801,18 +801,6 @@ qboolean UI_IsFullscreen( void ) {
 	return qfalse;
 }
 
-qboolean UI_CGame_Launchmenu(void ) {
-	char buf[128];
-
-	trap_Cvar_VariableStringBuffer( "ui_cgame_launchmenu", buf, sizeof(buf));
-	trap_Cvar_Set( "ui_cgame_launchmenu", "");
-	if ( Q_stricmp (buf, "mapvote") == 0 ) {
-		UI_VoteMapMenu();
-		return qtrue;
-	}
-	return qfalse;
-}
-
 static void NeedCDAction( qboolean result ) {
 	if ( !result ) {
 		trap_Cmd_ExecuteText( EXEC_APPEND, "quit\n" );
@@ -850,9 +838,7 @@ void UI_SetActiveMenu( uiMenuCommand_t menu ) {
 		return;
 		*/
 		trap_Cvar_Set( "cl_paused", "1" );
-		if (!UI_CGame_Launchmenu()) {
-			UI_InGameMenu();
-		}
+		UI_InGameMenu();
 		return;
 		
 	// bk001204
@@ -1078,6 +1064,10 @@ qboolean UI_ConsoleCommand( int realTime ) {
 		}
 
                 UI_VoteMapMenuInternal();
+		return qtrue;
+	}
+        if ( Q_stricmp (cmd, "ui_votemapmenu") == 0 ) {
+		UI_VoteMapMenu();
 		return qtrue;
 	}
 
