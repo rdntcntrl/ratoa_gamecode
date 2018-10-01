@@ -952,6 +952,10 @@ Let everyone know about a team change
 */
 void BroadcastTeamChange( gclient_t *client, int oldTeam )
 {
+	if (level.time < level.startTime + 2000) {
+		// don't print anything if the game just started to avoid a command overflow / annoying players
+		return;
+	}
 	if ( client->sess.sessionTeam == TEAM_RED && oldTeam != TEAM_RED) {
 		trap_SendServerCommand( -1, va("cp \"%s" S_COLOR_WHITE " joined the red team.\n\"",
 			client->pers.netname) );
