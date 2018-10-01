@@ -254,6 +254,9 @@ vmCvar_t        sv_allowDuplicateGuid;
 
 vmCvar_t        g_botshandicapped;
 
+vmCvar_t        g_tauntAllowed;
+vmCvar_t        g_tauntTime;
+
 // weapon config
 vmCvar_t        g_mgDamage;
 vmCvar_t        g_mgTeamDamage;
@@ -510,6 +513,10 @@ static cvarTable_t		gameCvarTable[] = {
         { &sv_allowDuplicateGuid, "sv_allowDuplicateGuid", "0", 0, 0, qfalse },
 
         { &g_botshandicapped, "g_botshandicapped", "1", CVAR_ARCHIVE, 0, qfalse },
+
+        { &g_tauntAllowed, "g_tauntAllowed", "0", CVAR_ARCHIVE, 0, qfalse },
+        { &g_tauntTime, "g_tauntTime", "5000", CVAR_ARCHIVE, 0, qfalse },
+
 // weapon config
 	{ &g_mgDamage,			"g_mgDamage", "6", 0, 0, qtrue },
 	{ &g_mgTeamDamage,		"g_mgTeamDamage", "5", 0, 0, qtrue },

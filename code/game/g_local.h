@@ -355,6 +355,8 @@ typedef struct {
     int quadTime;
     int quadNum;
     int quadWhore;
+
+    int tauntTime;
 } clientPersistant_t;
 
 //unlagged - backward reconciliation #1
@@ -1316,6 +1318,9 @@ extern  vmCvar_t        g_ratFlags;
 extern  vmCvar_t        sv_allowDuplicateGuid;
 
 extern  vmCvar_t        g_botshandicapped;
+
+extern  vmCvar_t        g_tauntAllowed;
+extern  vmCvar_t        g_tauntTime;
 
 // weapon config
 extern vmCvar_t        g_weaponChangeTime_Dropping;
