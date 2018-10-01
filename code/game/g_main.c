@@ -3270,12 +3270,22 @@ void UpdateTreasureVisibility( qboolean hiddenFromEnemy, int setHealth) {
 	token = NULL;
 	while ((token = G_Find (token, FOFS(classname), "item_redcube")) != NULL) {
 		token->r.singleClient = hiddenFromEnemy ? level.th_redClientMask : level.th_redClientMask | level.th_blueClientMask;
+		if (hiddenFromEnemy) {
+			token->r.svFlags |= SVF_BROADCAST;
+		} else {
+			token->r.svFlags &= ~SVF_BROADCAST;
+		}
 		UpdateToken(token, !hiddenFromEnemy, setHealth);
 
 	}
 	token = NULL;
 	while ((token = G_Find (token, FOFS(classname), "item_bluecube")) != NULL) {
 		token->r.singleClient = hiddenFromEnemy ? level.th_blueClientMask : level.th_blueClientMask | level.th_redClientMask;
+		if (hiddenFromEnemy) {
+			token->r.svFlags |= SVF_BROADCAST;
+		} else {
+			token->r.svFlags &= ~SVF_BROADCAST;
+		}
 		UpdateToken(token, !hiddenFromEnemy, setHealth);
 	}
 }
