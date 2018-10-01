@@ -122,6 +122,8 @@ extern vmCvar_t	ui_server14;
 extern vmCvar_t	ui_server15;
 extern vmCvar_t	ui_server16;
 
+extern vmCvar_t	ui_cgame_launchmenu;
+
 extern vmCvar_t	ui_mapvote_filter;
 extern vmCvar_t	ui_mapvote_sort;
 
@@ -690,6 +692,7 @@ extern void			UI_DrawTextBox (int x, int y, int width, int lines);
 extern qboolean		UI_IsFullscreen( void );
 extern void			UI_SetActiveMenu( uiMenuCommand_t menu );
 extern void			UI_PushMenu ( menuframework_s *menu );
+extern int 			UI_PushedMenus (void);
 extern void			UI_PopMenu (void);
 extern void			UI_ForceMenuOff (void);
 extern char			*UI_Argv( int arg );

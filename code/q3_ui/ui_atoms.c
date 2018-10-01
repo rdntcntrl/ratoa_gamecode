@@ -128,6 +128,16 @@ void UI_PushMenu( menuframework_s *menu )
 
 /*
 =================
+UI_PushedMenus
+=================
+*/
+int UI_PushedMenus (void)
+{
+	return uis.menusp;
+}
+
+/*
+=================
 UI_PopMenu
 =================
 */
@@ -791,6 +801,18 @@ qboolean UI_IsFullscreen( void ) {
 	return qfalse;
 }
 
+qboolean UI_CGame_Launchmenu(void ) {
+	char buf[128];
+
+	trap_Cvar_VariableStringBuffer( "ui_cgame_launchmenu", buf, sizeof(buf));
+	trap_Cvar_Set( "ui_cgame_launchmenu", "");
+	if ( Q_stricmp (buf, "mapvote") == 0 ) {
+		UI_VoteMapMenu();
+		return qtrue;
+	}
+	return qfalse;
+}
+
 static void NeedCDAction( qboolean result ) {
 	if ( !result ) {
 		trap_Cmd_ExecuteText( EXEC_APPEND, "quit\n" );
@@ -828,7 +850,9 @@ void UI_SetActiveMenu( uiMenuCommand_t menu ) {
 		return;
 		*/
 		trap_Cvar_Set( "cl_paused", "1" );
-		UI_InGameMenu();
+		if (!UI_CGame_Launchmenu()) {
+			UI_InGameMenu();
+		}
 		return;
 		
 	// bk001204

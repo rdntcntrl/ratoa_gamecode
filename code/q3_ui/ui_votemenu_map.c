@@ -159,9 +159,12 @@ static void VoteMapMenu_Event( void* ptr, int event )
 		}
                 if(!Q_stricmp(filtered_list.mapname[mapidx],"---"))
                     return; //Blank spaces have string "---"
-                trap_Cmd_ExecuteText( EXEC_APPEND, va("callvote map %s", filtered_list.mapname[mapidx]) );
+                trap_Cmd_ExecuteText( EXEC_APPEND, va("callvote map %s;", filtered_list.mapname[mapidx]) );
                 UI_PopMenu();
-                UI_PopMenu();
+		if (UI_PushedMenus()) {
+			// this menu may be opened directly, so don't pop parent if it's not there
+			UI_PopMenu();
+		}
                 break;
         //    case ID_GO:
         //        if( event != QM_ACTIVATED ) {

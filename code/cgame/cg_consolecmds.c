@@ -91,6 +91,20 @@ void CG_Echo_f( void ) {
 
 }
 
+void CG_Mapvote_f( void ) {
+	int n = trap_Argc();
+
+	trap_Cvar_Set("ui_cgame_launchmenu", "mapvote");
+	if (n > 1) {
+		trap_Cvar_Set("ui_mapvote_filter", ConcatArgs(1));
+	} 
+	if (trap_Key_GetCatcher() & KEYCATCH_CONSOLE) {
+		trap_SendConsoleCommand("toggleconsole;");
+	}
+	trap_SendConsoleCommand("togglemenu;");
+
+}
+
 #define MAX_SAMPLECFGSIZE (24*1024)
 void CG_SampleConfig_f( void ) {
 	char *source_fn = "configs/samplecfg.cfg";
@@ -593,6 +607,7 @@ static consoleCommand_t	commands[] = {
 	{ "tcmd", CG_TargetCommand_f },
 	{ "sampleconfig", CG_SampleConfig_f },
 	{ "cecho", CG_Echo_f },
+	{ "mv", CG_Mapvote_f },
 #ifdef MISSIONPACK
 	{ "loadhud", CG_LoadHud_f },
 	{ "nextTeamMember", CG_NextTeamMember_f },
@@ -708,4 +723,5 @@ void CG_InitConsoleCommands( void ) {
 	trap_AddCommand ("timein");
 	trap_AddCommand ("pause");
 	trap_AddCommand ("unpause");
+	trap_AddCommand ("mv");
 }
