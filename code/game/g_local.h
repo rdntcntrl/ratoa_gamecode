@@ -1195,6 +1195,7 @@ extern vmCvar_t		g_rockets;
 extern vmCvar_t		g_instantgib;
 extern vmCvar_t		g_vampire;
 extern vmCvar_t		g_vampireMaxHealth;
+extern vmCvar_t		g_midAir;
 //new in elimination Beta3
 extern vmCvar_t		g_regen;
 //Free for all gametype

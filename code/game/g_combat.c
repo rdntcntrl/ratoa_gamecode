@@ -1173,9 +1173,12 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 
         //Sago: I have moved this up
 	//client = targ->client;
-
+	
 	if ( client ) {
 		if ( client->noclip ) {
+			return;
+		}
+		if (g_midAir.integer && client->ps.groundEntityNum != ENTITYNUM_NONE) {
 			return;
 		}
 	}
