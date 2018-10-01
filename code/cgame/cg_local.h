@@ -2012,6 +2012,8 @@ void CG_ExecuteNewServerCommands( int latestSequence );
 void CG_ParseServerinfo( void );
 void CG_SetConfigValues( void );
 void CG_LoadVoiceChats( void );
+void CG_LoadTaunts( void );
+void CG_PlayTaunt(int clientNum, const char *id);
 void CG_ShaderStateChanged(void);
 void CG_VoiceChatLocal( int mode, qboolean voiceOnly, int clientNum, int color, const char *cmd );
 void CG_PlayBufferedVoiceChats( void );
