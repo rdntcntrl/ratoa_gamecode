@@ -1250,7 +1250,7 @@ void G_CheckClan( team_t team) {
 		trap_Cvar_VariableStringBuffer( teamcvar, prevclanname, sizeof( prevclanname ) );
 		if (Q_strncmp(prevclanname, clans[detected_clan].name, sizeof(prevclanname)) != 0) {
 			trap_Cvar_Set(teamcvar, va("%s", clans[detected_clan].name));
-			trap_SendServerCommand( -1, va("print \"" S_COLOR_CYAN "Clan %s detected! Welcome!\n\"", clans[detected_clan].displayname) );
+			trap_SendServerCommand( -1, va("print \"" S_COLOR_CYAN "Detected clan %s playing as team %s!\n\"", clans[detected_clan].displayname, team == TEAM_BLUE ? "blue" : "red") );
 		}
 
 	} else {
