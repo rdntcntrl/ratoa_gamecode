@@ -277,7 +277,9 @@ void G_DoTimeShiftFor( gentity_t *ent ) {
 	// if it's enabled server-side and the client wants it or wants it for this weapon
 	if ( g_delagHitscan.integer && ( ent->client->pers.delag & 1 || ent->client->pers.delag & wpflag ) ) {
 		// do the full lag compensation, except what the client nudges
-		time = ent->client->attackTime + ent->client->pers.cmdTimeNudge;
+		//time = ent->client->attackTime + ent->client->pers.cmdTimeNudge;
+		// don't allow the client to nudge anything
+		time = ent->client->attackTime;
                 //Give the lightning gun some handicap (lag was part of weapon balance in VQ3)
                 if(ent->client->ps.weapon == WP_LIGHTNING && g_lagLightning.integer)
                     time+=50;

@@ -1336,8 +1336,10 @@ void ClientUserinfoChanged( int clientNum ) {
 	}
 
 	// see if the player is nudging his shots
-	s = Info_ValueForKey( userinfo, "cg_cmdTimeNudge" );
-	client->pers.cmdTimeNudge = atoi( s );
+	//s = Info_ValueForKey( userinfo, "cg_cmdTimeNudge" );
+	//client->pers.cmdTimeNudge = atoi( s );
+	// don't allow clients to nudge shots (this is really unnecessary)
+	client->pers.cmdTimeNudge = 0;
 
 	// see if the player wants to debug the backward reconciliation
 	/*s = Info_ValueForKey( userinfo, "cg_debugDelag" );
