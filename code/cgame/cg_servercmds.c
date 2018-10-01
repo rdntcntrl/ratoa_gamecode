@@ -1546,7 +1546,7 @@ void CG_VoiceChat( int mode ) {
 }
 
 #define MAX_TAUNTFILESIZE	16384
-#define MAX_TAUNTS		64
+#define MAX_TAUNTS		128
 
 struct taunt_s
 {
