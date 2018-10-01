@@ -1627,6 +1627,15 @@ void CG_PlayTaunt(int clientNum, const char *id) {
 	}
 }
 
+void CG_PrintTaunts( void ) {
+	int i;
+
+	CG_Printf("List of taunts:\n");
+	for (i = 0; i < tauntList.numTaunts; ++i) {
+		CG_Printf(" %s\n", tauntList.taunts[i].id);
+	}
+}
+
 /*
 =================
 CG_RemoveChatEscapeChar

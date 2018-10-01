@@ -91,6 +91,17 @@ void CG_Echo_f( void ) {
 
 }
 
+void CG_Taunt_f( void ) {
+	int n = trap_Argc();
+
+	if (n == 1) {
+		CG_PrintTaunts();
+		return;
+	}
+
+	trap_SendClientCommand(va("taunt %s\n", ConcatArgs(1)));
+}
+
 #define MAX_SAMPLECFGSIZE (24*1024)
 void CG_SampleConfig_f( void ) {
 	char *source_fn = "configs/samplecfg.cfg";
@@ -593,6 +604,7 @@ static consoleCommand_t	commands[] = {
 	{ "tcmd", CG_TargetCommand_f },
 	{ "sampleconfig", CG_SampleConfig_f },
 	{ "cecho", CG_Echo_f },
+	{ "taunt", CG_Taunt_f },
 #ifdef MISSIONPACK
 	{ "loadhud", CG_LoadHud_f },
 	{ "nextTeamMember", CG_NextTeamMember_f },
