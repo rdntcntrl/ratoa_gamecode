@@ -251,11 +251,6 @@ vmCvar_t        sv_allowDuplicateGuid;
 vmCvar_t        g_botshandicapped;
 
 // weapon config
-vmCvar_t        g_weaponChangeTime_Dropping;
-vmCvar_t        g_weaponChangeTime_Raising;
-vmCvar_t        g_weaponReloadTime_Shotgun;
-vmCvar_t	g_weaponReloadTime_Lg;
-vmCvar_t        g_weaponReloadTime_Railgun;
 vmCvar_t        g_mgDamage;
 vmCvar_t        g_mgTeamDamage;
 vmCvar_t        g_railgunDamage;
@@ -510,11 +505,6 @@ static cvarTable_t		gameCvarTable[] = {
 
         { &g_botshandicapped, "g_botshandicapped", "1", CVAR_ARCHIVE, 0, qfalse },
 // weapon config
-	{ &g_weaponChangeTime_Dropping, "g_weaponChangeTime_Dropping", "200", 0, 0, qfalse },
-	{ &g_weaponChangeTime_Raising,  "g_weaponChangeTime_Raising",  "250", 0, 0, qfalse },
-	{ &g_weaponReloadTime_Shotgun,  "g_weaponReloadTime_Shotgun", "1000", 0, 0, qfalse },
-	{ &g_weaponReloadTime_Lg,  	"g_weaponReloadTime_Lg", "50", 0, 0, qfalse },
-	{ &g_weaponReloadTime_Railgun,  "g_weaponReloadTime_Railgun", "1500", 0, 0, qfalse },
 	{ &g_mgDamage,			"g_mgDamage", "6", 0, 0, qtrue },
 	{ &g_mgTeamDamage,		"g_mgTeamDamage", "5", 0, 0, qtrue },
 	{ &g_railgunDamage,		"g_railgunDamage", "80", 0, 0, qtrue },
