@@ -1178,9 +1178,6 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		if ( client->noclip ) {
 			return;
 		}
-		if (g_midAir.integer && client->ps.groundEntityNum != ENTITYNUM_NONE) {
-			return;
-		}
 	}
 
 	if ( !dir ) {
@@ -1277,6 +1274,13 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
                        return;
                 }
 	}
+
+	if (client && targ != attacker) {
+		if (g_midAir.integer && client->ps.groundEntityNum != ENTITYNUM_NONE) {
+			return;
+		}
+	}
+
 
 	// battlesuit protects from all radius damage (but takes knockback)
 	// and protects 50% against all damage
