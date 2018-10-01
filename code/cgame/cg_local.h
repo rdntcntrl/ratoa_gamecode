@@ -1519,6 +1519,10 @@ extern vmCvar_t			cg_mySound;
 extern vmCvar_t			cg_teamSound;
 extern vmCvar_t			cg_enemySound;
 
+extern vmCvar_t			cg_myFootsteps;
+extern vmCvar_t			cg_teamFootsteps;
+extern vmCvar_t			cg_enemyFootsteps;
+
 extern vmCvar_t			cg_brightShells;
 extern vmCvar_t			cg_brightShellAlpha;
 

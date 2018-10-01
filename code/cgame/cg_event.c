@@ -583,6 +583,41 @@ void CG_PainEvent( centity_t *cent, int health ) {
 	cent->pe.painDirection ^= 1;
 }
 
+footstep_t CG_Footsteps(clientInfo_t *ci) {
+	if ((cgs.ratFlags & RAT_ALLOWBRIGHTSKINS)) {
+		footstep_t footsteps = -1;
+		int myteam;
+		clientInfo_t *myself;
+
+		if (cg.snap->ps.pm_flags & PMF_FOLLOW && cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR) {
+			myteam = cgs.clientinfo[cg.snap->ps.clientNum].team;
+			myself = &cgs.clientinfo[cg.snap->ps.clientNum];
+		} else {
+			myteam = cg.snap->ps.persistant[PERS_TEAM];
+			myself = &cgs.clientinfo[cg.clientNum];
+		}
+
+		if (ci == myself) {
+			footsteps = cg_myFootsteps.integer;
+		} else if ((myteam != TEAM_FREE && ci->team == myteam)) {
+			footsteps = cg_teamFootsteps.integer;
+		} else if (((ci->team != myteam) || (myteam == TEAM_FREE && ci != myself))) {
+			footsteps = cg_enemyFootsteps.integer;
+		}
+
+		switch (footsteps) {
+			case FOOTSTEP_NORMAL:
+			case FOOTSTEP_BOOT:
+			case FOOTSTEP_FLESH:
+			case FOOTSTEP_MECH:
+			case FOOTSTEP_ENERGY:
+				return footsteps;
+		}
+	} 
+
+	return ci->footsteps;
+}
+
 qboolean CG_ExplosionPredicted(centity_t *cent) {
 	if ((cgs.ratFlags & RAT_PREDICTMISSILES)
 		       	&& cg_predictExplosions.integer 
@@ -661,7 +696,9 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 		DEBUGNAME("EV_FOOTSTEP");
 		if (cg_footsteps.integer) {
 			trap_S_StartSound (NULL, es->number, CHAN_BODY, 
-				cgs.media.footsteps[ ci->footsteps ][rand()&3] );
+				cgs.media.footsteps[ CG_Footsteps(ci) ][rand()&3] );
+			//trap_S_StartSound (NULL, es->number, CHAN_BODY, 
+			//	cgs.media.footsteps[ ci->footsteps ][rand()&3] );
 		}
 		break;
 	case EV_FOOTSTEP_METAL:

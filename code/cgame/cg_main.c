@@ -264,6 +264,10 @@ vmCvar_t	cg_mySound;
 vmCvar_t	cg_teamSound;
 vmCvar_t	cg_enemySound;
 
+vmCvar_t	cg_myFootsteps;
+vmCvar_t	cg_teamFootsteps;
+vmCvar_t	cg_enemyFootsteps;
+
 vmCvar_t	cg_brightShells;
 vmCvar_t	cg_brightShellAlpha;
 
@@ -646,6 +650,10 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_mySound ,     "cg_mySound", "", CVAR_ARCHIVE},
 	{ &cg_teamSound ,   "cg_teamSound", "", CVAR_ARCHIVE},
 	{ &cg_enemySound ,  "cg_enemySound", "", CVAR_ARCHIVE},
+
+	{ &cg_myFootsteps ,     "cg_myFootsteps", "-1", CVAR_ARCHIVE},
+	{ &cg_teamFootsteps ,   "cg_teamFootsteps", "-1", CVAR_ARCHIVE},
+	{ &cg_enemyFootsteps ,  "cg_enemyFootsteps", "-1", CVAR_ARCHIVE},
 
 	{ &cg_brightShells ,     "cg_brightShells", "1", CVAR_ARCHIVE},
 	{ &cg_brightShellAlpha , "cg_brightShellAlpha", "1.0", CVAR_ARCHIVE},
