@@ -1928,7 +1928,11 @@ void SendScoreboardMessageToAllClients( void ) {
 		if ( level.clients[ i ].pers.connected == CON_CONNECTED ) {
 			//DeathmatchScoreboardMessage( g_entities + i, (g_usesRatVM.integer > 0 || G_MixedClientHasRatVM( &level.clients[i])));
 			DeathmatchScoreboardMessageAuto( g_entities + i);
-			EliminationMessage( g_entities + i );
+			if (g_gametype.integer == GT_ELIMINATION ||
+					g_gametype.integer == GT_CTF_ELIMINATION ||
+					g_gametype.integer == GT_LMS) {
+				EliminationMessage( g_entities + i );
+			}
 		}
 	}
 }
