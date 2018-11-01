@@ -676,6 +676,7 @@ void CG_ParseServerinfo( void ) {
 	cgs.fraglimit = atoi( Info_ValueForKey( info, "fraglimit" ) );
 	cgs.capturelimit = atoi( Info_ValueForKey( info, "capturelimit" ) );
 	cgs.timelimit = atoi( Info_ValueForKey( info, "timelimit" ) );
+	cgs.overtime = atoi( Info_ValueForKey( info, "g_overtime" ) );
 	cgs.maxclients = atoi( Info_ValueForKey( info, "sv_maxclients" ) );
 	if (cgs.maxclients > MAX_CLIENTS) {
 		cgs.maxclients = MAX_CLIENTS;

@@ -1219,6 +1219,7 @@ typedef struct {
 	int				fraglimit;
 	int				capturelimit;
 	int				timelimit;
+	int				overtime;
 	int				maxclients;
 	char			mapname[MAX_QPATH];
 	char			mapbasename[MAX_QPATH];
