@@ -270,6 +270,7 @@ typedef struct {
 	spectatorGroup_t	spectatorGroup;
 	int			wins, losses;		// tournament stats
 	qboolean	teamLeader;			// true when this client is a team leader
+	qboolean    muted;
 } clientSession_t;
 
 //
@@ -332,7 +333,6 @@ typedef struct {
 //KK-OAX Admin Stuff        
     char        guid[ 33 ];
     char        ip[ 40 ];
-    qboolean    muted;
     qboolean    disoriented;
     qboolean    wasdisoriented;
     int         adminLevel;

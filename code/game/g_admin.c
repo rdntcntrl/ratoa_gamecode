@@ -2430,14 +2430,14 @@ qboolean G_admin_mute( gentity_t *ent, int skiparg )
     return qfalse;
   }
   vic = &g_entities[ pids[ 0 ] ];
-  if( vic->client->pers.muted == qtrue )
+  if( vic->client->sess.muted == qtrue )
   {
     if( !Q_stricmp( cmd, "mute" ) )
     {
       ADMP( "^3!mute: ^7player is already muted\n" );
       return qtrue;
     }
-    vic->client->pers.muted = qfalse;
+    vic->client->sess.muted = qfalse;
     CPx( pids[ 0 ], "cp \"^1You have been unmuted\"" );
     AP( va( "print \"^3!unmute: ^7%s^7 has been unmuted by %s\n\"",
             vic->client->pers.netname,
@@ -2450,7 +2450,7 @@ qboolean G_admin_mute( gentity_t *ent, int skiparg )
       ADMP( "^3!unmute: ^7player is not currently muted\n" );
       return qtrue;
     }
-    vic->client->pers.muted = qtrue;
+    vic->client->sess.muted = qtrue;
     CPx( pids[ 0 ], "cp \"^1You've been muted\"" );
     AP( va( "print \"^3!mute: ^7%s^7 has been muted by ^7%s\n\"",
             vic->client->pers.netname,
@@ -2596,7 +2596,7 @@ qboolean G_admin_listplayers( gentity_t *ent, int skiparg )
     guid_stub[ j ] = '\0';
 
     muted[ 0 ] = '\0';
-    if( p->pers.muted )
+    if( p->sess.muted )
     {
       Q_strncpyz( muted, "M", sizeof( muted ) );
     }
@@ -3113,7 +3113,7 @@ qboolean G_admin_coin( gentity_t *ent, int skiparg )
 {
 	if (ent && ( 
 		(ent->client->sess.sessionTeam == TEAM_SPECTATOR && (G_TournamentSpecMuted() || g_specMuted.integer))
-		|| ent->client->pers.muted)
+		|| ent->client->sess.muted)
 			) {
 		return qfalse;
 	}

@@ -1889,7 +1889,7 @@ G_Say
 */
 
 static void G_SayTo( gentity_t *ent, gentity_t *other, int mode, int color, const char *name, const char *message ) {
-	if (ent->client->pers.muted){
+	if (ent->client->sess.muted){
 		return;
 	}
 	if (!other) {
@@ -3235,7 +3235,7 @@ void ClientCommand( int clientNum )
     }
     //KK-OAX When the corresponding code is integrated, I will activate these. 
     if( cmds[ i ].cmdFlags & CMD_MESSAGE && 
-        ( ent->client->pers.muted || G_FloodLimited( ent ) ) )
+        ( ent->client->sess.muted || G_FloodLimited( ent ) ) )
         return;
     
     //KK-OAX Do I need to change this for FFA gametype?

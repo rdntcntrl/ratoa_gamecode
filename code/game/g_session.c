@@ -44,7 +44,7 @@ void G_WriteClientSessionData( gclient_t *client ) {
 	const char	*s;
 	const char	*var;
 
-	s = va("%i %i %i %i %i %i %i %i", 
+	s = va("%i %i %i %i %i %i %i %i %i", 
 		client->sess.sessionTeam,
 		client->sess.spectatorNum,
 		client->sess.spectatorState,
@@ -52,7 +52,8 @@ void G_WriteClientSessionData( gclient_t *client ) {
 		client->sess.spectatorGroup,
 		client->sess.wins,
 		client->sess.losses,
-		client->sess.teamLeader
+		client->sess.teamLeader,
+		client->sess.muted
 		);
 
 	var = va( "session%i", (int)(client - level.clients) );
@@ -76,11 +77,12 @@ void G_ReadSessionData( gclient_t *client ) {
 	int spectatorState;
 	int spectatorGroup;
 	int sessionTeam;
+	int muted;
 
 	var = va( "session%i", (int)(client - level.clients) );
 	trap_Cvar_VariableStringBuffer( var, s, sizeof(s) );
 
-	sscanf( s, "%i %i %i %i %i %i %i %i",
+	sscanf( s, "%i %i %i %i %i %i %i %i %i",
 		&sessionTeam,                 // bk010221 - format
 		&client->sess.spectatorNum,
 		&spectatorState,              // bk010221 - format
@@ -88,7 +90,8 @@ void G_ReadSessionData( gclient_t *client ) {
 		&spectatorGroup,
 		&client->sess.wins,
 		&client->sess.losses,
-		&teamLeader                   // bk010221 - format
+		&teamLeader,                   // bk010221 - format
+		&muted
 		);
 
 	// bk001205 - format issues
@@ -96,6 +99,7 @@ void G_ReadSessionData( gclient_t *client ) {
 	client->sess.spectatorState = (spectatorState_t)spectatorState;
 	client->sess.spectatorGroup = (spectatorGroup_t)spectatorGroup;
 	client->sess.teamLeader = (qboolean)teamLeader;
+	client->sess.muted = (qboolean)muted;
 }
 
 
@@ -113,6 +117,7 @@ void G_InitSessionData( gclient_t *client, char *userinfo, qboolean firstTime, q
 	sess = &client->sess;
 
 	sess->spectatorGroup = SPECTATORGROUP_QUEUED;
+	sess->muted = qfalse;
 
 	// initial team determination
 	if ( g_gametype.integer >= GT_TEAM && g_ffa_gt!=1) {
