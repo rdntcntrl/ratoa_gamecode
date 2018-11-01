@@ -4051,9 +4051,9 @@ static void CG_DrawWarmup( void ) {
 			return;
 		}
 		s = "Waiting for players";		
-		w = CG_DrawStrlen( s ) * BIGCHAR_WIDTH;
+		w = CG_DrawStrlen( s ) * MEDIUMCHAR_WIDTH;
 		//CG_DrawBigString(320 - w / 2, 24, s, 1.0F);
-		CG_DrawBigString(320 - w / 2, 10, s, 0.75F);
+		CG_DrawMediumString(320 - w / 2, 10, s, 0.75F);
 		cg.warmupCount = 0;
 		return;
 	}
