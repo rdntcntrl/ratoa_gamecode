@@ -465,6 +465,10 @@ void EndGame_f ( void ) {
     ExitLevel();
 }
 
+void NoBots_f ( void ) {
+	trap_SendConsoleCommand( EXEC_APPEND, "bot_minplayers 0; kickbots\n" );
+}
+
 //KK-OAX Moved this Declaration to g_local.h
 //char	*ConcatArgs( int start );
 
@@ -510,6 +514,7 @@ struct
   //Kicks a player by number in the game logic rather than the server number
   { "clientkick_game", qfalse, ClientKick_f },
   { "endgamenow", qfalse, EndGame_f },
+  { "nobots", qfalse, NoBots_f },
 };
 
 /*
