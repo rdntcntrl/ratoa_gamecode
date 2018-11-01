@@ -570,7 +570,7 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_delagProjectileTrail, "cg_delagProjectileTrail", "1", 0},
 	{ &cg_ratScoreboard, "cg_ratScoreboard", "1", CVAR_ARCHIVE},
 	{ &cg_ratScoreboardAccuracy, "cg_ratScoreboardAccuracy", "1", 0},
-	{ &cg_ratStatusbar, "cg_ratStatusbar", "0", CVAR_ARCHIVE},
+	{ &cg_ratStatusbar, "cg_ratStatusbar", "1", CVAR_ARCHIVE},
 
 	{ &cg_ratPlasmaTrail, "cg_ratPlasmaTrail", "0", CVAR_ARCHIVE},
 	{ &cg_ratPlasmaTrailAlpha, "cg_ratPlasmaTrailAlpha", "0.1", CVAR_ARCHIVE},
@@ -994,6 +994,14 @@ void CG_RatInitDefaults(void)  {
 		trap_Cvar_Set("cg_weaponOrder", "/1/2/4/3/7/6/8/5/13/11/9/");
 
 		trap_Cvar_Set( "cg_ratInitialized", "8" );
+	}
+
+	if (cg_ratInitialized.integer < 9) {
+		if ((int)CG_Cvar_Get("cg_ratStatusbar") == 0) {
+			trap_Cvar_Set("cg_ratStatusbar", "1");
+		}
+
+		trap_Cvar_Set( "cg_ratInitialized", "9" );
 	}
 
 }
