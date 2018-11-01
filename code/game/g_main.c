@@ -3224,7 +3224,10 @@ void CheckTournament( void ) {
 		qboolean	notEnough = qfalse;
 		int i;
 		int clientsReady = 0;
+		int clientsReadyRed = 0;
+		int clientsReadyBlue = 0;
 
+		memset(counts, 0, sizeof(counts));
 		if ( g_gametype.integer > GT_TEAM && !g_ffa_gt ) {
 			counts[TEAM_BLUE] = TeamCount( -1, TEAM_BLUE, qtrue);
 			counts[TEAM_RED] = TeamCount( -1, TEAM_RED, qtrue);
@@ -3238,8 +3241,19 @@ void CheckTournament( void ) {
 
 		if( g_startWhenReady.integer ){
 			for( i = 0; i < level.numPlayingClients; i++ ){
-				if( ( g_entities[level.sortedClients[i]].client->ready || g_entities[level.sortedClients[i]].r.svFlags & SVF_BOT ) && g_entities[level.sortedClients[i]].inuse )
+				if( ( g_entities[level.sortedClients[i]].client->ready || g_entities[level.sortedClients[i]].r.svFlags & SVF_BOT ) && g_entities[level.sortedClients[i]].inuse ) {
 					clientsReady++;
+					switch (g_entities[level.sortedClients[i]].client->sess.sessionTeam) {
+						case TEAM_RED:
+							clientsReadyRed++;
+							break;
+						case TEAM_BLUE:
+							clientsReadyBlue++;
+							break;
+						default:
+							break;
+					}
+				}
 			}
 		}
 
@@ -3251,6 +3265,17 @@ void CheckTournament( void ) {
 				&& ( clientsReady < level.numPlayingClients )
 				&& !G_AutoStartReady()) {
 			notEnough = qtrue;
+		} else if ( g_doWarmup.integer && g_startWhenReady.integer == 3 
+				&& !G_AutoStartReady()) {
+			if (g_gametype.integer >= GT_TEAM && !g_ffa_gt) {
+				if ( clientsReadyRed < counts[TEAM_RED]/2 + 1  || 
+						clientsReadyBlue < counts[TEAM_BLUE]/2 + 1) {
+					notEnough = qtrue;
+				}
+			} else if (( clientsReady < level.numPlayingClients/2 + 1 )) {
+				notEnough = qtrue;
+
+			}
 		}
 
 		if ( notEnough ) {
