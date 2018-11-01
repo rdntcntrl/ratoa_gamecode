@@ -1585,12 +1585,16 @@ static void PM_BeginWeaponChange( int weapon ) {
 		return;
 	}
 
+	// add EV_CHANGE_WEAPON even when switching weapons instantly 
+	// so the weapon select sound is always played.
+	PM_AddEvent( EV_CHANGE_WEAPON );
+
         if(pm->pmove_flags & DF_INSTANT_WEAPON_CHANGE)
         {
                 pm->ps->weaponstate = WEAPON_DROPPING;
         } else
         {
-            PM_AddEvent( EV_CHANGE_WEAPON );
+            //PM_AddEvent( EV_CHANGE_WEAPON );
             pm->ps->weaponstate = WEAPON_DROPPING;
             //pm->ps->weaponTime += 100;
             //pm->ps->weaponTime += g_weaponChangeTime_Dropping.integer;
