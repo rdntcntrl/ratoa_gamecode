@@ -2386,7 +2386,7 @@ static void Cmd_Taunt_f( gentity_t *ent ){
 		return;
 	}
 
-	if (ent->client->pers.muted 
+	if (ent->client->sess.muted 
 			|| ent->client->pers.tauntTime > level.time) {
 		return;
 	}
