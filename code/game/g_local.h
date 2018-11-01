@@ -507,6 +507,8 @@ typedef struct {
 
 	int			startTime;				// level.time the map was started
 
+	int 			overtimeCount;			// number of times the game was extended by g_overtime seconds
+
 	int			teamScores[TEAM_NUM_TEAMS];
 	int			lastTeamLocationTime;		// last time of client team location update
 
@@ -631,6 +633,7 @@ typedef struct {
     qboolean	tournamentForfeited;
 
     qboolean	shuffling_teams;
+
      
 } level_locals_t;
 
@@ -1109,6 +1112,7 @@ extern	vmCvar_t	g_voteflags;
 extern	vmCvar_t	g_fraglimit;
 extern	vmCvar_t	g_timelimit;
 extern	vmCvar_t	g_capturelimit;
+extern	vmCvar_t	g_overtime;
 extern	vmCvar_t	g_friendlyFire;
 extern	vmCvar_t	g_password;
 extern	vmCvar_t	g_needpass;

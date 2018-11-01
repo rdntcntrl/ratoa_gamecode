@@ -46,6 +46,7 @@ vmCvar_t	g_voteflags;
 vmCvar_t	g_fraglimit;
 vmCvar_t	g_timelimit;
 vmCvar_t	g_capturelimit;
+vmCvar_t	g_overtime;
 vmCvar_t	g_friendlyFire;
 vmCvar_t	g_password;
 vmCvar_t	g_needpass;
@@ -331,6 +332,8 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_fraglimit, "fraglimit", "20", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue },
 	{ &g_timelimit, "timelimit", "0", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue },
 	{ &g_capturelimit, "capturelimit", "8", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue },
+
+	{ &g_overtime, "g_overtime", "0", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue },
 
 	{ &g_synchronousClients, "g_synchronousClients", "0", CVAR_SYSTEMINFO, 0, qfalse  },
 
@@ -2524,16 +2527,35 @@ void CheckExitRules( void ) {
 	}
 
 	// check for sudden death
-	if ( ScoreIsTied() ) {
+	if ( ScoreIsTied() && g_overtime.integer <= 0) {
 		// always wait for sudden death
 		return;
 	}
 
 	if ( g_timelimit.integer > 0 && !level.warmupTime ) {
 		//if ( (level.time - level.startTime)/60000 >= g_timelimit.integer ) {
-		if ( (level.time - level.startTime) >= g_timelimit.integer * 60000 + level.timeoutOvertime) {
-			trap_SendServerCommand( -1, "print \"Timelimit hit.\n\"");
-			LogExit( "Timelimit hit." );
+		if ( (level.time - level.startTime) >= g_timelimit.integer * 60000 + level.timeoutOvertime + g_overtime.integer * 60*1000 *  level.overtimeCount) {
+			if (ScoreIsTied() && g_overtime.integer > 0) {
+				level.overtimeCount++;
+				int newtimelimit = g_timelimit.integer * 60 + level.overtimeCount * g_overtime.integer * 60;
+				trap_SendServerCommand( -1, va("print \"" S_COLOR_YELLOW "%i minute%s" S_COLOR_CYAN " of overtime added. " 
+						S_COLOR_CYAN "Game ends at " S_COLOR_YELLOW "%i:%02i\n\"", 
+						g_overtime.integer,
+						g_overtime.integer == 1 ? "" : "s",
+						newtimelimit/60,
+						newtimelimit - (newtimelimit/60)*60
+						));
+				trap_SendServerCommand( -1, va("cp \"" S_COLOR_YELLOW "%i minute%s" S_COLOR_CYAN " of overtime added\n" 
+						S_COLOR_CYAN "Game ends at " S_COLOR_YELLOW "%i:%02i\n\"", 
+						g_overtime.integer,
+						g_overtime.integer == 1 ? "" : "s",
+						newtimelimit/60,
+						newtimelimit - (newtimelimit/60)*60
+						));
+			} else {
+				trap_SendServerCommand( -1, "print \"Timelimit hit.\n\"");
+				LogExit( "Timelimit hit." );
+			}
 			return;
 		}
 	}
