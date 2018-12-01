@@ -3560,7 +3560,7 @@ qboolean G_admin_slap( gentity_t *ent, int skiparg )
 	int pids[MAX_CLIENTS], found, dmg;
 	char name[MAX_NAME_LENGTH], err[MAX_STRING_CHARS];
 	char *reason;
-	char damage[4];
+	char damage[16];
 	gentity_t *vic;
 	int soundIndex;
     
