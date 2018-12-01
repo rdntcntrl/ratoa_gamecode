@@ -403,6 +403,7 @@ static void CG_TouchItem( centity_t *cent ) {
 
 	// remove it from the frame so it won't be drawn
 	cent->currentState.eFlags |= EF_NODRAW;
+	cent->nextState.eFlags |= EF_NODRAW;
 
 	// don't touch it again this prediction
 	cent->miscTime = cg.time;
