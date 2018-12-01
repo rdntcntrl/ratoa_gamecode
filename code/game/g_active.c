@@ -1255,6 +1255,8 @@ void SpectatorClientEndFrame( gentity_t *ent ) {
 	gclient_t	*cl;
 	int i, preservedScore[MAX_PERSISTANT]; //for keeping in elimination
 
+	G_UnnamedPlayerRename(ent);
+
 	// if we are doing a chase cam or a remote view, grab the latest info
 	if ( ent->client->sess.spectatorState == SPECTATOR_FOLLOW ) {
 		int		clientNum, flags;
@@ -1307,8 +1309,6 @@ void SpectatorClientEndFrame( gentity_t *ent ) {
 	} else {
 		ent->client->ps.pm_flags &= ~PMF_SCOREBOARD;
 	}
-
-	G_UnnamedPlayerRename(ent);
 }
 
 /*
