@@ -1909,6 +1909,8 @@ void CG_DrawWeaponBar6(int count, int bits, float *color);
 void CG_DrawWeaponBar7(int count, int bits, float *color);
 void CG_DrawWeaponBar8(int count, int bits, float *color);
 void CG_DrawWeaponBar9(int count, int bits, float *color);
+void CG_DrawWeaponBar10(int count, int bits, float *color);
+void CG_DrawWeaponBar11(int count, int bits, float *color);
 
 void CG_OutOfAmmoChange( void );	// should this be in pmove?
 
