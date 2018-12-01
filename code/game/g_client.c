@@ -1106,6 +1106,7 @@ static void ClientCleanName(const char *in, char *out, int outSize, int clientNu
 {
     int outpos = 0, colorlessLen = 0, spaces = 0, notblack=0;
     qboolean black = qfalse;
+    qboolean anyblack = qfalse;
 
     // discard leading spaces
     for(; *in == ' '; in++);
@@ -1135,6 +1136,7 @@ static void ClientCleanName(const char *in, char *out, int outSize, int clientNu
                     //outpos--;
                     //continue;
                     black = qtrue;
+		    anyblack = qtrue;
                 }
                 else
                     black = qfalse;
@@ -1158,8 +1160,8 @@ static void ClientCleanName(const char *in, char *out, int outSize, int clientNu
 
     out[outpos] = '\0';
 
-    //There was none not-black alphanum chars. Remove all colors
-    if(notblack<1)
+    //black color was used but no non-black alnum char
+    if(notblack<1 && anyblack)
         Q_CleanStr(out);
 
     // don't allow empty names
