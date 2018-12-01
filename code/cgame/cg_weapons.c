@@ -772,13 +772,13 @@ static void CG_RatPlasmaTrail( centity_t *ent, const weaponInfo_t *wi ) {
 		}
 
 		smoke = CG_SmokePuff( origin, up, 
-					  1,
+					  5,
 					  1, 1, 1, 
 					  cg_ratPlasmaTrailAlpha.value,
 					  cg_ratPlasmaTrailTime.value, 
 					  t,
 					  0,
-					  0, 
+					  LEF_PUFF_DONT_SCALE, 
 					  cgs.media.plasmaTrailShader );
 		// use the optimized local entity add
 		smoke->leType = LE_SCALE_FADE;
