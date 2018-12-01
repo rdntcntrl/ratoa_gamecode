@@ -3436,8 +3436,6 @@ void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin, vec3_t dir, im
 	isSprite = qfalse;
 	duration = 600;
 
-	CG_Printf("EXPLOSION DRAWN\n");
-
 	switch ( weapon ) {
 	default:
 //#ifdef MISSIONPACK
@@ -3759,7 +3757,6 @@ CG_MissileHitPlayer
 */
 void CG_MissileHitPlayer( int weapon, vec3_t origin, vec3_t dir, int entityNum ) {
 // LEILEI ENHANCEMENT
-	CG_Printf("hit player\n");
 	if (cg_leiEnhancement.integer) {
 		CG_SmokePuff( origin, dir, 22, 1, 1, 1, 1.0f, 900, cg.time, 0, 0,  cgs.media.lbldShader1 );
 		CG_SpurtBlood( origin, dir, 1);
