@@ -127,7 +127,6 @@ void CG_FreeLocalEntityById(int id) {
 		next = le->next;
 
 		if (le->id == id) {
-			CG_Printf("ACTUALLY removed old explsion\n");
 			CG_FreeLocalEntity(le);
 			return;
 		}
