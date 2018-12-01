@@ -176,7 +176,7 @@ struct gentity_s {
 
 	int			count;
 
-	int			dropTime;
+	int			dropPickupTime; // time at which this item can be picked up by the player who dropped it again
 	int			dropClientNum;
 
 	gentity_t	*chain;
