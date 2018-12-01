@@ -3071,7 +3071,7 @@ void CG_DrawWeaponBar10(int count, int bits, float *color){
 			CG_DrawStringExt(x + 14 - w/2, y+26, s, color, qtrue, qfalse, 6, 14, 0);
 		}
 			
-		x += 30;
+		x += 28;
                 //Sago: Undo mad change of weapons
                 if(i==10)
                         i=0;
