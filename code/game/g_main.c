@@ -256,6 +256,7 @@ vmCvar_t        g_ratFlags;
 vmCvar_t        sv_allowDuplicateGuid;
 
 vmCvar_t        g_botshandicapped;
+vmCvar_t        g_bots_randomcolors;
 
 // weapon config
 vmCvar_t        g_mgDamage;
@@ -520,6 +521,9 @@ static cvarTable_t		gameCvarTable[] = {
         { &sv_allowDuplicateGuid, "sv_allowDuplicateGuid", "0", 0, 0, qfalse },
 
         { &g_botshandicapped, "g_botshandicapped", "1", CVAR_ARCHIVE, 0, qfalse },
+
+        { &g_bots_randomcolors, "g_bots_randomcolors", "1", CVAR_ARCHIVE, 0, qfalse },
+
 // weapon config
 	{ &g_mgDamage,			"g_mgDamage", "6", 0, 0, qtrue },
 	{ &g_mgTeamDamage,		"g_mgTeamDamage", "5", 0, 0, qtrue },
