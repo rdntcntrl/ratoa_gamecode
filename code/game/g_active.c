@@ -1307,6 +1307,8 @@ void SpectatorClientEndFrame( gentity_t *ent ) {
 	} else {
 		ent->client->ps.pm_flags &= ~PMF_SCOREBOARD;
 	}
+
+	G_UnnamedPlayerRename(ent);
 }
 
 /*
