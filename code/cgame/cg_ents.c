@@ -753,7 +753,15 @@ int CG_ProjectileNudgeTimeshift(centity_t *cent) {
 		// if it's not, and it's not a grenade launcher
 		else if ( cent->currentState.weapon != WP_GRENADE_LAUNCHER ) {
 			// extrapolate based on cg_projectileNudge
-			return (cg_projectileNudgeAuto.integer ? cent->projectileNudge : cg_projectileNudge.integer) + 1000 / sv_fps.integer;
+			switch (cg_projectileNudgeAuto.integer) {
+				case 1:
+					return cent->projectileNudge + 1000 / sv_fps.integer;
+				case 2:
+					return cent->projectileNudge/2.0 + 1000 / sv_fps.integer;
+				default:
+					return cg_projectileNudge.integer + 1000 / sv_fps.integer;
+					
+			}
 		}
 		return 0;
 }
