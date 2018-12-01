@@ -195,6 +195,8 @@ qboolean CG_ShouldPredictExplosion(void) {
 qboolean CG_ExplosionPredicted(centity_t *cent, int checkFlags, vec3_t realExpOrigin, int realHitEnt) {
 	int flags = checkFlags;
 	if (cent->currentState.eType != ET_MISSILE
+			|| cg_ratPredictMissiles.integer <= 0
+			|| !(cgs.ratFlags & RAT_PREDICTMISSILES) 
 			|| !cg_predictExplosions.integer) {
 		return qfalse;
 	}
@@ -240,6 +242,8 @@ void CG_PredictedExplosion(trace_t *tr, int weapon, predictedMissile_t *predMiss
 	}
 
 	if (!cg_predictExplosions.integer 
+			|| cg_ratPredictMissiles.integer <= 0
+			|| !(cgs.ratFlags & RAT_PREDICTMISSILES)
 			|| tr->surfaceFlags & SURF_NOIMPACT
 			|| !(predMissile || missileEnt)) {
 		return;
