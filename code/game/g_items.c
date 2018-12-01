@@ -670,6 +670,9 @@ gentity_t *LaunchItem( gitem_t *item, vec3_t origin, vec3_t velocity ) {
 		dropped->think = G_FreeEntity;
 		dropped->nextthink = level.time + 30000;
 	}
+	// let the client know when this will disappear to allow for more
+	// accurate pickup prediction / fading out items
+	dropped->s.time2 = dropped->nextthink;
 
 	dropped->flags = FL_DROPPED_ITEM;
 
