@@ -256,11 +256,12 @@ static void CG_Item( centity_t *cent ) {
 		// fade out if the item is about to disappear (for dropped items)
 		if (es->time2 > 0 
 				&& cg_itemFade.integer == 1
-				&& es->time2 < cg.time + 2000
+				&& es->time2 < cg.time + cg_itemFadeTime.value
 				) {
 			//ent.shaderRGBA[3] = 255 * MIN(1.0,((float)MAX(1,(es->time2 - cg.time))/2000.0));
+			
 			ent.shaderRGBA[3] = 255 * 
-				MIN(1.0,((float)MAX(1,(cg_itemFadeTime.value - es->time2 + cg.time))/cg_itemFadeTime.value));
+				MIN(1.0,MAX(0.0,(((float)(cg_itemFadeTime.value - es->time2 + cg.time))/cg_itemFadeTime.value)));
 		} else {
 			// 0 -> full alpha, as the shaders use 'alphaGen oneMinusEntity'
 			// this is so that the icons can still drawn on the HUD/UI

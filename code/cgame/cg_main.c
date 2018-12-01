@@ -688,7 +688,7 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_teamCorpseValue ,           "cg_teamCorpseValue", "0.2", CVAR_ARCHIVE},
 
 	{ &cg_itemFade ,           "cg_itemFade", "0", CVAR_ARCHIVE},
-	{ &cg_itemFadeTime ,           "cg_itemFadeTime", "1500", CVAR_CHEAT},
+	{ &cg_itemFadeTime ,           "cg_itemFadeTime", "3000", CVAR_CHEAT},
 
 	// / RAT ===================
 
