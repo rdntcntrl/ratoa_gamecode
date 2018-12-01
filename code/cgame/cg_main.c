@@ -295,6 +295,9 @@ vmCvar_t	cg_enemyCorpseValue;
 vmCvar_t	cg_teamCorpseSaturation;
 vmCvar_t	cg_teamCorpseValue;
 
+vmCvar_t	cg_itemFade;
+vmCvar_t	cg_itemFadeTime;
+
 vmCvar_t	cg_timerAlpha;
 vmCvar_t	cg_fpsAlpha;
 vmCvar_t	cg_speedAlpha;
@@ -683,6 +686,9 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_enemyCorpseValue ,          "cg_enemyCorpseValue", "0.2", CVAR_ARCHIVE},
 	{ &cg_teamCorpseSaturation ,      "cg_teamCorpseSaturation", "", CVAR_ARCHIVE},
 	{ &cg_teamCorpseValue ,           "cg_teamCorpseValue", "0.2", CVAR_ARCHIVE},
+
+	{ &cg_itemFade ,           "cg_itemFade", "0", CVAR_ARCHIVE},
+	{ &cg_itemFadeTime ,           "cg_itemFadeTime", "1500", CVAR_CHEAT},
 
 	// / RAT ===================
 
