@@ -45,9 +45,7 @@ static void CG_ResetEntity( centity_t *cent ) {
 	}
 	if (cent->currentState.eType == ET_MISSILE) {
 		cent->projectileNudge = CG_ReliablePing();
-		cent->removedPredictedMissile = qfalse;
-		cent->removePredictedMissileRan = qfalse;
-		cent->missileExplosionPredicted = qfalse;
+		memset(&cent->missileStatus, 0, sizeof(cent->missileStatus));
 	}
 
 	VectorCopy (cent->currentState.origin, cent->lerpOrigin);

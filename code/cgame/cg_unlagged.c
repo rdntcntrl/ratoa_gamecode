@@ -28,8 +28,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 void CG_ShotgunPattern( vec3_t origin, vec3_t origin2, int seed, int otherEntNum );
 void CG_Bullet( vec3_t end, int sourceEntityNum, vec3_t normal, qboolean flesh, int fleshEntityNum );
 
-localEntity_t *CG_BasePredictMissile( entityState_t *ent,  vec3_t muzzlePoint );
-void CG_FinishPredictMissileModel( entityState_t *ent, localEntity_t *le );
+predictedMissile_t *CG_BasePredictMissile( entityState_t *ent,  vec3_t muzzlePoint );
+void CG_FinishPredictMissileModel( entityState_t *ent, predictedMissile_t *pm );
 void CG_PredictNailgunMissile( entityState_t *ent, vec3_t muzzlePoint, vec3_t forward, vec3_t right, vec3_t up );
 
 // and this as well
@@ -38,55 +38,255 @@ void CG_PredictNailgunMissile( entityState_t *ent, vec3_t muzzlePoint, vec3_t fo
 #define CHAINGUN_SPREAD		600
 
 
-predictedMissile_t cg_predictedMissiles[MAX_PREDICTED_MISSILES];
-int cg_predictedMissileHead = 0;
-int cg_predictedMissileTail = 0;
+// similar to localentites
+predictedMissile_t	cg_predictedMissiles[MAX_PREDICTED_MISSILES];
+predictedMissile_t	cg_activePMissiles;		// double linked list
+predictedMissile_t	*cg_freePMissiles;		// single linked list
 
-predictedMissile_t *CG_AllocPredictedMissile(void) {
-	predictedMissile_t *m = &cg_predictedMissiles[cg_predictedMissileHead];
+/*
+===================
+CG_InitPMissilles
 
-	memset(m, 0, sizeof(*m));
+This is called at startup and for tournement restarts
+===================
+*/
+void	CG_InitPMissilles( void ) {
+	int		i;
 
-	cg_predictedMissileHead = (cg_predictedMissileHead + 1) % MAX_PREDICTED_MISSILES;
-	if (cg_predictedMissileHead == cg_predictedMissileTail) {
-		cg_predictedMissileTail = (cg_predictedMissileTail + 1) % MAX_PREDICTED_MISSILES;
+	memset( cg_predictedMissiles, 0, sizeof( cg_predictedMissiles ) );
+	cg_activePMissiles.next = &cg_activePMissiles;
+	cg_activePMissiles.prev = &cg_activePMissiles;
+	cg_freePMissiles = cg_predictedMissiles;
+	for ( i = 0 ; i < MAX_PREDICTED_MISSILES - 1 ; i++ ) {
+		cg_predictedMissiles[i].next = &cg_predictedMissiles[i+1];
 	}
-
-	return m;
 }
 
-predictedMissile_t *CG_RemoveNextPredictedMissile(void) {
-	predictedMissile_t *m;
 
-	if (cg_predictedMissileHead == cg_predictedMissileTail) {
-		// buffer empty
-		return NULL;
+/*
+==================
+CG_FreePMissile
+==================
+*/
+void CG_FreePMissile( predictedMissile_t *pm ) {
+	if ( !pm->prev ) {
+		CG_Error( "CG_FreePMissile: not active" );
 	}
-	m = &cg_predictedMissiles[cg_predictedMissileTail];
-	cg_predictedMissileTail = (cg_predictedMissileTail + 1) % MAX_PREDICTED_MISSILES;
 
-	return m;
+	// remove from the doubly linked active list
+	pm->prev->next = pm->next;
+	pm->next->prev = pm->prev;
+
+	// the free list is only singly linked
+	pm->next = cg_freePMissiles;
+	cg_freePMissiles = pm;
 }
 
-void CG_RemoveExpiredPredictedMissiles(void) {
-	int i;
+/*
+===================
+CG_AllocPMissile
 
-	for ( i = cg_predictedMissileTail; i != cg_predictedMissileHead; i = (i + 1) % MAX_PREDICTED_MISSILES) {
-		if (cg_predictedMissiles[i].removeTime <= cg.time) {
-			cg_predictedMissileTail = (cg_predictedMissileTail + 1 ) % MAX_PREDICTED_MISSILES;
-		} else {
-			break;
+Will allways succeed, even if it requires freeing an old active PMissile
+===================
+*/
+predictedMissile_t	*CG_AllocPMissile( void ) {
+	predictedMissile_t	*pm;
+
+	if ( !cg_freePMissiles ) {
+		// no free PMissiles, so free the one at the end of the chain
+		// remove the oldest active one
+		CG_FreePMissile( cg_activePMissiles.prev );
+	}
+
+	pm = cg_freePMissiles;
+	cg_freePMissiles = cg_freePMissiles->next;
+
+	memset( pm, 0, sizeof( *pm ) );
+
+	// link into the active list
+	pm->next = cg_activePMissiles.next;
+	pm->prev = &cg_activePMissiles;
+	cg_activePMissiles.next->prev = pm;
+	cg_activePMissiles.next = pm;
+	return pm;
+}
+
+void CG_RemovePredictedMissile( centity_t *missile) {
+	predictedMissile_t	*pm, *next;
+
+	if (!cg_ratPredictMissiles.integer) {
+		return;
+	}
+
+	if (missile->missileStatus.missileFlags & MF_REMOVEDPMISSILE) {
+		// already ran;
+		return;
+	}
+	// mark that we ran on this
+	missile->missileStatus.missileFlags |= MF_REMOVEDPMISSILE;
+
+	if (!CG_IsOwnMissile(missile)) {
+		return;
+	}
+
+	pm = cg_activePMissiles.next;
+	for ( ; pm != &cg_activePMissiles ; pm = next ) {
+		next = pm->next;
+
+		if (pm->weapon != missile->currentState.weapon) {
+			continue;
 		}
-	}
 
+		if (missile->currentState.pos.trTime - 30 > pm->pos.trTime
+				|| missile->currentState.pos.trTime + 30 < pm->pos.trTime) {
+			continue;
+		}
+
+		// TODO: ADD TRAJECTORY CHECKS FOR NG
+		
+		if (pm->status.missileFlags & MF_EXPLODED) {
+			// copy status so we don't predict another explosion if
+			// it already did explode
+			//memcpy(&missile->missileStatus, &pm->status, sizeof(missile->missileStatus));
+			//CG_Printf("removed predicted missile: flags %d, pos %f %f %f, entity %i\n", 
+			//		missile->missileStatus.missileFlags,
+			//		missile->missileStatus.explosionPos[0],
+			//		missile->missileStatus.explosionPos[1],
+			//		missile->missileStatus.explosionPos[2],
+			//		missile->missileStatus.hitEntity);
+
+		}
+
+		CG_FreePMissile( pm );
+		return;
+	}
 }
 
-void CG_PredictedMissile2( predictedMissile_t *pm) {
+qboolean CG_ShouldPredictExplosion(void) {
+	return !(CG_ReliablePing() + 20 > cgs.unlagMissileMaxLatency);
+}
+
+#define PMISSILE_DOUBLE_EXPLOSION_DISTANCE 128
+qboolean CG_ExplosionPredicted(centity_t *cent, int checkFlags, vec3_t realExpOrigin, int realHitEnt) {
+	if (cent->currentState.eType != ET_MISSILE
+			|| !cg_predictExplosions.integer) {
+		return qfalse;
+	}
+	CG_RemovePredictedMissile(cent);
+
+	if ((cent->missileStatus.missileFlags & (checkFlags | MF_EXPLODED)) != (checkFlags | MF_EXPLODED)) {
+		return qfalse;
+	}
+	if (Distance(realExpOrigin, cent->missileStatus.explosionPos) > PMISSILE_DOUBLE_EXPLOSION_DISTANCE) {
+		return qfalse;
+	}
+	if (cent->missileStatus.missileFlags & MF_HITPLAYER && realHitEnt != cent->missileStatus.hitEntity) {
+		return qfalse;
+	}
+
+	return qtrue;
+}
+
+
+void CG_UpdateMissileStatus(predictedMissileStatus_t *pms, int addedFlags, vec3_t explosionOrigin, int hitEntity) {
+	pms->missileFlags |= addedFlags;
+	VectorCopy(explosionOrigin, pms->explosionPos);
+	pms->hitEntity = hitEntity;
+}
+
+void CG_PredictedExplosion(trace_t *tr, int weapon, predictedMissile_t *predMissile, centity_t *missileEnt)  {
+	centity_t *hitEnt;
+	predictedMissileStatus_t *pms;
+
+	if (missileEnt) {
+		CG_RemovePredictedMissile(missileEnt);
+	}
+
+	if (!cg_predictExplosions.integer 
+			|| tr->surfaceFlags & SURF_NOIMPACT
+			|| !(predMissile || missileEnt)) {
+		return;
+	}
+
+	switch (weapon) {
+		// TODO: predict grenade bounce
+		case WP_GRENADE_LAUNCHER:
+		case WP_PROX_LAUNCHER:
+		// TODO: PREDICT NAILGUN HITS
+		case WP_NAILGUN:
+			return;
+	}
+
+	if (predMissile) {
+		if (!CG_ShouldPredictExplosion()) {
+			// prediction might not be accurate because we're close
+			// to the unlag ping limit, so don't predict the
+			// explosion
+			return;
+		}
+		pms = &predMissile->status;
+	}  else {
+		if (cg_projectileNudgeAuto.integer != 1) {
+			// can't accurately predict these missiles if they're
+			// not properly nudged
+			return;
+		}
+		pms = &missileEnt->missileStatus;
+	}
+
+	if (pms->missileFlags & (MF_EXPLODED | MF_DISAPPEARED)) {
+		// some explosion was already predicted, so don't bother
+		// until we have the confirmed information from the server
+		return;
+	}
+
+
+	hitEnt = &cg_entities[tr->entityNum];
+	if (hitEnt->currentState.eType == ET_PLAYER ) {
+		if (!cg_predictPlayerExplosions.integer) {
+			return;
+		}
+		if (missileEnt) {
+			int missileOwner = CG_MissileOwner(missileEnt);
+		       	if (missileOwner == tr->entityNum) {
+				// missiles never hit their owner
+				return;
+			} else if (missileOwner != cg.clientNum
+					&& cg_projectileNudgeAuto.integer != 1) {
+				// cannot accurately predict other's missile
+				// hits on players if automatic nudge is disabled
+				return;
+			}
+		}
+		if (tr->entityNum != cg.clientNum && cg_predictPlayerExplosions.integer <= 1) {
+			// missile hit other player, only predict this on setting >= 2
+			// as this is less accurate
+			return;
+		}
+		CG_MissileHitPlayer( weapon, tr->endpos, tr->plane.normal, tr->entityNum );
+		CG_UpdateMissileStatus(pms, MF_EXPLODED | MF_HITPLAYER, tr->endpos, tr->entityNum);
+	} else if (tr->surfaceFlags & SURF_METALSTEPS) {
+		CG_MissileHitWall(weapon, 0, tr->endpos, tr->plane.normal, IMPACTSOUND_METAL);
+		CG_UpdateMissileStatus(pms, MF_EXPLODED | MF_HITWALLMETAL, tr->endpos, tr->entityNum);
+	} else {
+		CG_MissileHitWall(weapon, 0, tr->endpos, tr->plane.normal, IMPACTSOUND_DEFAULT);
+		CG_UpdateMissileStatus(pms, MF_EXPLODED | MF_HITWALL, tr->endpos, tr->entityNum);
+	}
+}
+
+
+
+void CG_RunPredictedMissile( predictedMissile_t *pm) {
 	vec3_t	newOrigin;
 	trace_t	trace;
 	int timeshift = 0;
 	int time;
 	const weaponInfo_t *weapon = &cg_weapons[pm->weapon];
+
+	if (pm->removeTime < cg.time) {
+		CG_FreePMissile(pm);
+		return;
+	}
 
 	if (pm->status.missileFlags & (MF_EXPLODED | MF_DISAPPEARED)) {
 		// this missile exploded / disappeared
@@ -133,19 +333,24 @@ void CG_PredictedMissile2( predictedMissile_t *pm) {
 
 		return;
 	} else {
-		CG_PredictedExplosion(&trace, pm->weapon, NULL);
+		CG_PredictedExplosion(&trace, pm->weapon, pm, NULL);
 		pm->status.missileFlags |= MF_DISAPPEARED;
 		return; 
 	}
 }
 
 void CG_AddPredictedMissiles(void ) {
-	int i;
+	predictedMissile_t	*pm, *next;
 
-	// loop backwards through (prioritizes newer missiles in case there are
-	// too many rendering entities)
-	for ( i = cg_predictedMissileHead; i != cg_predictedMissileTail; i = (i + MAX_PREDICTED_MISSILES - 1) % MAX_PREDICTED_MISSILES) {
-		CG_PredictedMissile2(&cg_predictedMissiles[i]);
+	// walk the list backwards, so any new PMissiles generated
+	// will be present this frame
+	pm = cg_activePMissiles.prev;
+	for ( ; pm != &cg_activePMissiles ; pm = next ) {
+		// grab next now, so if the PMissile is freed we
+		// still have it
+		next = pm->prev;
+
+		CG_RunPredictedMissile(pm);
 	}
 }
 
@@ -413,7 +618,7 @@ void CG_PredictWeaponEffects( centity_t *cent ) {
 			    || ent->weapon == WP_NAILGUN
 			   )
 		   ) {
-		localEntity_t	*le;
+		predictedMissile_t	*pm;
 		refEntity_t	*bolt;
 
 		if (cg.snap->ps.pm_flags & PMF_FOLLOW) {
@@ -440,15 +645,15 @@ void CG_PredictWeaponEffects( centity_t *cent ) {
 		}
 
 
-		le = CG_BasePredictMissile(ent, muzzlePoint);
+		pm = CG_BasePredictMissile(ent, muzzlePoint);
 
-		bolt = &le->refEntity;
+		bolt = &pm->refEntity;
 
 		switch (ent->weapon) {
 			case WP_PLASMAGUN:
-				VectorScale(forward, 2000, le->pos.trDelta);
-				SnapVector(le->pos.trDelta);
-				le->pos.trType = TR_LINEAR;
+				VectorScale(forward, 2000, pm->pos.trDelta);
+				SnapVector(pm->pos.trDelta);
+				pm->pos.trType = TR_LINEAR;
 				bolt->reType = RT_SPRITE;
 				bolt->radius = 16;
 				bolt->rotation = 0;
@@ -456,39 +661,39 @@ void CG_PredictWeaponEffects( centity_t *cent ) {
 				// NOTE RETURN!
 				return;
 			case WP_ROCKET_LAUNCHER:
-				VectorScale(forward, cgs.rocketSpeed, le->pos.trDelta);
-				SnapVector(le->pos.trDelta);
-				le->pos.trType = TR_LINEAR;
+				VectorScale(forward, cgs.rocketSpeed, pm->pos.trDelta);
+				SnapVector(pm->pos.trDelta);
+				pm->pos.trType = TR_LINEAR;
 				break;
 			case WP_GRENADE_LAUNCHER:
 				forward[2] += 0.2f;
 				VectorNormalize( forward );
-				VectorScale(forward, 700, le->pos.trDelta);
-				SnapVector(le->pos.trDelta);
-				le->pos.trType = TR_GRAVITY;
+				VectorScale(forward, 700, pm->pos.trDelta);
+				SnapVector(pm->pos.trDelta);
+				pm->pos.trType = TR_GRAVITY;
 				bolt->customShader = cgs.media.grenadeBrightSkinShader;
 				break;
 			case WP_BFG:
-				VectorScale(forward, 2000, le->pos.trDelta);
-				SnapVector(le->pos.trDelta);
-				le->pos.trType = TR_LINEAR;
+				VectorScale(forward, 2000, pm->pos.trDelta);
+				SnapVector(pm->pos.trDelta);
+				pm->pos.trType = TR_LINEAR;
 				break;
 			case WP_PROX_LAUNCHER:
 				forward[2] += 0.2f;
-				VectorScale(forward, 700, le->pos.trDelta);
-				SnapVector(le->pos.trDelta);
-				le->pos.trType = TR_GRAVITY;
+				VectorScale(forward, 700, pm->pos.trDelta);
+				SnapVector(pm->pos.trDelta);
+				pm->pos.trType = TR_GRAVITY;
 				break;
 		}
-		CG_FinishPredictMissileModel(ent, le);
+		CG_FinishPredictMissileModel(ent, pm);
 		if (ent->weapon == WP_PROX_LAUNCHER && cg.predictedPlayerState.persistant[PERS_TEAM] == TEAM_BLUE) {
 			bolt->hModel = cgs.media.blueProxMine;
 		}
 	}
 }
 
-localEntity_t *CG_BasePredictMissile( entityState_t *ent,  vec3_t muzzlePoint ) {
-	localEntity_t	*le;
+predictedMissile_t *CG_BasePredictMissile( entityState_t *ent,  vec3_t muzzlePoint ) {
+	predictedMissile_t	*pm;
 	refEntity_t	*bolt;
 	int lifetime = (cg_ratPredictMissilesPing.integer > 0 ?
 			      	cg_ratPredictMissilesPing.integer : CG_ReliablePing())
@@ -496,37 +701,25 @@ localEntity_t *CG_BasePredictMissile( entityState_t *ent,  vec3_t muzzlePoint ) 
 	if (lifetime < 50 * cg_ratPredictMissilesPingFactor.value) {
 		lifetime = 50 * cg_ratPredictMissilesPingFactor.value;
 	}
-	le = CG_AllocLocalEntity();
-	le->leFlags = 0;
-	le->leType = LE_PREDICTEDMISSILE;
-	le->startTime = cg.time;
-	le->endTime = cg.time + lifetime;
-	le->weapon = ent->weapon;
+	pm = CG_AllocPMissile();
+	pm->removeTime = cg.time + lifetime;
+	pm->weapon = ent->weapon;
 
-	bolt = &le->refEntity;
+	bolt = &pm->refEntity;
 
-	VectorCopy(muzzlePoint, le->pos.trBase);
-	//le->pos.trTime = cg.time-50;
-	le->pos.trTime = cg.time-cgs.predictedMissileNudge-cg.cmdMsecDelta;
+	VectorCopy(muzzlePoint, pm->pos.trBase);
+	pm->pos.trTime = cg.time-cgs.predictedMissileNudge-cg.cmdMsecDelta;
 
 	if ((cgs.gametype == GT_ELIMINATION || cgs.gametype == GT_CTF_ELIMINATION || cgs.gametype == GT_LMS)
 			&& cg.warmup == 0 && cgs.roundStartTime 
-			&& (le->pos.trTime + cgs.predictedMissileNudge) < cgs.roundStartTime) {
-		le->pos.trTime = cgs.roundStartTime - cgs.predictedMissileNudge;
+			&& (pm->pos.trTime + cgs.predictedMissileNudge) < cgs.roundStartTime) {
+		pm->pos.trTime = cgs.roundStartTime - cgs.predictedMissileNudge;
 	}
 
 	VectorCopy( muzzlePoint, bolt->origin );
 	VectorCopy( muzzlePoint, bolt->oldorigin );
 
-	//CG_Printf("cmdMsecDelta = %i, le->pos.trTime = %i, trBase = %f %f %f\n", 
-	//		cg.cmdMsecDelta, 
-	//		le->pos.trTime,
-	//		le->pos.trBase[0],
-	//		le->pos.trBase[1],
-	//		le->pos.trBase[2]
-	//		);
-
-	return le;
+	return pm;
 }
 
 int CG_ReliablePing( void ) {
@@ -555,8 +748,8 @@ int CG_ReliablePingFromSnaps(snapshot_t *snap, snapshot_t *nextSnap) {
 	return ping;
 }
 
-void CG_FinishPredictMissileModel( entityState_t *ent, localEntity_t *le ) {
-	refEntity_t	*bolt = &le->refEntity;
+void CG_FinishPredictMissileModel( entityState_t *ent, predictedMissile_t *pm ) {
+	refEntity_t	*bolt = &pm->refEntity;
 
 	bolt->reType = RT_MODEL;
 	bolt->rotation = 0;
@@ -567,7 +760,7 @@ void CG_FinishPredictMissileModel( entityState_t *ent, localEntity_t *le ) {
 #define NAILGUN_SPREAD 500
 #define NUM_NAILSHOTS 15
 void CG_PredictNailgunMissile( entityState_t *ent, vec3_t muzzlePoint, vec3_t forward, vec3_t right, vec3_t up ) {
-	localEntity_t	*le;
+	predictedMissile_t	*pm;
 	int i;
 	int seed = cg.oldTime % 256;
 	float		r, u, scale;
@@ -575,7 +768,7 @@ void CG_PredictNailgunMissile( entityState_t *ent, vec3_t muzzlePoint, vec3_t fo
 	vec3_t		end;
 
 	for (i = 0; i < NUM_NAILSHOTS; ++i) {
-		le = CG_BasePredictMissile(ent, muzzlePoint);
+		pm = CG_BasePredictMissile(ent, muzzlePoint);
 
 		r = Q_random(&seed) * M_PI * 2.0f;
 		u = sin(r) * Q_crandom(&seed) * NAILGUN_SPREAD * 16;
@@ -587,12 +780,12 @@ void CG_PredictNailgunMissile( entityState_t *ent, vec3_t muzzlePoint, vec3_t fo
 		VectorNormalize( dir );
 
 		scale = 555 + Q_random(&seed) * 1800;
-		VectorScale( dir, scale, le->pos.trDelta );
-		SnapVector( le->pos.trDelta );
+		VectorScale( dir, scale, pm->pos.trDelta );
+		SnapVector( pm->pos.trDelta );
 
-		le->pos.trType = TR_LINEAR;
+		pm->pos.trType = TR_LINEAR;
 
-		CG_FinishPredictMissileModel(ent, le);
+		CG_FinishPredictMissileModel(ent, pm);
 	}
 
 }

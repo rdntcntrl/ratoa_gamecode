@@ -190,6 +190,20 @@ typedef struct {
 
 //=================================================
 
+#define MF_EXPLODED  		1
+#define MF_HITPLAYER 		2
+#define MF_HITWALL   		4
+#define MF_HITWALLMETAL   	8
+#define MF_DISAPPEARED 		16
+#define MF_REMOVEDPMISSILE	32
+#define MF_TRAILFINISHED	64
+
+typedef struct predictedMissileStatus_s {
+	int	missileFlags;
+	vec3_t	explosionPos;
+	int	hitEntity;
+} predictedMissileStatus_t;
+
 
 
 // centity_t have a direct corespondence with gentity_t in the game, but
@@ -231,10 +245,8 @@ typedef struct centity_s {
 
 	// set if a player entity should not make sounds
 	qboolean		quiet;
-	qboolean		removedPredictedMissile;
 	qboolean		missileTeleported;
-	qboolean		removePredictedMissileRan;
-	int			missileExplosionPredicted;
+	predictedMissileStatus_t missileStatus;
 } centity_t;
 
 
@@ -269,7 +281,6 @@ typedef enum {
 	LE_INVULJUICED,
 	LE_SHOWREFENTITY,
 	LE_GORE,
-	LE_PREDICTEDMISSILE
 } leType_t;
 
 typedef enum {
@@ -319,23 +330,12 @@ typedef struct localEntity_s {
 	leBounceSoundType_t	leBounceSoundType;
 
 	refEntity_t		refEntity;		
-
-	int weapon; // TODO: remove this
 } localEntity_t;
 
 
-#define MF_EXPLODED  		1
-#define MF_HITPLAYER 		2
-#define MF_HITWALL   		4
-#define MF_HITWALLMETAL   	8
-#define MF_DISAPPEARED 		16
-
-typedef struct predictedMissileStatus_s {
-	int	missileFlags;
-	vec3_t	explosionPos;
-} predictedMissileStatus_t;
-
 typedef struct predictedMissile_s {
+	struct predictedMissile_s *prev, *next;
+
 	int			weapon;
 
 	trajectory_t	pos;
@@ -1722,6 +1722,11 @@ qboolean CG_IsOwnMissile(centity_t *missile);
 int CG_MissileOwner(centity_t *missile);
 void CG_AddPredictedMissiles(void );
 void CG_RemoveExpiredPredictedMissiles(void);
+qboolean CG_ShouldPredictExplosion(void);
+void CG_PredictedExplosion(trace_t *tr, int weapon, predictedMissile_t *predMissile, centity_t *missileEnt);
+qboolean CG_ExplosionPredicted(centity_t *cent, int checkFlags, vec3_t realExpOrigin, int realHitEnt);
+void	CG_InitPMissilles( void );
+void CG_UpdateMissileStatus(predictedMissileStatus_t *pms, int addedFlags, vec3_t explosionOrigin, int hitEntity);
 //unlagged - cg_unlagged.c
 
 //
@@ -1894,7 +1899,6 @@ void CG_CheckEvents( centity_t *cent );
 const char	*CG_PlaceString( int rank );
 void CG_EntityEvent( centity_t *cent, vec3_t position );
 void CG_PainEvent( centity_t *cent, int health );
-qboolean CG_ExplosionPredicted(centity_t *cent);
 
 
 //
@@ -1971,8 +1975,6 @@ void	CG_InitLocalEntities( void );
 localEntity_t	*CG_AllocLocalEntity( void );
 void	CG_AddLocalEntities( void );
 void CG_RemovePredictedMissile(centity_t *missile);
-qboolean CG_ShouldPredictExplosion(void);
-void CG_PredictedExplosion(trace_t *tr, int weapon, centity_t *missileEnt);
 
 //
 // cg_effects.c

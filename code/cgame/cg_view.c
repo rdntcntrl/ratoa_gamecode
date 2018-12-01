@@ -929,8 +929,6 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demo
 	// this counter will be bumped for every valid scene we generate
 	cg.clientFrame++;
 
-	CG_RemoveExpiredPredictedMissiles();
-
 	// update cg.predictedPlayerState
 	CG_PredictPlayerState();
 

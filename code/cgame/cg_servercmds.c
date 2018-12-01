@@ -1017,6 +1017,7 @@ static void CG_MapRestart( void ) {
 		CG_Printf( "CG_MapRestart\n" );
 	}
 
+	CG_InitPMissilles();
 	CG_InitLocalEntities();
 	CG_InitMarkPolys();
 	CG_ClearParticles ();

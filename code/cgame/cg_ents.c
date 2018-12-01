@@ -428,7 +428,7 @@ static void CG_Missile( centity_t *cent ) {
 	// calculate the axis
 	VectorCopy( s1->angles, cent->lerpAngles);
 
-	if (cent->missileExplosionPredicted >= 2) {
+	if (cent->missileStatus.missileFlags & MF_TRAILFINISHED) {
 		// explosion was predicted, and last bit of trail was drawn
 		// already
 		return;
@@ -440,10 +440,10 @@ static void CG_Missile( centity_t *cent ) {
 		weapon->missileTrailFunc( cent, weapon );
 	}
 
-	if (cent->missileExplosionPredicted >= 1) {
+	if (cent->missileStatus.missileFlags & MF_EXPLODED) {
 		// explosion was predicted, don't render the missile anymore
 		// make sure that we don't continue to draw the trail next time
-		cent->missileExplosionPredicted++;
+		cent->missileStatus.missileFlags |= MF_TRAILFINISHED;
 		return;
 	}
 
@@ -878,7 +878,8 @@ static void CG_CalcEntityLerpPositions( centity_t *cent ) {
 			cent->lerpOrigin[1] = lastOrigin[1] + tr.fraction * ( cent->lerpOrigin[1] - lastOrigin[1] );
 			cent->lerpOrigin[2] = lastOrigin[2] + tr.fraction * ( cent->lerpOrigin[2] - lastOrigin[2] );
 			if (cent->currentState.eType == ET_MISSILE) {
-				CG_PredictedExplosion(&tr, cent->currentState.weapon, cent);
+				CG_PredictedExplosion(&tr, cent->currentState.weapon, NULL, cent);
+				cent->missileStatus.missileFlags |= MF_DISAPPEARED;
 			}
 		} 
 	}
