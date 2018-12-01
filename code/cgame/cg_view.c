@@ -823,12 +823,17 @@ void CG_AddSpawnpoints( void ){
 	legs.customShader = cgs.media.spawnPointShader;
 	torso.customShader = cgs.media.spawnPointShader;
 	head.customShader = cgs.media.spawnPointShader;
+
+	legs.frame = ci->animations[ LEGS_IDLE ].firstFrame;
+	legs.oldframe = legs.frame;
+	torso.frame = ci->animations[ TORSO_STAND ].firstFrame;
+	torso.oldframe = torso.frame;
 	
 	for( i=0; i < cg.numSpawnpoints; i++ ){
 	    VectorCopy( cg.spawnpoints[i].origin, legs.origin);
 	    AnglesToAxis(cg.spawnpoints[i].angle, legs.axis);
-	    AnglesToAxis(cg.spawnpoints[i].angle, torso.axis);
-	    AnglesToAxis(cg.spawnpoints[i].angle, head.axis);
+	    //AnglesToAxis(cg.spawnpoints[i].angle, torso.axis);
+	    //AnglesToAxis(cg.spawnpoints[i].angle, head.axis);
 
 	    legs.shaderRGBA[3] = 255;
 	    if( cg.spawnpoints[i].team == TEAM_BLUE ){
@@ -846,9 +851,12 @@ void CG_AddSpawnpoints( void ){
 	    }
 	    memcpy(&torso.shaderRGBA, &legs.shaderRGBA, sizeof(legs.shaderRGBA));
 	    memcpy(&head.shaderRGBA, &legs.shaderRGBA, sizeof(legs.shaderRGBA));
+
 	    trap_R_AddRefEntityToScene(&legs);
+	    AxisClear(torso.axis);
 	    CG_PositionRotatedEntityOnTag( &torso, &legs, ci->legsModel, "tag_torso");
 	    trap_R_AddRefEntityToScene(&torso);
+	    AxisClear(head.axis);
 	    CG_PositionRotatedEntityOnTag( &head, &torso, ci->torsoModel, "tag_head");
 	    trap_R_AddRefEntityToScene(&head);
 	}
