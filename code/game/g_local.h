@@ -1335,6 +1335,7 @@ extern  vmCvar_t        g_ratFlags;
 extern  vmCvar_t        sv_allowDuplicateGuid;
 
 extern  vmCvar_t        g_botshandicapped;
+extern  vmCvar_t        g_bots_randomcolors;
 
 // weapon config
 extern vmCvar_t        g_weaponChangeTime_Dropping;

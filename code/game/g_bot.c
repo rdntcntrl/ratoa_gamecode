@@ -645,19 +645,25 @@ static void G_AddBot( const char *name, float skill, const char *team, int delay
 	}
 	Info_SetValueForKey( userinfo, "sex", s );
 
-	key = "color1";
-	s = Info_ValueForKey( botinfo, key );
-	if ( !*s ) {
-		s = "4";
-	}
-	Info_SetValueForKey( userinfo, key, s );
+	if (g_bots_randomcolors.integer) {
+		Info_SetValueForKey( userinfo, "color1", va("H%i", (int)(random()*360.0)));
+		Info_SetValueForKey( userinfo, "color2", va("H%i", (int)(random()*360.0)));
+	} else {
+		key = "color1";
+		s = Info_ValueForKey( botinfo, key );
+		if ( !*s ) {
+			s = "4";
+		}
+		Info_SetValueForKey( userinfo, key, s );
 
-	key = "color2";
-	s = Info_ValueForKey( botinfo, key );
-	if ( !*s ) {
-		s = "5";
+		key = "color2";
+		s = Info_ValueForKey( botinfo, key );
+		if ( !*s ) {
+			s = "5";
+		}
+		Info_SetValueForKey( userinfo, key, s );
 	}
-	Info_SetValueForKey( userinfo, key, s );
+
 
 	s = Info_ValueForKey(botinfo, "aifile");
 	if (!*s ) {
