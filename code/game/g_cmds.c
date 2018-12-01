@@ -1444,7 +1444,7 @@ void G_TimeoutReminder(gentity_t *ent) {
 							   S_COLOR_CYAN "use \\unpause to continue immediately\"",
 				timeoutend_minutes(), timeoutend_seconds() ));
 	trap_SendServerCommand( ent-g_entities, va("print \"" S_COLOR_CYAN "timeout until %i:%02i\n"
-							      S_COLOR_CYAN "use \\unpause to continue immediately\"",
+							      S_COLOR_CYAN "use \\unpause to continue immediately\n\"",
 				timeoutend_minutes(), timeoutend_seconds() ));
 }
 
@@ -1531,7 +1531,7 @@ void G_Timeout(gentity_t *caller) {
 				timeoutend_minutes(),
 				timeoutend_seconds()) );
 	trap_SendServerCommand(-1,va("print \"%s" S_COLOR_CYAN " called a %is timeout\nGame continues at %i:%02i\n"
-							       "use \\unpause to continue immediately\"", 
+							       "use \\unpause to continue immediately\n\"", 
 				caller->client->pers.netname,
 				level.timeoutAdd/1000,
 				timeoutend_minutes(),
