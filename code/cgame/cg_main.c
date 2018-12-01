@@ -812,23 +812,13 @@ void CG_RatRemapShaders(void) {
 }
 
 void CG_RatInitDefaults(void)  {
-	char buf[128];
-	char *cvars[] = { "color1", "color2" };
-	int i;
-	int seed;
-
 	if (cg_ratInitialized.integer < 1) {
 		if (cg_drawCrosshair.integer < 10) {
 			trap_Cvar_Set( "cg_drawCrosshair", "19" );
 		}
-		seed = trap_Milliseconds();
-		for ( i = 0; i < sizeof(cvars)/sizeof(char *); ++i) {
-			memset(buf, 0, sizeof(buf));
-			trap_Cvar_VariableStringBuffer(cvars[i], buf, sizeof(buf));
-			if (buf[0] != 'H') {
-				trap_Cvar_Set(cvars[i], va("H%i", (int)(Q_random(&seed)*360.0)));	
-			}
-		}
+
+		CG_Randomcolors_f();
+
 		trap_Cvar_Set( "cg_ratInitialized", "1" );
 	}
 

@@ -91,6 +91,15 @@ void CG_Echo_f( void ) {
 
 }
 
+// sets color1/2 to random colors
+void CG_Randomcolors_f( void ) {
+	int seed;
+
+	seed = trap_Milliseconds();
+	trap_Cvar_Set("color1", va("H%i", (int)(Q_random(&seed)*360.0)));	
+	trap_Cvar_Set("color2", va("H%i", (int)(Q_random(&seed)*360.0)));	
+}
+
 void CG_Mapvote_f( void ) {
 	int n = trap_Argc();
 
@@ -606,6 +615,7 @@ static consoleCommand_t	commands[] = {
 	{ "tcmd", CG_TargetCommand_f },
 	{ "sampleconfig", CG_SampleConfig_f },
 	{ "cecho", CG_Echo_f },
+	{ "randomcolors", CG_Randomcolors_f },
 	{ "mv", CG_Mapvote_f },
 #ifdef MISSIONPACK
 	{ "loadhud", CG_LoadHud_f },
