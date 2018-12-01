@@ -428,8 +428,9 @@ static void CG_Missile( centity_t *cent ) {
 	// calculate the axis
 	VectorCopy( s1->angles, cent->lerpAngles);
 
-	if (cent->missileExplosionPredicted) {
-		// explosion was predicted, don't render the missile anymore
+	if (cent->missileExplosionPredicted >= 2) {
+		// explosion was predicted, and last bit of trail was drawn
+		// already
 		return;
 	}
 
@@ -438,6 +439,14 @@ static void CG_Missile( centity_t *cent ) {
 	{
 		weapon->missileTrailFunc( cent, weapon );
 	}
+
+	if (cent->missileExplosionPredicted >= 1) {
+		// explosion was predicted, don't render the missile anymore
+		// make sure that we don't continue to draw the trail next time
+		cent->missileExplosionPredicted++;
+		return;
+	}
+
 
 	if (s1->time2 > 0) {
 		// missile already exploded, don't render it

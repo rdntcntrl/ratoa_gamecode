@@ -935,6 +935,7 @@ void CG_PredictedExplosion(trace_t *tr, int weapon, centity_t *missileEnt)  {
 	if (!cg_predictExplosions.integer) {
 		return;
 	}
+
 	if (tr->surfaceFlags & SURF_NOIMPACT) {
 		return;
 	}
@@ -945,48 +946,58 @@ void CG_PredictedExplosion(trace_t *tr, int weapon, centity_t *missileEnt)  {
 			return;
 	}
 
-	if (missileEnt != NULL && missileEnt->missileExplosionPredicted) {
-		// already predicted the explosion
+	if (missileEnt != NULL && (CG_ExplosionPredicted(missileEnt) || cg_projectileNudgeAuto.integer <= 0)) {
+		// already predicted the explosion of this entity
+		// or nudge is turned off rendering prediction inaccurate
 		return;
-	}
-	// only applies if it is not a locally predicted missile
-	else if (missileEnt == NULL && !CG_ShouldPredictExplosion()) {
-	CG_Printf("3.2\n");
+	} else if (missileEnt == NULL && !CG_ShouldPredictExplosion()) {
+		// only applies if it is  a locally predicted missile
 		return;
 	}
 
-	CG_Printf("4, entity = %d\n", tr->entityNum);
+	CG_Printf("4, hitent =%d\n", tr->entityNum);
 
 	hitEnt = &cg_entities[tr->entityNum];
 	if (hitEnt->currentState.eType == ET_PLAYER ) {
 		if (!cg_predictPlayerExplosions.integer) {
 			return;
 		}
+		CG_Printf("hit player\n");
 		if (missileEnt) {
-			CG_Printf("hit player, owner = %d, hit = %d\n", CG_MissileOwner(missileEnt), tr->entityNum);
-		} else {
-			CG_Printf("hit player,  hit = %d\n", tr->entityNum);
+			int missileOwner = CG_MissileOwner(missileEnt);
+		       	if (missileOwner == tr->entityNum) {
+				// missiles never hit their owner
+				CG_Printf("owner\n");
+				return;
+			} else if (missileOwner != cg.clientNum
+					&& cg_projectileNudgeAuto.integer != 1) {
+				// cannot accurately predict other's missile
+				// hits on players if automatic nudge is disabled
+				CG_Printf("other missile, nudge disabled!\n");
+				return;
+			}
 		}
-		if (missileEnt && CG_MissileOwner(missileEnt) == tr->entityNum) {
-			CG_Printf("owner!\n");
-			// missiles never hit their owner
+		if (tr->entityNum != cg.clientNum && cg_predictPlayerExplosions.integer <= 1) {
+			// missile hit other player, only predict this on setting >= 2
+			// as this is less accurate
+			CG_Printf("missile hit other player, disabled!\n");
 			return;
 		}
 		CG_MissileHitPlayer( weapon, tr->endpos, tr->plane.normal, tr->entityNum );
 	} else if (tr->surfaceFlags & SURF_METALSTEPS) {
-	CG_Printf("hit wall (metal)\n");
 		CG_MissileHitWall(weapon, 0, tr->endpos, tr->plane.normal, IMPACTSOUND_METAL);
 	} else {
-	CG_Printf("hit wall (default)\n");
 		CG_MissileHitWall(weapon, 0, tr->endpos, tr->plane.normal, IMPACTSOUND_DEFAULT);
 	}
 
 	if (missileEnt != NULL) {
+		CG_Printf("entity explosion predicted\n");
 		// for missiles that whose entities we have and are nudged
 		// (enemy missiles or our own missile after it transitioned from
 		// being local prediction to the server entity)
-	CG_Printf("missile exploded = qtrue\n");
 		missileEnt->missileExplosionPredicted = qtrue;
+	} else {
+		CG_Printf("localentity explosion predicted\n");
 	}
 }
 

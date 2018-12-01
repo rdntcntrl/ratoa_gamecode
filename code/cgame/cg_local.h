@@ -232,7 +232,7 @@ typedef struct centity_s {
 	qboolean		removedPredictedMissile;
 	qboolean		missileTeleported;
 	qboolean		removePredictedMissileRan;
-	qboolean		missileExplosionPredicted;
+	int			missileExplosionPredicted;
 } centity_t;
 
 
@@ -1861,6 +1861,7 @@ void CG_CheckEvents( centity_t *cent );
 const char	*CG_PlaceString( int rank );
 void CG_EntityEvent( centity_t *cent, vec3_t position );
 void CG_PainEvent( centity_t *cent, int health );
+qboolean CG_ExplosionPredicted(centity_t *cent);
 
 
 //

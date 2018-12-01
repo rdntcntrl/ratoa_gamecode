@@ -334,8 +334,7 @@ void CG_PredictWeaponEffects( centity_t *cent ) {
 				// NOTE RETURN!
 				return;
 			case WP_ROCKET_LAUNCHER:
-				//VectorScale(forward, cgs.rocketSpeed, le->pos.trDelta);
-				VectorScale(forward, 20, le->pos.trDelta);
+				VectorScale(forward, cgs.rocketSpeed, le->pos.trDelta);
 				SnapVector(le->pos.trDelta);
 				le->pos.trType = TR_LINEAR;
 				break;
