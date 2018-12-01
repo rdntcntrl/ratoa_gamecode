@@ -768,7 +768,7 @@ static cvarTable_t cvarTable[] = { // bk001129
         { &cg_crosshairColorGreen, "cg_crosshairColorGreen", "1.0", CVAR_ARCHIVE},
         { &cg_crosshairColorBlue, "cg_crosshairColorBlue", "0.0", CVAR_ARCHIVE},
 
-	{ &cg_weaponBarStyle, "cg_weaponBarStyle", "8", CVAR_ARCHIVE},
+	{ &cg_weaponBarStyle, "cg_weaponBarStyle", "11", CVAR_ARCHIVE},
         //{ &cg_weaponOrder,"cg_weaponOrder", "/1/2/4/3/6/7/8/9/5/", CVAR_ARCHIVE},
         { &cg_weaponOrder,"cg_weaponOrder", "/1/2/4/3/7/6/8/5/13/11/9/", CVAR_ARCHIVE},
         {&cg_chatBeep, "cg_chatBeep", "1", CVAR_ARCHIVE },
@@ -1011,6 +1011,16 @@ void CG_RatInitDefaults(void)  {
 			       		"unset cg_ratRocketTrailAlpha2;");
 
 		trap_Cvar_Set( "cg_ratInitialized", "10" );
+	}
+
+	if (cg_ratInitialized.integer < 11) {
+		if (cg_weaponBarStyle.integer == 8) {
+			trap_Cvar_Set("cg_weaponBarStyle", "11");
+		} else if (cg_weaponBarStyle.integer == 9) {
+			trap_Cvar_Set("cg_weaponBarStyle", "12");
+		}
+
+		trap_Cvar_Set( "cg_ratInitialized", "11" );
 	}
 
 }
