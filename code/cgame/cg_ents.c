@@ -871,6 +871,12 @@ static void CG_CalcEntityLerpPositions( centity_t *cent ) {
 
 		BG_EvaluateTrajectory( &cent->currentState.pos, cg.time, lastOrigin );
 
+		if (cent->currentState.eType == ET_MISSILE 
+				&& cg_predictExplosions.integer
+				&& CG_MissileTouchedPortal(lastOrigin, cent->lerpOrigin)) {
+			cent->missileStatus.missileFlags |= MF_DISAPPEARED;
+		}
+
 		CG_Trace( &tr, lastOrigin, vec3_origin, vec3_origin, cent->lerpOrigin, cent->currentState.number, MASK_SHOT );
 
 		// don't let the projectile go through the floor

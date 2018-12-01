@@ -125,9 +125,9 @@ void CG_RemoveOldMissileExplosion(predictedMissileStatus_t *pms) {
 void CG_RecoverMissile(centity_t *missile) {
 	predictedMissileStatus_t *pms = &missile->missileStatus;
 	
-	if (!(pms->missileFlags & MF_EXPLODED)
+	if (!(pms->missileFlags & (MF_EXPLODED | MF_DISAPPEARED))
 			|| (pms->missileFlags & MF_EXPLOSIONCONFIRMED)) {
-		// explosion wasn't predicted or explosion was already confirmed
+		// explosion/portal wasn't predicted or explosion was already confirmed
 		// by server
 		return;
 	}
@@ -136,7 +136,7 @@ void CG_RecoverMissile(centity_t *missile) {
 		// missile is still around at a time when we should have the
 		// confirmation from the server that it exploded. Prediction was
 		// wrong, recover the missile
-		pms->missileFlags &= ~(MF_EXPLODED | MF_HITPLAYER | MF_HITWALLMETAL | MF_HITWALL | MF_TRAILFINISHED);
+		pms->missileFlags &= ~(MF_EXPLODED | MF_DISAPPEARED | MF_HITPLAYER | MF_HITWALLMETAL | MF_HITWALL | MF_TRAILFINISHED);
 
 		CG_RemoveOldMissileExplosion(pms);
 
