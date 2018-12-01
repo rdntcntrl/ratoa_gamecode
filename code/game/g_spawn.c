@@ -644,7 +644,7 @@ qboolean G_ParseSpawnVarsFromString( char **string ) {
 
 	return qtrue;
 }
-#define SPAWNVARFILE_BUFFER_SIZE (64*1024)
+#define SPAWNVARFILE_BUFFER_SIZE (128*1024)
 
 qboolean G_ReadSpawnVarFile( char *buffer ) {
 	fileHandle_t	file;
@@ -658,11 +658,21 @@ qboolean G_ReadSpawnVarFile( char *buffer ) {
 
 	len = trap_FS_FOpenFile(fname,&file,FS_READ);
 
-	if(!file || len == 0) {
+	if(!file) {
 		return qfalse;
 	}
 
-	trap_FS_Read(buffer,SPAWNVARFILE_BUFFER_SIZE,file);
+	if (len == 0) {
+		trap_FS_FCloseFile(file);
+		return qfalse;
+	}
+	 
+	if (len >= SPAWNVARFILE_BUFFER_SIZE) {
+		Com_Printf("g_readSpawnVarFiles: Warning: file %s too large (max %i)\n", fname, SPAWNVARFILE_BUFFER_SIZE-1);
+		return qfalse;
+	}
+
+	trap_FS_Read(buffer,SPAWNVARFILE_BUFFER_SIZE-1,file);
 	trap_FS_FCloseFile(file);
 	return qtrue;
 }

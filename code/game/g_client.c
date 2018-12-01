@@ -1878,11 +1878,23 @@ qboolean G_ReadNameFile(char *fname, char *buffer, int size) {
 
 	len = trap_FS_FOpenFile(fname,&file,FS_READ);
 
-	if(!file || len == 0) {
+	if (!file) {
+		Com_Printf("G_ReadNameFile: Warning: failed to open file %s\n", fname);
 		return qfalse;
 	}
 
-	trap_FS_Read(buffer,size-1,file);
+	if(len == 0) {
+		trap_FS_FCloseFile(file);
+		return qfalse;
+	}
+	
+	if (len >= size) {
+		Com_Printf("G_ReadNameFile: Warning: file %s too large (max %i)\n", fname, size-1);
+		return qfalse;
+	}
+
+	trap_FS_Read(buffer,len,file);
+	buffer[len] = '\0';
 	trap_FS_FCloseFile(file);
 	return qtrue;
 }

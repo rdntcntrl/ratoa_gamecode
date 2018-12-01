@@ -79,7 +79,7 @@ t_mappage getMappage(int page, qboolean largepage, qboolean recommenedonly) {
 	if(file)
 	{
 		//there is a votemaps.cfg file, take allowed maps from there
-		trap_FS_Read(&buffer,sizeof(buffer),file);
+		trap_FS_Read(&buffer,sizeof(buffer)-1,file);
 		pointer = buffer;
 		token = COM_Parse(&pointer);
 		if(token[0]==0 && page == 0) {
@@ -156,8 +156,10 @@ int allowedMap(char *mapname) {
         return qfalse;
     }
 
+    memset(buffer, 0, sizeof(buffer));
+
     //Add file checking here
-    trap_FS_Read(&buffer,MAX_MAPS_TEXT,file);
+    trap_FS_Read(&buffer,MAX_MAPS_TEXT-1,file);
     found = qfalse;
     pointer = buffer;
     token = COM_Parse(&pointer);
@@ -280,7 +282,7 @@ int VoteParseCustomVotes( void ) {
 
     commands = 0;
 
-    trap_FS_Read(&buffer,sizeof(buffer),file);
+    trap_FS_Read(&buffer,sizeof(buffer)-1,file);
     
     pointer = buffer;
 
@@ -323,7 +325,7 @@ t_customvote getCustomVote(char* votecommand) {
 
     memset(&buffer,0,sizeof(buffer));
 
-    trap_FS_Read(&buffer,sizeof(buffer),file);
+    trap_FS_Read(&buffer,sizeof(buffer)-1,file);
 
     pointer = buffer;
 

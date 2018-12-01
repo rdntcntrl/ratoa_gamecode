@@ -2207,7 +2207,7 @@ void ExitLevel (void) {
                     int choice, count=0; //The random choice from mapnames and count of mapnames
                     int i;
                     memset(&buffer,0,sizeof(buffer));
-                    trap_FS_Read(&buffer,sizeof(buffer),file);
+                    trap_FS_Read(&buffer,sizeof(buffer)-1,file);
                     pointer = buffer;
                     while ( qtrue ) {
                         Q_strncpyz(mapnames[count],COM_Parse( &pointer ),20);
