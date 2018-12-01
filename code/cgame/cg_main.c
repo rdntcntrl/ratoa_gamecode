@@ -581,8 +581,8 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_ratPlasmaTrailTime, "cg_ratPlasmaTrailTime", "500", CVAR_ARCHIVE},
 	//
 	{ &cg_ratRocketTrail, "cg_ratRocketTrail", "1", CVAR_ARCHIVE},
-	{ &cg_ratRocketTrailAlpha, "cg_ratRocketTrailAlpha2", "0.6", CVAR_ARCHIVE},
-	{ &cg_ratRocketTrailRadius, "cg_ratRocketTrailRadius2", "6", CVAR_ARCHIVE},
+	{ &cg_ratRocketTrailAlpha, "cg_ratRocketTrailAlpha", "0.6", CVAR_ARCHIVE},
+	{ &cg_ratRocketTrailRadius, "cg_ratRocketTrailRadius", "6", CVAR_ARCHIVE},
 	{ &cg_ratRocketTrailStep, "cg_ratRocketTrailStep", "20", CVAR_ARCHIVE},
 	{ &cg_ratRocketTrailTime, "cg_ratRocketTrailTime", "0.5", CVAR_ARCHIVE},
 	{ &cg_ratRail, "cg_ratRail", "1", CVAR_ARCHIVE},
@@ -720,7 +720,7 @@ static cvarTable_t cvarTable[] = { // bk001129
 	// this will be automagically copied from the server
 	{ &sv_fps, "sv_fps", "20", CVAR_SYSTEMINFO },
 	{ &cg_projectileNudge, "cg_projectileNudge", "0", CVAR_ARCHIVE },
-	{ &cg_projectileNudgeAuto, "cg_projectileNudgeAuto", "1", CVAR_ARCHIVE },
+	{ &cg_projectileNudgeAuto, "cg_projectileNudgeAuto", "0", CVAR_ARCHIVE },
 	{ &cg_optimizePrediction, "cg_optimizePrediction", "1", CVAR_ARCHIVE },
 	{ &cl_timeNudge, "cl_timeNudge", "0", CVAR_ARCHIVE },
 	{ &com_maxfps, "com_maxfps", "125", CVAR_ARCHIVE },
@@ -1008,6 +1008,19 @@ void CG_RatInitDefaults(void)  {
 		}
 
 		trap_Cvar_Set( "cg_ratInitialized", "9" );
+	}
+
+	if (cg_ratInitialized.integer < 10) {
+		trap_Cvar_Set("cg_projectileNudgeAuto", "0");
+		trap_Cvar_Set("cg_predictPlayerExplosions", "0");
+
+		trap_Cvar_Set("cg_ratRocketTrailRadius", "6");
+		trap_Cvar_Set("cg_ratRocketTrailAlpha", "0.6");
+
+		trap_SendConsoleCommand("unset cg_ratRocketTrailRadius2;"
+			       		"unset cg_ratRocketTrailAlpha2;");
+
+		trap_Cvar_Set( "cg_ratInitialized", "10" );
 	}
 
 }
