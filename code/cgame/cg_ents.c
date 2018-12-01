@@ -258,8 +258,6 @@ static void CG_Item( centity_t *cent ) {
 				&& cg_itemFade.integer == 1
 				&& es->time2 < cg.time + cg_itemFadeTime.value
 				) {
-			//ent.shaderRGBA[3] = 255 * MIN(1.0,((float)MAX(1,(es->time2 - cg.time))/2000.0));
-			
 			ent.shaderRGBA[3] = 255 * 
 				MIN(1.0,MAX(0.0,(((float)(cg_itemFadeTime.value - es->time2 + cg.time))/cg_itemFadeTime.value)));
 		} else {
@@ -319,6 +317,15 @@ static void CG_Item( centity_t *cent ) {
 	msec = cg.time - cent->miscTime;
 	if ( msec >= 0 && msec < ITEM_SCALEUP_TIME ) {
 		frac = (float)msec / ITEM_SCALEUP_TIME;
+		VectorScale( ent.axis[0], frac, ent.axis[0] );
+		VectorScale( ent.axis[1], frac, ent.axis[1] );
+		VectorScale( ent.axis[2], frac, ent.axis[2] );
+		ent.nonNormalizedAxes = qtrue;
+	} else if (es->time2 > 0 
+			&& cg_itemFade.integer == 1
+			&& es->time2 < cg.time + cg_itemFadeTime.value) {
+		// if they're about to disappear, slowly scale down
+		frac = MIN(1.0,MAX(0.0,(((float)(es->time2 - cg.time))/cg_itemFadeTime.value)));
 		VectorScale( ent.axis[0], frac, ent.axis[0] );
 		VectorScale( ent.axis[1], frac, ent.axis[1] );
 		VectorScale( ent.axis[2], frac, ent.axis[2] );
