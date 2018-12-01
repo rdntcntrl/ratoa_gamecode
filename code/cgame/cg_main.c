@@ -718,7 +718,7 @@ static cvarTable_t cvarTable[] = { // bk001129
 //	{ &cg_drawBBox, "cg_drawBBox", "0", CVAR_CHEAT },
 	{ &cg_cmdTimeNudge, "cg_cmdTimeNudge", "0", CVAR_ARCHIVE | CVAR_USERINFO },
 	// this will be automagically copied from the server
-	{ &sv_fps, "sv_fps", "20", CVAR_SYSTEMINFO },
+	{ &sv_fps, "sv_fps", "20", CVAR_SYSTEMINFO | CVAR_ROM },
 	{ &cg_projectileNudge, "cg_projectileNudge", "0", CVAR_ARCHIVE },
 	{ &cg_projectileNudgeAuto, "cg_projectileNudgeAuto", "1", CVAR_ARCHIVE },
 	{ &cg_optimizePrediction, "cg_optimizePrediction", "1", CVAR_ARCHIVE },
@@ -1084,6 +1084,12 @@ void CG_UpdateCvars( void ) {
 		}
                 else if ( cv->vmCvar == &com_maxfps ) {
 			CG_Cvar_ClampInt( cv->cvarName, cv->vmCvar, 0, 500 );
+		}
+                else if ( cv->vmCvar == &sv_fps ) {
+			if (cv->vmCvar->integer < 1) {
+				Com_sprintf( cv->vmCvar->string, MAX_CVAR_VALUE_STRING, "1");
+				trap_Cvar_Set( cv->cvarName, cv->vmCvar->string );
+			}
 		}
                 else if ( cv->vmCvar == &con_notifytime ) {
 			if (cg_newConsole.integer ) {

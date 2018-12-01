@@ -197,9 +197,11 @@ typedef struct {
 #define MF_DISAPPEARED 		16
 #define MF_REMOVEDPMISSILE	32
 #define MF_TRAILFINISHED	64
+#define MF_EXPLOSIONCONFIRMED	128
 
 typedef struct predictedMissileStatus_s {
 	int	missileFlags;
+	int	explosionTime;
 	vec3_t	explosionPos;
 	int	hitEntity;
 } predictedMissileStatus_t;

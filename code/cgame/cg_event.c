@@ -1081,32 +1081,58 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 	//
 	case EV_MISSILE_HIT:
 		DEBUGNAME("EV_MISSILE_HIT");
+		CG_Printf("final P explosion = %i\n", cg.time);
 		if (CG_ExplosionPredicted(cent, MF_HITPLAYER, position, es->otherEntityNum)) {
+			CG_UpdateMissileStatus(&cent->missileStatus,
+					MF_EXPLOSIONCONFIRMED | MF_EXPLODED | MF_HITPLAYER,
+					position, es->otherEntityNum);
 			break;
 		}
 		ByteToDir( es->eventParm, dir );
 		CG_MissileHitPlayer( es->weapon, position, dir, es->otherEntityNum );
-		CG_UpdateMissileStatus(&cent->missileStatus, MF_EXPLODED | MF_HITPLAYER, position, es->otherEntityNum);
+		if (cent->currentState.eType == ET_MISSILE) {
+			CG_UpdateMissileStatus(&cent->missileStatus,
+					MF_EXPLOSIONCONFIRMED | MF_EXPLODED | MF_HITPLAYER,
+					position, es->otherEntityNum);
+		}
 		break;
 
 	case EV_MISSILE_MISS:
 		DEBUGNAME("EV_MISSILE_MISS");
+		CG_Printf("final W explosion = %i\n", cg.time);
 		if (CG_ExplosionPredicted(cent, MF_HITWALL, position, ENTITYNUM_WORLD)) {
+			CG_UpdateMissileStatus(&cent->missileStatus,
+					MF_EXPLOSIONCONFIRMED | MF_EXPLODED | MF_HITWALL,
+					position, ENTITYNUM_WORLD);
 			break;
 		}
+		CG_Printf("hitwall\n");
 		ByteToDir( es->eventParm, dir );
 		CG_MissileHitWall( es->weapon, 0, position, dir, IMPACTSOUND_DEFAULT );
-		CG_UpdateMissileStatus(&cent->missileStatus, MF_EXPLODED | MF_HITWALL, position, ENTITYNUM_WORLD);
+		if (cent->currentState.eType == ET_MISSILE) {
+			CG_UpdateMissileStatus(&cent->missileStatus,
+					MF_EXPLOSIONCONFIRMED | MF_EXPLODED | MF_HITWALL,
+					position, ENTITYNUM_WORLD);
+		}
 		break;
 
 	case EV_MISSILE_MISS_METAL:
 		DEBUGNAME("EV_MISSILE_MISS_METAL");
+		CG_Printf("final W explosion = %i\n", cg.time);
 		if (CG_ExplosionPredicted(cent, MF_HITWALLMETAL, position, ENTITYNUM_WORLD)) {
+			CG_UpdateMissileStatus(&cent->missileStatus, 
+					MF_EXPLOSIONCONFIRMED | MF_EXPLODED | MF_HITWALLMETAL,
+					position, ENTITYNUM_WORLD);
 			break;
 		}
+		CG_Printf("hit metal wall\n");
 		ByteToDir( es->eventParm, dir );
 		CG_MissileHitWall( es->weapon, 0, position, dir, IMPACTSOUND_METAL );
-		CG_UpdateMissileStatus(&cent->missileStatus, MF_EXPLODED | MF_HITWALLMETAL, position, ENTITYNUM_WORLD);
+		if (cent->currentState.eType == ET_MISSILE) {
+			CG_UpdateMissileStatus(&cent->missileStatus, 
+					MF_EXPLOSIONCONFIRMED | MF_EXPLODED | MF_HITWALLMETAL,
+					position, ENTITYNUM_WORLD);
+		}
 		break;
 
 	case EV_RAILTRAIL:

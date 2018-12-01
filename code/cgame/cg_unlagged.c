@@ -111,6 +111,33 @@ predictedMissile_t	*CG_AllocPMissile( void ) {
 	return pm;
 }
 
+// if an explosion was predicted wrongfully, this will try to recover it
+// early
+void CG_RecoverMissile(centity_t *missile) {
+	predictedMissileStatus_t *pms = &missile->missileStatus;
+	
+	if (!(pms->missileFlags & MF_EXPLODED)
+			|| (pms->missileFlags & MF_EXPLOSIONCONFIRMED)) {
+		// explosion wasn't predicted or explosion was already confirmed
+		// by server
+		return;
+	}
+
+	if (pms->explosionTime + 1000/sv_fps.integer + CG_ProjectileNudgeTimeshift(missile) < cg.time) {
+		CG_Printf("rr e %i %i %i, total = %i, time = %i\n", 
+				pms->explosionTime,
+				1000/sv_fps.integer,
+				CG_ProjectileNudgeTimeshift(missile),
+				pms->explosionTime + 1000/sv_fps.integer + CG_ProjectileNudgeTimeshift(missile),
+				cg.time);
+
+		// missile is still around at a time when we should have the
+		// confirmation from the server that it exploded. Prediction was
+		// wrong, recover the missile
+		pms->missileFlags &= ~(MF_EXPLODED | MF_HITPLAYER | MF_HITWALLMETAL | MF_HITWALL | MF_TRAILFINISHED);
+	}
+}
+
 void CG_RemovePredictedMissile( centity_t *missile) {
 	predictedMissile_t	*pm, *next;
 
@@ -147,7 +174,8 @@ void CG_RemovePredictedMissile( centity_t *missile) {
 		if (pm->status.missileFlags & MF_EXPLODED) {
 			// copy status so we don't predict another explosion if
 			// it already did explode
-			//memcpy(&missile->missileStatus, &pm->status, sizeof(missile->missileStatus));
+			memcpy(&missile->missileStatus, &pm->status, sizeof(missile->missileStatus));
+
 			//CG_Printf("removed predicted missile: flags %d, pos %f %f %f, entity %i\n", 
 			//		missile->missileStatus.missileFlags,
 			//		missile->missileStatus.explosionPos[0],
@@ -168,19 +196,32 @@ qboolean CG_ShouldPredictExplosion(void) {
 
 #define PMISSILE_DOUBLE_EXPLOSION_DISTANCE 128
 qboolean CG_ExplosionPredicted(centity_t *cent, int checkFlags, vec3_t realExpOrigin, int realHitEnt) {
+	int flags = checkFlags;
 	if (cent->currentState.eType != ET_MISSILE
 			|| !cg_predictExplosions.integer) {
 		return qfalse;
 	}
 	CG_RemovePredictedMissile(cent);
 
-	if ((cent->missileStatus.missileFlags & (checkFlags | MF_EXPLODED)) != (checkFlags | MF_EXPLODED)) {
+	// don't check MF_HITPLAYER/MF_HITWALL(METAL),
+	// as it is unreliable.
+	// e.g. if the player was killed by the missile, the game will
+	// create an EV_MISSILE_MISS event, not a HIT!
+	flags &= ~(MF_HITPLAYER | MF_HITWALL | MF_HITWALLMETAL);
+	flags |= MF_EXPLODED;
+	
+	if ((cent->missileStatus.missileFlags & flags) != flags) {
+		CG_Printf("flags %i\n", cent->missileStatus.missileFlags);
 		return qfalse;
 	}
 	if (Distance(realExpOrigin, cent->missileStatus.explosionPos) > PMISSILE_DOUBLE_EXPLOSION_DISTANCE) {
+		CG_Printf("Distance\n");
 		return qfalse;
 	}
-	if (cent->missileStatus.missileFlags & MF_HITPLAYER && realHitEnt != cent->missileStatus.hitEntity) {
+	if (checkFlags & MF_HITPLAYER 
+			&& cent->missileStatus.missileFlags & MF_HITPLAYER 
+			&& realHitEnt != cent->missileStatus.hitEntity) {
+		CG_Printf("wrong entity\n");
 		return qfalse;
 	}
 
@@ -191,8 +232,10 @@ qboolean CG_ExplosionPredicted(centity_t *cent, int checkFlags, vec3_t realExpOr
 void CG_UpdateMissileStatus(predictedMissileStatus_t *pms, int addedFlags, vec3_t explosionOrigin, int hitEntity) {
 	pms->missileFlags |= addedFlags;
 	VectorCopy(explosionOrigin, pms->explosionPos);
+	pms->explosionTime = cg.time + 1000 / sv_fps.integer;
 	pms->hitEntity = hitEntity;
 }
+
 
 void CG_PredictedExplosion(trace_t *tr, int weapon, predictedMissile_t *predMissile, centity_t *missileEnt)  {
 	centity_t *hitEnt;
@@ -214,6 +257,7 @@ void CG_PredictedExplosion(trace_t *tr, int weapon, predictedMissile_t *predMiss
 		case WP_PROX_LAUNCHER:
 		// TODO: PREDICT NAILGUN HITS
 		case WP_NAILGUN:
+		case WP_GRAPPLING_HOOK:
 			return;
 	}
 

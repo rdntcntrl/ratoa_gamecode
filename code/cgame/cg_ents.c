@@ -418,6 +418,7 @@ static void CG_Missile( centity_t *cent ) {
 //	int	col;
 
 	CG_RemovePredictedMissile(cent);
+	CG_RecoverMissile(cent);
 
 	s1 = &cent->currentState;
 	if ( s1->weapon >= WP_NUM_WEAPONS ) {
