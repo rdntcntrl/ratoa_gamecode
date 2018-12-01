@@ -327,7 +327,9 @@ void G_SetTeleporterDestinations(void) {
 			}
 		}
 
-		if (unique_target && unique) {
+		if (g_teleporterPrediction.integer && unique_target && unique) {
+			// let the client know about the teleporter destination
+			// to allow it to predict the entire teleportation
 			VectorCopy(unique_target->s.origin, ent->s.origin2);
 			VectorCopy(unique_target->s.angles, ent->s.angles2);
 			ent->s.generic1 = 1;

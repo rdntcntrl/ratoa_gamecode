@@ -210,6 +210,8 @@ vmCvar_t        g_unlagPrestep;
 vmCvar_t        g_unlagImmediateRun; 
 vmCvar_t        g_unlagFlight; 
 
+vmCvar_t        g_teleporterPrediction; 
+
 //vmCvar_t	g_tournamentMinSpawnDistance;
 vmCvar_t	g_tournamentSpawnsystem;
 vmCvar_t	g_ffaSpawnsystem;
@@ -448,6 +450,8 @@ static cvarTable_t		gameCvarTable[] = {
         { &g_ratVmPredictMissiles, "g_ratVmPredictMissiles", "1", CVAR_ARCHIVE, 0, qfalse },
         { &g_ratVmMissileNudge, "g_ratVmMissileNudge", "20", CVAR_SERVERINFO, 0, qfalse },
         { &g_unlagMissileDefaultNudge, "g_unlagMissileDefaultNudge", "20", CVAR_ARCHIVE, 0, qfalse },
+
+        { &g_teleporterPrediction, "g_teleporterPrediction", "1", 0, 0, qfalse },
 
         //{ &g_tournamentMinSpawnDistance, "g_tournamentMinSpawnDistance", "900", CVAR_ARCHIVE, 0, qfalse },
         { &g_tournamentSpawnsystem, "g_tournamentSpawnsystem", "1", CVAR_ARCHIVE, 0, qfalse },
