@@ -1737,6 +1737,7 @@ void	CG_InitPMissilles( void );
 void CG_UpdateMissileStatus(predictedMissileStatus_t *pms, int addedFlags, vec3_t explosionOrigin, int hitEntity);
 void CG_RemovePredictedMissile(centity_t *missile);
 void CG_RemoveOldMissileExplosion(predictedMissileStatus_t *pms);
+void CG_RecoverMissile(centity_t *missile);
 //unlagged - cg_unlagged.c
 
 //
