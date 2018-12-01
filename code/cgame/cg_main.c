@@ -687,7 +687,7 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_teamCorpseSaturation ,      "cg_teamCorpseSaturation", "", CVAR_ARCHIVE},
 	{ &cg_teamCorpseValue ,           "cg_teamCorpseValue", "0.2", CVAR_ARCHIVE},
 
-	{ &cg_itemFade ,           "cg_itemFade", "0", CVAR_ARCHIVE},
+	{ &cg_itemFade ,           "cg_itemFade", "1", CVAR_ARCHIVE},
 	{ &cg_itemFadeTime ,           "cg_itemFadeTime", "3000", CVAR_CHEAT},
 
 	// / RAT ===================
@@ -1021,6 +1021,12 @@ void CG_RatInitDefaults(void)  {
 		}
 
 		trap_Cvar_Set( "cg_ratInitialized", "11" );
+	}
+
+	if (cg_ratInitialized.integer < 12) {
+		trap_Cvar_Set("cg_itemFade", "1");
+
+		trap_Cvar_Set( "cg_ratInitialized", "12" );
 	}
 
 }
