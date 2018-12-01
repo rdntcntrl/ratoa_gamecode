@@ -1416,7 +1416,7 @@ void ClientUserinfoChanged( int clientNum ) {
             revertName = qfalse;
 
 	if (!g_unnamedPlayersAllowed.integer 
-			&& client->pers.unnamedPlayerState == UNNAMEDSTATE_WASRENAMED 
+			&& client->sess.unnamedPlayerState == UNNAMEDSTATE_WASRENAMED 
 			&& strcmp(client->pers.netname, "UnnamedPlayer") == 0) {
 		// if an unnamedplayer was auto-renamed, don't allow him to
 		// rename back to UnnamedPlayer
@@ -1441,9 +1441,9 @@ void ClientUserinfoChanged( int clientNum ) {
     }
 
     if (strcmp(client->pers.netname, "UnnamedPlayer") == 0) {
-	    client->pers.unnamedPlayerState = UNNAMEDSTATE_ISUNNAMED;
-    } else if (client->pers.unnamedPlayerState == UNNAMEDSTATE_ISUNNAMED) {
-	    client->pers.unnamedPlayerState = UNNAMEDSTATE_CLEAN;
+	    client->sess.unnamedPlayerState = UNNAMEDSTATE_ISUNNAMED;
+    } else if (client->sess.unnamedPlayerState == UNNAMEDSTATE_ISUNNAMED) {
+	    client->sess.unnamedPlayerState = UNNAMEDSTATE_CLEAN;
     }
 	// N_G: this condition makes no sense to me and I'm not going to
 	// try finding out what it means, I've added parentheses according to
@@ -1941,7 +1941,7 @@ void G_PickRandomName(char *buffer, char *name, int namesize) {
 
 void G_UnnamedPlayerRename(gentity_t *ent) {
 	int clientNum = ent - g_entities;
-	if (g_unnamedPlayersAllowed.integer || ent->client->pers.unnamedPlayerState != UNNAMEDSTATE_ISUNNAMED) {
+	if (g_unnamedPlayersAllowed.integer || ent->client->sess.unnamedPlayerState != UNNAMEDSTATE_ISUNNAMED) {
 		return;
 	}
 	if (ent->client->pers.unnamedPlayerRenameTime <= 0) {
@@ -2011,7 +2011,7 @@ void G_UnnamedPlayerRename(gentity_t *ent) {
 					S_COLOR_WHITE "!\n\"",
 					oldname, newname));
 
-		ent->client->pers.unnamedPlayerState = UNNAMEDSTATE_WASRENAMED;
+		ent->client->sess.unnamedPlayerState = UNNAMEDSTATE_WASRENAMED;
 
 	}
 }

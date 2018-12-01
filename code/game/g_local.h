@@ -258,6 +258,12 @@ typedef struct {
 #define	FOLLOW_ACTIVE1	-1
 #define	FOLLOW_ACTIVE2	-2
 
+typedef enum {
+	UNNAMEDSTATE_CLEAN = 0,
+	UNNAMEDSTATE_ISUNNAMED,
+	UNNAMEDSTATE_WASRENAMED
+} unnamedRenameState_t;
+
 // client data that stays across multiple levels or tournament restarts
 // this is achieved by writing all the data to cvar strings at game shutdown
 // time and reading them back at connection time.  Anything added here
@@ -271,13 +277,9 @@ typedef struct {
 	int			wins, losses;		// tournament stats
 	qboolean	teamLeader;			// true when this client is a team leader
 	qboolean    muted;
+	unnamedRenameState_t unnamedPlayerState;
 } clientSession_t;
 
-typedef enum {
-	UNNAMEDSTATE_CLEAN = 0,
-	UNNAMEDSTATE_ISUNNAMED,
-	UNNAMEDSTATE_WASRENAMED
-} unnamedRenameState_t;
 
 //
 #define MAX_NETNAME			36
@@ -362,7 +364,6 @@ typedef struct {
     int quadNum;
     int quadWhore;
 
-    unnamedRenameState_t unnamedPlayerState;
     int		unnamedPlayerRenameTime;
 } clientPersistant_t;
 
