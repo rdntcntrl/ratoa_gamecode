@@ -929,35 +929,64 @@ qboolean CG_ShouldPredictExplosion(void) {
 	return !(CG_ReliablePing() + 20 > cgs.unlagMissileMaxLatency);
 }
 
-void CG_PredictedExplosion(trace_t *tr, localEntity_t *le) {
+void CG_PredictedExplosion(trace_t *tr, int weapon, centity_t *missileEnt)  {
 	centity_t *hitEnt;
+
 	if (!cg_predictExplosions.integer) {
 		return;
 	}
 	if (tr->surfaceFlags & SURF_NOIMPACT) {
 		return;
 	}
-	switch (le->weapon) {
+	switch (weapon) {
 		// TODO: predict grenade bounce
 		case WP_GRENADE_LAUNCHER:
 		case WP_PROX_LAUNCHER:
 			return;
 	}
 
-	if (!CG_ShouldPredictExplosion()) {
+	if (missileEnt != NULL && missileEnt->missileExplosionPredicted) {
+		// already predicted the explosion
 		return;
 	}
+	// only applies if it is not a locally predicted missile
+	else if (missileEnt == NULL && !CG_ShouldPredictExplosion()) {
+	CG_Printf("3.2\n");
+		return;
+	}
+
+	CG_Printf("4, entity = %d\n", tr->entityNum);
 
 	hitEnt = &cg_entities[tr->entityNum];
 	if (hitEnt->currentState.eType == ET_PLAYER ) {
 		if (!cg_predictPlayerExplosions.integer) {
 			return;
 		}
-		CG_MissileHitPlayer( le->weapon, tr->endpos, tr->plane.normal, tr->entityNum );
+		if (missileEnt) {
+			CG_Printf("hit player, owner = %d, hit = %d\n", CG_MissileOwner(missileEnt), tr->entityNum);
+		} else {
+			CG_Printf("hit player,  hit = %d\n", tr->entityNum);
+		}
+		if (missileEnt && CG_MissileOwner(missileEnt) == tr->entityNum) {
+			CG_Printf("owner!\n");
+			// missiles never hit their owner
+			return;
+		}
+		CG_MissileHitPlayer( weapon, tr->endpos, tr->plane.normal, tr->entityNum );
 	} else if (tr->surfaceFlags & SURF_METALSTEPS) {
-		CG_MissileHitWall(le->weapon, 0, tr->endpos, tr->plane.normal, IMPACTSOUND_METAL);
+	CG_Printf("hit wall (metal)\n");
+		CG_MissileHitWall(weapon, 0, tr->endpos, tr->plane.normal, IMPACTSOUND_METAL);
 	} else {
-		CG_MissileHitWall(le->weapon, 0, tr->endpos, tr->plane.normal, IMPACTSOUND_DEFAULT);
+	CG_Printf("hit wall (default)\n");
+		CG_MissileHitWall(weapon, 0, tr->endpos, tr->plane.normal, IMPACTSOUND_DEFAULT);
+	}
+
+	if (missileEnt != NULL) {
+		// for missiles that whose entities we have and are nudged
+		// (enemy missiles or our own missile after it transitioned from
+		// being local prediction to the server entity)
+	CG_Printf("missile exploded = qtrue\n");
+		missileEnt->missileExplosionPredicted = qtrue;
 	}
 }
 
@@ -991,7 +1020,8 @@ void CG_PredictedMissile( localEntity_t *le ) {
 		}
 	}
 	//CG_Trace( &trace, le->refEntity.origin, NULL, NULL, newOrigin, -1, MASK_SHOT );
-	CG_Trace( &trace,  le->refEntity.origin, NULL, NULL, newOrigin, cg.predictedPlayerState.clientNum, MASK_SHOT );
+	//CG_Trace( &trace,  le->refEntity.origin, NULL, NULL, newOrigin, cg.predictedPlayerState.clientNum, MASK_SHOT );
+	CG_Trace( &trace,  le->refEntity.origin, NULL, NULL, newOrigin, cg.snap->ps.clientNum, MASK_SHOT );
 	//if ( trace.fraction == 1.0 ) {
 	if ( trace.fraction == 1.0 ) {
 
@@ -1018,15 +1048,21 @@ void CG_PredictedMissile( localEntity_t *le ) {
 
 		return;
 	} else {
-		CG_PredictedExplosion(&trace, le);
+		CG_PredictedExplosion(&trace, le->weapon, NULL);
 		CG_FreeLocalEntity( le );
 		return; 
 	}
 }
 
+int CG_MissileOwner(centity_t *missile) {
+	if (missile->currentState.time2 <= 0) {
+		return missile->currentState.otherEntityNum;
+	} 
+	return missile->currentState.otherEntityNum2;
+}
+
 qboolean CG_IsOwnMissile(centity_t *missile) {
-	return ( (((missile->currentState.otherEntityNum == cg.clientNum && missile->currentState.time2 <= 0)) ||
-	     (missile->currentState.otherEntityNum2 == cg.clientNum && missile->currentState.time2 > 0) ));
+	return CG_MissileOwner(missile) == cg.clientNum;
 }
 
 void CG_RemovePredictedMissile( centity_t *missile) {

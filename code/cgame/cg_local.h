@@ -232,6 +232,7 @@ typedef struct centity_s {
 	qboolean		removedPredictedMissile;
 	qboolean		missileTeleported;
 	qboolean		removePredictedMissileRan;
+	qboolean		missileExplosionPredicted;
 } centity_t;
 
 
@@ -1850,6 +1851,7 @@ void CG_Trace( trace_t *result, const vec3_t start, const vec3_t mins, const vec
 void CG_PredictPlayerState( void );
 void CG_LoadDeferredPlayers( void );
 qboolean CG_MissileTouchedPortal(const vec3_t start, const vec3_t end);
+void CG_EncodePlayerBBox( pmove_t *pm, entityState_t *ent);
 
 
 //
@@ -1937,6 +1939,8 @@ void	CG_AddLocalEntities( void );
 void CG_RemovePredictedMissile(centity_t *missile);
 qboolean CG_ShouldPredictExplosion(void);
 qboolean CG_IsOwnMissile(centity_t *missile);
+int CG_MissileOwner(centity_t *missile);
+void CG_PredictedExplosion(trace_t *tr, int weapon, centity_t *missileEnt);
 
 //
 // cg_effects.c

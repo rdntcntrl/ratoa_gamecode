@@ -30,7 +30,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 static	pmove_t		cg_pmove;
 
 static	int			cg_numSolidEntities;
-static	centity_t	*cg_solidEntities[MAX_ENTITIES_IN_SNAPSHOT];
+ // MAX_ENTITIES_IN_SNAPSHOT + 1 to make sure predictedPlayerEntity fits in there
+static	centity_t	*cg_solidEntities[MAX_ENTITIES_IN_SNAPSHOT+1];
 static	int			cg_numTriggerEntities;
 static	centity_t	*cg_triggerEntities[MAX_ENTITIES_IN_SNAPSHOT];
 
@@ -58,6 +59,14 @@ void CG_BuildSolidList( void ) {
 		snap = cg.snap;
 	}
 
+	if (cg.validPPS 
+			&& cg.predictedPlayerState.pm_type == PM_NORMAL 
+			&& cg.predictedPlayerEntity.currentState.eType == ET_PLAYER
+			&& cg.predictedPlayerEntity.currentState.solid) {
+		// eType is ET_INVISIBLE in case we are not in-game (spectating)
+		cg_solidEntities[cg_numSolidEntities] = &cg.predictedPlayerEntity;
+		cg_numSolidEntities++;
+	}
 	for ( i = 0 ; i < snap->numEntities ; i++ ) {
 		cent = &cg_entities[ snap->entities[ i ].number ];
 		ent = &cent->currentState;
@@ -74,6 +83,40 @@ void CG_BuildSolidList( void ) {
 			continue;
 		}
 	}
+}
+
+void CG_EncodePlayerBBox( pmove_t *pm, entityState_t *ent) {
+	int i, j, k;
+
+	ent->solid = 0;
+	if (!pm || !pm->ps ||pm->ps->pm_type != PM_NORMAL) {
+		return;
+	}
+
+	// Encoding logic from trap_LinkEntity
+	
+	// assume that x/y are equal and symetric
+	i = pm->maxs[0];
+	if (i<1)
+		i = 1;
+	if (i>255)
+		i = 255;
+
+	// z is not symetric
+	j = (-pm->mins[2]);
+	if (j<1)
+		j = 1;
+	if (j>255)
+		j = 255;
+
+	// and z maxs can be negative...
+	k = (pm->maxs[2]+32);
+	if (k<1)
+		k = 1;
+	if (k>255)
+		k = 255;
+
+	ent->solid = (k<<16) | (j<<8) | i;
 }
 
 /*
@@ -733,12 +776,14 @@ void CG_PredictPlayerState( void ) {
 	// demo playback just copies the moves
 	if ( cg.demoPlayback || (cg.snap->ps.pm_flags & PMF_FOLLOW) ) {
 		CG_InterpolatePlayerState( qfalse );
+		CG_EncodePlayerBBox(NULL, &cg.predictedPlayerEntity.currentState);
 		return;
 	}
 
 	// non-predicting local movement will grab the latest angles
 	if ( cg_nopredict.integer || cg_synchronousClients.integer ) {
 		CG_InterpolatePlayerState( qtrue );
+		CG_EncodePlayerBBox(NULL, &cg.predictedPlayerEntity.currentState);
 		return;
 	}
 
@@ -1054,6 +1099,7 @@ void CG_PredictPlayerState( void ) {
 	}
 
 	if ( !moved ) {
+		CG_EncodePlayerBBox(&cg_pmove, &cg.predictedPlayerEntity.currentState);
 		if ( cg_showmiss.integer ) {
 			CG_Printf( "not moved\n" );
 		}
@@ -1080,6 +1126,8 @@ void CG_PredictPlayerState( void ) {
 			cg.eventSequence = cg.predictedPlayerState.eventSequence;
 		}
 	}
+
+	CG_EncodePlayerBBox(&cg_pmove, &cg.predictedPlayerEntity.currentState);
 }
 
 

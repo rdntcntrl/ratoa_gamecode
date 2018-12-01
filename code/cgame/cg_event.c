@@ -619,6 +619,12 @@ footstep_t CG_Footsteps(clientInfo_t *ci) {
 }
 
 qboolean CG_ExplosionPredicted(centity_t *cent) {
+	if (cent->missileExplosionPredicted) {
+		// missile entity was known and nudged
+		// explosion was predicted that way (for enemy missiles or own
+		// missiles after local prediction transitioned)
+		return qtrue;
+	}
 	if ((cgs.ratFlags & RAT_PREDICTMISSILES)
 		       	&& cg_predictExplosions.integer 
 			&& cent->currentState.eType == ET_MISSILE
