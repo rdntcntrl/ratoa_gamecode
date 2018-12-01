@@ -308,6 +308,10 @@ vmCvar_t        g_warningExpire;
 vmCvar_t        g_minNameChangePeriod;
 vmCvar_t        g_maxNameChanges;
 
+vmCvar_t        g_unnamedPlayersAllowed;
+vmCvar_t        g_unnamedRenameAdjlist;
+vmCvar_t        g_unnamedRenameNounlist;
+
 vmCvar_t        g_timestamp_startgame;
 
 // bk001129 - made static to avoid aliasing
@@ -630,6 +634,10 @@ static cvarTable_t		gameCvarTable[] = {
 	    
 	    { &g_minNameChangePeriod, "g_minNameChangePeriod", "10", 0, 0, qfalse},
         { &g_maxNameChanges, "g_maxNameChanges", "50", 0, 0, qfalse},
+
+        { &g_unnamedPlayersAllowed, "g_unnamedPlayersAllowed", "1", CVAR_ARCHIVE, 0, qfalse},
+        { &g_unnamedRenameAdjlist, "g_unnamedRenameAdjlist", "ratname-adjectives.txt", CVAR_ARCHIVE, 0, qfalse},
+        { &g_unnamedRenameNounlist, "g_unnamedRenameNounlist", "ratname-nouns.txt", CVAR_ARCHIVE, 0, qfalse},
 
         { &g_timestamp_startgame, "g_timestamp", "0001-01-01 00:00:00", 0, 0, qfalse}
         

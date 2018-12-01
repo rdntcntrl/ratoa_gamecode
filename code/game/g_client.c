@@ -1165,8 +1165,10 @@ static void ClientCleanName(const char *in, char *out, int outSize, int clientNu
         Q_CleanStr(out);
 
     // don't allow empty names
-    if( *out == '\0' || colorlessLen == 0)
-        Q_strncpyz(out, va("Nameless%i",clientNum), outSize );
+    if( *out == '\0' || colorlessLen == 0) {
+        //Q_strncpyz(out, va("Nameless%i",clientNum), outSize );
+        Q_strncpyz(out, "UnnamedPlayer", outSize );
+    }
 }
 
 
@@ -1413,6 +1415,14 @@ void ClientUserinfoChanged( int clientNum ) {
         if (ent->r.svFlags & SVF_BOT)
             revertName = qfalse;
 
+	if (!g_unnamedPlayersAllowed.integer 
+			&& client->pers.unnamedPlayerState == UNNAMEDSTATE_WASRENAMED 
+			&& strcmp(client->pers.netname, "UnnamedPlayer") == 0) {
+		// if an unnamedplayer was auto-renamed, don't allow him to
+		// rename back to UnnamedPlayer
+		revertName = qtrue;
+	}
+
         if( revertName )
         {
             Q_strncpyz( client->pers.netname, *oldname ? oldname : "UnnamedPlayer",
@@ -1428,6 +1438,12 @@ void ClientUserinfoChanged( int clientNum ) {
                 client->pers.nameChanges++;
             }
         }
+    }
+
+    if (strcmp(client->pers.netname, "UnnamedPlayer") == 0) {
+	    client->pers.unnamedPlayerState = UNNAMEDSTATE_ISUNNAMED;
+    } else if (client->pers.unnamedPlayerState == UNNAMEDSTATE_ISUNNAMED) {
+	    client->pers.unnamedPlayerState = UNNAMEDSTATE_CLEAN;
     }
 	// N_G: this condition makes no sense to me and I'm not going to
 	// try finding out what it means, I've added parentheses according to
@@ -1854,6 +1870,140 @@ void motd (gentity_t *ent)
 	trap_SendServerCommand(ent - g_entities, motd);
 }
 
+qboolean G_ReadNameFile(char *fname, char *buffer, int size) {
+	fileHandle_t	file;
+	int len;
+
+	memset(buffer,0,size);
+
+	len = trap_FS_FOpenFile(fname,&file,FS_READ);
+
+	if(!file || len == 0) {
+		return qfalse;
+	}
+
+	trap_FS_Read(buffer,size-1,file);
+	trap_FS_FCloseFile(file);
+	return qtrue;
+}
+
+int	G_CountLines(char *buffer) {
+	int n = 0;
+	char *p;
+	p = buffer;
+	while ((p = strchr(p, '\n'))) {
+		n++;
+		p++;
+	}
+	return n;
+}
+
+void G_PickRandomName(char *buffer, char *name, int namesize) {
+	int pick = random() * G_CountLines(buffer);
+	char *p, *p2;
+	int n = 0;
+	int len;
+
+	memset(name, 0, namesize);
+
+	p = buffer;
+	while (n < pick) {
+		if ((p = strchr(p, '\n')) == NULL) {
+			return;
+		}
+		p++;
+		n++;
+	}
+	p2 = strchr(p, '\n');
+	len = namesize;
+	if (p2 != NULL && p2-p + 1 < namesize) {
+		len = p2-p + 1;
+	}
+	Q_strncpyz( name, p, len );
+
+
+}
+
+#define UNNAMEDRENAME_FILESIZE (64*1024)
+#define UNNAMEDRENAME_MAX_TRIES 3
+
+void G_UnnamedPlayerRename(gentity_t *ent) {
+	int clientNum = ent - g_entities;
+	if (g_unnamedPlayersAllowed.integer || ent->client->pers.unnamedPlayerState != UNNAMEDSTATE_ISUNNAMED) {
+		return;
+	}
+	if (ent->client->pers.unnamedPlayerRenameTime <= 0) {
+		ent->client->pers.unnamedPlayerRenameTime = level.time + 4000;
+		return;
+	}
+	if (ent->client->pers.unnamedPlayerRenameTime <= level.time) {
+		char	userinfo[MAX_INFO_STRING];
+		char oldname[ MAX_NAME_LENGTH ];
+		char newname[ MAX_NAME_LENGTH ] = "";
+		char buffer[UNNAMEDRENAME_FILESIZE];
+		char error[MAX_STRING_CHARS];
+		char *s;
+		int tries = 0;
+		int addedChars = 0;
+		qboolean nametaken = qtrue;
+
+		for (tries = 0; tries < UNNAMEDRENAME_MAX_TRIES; ++tries) {
+			memset(newname, 0, sizeof(newname));
+			addedChars = 0;
+			if (G_ReadNameFile(g_unnamedRenameAdjlist.string, buffer, sizeof(buffer))) {
+				char name[MAX_NAME_LENGTH];
+				Q_strcat(newname, sizeof(newname), S_COLOR_MAGENTA);
+				G_PickRandomName(buffer, name, sizeof(name));
+				Q_strcat(newname, sizeof(newname), name);
+				addedChars += strlen(name);
+
+			}
+
+			if (G_ReadNameFile(g_unnamedRenameNounlist.string, buffer, sizeof(buffer))) {
+				char name[MAX_NAME_LENGTH];
+				G_PickRandomName(buffer, name, sizeof(name));
+				Q_strcat(newname, sizeof(newname), " " S_COLOR_CYAN);
+				Q_strcat(newname, sizeof(newname), name);
+				addedChars += strlen(name);
+
+			}
+			if (addedChars == 0) {
+				continue;
+			}
+
+			if (G_admin_name_check( ent, newname, error, sizeof( error ) )) {
+				nametaken = qfalse;
+				break;
+			}
+		} 
+
+		if (addedChars == 0 || nametaken) {
+			Q_strncpyz(newname, va("Nameless%i", clientNum), sizeof(newname) );
+		}
+
+
+		ent->client->pers.nameChanges--;
+		ent->client->pers.nameChangeTime = 0;
+
+		trap_GetUserinfo( clientNum, userinfo, sizeof( userinfo ) );
+
+		s = Info_ValueForKey( userinfo, "name" );
+		Q_strncpyz( oldname, s, sizeof( oldname ) );
+
+		Info_SetValueForKey( userinfo, "name", newname );
+		trap_SetUserinfo( clientNum, userinfo );
+		ClientUserinfoChanged( clientNum );
+		trap_SendServerCommand( -1, va("print \"" S_COLOR_WHITE "%s"
+				        S_COLOR_WHITE " was assigned the name "
+					S_COLOR_WHITE "%s"
+					S_COLOR_WHITE "!\n\"",
+					oldname, newname));
+
+		ent->client->pers.unnamedPlayerState = UNNAMEDSTATE_WASRENAMED;
+
+	}
+}
+
 /*
 ===========
 ClientBegin
@@ -2016,6 +2166,8 @@ void ClientBegin( int clientNum ) {
 		}
 		G_SendSpawnpoints( ent );
 	}
+
+	G_UnnamedPlayerRename(ent);
 
 }
 

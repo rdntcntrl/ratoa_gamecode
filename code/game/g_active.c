@@ -1433,6 +1433,8 @@ void ClientEndFrame( gentity_t *ent ) {
 //	ent->client->areabits[i >> 3] |= 1 << (i & 7);
 
 	G_UpdateTopWeapons(ent->client);
+
+	G_UnnamedPlayerRename(ent);
 }
 
 

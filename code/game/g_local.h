@@ -273,6 +273,12 @@ typedef struct {
 	qboolean    muted;
 } clientSession_t;
 
+typedef enum {
+	UNNAMEDSTATE_CLEAN = 0,
+	UNNAMEDSTATE_ISUNNAMED,
+	UNNAMEDSTATE_WASRENAMED
+} unnamedRenameState_t;
+
 //
 #define MAX_NETNAME			36
 #define	MAX_VOTE_COUNT		"3"
@@ -355,6 +361,9 @@ typedef struct {
     int quadTime;
     int quadNum;
     int quadWhore;
+
+    unnamedRenameState_t unnamedPlayerState;
+    int		unnamedPlayerRenameTime;
 } clientPersistant_t;
 
 //unlagged - backward reconciliation #1
@@ -882,6 +891,7 @@ qboolean SpotWouldTelefrag( gentity_t *spot );
 void motd_chat (gentity_t *ent);
 void G_UpdateTopWeapons(gclient_t *client);
 qboolean G_MixedClientHasRatVM(gclient_t *client);
+void G_UnnamedPlayerRename(gentity_t *ent);
 
 //
 // g_svcmds.c
@@ -1374,6 +1384,10 @@ extern  vmCvar_t    g_warningExpire;
 
 extern  vmCvar_t    g_minNameChangePeriod;
 extern  vmCvar_t    g_maxNameChanges;
+
+extern  vmCvar_t    g_unnamedPlayersAllowed;
+extern  vmCvar_t    g_unnamedRenameAdjlist;
+extern  vmCvar_t    g_unnamedRenameNounlist;
 
 
 void	trap_Printf( const char *fmt );
