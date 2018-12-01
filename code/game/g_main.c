@@ -122,6 +122,7 @@ vmCvar_t	g_elimination_roundtime;
 vmCvar_t	g_elimination_warmup;
 vmCvar_t	g_elimination_activewarmup;
 vmCvar_t        g_elimination_allgametypes;
+vmCvar_t        g_elimination_spawn_allgametypes;
 vmCvar_t	g_elimination_machinegun;
 vmCvar_t	g_elimination_shotgun;
 vmCvar_t	g_elimination_grenade;
@@ -555,6 +556,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_elimination_warmup, "elimination_warmup", "7", CVAR_ARCHIVE | CVAR_NORESTART , 0, qtrue },
 	{ &g_elimination_activewarmup, "elimination_activewarmup", "5", CVAR_ARCHIVE | CVAR_NORESTART , 0, qtrue },
         { &g_elimination_allgametypes, "g_elimination", "0", CVAR_LATCH | CVAR_NORESTART, 0, qfalse },
+        { &g_elimination_spawn_allgametypes, "g_elimination_spawn", "0", CVAR_ARCHIVE , 0, qfalse },
 
 	{ &g_elimination_machinegun, "elimination_machinegun", "500", CVAR_ARCHIVE| CVAR_NORESTART, 0, qtrue },
 	{ &g_elimination_shotgun, "elimination_shotgun", "500", CVAR_ARCHIVE| CVAR_NORESTART, 0, qtrue },
