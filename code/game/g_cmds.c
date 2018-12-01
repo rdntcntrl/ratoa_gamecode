@@ -1774,6 +1774,10 @@ gentity_t *DropWeapon( gentity_t *ent ) {
 	return item;
 }
 
+// delay until the player who dropped an item can pick it up again
+// to prevent immediately picking up a dropped item again
+#define DROP_PICKUPDELAY 500 
+
 void Cmd_Drop_f( gentity_t *ent ) {
 	gentity_t *item = NULL;
 	if (ent->client->sess.sessionTeam == TEAM_SPECTATOR || ent->client->isEliminated) {
@@ -1791,8 +1795,8 @@ void Cmd_Drop_f( gentity_t *ent ) {
 	
 	if (item != NULL) {
 		item->dropClientNum = ent->client->ps.clientNum;
-		item->dropTime = level.time;
-		item->s.time = level.time; // so client can know about it and avoid predicting pickup
+		item->dropPickupTime = level.time + DROP_PICKUPDELAY;
+		item->s.time = item->dropPickupTime; // so client can know about it and avoid predicting pickup
 	}
 
 }

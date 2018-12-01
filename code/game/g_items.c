@@ -502,7 +502,7 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 				return;
 	}
 
-	if (ent->dropTime && ent->dropClientNum == other->client->ps.clientNum && ent->dropTime + 500 > level.time) {
+	if (ent->dropPickupTime && ent->dropClientNum == other->client->ps.clientNum && ent->dropPickupTime > level.time) {
 		return;
 	}
 
