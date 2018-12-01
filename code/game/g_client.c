@@ -1944,7 +1944,8 @@ void G_UnnamedPlayerRename(gentity_t *ent) {
 	if (g_unnamedPlayersAllowed.integer || ent->client->sess.unnamedPlayerState != UNNAMEDSTATE_ISUNNAMED) {
 		return;
 	}
-	if (ent->client->pers.unnamedPlayerRenameTime <= 0) {
+	if (ent->client->pers.unnamedPlayerRenameTime <= 0 
+			|| ent->client->pers.unnamedPlayerRenameTime > level.time + 4000) {
 		ent->client->pers.unnamedPlayerRenameTime = level.time + 4000;
 		return;
 	}
