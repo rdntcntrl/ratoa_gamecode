@@ -38,6 +38,128 @@ void CG_PredictNailgunMissile( entityState_t *ent, vec3_t muzzlePoint, vec3_t fo
 #define CHAINGUN_SPREAD		600
 
 
+predictedMissile_t cg_predictedMissiles[MAX_PREDICTED_MISSILES];
+int cg_predictedMissileHead = 0;
+int cg_predictedMissileTail = 0;
+
+predictedMissile_t *CG_AllocPredictedMissile(void) {
+	predictedMissile_t *m = &cg_predictedMissiles[cg_predictedMissileHead];
+
+	memset(m, 0, sizeof(*m));
+
+	cg_predictedMissileHead = (cg_predictedMissileHead + 1) % MAX_PREDICTED_MISSILES;
+	if (cg_predictedMissileHead == cg_predictedMissileTail) {
+		cg_predictedMissileTail = (cg_predictedMissileTail + 1) % MAX_PREDICTED_MISSILES;
+	}
+
+	return m;
+}
+
+predictedMissile_t *CG_RemoveNextPredictedMissile(void) {
+	predictedMissile_t *m;
+
+	if (cg_predictedMissileHead == cg_predictedMissileTail) {
+		// buffer empty
+		return NULL;
+	}
+	m = &cg_predictedMissiles[cg_predictedMissileTail];
+	cg_predictedMissileTail = (cg_predictedMissileTail + 1) % MAX_PREDICTED_MISSILES;
+
+	return m;
+}
+
+void CG_RemoveExpiredPredictedMissiles(void) {
+	int i;
+
+	for ( i = cg_predictedMissileTail; i != cg_predictedMissileHead; i = (i + 1) % MAX_PREDICTED_MISSILES) {
+		if (cg_predictedMissiles[i].removeTime <= cg.time) {
+			cg_predictedMissileTail = (cg_predictedMissileTail + 1 ) % MAX_PREDICTED_MISSILES;
+		} else {
+			break;
+		}
+	}
+
+}
+
+void CG_PredictedMissile2( predictedMissile_t *pm) {
+	vec3_t	newOrigin;
+	trace_t	trace;
+	int timeshift = 0;
+	int time;
+	const weaponInfo_t *weapon = &cg_weapons[pm->weapon];
+
+	if (pm->status.missileFlags & (MF_EXPLODED | MF_DISAPPEARED)) {
+		// this missile exploded / disappeared
+		return;
+	}
+
+	timeshift = 1000 / sv_fps.integer;
+	time = cg.time + timeshift;
+
+	// calculate new position
+	BG_EvaluateTrajectory( &pm->pos, time, newOrigin);
+
+	// trace a line from previous position to new position
+	if (cg_predictExplosions.integer) {
+		if (CG_MissileTouchedPortal(pm->refEntity.origin, newOrigin)) {
+			pm->status.missileFlags |= MF_DISAPPEARED;
+			return; 
+		}
+	}
+	CG_Trace( &trace,  pm->refEntity.origin, NULL, NULL, newOrigin, cg.snap->ps.clientNum, MASK_SHOT );
+
+	if ( trace.fraction == 1.0 ) {
+
+		// still in free fall
+		VectorCopy( newOrigin, pm->refEntity.origin );
+		if ( weapon->missileDlight ) {
+			trap_R_AddLightToScene(newOrigin, weapon->missileDlight, 
+					weapon->missileDlightColor[0], weapon->missileDlightColor[1], weapon->missileDlightColor[2] );
+		}
+
+		if (pm->weapon == WP_PLASMAGUN) {
+			trap_R_AddRefEntityToScene( &pm->refEntity );
+			return;
+		}
+
+		if ( VectorNormalize2( pm->pos.trDelta, pm->refEntity.axis[0] ) == 0 ) {
+			pm->refEntity.axis[0][2] = 1;
+		}
+		if ( pm->pos.trType != TR_STATIONARY ) {
+			RotateAroundDirection( pm->refEntity.axis, cg.time / 4 );
+		}
+
+		trap_R_AddRefEntityToScene( &pm->refEntity );
+
+		return;
+	} else {
+		CG_PredictedExplosion(&trace, pm->weapon, NULL);
+		pm->status.missileFlags |= MF_DISAPPEARED;
+		return; 
+	}
+}
+
+void CG_AddPredictedMissiles(void ) {
+	int i;
+
+	// loop backwards through (prioritizes newer missiles in case there are
+	// too many rendering entities)
+	for ( i = cg_predictedMissileHead; i != cg_predictedMissileTail; i = (i + MAX_PREDICTED_MISSILES - 1) % MAX_PREDICTED_MISSILES) {
+		CG_PredictedMissile2(&cg_predictedMissiles[i]);
+	}
+}
+
+int CG_MissileOwner(centity_t *missile) {
+	if (missile->currentState.time2 <= 0) {
+		return missile->currentState.otherEntityNum;
+	} 
+	return missile->currentState.otherEntityNum2;
+}
+
+qboolean CG_IsOwnMissile(centity_t *missile) {
+	return CG_MissileOwner(missile) == cg.clientNum;
+}
+
 
 /*
 =======================

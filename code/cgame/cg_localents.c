@@ -28,7 +28,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 //#define	MAX_LOCAL_ENTITIES	512 
 // increase to accomodate plasma trails / dense rocket trails (XXX: might cause problems, reduce again)
-#define	MAX_LOCAL_ENTITIES	512 
+// Predicted Missiles also need to be rendered, make sure they together don't exceed 512
+#define	MAX_LOCAL_ENTITIES	(512 - MAX_PREDICTED_MISSILES)
 localEntity_t	cg_localEntities[MAX_LOCAL_ENTITIES];
 localEntity_t	cg_activeLocalEntities;		// double linked list
 localEntity_t	*cg_freeLocalEntities;		// single linked list
@@ -1063,17 +1064,6 @@ void CG_PredictedMissile( localEntity_t *le ) {
 		CG_FreeLocalEntity( le );
 		return; 
 	}
-}
-
-int CG_MissileOwner(centity_t *missile) {
-	if (missile->currentState.time2 <= 0) {
-		return missile->currentState.otherEntityNum;
-	} 
-	return missile->currentState.otherEntityNum2;
-}
-
-qboolean CG_IsOwnMissile(centity_t *missile) {
-	return CG_MissileOwner(missile) == cg.clientNum;
 }
 
 void CG_RemovePredictedMissile( centity_t *missile) {

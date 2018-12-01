@@ -108,6 +108,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #define MAX_SPAWNPOINTS 64
 
+#define MAX_PREDICTED_MISSILES	32
+
 #define MIN(a,b) (((a) < (b)) ? (a) : (b))
 #define MAX(a,b) (((a) > (b)) ? (a) : (b))
 
@@ -318,8 +320,34 @@ typedef struct localEntity_s {
 
 	refEntity_t		refEntity;		
 
-	int			weapon; // weapon for predicting missiles
+	int weapon; // TODO: remove this
 } localEntity_t;
+
+
+#define MF_EXPLODED  		1
+#define MF_HITPLAYER 		2
+#define MF_HITWALL   		4
+#define MF_HITWALLMETAL   	8
+#define MF_DISAPPEARED 		16
+
+typedef struct predictedMissileStatus_s {
+	int	missileFlags;
+	vec3_t	explosionPos;
+} predictedMissileStatus_t;
+
+typedef struct predictedMissile_s {
+	int			weapon;
+
+	trajectory_t	pos;
+	trajectory_t	angles;
+
+	// time at which to remove this missile even if it was not confirmed by the server
+	int	removeTime;
+
+	predictedMissileStatus_t status;
+
+	refEntity_t		refEntity;		
+} predictedMissile_t;
 
 //======================================================================
 
@@ -1689,6 +1717,11 @@ int CG_ReliablePing( void );
 int CG_ReliablePingFromSnaps(snapshot_t *snap, snapshot_t *nextsnap);
 //void CG_AddBoundingBox( centity_t *cent );
 qboolean CG_Cvar_ClampInt( const char *name, vmCvar_t *vmCvar, int min, int max );
+
+qboolean CG_IsOwnMissile(centity_t *missile);
+int CG_MissileOwner(centity_t *missile);
+void CG_AddPredictedMissiles(void );
+void CG_RemoveExpiredPredictedMissiles(void);
 //unlagged - cg_unlagged.c
 
 //
@@ -1939,8 +1972,6 @@ localEntity_t	*CG_AllocLocalEntity( void );
 void	CG_AddLocalEntities( void );
 void CG_RemovePredictedMissile(centity_t *missile);
 qboolean CG_ShouldPredictExplosion(void);
-qboolean CG_IsOwnMissile(centity_t *missile);
-int CG_MissileOwner(centity_t *missile);
 void CG_PredictedExplosion(trace_t *tr, int weapon, centity_t *missileEnt);
 
 //
