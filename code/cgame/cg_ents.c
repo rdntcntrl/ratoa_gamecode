@@ -763,6 +763,11 @@ int CG_ProjectileNudgeTimeshift(centity_t *cent) {
 			// one server frame before running projectiles
 			return 1000 / sv_fps.integer;
 		}
+		else if (cg.snap && cg.snap->ps.pm_flags & PMF_FOLLOW) {
+			// while spectating, don't nudge since we're getting the
+			// same delayed view for player and missile
+			return 1000 / sv_fps.integer;
+		}
 		// if it's not, and it's not a grenade launcher
 		else if ( cent->currentState.weapon != WP_GRENADE_LAUNCHER ) {
 			// extrapolate based on cg_projectileNudge
