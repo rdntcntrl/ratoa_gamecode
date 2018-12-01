@@ -2902,7 +2902,7 @@ CG_DrawWeaponBar9
 
 void CG_DrawWeaponBar9(int count, int bits, float *color){
 
-	int y = 200 + count * 12;
+	int y = 90 + count * 20;
 	int x = 0;
 	int i;
 	int ammo;
