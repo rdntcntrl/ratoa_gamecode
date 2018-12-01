@@ -100,7 +100,7 @@ static int mappage_in_flight = 0;
 t_mappage mappage;
 
 // XXX: must be multiple of MAX_MAPSPERPAGE
-#define MAX_MAP_NUMBER 600
+#define MAX_MAP_NUMBER 1000
 struct maplist_s {
 	int reset;
 	int num_sent_cmds;
