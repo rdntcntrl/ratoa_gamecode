@@ -1983,10 +1983,11 @@ void CG_DrawWeaponSelect( void ) {
 			CG_DrawWeaponBar9(count,bits, color);
 			break;
 		case 10:
+		case 11:
 			CG_DrawWeaponBar10(count,bits, color);
 			break;
-		case 11:
-			CG_DrawWeaponBar11(count,bits, color);
+		case 12:
+			CG_DrawWeaponBar12(count,bits, color);
 			break;
 	}
 	trap_R_SetColor(NULL);
@@ -3008,6 +3009,10 @@ void CG_DrawWeaponBar10(int count, int bits, float *color){
 	green[2] = 0;
 	green[3] = 1.0f;
 
+	if (cg_weaponBarStyle.integer == 11 && !cgs.media.weaponSelectShader) {
+		cgs.media.weaponSelectShader = trap_R_RegisterShader("gfx/2d/hud/weapselect");
+	}
+
 	memcpy(bg, green, sizeof(bg));
 	
 	for ( i = 0 ; i < MAX_WEAPONS ; i++ ) {
@@ -3052,10 +3057,16 @@ void CG_DrawWeaponBar10(int count, int bits, float *color){
 		}
 			
 		if ( i == weaponSelect) {
-			bg[3] = 0.25f;
-			CG_FillRect( x, y, 28, 41, bg );
-			bg[3] = 1.0f;
-			CG_DrawRect( x, y, 28, 41, 1, bg); 
+			if (cg_weaponBarStyle.integer == 11) {
+				trap_R_SetColor(bg);
+				CG_DrawPic( x, y, 28, 41, cgs.media.weaponSelectShader);
+				trap_R_SetColor(NULL);
+			} else {
+				bg[3] = 0.25f;
+				CG_FillRect( x, y, 28, 41, bg );
+				bg[3] = 1.0f;
+				CG_DrawRect( x, y, 28, 41, 1, bg); 
+			}
 		}
 		CG_RegisterWeapon( i );	
 		CG_DrawPic( x+3, y+2, 22, 22, cg_weapons[i].weaponIcon );
@@ -3080,11 +3091,11 @@ void CG_DrawWeaponBar10(int count, int bits, float *color){
 
 /*
 ===============
-CG_DrawWeaponBar11
+CG_DrawWeaponBar12
 ===============
 */
 
-void CG_DrawWeaponBar11(int count, int bits, float *color){
+void CG_DrawWeaponBar12(int count, int bits, float *color){
 
 	int y = 90 + count * 20;
 	int x = 0;
