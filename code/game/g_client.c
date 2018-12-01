@@ -1262,6 +1262,29 @@ void G_CheckClan( team_t team) {
 	}
 }
 
+qboolean G_IsUnnamedName(char *name) {
+	char *unnamedStr = "UnnamedPlayer";
+	int unnamedLen = strlen(unnamedStr);
+	char *p = NULL;
+
+	if (Q_stricmpn(name, unnamedStr, unnamedLen) != 0) {
+		return qfalse;
+	}
+
+	if (strlen(name) <= unnamedLen) {
+		return qtrue;
+	}
+	p = name + unnamedLen;
+	while (*p != '\0') {
+		if (isgraph(*p)) {
+			return qfalse;
+		}
+		p++;
+	}
+
+	return qtrue;
+}
+
 
 /*
 ===========
@@ -1417,7 +1440,7 @@ void ClientUserinfoChanged( int clientNum ) {
 
 	if (!g_unnamedPlayersAllowed.integer 
 			&& client->sess.unnamedPlayerState == UNNAMEDSTATE_WASRENAMED 
-			&& strcmp(client->pers.netname, "UnnamedPlayer") == 0) {
+			&& G_IsUnnamedName(client->pers.netname)) {
 		// if an unnamedplayer was auto-renamed, don't allow him to
 		// rename back to UnnamedPlayer
 		revertName = qtrue;
@@ -1440,7 +1463,7 @@ void ClientUserinfoChanged( int clientNum ) {
         }
     }
 
-    if (strcmp(client->pers.netname, "UnnamedPlayer") == 0) {
+    if (G_IsUnnamedName(client->pers.netname)) {
 	    client->sess.unnamedPlayerState = UNNAMEDSTATE_ISUNNAMED;
     } else if (client->sess.unnamedPlayerState == UNNAMEDSTATE_ISUNNAMED) {
 	    client->sess.unnamedPlayerState = UNNAMEDSTATE_CLEAN;
