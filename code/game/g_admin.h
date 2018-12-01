@@ -204,6 +204,7 @@ qboolean G_admin_unlockall( gentity_t *ent, int skiparg );
 qboolean G_admin_disorient( gentity_t *ent, int skiparg );
 qboolean G_admin_orient(gentity_t *ent, int skiparg );
 qboolean G_admin_eqping(gentity_t *ent, int skiparg );
+qboolean G_admin_setping(gentity_t *ent, int skiparg );
 qboolean G_admin_slap(gentity_t *ent, int skiparg );
 qboolean G_admin_warn( gentity_t *ent, int skiparg );
 qboolean G_admin_shuffle( gentity_t *ent, int skiparg );

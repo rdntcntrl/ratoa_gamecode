@@ -789,3 +789,16 @@ int trap_PC_ReadToken( int handle, pc_token_t *pc_token ) {
 int trap_PC_SourceFileAndLine( int handle, char *filename, int *line ) {
 	return syscall( BOTLIB_PC_SOURCE_FILE_AND_LINE, handle, filename, line );
 }
+
+void trap_RAT_EQPing_Reset( void ) {
+	syscall( RAT_EQPING_RESET );
+}
+
+void trap_RAT_EQPing_SetDelay( int clientnum, int msec ) {
+	syscall( RAT_EQPING_SETDELAY, clientnum, msec );
+}
+
+int trap_RAT_EQPing_GetDelay( int clientnum ) {
+	return syscall( RAT_EQPING_GETDELAY, clientnum );
+}
+

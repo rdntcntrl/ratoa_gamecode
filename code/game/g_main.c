@@ -23,6 +23,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "g_local.h"
 
+#define MIN(x,y) (((x) < (y)) ? (x) : (y))
+#define MAX(x,y) (((x) > (y)) ? (x) : (y))
+
 level_locals_t	level;
 
 typedef struct {
@@ -221,6 +224,12 @@ vmCvar_t	g_readSpawnVarFiles;
 vmCvar_t	g_damageThroughWalls;
 
 vmCvar_t	g_pingEqualizer;
+vmCvar_t	g_eqpingMax;
+vmCvar_t	g_eqpingAuto;
+vmCvar_t	g_eqpingAutoConvergeFactor;
+vmCvar_t	g_eqpingAutoInterval;
+vmCvar_t	g_eqpingSavedPing;
+vmCvar_t	g_eqpingAutoTourney;
 
 vmCvar_t        g_autoClans;
 
@@ -458,6 +467,12 @@ static cvarTable_t		gameCvarTable[] = {
         { &g_damageThroughWalls, "g_damageThroughWalls", "0", CVAR_ARCHIVE, 0, qtrue },
 
         { &g_pingEqualizer, "g_pingEqualizer", "0", CVAR_ARCHIVE, 0, qfalse },
+        { &g_eqpingMax, "g_eqpingMax", "400", CVAR_ARCHIVE, 0, qfalse },
+        { &g_eqpingAuto, "g_eqpingAuto", "0", CVAR_ARCHIVE, 0, qfalse },
+        { &g_eqpingAutoConvergeFactor, "g_eqpingAutoConvergeFactor", "0.5", 0, 0, qfalse },
+        { &g_eqpingAutoInterval, "g_eqpingAutoInterval", "1000", 0, 0, qfalse },
+        { &g_eqpingSavedPing, "g_eqpingSavedPing", "0", CVAR_ROM, 0, qfalse },
+        { &g_eqpingAutoTourney, "g_eqpingAutoTourney", "0", CVAR_ARCHIVE, 0, qtrue },
 
         { &g_teleMissiles, "g_teleMissiles", "0", CVAR_ARCHIVE, 0, qtrue },
         { &g_pushGrenades, "g_pushGrenades", "0", CVAR_ARCHIVE, 0, qtrue },
@@ -888,9 +903,214 @@ void G_RemapTeamShaders( void ) {
 	trap_SetConfigstring(CS_SHADERSTATE, BuildShaderStateConfig());
 }
 
+void G_EQPingReset(void) {
+	if (!g_usesRatEngine.integer) {
+		return;
+	}
+	trap_RAT_EQPing_Reset();
+	trap_Cvar_Set( "sv_eqping", "0" );
+	trap_Cvar_Set( "g_eqpingSavedPing", "0");
+	if (level.eqPing) {
+		trap_SendServerCommand( -1, va("print \"^5EQPing: resetting pings...\n"));
+		level.eqPing = 0;
+	}
+}
+
+int G_MaxPlayingClientPing(void) {
+	int i;
+	int maxPing = 0;
+	gclient_t *cl = NULL;
+	for ( i = 0;  i < level.numPlayingClients; i++ ) {
+		cl = &level.clients[ level.sortedClients[i] ];
+		if (cl->pers.realPing > maxPing) {
+			maxPing = cl->pers.realPing;
+		}
+	}
+	return maxPing;
+}
+
+void G_EQPingClientReset(gclient_t *client) {
+	if (!g_usesRatEngine.integer || !trap_Cvar_VariableIntegerValue("sv_eqping")) {
+		return;
+	}
+
+	if ( client->pers.connected != CON_CONNECTED || client->sess.sessionTeam == TEAM_SPECTATOR ) {
+		trap_RAT_EQPing_SetDelay(client->ps.clientNum, 0);
+		return;
+	}
+}
+
+void G_EQPingClientSet(gclient_t *client) {
+	if (client->pers.realPing < level.eqPing) {
+		trap_RAT_EQPing_SetDelay(client->ps.clientNum, level.eqPing - client->pers.realPing);
+	} else {
+		trap_RAT_EQPing_SetDelay(client->ps.clientNum, 0);
+	}
+
+}
+
+// called upon game start
+// to re-apply EQPing after warmup
+qboolean G_EQPingReapply(void) {
+	if (level.warmupTime != 0 || g_eqpingSavedPing.integer <= 0) {
+		return qfalse;
+	}
+	level.eqPing = g_eqpingSavedPing.integer;
+	return qtrue;
+}
+
+void G_EQPingUpdate(void) {
+	int pingMod; 
+	int i;
+	gclient_t *cl;
+
+	if (!g_usesRatEngine.integer 
+			|| !trap_Cvar_VariableIntegerValue("sv_eqping")
+			|| level.eqPing == 0
+			|| g_eqpingAuto.integer) {
+		return;
+	}
+	for ( i = 0;  i < level.numPlayingClients; i++ ) {
+		cl = &level.clients[ level.sortedClients[i] ];
+		if (cl->pers.enterTime + 5000 >= level.time) {
+			continue;
+		}
+		pingMod = trap_RAT_EQPing_GetDelay(level.sortedClients[i]);
+		if (pingMod <= 0) {
+			// FIXME: this may actually increase the ping of the
+			// player who previously had the highest ping (upon whom
+			// the eqping setting was based). However, this should
+			// be acceptable as the increase will be tiny assuming
+			// the ping is more or less stable.
+			G_EQPingClientSet(cl);
+		}
+	}
+}
+
+void G_EQPingSet(int maxEQPing, qboolean forceMax) {
+	int i;
+	gclient_t *cl = NULL;
+
+	if (maxEQPing <= 0) {
+		G_EQPingReset();
+		return;
+	}
+
+	if (!g_usesRatEngine.integer) {
+		return;
+	}
+	// g_eqping 500 -> automatically equalize ping to a max of 500 (only for tournament)
+	// !eqping 500 -> equalize ping right now, for 1 game only, to a max of 500, w/o setting g_eqping
+	if (forceMax) {
+		level.eqPing = maxEQPing;
+	} else {
+		level.eqPing = G_MaxPlayingClientPing();
+		if (level.eqPing > maxEQPing) {
+			level.eqPing = maxEQPing;
+		}
+	}
+	if (level.warmupTime != 0) {
+		// make sure eqping is re-applied once the game actually starts
+		trap_Cvar_Set( "g_eqpingSavedPing", va("%i", level.eqPing ));
+	}
+
+	trap_Cvar_Set( "sv_eqping", "1" );
+	trap_RAT_EQPing_Reset();
+
+	for ( i = 0;  i < level.numPlayingClients; i++ ) {
+		cl = &level.clients[ level.sortedClients[i] ];
+		G_EQPingClientSet(cl);
+	}
+	trap_SendServerCommand( -1, va("print \"^5EQPing: equalizing all pings to %ims...\n", level.eqPing));
+
+}
+
+void G_EQPingAutoAdjust(void) {
+	int ping;
+	int pingMod; 
+	float pingdiff; 
+	int i;
+	gclient_t *cl;
+
+	if (!g_usesRatEngine.integer 
+			|| !trap_Cvar_VariableIntegerValue("sv_eqping")
+			|| level.eqPing == 0
+			|| !g_eqpingAuto.integer
+			|| level.eqPingAdjustTime + g_eqpingAutoInterval.integer > level.time) {
+		return;
+	}
+
+	level.eqPingAdjustTime = level.time;
+	for ( i = 0;  i < level.numPlayingClients; i++ ) {
+		cl = &level.clients[ level.sortedClients[i] ];
+		ping = cl->pers.realPing;
+		pingMod = trap_RAT_EQPing_GetDelay(cl->ps.clientNum);
+		
+		pingdiff = level.eqPing - ping;
+		pingdiff = pingdiff * MIN(1.0, MAX(0.0, g_eqpingAutoConvergeFactor.value));
+
+		// this should converge slowly to the desired ping
+		// default converge factor is 0.5, it can be increased / decreased for
+		// faster/slower convergence
+		trap_RAT_EQPing_SetDelay(
+				cl->ps.clientNum, 
+				(pingdiff < 0 ? floor(pingdiff) : ceil(pingdiff)) + pingMod
+				);
+	}
+}
+
+void G_EQPingAutoTourney(void) {
+	qboolean equalize = qfalse;
+	gclient_t *c1 = NULL;
+	gclient_t *c2 = NULL;
+	if (!g_usesRatEngine.integer
+			|| g_gametype.integer != GT_TOURNAMENT
+			|| !g_eqpingAutoTourney.integer
+			|| g_eqpingMax.integer <= 0) {
+		return;
+	}
+
+	if (level.warmupTime == 0 // game already running
+			|| level.numPlayingClients != 2 // not enough players
+			|| level.eqPing // already equalized through EQPing
+			) {
+		return;
+	}
+	c1 = &level.clients[level.sortedClients[0]];
+	c2 = &level.clients[level.sortedClients[1]];
+	if (!c1 || !c2) {
+		return;
+	}
+	if (level.warmupTime > 0 
+			&& level.time < level.warmupTime
+			&& level.warmupTime - level.time <= 10000 ) {
+		// warmup already running, equalize now!
+		equalize = qtrue;
+	} else if (level.warmupTime == -1
+			&& c1->pers.enterTime + 5000 <= level.time
+			&& c2->pers.enterTime + 5000 <= level.time
+		  ) {
+		// in \ready phase, both joined at least 5s ago
+		equalize = qtrue;
+	}
+	if (equalize) {
+
+		if (g_entities[level.sortedClients[0]].r.svFlags & SVF_BOT
+				|| g_entities[level.sortedClients[1]].r.svFlags & SVF_BOT) {
+			return;
+		}
+
+		G_EQPingSet(g_eqpingMax.integer, qfalse);
+
+	}
+
+
+}
+
 void G_PingEqualizerReset(void) {
 	fileHandle_t f;
 	int len;
+
 	if (!g_pingEqualizer.integer) {
 		return;
 	}
@@ -1473,6 +1693,9 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 
 
 	G_PingEqualizerReset();
+	if (!G_EQPingReapply()) {
+		G_EQPingReset();
+	}
 
 	if (g_teamslocked.integer > 0 ) {
 		level.RedTeamLocked = qtrue;
@@ -3188,6 +3411,9 @@ void CheckTournament( void ) {
 		// pull in a spectator if needed
 		if ( level.numPlayingClients < 2 ) {
 			AddTournamentPlayer();
+			if (level.eqPing && g_eqpingAutoTourney.integer) {
+				G_EQPingReset();
+			}
 			if (level.pingEqualized) {
 				G_PingEqualizerReset();
 			}
@@ -3764,6 +3990,9 @@ void G_RunFrame( int levelTime ) {
 	}
 
 	G_PingEqualizerWrite();
+	G_EQPingAutoTourney();
+	G_EQPingUpdate();
+	G_EQPingAutoAdjust();
 
 	G_CheckUnlockTeams();
 

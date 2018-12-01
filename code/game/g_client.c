@@ -1775,6 +1775,7 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
     G_admin_namelog_update( client, qfalse );
 
 	G_CheckClan(client->sess.sessionTeam);
+	G_EQPingClientReset(client);
 	return NULL;
 }
 
@@ -2014,6 +2015,9 @@ void ClientBegin( int clientNum ) {
 		}
 		G_SendSpawnpoints( ent );
 	}
+
+	//G_EQPingClientSet(client);
+	G_EQPingClientReset(client);
 
 }
 
@@ -2594,6 +2598,8 @@ void ClientDisconnect( int clientNum ) {
 		ent->client->ps.persistant[PERS_TEAM] = TEAM_FREE;
 		ent->client->sess.sessionTeam = TEAM_FREE;
 	}
+
+	G_EQPingClientSet(ent->client);
 
 	//trap_SetConfigstring( CS_PLAYERS + clientNum, va("t\\%i", ent->client->sess.sessionTeam));
 	trap_SetConfigstring( CS_PLAYERS + clientNum, "");
