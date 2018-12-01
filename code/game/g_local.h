@@ -368,7 +368,8 @@ typedef struct {
 
     int th_tokens;
 
-    int		unnamedPlayerRenameTime;
+    int	unnamedPlayerRenameTime;
+    qboolean forceRename; // set to qtrue while a player is forcefully renamed
 } clientPersistant_t;
 
 //unlagged - backward reconciliation #1
