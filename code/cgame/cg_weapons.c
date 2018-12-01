@@ -3406,7 +3406,8 @@ CG_MissileHitWall
 Caused by an EV_MISSILE_MISS event, or directly by local bullet tracing
 =================
 */
-void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin, vec3_t dir, impactSound_t soundType ) {
+void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin, vec3_t dir, impactSound_t soundType,
+	       predictedMissileStatus_t *missileStatus	) {
 	qhandle_t		mod;
 	qhandle_t		mark;
 	qhandle_t		shader;
@@ -3719,9 +3720,13 @@ void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin, vec3_t dir, im
 	// create the explosion
 	//
 	if ( mod ) {
-		le = CG_MakeExplosion( origin, dir, 
-							   mod,	shader,
-							   duration, isSprite );
+		le = CG_MakeExplosion( origin, dir, mod, shader, duration, isSprite);
+		if (missileStatus) {
+			// if this explosion replaces a wrongfully predicted
+			// explosion of a missile, remove the old explosion now
+			CG_RemoveOldMissileExplosion(missileStatus);
+			missileStatus->expLEntityID = le->id;
+		}
 		le->light = light;
 		VectorCopy( lightColor, le->lightColor );
 		if ( weapon == WP_RAILGUN ) {
@@ -3755,7 +3760,8 @@ void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin, vec3_t dir, im
 CG_MissileHitPlayer
 =================
 */
-void CG_MissileHitPlayer( int weapon, vec3_t origin, vec3_t dir, int entityNum ) {
+void CG_MissileHitPlayer( int weapon, vec3_t origin, vec3_t dir, int entityNum, 
+	       predictedMissileStatus_t *missileStatus) {
 // LEILEI ENHANCEMENT
 	if (cg_leiEnhancement.integer) {
 		CG_SmokePuff( origin, dir, 22, 1, 1, 1, 1.0f, 900, cg.time, 0, 0,  cgs.media.lbldShader1 );
@@ -3777,7 +3783,7 @@ void CG_MissileHitPlayer( int weapon, vec3_t origin, vec3_t dir, int entityNum )
 	case WP_CHAINGUN:
 	case WP_PROX_LAUNCHER:
 //#endif
-		CG_MissileHitWall( weapon, 0, origin, dir, IMPACTSOUND_FLESH );
+		CG_MissileHitWall( weapon, 0, origin, dir, IMPACTSOUND_FLESH, missileStatus );
 		break;
 	default:
 		break;
@@ -3864,14 +3870,14 @@ static void CG_ShotgunPellet( vec3_t start, vec3_t end, int skipNum ) {
 	}
 
 	if ( cg_entities[tr.entityNum].currentState.eType == ET_PLAYER ) {
-		CG_MissileHitPlayer( WP_SHOTGUN, tr.endpos, tr.plane.normal, tr.entityNum );
+		CG_MissileHitPlayer( WP_SHOTGUN, tr.endpos, tr.plane.normal, tr.entityNum, NULL );
 	} else {
 		if ( tr.surfaceFlags & SURF_NOIMPACT ) {
 			// SURF_NOIMPACT will not make a flame puff or a mark
 			return;
 		}
 		if ( tr.surfaceFlags & SURF_METALSTEPS ) {
-			CG_MissileHitWall( WP_SHOTGUN, 0, tr.endpos, tr.plane.normal, IMPACTSOUND_METAL );
+			CG_MissileHitWall( WP_SHOTGUN, 0, tr.endpos, tr.plane.normal, IMPACTSOUND_METAL, NULL );
 // LEILEI ENHANCEMENT
 			if (cg_leiEnhancement.integer) {
 					VectorCopy( tr.plane.normal, kapow );
@@ -3886,7 +3892,7 @@ static void CG_ShotgunPellet( vec3_t start, vec3_t end, int skipNum ) {
 				}
 // END LEIHANCMENET
 		} else {
-			CG_MissileHitWall( WP_SHOTGUN, 0, tr.endpos, tr.plane.normal, IMPACTSOUND_DEFAULT );
+			CG_MissileHitWall( WP_SHOTGUN, 0, tr.endpos, tr.plane.normal, IMPACTSOUND_DEFAULT, NULL );
 	
 // LEILEI ENHANCEMENT
 				if (cg_leiEnhancement.integer) {
@@ -4270,7 +4276,7 @@ if (cg_leiSuperGoreyAwesome.integer) {
 	else
 		CG_Bleed( end, fleshEntityNum );
 	} else {
-		CG_MissileHitWall( WP_MACHINEGUN, 0, end, normal, IMPACTSOUND_DEFAULT );
+		CG_MissileHitWall( WP_MACHINEGUN, 0, end, normal, IMPACTSOUND_DEFAULT, NULL );
 
 // LEILEI ENHANCEMENT
 				if (cg_leiEnhancement.integer) {

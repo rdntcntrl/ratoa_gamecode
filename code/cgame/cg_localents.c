@@ -34,6 +34,8 @@ localEntity_t	cg_localEntities[MAX_LOCAL_ENTITIES];
 localEntity_t	cg_activeLocalEntities;		// double linked list
 localEntity_t	*cg_freeLocalEntities;		// single linked list
 
+static int cg_localentityId = 0;
+
 /*
 ===================
 CG_InitLocalEntities
@@ -51,6 +53,8 @@ void	CG_InitLocalEntities( void ) {
 	for ( i = 0 ; i < MAX_LOCAL_ENTITIES - 1 ; i++ ) {
 		cg_localEntities[i].next = &cg_localEntities[i+1];
 	}
+
+	cg_localentityId = 0;
 }
 
 
@@ -63,6 +67,8 @@ void CG_FreeLocalEntity( localEntity_t *le ) {
 	if ( !le->prev ) {
 		CG_Error( "CG_FreeLocalEntity: not active" );
 	}
+
+	le->id = 0;
 
 	// remove from the doubly linked active list
 	le->prev->next = le->next;
@@ -99,7 +105,33 @@ localEntity_t	*CG_AllocLocalEntity( void ) {
 	le->prev = &cg_activeLocalEntities;
 	cg_activeLocalEntities.next->prev = le;
 	cg_activeLocalEntities.next = le;
+
+	if (++cg_localentityId == 0) {
+		le->id = ++cg_localentityId;
+	} else {
+		le->id = cg_localentityId;
+	}
 	return le;
+}
+
+void CG_FreeLocalEntityById(int id) {
+	localEntity_t *le, *next;
+
+	if (id == 0) {
+		// only free entities have id == 0
+		return;
+	}
+
+	le = cg_activeLocalEntities.next;
+	for ( ; le != &cg_activeLocalEntities ; le = next ) {
+		next = le->next;
+
+		if (le->id == id) {
+			CG_Printf("ACTUALLY removed old explsion\n");
+			CG_FreeLocalEntity(le);
+			return;
+		}
+	}
 }
 
 

@@ -204,6 +204,8 @@ typedef struct predictedMissileStatus_s {
 	int	explosionTime;
 	vec3_t	explosionPos;
 	int	hitEntity;
+
+	int 	expLEntityID;
 } predictedMissileStatus_t;
 
 
@@ -332,6 +334,10 @@ typedef struct localEntity_s {
 	leBounceSoundType_t	leBounceSoundType;
 
 	refEntity_t		refEntity;		
+
+	// to remove wrongfully predicted explosions
+	// id = 0 for free/unused entities
+	int			id;
 } localEntity_t;
 
 
@@ -1729,6 +1735,8 @@ void CG_PredictedExplosion(trace_t *tr, int weapon, predictedMissile_t *predMiss
 qboolean CG_ExplosionPredicted(centity_t *cent, int checkFlags, vec3_t realExpOrigin, int realHitEnt);
 void	CG_InitPMissilles( void );
 void CG_UpdateMissileStatus(predictedMissileStatus_t *pms, int addedFlags, vec3_t explosionOrigin, int hitEntity);
+void CG_RemovePredictedMissile(centity_t *missile);
+void CG_RemoveOldMissileExplosion(predictedMissileStatus_t *pms);
 //unlagged - cg_unlagged.c
 
 //
@@ -1930,8 +1938,8 @@ void CG_RegisterWeapon( int weaponNum );
 void CG_RegisterItemVisuals( int itemNum );
 
 void CG_FireWeapon( centity_t *cent );
-void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin, vec3_t dir, impactSound_t soundType );
-void CG_MissileHitPlayer( int weapon, vec3_t origin, vec3_t dir, int entityNum );
+void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin, vec3_t dir, impactSound_t soundType, predictedMissileStatus_t *missileStatus );
+void CG_MissileHitPlayer( int weapon, vec3_t origin, vec3_t dir, int entityNum, predictedMissileStatus_t *missileStatus );
 void CG_ShotgunFire( entityState_t *es );
 void CG_Bullet( vec3_t origin, int sourceEntityNum, vec3_t normal, qboolean flesh, int fleshEntityNum );
 
@@ -1976,7 +1984,7 @@ void    CG_LeiPuff (vec3_t org, vec3_t vel, int duration, float x, float y, floa
 void	CG_InitLocalEntities( void );
 localEntity_t	*CG_AllocLocalEntity( void );
 void	CG_AddLocalEntities( void );
-void CG_RemovePredictedMissile(centity_t *missile);
+void CG_FreeLocalEntityById(int id);
 
 //
 // cg_effects.c

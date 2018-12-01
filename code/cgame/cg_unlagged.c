@@ -111,6 +111,15 @@ predictedMissile_t	*CG_AllocPMissile( void ) {
 	return pm;
 }
 
+void CG_RemoveOldMissileExplosion(predictedMissileStatus_t *pms) {
+	if (pms->expLEntityID) {
+		// localentity drawing the explosion is still active,
+		// free it
+		CG_FreeLocalEntityById(pms->expLEntityID);
+	}
+	pms->expLEntityID = 0;
+}
+
 // if an explosion was predicted wrongfully, this will try to recover it
 // early
 void CG_RecoverMissile(centity_t *missile) {
@@ -128,6 +137,9 @@ void CG_RecoverMissile(centity_t *missile) {
 		// confirmation from the server that it exploded. Prediction was
 		// wrong, recover the missile
 		pms->missileFlags &= ~(MF_EXPLODED | MF_HITPLAYER | MF_HITWALLMETAL | MF_HITWALL | MF_TRAILFINISHED);
+
+		CG_RemoveOldMissileExplosion(pms);
+
 	}
 }
 
@@ -289,13 +301,13 @@ void CG_PredictedExplosion(trace_t *tr, int weapon, predictedMissile_t *predMiss
 			// as this is less accurate
 			return;
 		}
-		CG_MissileHitPlayer( weapon, tr->endpos, tr->plane.normal, tr->entityNum );
+		CG_MissileHitPlayer( weapon, tr->endpos, tr->plane.normal, tr->entityNum, pms );
 		CG_UpdateMissileStatus(pms, MF_EXPLODED | MF_HITPLAYER, tr->endpos, tr->entityNum);
 	} else if (tr->surfaceFlags & SURF_METALSTEPS) {
-		CG_MissileHitWall(weapon, 0, tr->endpos, tr->plane.normal, IMPACTSOUND_METAL);
+		CG_MissileHitWall(weapon, 0, tr->endpos, tr->plane.normal, IMPACTSOUND_METAL, pms);
 		CG_UpdateMissileStatus(pms, MF_EXPLODED | MF_HITWALLMETAL, tr->endpos, tr->entityNum);
 	} else {
-		CG_MissileHitWall(weapon, 0, tr->endpos, tr->plane.normal, IMPACTSOUND_DEFAULT);
+		CG_MissileHitWall(weapon, 0, tr->endpos, tr->plane.normal, IMPACTSOUND_DEFAULT, pms);
 		CG_UpdateMissileStatus(pms, MF_EXPLODED | MF_HITWALL, tr->endpos, tr->entityNum);
 	}
 }
@@ -509,7 +521,7 @@ void CG_PredictWeaponEffects( centity_t *cent ) {
 			// explosion at end if not SURF_NOIMPACT
 			if ( !(trace.surfaceFlags & SURF_NOIMPACT) ) {
 				// predict an explosion
-				CG_MissileHitWall( ent->weapon, cg.predictedPlayerState.clientNum, trace.endpos, trace.plane.normal, IMPACTSOUND_DEFAULT );
+				CG_MissileHitWall( ent->weapon, cg.predictedPlayerState.clientNum, trace.endpos, trace.plane.normal, IMPACTSOUND_DEFAULT, NULL );
 			}
 		}
 	}
