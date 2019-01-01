@@ -151,8 +151,8 @@ void G_InitSessionData( gclient_t *client, char *userinfo, qboolean firstTime, q
 					// GT changed, make sure previous lurkers don't join
 					sess->sessionTeam = TEAM_SPECTATOR;
 					sess->spectatorGroup = SPECTATORGROUP_AFK;
-				} else if ( g_maxGameClients.integer > 0 && 
-					level.numNonSpectatorClients >= g_maxGameClients.integer ) {
+				} else if ( ( g_maxGameClients.integer > 0 && level.numNonSpectatorClients >= g_maxGameClients.integer )
+						|| level.FFALocked) {
 					sess->sessionTeam = TEAM_SPECTATOR;
 				} else {
 					sess->sessionTeam = TEAM_FREE;
