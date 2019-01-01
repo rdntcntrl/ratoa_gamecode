@@ -347,10 +347,22 @@ void DominationPointStatusMessage( gentity_t *ent ) {
 }
 
 void AwardMessage(gentity_t *ent, extAward_t award, int count) {
-	if (!g_usesRatVM.integer && !G_MixedClientHasRatVM(ent->client)) {
-		return;
+	int i;
+	gentity_t *other;
+	for (i = 0; i < level.maxclients; i++) {
+		other = &g_entities[i];
+		// this sends the message to all the followers of ent as well
+		if (!other->inuse
+				|| !other->client
+				|| other->client->pers.connected != CON_CONNECTED
+				|| other->client->ps.clientNum != ent->client->ps.clientNum) {
+			continue;
+		}
+		if (!g_usesRatVM.integer && !G_MixedClientHasRatVM(other->client)) {
+			continue;
+		}
+		trap_SendServerCommand( other-g_entities, va("award %i %i", award, count));
 	}
-	trap_SendServerCommand( ent-g_entities, va("award %i %i", award, count));
 }
 
 /*
