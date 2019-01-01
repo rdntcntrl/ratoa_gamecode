@@ -982,8 +982,15 @@ void Cmd_Arena_f( gentity_t *ent ) {
 		trap_SendServerCommand( ent - g_entities, va("print \"Already in arena %i.\n\"", arenaNum));
 		return;
 	}
-	Cmd_Kill_f(ent);
 	ent->client->pers.arenaNum = arenaNum;
+	if (ent->client->sess.sessionTeam == TEAM_SPECTATOR) {
+		if ( ent->client->sess.spectatorState == SPECTATOR_FOLLOW ) {
+			StopFollowing( ent );
+		}
+		ClientSpawn(ent);
+	} else {
+		Cmd_Kill_f(ent);
+	}
 }
 
 
