@@ -961,14 +961,17 @@ void Cmd_Arena_f( gentity_t *ent ) {
 		return;
 	}
 
+
+	if ( trap_Argc( ) != 2 ) {
+		trap_SendServerCommand( ent - g_entities, va("print \"Currently in arena %i\n\"", ent->client->pers.arenaNum));
+		return;
+	}
+
 	if (g_ra3forceArena.integer != -1) {
 		trap_SendServerCommand( ent - g_entities, va("print \"Arena number restricted to %i. \\cv arena <num> to change it.\n\"", g_ra3forceArena.integer));
 		return;
 	}
 
-	if ( trap_Argc( ) != 2 ) {
-		return;
-	}
 	trap_Argv( 1, arg, sizeof( arg ) );
 	arenaNum = atoi(arg);
 	if (!G_RA3ArenaAllowed(arenaNum)) {
