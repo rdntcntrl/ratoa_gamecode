@@ -917,8 +917,11 @@ static void CG_SetDeferredClientInfo( int clientNum, clientInfo_t *ci ) {
 			if ( !match->infoValid || match->deferred ) {
 				continue;
 			}
-			if ( Q_stricmp( ci->skinName, match->skinName ) ||
-				(cgs.gametype >= GT_TEAM && cgs.ffa_gt != 1 && ci->team != match->team) ) {
+			//if ( Q_stricmp( ci->skinName, match->skinName ) ||
+			//	(cgs.gametype >= GT_TEAM && cgs.ffa_gt != 1 && ci->team != match->team) ) {
+			//	continue;
+			//}
+			if ( ci->team != match->team )  {
 				continue;
 			}
 			ci->deferred = qtrue;
