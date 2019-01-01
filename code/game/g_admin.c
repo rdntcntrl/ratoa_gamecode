@@ -218,6 +218,11 @@ g_admin_cmd_t g_admin_cmds[ ] =
       "move 999 pingers to the spectator team",
       ""},
 
+    {"stoprecord", "", G_admin_stoprecord, "R",
+      "stop recording server-side demo",
+      ""
+    },
+
     {"swap", "s", G_admin_swap, "p",
       "swap two players",
       "[^3name|slot#^7] [^3name|slot#^7]"
@@ -1145,6 +1150,11 @@ qboolean G_admin_record( gentity_t *ent, int skiparg ) {
 		       	va( "demo_record \"%s\"\n",
 					demoname
 			       	 ) );
+	return qtrue;
+}
+
+qboolean G_admin_stoprecord( gentity_t *ent, int skiparg ) {
+	trap_SendConsoleCommand( EXEC_APPEND, "demo_stop\n");
 	return qtrue;
 }
 
