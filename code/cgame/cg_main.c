@@ -1488,6 +1488,7 @@ static void CG_RegisterSounds( void ) {
 	cgs.media.hitSoundLowArmor = trap_S_RegisterSound( "sound/feedback/hitlo.wav", qfalse );
 #endif
 
+	cgs.media.accuracySound = trap_S_RegisterSound( "sound/feedback/accuracy.wav", qtrue );
 	cgs.media.fragsSound = trap_S_RegisterSound( "sound/feedback/frags.wav", qtrue );
 	cgs.media.impressiveSound = trap_S_RegisterSound( "sound/feedback/impressive.wav", qtrue );
 	cgs.media.excellentSound = trap_S_RegisterSound( "sound/feedback/excellent.wav", qtrue );
@@ -1893,6 +1894,7 @@ static void CG_RegisterGraphics( void ) {
 
 
 	cgs.media.invulnerabilityPowerupModel = trap_R_RegisterModel( "models/powerups/shield/shield.md3" );
+	cgs.media.medalAccuracy = trap_R_RegisterShaderNoMip( "medal_accuracy" );
 	cgs.media.medalFrags = trap_R_RegisterShaderNoMip( "medal_frags" );
 	cgs.media.medalImpressive = trap_R_RegisterShaderNoMip( "medal_impressive" );
 	cgs.media.medalExcellent = trap_R_RegisterShaderNoMip( "medal_excellent" );

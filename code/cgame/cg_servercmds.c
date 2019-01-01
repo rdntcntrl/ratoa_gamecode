@@ -541,6 +541,9 @@ static void CG_ParseAward( void ) {
 		case EAWARD_FRAGS:
 			pushReward(cgs.media.fragsSound, cgs.media.medalFrags, count);
 			break;
+		case EAWARD_ACCURACY:
+			pushReward(cgs.media.accuracySound, cgs.media.medalAccuracy, count);
+			break;
 		default:
 			return;
 	}
