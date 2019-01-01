@@ -367,6 +367,8 @@ typedef struct {
 
     int	unnamedPlayerRenameTime;
     qboolean forceRename; // set to qtrue while a player is forcefully renamed
+
+    int awardCounts[EAWARD_NUM_AWARDS];
 } clientPersistant_t;
 
 //unlagged - backward reconciliation #1
@@ -687,6 +689,7 @@ void SendReadymask(int clientnum);
 void G_SendSpawnpoints(gentity_t *ent);
 qboolean G_TournamentSpecMuted(void);
 void AccMessage( gentity_t *ent );
+void AwardMessage(gentity_t *ent, extAward_t award, int count);
 
 
 // KK-OAX Added these in a seperate file to keep g_cmds.c familiar. 

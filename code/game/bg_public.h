@@ -295,6 +295,13 @@ typedef enum {
 #define EF_AWARD_DENIED		0x00040000		// denied
 #define EF_TEAMVOTED		0x00080000		// already cast a team vote
 
+// Additional awards (not visible to other players)
+typedef enum {
+	EAWARD_FRAGS,
+
+	EAWARD_NUM_AWARDS
+} extAward_t;
+
 // NOTE: may not have more than 16
 typedef enum {
 	PW_NONE,
