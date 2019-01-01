@@ -1753,9 +1753,16 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 
 	client->pers.connected = CON_CONNECTING;
 
-	// read or initialize the session data
 	if ( firstTime || level.newSession ) {
-		G_InitSessionData( client, userinfo, firstTime, level.newSession );
+		unnamedRenameState_t unnamedPlayerState = UNNAMEDSTATE_CLEAN;
+		if (!firstTime) {
+			// if the gametype changed, read the old session anyway
+			// so we can save the previous unnamedrenamestate
+			G_ReadSessionData( client );
+			unnamedPlayerState = client->sess.unnamedPlayerState;
+			memset(&client->sess,0,sizeof(client->sess));
+		}
+		G_InitSessionData( client, userinfo, firstTime, level.newSession, unnamedPlayerState );
 	}
 	G_ReadSessionData( client );
 

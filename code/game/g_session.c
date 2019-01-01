@@ -114,7 +114,8 @@ G_InitSessionData
 Called on a first-time connect
 ================
 */
-void G_InitSessionData( gclient_t *client, char *userinfo, qboolean firstTime, qboolean levelNewSession ) {
+void G_InitSessionData( gclient_t *client, char *userinfo, qboolean firstTime,
+	       	qboolean levelNewSession, unnamedRenameState_t unnamedPlayerState ) {
 	clientSession_t	*sess;
 	const char		*value;
 
@@ -123,6 +124,9 @@ void G_InitSessionData( gclient_t *client, char *userinfo, qboolean firstTime, q
 	sess->spectatorGroup = SPECTATORGROUP_QUEUED;
 	sess->muted = qfalse;
 	sess->unnamedPlayerState = UNNAMEDSTATE_CLEAN;
+	if (!firstTime && levelNewSession) {
+		sess->unnamedPlayerState = unnamedPlayerState;
+	}
 
 	// initial team determination
 	if ( g_gametype.integer >= GT_TEAM && g_ffa_gt!=1) {
