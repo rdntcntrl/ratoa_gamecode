@@ -800,10 +800,7 @@ void G_RemapTeamShaders( void ) {
 		qboolean has_bannerq3 = qfalse;
 		trap_Cvar_VariableStringBuffer( "mapname", mapname, sizeof( mapname ) );
 
-		if (Q_stricmp(mapname, "oasago2") == 0
-				|| Q_stricmp(mapname, "oasago2f3") == 0
-				|| Q_stricmp(mapname, "oasago2_081") == 0
-				|| Q_stricmp(mapname, "ps37ctf") == 0
+		if (Q_stricmp(mapname, "ps37ctf") == 0
 				|| Q_stricmp(mapname, "ps37ctf2") == 0
 				|| Q_stricmp(mapname, "ps37ctf-mmp") == 0
 				|| Q_stricmp(mapname, "oa_ctf2") == 0
