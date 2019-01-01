@@ -260,6 +260,28 @@ void SP_target_push( gentity_t *self ) {
 	self->use = Use_target_push;
 }
 
+gentity_t *G_PickTargetArena(int targetArena, gclient_t *client) {
+	vec3_t	spawn_origin, spawn_angles;
+	gentity_t *dest;
+
+	if (g_gametype.integer >= GT_TEAM && g_ffa_gt == 0) {
+		dest = SelectCTFSpawnPointArena ( 
+				client->sess.sessionTeam, 
+				client->pers.teamState.state, 
+				targetArena,
+				spawn_origin, spawn_angles);
+	} else {
+		dest = SelectRandomDeathmatchSpawnPointArena(
+				targetArena);
+	}
+
+	if (dest && G_RA3ArenaAllowed(dest->arenaNum)) {
+		client->pers.arenaNum = dest->arenaNum;
+	}
+
+	return dest;
+}
+
 /*
 ==============================================================================
 
@@ -285,7 +307,14 @@ void trigger_teleporter_touch (gentity_t *self, gentity_t *other, trace_t *trace
 	}
 
 
-	dest = 	G_PickTarget( self->target );
+	if (g_ra3compat.integer && !self->target && self->arenaNum >= 0) {
+		dest = G_PickTargetArena(self->arenaNum, other->client);
+		if (dest) {
+			trap_SendServerCommand( other - g_entities, va("cp \"Joined Arena %i\"", other->client->pers.arenaNum));
+		}
+	} else {
+		dest = 	G_PickTarget( self->target );
+	}
 	if (!dest) {
                 G_Printf ("Couldn't find teleporter destination\n");
 		return;

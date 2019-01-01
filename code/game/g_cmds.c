@@ -953,6 +953,37 @@ void Cmd_Kill_f( gentity_t *ent ) {
             player_die (ent, ent, ent, 100000, MOD_SUICIDE);
 }
 
+void Cmd_Arena_f( gentity_t *ent ) {
+	int arenaNum = -1;
+	char        arg[MAX_TOKEN_CHARS];
+
+	if (!g_ra3compat.integer || g_ra3maxArena.integer <= 0) {
+		return;
+	}
+
+	if (g_ra3forceArena.integer != -1) {
+		trap_SendServerCommand( ent - g_entities, va("print \"Arena number restricted to %i. \\cv arena <num> to change it.\n\"", g_ra3forceArena.integer));
+		return;
+	}
+
+	if ( trap_Argc( ) != 2 ) {
+		return;
+	}
+	trap_Argv( 1, arg, sizeof( arg ) );
+	arenaNum = atoi(arg);
+	if (!G_RA3ArenaAllowed(arenaNum)) {
+		trap_SendServerCommand( ent - g_entities, va("print \"Invalid arena number %i.\n\"", arenaNum));
+		return;
+	}
+	if ( ent->client->pers.arenaNum == arenaNum ) {
+		trap_SendServerCommand( ent - g_entities, va("print \"Already in arena %i.\n\"", arenaNum));
+		return;
+	}
+	Cmd_Kill_f(ent);
+	ent->client->pers.arenaNum = arenaNum;
+}
+
+
 /*
 =================
 Cmd_Motd_f
@@ -2493,6 +2524,8 @@ void G_PrintVoteCommands(gentity_t *ent) {
 		strcat(buffer, " lock\n");
 	if(allowedVote("unlock"))
 		strcat(buffer, " unlock\n");
+	if(allowedVote("arena"))
+		strcat(buffer, " arena\n");
 	if(allowedVote("custom"))
 		strcat(buffer, " custom <special>\n");
 	buffer[strlen(buffer)-1] = 0;
@@ -2562,6 +2595,7 @@ void Cmd_CallVote_f( gentity_t *ent ) {
         } else if ( !Q_stricmp( arg1, "botskill" ) ) {
         } else if ( !Q_stricmp( arg1, "lock" ) ) {
         } else if ( !Q_stricmp( arg1, "unlock" ) ) {
+        } else if ( !Q_stricmp( arg1, "arena" ) ) {
 	} else {
 		trap_SendServerCommand( ent-g_entities, "print \"Invalid vote string.\n\"" );
 		G_PrintVoteCommands(ent);
@@ -2767,6 +2801,27 @@ void Cmd_CallVote_f( gentity_t *ent ) {
                     level.voteKickType = 1; //ban
                 }
 		Com_sprintf( level.voteDisplayString, sizeof( level.voteDisplayString ), "Kick %s?" , level.clients[i].pers.netname );
+	} else if ( !Q_stricmp( arg1, "arena" ) ) {
+		int wishArena = atoi(arg2);
+
+		if (!g_ra3compat.integer || g_ra3maxArena.integer < 0) {
+			trap_SendServerCommand( ent-g_entities, "print \"Can't vote for arena here.\n\"");
+			return;
+		}
+                
+                if(!G_RA3ArenaAllowed(wishArena)) {
+                    trap_SendServerCommand( ent-g_entities, "print \"Invalid arena number.\n\"");
+                    return;
+                }
+            
+		if (wishArena == 0) {
+			// remove restriction
+			Com_sprintf( level.voteString, sizeof( level.voteString ), "g_ra3forceArena \"-1\"; map_restart" );
+			Com_sprintf( level.voteDisplayString, sizeof( level.voteDisplayString ), "Remove arena restriction" );
+		} else {
+			Com_sprintf( level.voteString, sizeof( level.voteString ), "g_ra3forceArena \"%d\"; map_restart", wishArena );
+			Com_sprintf( level.voteDisplayString, sizeof( level.voteDisplayString ), "Play arena number %d", wishArena );
+		}
         } else if ( !Q_stricmp( arg1, "custom" ) ) {
                 t_customvote customvote;
                 //Sago: There must always be a test to ensure that length(arg2) is non-zero or the client might be able to execute random commands.
@@ -3211,7 +3266,9 @@ commands_t cmds[ ] =
   { "getrecmappage", 0, Cmd_GetRecMappage_f },
   { "gc", 0, Cmd_GameCommand_f },
   { "motd", 0, Cmd_Motd_f },
-  { "help", 0, Cmd_Motd_f }
+  { "help", 0, Cmd_Motd_f },
+
+  { "arena", 0, Cmd_Arena_f }
 };
 
 static int numCmds = sizeof( cmds ) / sizeof( cmds[ 0 ] );

@@ -1568,7 +1568,7 @@ go to a random point that doesn't telefrag
 ================
 */
 #define	MAX_TEAM_SPAWN_POINTS	32
-gentity_t *SelectRandomTeamSpawnPoint( int teamstate, team_t team ) {
+gentity_t *SelectRandomTeamSpawnPointArena( int teamstate, team_t team, int arenaNum ) {
 	gentity_t	*spot;
 	int			count;
 	int			selection;
@@ -1607,6 +1607,9 @@ gentity_t *SelectRandomTeamSpawnPoint( int teamstate, team_t team ) {
 		if ( SpotWouldTelefrag( spot ) ) {
 			continue;
 		}
+		if (g_ra3compat.integer && arenaNum >= 0 && spot->arenaNum != arenaNum) {
+			continue;
+		}
 		spots[ count ] = spot;
 		if (++count == MAX_TEAM_SPAWN_POINTS)
 			break;
@@ -1618,6 +1621,10 @@ gentity_t *SelectRandomTeamSpawnPoint( int teamstate, team_t team ) {
 
 	selection = rand() % count;
 	return spots[ selection ];
+}
+
+gentity_t *SelectRandomTeamSpawnPoint( int teamstate, team_t team ) {
+	return SelectRandomTeamSpawnPointArena(teamstate, team, -1);
 }
 
 /*
@@ -1706,6 +1713,26 @@ gentity_t *SelectCTFSpawnPoint ( team_t team, int teamstate, vec3_t origin, vec3
 
 	if (!spot) {
 		return SelectSpawnPoint( vec3_origin, origin, angles );
+	}
+
+	VectorCopy (spot->s.origin, origin);
+	origin[2] += 9;
+	VectorCopy (spot->s.angles, angles);
+
+	return spot;
+}
+
+gentity_t *SelectCTFSpawnPointArena ( team_t team, int teamstate, int arenaNum, vec3_t origin, vec3_t angles ) {
+	gentity_t	*spot;
+
+	spot = SelectRandomTeamSpawnPointArena ( teamstate, team, arenaNum );
+
+	if (!spot) {
+		spot = SelectSpawnPointArena( arenaNum, vec3_origin, origin, angles );
+	}
+
+	if (!spot) {
+		return SelectCTFSpawnPoint( team, teamstate, origin, angles);
 	}
 
 	VectorCopy (spot->s.origin, origin);

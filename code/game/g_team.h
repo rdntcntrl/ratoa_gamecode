@@ -106,7 +106,7 @@ void Team_InitGame(void);
 void Team_ReturnFlag(int team);
 void Team_FreeEntity(gentity_t *ent);
 gentity_t *SelectCTFSpawnPoint ( team_t team, int teamstate, vec3_t origin, vec3_t angles );
-//For Double_D
+gentity_t *SelectCTFSpawnPointArena ( team_t team, int teamstate, int arenaNum, vec3_t origin, vec3_t angles );
 gentity_t *SelectDoubleDominationSpawnPoint ( team_t, vec3_t origin, vec3_t angles );
 //For Standard D
 void Team_Dom_SpawnPoints( void );

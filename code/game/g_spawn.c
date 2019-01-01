@@ -116,6 +116,7 @@ field_t fields[] = {
 	{"angle", FOFS(s.angles), F_ANGLEHACK},
 	{"targetShaderName", FOFS(targetShaderName), F_LSTRING},
 	{"targetShaderNewName", FOFS(targetShaderNewName), F_LSTRING},
+	{"arena", FOFS(arenaNum), F_INT},
 
 	{NULL}
 };
@@ -718,6 +719,11 @@ void SP_worldspawn( void ) {
 
 	G_SpawnString( "enableBreath", "0", &s );
 	trap_Cvar_Set( "g_enableBreath", s );
+
+	if (g_ra3compat.integer) {
+		G_SpawnString( "arena", "-1", &s );
+		trap_Cvar_Set( "g_ra3maxArena", s );
+	}
 
 	g_entities[ENTITYNUM_WORLD].s.number = ENTITYNUM_WORLD;
         g_entities[ENTITYNUM_WORLD].r.ownerNum = ENTITYNUM_NONE;
