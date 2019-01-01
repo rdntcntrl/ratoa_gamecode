@@ -128,6 +128,7 @@ typedef enum {
 	GT_DOUBLE_D,			// Double Domination
 	GT_DOMINATION,			// Standard domination 12
 	GT_TREASURE_HUNTER,			
+	GT_MULTITOURNAMENT,
 	GT_MAX_GAME_TYPE
 	
 } gametype_t;

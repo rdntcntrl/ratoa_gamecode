@@ -1007,7 +1007,7 @@ void CG_ParseServerinfo( void ) {
 	//By default do as normal:
 	cgs.ffa_gt = 0;
 	//See if ffa gametype
-	if(cgs.gametype == GT_LMS)	
+	if(cgs.gametype == GT_LMS || cgs.gametype == GT_MULTITOURNAMENT)	
 		cgs.ffa_gt = 1;
 	trap_Cvar_Set("g_gametype", va("%i", cgs.gametype));
 	cgs.dmflags = atoi( Info_ValueForKey( info, "dmflags" ) );
