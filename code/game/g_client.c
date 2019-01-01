@@ -1547,6 +1547,10 @@ void ClientUserinfoChanged( int clientNum ) {
 			team = PickTeam( clientNum );
 		}
                 client->sess.sessionTeam = team;
+	} else if (g_gametype.integer != GT_TOURNAMENT && g_entities[clientNum].r.svFlags & SVF_BOT) {
+		// make sure bots can always join the game, even if it's locked
+		team = TEAM_FREE;
+		client->sess.sessionTeam = team;
 	}
 	else {
 		team = client->sess.sessionTeam;
