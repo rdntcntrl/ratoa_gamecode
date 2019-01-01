@@ -2891,7 +2891,9 @@ qboolean G_MixedClientHasRatVM(gclient_t *client) {
 qboolean G_RA3ArenaAllowed(int arenaNum) {
 	gentity_t	*spot;
 
-	if (arenaNum < 0 || arenaNum > g_ra3maxArena.integer) {
+	// need to use trap_Cvar_VariableIntegerValue to make sure we're
+	// getting the most recently set value during G_InitGame()
+	if (arenaNum < 0 || arenaNum > trap_Cvar_VariableIntegerValue("g_ra3maxArena")) {
 		return qfalse;
 	}
 

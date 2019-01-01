@@ -1511,7 +1511,8 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 	}
 
 	if (g_ra3nextForceArena.integer != -1) {
-		if (g_ra3compat.integer && g_ra3maxArena.integer >= 0 
+		// use trap_Cvar_VariableIntegerValue so we get the recently set value already
+		if (g_ra3compat.integer &&  trap_Cvar_VariableIntegerValue("g_ra3maxArena")
 				&& G_RA3ArenaAllowed(g_ra3nextForceArena.integer)) {
 			trap_Cvar_Set("g_ra3forceArena",va("%i", g_ra3nextForceArena.integer));
 		}
