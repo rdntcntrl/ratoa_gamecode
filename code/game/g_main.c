@@ -2066,11 +2066,17 @@ void MoveClientToIntermission( gentity_t *ent ) {
 		StopFollowing( ent );
 	}
 
-	FindIntermissionPoint();
-	// move to the spot
-	VectorCopy( level.intermission_origin, ent->s.origin );
-	VectorCopy( level.intermission_origin, ent->client->ps.origin );
-	VectorCopy (level.intermission_angle, ent->client->ps.viewangles);
+	if (g_ra3compat.integer && g_ra3maxArena.integer >= 0 
+			&& G_RA3ArenaAllowed(ent->client->pers.arenaNum)) {
+		FindIntermissionPointArena(ent->client->pers.arenaNum, ent->s.origin, ent->client->ps.viewangles);
+		VectorCopy( ent->s.origin, ent->client->ps.origin );
+	} else {
+		FindIntermissionPoint();
+		// move to the spot
+		VectorCopy( level.intermission_origin, ent->s.origin );
+		VectorCopy( level.intermission_origin, ent->client->ps.origin );
+		VectorCopy (level.intermission_angle, ent->client->ps.viewangles);
+	}
 	ent->client->ps.pm_type = PM_INTERMISSION;
 
 	// clean up powerup info
