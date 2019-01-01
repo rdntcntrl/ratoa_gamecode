@@ -500,6 +500,21 @@ void DmflagUnset_f ( void ) {
 	trap_Cvar_Set( "dmflags", va("%i", g_dmflags.integer & ~flag) );
 }
 
+void DmflagToggle_f ( void ) {
+	int flag;
+	char	str[MAX_TOKEN_CHARS];
+
+	if ( trap_Argc() < 2 ) {
+                G_Printf("Usage:  dmflag_toggle <flag>\n");
+		return;
+	}
+
+	trap_Argv( 1, str, sizeof( str ) );
+	flag = atoi(str);
+
+	trap_Cvar_Set( "dmflags", va("%i", g_dmflags.integer ^ flag) );
+}
+
 //KK-OAX Moved this Declaration to g_local.h
 //char	*ConcatArgs( int start );
 
@@ -548,6 +563,7 @@ struct
   { "nobots", qfalse, NoBots_f },
   { "dmflag_set", qtrue, DmflagSet_f },
   { "dmflag_unset", qtrue, DmflagUnset_f },
+  { "dmflag_toggle", qtrue, DmflagToggle_f },
 };
 
 /*
