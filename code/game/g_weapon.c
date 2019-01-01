@@ -400,6 +400,7 @@ void ShotgunPattern( vec3_t origin, vec3_t origin2, int seed, gentity_t *ent ) {
 	vec3_t		forward, right, up;
 	//int			oldScore;
 	qboolean	hitClient = qfalse;
+	qboolean	hitAll = qtrue;
 
 //unlagged - attack prediction #2
 	// use this for testing
@@ -443,9 +444,11 @@ void ShotgunPattern( vec3_t origin, vec3_t origin2, int seed, gentity_t *ent ) {
 			VectorMA( origin, 8192 * 16, forward, end);
 			VectorMA (end, r, right, end);
 			VectorMA (end, u, up, end);
-			if( ShotgunPellet( origin, end, ent ) && !hitClient ) {
+			if( ShotgunPellet( origin, end, ent ) ) {
 				hitClient = qtrue;
-				ent->client->accuracy_hits++;
+				ent->client->consecutive_hits++;
+			} else {
+				hitAll = qfalse;
 			}
 		}
 	} else {
@@ -455,14 +458,22 @@ void ShotgunPattern( vec3_t origin, vec3_t origin2, int seed, gentity_t *ent ) {
 			VectorMA( origin, 8192 * 16, forward, end);
 			VectorMA (end, r, right, end);
 			VectorMA (end, u, up, end);
-			if( ShotgunPellet( origin, end, ent ) && !hitClient ) {
+			if( ShotgunPellet( origin, end, ent ) ) {
 				hitClient = qtrue;
-				ent->client->accuracy_hits++;
+				ent->client->consecutive_hits++;
+			} else {
+				hitAll = qfalse;
 			}
 		}
 	}
-        if( hitClient )
-            ent->client->accuracy[WP_SHOTGUN][1]++;
+        if( hitClient ) {
+		ent->client->accuracy[WP_SHOTGUN][1]++;
+		ent->client->accuracy_hits++;
+	}
+	if (!hitAll) {
+		// make sure we don't get the EAWARD_ACCURACY if we didn't hit all pellets
+		ent->client->consecutive_hits = 0;
+	}
 
 //unlagged - backward reconciliation #2
 	// put them back
@@ -926,6 +937,31 @@ qboolean LogAccuracyHit( gentity_t *target, gentity_t *attacker ) {
 	return qtrue;
 }
 
+void G_CheckAccuracyAward( gentity_t *ent, int old_accuracy_hits) {
+	if (ent->client->accuracy_hits - old_accuracy_hits <= 0) {
+		ent->client->consecutive_hits = 0;
+		return;
+	}
+	switch (ent->s.weapon) {
+		case WP_LIGHTNING:
+		case WP_MACHINEGUN:
+		case WP_RAILGUN:
+		case WP_CHAINGUN:
+			ent->client->consecutive_hits++;
+		case WP_SHOTGUN:
+			// shotcun hits are already counted in ShotgunPattern()
+			break;
+		default:
+			return;
+	}
+
+	if (ent->client->consecutive_hits >= 20) {
+		ent->client->consecutive_hits = 0;
+		// all hits, give an award
+		AwardMessage(ent, EAWARD_ACCURACY, ++(ent->client->pers.awardCounts[EAWARD_ACCURACY]));
+	}
+}
+
 
 /*
 ===============
@@ -965,6 +1001,7 @@ FireWeapon
 ===============
 */
 void FireWeapon( gentity_t *ent ) {
+	int old_accuracy_hits;
 	//Make people drop out of follow mode (this should be moved, so people can change betwean players.)
 	if (ent->client->sess.spectatorState == SPECTATOR_FOLLOW) {
 		StopFollowing( ent );
@@ -987,6 +1024,13 @@ void FireWeapon( gentity_t *ent ) {
         if (ent->client->spawnprotected)
             ent->client->spawnprotected = qfalse;
 
+	// for EAWARD_ACCURACY
+	if (ent->s.weapon != ent->client->consecutive_hits_weapon) {
+		ent->client->consecutive_hits_weapon = ent->s.weapon;
+		ent->client->consecutive_hits = 0;
+	}
+	old_accuracy_hits = ent->client->accuracy_hits;
+
 	// track shots taken for accuracy tracking.  Grapple is not a weapon and gauntet is just not tracked
 	if( ent->s.weapon != WP_GRAPPLING_HOOK && ent->s.weapon != WP_GAUNTLET ) {
 		if( ent->s.weapon == WP_NAILGUN ) {
@@ -998,6 +1042,7 @@ void FireWeapon( gentity_t *ent ) {
                         ent->client->accuracy[ent->s.weapon][0]++;
 		}
 	}
+
 
 	// set aiming directions
 	AngleVectors (ent->client->ps.viewangles, forward, right, up);
@@ -1053,6 +1098,8 @@ void FireWeapon( gentity_t *ent ) {
 // FIXME		G_Error( "Bad ent->s.weapon" );
 		break;
 	}
+
+	G_CheckAccuracyAward(ent, old_accuracy_hits);
 }
 
 

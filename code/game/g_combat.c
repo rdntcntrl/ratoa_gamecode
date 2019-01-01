@@ -467,6 +467,8 @@ void rampage_notify(gentity_t *attacker) {
 		return;
 	}
 
+	attacker->client->pers.awardCounts[EAWARD_FRAGS]++;
+
 	if (!g_usesRatVM.integer && !G_MixedClientHasRatVM(attacker->client)) {
 		int soundIndex;
 		gentity_t *te;
@@ -481,7 +483,6 @@ void rampage_notify(gentity_t *attacker) {
 		return;
 	}
 
-	attacker->client->pers.awardCounts[EAWARD_FRAGS]++;
 	AwardMessage(attacker, EAWARD_FRAGS, attacker->client->pers.awardCounts[EAWARD_FRAGS]);
 }
 
