@@ -804,7 +804,6 @@ void G_RemapTeamShaders( void ) {
 				|| Q_stricmp(mapname, "ps37ctf2") == 0
 				|| Q_stricmp(mapname, "ps37ctf-mmp") == 0
 				|| Q_stricmp(mapname, "oa_ctf2") == 0
-				|| Q_stricmp(mapname, "mlctf1beta") == 0
 				|| Q_stricmp(mapname, "oa_ctf2old") == 0
 				|| Q_stricmp(mapname, "czest3ctf") == 0
 				|| Q_stricmp(mapname, "oa_minia") == 0
