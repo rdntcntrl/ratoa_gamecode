@@ -342,6 +342,8 @@ t_customvote getCustomVote(char* votecommand) {
 
         memset(&result,0,sizeof(result));
 
+	result.lightvote = qtrue;
+
         while ( 1 ) {
             token = COM_ParseExt( &pointer, qtrue );
             if ( !token[0] ) {
@@ -363,6 +365,8 @@ t_customvote getCustomVote(char* votecommand) {
                 Q_strncpyz(result.displayname,token,sizeof(result.displayname));
             } else if(!Q_stricmp(key,"command")) {
                 Q_strncpyz(result.command,token,sizeof(result.command));
+            } else if(!Q_stricmp(key,"lightvote")) {
+		result.lightvote = atoi(token) > 0 ? qtrue : qfalse;
             } else {
                 Com_Printf("Unknown key in customvote.cfg: %s\n",key);
             }
@@ -400,7 +404,7 @@ void CheckVote( void ) {
 		return;
 	}
 	if ( level.time - level.voteTime >= VOTE_TIME ) {
-            if(g_dmflags.integer & DF_LIGHT_VOTING) {
+            if(g_dmflags.integer & DF_LIGHT_VOTING && level.voteLightAllowed) {
                 //Let pass if there was at least twice as many for as against
                 if ( level.voteYes > level.voteNo*2 ) {
                     trap_SendServerCommand( -1, "print \"Vote passed. At least 2 of 3 voted yes\n\"" );

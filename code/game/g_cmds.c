@@ -2564,6 +2564,8 @@ void Cmd_CallVote_f( gentity_t *ent ) {
         level.voteKickClient = -1; //not a client
         level.voteKickType = 0; //not a ban
 
+	level.voteLightAllowed = qtrue;
+
 	// special case for g_gametype, check for bad values
 	if ( !Q_stricmp( arg1, "g_gametype" ) ) {
                 char	s[MAX_STRING_CHARS];
@@ -2770,6 +2772,8 @@ void Cmd_CallVote_f( gentity_t *ent ) {
                     Com_sprintf( level.voteDisplayString, sizeof( level.voteDisplayString ), "%s", customvote.displayname );
                 else
                     Com_sprintf( level.voteDisplayString, sizeof( level.voteDisplayString ), "%s", customvote.command );
+
+		level.voteLightAllowed = customvote.lightvote;
 	} else {
 		//Com_sprintf( level.voteString, sizeof( level.voteString ), "%s \"%s\"", arg1, arg2 );
 		//Com_sprintf( level.voteDisplayString, sizeof( level.voteDisplayString ), "%s", level.voteString );
