@@ -2015,6 +2015,10 @@ void ClientBegin( int clientNum ) {
 
 	if (g_gametype.integer == GT_TREASURE_HUNTER) {
 		client->pers.th_tokens = 0;		
+		if (level.th_phase == TH_HIDE) {
+			ent->client->pers.th_tokens = (g_treasureTokens.integer <= 0) ? 1 : g_treasureTokens.integer;
+			SetPlayerTokens(0, qtrue);
+		}
 		TreasureHuntMessage(ent);
 	}
 
