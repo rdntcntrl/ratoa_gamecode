@@ -470,7 +470,7 @@ static cvarTable_t		gameCvarTable[] = {
 
         { &g_ra3compat, "g_ra3compat", "1", CVAR_ARCHIVE, 0, qfalse },
         { &g_ra3maxArena, "g_ra3maxArena", "-1", CVAR_ROM, 0, qfalse },
-        { &g_ra3forceArena, "g_ra3forceArena", "-1", 0, 0, qfalse },
+        { &g_ra3forceArena, "g_ra3forceArena", "-1", CVAR_ROM, 0, qfalse },
 
         { &g_enableGreenArmor, "g_enableGreenArmor", "0", CVAR_ARCHIVE, 0, qfalse },
 
