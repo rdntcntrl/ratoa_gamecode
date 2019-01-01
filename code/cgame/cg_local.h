@@ -964,7 +964,7 @@ typedef struct {
 	qhandle_t	kamikazeEffectModel;
 	qhandle_t	kamikazeShockWave;
 	qhandle_t	kamikazeHeadModel;
-	qhandle_t	kamikazeHeadTrail;
+	//qhandle_t	kamikazeHeadTrail;
 	qhandle_t	guardPowerupModel;
 	qhandle_t	scoutPowerupModel;
 	qhandle_t	doublerPowerupModel;
