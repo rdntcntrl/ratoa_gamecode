@@ -591,7 +591,7 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_ratRailRadius, "cg_ratRailRadius", "0.5", CVAR_ARCHIVE},
 	{ &cg_ratLg, "cg_ratLg", "3", CVAR_ARCHIVE},
 	{ &cg_ratLgImpact, "cg_ratLgImpact", "1", CVAR_ARCHIVE},
-	{ &cg_consoleStyle, "cg_consoleStyle", "1", CVAR_ARCHIVE},
+	{ &cg_consoleStyle, "cg_consoleStyle", "2", CVAR_ARCHIVE},
 	{ &cg_noBubbleTrail, "cg_noBubbleTrail", "1", CVAR_ARCHIVE},
 	{ &cg_specShowZoom, "cg_specShowZoom", "1", CVAR_ARCHIVE},
 	{ &cg_zoomToggle, "cg_zoomToggle", "0", CVAR_ARCHIVE},
@@ -810,8 +810,20 @@ void CG_RegisterCvars( void ) {
 }
 
 void CG_RatRemapShaders(void) {
-	if (cg_consoleStyle.integer) {
-		trap_R_RemapShader("console", "ratconsole", 0);
+	switch (cg_consoleStyle.integer) {
+		case 1:
+			trap_R_RemapShader("console", "ratconsole", 0);
+			break;
+		case 2:
+			if (((float)cgs.glconfig.vidWidth)/((float)cgs.glconfig.vidHeight) > 1.5) {
+				// widescreen:
+				trap_R_RemapShader("console", "ratconsole_trebrat_wide", 0);
+			} else {
+				trap_R_RemapShader("console", "ratconsole_trebrat", 0);
+			}
+			break;
+		default:
+			break;
 	}
 }
 
