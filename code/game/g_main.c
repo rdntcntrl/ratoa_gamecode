@@ -3515,7 +3515,10 @@ void CheckTreasureHunter(void) {
 
 		if (tokens_red == 0 
 				|| tokens_blue == 0
-				|| (g_treasureSeekTime.integer > 0 && level.time >= level.th_seekTime + g_treasureSeekTime.integer * 1000)) {
+				|| (g_treasureSeekTime.integer > 0 
+					&& level.time >= level.th_seekTime + g_treasureSeekTime.integer * 1000
+					&& !ScoreIsTied() // for overtime
+					)) { 
 			char *s = NULL;
 
 			if (tokens_red + tokens_blue == 0) {
