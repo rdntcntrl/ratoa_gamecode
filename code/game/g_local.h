@@ -421,6 +421,9 @@ struct gclient_s {
 	int			accuracy_shots;		// total number of shots
 	int			accuracy_hits;		// total number of hits
 
+	int			consecutive_hits; 		// for EAWARD_ACCURACY	
+	int			consecutive_hits_weapon;	// these get reset upon respawn
+
 	//
 	int			lastkilled_client;	// last client that this client killed
 	int			lasthurt_client;	// last client that damaged this client
