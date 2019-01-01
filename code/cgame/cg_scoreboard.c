@@ -510,7 +510,7 @@ static void CG_RatDrawClientScore(int y, score_t *score, float *color, float fad
 	} else {
 		tcolor[0] = tcolor[2] = 0.5;
 		tcolor[1] = 1.0;
-		if (cgs.gametype == GT_TOURNAMENT) {
+		if (cgs.gametype == GT_TOURNAMENT || cgs.gametype == GT_MULTITOURNAMENT) {
 			Com_sprintf(string, sizeof (string), "%2i", ci->wins);
 		} else if (cgs.gametype == GT_CTF) {
 			Com_sprintf(string, sizeof (string), "%2i", score->captures);
@@ -521,14 +521,15 @@ static void CG_RatDrawClientScore(int y, score_t *score, float *color, float fad
 
 		tcolor[0] = tcolor[1] = tcolor[2] = 1.0;
 		if (cgs.gametype == GT_TOURNAMENT 
-				|| cgs.gametype == GT_CTF) {
+				|| cgs.gametype == GT_CTF 
+				|| cgs.gametype == GT_MULTITOURNAMENT) {
 			Com_sprintf(string, sizeof (string), "/");
 		} else {
 			Com_sprintf(string, sizeof (string), " ");
 		}
 		CG_DrawSmallScoreStringColor(RATSB_WL_X, ysmall, string, tcolor);
 
-		if (cgs.gametype == GT_TOURNAMENT) {
+		if (cgs.gametype == GT_TOURNAMENT || cgs.gametype == GT_MULTITOURNAMENT) {
 			tcolor[1] = tcolor[2] = 0.5;
 			tcolor[2] = 1.0;
 			Com_sprintf(string, sizeof (string), "%-2i", ci->losses);
@@ -853,6 +854,8 @@ qboolean CG_DrawRatScoreboard(void) {
 		s = "Domination";
           } else if ( cgs.gametype == GT_TREASURE_HUNTER ) {
 		s = "Treasure Hunter";
+          } else if ( cgs.gametype == GT_MULTITOURNAMENT ) {
+		s = "Multitournament";
 	} else {
 		s = "";
 	}
