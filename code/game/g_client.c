@@ -1309,8 +1309,8 @@ void ClientUserinfoChanged( int clientNum ) {
 	qboolean    revertName = qfalse;
 	
 	gclient_t	*client;
-	char	c1[MAX_INFO_STRING];
-	char	c2[MAX_INFO_STRING];
+	char	c1[MAX_INFO_STRING] = "7";
+	char	c2[MAX_INFO_STRING] = "7";
 	char	redTeam[MAX_INFO_STRING];
 	char	blueTeam[MAX_INFO_STRING];
 	char	userinfo[MAX_INFO_STRING];
@@ -1322,7 +1322,7 @@ void ClientUserinfoChanged( int clientNum ) {
 
 	// check for malformed or illegal info strings
 	if ( !Info_Validate(userinfo) ) {
-		strcpy (userinfo, "\\name\\badinfo");
+		Q_strncpyz (userinfo, "\\name\\badinfo", sizeof(userinfo));
 	}
 
 	// check for local client
@@ -1603,27 +1603,25 @@ Sago: I am not happy with this exception
         if( g_gametype.integer >= GT_TEAM && g_ffa_gt==0 && g_instantgib.integer) {
             switch(team) {
                 case TEAM_RED:
-                    c1[0] = COLOR_BLUE;
-                    c2[0] = COLOR_BLUE;
-                    c1[1] = 0;
-                    c2[1] = 0;
+		    Q_strncpyz(c1, "4", sizeof(c1));
+		    Q_strncpyz(c2, "4", sizeof(c2));
                     break;
                 case TEAM_BLUE:
-                    c1[0] = COLOR_RED;
-                    c2[0] = COLOR_RED;
-                    c1[1] = 0;
-                    c2[1] = 0;
+		    Q_strncpyz(c1, "1", sizeof(c1));
+		    Q_strncpyz(c2, "1", sizeof(c2));
                     break;
                 default:
+		    Q_strncpyz(c1, "7", sizeof(c1));
+		    Q_strncpyz(c2, "7", sizeof(c2));
                     break;
             }
         } else {
-            strcpy(c1, Info_ValueForKey( userinfo, "color1" ));
-            strcpy(c2, Info_ValueForKey( userinfo, "color2" ));
+            Q_strncpyz(c1, Info_ValueForKey( userinfo, "color1" ), sizeof(c1));
+            Q_strncpyz(c2, Info_ValueForKey( userinfo, "color2" ), sizeof(c2));
         }
 
-	strcpy(redTeam, Info_ValueForKey( userinfo, "g_redteam" ));
-	strcpy(blueTeam, Info_ValueForKey( userinfo, "g_blueteam" ));
+	Q_strncpyz(redTeam, Info_ValueForKey( userinfo, "g_redteam" ), sizeof(redTeam));
+	Q_strncpyz(blueTeam, Info_ValueForKey( userinfo, "g_blueteam" ), sizeof(blueTeam));
 
 	// send over a subset of the userinfo keys so other clients can
 	// print scoreboards, display models, and play custom sounds
