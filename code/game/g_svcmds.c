@@ -481,7 +481,7 @@ void DmflagSet_f ( void ) {
 	trap_Argv( 1, str, sizeof( str ) );
 	flag = atoi(str);
 
-	trap_Cvar_Set( "dmflags", va("%i", g_dmflags.integer | flag) );
+	trap_Cvar_Set( "dmflags", va("%i", trap_Cvar_VariableIntegerValue("dmflags") | flag) );
 
 }
 
@@ -497,7 +497,7 @@ void DmflagUnset_f ( void ) {
 	trap_Argv( 1, str, sizeof( str ) );
 	flag = atoi(str);
 
-	trap_Cvar_Set( "dmflags", va("%i", g_dmflags.integer & ~flag) );
+	trap_Cvar_Set( "dmflags", va("%i", trap_Cvar_VariableIntegerValue("dmflags") & ~flag) );
 }
 
 void DmflagToggle_f ( void ) {
@@ -512,7 +512,7 @@ void DmflagToggle_f ( void ) {
 	trap_Argv( 1, str, sizeof( str ) );
 	flag = atoi(str);
 
-	trap_Cvar_Set( "dmflags", va("%i", g_dmflags.integer ^ flag) );
+	trap_Cvar_Set( "dmflags", va("%i", trap_Cvar_VariableIntegerValue("dmflags") ^ flag) );
 }
 
 //KK-OAX Moved this Declaration to g_local.h
