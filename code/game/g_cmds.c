@@ -346,6 +346,10 @@ void DominationPointStatusMessage( gentity_t *ent ) {
 	trap_SendServerCommand( ent-g_entities, va("domStatus %i%s", level.domination_points_count, string ) );
 }
 
+void AwardMessage(gentity_t *ent, extAward_t award, int count) {
+	trap_SendServerCommand( ent-g_entities, va("award %i %i", award, count));
+}
+
 /*
 ==================
 EliminationMessage

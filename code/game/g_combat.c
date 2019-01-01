@@ -463,10 +463,13 @@ void CheckAlmostScored( gentity_t *self, gentity_t *attacker ) {
 }
 
 void rampage_notify(gentity_t *attacker) {
-	int soundIndex;
-	gentity_t *te;
+	if (attacker->client->pers.multiKillCount != 3) {
+		return;
+	}
 
-	if (attacker->client->pers.multiKillCount == 3) {
+	if (!g_usesRatVM.integer) {
+		int soundIndex;
+		gentity_t *te;
 		soundIndex = G_SoundIndex( "sound/feedback/frags.wav" );
 		//G_AddEvent( attacker, EV_GENERAL_SOUND, soundIndex );
 		te = G_TempEntity( level.intermission_origin, EV_GLOBAL_SOUND );
@@ -474,7 +477,12 @@ void rampage_notify(gentity_t *attacker) {
 		te->r.svFlags |= SVF_BROADCAST;
 		te->r.svFlags |= SVF_SINGLECLIENT;
 		te->r.singleClient = attacker->s.number;
+
+		return;
 	}
+
+	attacker->client->pers.awardCounts[EAWARD_FRAGS]++;
+	AwardMessage(attacker, EAWARD_FRAGS, attacker->client->pers.awardCounts[EAWARD_FRAGS]);
 }
 
 
