@@ -467,7 +467,7 @@ void rampage_notify(gentity_t *attacker) {
 		return;
 	}
 
-	if (!g_usesRatVM.integer) {
+	if (!g_usesRatVM.integer && !G_MixedClientHasRatVM(attacker->client)) {
 		int soundIndex;
 		gentity_t *te;
 		soundIndex = G_SoundIndex( "sound/feedback/frags.wav" );
