@@ -298,6 +298,7 @@ typedef enum {
 // Additional awards (not visible to other players)
 typedef enum {
 	EAWARD_FRAGS,
+	EAWARD_ACCURACY,
 
 	EAWARD_NUM_AWARDS
 } extAward_t;
