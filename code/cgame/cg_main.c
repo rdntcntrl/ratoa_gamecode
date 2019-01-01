@@ -1045,6 +1045,12 @@ void CG_RatInitDefaults(void)  {
 		trap_Cvar_Set( "cg_ratInitialized", "12" );
 	}
 
+	if (cg_ratInitialized.integer < 13) {
+		trap_Cvar_Set("cg_consoleStyle", "2");
+
+		trap_Cvar_Set( "cg_ratInitialized", "13" );
+	}
+
 }
 
 /*																																			
