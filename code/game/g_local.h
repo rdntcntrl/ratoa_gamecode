@@ -208,6 +208,9 @@ struct gentity_s {
 	int		pushed_at;
 
 	qboolean	missileExploded;
+
+	// for EAWARD_TELEMISSILE_FRAG:
+	qboolean	missileTeleported;
 };
 
 

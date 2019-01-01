@@ -349,6 +349,8 @@ void G_TeleportMissile( gentity_t *ent, trace_t *trace, gentity_t *portal ) {
 	// set flag to indicate missile teleport
 	ent->s.eFlags ^= EF_TELEPORT_BIT;
 
+	ent->missileTeleported = qtrue;
+
 	// set new origin
 	VectorCopy(dest->s.origin, ent->r.currentOrigin);
 	VectorCopy(ent->r.currentOrigin, ent->s.pos.trBase);

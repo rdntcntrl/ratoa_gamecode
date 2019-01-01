@@ -486,6 +486,32 @@ void rampage_notify(gentity_t *attacker) {
 	AwardMessage(attacker, EAWARD_FRAGS, attacker->client->pers.awardCounts[EAWARD_FRAGS]);
 }
 
+void G_CheckDeathEAwards(gentity_t *victim, gentity_t *inflictor, gentity_t *attacker, int meansOfDeath) {
+	if (!attacker || !attacker->client || attacker == victim) {
+		return;
+	}
+	switch (meansOfDeath) {
+		case MOD_TELEFRAG:
+			AwardMessage(attacker, EAWARD_TELEFRAG, ++(attacker->client->pers.awardCounts[EAWARD_TELEFRAG]));
+			return;
+		case MOD_ROCKET:
+		case MOD_ROCKET_SPLASH:
+		case MOD_GRENADE:
+		case MOD_GRENADE_SPLASH:
+		case MOD_PLASMA:
+		case MOD_PLASMA_SPLASH:
+		case MOD_NAIL:
+		case MOD_BFG:
+		case MOD_BFG_SPLASH:
+			if (!inflictor || !inflictor->missileTeleported) {
+				return;
+			}
+			AwardMessage(attacker, EAWARD_TELEMISSILE_FRAG, ++(attacker->client->pers.awardCounts[EAWARD_TELEMISSILE_FRAG]));
+
+			return;
+	}
+}
+
 
 /*
 ==================
@@ -525,6 +551,8 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
     //KK-OAX Here is where we run the streak logic. 
     G_RunStreakLogic( attacker, self );
     
+    	G_CheckDeathEAwards(self, inflictor, attacker, meansOfDeath);
+	
 	// check for an almost capture
 	CheckAlmostCapture( self, attacker );
 	// check for a player that almost brought in cubes
@@ -1043,6 +1071,18 @@ static int catchup_damage(int damage, int attacker_points, int target_points) {
     return newdamage;
 }
 
+void G_CheckRocketSniper(gentity_t *victim, gentity_t *inflictor, gentity_t *attacker, int meansOfDeath, vec3_t point) {
+	if (meansOfDeath != MOD_ROCKET || !victim || !victim->client || !attacker || !attacker->client || !inflictor) {
+		return;
+	}
+
+	if (Distance(point, inflictor->s.pos.trBase) < 1500.0) {
+		return;
+	}
+	
+	AwardMessage(attacker, EAWARD_ROCKETSNIPER, ++(attacker->client->pers.awardCounts[EAWARD_ROCKETSNIPER]));
+}
+
 int G_WeaponForMOD(int mod) {
 	// XXX: not necessarily complete
 	switch (mod) {
@@ -1412,6 +1452,8 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		if ( targ->client ) {
 			targ->client->ps.stats[STAT_HEALTH] = targ->health;
 		}
+
+		G_CheckRocketSniper(targ, inflictor, attacker, mod, point);
 
 		// stats
 		if (targ->health < 0) {
