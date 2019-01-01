@@ -220,6 +220,7 @@ vmCvar_t	g_ffaSpawnsystem;
 vmCvar_t	g_ra3compat;
 vmCvar_t	g_ra3maxArena;
 vmCvar_t	g_ra3forceArena;
+vmCvar_t	g_ra3nextForceArena;
 
 vmCvar_t	g_enableGreenArmor;
 
@@ -471,6 +472,7 @@ static cvarTable_t		gameCvarTable[] = {
         { &g_ra3compat, "g_ra3compat", "1", CVAR_ARCHIVE, 0, qfalse },
         { &g_ra3maxArena, "g_ra3maxArena", "-1", CVAR_ROM, 0, qfalse },
         { &g_ra3forceArena, "g_ra3forceArena", "-1", 0, 0, qfalse },
+        { &g_ra3nextForceArena, "g_ra3nextForceArena", "-1", 0, 0, qfalse },
 
         { &g_enableGreenArmor, "g_enableGreenArmor", "0", CVAR_ARCHIVE, 0, qfalse },
 
@@ -1506,6 +1508,14 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 
 	if (!restart && g_ra3forceArena.integer != -1) {
 		trap_Cvar_Set("g_ra3forceArena","-1");
+	}
+
+	if (g_ra3nextForceArena.integer != -1) {
+		if (g_ra3compat.integer && g_ra3maxArena.integer >= 0 
+				&& G_RA3ArenaAllowed(g_ra3nextForceArena.integer)) {
+			trap_Cvar_Set("g_ra3forceArena",va("%i", g_ra3nextForceArena.integer));
+		}
+		trap_Cvar_Set("g_ra3nextForceArena", "-1");
 	}
 }
 

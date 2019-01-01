@@ -1321,6 +1321,7 @@ extern  vmCvar_t	g_ffaSpawnsystem;
 extern  vmCvar_t	g_ra3compat;
 extern  vmCvar_t	g_ra3maxArena;
 extern  vmCvar_t	g_ra3forceArena;
+extern  vmCvar_t	g_ra3nextForceArena;
 
 extern  vmCvar_t	g_enableGreenArmor;
 
