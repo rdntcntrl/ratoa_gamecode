@@ -529,6 +529,23 @@ static void CG_ParseRespawnTime( void ) {
     cg.respawnTime = atoi( CG_Argv(1) );
 }
 
+static void CG_ParseAward( void ) {
+	extAward_t award = atoi( CG_Argv( 1 ) );
+	int count = atoi( CG_Argv( 2 ) );
+
+	if (count < 1) {
+		return;
+	}
+
+	switch (award) {
+		case EAWARD_FRAGS:
+			pushReward(cgs.media.fragsSound, cgs.media.medalFrags, count);
+			break;
+		default:
+			return;
+	}
+}
+
 /*
 =================
 CG_ParseTeam
@@ -1792,6 +1809,11 @@ static void CG_ServerCommand( void ) {
 
         if ( !strcmp( cmd, "spawnPoints" ) ) {
 		CG_ParseSpawnpoints();
+		return;
+	}
+
+        if ( !strcmp( cmd, "award" ) ) {
+		CG_ParseAward();
 		return;
 	}
 
