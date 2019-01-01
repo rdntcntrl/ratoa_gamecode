@@ -1560,6 +1560,8 @@ extern vmCvar_t			cg_teamCorpseValue;
 extern vmCvar_t			cg_itemFade;
 extern vmCvar_t			cg_itemFadeTime;
 
+extern vmCvar_t			cg_bobGun;
+
 extern vmCvar_t			cg_timerAlpha;
 extern vmCvar_t			cg_fpsAlpha;
 extern vmCvar_t			cg_speedAlpha;

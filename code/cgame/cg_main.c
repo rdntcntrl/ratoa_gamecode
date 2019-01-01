@@ -298,6 +298,8 @@ vmCvar_t	cg_teamCorpseValue;
 vmCvar_t	cg_itemFade;
 vmCvar_t	cg_itemFadeTime;
 
+vmCvar_t	cg_bobGun;
+
 vmCvar_t	cg_timerAlpha;
 vmCvar_t	cg_fpsAlpha;
 vmCvar_t	cg_speedAlpha;
@@ -689,6 +691,8 @@ static cvarTable_t cvarTable[] = { // bk001129
 
 	{ &cg_itemFade ,           "cg_itemFade", "1", CVAR_ARCHIVE},
 	{ &cg_itemFadeTime ,           "cg_itemFadeTime", "3000", CVAR_CHEAT},
+
+	{ &cg_bobGun ,           "cg_bobGun", "0", CVAR_ARCHIVE},
 
 	// / RAT ===================
 

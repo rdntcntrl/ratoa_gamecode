@@ -1321,6 +1321,10 @@ static void CG_CalculateWeaponPosition( vec3_t origin, vec3_t angles ) {
 	VectorCopy( cg.refdef.vieworg, origin );
 	VectorCopy( cg.refdefViewAngles, angles );
 
+	if (!cg_bobGun.integer) {
+		return;
+	}
+
 	// on odd legs, invert some angles
 	if ( cg.bobcycle & 1 ) {
 		scale = -cg.xyspeed;
