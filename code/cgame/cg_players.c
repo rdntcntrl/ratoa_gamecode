@@ -1238,7 +1238,6 @@ so deferred players can be loaded
 void CG_LoadDeferredPlayers( void ) {
 	int		i;
 	clientInfo_t	*ci;
-	qboolean 	didload = qfalse;
 
 	// scan for a deferred player to load
 	for ( i = 0, ci = cgs.clientinfo ; i < cgs.maxclients ; i++, ci++ ) {
@@ -1250,12 +1249,9 @@ void CG_LoadDeferredPlayers( void ) {
 				continue;
 			}
 			CG_LoadClientInfo( i, ci );
-			didload = qtrue;
 //			break;
 		}
 	}
-	if (didload) 
-		CG_ForceModelChange();
 }
 
 /*
