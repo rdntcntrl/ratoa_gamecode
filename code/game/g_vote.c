@@ -401,6 +401,17 @@ void G_SendVoteResult(qboolean passed) {
 	trap_SendServerCommand( -1, va("vresult %s", passed ? "p" : "f"));
 }
 
+void G_SetVoteExecTime(void) {
+	level.voteExecuteTime = level.time + 3000;
+	// make sure vote gets executed if it passed just at the end of a warmup
+	if (level.warmupTime > 0 && level.warmupTime <= level.voteExecuteTime) {
+		level.voteExecuteTime = level.warmupTime - 3*1000.0/sv_fps.integer;
+		if (level.voteExecuteTime <= level.time + 1000/sv_fps.integer) {
+			level.voteExecuteTime = level.time;
+		}
+	}
+}
+
 /*
 ==================
 CheckVote
@@ -420,13 +431,13 @@ void CheckVote( void ) {
                 if ( level.voteYes > level.voteNo*2 ) {
                     trap_SendServerCommand( -1, "print \"Vote passed. At least 2 of 3 voted yes\n\"" );
 		    G_SendVoteResult(qtrue);
-                    level.voteExecuteTime = level.time + 3000;
+		    G_SetVoteExecTime();
                 } else {
                     //Let pass if there is more yes than no and at least 2 yes votes and at least 30% yes of all on the server
                     if ( level.voteYes > level.voteNo && level.voteYes >= 2 && (level.voteYes*10)>(level.numVotingClients*3) ) {
                         trap_SendServerCommand( -1, "print \"Vote passed. More yes than no.\n\"" );
 			G_SendVoteResult(qtrue);
-                        level.voteExecuteTime = level.time + 3000;
+			G_SetVoteExecTime();
                     } else {
                         trap_SendServerCommand( -1, "print \"Vote failed.\n\"" );
 		    	G_SendVoteResult(qfalse);
@@ -442,7 +453,7 @@ void CheckVote( void ) {
 			// execute the command, then remove the vote
 			trap_SendServerCommand( -1, "print \"Vote passed.\n\"" );
 		    	G_SendVoteResult(qtrue);
-			level.voteExecuteTime = level.time + 3000;
+			G_SetVoteExecTime();
 		} else if ( level.voteNo >= (level.numVotingClients)/2 ) {
 			// same behavior as a timeout
 			trap_SendServerCommand( -1, "print \"Vote failed.\n\"" );
