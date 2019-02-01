@@ -1569,11 +1569,12 @@ go to a random point that doesn't telefrag
 */
 #define	MAX_TEAM_SPAWN_POINTS	32
 gentity_t *SelectRandomTeamSpawnPointArena( int teamstate, team_t team, int arenaNum ) {
-	gentity_t	*spot;
-	int			count;
+	gentity_t	*spot = NULL;
+	int			count = 0;
 	int			selection;
 	gentity_t	*spots[MAX_TEAM_SPAWN_POINTS];
 	char		*classname;
+	int i;
 
 	if(g_gametype.integer == GT_ELIMINATION) { //change sides every round
 		if((level.roundNumber+level.eliminationSides)%2==1){
@@ -1599,24 +1600,32 @@ gentity_t *SelectRandomTeamSpawnPointArena( int teamstate, team_t team, int aren
 		else
 			return NULL;
 	}
-	count = 0;
 
-	spot = NULL;
 
-	while ((spot = G_Find (spot, FOFS(classname), classname)) != NULL) {
-		if ( SpotWouldTelefrag( spot ) ) {
-			continue;
+	// try this twice, first trying to exclude spots that would telefrag
+	for (i = 0; i < 2; ++i) {
+		count = 0;
+		spot = NULL;
+
+		while ((spot = G_Find (spot, FOFS(classname), classname)) != NULL) {
+			if ( i == 0 && SpotWouldTelefrag( spot ) ) {
+				continue;
+			}
+			if (g_ra3compat.integer && arenaNum >= 0 && spot->arenaNum != arenaNum) {
+				continue;
+			}
+			spots[ count ] = spot;
+			if (++count == MAX_TEAM_SPAWN_POINTS)
+				break;
 		}
-		if (g_ra3compat.integer && arenaNum >= 0 && spot->arenaNum != arenaNum) {
-			continue;
-		}
-		spots[ count ] = spot;
-		if (++count == MAX_TEAM_SPAWN_POINTS)
+
+		if (count) {
 			break;
+		}
 	}
 
-	if ( !count ) {	// no spots that won't telefrag
-		return G_Find( NULL, FOFS(classname), classname);
+	if (!count) {
+		return NULL;
 	}
 
 	selection = rand() % count;

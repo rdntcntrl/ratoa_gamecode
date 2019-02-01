@@ -153,27 +153,34 @@ go to a random point that doesn't telefrag
 */
 #define	MAX_SPAWN_POINTS	128
 gentity_t *SelectRandomDeathmatchSpawnPointArena( int arenaNum ) {
-	gentity_t	*spot;
-	int			count;
+	gentity_t	*spot = NULL;
+	int			count = 0;
 	int			selection;
 	gentity_t	*spots[MAX_SPAWN_POINTS];
+	int i;
 
-	count = 0;
-	spot = NULL;
+	// try this twice, first trying to exclude spots that would telefrag
+	for (i = 0; i < 2; ++i) {
+		count = 0;
+		spot = NULL;
 
-	while ((spot = G_Find (spot, FOFS(classname), "info_player_deathmatch")) != NULL) {
-		if ( SpotWouldTelefrag( spot ) ) {
-			continue;
+		while ((spot = G_Find (spot, FOFS(classname), "info_player_deathmatch")) != NULL) {
+			if ( i == 0 && SpotWouldTelefrag( spot ) ) {
+				continue;
+			}
+			if (g_ra3compat.integer && arenaNum != -1 && spot->arenaNum != arenaNum) {
+				continue;
+			}
+			spots[ count ] = spot;
+			count++;
 		}
-		if (g_ra3compat.integer && arenaNum != -1 && spot->arenaNum != arenaNum) {
-			continue;
-		}
-		spots[ count ] = spot;
-		count++;
+
+		if (count)
+			break;
 	}
 
-	if ( !count ) {	// no spots that won't telefrag
-		return G_Find( NULL, FOFS(classname), "info_player_deathmatch");
+	if (!count) {
+		return NULL;
 	}
 
 	selection = rand() % count;
