@@ -209,6 +209,8 @@ struct gentity_s {
 
 	qboolean	missileExploded;
 
+	qboolean	missileTeleportCount;
+
 	// for EAWARD_TELEMISSILE_FRAG:
 	qboolean	missileTeleported;
 };
@@ -1272,6 +1274,7 @@ extern	vmCvar_t	sv_fps;
 extern  vmCvar_t        g_lagLightning;
 //unlagged - server options
 extern  vmCvar_t        g_teleMissiles;
+extern  vmCvar_t        g_teleMissilesMaxTeleports;
 extern  vmCvar_t        g_pushGrenades;
 extern  vmCvar_t        g_newShotgun;
 extern  vmCvar_t        g_ratPhysics;

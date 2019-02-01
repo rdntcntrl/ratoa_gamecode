@@ -914,8 +914,11 @@ void G_RunMissile( gentity_t *ent ) {
 
 			stuckIn = &g_entities[tr2.entityNum];
 			if (stuckIn->s.eType == ET_TELEPORT_TRIGGER) {
-				if (g_teleMissiles.integer == 1 && stuckIn->target) {
+				if (g_teleMissiles.integer == 1 
+						&& stuckIn->target
+						&& (!g_teleMissilesMaxTeleports.integer || ent->missileTeleportCount < g_teleMissilesMaxTeleports.integer)) {
 					G_TeleportMissile( ent, &tr2, stuckIn );
+					ent->missileTeleportCount++;
 					// make sure we don't impact
 					tr.fraction = 1;
 					telepushed = 1;

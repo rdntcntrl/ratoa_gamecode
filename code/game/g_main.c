@@ -183,6 +183,7 @@ vmCvar_t	sv_fps;
 vmCvar_t        g_lagLightning; //Adds a little lag to the lightninggun to make it less powerfull
 //unlagged - server options
 vmCvar_t        g_teleMissiles;
+vmCvar_t        g_teleMissilesMaxTeleports;
 vmCvar_t        g_pushGrenades;
 vmCvar_t        g_newShotgun;
 vmCvar_t        g_ratPhysics;
@@ -474,6 +475,7 @@ static cvarTable_t		gameCvarTable[] = {
 
         { &g_teleMissiles, "g_teleMissiles", "0", CVAR_ARCHIVE, 0, qtrue },
         { &g_pushGrenades, "g_pushGrenades", "0", CVAR_ARCHIVE, 0, qtrue },
+        { &g_teleMissilesMaxTeleports, "g_teleMissilesMaxTeleports", "3", CVAR_ARCHIVE, 0, qfalse },
 
         { &g_newShotgun, "g_newShotgun", "1", CVAR_ARCHIVE, 0, qtrue },
 
