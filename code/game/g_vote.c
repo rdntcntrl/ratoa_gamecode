@@ -204,6 +204,9 @@ int allowedGametype(char *gametypeStr) {
     }
 }
 
+// these are a bit arbitrary, but do prevent some integer overruns
+#define MAX_TIMELIMIT (60*24)
+#define MAX_FRAGLIMIT (1 << 16)
 /*
 ==================
 allowedTimelimit
@@ -213,6 +216,10 @@ int allowedTimelimit(int limit) {
     int min, max;
     min = g_voteMinTimelimit.integer;
     max = g_voteMaxTimelimit.integer;
+    if (limit > MAX_TIMELIMIT) {
+	    // hard limit
+	    return qfalse;
+    }
     if(limit<min && limit != 0)
         return qfalse;
     if(max!=0 && limit>max)
@@ -246,6 +253,10 @@ int allowedFraglimit(int limit) {
     int min, max;
     min = g_voteMinFraglimit.integer;
     max = g_voteMaxFraglimit.integer;
+    if (limit > MAX_FRAGLIMIT) {
+	    // hard limit
+	    return qfalse;
+    }
     if(limit<min && limit != 0)
         return qfalse;
     if(max != 0 && limit>max)
