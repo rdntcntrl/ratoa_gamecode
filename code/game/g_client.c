@@ -1265,16 +1265,20 @@ void G_CheckClan( team_t team) {
 qboolean G_IsUnnamedName(char *name) {
 	char *unnamedStr = "UnnamedPlayer";
 	int unnamedLen = strlen(unnamedStr);
+	char cleanName[MAX_NETNAME];
 	char *p = NULL;
 
-	if (Q_stricmpn(name, unnamedStr, unnamedLen) != 0) {
+	Q_strncpyz(cleanName, name, sizeof(cleanName));
+	Q_CleanStr(cleanName);
+
+	if (Q_stricmpn(cleanName, unnamedStr, unnamedLen) != 0) {
 		return qfalse;
 	}
 
-	if (strlen(name) <= unnamedLen) {
+	if (strlen(cleanName) <= unnamedLen) {
 		return qtrue;
 	}
-	p = name + unnamedLen;
+	p = cleanName + unnamedLen;
 	while (*p != '\0') {
 		if (isgraph(*p)) {
 			return qfalse;
