@@ -2381,6 +2381,7 @@ static void Cmd_VoiceTaunt_f( gentity_t *ent ) {
 
 static void Cmd_Taunt_f( gentity_t *ent ){
 	char		*p;
+	int		i;
 
 	if (!g_tauntAllowed.integer) {
 		return;
@@ -2398,10 +2399,16 @@ static void Cmd_Taunt_f( gentity_t *ent ){
 
 	p = ConcatArgs( 1 );
 
-	trap_SendServerCommand( -1, va("taunt %i \"%s\"", 
-		(int)(ent - g_entities),
-		 p));
-
+	for ( i = 0 ; i < level.maxclients ; i++ ) {
+		if ( level.clients[ i ].pers.connected != CON_CONNECTED 
+				|| !(g_usesRatVM.integer > 0 || G_MixedClientHasRatVM(&level.clients[i]))
+				) {
+			continue;
+		}
+		trap_SendServerCommand( i, va("taunt %i \"%s\"", 
+					(int)(ent - g_entities),
+					p));
+	}
 }
 
 
