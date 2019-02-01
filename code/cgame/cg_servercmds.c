@@ -1096,6 +1096,43 @@ static void CG_ParseWarmup( void ) {
 	cg.warmup = warmup;
 }
 
+
+void CG_SetMtrnScoresIdx( int scoreIdx ) {
+	int i;
+	const char *str = CG_ConfigString(scoreIdx);
+	int *scores;
+
+	if (scoreIdx == CS_SCORES1) {
+		scores = cgs.scores1Mtrn;
+	} else {
+		scores = cgs.scores2Mtrn;
+	}
+
+	memset(scores, 0, sizeof(cgs.scores1Mtrn));
+
+	for (i = 0; i < MULTITRN_MAX_GAMES; ++i) {
+		if (*str) {
+			scores[i] = atoi(str);
+		}
+		while (*str && *str != ' ') {
+			++str;
+		}
+		while (*str == ' ') {
+			++str;
+		}
+	}
+}
+
+void CG_SetScores(void) {
+	if (cgs.gametype != GT_MULTITOURNAMENT) {
+		cgs.scores1 = atoi(CG_ConfigString(CS_SCORES1));
+		cgs.scores2 = atoi(CG_ConfigString(CS_SCORES2));
+		return;
+	}
+	CG_SetMtrnScoresIdx(CS_SCORES1);
+	CG_SetMtrnScoresIdx(CS_SCORES2);
+}
+
 /*
 ================
 CG_SetConfigValues
@@ -1106,8 +1143,7 @@ Called on load to set the initial values from configure strings
 void CG_SetConfigValues( void ) {
 	const char *s;
 
-	cgs.scores1 = atoi( CG_ConfigString( CS_SCORES1 ) );
-	cgs.scores2 = atoi( CG_ConfigString( CS_SCORES2 ) );
+	CG_SetScores();
 	cgs.levelStartTime = atoi( CG_ConfigString( CS_LEVEL_START_TIME ) );
 	if( cgs.gametype == GT_CTF || cgs.gametype == GT_CTF_ELIMINATION || cgs.gametype == GT_DOUBLE_D) {
 		s = CG_ConfigString( CS_FLAGSTATUS );
@@ -1190,9 +1226,9 @@ static void CG_ConfigStringModified( void ) {
 	} else if ( num == CS_WARMUP ) {
 		CG_ParseWarmup();
 	} else if ( num == CS_SCORES1 ) {
-		cgs.scores1 = atoi( str );
+		CG_SetScores();
 	} else if ( num == CS_SCORES2 ) {
-		cgs.scores2 = atoi( str );
+		CG_SetScores();
 	} else if ( num == CS_LEVEL_START_TIME ) {
 		cgs.levelStartTime = atoi( str );
 	} else if ( num == CS_VOTE_TIME ) {

@@ -503,6 +503,9 @@ typedef struct {
 
 	int 		lastPinglocationTime;
 
+	// for GT_MULTITOURNAMENT
+	int		gameId;
+
 } clientInfo_t;
 
 
@@ -1517,7 +1520,10 @@ typedef struct {
 	int domination_points_status[MAX_DOMINATION_POINTS];
 
 
-	int				scores1, scores2;		// from configstrings
+	// from configstrings
+	int				scores1, scores2;
+	int				scores1Mtrn[MULTITRN_MAX_GAMES];
+	int				scores2Mtrn[MULTITRN_MAX_GAMES];		
 	int				redflag, blueflag;		// flag status from configstrings
 	int				flagStatus;
 
@@ -2157,6 +2163,7 @@ int CG_Reward2Time(int idx);
 void CG_ResetStatusbar(void);
 void CG_Ratstatusbar4RegisterShaders(void);
 void CG_Ratstatusbar3RegisterShaders(void);
+int CG_GetScoresMtrn(int scoreNum);
 
 
 
