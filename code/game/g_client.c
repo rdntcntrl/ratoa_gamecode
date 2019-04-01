@@ -2171,6 +2171,10 @@ void ClientBegin( int clientNum ) {
 			trap_SendServerCommand( -1, va("print \"%s" S_COLOR_WHITE " entered the game%s\n\"", 
 						client->pers.netname,
 						(g_usesRatEngine.integer && g_mixedMode.integer && !client->pers.pure) ? " (baseoa client)" : "") );
+			if (g_usesRatEngine.integer && g_mixedMode.integer && !client->pers.pure) {
+				trap_SendServerCommand( ent - g_entities, va("print \"%s" S_COLOR_WHITE " upgrade the game by enabling automatic downloading!\n\"", 
+							client->pers.netname));
+			}
 			//trap_SendServerCommand( -1, va("print%s \"%s" S_COLOR_WHITE " entered the game%s\n\"", 
 			//			g_usesRatVM.integer ? "Chat" : "",
 			//			client->pers.netname,
