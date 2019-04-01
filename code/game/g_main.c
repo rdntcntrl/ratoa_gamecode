@@ -195,6 +195,7 @@ vmCvar_t        g_allowTimenudge;
 vmCvar_t        g_fastSwitch;
 vmCvar_t        g_fastWeapons;
 vmCvar_t        g_regularFootsteps;
+vmCvar_t        g_bobup;
 vmCvar_t        g_passThroughInvisWalls;
 vmCvar_t        g_ambientSound; 
 vmCvar_t        g_rocketSpeed; 
@@ -487,6 +488,9 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_fastSwitch,   "g_fastSwitch", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_fastWeapons,  "g_fastWeapons", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_regularFootsteps,  "g_regularFootsteps", "1", CVAR_ARCHIVE, 0, qfalse },
+
+	{ &g_bobup,  "g_bobup", "0", CVAR_ARCHIVE, 0, qfalse },
+
 	// TODO: CVAR_ARCHIVE
 	{ &g_passThroughInvisWalls,  "g_passThroughInvisWalls", "0", 0, 0, qtrue },
 	{ &g_allowTimenudge,     "g_allowTimenudge", "1", CVAR_ARCHIVE, 0, qfalse },
@@ -506,6 +510,7 @@ static cvarTable_t		gameCvarTable[] = {
 	
         { &g_powerupGlows, "g_powerupGlows", "1", CVAR_ARCHIVE, 0, qfalse },
         { &g_screenShake, "g_screenShake", "1", CVAR_ARCHIVE, 0, qfalse },
+	{ &g_bobup,  "g_bobup", "0", CVAR_ARCHIVE, 0, qfalse },
         { &g_allowBrightModels, "g_allowBrightModels", "1", CVAR_ARCHIVE, 0, qfalse },
         { &g_brightPlayerShells, "g_brightPlayerShells", "1", CVAR_ARCHIVE, 0, qfalse },
         { &g_friendsWallHack, "g_friendsWallHack", "0", CVAR_ARCHIVE, 0, qfalse },
@@ -1167,6 +1172,10 @@ void G_UpdateRatFlags( void ) {
 		rflags |= RAT_NOINVISWALLS;
 	}
 
+	if (!g_bobup.integer) {
+		rflags |= RAT_NOBOBUP;
+	}
+
 	// XXX --> also update code where this is called!
 
 	trap_Cvar_Set("g_ratFlags",va("%i",rflags));
@@ -1260,6 +1269,7 @@ void G_UpdateCvars( void ) {
 						|| cv->vmCvar == &g_friendsFlagIndicator
 						|| cv->vmCvar == &g_regularFootsteps
 						|| cv->vmCvar == &g_passThroughInvisWalls
+						|| cv->vmCvar == &g_bobup
 						) {
 					updateRatFlags = qtrue;
 				}
