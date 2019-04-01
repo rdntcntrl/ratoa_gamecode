@@ -402,13 +402,15 @@ static void CG_OffsetFirstPersonView( void ) {
 			* (DUCK_TIME - timeDelta) / DUCK_TIME;
 	}
 
-	// add bob height
-	bob = cg.bobfracsin * cg.xyspeed * cg_bobup.value;
-	if (bob > 6) {
-		bob = 6;
-	}
+	if (!(cgs.ratFlags & RAT_NOBOBUP)) {
+		// add bob height
+		bob = cg.bobfracsin * cg.xyspeed * cg_bobup.value;
+		if (bob > 6) {
+			bob = 6;
+		}
 
-	origin[2] += bob;
+		origin[2] += bob;
+	}
 
 
 	// add fall height
