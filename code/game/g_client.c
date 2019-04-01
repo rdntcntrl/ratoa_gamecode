@@ -161,7 +161,8 @@ gentity_t *SelectRandomDeathmatchSpawnPoint( void ) {
 	count = 0;
 	spot = NULL;
 
-	while ((spot = G_Find (spot, FOFS(classname), "info_player_deathmatch")) != NULL) {
+	while ((spot = G_Find (spot, FOFS(classname), "info_player_deathmatch")) != NULL
+			&& count < MAX_SPAWN_POINTS) {
 		if ( SpotWouldTelefrag( spot ) ) {
 			continue;
 		}
@@ -363,7 +364,8 @@ gentity_t *SelectInitialSpawnPoint( vec3_t origin, vec3_t angles ) {
 	count = 0;
 	spot = NULL;
 
-	while ((spot = G_Find (spot, FOFS(classname), "info_player_deathmatch")) != NULL) {
+	while ((spot = G_Find (spot, FOFS(classname), "info_player_deathmatch")) != NULL
+			&& count < MAX_SPAWN_POINTS) {
 		if ( !(spot->spawnflags & 1) || SpotWouldTelefrag(spot) ) {
 			continue;
 		}
