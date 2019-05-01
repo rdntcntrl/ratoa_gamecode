@@ -778,6 +778,7 @@ qboolean	BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const play
 #define RAT_REGULARFOOTSTEPS 	(1 << 16)
 #define RAT_NOINVISWALLS 	(1 << 17)
 #define RAT_NOBOBUP 		(1 << 18)
+#define RAT_FASTSWIM 		(1 << 19)
 
 #define MAX_RAT_SAY_TEXT 256
 

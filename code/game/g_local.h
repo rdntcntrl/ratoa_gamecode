@@ -1280,6 +1280,7 @@ extern  vmCvar_t        g_newShotgun;
 extern  vmCvar_t        g_ratPhysics;
 extern  vmCvar_t        g_rampJump;
 extern  vmCvar_t        g_additiveJump;
+extern  vmCvar_t        g_fastSwim;
 extern  vmCvar_t        g_lavaDamage;
 extern  vmCvar_t        g_slimeDamage;
 extern  vmCvar_t        g_allowTimenudge;

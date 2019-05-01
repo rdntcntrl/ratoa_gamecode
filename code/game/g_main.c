@@ -189,6 +189,7 @@ vmCvar_t        g_newShotgun;
 vmCvar_t        g_ratPhysics;
 vmCvar_t        g_rampJump;
 vmCvar_t        g_additiveJump;
+vmCvar_t        g_fastSwim;
 vmCvar_t        g_lavaDamage;
 vmCvar_t        g_slimeDamage;
 vmCvar_t        g_allowTimenudge;
@@ -483,6 +484,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_ratPhysics,   "g_ratPhysics", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_rampJump,     "g_rampJump", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_additiveJump,     "g_additiveJump", "0", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_fastSwim,   "g_fastSwim", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_lavaDamage,     "g_lavaDamage", "10", CVAR_ARCHIVE, 0, qfalse },
 	{ &g_slimeDamage,     "g_slimeDamage", "4", CVAR_ARCHIVE, 0, qfalse },
 	{ &g_fastSwitch,   "g_fastSwitch", "1", CVAR_ARCHIVE, 0, qtrue },
@@ -1175,6 +1177,10 @@ void G_UpdateRatFlags( void ) {
 	if (!g_bobup.integer) {
 		rflags |= RAT_NOBOBUP;
 	}
+	
+	if (g_fastSwim.integer) {
+		rflags |= RAT_FASTSWIM;
+	}
 
 	// XXX --> also update code where this is called!
 
@@ -1270,6 +1276,7 @@ void G_UpdateCvars( void ) {
 						|| cv->vmCvar == &g_regularFootsteps
 						|| cv->vmCvar == &g_passThroughInvisWalls
 						|| cv->vmCvar == &g_bobup
+						|| cv->vmCvar == &g_fastSwim
 						) {
 					updateRatFlags = qtrue;
 				}
