@@ -134,6 +134,7 @@ vmCvar_t	g_rockets;
 vmCvar_t	g_ratPhysics;
 vmCvar_t	g_rampJump;
 vmCvar_t	g_additiveJump;
+vmCvar_t	g_fastSwim;
 vmCvar_t	g_fastSwitch;
 vmCvar_t	g_fastWeapons;
 vmCvar_t	g_regularFootsteps;
@@ -362,6 +363,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_ratPhysics, "g_ratPhysics", "0", CVAR_ARCHIVE, qtrue},
 	{ &g_rampJump, "g_rampJump", "0", CVAR_ARCHIVE, qtrue},
 	{ &g_additiveJump, "g_additiveJump", "0", CVAR_ARCHIVE, qtrue},
+	{ &g_fastSwim, "g_fastSwim", "1", CVAR_ARCHIVE, qtrue},
 	{ &g_fastSwitch, "g_fastSwitch", "0", CVAR_ARCHIVE, qtrue},
 	{ &g_fastWeapons, "g_fastWeapons", "0", CVAR_ARCHIVE, qtrue},
 	{ &g_regularFootsteps, "g_regularFootsteps", "1", CVAR_ARCHIVE, qfalse},

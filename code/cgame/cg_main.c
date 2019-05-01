@@ -183,6 +183,7 @@ vmCvar_t 	cg_ratInitialized;
 vmCvar_t 	g_ratPhysics;
 vmCvar_t 	g_rampJump;
 vmCvar_t 	g_additiveJump;
+vmCvar_t 	g_fastSwim;
 vmCvar_t 	g_fastSwitch;
 vmCvar_t 	g_fastWeapons;
 vmCvar_t 	g_regularFootsteps;
@@ -559,6 +560,7 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &g_ratPhysics, "g_ratPhysics", "0", CVAR_SYSTEMINFO},
 	{ &g_rampJump, "g_rampJump", "0", CVAR_SYSTEMINFO},
 	{ &g_additiveJump, "g_additiveJump", "0", CVAR_SYSTEMINFO},
+	{ &g_fastSwim, "g_fastSwim", "1", CVAR_SYSTEMINFO},
 	{ &g_fastSwitch, "g_fastSwitch", "1", CVAR_SYSTEMINFO},
 	{ &g_fastWeapons, "g_fastWeapons", "1", CVAR_SYSTEMINFO},
 	{ &g_regularFootsteps, "g_regularFootsteps", "1", CVAR_SYSTEMINFO},

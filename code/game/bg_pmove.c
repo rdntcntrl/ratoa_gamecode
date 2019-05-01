@@ -33,7 +33,8 @@ pml_t		pml;
 // movement parameters
 float	pm_stopspeed = 100.0f;
 float	pm_duckScale = 0.25f;
-float	pm_swimScale = 0.75f;
+float	pm_swimScale = 0.50;
+float	pm_swimScaleFast = 0.75f;
 float	pm_wadeScale = 0.70f;
 
 float	pm_accelerate = 10.0f;
@@ -50,6 +51,8 @@ float	pm_flightfriction = 3.0f;
 float	pm_spectatorfriction = 5.0f;
 
 int		c_pmove = 0;
+
+static float PM_GetSwimscale(void);
 
 /*
 ===============
@@ -543,8 +546,8 @@ static void PM_WaterMove( void ) {
 	VectorCopy (wishvel, wishdir);
 	wishspeed = VectorNormalize(wishdir);
 
-	if ( wishspeed > pm->ps->speed * pm_swimScale ) {
-		wishspeed = pm->ps->speed * pm_swimScale;
+	if ( wishspeed > pm->ps->speed * PM_GetSwimscale() ) {
+		wishspeed = pm->ps->speed * PM_GetSwimscale();
 	}
 
 	PM_Accelerate (wishdir, wishspeed, pm_wateraccelerate);
@@ -616,6 +619,14 @@ static void PM_FlyMove( void ) {
 	PM_Accelerate (wishdir, wishspeed, pm_flyaccelerate);
 
 	PM_StepSlideMove( qfalse );
+}
+
+static float PM_GetSwimscale(void) {
+	switch (g_fastSwim.integer) {
+		case 1:
+			return pm_swimScaleFast;
+	}
+	return pm_swimScale;
 }
 
 static float PM_GetAccelerate(void) {
@@ -845,7 +856,7 @@ static void PM_WalkMove( void ) {
 
 		if (g_ratPhysics.integer != 1 || pm->waterlevel != 1) {
 			waterScale = pm->waterlevel / 3.0;
-			waterScale = 1.0 - ( 1.0 - pm_swimScale ) * waterScale;
+			waterScale = 1.0 - ( 1.0 - PM_GetSwimscale() ) * waterScale;
 			if ( wishspeed > pm->ps->speed * waterScale ) {
 				wishspeed = pm->ps->speed * waterScale;
 			}
