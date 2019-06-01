@@ -531,31 +531,32 @@ void Cmd_Acc_f( gentity_t *ent ) {
 void Cmd_Rules_f( gentity_t *ent ) {
 	trap_SendServerCommand( ent-g_entities, va("print \""
 				"Server rules:\n"
-				" -Fast weapon switch:    %i\n"
-				" -Fast weapons:          %i\n"
-				" -Smooth/Additive Jump:  %i\n"
-				" -Ramp Jump:             %i\n"
-				" -Forced Bright Models:  %i\n"
-				" -Bright Shells:         %i\n"
-				" -Pickup height:         %s\n"
-				" -Powerup glows:         %i\n"
-				" -Screen shake upon hit: %i\n"
-				" -Rat Physics:           %i\n"
-				" -Jumppad grenades:      %i\n"
-				" -Tele Missiles:         %i\n"
+				" -Fast weapon switch:    %s" S_COLOR_WHITE "\n"
+				" -Fast weapons:          %s" S_COLOR_WHITE "\n"
+				" -Smooth/additive jump:  %s" S_COLOR_WHITE "\n"
+				" -Ramp jump:             %s" S_COLOR_WHITE "\n"
+				" -Forced bright models:  %s" S_COLOR_WHITE "\n"
+				" -Bright shells:         %s" S_COLOR_WHITE "\n"
+				" -Item pickup height:    %s" S_COLOR_WHITE "\n"
+				" -Powerup glows:         %s" S_COLOR_WHITE "\n"
+				" -Screen shake upon hit: %s" S_COLOR_WHITE "\n"
+				" -Rat physics:           %s" S_COLOR_WHITE "\n"
+				" -Jumppad grenades:      %s" S_COLOR_WHITE "\n"
+				" -Tele missiles:         %s" S_COLOR_WHITE "\n"
 				"\"", 
-				g_fastSwitch.integer,
-				g_fastWeapons.integer,
-				g_additiveJump.integer,
-				g_rampJump.integer,
-				g_allowBrightModels.integer,
-				g_brightPlayerShells.integer,
+				g_fastSwitch.integer ? S_COLOR_GREEN "ON" : S_COLOR_RED "OFF",
+				g_fastWeapons.integer ? S_COLOR_GREEN "ON" : S_COLOR_RED "OFF",
+				g_additiveJump.integer ? S_COLOR_GREEN "ON" : S_COLOR_RED "OFF",
+				g_rampJump.integer ? S_COLOR_GREEN "ON" : S_COLOR_RED "OFF",
+				g_allowBrightModels.integer ? S_COLOR_GREEN "ON" : S_COLOR_RED "OFF",
+				g_brightPlayerShells.integer ? S_COLOR_GREEN "ON" : S_COLOR_RED "OFF",
 				g_itemPickup.integer ? "high" : "low",
-				g_powerupGlows.integer,
-				g_screenShake.integer,
-				g_ratPhysics.integer,
-				g_pushGrenades.integer,
-				g_teleMissiles.integer
+				g_powerupGlows.integer ? S_COLOR_GREEN "ON" : S_COLOR_RED "OFF",
+				g_screenShake.integer ? S_COLOR_GREEN "ON" : S_COLOR_RED "OFF",
+				g_ratPhysics.integer ? S_COLOR_GREEN "ON" : S_COLOR_RED "OFF",
+				g_pushGrenades.integer ? S_COLOR_GREEN "ON" : S_COLOR_RED "OFF",
+				g_teleMissiles.integer ? S_COLOR_GREEN "ON" : S_COLOR_RED "OFF"
+
 				));
 }
 
