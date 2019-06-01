@@ -159,6 +159,11 @@ g_admin_cmd_t g_admin_cmds[ ] =
       "go to the next map in the cycle",
       ""
     },
+
+    {"votenextmap", "vn", G_admin_votenextmap, "n",
+      "start a vote for the next map from a selection of random maps",
+      ""
+    },
     //KK-OAX
     {"orient", "", G_admin_orient,	"d",
 		"orient a player after a !disorient", "[^3name|slot#^7]"
@@ -3267,6 +3272,18 @@ qboolean G_admin_nextmap( gentity_t *ent, int skiparg )
   //level.lastWin = TEAM_NONE;
   //trap_SetConfigstring( CS_WINNER, "NextMap" );
   LogExit( va( "nextmap was run by %s", ( ent ) ? ent->client->pers.netname : "console" ) );
+  return qtrue;
+}
+
+qboolean G_admin_votenextmap( gentity_t *ent, int skiparg )
+{
+  if (!g_nextmapVoteCmdEnabled.integer) {
+	  ADMP( "^3!votenextmap: ^7command disabled\n" );
+	  return qtrue;
+  }
+  AP( va( "print \"^3!votenextmap: ^7%s^7 decided to start a next map vote\n\"",
+    ( ent ) ? ent->client->pers.netname : "console" ) );
+  VoteNextmap_f();
   return qtrue;
 }
 

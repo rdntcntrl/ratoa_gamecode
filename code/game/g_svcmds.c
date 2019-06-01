@@ -465,8 +465,18 @@ void EndGame_f ( void ) {
     ExitLevel();
 }
 
+void VoteNextmap_f ( void ) {
+	if (!g_nextmapVoteCmdEnabled.integer) {
+		return;
+	}
+	if (!level.nextMapVoteManual) {
+		level.nextMapVoteManual = 1;
+		LogExit("Nextmapvote queued");
+	}
+}
+
 void Intermission_f ( void ) {
-    LogExit("Intermission queued by server console\n");
+    LogExit("Intermission queued by server console");
 }
 
 void NoBots_f ( void ) {
@@ -569,6 +579,7 @@ struct
   { "dmflag_set", qtrue, DmflagSet_f },
   { "dmflag_unset", qtrue, DmflagUnset_f },
   { "dmflag_toggle", qtrue, DmflagToggle_f },
+  { "votenextmap", qtrue, VoteNextmap_f },
 };
 
 /*

@@ -171,7 +171,9 @@ vmCvar_t        g_voteMaxBots;
 vmCvar_t        g_maxvotes;
 
 vmCvar_t        g_nextmapVote;
+vmCvar_t        g_nextmapVoteCmdEnabled;
 vmCvar_t        g_nextmapVoteNumRecommended;
+vmCvar_t        g_nextmapVoteNumGametype;
 vmCvar_t        g_nextmapVoteTime;
 
 vmCvar_t        g_humanplayers;
@@ -397,7 +399,7 @@ static cvarTable_t		gameCvarTable[] = {
         //Votes start:
 	{ &g_allowVote, "g_allowVote", "1", CVAR_SERVERINFO | CVAR_ARCHIVE, 0, qfalse },
         { &g_maxvotes, "g_maxVotes", MAX_VOTE_COUNT, CVAR_ARCHIVE, 0, qfalse },
-        { &g_voteNames, "g_voteNames", "/map_restart/nextmap/map/g_gametype/kick/clientkick/g_doWarmup/timelimit/fraglimit/shuffle/bots/botskill/", CVAR_ARCHIVE, 0, qfalse }, //clientkick g_doWarmup timelimit fraglimit
+        { &g_voteNames, "g_voteNames", "/map_restart/nextmap/map/g_gametype/kick/clientkick/g_doWarmup/timelimit/fraglimit/shuffle/bots/botskill/votenextmap/", CVAR_ARCHIVE, 0, qfalse }, //clientkick g_doWarmup timelimit fraglimit
         { &g_voteBan, "g_voteBan", "0", CVAR_ARCHIVE, 0, qfalse },
         { &g_voteGametypes, "g_voteGametypes", "/0/1/3/4/5/6/7/8/9/10/11/12/", CVAR_SERVERINFO | CVAR_ARCHIVE, 0, qfalse },
         { &g_voteMaxTimelimit, "g_voteMaxTimelimit", "1000", CVAR_SERVERINFO | CVAR_ARCHIVE, 0, qfalse },
@@ -410,7 +412,9 @@ static cvarTable_t		gameCvarTable[] = {
         { &g_votecustom, "g_votecustomfile", "votecustom.cfg", 0, 0, qfalse },
 
         { &g_nextmapVote, "g_nextmapVote", "0", CVAR_ARCHIVE, 0, qfalse },
-        { &g_nextmapVoteNumRecommended, "g_nextmapVoteNumRecommended", "5", CVAR_ARCHIVE, 0, qfalse },
+        { &g_nextmapVoteCmdEnabled, "g_nextmapVoteCmdEnabled", "1", CVAR_ARCHIVE, 0, qfalse },
+        { &g_nextmapVoteNumRecommended, "g_nextmapVoteNumRecommended", "4", CVAR_ARCHIVE, 0, qfalse },
+        { &g_nextmapVoteNumGametype, "g_nextmapVoteNumGametype", "6", CVAR_ARCHIVE, 0, qfalse },
         { &g_nextmapVoteTime, "g_nextmapVoteTime", "10", CVAR_ARCHIVE, 0, qfalse },
         
         { &g_recommendedMapsFile, "g_recommendedMapsFile", "recommendedmaps.cfg", 0, 0, qfalse },
@@ -2413,7 +2417,7 @@ qboolean CheckNextmapVote( void ) {
 	char *map = NULL;
 	char nextmap[MAX_STRING_CHARS];
 
-	if (!g_nextmapVote.integer) {
+	if (!g_nextmapVote.integer && !level.nextMapVoteManual) {
 		return qtrue;
 	}
 
@@ -2511,6 +2515,15 @@ void CheckIntermissionExit( void ) {
 
 	if ( g_gametype.integer == GT_SINGLE_PLAYER ) {
 		return;
+	}
+
+	if (level.nextMapVoteManual) {
+		// nextmapvote was manually started, so don't care if anyone is
+		// ready to exit
+		if (!CheckNextmapVote()) {
+			return;
+		}
+		ExitLevel();
 	}
 
 	// see which players are ready

@@ -299,7 +299,7 @@ typedef struct {
 #define MAX_MAPNAME 32
 #define MAPS_PER_PAGE 10
 #define MAPS_PER_LARGEPAGE 30
-#define MAX_MAPNAME_BUFFER ((MAX_MAPNAME+1)*MAX_MAPS)
+#define MAX_MAPNAME_BUFFER ((MAX_MAPNAME+5)*MAX_MAPS)
 #define MAX_MAPNAME_LENGTH 34
 
 #define MAX_CUSTOMNAME  MAX_MAPNAME
@@ -685,6 +685,7 @@ typedef struct {
 
     qboolean	shuffling_teams;
 
+    int		nextMapVoteManual;
     int		nextMapVoteTime;
     int		nextMapVoteExecuted;
     int		nextMapVoteClients;
@@ -948,6 +949,7 @@ void G_UnnamedPlayerRename(gentity_t *ent);
 qboolean	ConsoleCommand( void );
 void G_ProcessIPBans(void);
 qboolean G_FilterPacket (char *from);
+void VoteNextmap_f ( void );
 
 //KK-OAX Added this to make accessible from g_svcmds_ext.c
 gclient_t	*ClientForString( const char *s );
@@ -1081,6 +1083,10 @@ void Svcmd_AddBot_f( void );
 void Svcmd_BotList_f( void );
 void BotInterbreedEndMatch( void );
 int G_CountHumanPlayers( int team );
+void G_LoadArenas( void );
+const char *G_GetArenaInfoByMap( const char *map );
+int G_GametypeBits( char *string );
+int G_GametypeBitsForMap(const char *mapname);
 
 //
 // g_playerstore.c
@@ -1110,7 +1116,7 @@ typedef struct {
 extern char custom_vote_info[2048];
 
 extern t_mappage getMappage(int page, qboolean largepage, qboolean recommendedonly);
-void getCompleteMaplist(qboolean recommenedonly, struct maplist_s *out);
+void getCompleteMaplist(qboolean recommenedonly, int gametypebits_filter, struct maplist_s *out);
 extern int allowedMap(char *mapname);
 extern int allowedGametype(char *gametypeStr);
 extern int allowedTimelimit(int limit);
@@ -1188,7 +1194,9 @@ extern  vmCvar_t        g_votemaps;
 extern  vmCvar_t        g_recommendedMapsFile;
 extern  vmCvar_t        g_votecustom;
 extern  vmCvar_t        g_nextmapVote;
+extern  vmCvar_t        g_nextmapVoteCmdEnabled;
 extern  vmCvar_t        g_nextmapVoteNumRecommended;
+extern  vmCvar_t        g_nextmapVoteNumGametype;
 extern  vmCvar_t        g_nextmapVoteTime;
 extern	vmCvar_t	g_warmup;
 extern	vmCvar_t	g_doWarmup;

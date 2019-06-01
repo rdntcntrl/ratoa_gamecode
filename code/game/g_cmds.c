@@ -2493,14 +2493,37 @@ void SelectNextmapVoteMapsFromList(struct maplist_s *fromlist, int take, int *nu
 	}
 }
 
+static int G_GametypeBitsCurrent( void ) {
+	int bits = (1 << g_gametype.integer);
+
+	switch (g_gametype.integer) {
+		//case GT_TOURNAMENT:
+		//	bits |= (1 << GT_FFA);
+		//	break;
+		
+		// include tournament maps for FFA as they tend to be small FFA maps
+		case GT_FFA:
+			bits |= (1 << GT_TOURNAMENT);
+			break;
+	}
+
+	return bits;
+}
+
 qboolean SelectNextmapVoteMaps( void ) {
 	struct maplist_s maplist;
 	int numMaps = 0;
 
-	getCompleteMaplist(qtrue, &maplist);
+	// recommended lists
+	getCompleteMaplist(qtrue, 0, &maplist);
 	SelectNextmapVoteMapsFromList(&maplist, g_nextmapVoteNumRecommended.integer, &numMaps, level.nextmapVoteMaps);
 
-	getCompleteMaplist(qfalse, &maplist);
+	// all maps but filtered by gametype
+	getCompleteMaplist(qfalse, G_GametypeBitsCurrent(), &maplist);
+	SelectNextmapVoteMapsFromList(&maplist, g_nextmapVoteNumGametype.integer, &numMaps, level.nextmapVoteMaps);
+
+	// all maps
+	getCompleteMaplist(qfalse, 0, &maplist);
 	SelectNextmapVoteMapsFromList(&maplist, NEXTMAPVOTE_NUM_MAPS-numMaps, &numMaps, level.nextmapVoteMaps);
 
 	if (numMaps != NEXTMAPVOTE_NUM_MAPS) {
@@ -2641,6 +2664,10 @@ void G_PrintVoteCommands(gentity_t *ent) {
 		strcat(buffer, " lock\n");
 	if(allowedVote("unlock"))
 		strcat(buffer, " unlock\n");
+	if(allowedVote("arena"))
+		strcat(buffer, " arena\n");
+	if(allowedVote("votenextmap"))
+		strcat(buffer, " votenextmap\n");
 	if(allowedVote("custom"))
 		strcat(buffer, " custom <special>\n");
 	buffer[strlen(buffer)-1] = 0;
@@ -2710,6 +2737,8 @@ void Cmd_CallVote_f( gentity_t *ent ) {
         } else if ( !Q_stricmp( arg1, "botskill" ) ) {
         } else if ( !Q_stricmp( arg1, "lock" ) ) {
         } else if ( !Q_stricmp( arg1, "unlock" ) ) {
+        } else if ( !Q_stricmp( arg1, "arena" ) ) {
+        } else if ( !Q_stricmp( arg1, "votenextmap" ) ) {
 	} else {
 		trap_SendServerCommand( ent-g_entities, "print \"Invalid vote string.\n\"" );
 		G_PrintVoteCommands(ent);
@@ -2800,6 +2829,13 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 
 		//Com_sprintf( level.voteDisplayString, sizeof( level.voteDisplayString ), "%s", level.voteString );
                 Com_sprintf( level.voteDisplayString, sizeof( level.voteDisplayString ), "%s", "Next map?" );
+	} else if ( !Q_stricmp( arg1, "votenextmap" ) ) {
+		if (!g_nextmapVoteCmdEnabled.integer) {
+			trap_SendServerCommand( ent-g_entities, "print \"Nextmap vote command disabled.\n\"" );
+			return;
+		}
+		Com_sprintf( level.voteString, sizeof( level.voteString ), "votenextmap");
+                Com_sprintf( level.voteDisplayString, sizeof( level.voteDisplayString ), "%s", "Vote for next map?" );
         } else if ( !Q_stricmp( arg1, "fraglimit" ) ) {
                 i = atoi(arg2);
                 if(!allowedFraglimit(i)) {

@@ -120,6 +120,115 @@ int G_ParseInfos( char *buf, int max, char *infos[] ) {
 	return count;
 }
 
+int G_GametypeBitsForMap(const char *mapname) {
+	const char *arenaInfo = G_GetArenaInfoByMap( mapname );
+	char *gameTypestr = Info_ValueForKey( arenaInfo, "type" );
+
+	return G_GametypeBits(gameTypestr);
+}
+
+/*
+=================
+G_GametypeBits from arenas.txt + .arena files
+=================
+*/
+int G_GametypeBits( char *string ) {
+	int		bits;
+	char	*p;
+	char	*token;
+
+	bits = 0;
+	p = string;
+	while( 1 ) {
+		token = COM_ParseExt( &p, qfalse );
+		if( token[0] == 0 ) {
+			break;
+		}
+
+		if( Q_stricmp( token, "ffa" ) == 0 ) {
+			bits |= 1 << GT_FFA;
+			continue;
+		}
+
+		if( Q_stricmp( token, "tourney" ) == 0 ) {
+			bits |= 1 << GT_TOURNAMENT;
+			continue;
+		}
+
+		if( Q_stricmp( token, "single" ) == 0 ) {
+			bits |= 1 << GT_SINGLE_PLAYER;
+			continue;
+		}
+
+		if( Q_stricmp( token, "team" ) == 0 ) {
+			bits |= 1 << GT_TEAM;
+			continue;
+		}
+
+		if( Q_stricmp( token, "ctf" ) == 0 ) {
+			bits |= 1 << GT_CTF;
+			continue;
+		}
+                
+                if( Q_stricmp( token, "oneflag" ) == 0 ) {
+			bits |= 1 << GT_1FCTF;
+			continue;
+		}
+                
+                if( Q_stricmp( token, "overload" ) == 0 ) {
+			bits |= 1 << GT_OBELISK;
+			continue;
+		}
+                
+                if( Q_stricmp( token, "harvester" ) == 0 ) {
+			bits |= 1 << GT_HARVESTER;
+			continue;
+		}
+
+		if( Q_stricmp( token, "elimination" ) == 0 ) {
+			bits |= 1 << GT_ELIMINATION;
+			continue;
+		}
+
+		if( Q_stricmp( token, "ctfelimination" ) == 0 ) {
+			bits |= 1 << GT_CTF_ELIMINATION;
+			continue;
+		}
+
+		if( Q_stricmp( token, "lms" ) == 0 ) {
+			bits |= 1 << GT_LMS;
+			continue;
+		}
+		if( Q_stricmp( token, "dd" ) == 0 ) {
+			bits |= 1 << GT_DOUBLE_D;
+			continue;
+		}
+                
+                if( Q_stricmp( token, "dom" ) == 0 ) {
+			bits |= 1 << GT_DOMINATION;
+			continue;
+		}
+
+		// Clan Arena is elimination
+		if( Q_stricmp( token, "clanarena" ) == 0 ) {
+			bits |= 1 << GT_ELIMINATION;
+			continue;
+		}
+		if( Q_stricmp( token, "ca" ) == 0 ) {
+			bits |= 1 << GT_ELIMINATION;
+			continue;
+		}
+		// Unfortunately many maps use 'clan arena' as a designator
+		// which results in two tokens
+		// Just assume 'clan' means 'clanarena'
+		if( Q_stricmp( token, "clan" ) == 0 ) {
+			bits |= 1 << GT_ELIMINATION;
+			continue;
+		}
+	}
+	return bits;
+}
+
 /*
 ===============
 G_LoadArenasFromFile
@@ -153,11 +262,11 @@ static void G_LoadArenasFromFile( char *filename ) {
 G_LoadArenas
 ===============
 */
-static void G_LoadArenas( void ) {
+void G_LoadArenas( void ) {
 	int			numdirs;
 	vmCvar_t	arenasFile;
 	char		filename[128];
-	char		dirlist[1024];
+	char		dirlist[MAX_MAPNAME_BUFFER];
 	char*		dirptr;
 	int			i, n;
 	int			dirlen;
@@ -173,12 +282,12 @@ static void G_LoadArenas( void ) {
 	}
 
 	// get all arenas from .arena files
-	numdirs = trap_FS_GetFileList("scripts", ".arena", dirlist, 1024 );
+	numdirs = trap_FS_GetFileList("scripts", ".arena", dirlist, sizeof(dirlist) );
 	dirptr  = dirlist;
 	for (i = 0; i < numdirs; i++, dirptr += dirlen+1) {
 		dirlen = strlen(dirptr);
 		strcpy(filename, "scripts/");
-		strcat(filename, dirptr);
+		Q_strcat(filename, sizeof(filename), dirptr);
 		G_LoadArenasFromFile(filename);
 	}
 	trap_Printf( va( "%i arenas parsed\n", g_numArenas ) );
@@ -932,7 +1041,7 @@ static void G_LoadBots( void ) {
 	for (i = 0; i < numdirs; i++, dirptr += dirlen+1) {
 		dirlen = strlen(dirptr);
 		strcpy(filename, "scripts/");
-		strcat(filename, dirptr);
+		Q_strcat(filename, sizeof(filename), dirptr);
 		G_LoadBotsFromFile(filename);
 	}
 	trap_Printf( va( "%i bots parsed\n", g_numBots ) );
