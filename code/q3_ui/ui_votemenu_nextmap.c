@@ -117,7 +117,8 @@ static void VoteNextMapMenu_LevelshotDraw( void *self ) {
 	UI_DrawString( x, y, nextmapvote_maplist.mapname[n], UI_CENTER|UI_SMALLFONT, color_orange );
 
 	if (nextmapvote_maplist.votes[n]) {
-		UI_DrawString( x, b->generic.y + b->height/2.0, va("%i", nextmapvote_maplist.votes[n]), UI_CENTER | UI_DROPSHADOW | UI_BIGFONT, color_yellow );
+		UI_DrawProportionalString( x, b->generic.y + b->height/2 - PROP_HEIGHT/2, va( "%i", nextmapvote_maplist.votes[n] ),
+				UI_CENTER | UI_DROPSHADOW, color_yellow );
 
 	}
 
