@@ -1060,7 +1060,7 @@ qboolean UI_ConsoleCommand( int realTime ) {
 		int i;
 		mappage.pagenumber = atoi(UI_Argv( 1 ));
 		for (i = 0; i < MAPPAGE_NUM; ++i) {
-			Q_strncpyz(mappage.mapname[i],UI_Argv(i+2),32);
+			Q_strncpyz(mappage.mapname[i],UI_Argv(i+2),MAX_MAPNAME_LENGTH);
 		}
 
                 UI_VoteMapMenuInternal();
