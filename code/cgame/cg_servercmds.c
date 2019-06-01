@@ -409,27 +409,45 @@ static void CG_ParseMappage( void ) {
 
     temp = CG_Argv( 1 );
     for( c = temp; *c; ++c) {
-		switch(*c) {
-			case '\n':
-			case '\r':
-			case ';':
-				//The server tried something bad!
-				return;
-			break;
-		}
+	    if (!(isalnum(*c) 
+			|| *c == '-' 
+			|| *c == '_'
+			|| *c == '+'
+				)) {
+		    //The server tried something bad!
+		    Com_Printf("Error: illegal character %c in mappage received from server\n", *c);
+		    return;
+	    }
+		//switch(*c) {
+		//	case '\n':
+		//	case '\r':
+		//	case ';':
+		//		//The server tried something bad!
+		//		return;
+		//	break;
+		//}
         }
     Q_strncpyz(command,va("ui_mappage %s",temp),sizeof(command));
     for(i=2;i<nummaps+2;i++) {
         temp = CG_Argv( i );
         for( c = temp; *c; ++c) {
-                    switch(*c) {
-                            case '\n':
-                            case '\r':
-                            case ';':
-                                    //The server tried something bad!
-                                    return;
-                            break;
-                    }
+		if (!(isalnum(*c) 
+			|| *c == '-' 
+			|| *c == '_'
+			|| *c == '+'
+		    		 )) {
+			//The server tried something bad!
+			Com_Printf("Error: illegal character %c in mappage received from server\n", *c);
+			return;
+		}
+                //    switch(*c) {
+                //            case '\n':
+                //            case '\r':
+                //            case ';':
+                //                    //The server tried something bad!
+                //                    return;
+                //            break;
+                //    }
             }
         if(strlen(temp)<1)
             temp = "---";
