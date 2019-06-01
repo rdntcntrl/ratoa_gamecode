@@ -59,8 +59,8 @@ sfxHandle_t talkSound;
 
 static void UI_VoteNextMapMenu_Draw( void ) {
 	vec4_t	bg = {0.0, 0.0, 0.0, 0.85};
-	UI_FillRect( 0, 0, 640, 480, bg );
-	UI_DrawString( 640/2, 70, va("Time remaining: %is", ui_nextmapvote_remaining.integer), UI_CENTER|UI_SMALLFONT, color_white );
+	UI_FillRect( 0, 90, 640, 480, bg );
+	UI_DrawString( 640/2, 150, va("Time remaining: %is", ui_nextmapvote_remaining.integer), UI_CENTER|UI_SMALLFONT, color_white );
 
 	// standard menu drawing
 	Menu_Draw( &s_votemenu_nextmap.menu );
@@ -172,7 +172,7 @@ void UI_VoteNextMapMenu( void ) {
 
     s_votemenu_nextmap.banner.generic.type  = MTYPE_BTEXT;
     s_votemenu_nextmap.banner.generic.x	  = 320;
-    s_votemenu_nextmap.banner.generic.y	  = 16;
+    s_votemenu_nextmap.banner.generic.y	  = 100;
     s_votemenu_nextmap.banner.string		  = "VOTE FOR NEXT MAP";
     s_votemenu_nextmap.banner.color	      = color_white;
     s_votemenu_nextmap.banner.style	      = UI_CENTER;
@@ -181,7 +181,7 @@ void UI_VoteNextMapMenu( void ) {
     for (i=0; i<NMV_MAX_MAPSPERPAGE; i++)
     {
     	x = (640-NMV_MAX_MAPCOLS*200)/2 + ( (i % NMV_MAX_MAPCOLS) * 200 ) + (200-128)/2;
-    	y = 110 + ( (i / NMV_MAX_MAPCOLS) * 140 );
+    	y = 190 + ( (i / NMV_MAX_MAPCOLS) * 140 );
     
     	s_votemenu_nextmap.mappics[i].generic.type   = MTYPE_BITMAP;
     	s_votemenu_nextmap.mappics[i].generic.flags  = QMF_LEFT_JUSTIFY|QMF_INACTIVE;
