@@ -949,6 +949,11 @@ char *UI_Argv( int arg ) {
 	return buffer;
 }
 
+int UI_Argc( void ) {
+	return trap_Argc();
+
+}
+
 
 char *UI_Cvar_VariableString( const char *var_name ) {
 	static char	buffer[MAX_STRING_CHARS];
@@ -1068,6 +1073,40 @@ qboolean UI_ConsoleCommand( int realTime ) {
 	}
         if ( Q_stricmp (cmd, "ui_votemapmenu") == 0 ) {
 		UI_VoteMapMenu();
+		return qtrue;
+	}
+        if ( Q_stricmp (cmd, "ui_nextmapvote") == 0 ) {
+		int i;
+		memset(&nextmapvote_maplist, 0, sizeof(nextmapvote_maplist));
+		nextmapvote_maplist.active = qtrue;
+		talkSound = trap_S_RegisterSound( "sound/player/talk.wav", qfalse );
+		if (UI_Argc()-1 != NEXTMAPVOTE_MAP_NUM) {
+			Com_Printf("received an incorrect number of maps for ui_nextmapvote %i\n", UI_Argc());
+			return qtrue;
+		}
+		for (i = 0; i < NEXTMAPVOTE_MAP_NUM; ++i) {
+			Q_strncpyz(nextmapvote_maplist.mapname[i],UI_Argv(i+1),MAX_MAPNAME_LENGTH);
+		}
+
+		UI_VoteNextMapMenu();
+
+		return qtrue;
+	}
+
+        if ( Q_stricmp (cmd, "ui_nextmapvotes") == 0 ) {
+		int i;
+		if (!nextmapvote_maplist.active) {
+			return qtrue;
+		}
+		if (UI_Argc()-1 != NEXTMAPVOTE_MAP_NUM) {
+			Com_Printf("received an incorrect number of maps for ui_nextmapvotes %i\n", UI_Argc());
+			return qtrue;
+		}
+		for (i = 0; i < NEXTMAPVOTE_MAP_NUM; ++i) {
+			nextmapvote_maplist.votes[i] = atoi(UI_Argv(i+1));
+		}
+		trap_S_StartLocalSound( talkSound, CHAN_LOCAL_SOUND );
+
 		return qtrue;
 	}
 

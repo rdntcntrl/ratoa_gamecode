@@ -393,6 +393,61 @@ static void CG_ParseElimination( void ) {
 	cgs.roundStartTime = atoi( CG_Argv( 3 ) );
 }
 
+#define NEXTMAPVOTE_NUM_MAPS 6
+
+static void CG_ParseNextMapVotes( void ) {
+    char command[1024];
+    const char *temp;
+    const char*	c;
+    int i;
+
+    Q_strncpyz(command, "ui_nextmapvotes ", sizeof(command));
+    for(i=1;i<NEXTMAPVOTE_NUM_MAPS+1;i++) {
+        Q_strcat(command,sizeof(command),va(" %i ",atoi(CG_Argv(i))));
+    }
+    trap_SendConsoleCommand(command);
+
+}
+
+/*
+=================
+CG_ParseNextMapVote
+Rat: Based on CG_ParseMappage, same security considerations apply
+=================
+*/
+static void CG_ParseNextMapVote( void ) {
+    char command[1024];
+    const char *temp;
+    const char*	c;
+    int i;
+
+    cgs.nextmapVoteEndTime = atoi(CG_Argv(1));
+    if (cgs.nextmapVoteEndTime < cg.time) {
+	    cgs.nextmapVoteEndTime = cg.time;
+    }
+
+    Q_strncpyz(command, "ui_nextmapvote ", sizeof(command));
+    for(i=2;i<NEXTMAPVOTE_NUM_MAPS+2;i++) {
+        temp = CG_Argv( i );
+        for( c = temp; *c; ++c) {
+		if (!(isalnum(*c) 
+			|| *c == '-' 
+			|| *c == '_'
+			|| *c == '+'
+		    		 )) {
+			//The server tried something bad!
+			Com_Printf("Error: illegal character %c in nextmapvote received from server\n", *c);
+			return;
+		}
+            }
+        if(strlen(temp)<1)
+            temp = "---";
+        Q_strcat(command,sizeof(command),va(" %s ",temp));
+    }
+    trap_SendConsoleCommand(command);
+
+}
+
 /*
 =================
 CG_ParseMappage
@@ -1753,6 +1808,16 @@ static void CG_ServerCommand( void ) {
 
 	if ( !strcmp( cmd, "mappage" ) || !strcmp( cmd, "mappagel" ) ) {
 		CG_ParseMappage();
+		return;
+	}
+
+	if ( !strcmp( cmd, "nextmapvotes" ) ) {
+		CG_ParseNextMapVotes();
+		return;
+	}
+
+	if ( !strcmp( cmd, "nextmapvote" ) ) {
+		CG_ParseNextMapVote();
 		return;
 	}
 

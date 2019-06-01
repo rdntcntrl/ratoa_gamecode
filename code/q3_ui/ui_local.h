@@ -125,6 +125,8 @@ extern vmCvar_t	ui_server16;
 extern vmCvar_t	ui_mapvote_filter;
 extern vmCvar_t	ui_mapvote_sort;
 
+extern vmCvar_t	ui_nextmapvote_remaining;
+
 //extern vmCvar_t	ui_cdkey;
 //extern vmCvar_t	ui_cdkeychecked;
 extern vmCvar_t ui_setupchecked;
@@ -302,12 +304,23 @@ typedef struct
 //#define MAPPAGE_NUM 10
 #define MAPPAGE_NUM 30
 
+// XXX: must be the same as NMV_MAX_MAPSPERPAGE
+#define NEXTMAPVOTE_MAP_NUM 6
+
 typedef struct {
 	int pagenumber;
 	char mapname[MAPPAGE_NUM][MAX_MAPNAME_LENGTH];
 } t_mappage;
 
 extern t_mappage mappage;
+
+struct nextmapvote_maplist_s {
+	qboolean active;
+	char mapname[NEXTMAPVOTE_MAP_NUM][MAX_MAPNAME_LENGTH];
+	int votes[NEXTMAPVOTE_MAP_NUM];
+};
+
+extern struct nextmapvote_maplist_s nextmapvote_maplist;
 
 extern void			Menu_Cache( void );
 extern void			Menu_Focus( menucommon_s *m );
@@ -329,6 +342,7 @@ extern sfxHandle_t	menu_out_sound;
 extern sfxHandle_t	menu_buzz_sound;
 extern sfxHandle_t	menu_null_sound;
 extern sfxHandle_t	weaponChangeSound;
+extern sfxHandle_t	talkSound;
 extern vec4_t		menu_text_color;
 extern vec4_t		menu_grayed_color;
 extern vec4_t		menu_dark_color;
@@ -537,6 +551,11 @@ extern void UI_VoteKickMenu( void );
 //
 extern void UI_VoteMapMenu( void );
 extern void UI_VoteMapMenuInternal( void );
+
+//
+// ui_votemenu_nextmap.c
+//
+extern void UI_VoteNextMapMenu( void );
 
 //
 // ui_password.c

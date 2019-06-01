@@ -1887,6 +1887,7 @@ Q3UIOBJ_ = \
   $(B)/baseq3/ui/ui_votemenu_gametype.o \
   $(B)/baseq3/ui/ui_votemenu_kick.o \
   $(B)/baseq3/ui/ui_votemenu_map.o \
+  $(B)/baseq3/ui/ui_votemenu_nextmap.o \
   $(B)/baseq3/ui/ui_votemenu_custom.o \
   \
   $(B)/baseq3/qcommon/q_math.o \

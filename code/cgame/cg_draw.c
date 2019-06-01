@@ -3959,6 +3959,14 @@ static void CG_DrawIntermission( void ) {
 	cg.scoreBoardShowing = CG_DrawScoreboard();
 
 	CG_DrawMessagePromptBackground();
+
+	if (cgs.nextmapVoteEndTime) {
+		int remaining = ceil((float)(cgs.nextmapVoteEndTime - cg.time)/1000.0);
+		if (remaining < 0) {
+			remaining = 0;
+		}
+		trap_Cvar_Set("ui_nextmapvote_remaining", va("%i", remaining));
+	}
 }
 
 
