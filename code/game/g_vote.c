@@ -122,7 +122,49 @@ t_mappage getMappage(int page, qboolean largepage, qboolean recommenedonly) {
                 }
 	}
         return result;
+}
 
+void getCompleteMaplist(qboolean recommenedonly, struct maplist_s *out) {
+	fileHandle_t	file;
+	char *token,*pointer;
+	char buffer[MAX_MAPNAME_BUFFER];
+	int nummaps, maplen;
+
+	memset(out,0,sizeof(*out));
+        memset(&buffer,0,sizeof(buffer));
+
+	//Check if there is a votemaps.cfg
+	trap_FS_FOpenFile(g_votemaps.string,&file,FS_READ);
+	if (!file && recommenedonly) {
+		// if no votemaps.cfg and we only want recommened maps, try recommenedmaps.cfg
+		trap_FS_FOpenFile(g_recommendedMapsFile.string,&file,FS_READ);
+	}
+	if(file)
+	{
+		//there is a recommendedmaps file or a votemaps.cfg file, take allowed maps from there
+		trap_FS_Read(&buffer,sizeof(buffer)-1,file);
+		pointer = buffer;
+		token = COM_Parse(&pointer);
+		while (token && token[0] != 0 && out->num < MAX_MAPS) {
+			Q_strncpyz(out->mapname[out->num],token,MAX_MAPNAME);
+			out->num++;
+			token = COM_Parse(&pointer);
+		}
+                trap_FS_FCloseFile(file);
+		return;
+	}
+
+        nummaps = trap_FS_GetFileList("maps",".bsp",buffer,sizeof(buffer));
+        pointer = buffer;
+
+	if (nummaps > MAX_MAPS) {
+		nummaps = MAX_MAPS;
+	}
+        for (out->num = 0; out->num < nummaps; out->num++, pointer += maplen+1) {
+		maplen = strlen(pointer);
+		Q_strncpyz(out->mapname[out->num],pointer,maplen-3);
+	}
+        return;
 }
 
 /*

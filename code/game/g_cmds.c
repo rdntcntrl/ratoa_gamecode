@@ -2444,6 +2444,149 @@ void Cmd_Where_f( gentity_t *ent ) {
 	trap_SendServerCommand( ent-g_entities, va("print \"%s\n\"", vtos(ent->r.currentOrigin) ) );
 }
 
+qboolean MapInList(char *needle, int numMaps, char mapnames[NEXTMAPVOTE_NUM_MAPS][MAX_MAPNAME]) {
+	int i;
+	for (i = 0; i < numMaps; ++i) {
+		if (strcmp(needle, mapnames[i]) == 0) {
+			return qtrue;
+		}
+	}
+	return qfalse;
+}
+
+void SelectNextmapVoteMapsFromList(struct maplist_s *fromlist, int take, int *numMaps, char mapnames[NEXTMAPVOTE_NUM_MAPS][MAX_MAPNAME]) {
+	int maplist_remaining;
+	qboolean maplist_used_maps[MAX_MAPS];
+	int pick;
+	int i,j;
+	int desiredNumMaps = *numMaps + take;
+	
+	if (desiredNumMaps > NEXTMAPVOTE_NUM_MAPS) {
+		desiredNumMaps = NEXTMAPVOTE_NUM_MAPS;
+	}
+
+	memset(&maplist_used_maps, 0, sizeof(maplist_used_maps));
+	maplist_remaining = fromlist->num;
+	while (*numMaps < desiredNumMaps && maplist_remaining > 0) {
+		pick = rand() % maplist_remaining;
+		j = 0;
+		for (i = 0; i < fromlist->num; ++i) {
+			if (maplist_used_maps[i]) {
+				continue;
+			}
+			if (j == pick) {
+				if (!MapInList(fromlist->mapname[i], *numMaps, mapnames) &&
+						allowedMap(fromlist->mapname[i])) {
+					Q_strncpyz(mapnames[*numMaps], fromlist->mapname[i], MAX_MAPNAME);
+					*numMaps += 1;
+				}
+				maplist_used_maps[i] = qtrue;
+				maplist_remaining--;
+				break;
+			}
+			++j;
+		}
+	}
+}
+
+qboolean SelectNextmapVoteMaps( void ) {
+	struct maplist_s maplist;
+	int numMaps = 0;
+
+	getCompleteMaplist(qtrue, &maplist);
+	SelectNextmapVoteMapsFromList(&maplist, 5, &numMaps, level.nextmapVoteMaps);
+
+	getCompleteMaplist(qfalse, &maplist);
+	SelectNextmapVoteMapsFromList(&maplist, NEXTMAPVOTE_NUM_MAPS-numMaps, &numMaps, level.nextmapVoteMaps);
+
+	if (numMaps != NEXTMAPVOTE_NUM_MAPS) {
+		Com_Printf("could not find %i maps for nextmapvote, cancelling\n", NEXTMAPVOTE_NUM_MAPS);
+		return qfalse;
+	}
+
+
+	level.nextMapVoteTime = level.time + g_nextmapVoteTime.integer*1000;
+
+
+	trap_SendServerCommand( -1, va("nextmapvote %i %s %s %s %s %s %s", level.nextMapVoteTime, 
+				level.nextmapVoteMaps[0],
+				level.nextmapVoteMaps[1],
+				level.nextmapVoteMaps[2],
+				level.nextmapVoteMaps[3],
+				level.nextmapVoteMaps[4],
+				level.nextmapVoteMaps[5]
+				));
+	return qtrue;
+}
+
+
+qboolean SendNextmapVoteCommand( void ) {
+	int i;
+
+	memset(level.nextmapVotes, 0, sizeof(level.nextmapVotes));
+	memset(level.nextmapVoteMaps, 0, sizeof(level.nextmapVoteMaps));
+	level.nextMapVoteExecuted = 0;
+	level.nextMapVoteClients = 0;
+	for ( i = 0 ; i < level.maxclients ; i++ ) {
+		if (level.clients[i].pers.connected != CON_CONNECTED
+				|| level.clients[i].sess.sessionTeam == TEAM_SPECTATOR 
+			        || g_entities[i].r.svFlags & SVF_BOT) {
+			level.clients[i].pers.nextmapVoteFlags = 0;
+			continue;
+		}
+		level.clients[i].pers.nextmapVoteFlags = NEXTMAPVOTE_CANVOTE;
+		level.nextMapVoteClients++;
+	}
+	if (!level.nextMapVoteClients) {
+		return qfalse;
+	}
+
+	return SelectNextmapVoteMaps();
+}
+
+void Cmd_NextmapVote_f( gentity_t *ent ) {
+	char		msg[64];
+	int	mapNo;
+
+	if ( !level.nextMapVoteTime ) {
+		trap_SendServerCommand( ent-g_entities, "print \"No nextmap vote in progress.\n\"" );
+		return;
+	}
+
+	if ( ent->client->sess.sessionTeam == TEAM_SPECTATOR ) {
+		trap_SendServerCommand( ent-g_entities, "print \"Not allowed to vote as spectator.\n\"" );
+		return;
+	}
+
+	if (ent->client->pers.nextmapVoteFlags & NEXTMAPVOTE_VOTED) {
+		trap_SendServerCommand( ent-g_entities, "print \"Already voted.\n\"" );
+		return;
+	} else if (!(ent->client->pers.nextmapVoteFlags & NEXTMAPVOTE_CANVOTE)) {
+		trap_SendServerCommand( ent-g_entities, "print \"Not allowed to vote.\n\"" );
+		return;
+	} else {
+		ent->client->pers.nextmapVoteFlags |= NEXTMAPVOTE_VOTED;
+	}
+
+	trap_Argv( 1, msg, sizeof( msg ) );
+	mapNo = atoi(msg);
+
+	if (mapNo >= NEXTMAPVOTE_NUM_MAPS || mapNo < 0) {
+		trap_SendServerCommand( ent-g_entities, "print \"Invalid map number.\n\"" );
+		return;
+	}
+	level.nextmapVotes[mapNo] += 1;
+	trap_SendServerCommand( -1, va("nextmapvotes %i %i %i %i %i %i", 
+				level.nextmapVotes[0],
+				level.nextmapVotes[1],
+				level.nextmapVotes[2],
+				level.nextmapVotes[3],
+				level.nextmapVotes[4],
+				level.nextmapVotes[5]
+				));
+}
+
+
 static const char *gameNames[] = {
 	"Free For All",
 	"Tournament",
@@ -3212,7 +3355,11 @@ commands_t cmds[ ] =
   { "getrecmappage", 0, Cmd_GetRecMappage_f },
   { "gc", 0, Cmd_GameCommand_f },
   { "motd", 0, Cmd_Motd_f },
-  { "help", 0, Cmd_Motd_f }
+  { "help", 0, Cmd_Motd_f },
+
+  { "arena", 0, Cmd_Arena_f },
+
+  { "nextmapvote", CMD_INTERMISSION, Cmd_NextmapVote_f }
 };
 
 static int numCmds = sizeof( cmds ) / sizeof( cmds[ 0 ] );

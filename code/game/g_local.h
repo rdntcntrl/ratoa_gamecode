@@ -290,6 +290,32 @@ typedef struct {
 #define MAX_NETNAME			36
 #define	MAX_VOTE_COUNT		"3"
 
+#define NEXTMAPVOTE_NUM_MAPS 6
+
+#define NEXTMAPVOTE_CANVOTE 	1
+#define NEXTMAPVOTE_VOTED 	2
+
+#define MAX_MAPS 1024
+#define MAX_MAPNAME 32
+#define MAPS_PER_PAGE 10
+#define MAPS_PER_LARGEPAGE 30
+#define MAX_MAPNAME_BUFFER ((MAX_MAPNAME+1)*MAX_MAPS)
+#define MAX_MAPNAME_LENGTH 34
+
+#define MAX_CUSTOMNAME  MAX_MAPNAME
+#define MAX_CUSTOMCOMMAND 100
+#define MAX_CUSTOMDISPLAYNAME 50
+
+typedef struct {
+	int pagenumber;
+	char mapname[MAPS_PER_LARGEPAGE][MAX_MAPNAME];
+} t_mappage;
+
+struct maplist_s {
+	int num;
+	char mapname[MAX_MAPS][MAX_MAPNAME];
+};
+
 //unlagged - true ping
 #define NUM_PING_SAMPLES 64
 //unlagged - true ping
@@ -374,6 +400,8 @@ typedef struct {
     qboolean forceRename; // set to qtrue while a player is forcefully renamed
 
     int awardCounts[EAWARD_NUM_AWARDS];
+
+    int nextmapVoteFlags;
 } clientPersistant_t;
 
 //unlagged - backward reconciliation #1
@@ -657,6 +685,11 @@ typedef struct {
 
     qboolean	shuffling_teams;
 
+    int		nextMapVoteTime;
+    int		nextMapVoteExecuted;
+    int		nextMapVoteClients;
+    int		nextmapVotes[NEXTMAPVOTE_NUM_MAPS];
+    char	nextmapVoteMaps[NEXTMAPVOTE_NUM_MAPS][MAX_MAPNAME];
      
 } level_locals_t;
 
@@ -698,6 +731,7 @@ void G_SendSpawnpoints(gentity_t *ent);
 qboolean G_TournamentSpecMuted(void);
 void AccMessage( gentity_t *ent );
 void AwardMessage(gentity_t *ent, extAward_t award, int count);
+qboolean SendNextmapVoteCommand( void );
 
 
 // KK-OAX Added these in a seperate file to keep g_cmds.c familiar. 
@@ -1065,19 +1099,6 @@ void CountVotes( void );
 void ClientLeaving(int clientNumber);
 void G_SendVoteResult(qboolean passed);
 
-#define MAX_MAPNAME 32
-#define MAPS_PER_PAGE 10
-#define MAPS_PER_LARGEPAGE 30
-#define MAX_MAPNAME_BUFFER MAX_MAPNAME*1024
-#define MAX_MAPNAME_LENGTH 34
-#define MAX_CUSTOMNAME  MAX_MAPNAME
-#define MAX_CUSTOMCOMMAND 100
-#define MAX_CUSTOMDISPLAYNAME 50
-
-typedef struct {
-	int pagenumber;
-	char mapname[MAPS_PER_LARGEPAGE][MAX_MAPNAME];
-} t_mappage;
 
 typedef struct {
     char    votename[MAX_CUSTOMNAME]; //Used like "/callvote custom VOTENAME"
@@ -1089,6 +1110,7 @@ typedef struct {
 extern char custom_vote_info[2048];
 
 extern t_mappage getMappage(int page, qboolean largepage, qboolean recommendedonly);
+void getCompleteMaplist(qboolean recommenedonly, struct maplist_s *out);
 extern int allowedMap(char *mapname);
 extern int allowedGametype(char *gametypeStr);
 extern int allowedTimelimit(int limit);
@@ -1165,6 +1187,8 @@ extern	vmCvar_t	g_motdfile;
 extern  vmCvar_t        g_votemaps;
 extern  vmCvar_t        g_recommendedMapsFile;
 extern  vmCvar_t        g_votecustom;
+extern  vmCvar_t        g_nextmapVote;
+extern  vmCvar_t        g_nextmapVoteTime;
 extern	vmCvar_t	g_warmup;
 extern	vmCvar_t	g_doWarmup;
 extern	vmCvar_t	g_blood;

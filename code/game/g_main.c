@@ -170,6 +170,9 @@ vmCvar_t        g_voteMinBots;
 vmCvar_t        g_voteMaxBots;
 vmCvar_t        g_maxvotes;
 
+vmCvar_t        g_nextmapVote;
+vmCvar_t        g_nextmapVoteTime;
+
 vmCvar_t        g_humanplayers;
 
 //used for voIP
@@ -404,6 +407,9 @@ static cvarTable_t		gameCvarTable[] = {
         { &g_voteMinBots, "g_voteMinBots", "0", CVAR_ARCHIVE, 0, qfalse },
         { &g_votemaps, "g_votemapsfile", "votemaps.cfg", 0, 0, qfalse },
         { &g_votecustom, "g_votecustomfile", "votecustom.cfg", 0, 0, qfalse },
+
+        { &g_nextmapVote, "g_nextmapVote", "0", CVAR_ARCHIVE, 0, qfalse },
+        { &g_nextmapVoteTime, "g_nextmapVoteTime", "10", CVAR_ARCHIVE, 0, qfalse },
         
         { &g_recommendedMapsFile, "g_recommendedMapsFile", "recommendedmaps.cfg", 0, 0, qfalse },
 
@@ -2395,6 +2401,95 @@ void LogExit( const char *string ) {
 
 }
 
+qboolean CheckNextmapVote( void ) {
+	int maxVotes;
+	int runnerup;
+	int numMaxVotes;
+	int numVotes;
+	int i,j;
+	int mapPick;
+	char *map = NULL;
+	char nextmap[MAX_STRING_CHARS];
+
+	if (!g_nextmapVote.integer) {
+		return qtrue;
+	}
+
+	if (level.nextMapVoteExecuted && level.time > level.nextMapVoteTime + 1000) {
+		// vote somehow failed to execute, exit level normally
+		Com_Printf("Nextmapvote failed to execute\n");
+		return qtrue;
+	} else if (level.nextMapVoteTime == 0) {
+		// start vote
+		Com_Printf("Starting nextmapvote\n");
+		return !SendNextmapVoteCommand();
+	} 
+	
+	// check if vote is already decided
+
+	maxVotes = 0;
+	numMaxVotes = 0;
+	runnerup = 0;
+	numVotes = 0;
+	for (i = 0; i < NEXTMAPVOTE_NUM_MAPS; ++i) {
+		numVotes += level.nextmapVotes[i];
+		if (level.nextmapVotes[i] <= 0) {
+			continue;
+		} else if (level.nextmapVotes[i] > maxVotes) {
+			runnerup = maxVotes;
+			maxVotes = level.nextmapVotes[i];
+			numMaxVotes = 1;
+		} else if (level.nextmapVotes[i] == maxVotes) {
+			runnerup = maxVotes;
+			numMaxVotes++;
+		}
+	}
+
+	if (level.nextMapVoteTime > level.time
+			&& !(maxVotes > runnerup + (level.nextMapVoteClients - numVotes))
+			&& level.nextMapVoteClients - numVotes > 0) {
+		// vote still in progress
+		return qfalse;
+	}
+
+	// vote ended, execute result:
+	level.nextMapVoteExecuted = 1;
+
+	if (numMaxVotes <= 0) {
+		// nobody voted, just go to the next map in rotation
+		return qtrue;
+	}
+
+	mapPick = rand() % numMaxVotes;
+	j = 0;
+	for (i = 0; i < NEXTMAPVOTE_NUM_MAPS; ++i) {
+		if (level.nextmapVotes[i] == maxVotes) {
+			if ( j == mapPick) {
+				mapPick = i;
+				break;
+			}
+			j++;
+		}
+	}
+	map = level.nextmapVoteMaps[mapPick];
+
+	// special case for map changes, we want to reset the nextmap setting
+	// this allows a player to change maps, but not upset the map rotation
+	if(!allowedMap(map)){
+		trap_SendServerCommand( -1, "print \"Map is not available.\n\"" );
+		return qtrue;
+	}
+
+	Com_Printf("NextMapVote: switching to map %s\n", map);
+	trap_Cvar_VariableStringBuffer( "nextmap", nextmap, sizeof(nextmap) );
+	if (*nextmap) {
+		trap_SendConsoleCommand( EXEC_APPEND, va("map \"%s\"; set nextmap \"%s\"", map, nextmap ));
+	} else {
+		trap_SendConsoleCommand( EXEC_APPEND, va("map \"%s\";", map));
+	}
+	return qfalse;
+}
+
 
 /*
 =================
@@ -2466,6 +2561,9 @@ void CheckIntermissionExit( void ) {
 
 		// if everyone wants to go, go now
 		if ( !notReady ) {
+			if (!CheckNextmapVote()) {
+				return;
+			}
 			ExitLevel();
 			return;
 		}
@@ -2483,6 +2581,9 @@ void CheckIntermissionExit( void ) {
 		return;
 	}
 
+	if (!CheckNextmapVote()) {
+		return;
+	}
 	ExitLevel();
 }
 
