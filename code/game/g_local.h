@@ -1188,6 +1188,7 @@ extern  vmCvar_t        g_votemaps;
 extern  vmCvar_t        g_recommendedMapsFile;
 extern  vmCvar_t        g_votecustom;
 extern  vmCvar_t        g_nextmapVote;
+extern  vmCvar_t        g_nextmapVoteNumRecommended;
 extern  vmCvar_t        g_nextmapVoteTime;
 extern	vmCvar_t	g_warmup;
 extern	vmCvar_t	g_doWarmup;

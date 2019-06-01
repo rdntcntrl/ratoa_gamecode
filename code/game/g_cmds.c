@@ -2494,7 +2494,7 @@ qboolean SelectNextmapVoteMaps( void ) {
 	int numMaps = 0;
 
 	getCompleteMaplist(qtrue, &maplist);
-	SelectNextmapVoteMapsFromList(&maplist, 5, &numMaps, level.nextmapVoteMaps);
+	SelectNextmapVoteMapsFromList(&maplist, g_nextmapVoteNumRecommended.integer, &numMaps, level.nextmapVoteMaps);
 
 	getCompleteMaplist(qfalse, &maplist);
 	SelectNextmapVoteMapsFromList(&maplist, NEXTMAPVOTE_NUM_MAPS-numMaps, &numMaps, level.nextmapVoteMaps);

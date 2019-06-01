@@ -171,6 +171,7 @@ vmCvar_t        g_voteMaxBots;
 vmCvar_t        g_maxvotes;
 
 vmCvar_t        g_nextmapVote;
+vmCvar_t        g_nextmapVoteNumRecommended;
 vmCvar_t        g_nextmapVoteTime;
 
 vmCvar_t        g_humanplayers;
@@ -409,6 +410,7 @@ static cvarTable_t		gameCvarTable[] = {
         { &g_votecustom, "g_votecustomfile", "votecustom.cfg", 0, 0, qfalse },
 
         { &g_nextmapVote, "g_nextmapVote", "0", CVAR_ARCHIVE, 0, qfalse },
+        { &g_nextmapVoteNumRecommended, "g_nextmapVoteNumRecommended", "5", CVAR_ARCHIVE, 0, qfalse },
         { &g_nextmapVoteTime, "g_nextmapVoteTime", "10", CVAR_ARCHIVE, 0, qfalse },
         
         { &g_recommendedMapsFile, "g_recommendedMapsFile", "recommendedmaps.cfg", 0, 0, qfalse },
