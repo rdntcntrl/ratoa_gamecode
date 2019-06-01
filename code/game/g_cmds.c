@@ -2447,7 +2447,7 @@ void Cmd_Where_f( gentity_t *ent ) {
 qboolean MapInList(char *needle, int numMaps, char mapnames[NEXTMAPVOTE_NUM_MAPS][MAX_MAPNAME]) {
 	int i;
 	for (i = 0; i < numMaps; ++i) {
-		if (strcmp(needle, mapnames[i]) == 0) {
+		if (Q_stricmp(needle, mapnames[i]) == 0) {
 			return qtrue;
 		}
 	}
@@ -2460,6 +2460,9 @@ void SelectNextmapVoteMapsFromList(struct maplist_s *fromlist, int take, int *nu
 	int pick;
 	int i,j;
 	int desiredNumMaps = *numMaps + take;
+	char currentmap[MAX_QPATH];
+
+	trap_Cvar_VariableStringBuffer( "mapname", currentmap, sizeof( currentmap ) );
 	
 	if (desiredNumMaps > NEXTMAPVOTE_NUM_MAPS) {
 		desiredNumMaps = NEXTMAPVOTE_NUM_MAPS;
@@ -2475,8 +2478,9 @@ void SelectNextmapVoteMapsFromList(struct maplist_s *fromlist, int take, int *nu
 				continue;
 			}
 			if (j == pick) {
-				if (!MapInList(fromlist->mapname[i], *numMaps, mapnames) &&
-						allowedMap(fromlist->mapname[i])) {
+				if (Q_stricmp(currentmap, fromlist->mapname[i]) != 0 
+						&& !MapInList(fromlist->mapname[i], *numMaps, mapnames) 
+						&& allowedMap(fromlist->mapname[i])) {
 					Q_strncpyz(mapnames[*numMaps], fromlist->mapname[i], MAX_MAPNAME);
 					*numMaps += 1;
 				}
