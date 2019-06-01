@@ -178,6 +178,26 @@ gentity_t *SelectRandomDeathmatchSpawnPoint( void ) {
 	return spots[ selection ];
 }
 
+gentity_t *SelectRandomDeathmatchSpawnPoint( void ) {
+	return SelectRandomDeathmatchSpawnPointArena(-1);
+}
+
+gentity_t *CreateEmergencySpawnpoint( void ) {
+	gentity_t *spot = G_Spawn();
+
+	Com_Printf(S_COLOR_YELLOW "WARNING: couldn't find a spawn point. Creating an emergency spawn at 0 0 0\n");
+
+	spot->flags = 0;
+	spot->classname = "info_player_deathmatch";
+	VectorSet( spot->s.origin, 0, 0, 0);
+	VectorSet( spot->s.angles, 0, 0, 0);
+
+	//Com_Printf(S_COLOR_YELLOW "Exiting level due to missing spawn point.\n");
+	LogExit("Exiting the level due to missing spawn point");
+
+	return spot;
+}
+
 /*
 ===========
 SelectRandomFurthestSpawnPoint
@@ -226,8 +246,10 @@ gentity_t *SelectRandomFurthestSpawnPoint ( vec3_t avoidPoint, vec3_t origin, ve
 	}
 	if (!numSpots) {
 		spot = G_Find( NULL, FOFS(classname), "info_player_deathmatch");
-		if (!spot)
-			G_Error( "Couldn't find a spawn point" );
+		if (!spot) {
+			spot = CreateEmergencySpawnpoint();
+			//G_Error( "Couldn't find a spawn point" );
+		}
 		VectorCopy (spot->s.origin, origin);
 		origin[2] += 9;
 		VectorCopy (spot->s.angles, angles);
@@ -338,7 +360,8 @@ gentity_t *SelectSpawnPoint ( vec3_t avoidPoint, vec3_t origin, vec3_t angles ) 
 
 	// find a single player start spot
 	if (!spot) {
-		G_Error( "Couldn't find a spawn point" );
+		spot = CreateEmergencySpawnpoint();
+		//G_Error( "Couldn't find a spawn point" );
 	}
 
 	VectorCopy (spot->s.origin, origin);
