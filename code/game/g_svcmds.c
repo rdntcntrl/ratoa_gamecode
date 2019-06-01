@@ -465,6 +465,10 @@ void EndGame_f ( void ) {
     ExitLevel();
 }
 
+void Intermission_f ( void ) {
+    LogExit("Intermission queued by server console\n");
+}
+
 void NoBots_f ( void ) {
 	trap_SendConsoleCommand( EXEC_APPEND, "bot_minplayers 0; kickbots\n" );
 }
@@ -560,6 +564,7 @@ struct
   //Kicks a player by number in the game logic rather than the server number
   { "clientkick_game", qfalse, ClientKick_f },
   { "endgamenow", qfalse, EndGame_f },
+  { "intermission", qfalse, Intermission_f },
   { "nobots", qfalse, NoBots_f },
   { "dmflag_set", qtrue, DmflagSet_f },
   { "dmflag_unset", qtrue, DmflagUnset_f },
