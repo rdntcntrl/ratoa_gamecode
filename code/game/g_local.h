@@ -518,6 +518,10 @@ struct gclient_s {
         int lastSentFlyingTime;                         //So we can time out
 
         int lastGroundTime;                             // the last time the player touched the ground
+
+	// for rocker + rail, lg + rail combo awards
+        int lastDmgGivenTime; 
+        int lastDmgGivenMOD; 
         
 
 	//unlagged - backward reconciliation #1

@@ -1144,6 +1144,37 @@ void G_CheckAirrocket(gentity_t *victim, gentity_t *inflictor, gentity_t *attack
 	AwardMessage(attacker, award, ++(attacker->client->pers.awardCounts[award]));
 }
 
+//#define ROCKETRAIL_TIME 1350
+#define ROCKETRAIL_TIME 1450
+#define LGRAIL_TIME 600
+void G_CheckComboAwards(gentity_t *victim, gentity_t *attacker, int mod, int lastDmgGivenTime, int lastDmgGivenMOD) {
+	int elapsed;
+	if (mod != MOD_RAILGUN
+			|| lastDmgGivenTime == 0
+			|| !victim 
+			|| !victim->client 
+			|| !attacker 
+			|| !attacker->client 
+			|| OnSameTeam(attacker, victim)) {
+		return;
+	}
+
+	elapsed = level.time - lastDmgGivenTime;
+
+	if (lastDmgGivenMOD == MOD_ROCKET || lastDmgGivenMOD == MOD_ROCKET_SPLASH) {
+		if (elapsed > ROCKETRAIL_TIME || victim->client->lastGroundTime + elapsed > level.time) {
+			return;
+		}
+		AwardMessage(attacker, EAWARD_ROCKETRAIL, ++(attacker->client->pers.awardCounts[EAWARD_ROCKETRAIL]));
+	} else if (lastDmgGivenMOD == MOD_LIGHTNING) {
+		if (level.time - lastDmgGivenTime > LGRAIL_TIME) {
+			return;
+		}
+		AwardMessage(attacker, EAWARD_LGRAIL, ++(attacker->client->pers.awardCounts[EAWARD_LGRAIL]));
+	}
+
+}
+
 void G_CheckImmortality(gentity_t *ent) {
 	if (g_gametype.integer == GT_ELIMINATION || g_gametype.integer == GT_CTF_ELIMINATION || g_gametype.integer == GT_LMS) {
 		// immortality award doesn't make sense in those gametypes
@@ -1525,6 +1556,14 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 	// do the damage
 	if (take) {
 		int dmgTaken = (take >= 0 ? take : 0) + (asave >= 0 ? asave : 0);
+		int lastDmgGivenTime = 0;
+		int lastDmgGivenMOD = MOD_UNKNOWN;
+
+		if (attacker->client) {
+			lastDmgGivenTime = attacker->client->lastDmgGivenTime;
+			lastDmgGivenMOD = attacker->client->lastDmgGivenMOD;
+		}
+
 		targ->health = targ->health - take;
 		if ( targ->client ) {
 			targ->client->ps.stats[STAT_HEALTH] = targ->health;
@@ -1571,6 +1610,8 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 						attacker->client->pers.damage[weapon] += dmgTaken;
 					}
 				}
+				attacker->client->lastDmgGivenTime = level.time;
+				attacker->client->lastDmgGivenMOD = mod;
 			}
 		}
 		///
@@ -1584,6 +1625,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
                         
 			targ->enemy = attacker;
 			targ->die (targ, inflictor, attacker, take, mod);
+			G_CheckComboAwards(targ, attacker, mod, lastDmgGivenTime, lastDmgGivenMOD);
 			return;
 		} else if ( targ->pain ) {
 			targ->pain (targ, attacker, take);
