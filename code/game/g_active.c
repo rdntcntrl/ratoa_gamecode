@@ -762,7 +762,7 @@ void SendPendingPredictableEvents( playerState_t *ps ) {
 		// create temporary entity for event
 		t = G_TempEntity( ps->origin, event );
 		number = t->s.number;
-		BG_PlayerStateToEntityState( ps, &t->s, qtrue );
+		BG_PlayerStateToEntityState( ps, &t->s, (qboolean)!g_floatPlayerPosition.integer );
 		t->s.number = number;
 		t->s.eType = ET_EVENTS + event;
 		t->s.eFlags |= EF_PLAYER_EVENT;
@@ -1134,7 +1134,7 @@ void ClientThink_real( gentity_t *ent ) {
 	}
 	else {
 */
-		BG_PlayerStateToEntityState( &ent->client->ps, &ent->s, qtrue );
+		BG_PlayerStateToEntityState( &ent->client->ps, &ent->s, (qboolean)!g_floatPlayerPosition.integer );
 //	}
 //unlagged - smooth clients #2
 	SendPendingPredictableEvents( &ent->client->ps );
@@ -1397,7 +1397,7 @@ void ClientEndFrame( gentity_t *ent ) {
 		BG_PlayerStateToEntityStateExtraPolate( &ent->client->ps, &ent->s, ent->client->ps.commandTime, qtrue );
 	}
 	else { */
-		BG_PlayerStateToEntityState( &ent->client->ps, &ent->s, qtrue );
+		BG_PlayerStateToEntityState( &ent->client->ps, &ent->s, (qboolean)!g_floatPlayerPosition.integer );
 //	}
 	SendPendingPredictableEvents( &ent->client->ps );
 
@@ -1422,7 +1422,9 @@ void ClientEndFrame( gentity_t *ent ) {
 		// yep, missed one or more, so extrapolate the player's movement
 		G_PredictPlayerMove( ent, (float)frames / sv_fps.integer );
 		// save network bandwidth
-		SnapVector( ent->s.pos.trBase );
+		if (!g_floatPlayerPosition.integer) {
+			SnapVector( ent->s.pos.trBase );
+		}
 	}
 //unlagged - smooth clients #1
 

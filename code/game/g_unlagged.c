@@ -70,7 +70,9 @@ void G_StoreHistory( gentity_t *ent ) {
 	VectorCopy( ent->r.mins, ent->client->history[head].mins );
 	VectorCopy( ent->r.maxs, ent->client->history[head].maxs );
 	VectorCopy( ent->s.pos.trBase, ent->client->history[head].currentOrigin );
-	SnapVector( ent->client->history[head].currentOrigin );
+	if (!g_floatPlayerPosition.integer) {
+		SnapVector( ent->client->history[head].currentOrigin );
+	}
 	ent->client->history[head].leveltime = level.time;
 }
 

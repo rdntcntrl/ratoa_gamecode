@@ -1260,6 +1260,7 @@ extern	vmCvar_t	g_smoothClients;
 extern	vmCvar_t	pmove_fixed;
 extern	vmCvar_t	pmove_msec;
 extern	vmCvar_t	pmove_float;
+extern	vmCvar_t	g_floatPlayerPosition;
 extern	vmCvar_t	g_rankings;
 #ifdef MISSIONPACK
 extern	vmCvar_t	g_singlePlayer;

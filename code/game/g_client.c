@@ -2760,7 +2760,7 @@ else
 	if (!(ent->client->sess.sessionTeam == TEAM_SPECTATOR 
 				|| ((g_gametype.integer == GT_ELIMINATION || g_gametype.integer == GT_CTF_ELIMINATION || g_gametype.integer == GT_LMS)
 				       	&& (client->isEliminated || client->ps.pm_type == PM_SPECTATOR )))) {
-		BG_PlayerStateToEntityState( &client->ps, &ent->s, qtrue );
+		BG_PlayerStateToEntityState( &client->ps, &ent->s, (qboolean)!g_floatPlayerPosition.integer );
 		VectorCopy( ent->client->ps.origin, ent->r.currentOrigin );
 		trap_LinkEntity( ent );
 	}
@@ -2769,7 +2769,7 @@ else
 	ClientEndFrame( ent );
 
 	// clear entity state values
-	BG_PlayerStateToEntityState( &client->ps, &ent->s, qtrue );
+	BG_PlayerStateToEntityState( &client->ps, &ent->s, (qboolean)!g_floatPlayerPosition.integer );
 
         if(g_spawnprotect.integer)
             client->spawnprotected = qtrue;
