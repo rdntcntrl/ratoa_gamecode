@@ -1946,6 +1946,10 @@ static void CG_RegisterGraphics( void ) {
 	cgs.media.medalDefend = trap_R_RegisterShaderNoMip( "medal_defend" );
 	cgs.media.medalAssist = trap_R_RegisterShaderNoMip( "medal_assist" );
 	cgs.media.medalCapture = trap_R_RegisterShaderNoMip( "medal_capture" );
+	cgs.media.medalTelefrag = trap_R_RegisterShaderNoMip( "medal_telefrag" );
+	cgs.media.medalTelemissilefrag = trap_R_RegisterShaderNoMip( "medal_telemissilefrag" );
+	cgs.media.medalRocketsniper = trap_R_RegisterShaderNoMip( "medal_rocketsniper" );
+	cgs.media.medalFullSG = trap_R_RegisterShaderNoMip( "medal_fullsg" );
 
 	// LEILEI SHADERS
 	cgs.media.lsmkShader1 = trap_R_RegisterShader("leismoke1" );

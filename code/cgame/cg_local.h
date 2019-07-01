@@ -1044,6 +1044,10 @@ typedef struct {
 	qhandle_t	medalDefend;
 	qhandle_t	medalAssist;
 	qhandle_t	medalCapture;
+	qhandle_t	medalTelefrag;
+	qhandle_t	medalTelemissilefrag;
+	qhandle_t	medalRocketsniper;
+	qhandle_t	medalFullSG;
 
 	// sounds
 	sfxHandle_t	quadSound;

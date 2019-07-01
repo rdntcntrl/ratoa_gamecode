@@ -638,6 +638,18 @@ static void CG_ParseAward( void ) {
 		case EAWARD_ACCURACY:
 			CG_PushReward(cgs.media.accuracySound, cgs.media.medalAccuracy, count);
 			break;
+		case EAWARD_TELEFRAG:
+			CG_PushReward(cgs.media.humiliationSound, cgs.media.medalTelefrag, count);
+			break;
+		case EAWARD_TELEMISSILE_FRAG:
+			CG_PushReward(cgs.media.accuracySound, cgs.media.medalTelemissilefrag, count);
+			break;
+		case EAWARD_ROCKETSNIPER:
+			CG_PushReward(cgs.media.accuracySound, cgs.media.medalRocketsniper, count);
+			break;
+		case EAWARD_FULLSG:
+			CG_PushReward(cgs.media.accuracySound, cgs.media.medalFullSG, count);
+			break;
 		default:
 			return;
 	}
