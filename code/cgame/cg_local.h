@@ -378,6 +378,12 @@ typedef struct {
 	int				guantletCount;
 	int				defendCount;
 	int				assistCount;
+	int				fragsawardCount;
+	int				accuracyCount;
+	int				telefragCount;
+	int				telemissilefragCount;
+	int				rocketsniperCount;
+	int				fullSGCount;
 	int				captures;
 	int			flagrecovery;
 	qboolean	perfect;
@@ -640,14 +646,16 @@ typedef struct {
 	// scoreboard
 	int			scoresRequestTime;
 	int			numScores;
+	qboolean		stats_available;
 	int			selectedScore;
 	int			teamScores[2];
 	score_t		scores[MAX_CLIENTS];
 	int		numScores_buf;
-	qboolean	received_ratscores1;
-	qboolean	received_ratscores2;
+	int		ratscores_expected;
+	int		received_ratscores;
 	score_t		scores_buf[MAX_CLIENTS];
 	qboolean	showScores;
+	qboolean	showStats;
 	qboolean	scoreBoardShowing;
 	int			scoreFadeTime;
 

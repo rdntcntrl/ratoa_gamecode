@@ -153,20 +153,20 @@ static void CG_ParseRatScores( void ) {
 
 
 static void CG_PurgeScoreBuf(void) {
-	cg.received_ratscores2 = qfalse;
-	cg.received_ratscores1 = qfalse;
+	cg.received_ratscores = 0;
 	cg.numScores_buf = 0;
 	memset( cg.scores_buf, 0, sizeof( cg.scores_buf ) );
 }
 
 static void CG_CheckScoreUpdate(void) {
-	if (!(cg.received_ratscores1 && cg.received_ratscores2)) {
+	if (cg.ratscores_expected != cg.received_ratscores) {
 		return;
 	}
 
 	// TODO: switching pointers would be more efficient
 	memcpy( cg.scores, cg.scores_buf, sizeof(cg.scores));
 	cg.numScores = cg.numScores_buf;
+	cg.stats_available = (cg.received_ratscores == 3);
 
 	CG_PurgeScoreBuf();
 }
@@ -181,17 +181,23 @@ static void CG_ParseRatScores1( void ) {
 	int		i, powerups;
 	int numScores;
 
-	numScores = atoi( CG_Argv( 1 ) );
+	// defines whether we have to wait for stats as well (ratscores3)
+	cg.ratscores_expected = atoi( CG_Argv( 1 ) );
+	if (cg.ratscores_expected < 2 || cg.ratscores_expected > 3) {
+		cg.ratscores_expected = 2;
+	}
+
+	numScores = atoi( CG_Argv( 2 ) );
 	if ( numScores > MAX_CLIENTS ) {
 		numScores = MAX_CLIENTS;
 	}
 
-	cg.teamScores[0] = atoi( CG_Argv( 2 ) );
-	cg.teamScores[1] = atoi( CG_Argv( 3 ) );
+	cg.teamScores[0] = atoi( CG_Argv( 3 ) );
+	cg.teamScores[1] = atoi( CG_Argv( 4 ) );
 
-	cgs.roundStartTime = atoi( CG_Argv( 4 ) );
+	cgs.roundStartTime = atoi( CG_Argv( 5 ) );
 
-	cg.teamsLocked = (qboolean)atoi( CG_Argv( 5 ) );
+	cg.teamsLocked = (qboolean)atoi( CG_Argv( 6 ) );
 
 	//Update thing in lower-right corner
 	if(cgs.gametype == GT_ELIMINATION || cgs.gametype == GT_CTF_ELIMINATION)
@@ -200,16 +206,14 @@ static void CG_ParseRatScores1( void ) {
 		cgs.scores2 = cg.teamScores[1];
 	}
 
-	cg.received_ratscores1 = qtrue;
-	if (cg.received_ratscores2 && numScores != cg.numScores_buf) {
-		CG_PurgeScoreBuf();
-		return;
-	}
+	CG_PurgeScoreBuf();
+	cg.received_ratscores = 1;
+
 	cg.numScores_buf = numScores;
 	//memset( cg.scores, 0, sizeof( cg.scores ) );
 
 #define NUM_RAT1_DATA 17
-#define FIRST_RAT1_DATA 5
+#define FIRST_RAT1_DATA 6
 
 	for ( i = 0 ; i < numScores ; i++ ) {
 		//
@@ -254,18 +258,21 @@ static void CG_ParseRatScores2( void ) {
 	int		i;
 	int numScores;
 
+	if (cg.ratscores_expected < 2 || cg.received_ratscores >= 2) {
+		return;
+	}
+	cg.received_ratscores++;
+
 	numScores = atoi( CG_Argv( 1 ) );
 	if ( numScores > MAX_CLIENTS ) {
 		numScores = MAX_CLIENTS;
 	}
 
-	cg.received_ratscores2 = qtrue;
-	if (cg.received_ratscores1 && numScores != cg.numScores_buf) {
+
+	if (cg.numScores_buf != numScores) {
 		CG_PurgeScoreBuf();
 		return;
 	}
-	cg.numScores_buf = numScores;
-	//memset( cg.scores, 0, sizeof( cg.scores ) );
 
 #define NUM_RAT2_DATA 8
 #define FIRST_RAT2_DATA 1
@@ -291,6 +298,47 @@ static void CG_ParseRatScores2( void ) {
 		}
 
 
+	}
+
+	CG_CheckScoreUpdate();
+}
+
+/*
+=================
+CG_ParseRatScores3
+
+=================
+*/
+static void CG_ParseRatScores3( void ) {
+	int		i;
+	int numScores;
+
+	if (cg.ratscores_expected < 3 || cg.received_ratscores >= 3) {
+		return;
+	}
+	cg.received_ratscores++;
+
+	numScores = atoi( CG_Argv( 1 ) );
+	if ( numScores > MAX_CLIENTS ) {
+		numScores = MAX_CLIENTS;
+	}
+
+	if (cg.numScores_buf != numScores) {
+		CG_PurgeScoreBuf();
+		return;
+	}
+	//memset( cg.scores, 0, sizeof( cg.scores ) );
+
+#define NUM_RAT3_DATA 6
+#define FIRST_RAT3_DATA 1
+
+	for ( i = 0 ; i < numScores ; i++ ) {
+		cg.scores_buf[i].fragsawardCount = atoi(CG_Argv(i * NUM_RAT3_DATA + FIRST_RAT3_DATA + 1));
+		cg.scores_buf[i].accuracyCount = atoi(CG_Argv(i * NUM_RAT3_DATA + FIRST_RAT3_DATA + 2));
+		cg.scores_buf[i].telefragCount = atoi(CG_Argv(i * NUM_RAT3_DATA + FIRST_RAT3_DATA + 3));
+		cg.scores_buf[i].telemissilefragCount = atoi(CG_Argv(i * NUM_RAT3_DATA + FIRST_RAT3_DATA + 4));
+		cg.scores_buf[i].rocketsniperCount = atoi(CG_Argv(i * NUM_RAT3_DATA + FIRST_RAT3_DATA + 5));
+		cg.scores_buf[i].fullSGCount = atoi(CG_Argv(i * NUM_RAT3_DATA + FIRST_RAT3_DATA + 6));
 	}
 
 	CG_CheckScoreUpdate();
@@ -1903,6 +1951,11 @@ static void CG_ServerCommand( void ) {
 
 	if ( !strcmp( cmd, "ratscores2" ) ) {
 		CG_ParseRatScores2();
+		return;
+	}
+
+	if ( !strcmp( cmd, "ratscores3" ) ) {
+		CG_ParseRatScores3();
 		return;
 	}
 
