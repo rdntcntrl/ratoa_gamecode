@@ -5462,6 +5462,33 @@ int G_FindFreeMultiTrnSlot(void) {
 	return openGameId;
 }
 
+void G_MtrnRePairup(void) {
+	int i,j;
+	int unPairedGameId;
+	int numUnpaired;
+
+	// re-pair players if someone leaves during warmup
+	
+	level.shuffling_teams = qtrue; // suppress team change broadcasts
+	for (i=0; i < level.multiTrnNumGames; ++i) {
+		numUnpaired = 0;
+		unPairedGameId = -1;
+		for (j=0; j < level.multiTrnNumGames; ++j) {
+			if (G_MultiTrnGameOpen(&level.multiTrnGames[j]) 
+					&& level.multiTrnGames[j].numPlayers == 1) {
+				numUnpaired++;
+				unPairedGameId = j;
+			}
+		}
+		if (numUnpaired < 2) {
+			break;
+		}
+		SetTeam( &g_entities[level.multiTrnGames[unPairedGameId].clients[0]], "s");
+		G_UpdateMultiTrnGames();
+	}
+	level.shuffling_teams = qfalse;
+}
+
 /*
 =============
 CheckMultiTournament
@@ -5484,6 +5511,7 @@ void CheckMultiTournament( void ) {
 	if ( level.numConnectedClients == 0 ) {
 		return;
 	}
+
 
 	if (!level.warmupTime && !level.multiTrnInit) {
 		// in a real game (not warmup), but not initiazlized yet
@@ -5513,6 +5541,12 @@ void CheckMultiTournament( void ) {
 				level.multiTrnGames[i].gameFlags & MTRN_GFL_RUNNING) {
 			level.multiTrnGames[i].gameFlags |= MTRN_GFL_FORFEITED;
 		}
+	}
+
+	if (level.warmupTime != 0) {
+		// make sure players aren't alone in a game if there are others
+		// this can happen when a player leaves the game
+		G_MtrnRePairup();
 	}
 
 	if (!level.warmupTime) {
