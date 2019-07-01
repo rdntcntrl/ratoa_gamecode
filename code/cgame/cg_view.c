@@ -958,6 +958,7 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demo
 	// build the render lists
 	if ( !cg.hyperspace ) {
 		CG_AddPacketEntities();			// adter calcViewValues, so predicted player state is correct
+		CG_AddPredictedMissiles();
 		CG_AddMarks();
 		CG_AddParticles ();
 		CG_AddLocalEntities();

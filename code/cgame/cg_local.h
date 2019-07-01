@@ -108,6 +108,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #define MAX_SPAWNPOINTS 64
 
+#define MAX_PREDICTED_MISSILES	32
+
 #define MIN(a,b) (((a) < (b)) ? (a) : (b))
 #define MAX(a,b) (((a) > (b)) ? (a) : (b))
 
@@ -188,6 +190,24 @@ typedef struct {
 
 //=================================================
 
+#define MF_EXPLODED  		1
+#define MF_HITPLAYER 		2
+#define MF_HITWALL   		4
+#define MF_HITWALLMETAL   	8
+#define MF_DISAPPEARED 		16
+#define MF_REMOVEDPMISSILE	32
+#define MF_TRAILFINISHED	64
+#define MF_EXPLOSIONCONFIRMED	128
+
+typedef struct predictedMissileStatus_s {
+	int	missileFlags;
+	int	explosionTime;
+	vec3_t	explosionPos;
+	int	hitEntity;
+
+	int 	expLEntityID;
+} predictedMissileStatus_t;
+
 
 
 // centity_t have a direct corespondence with gentity_t in the game, but
@@ -229,9 +249,8 @@ typedef struct centity_s {
 
 	// set if a player entity should not make sounds
 	qboolean		quiet;
-	qboolean		removedPredictedMissile;
 	qboolean		missileTeleported;
-	qboolean		removePredictedMissileRan;
+	predictedMissileStatus_t missileStatus;
 } centity_t;
 
 
@@ -266,7 +285,6 @@ typedef enum {
 	LE_INVULJUICED,
 	LE_SHOWREFENTITY,
 	LE_GORE,
-	LE_PREDICTEDMISSILE
 } leType_t;
 
 typedef enum {
@@ -317,8 +335,27 @@ typedef struct localEntity_s {
 
 	refEntity_t		refEntity;		
 
-	int			weapon; // weapon for predicting missiles
+	// to remove wrongfully predicted explosions
+	// id = 0 for free/unused entities
+	int			id;
 } localEntity_t;
+
+
+typedef struct predictedMissile_s {
+	struct predictedMissile_s *prev, *next;
+
+	int			weapon;
+
+	trajectory_t	pos;
+	trajectory_t	angles;
+
+	// time at which to remove this missile even if it was not confirmed by the server
+	int	removeTime;
+
+	predictedMissileStatus_t status;
+
+	refEntity_t		refEntity;		
+} predictedMissile_t;
 
 //======================================================================
 
@@ -1721,6 +1758,19 @@ int CG_ReliablePing( void );
 int CG_ReliablePingFromSnaps(snapshot_t *snap, snapshot_t *nextsnap);
 //void CG_AddBoundingBox( centity_t *cent );
 qboolean CG_Cvar_ClampInt( const char *name, vmCvar_t *vmCvar, int min, int max );
+
+qboolean CG_IsOwnMissile(centity_t *missile);
+int CG_MissileOwner(centity_t *missile);
+void CG_AddPredictedMissiles(void );
+void CG_RemoveExpiredPredictedMissiles(void);
+qboolean CG_ShouldPredictExplosion(void);
+void CG_PredictedExplosion(trace_t *tr, int weapon, predictedMissile_t *predMissile, centity_t *missileEnt);
+qboolean CG_ExplosionPredicted(centity_t *cent, int checkFlags, vec3_t realExpOrigin, int realHitEnt);
+void	CG_InitPMissilles( void );
+void CG_UpdateMissileStatus(predictedMissileStatus_t *pms, int addedFlags, vec3_t explosionOrigin, int hitEntity);
+void CG_RemovePredictedMissile(centity_t *missile);
+void CG_RemoveOldMissileExplosion(predictedMissileStatus_t *pms);
+void CG_RecoverMissile(centity_t *missile);
 //unlagged - cg_unlagged.c
 
 //
@@ -1884,6 +1934,7 @@ void CG_Trace( trace_t *result, const vec3_t start, const vec3_t mins, const vec
 void CG_PredictPlayerState( void );
 void CG_LoadDeferredPlayers( void );
 qboolean CG_MissileTouchedPortal(const vec3_t start, const vec3_t end);
+void CG_EncodePlayerBBox( pmove_t *pm, entityState_t *ent);
 
 
 //
@@ -1922,8 +1973,8 @@ void CG_RegisterWeapon( int weaponNum );
 void CG_RegisterItemVisuals( int itemNum );
 
 void CG_FireWeapon( centity_t *cent );
-void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin, vec3_t dir, impactSound_t soundType );
-void CG_MissileHitPlayer( int weapon, vec3_t origin, vec3_t dir, int entityNum );
+void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin, vec3_t dir, impactSound_t soundType, predictedMissileStatus_t *missileStatus );
+void CG_MissileHitPlayer( int weapon, vec3_t origin, vec3_t dir, int entityNum, predictedMissileStatus_t *missileStatus );
 void CG_ShotgunFire( entityState_t *es );
 void CG_Bullet( vec3_t origin, int sourceEntityNum, vec3_t normal, qboolean flesh, int fleshEntityNum );
 
@@ -1970,9 +2021,7 @@ void    CG_LeiPuff (vec3_t org, vec3_t vel, int duration, float x, float y, floa
 void	CG_InitLocalEntities( void );
 localEntity_t	*CG_AllocLocalEntity( void );
 void	CG_AddLocalEntities( void );
-void CG_RemovePredictedMissile(centity_t *missile);
-qboolean CG_ShouldPredictExplosion(void);
-qboolean CG_IsOwnMissile(centity_t *missile);
+void CG_FreeLocalEntityById(int id);
 
 //
 // cg_effects.c

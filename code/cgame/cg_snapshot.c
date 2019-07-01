@@ -44,11 +44,8 @@ static void CG_ResetEntity( centity_t *cent ) {
 		cent->trailTime = MIN(cent->currentState.pos.trTime+cgs.predictedMissileNudge, cent->trailTime);
 	}
 	if (cent->currentState.eType == ET_MISSILE) {
-		//cent->projectileNudge = cg.snap->ping*0.5;
 		cent->projectileNudge = CG_ReliablePing();
-		cent->removedPredictedMissile = qfalse;
-		//cent->missileTeleported = qfalse;
-		cent->removePredictedMissileRan = qfalse;
+		memset(&cent->missileStatus, 0, sizeof(cent->missileStatus));
 	}
 
 	VectorCopy (cent->currentState.origin, cent->lerpOrigin);

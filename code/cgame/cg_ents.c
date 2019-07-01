@@ -546,6 +546,7 @@ static void CG_Missile( centity_t *cent ) {
 //	int	col;
 
 	CG_RemovePredictedMissile(cent);
+	CG_RecoverMissile(cent);
 
 	s1 = &cent->currentState;
 	if ( s1->weapon >= WP_NUM_WEAPONS ) {
@@ -556,11 +557,25 @@ static void CG_Missile( centity_t *cent ) {
 	// calculate the axis
 	VectorCopy( s1->angles, cent->lerpAngles);
 
+	if (cent->missileStatus.missileFlags & MF_TRAILFINISHED) {
+		// explosion was predicted, and last bit of trail was drawn
+		// already
+		return;
+	}
+
 	// add trails
 	if ( weapon->missileTrailFunc ) 
 	{
 		weapon->missileTrailFunc( cent, weapon );
 	}
+
+	if (cent->missileStatus.missileFlags & MF_EXPLODED) {
+		// explosion was predicted, don't render the missile anymore
+		// make sure that we don't continue to draw the trail next time
+		cent->missileStatus.missileFlags |= MF_TRAILFINISHED;
+		return;
+	}
+
 
 	if (s1->time2 > 0) {
 		// missile already exploded, don't render it
@@ -984,6 +999,12 @@ static void CG_CalcEntityLerpPositions( centity_t *cent ) {
 
 		BG_EvaluateTrajectory( &cent->currentState.pos, cg.time, lastOrigin );
 
+		if (cent->currentState.eType == ET_MISSILE 
+				&& cg_predictExplosions.integer
+				&& CG_MissileTouchedPortal(lastOrigin, cent->lerpOrigin)) {
+			cent->missileStatus.missileFlags |= MF_DISAPPEARED;
+		}
+
 		CG_Trace( &tr, lastOrigin, vec3_origin, vec3_origin, cent->lerpOrigin, cent->currentState.number, MASK_SHOT );
 
 		// don't let the projectile go through the floor
@@ -991,7 +1012,11 @@ static void CG_CalcEntityLerpPositions( centity_t *cent ) {
 			cent->lerpOrigin[0] = lastOrigin[0] + tr.fraction * ( cent->lerpOrigin[0] - lastOrigin[0] );
 			cent->lerpOrigin[1] = lastOrigin[1] + tr.fraction * ( cent->lerpOrigin[1] - lastOrigin[1] );
 			cent->lerpOrigin[2] = lastOrigin[2] + tr.fraction * ( cent->lerpOrigin[2] - lastOrigin[2] );
-		}
+			if (cent->currentState.eType == ET_MISSILE) {
+				CG_PredictedExplosion(&tr, cent->currentState.weapon, NULL, cent);
+				cent->missileStatus.missileFlags |= MF_DISAPPEARED;
+			}
+		} 
 	}
 //unlagged - projectile nudge
 
@@ -1257,6 +1282,8 @@ void CG_AddPacketEntities( void ) {
 	ps = &cg.predictedPlayerState;
 	BG_PlayerStateToEntityState( ps, &cg.predictedPlayerEntity.currentState, qfalse );
 	CG_AddCEntity( &cg.predictedPlayerEntity );
+
+	CG_BuildSolidList();
 
 	// lerp the non-predicted value for lightning gun origins
 	CG_CalcEntityLerpPositions( &cg_entities[ cg.snap->ps.clientNum ] );

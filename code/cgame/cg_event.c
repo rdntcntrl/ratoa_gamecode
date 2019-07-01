@@ -618,36 +618,6 @@ footstep_t CG_Footsteps(clientInfo_t *ci) {
 	return ci->footsteps;
 }
 
-qboolean CG_ExplosionPredicted(centity_t *cent) {
-	if ((cgs.ratFlags & RAT_PREDICTMISSILES)
-		       	&& cg_predictExplosions.integer 
-			&& cent->currentState.eType == ET_MISSILE
-			&& CG_IsOwnMissile(cent)) {
-
-		// TODO: is this needed?
-		CG_RemovePredictedMissile(cent);
-
-		if (!CG_ShouldPredictExplosion()) {
-			return qfalse;
-		}
-
-		switch (cent->currentState.weapon) {
-			case WP_GRENADE_LAUNCHER:
-			case WP_PROX_LAUNCHER:
-				return qfalse;
-		}
-
-		if (cent->missileTeleported) {
-			return qfalse;
-		}
-
-		if (!cent->removedPredictedMissile) {
-			return qtrue;
-		} 
-	}
-	return qfalse;
-}
-
 
 /*
 ==============
@@ -1111,29 +1081,56 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 	//
 	case EV_MISSILE_HIT:
 		DEBUGNAME("EV_MISSILE_HIT");
-		if (cg_predictPlayerExplosions.integer && CG_ExplosionPredicted(cent)) {
+		if (CG_ExplosionPredicted(cent, MF_HITPLAYER, position, es->otherEntityNum)) {
+			CG_UpdateMissileStatus(&cent->missileStatus,
+					MF_EXPLOSIONCONFIRMED | MF_EXPLODED | MF_HITPLAYER,
+					position, es->otherEntityNum);
 			break;
 		}
 		ByteToDir( es->eventParm, dir );
-		CG_MissileHitPlayer( es->weapon, position, dir, es->otherEntityNum );
+		CG_MissileHitPlayer( es->weapon, position, dir, es->otherEntityNum,
+			       cent->currentState.eType == ET_MISSILE ? &cent->missileStatus : NULL);
+		if (cent->currentState.eType == ET_MISSILE) {
+			CG_UpdateMissileStatus(&cent->missileStatus,
+					MF_EXPLOSIONCONFIRMED | MF_EXPLODED | MF_HITPLAYER,
+					position, es->otherEntityNum);
+		}
 		break;
 
 	case EV_MISSILE_MISS:
 		DEBUGNAME("EV_MISSILE_MISS");
-		if (CG_ExplosionPredicted(cent)) {
+		if (CG_ExplosionPredicted(cent, MF_HITWALL, position, ENTITYNUM_WORLD)) {
+			CG_UpdateMissileStatus(&cent->missileStatus,
+					MF_EXPLOSIONCONFIRMED | MF_EXPLODED | MF_HITWALL,
+					position, ENTITYNUM_WORLD);
 			break;
 		}
 		ByteToDir( es->eventParm, dir );
-		CG_MissileHitWall( es->weapon, 0, position, dir, IMPACTSOUND_DEFAULT );
+		CG_MissileHitWall( es->weapon, 0, position, dir, IMPACTSOUND_DEFAULT,
+			       cent->currentState.eType == ET_MISSILE ? &cent->missileStatus : NULL);
+		if (cent->currentState.eType == ET_MISSILE) {
+			CG_UpdateMissileStatus(&cent->missileStatus,
+					MF_EXPLOSIONCONFIRMED | MF_EXPLODED | MF_HITWALL,
+					position, ENTITYNUM_WORLD);
+		}
 		break;
 
 	case EV_MISSILE_MISS_METAL:
 		DEBUGNAME("EV_MISSILE_MISS_METAL");
-		if (CG_ExplosionPredicted(cent)) {
+		if (CG_ExplosionPredicted(cent, MF_HITWALLMETAL, position, ENTITYNUM_WORLD)) {
+			CG_UpdateMissileStatus(&cent->missileStatus, 
+					MF_EXPLOSIONCONFIRMED | MF_EXPLODED | MF_HITWALLMETAL,
+					position, ENTITYNUM_WORLD);
 			break;
 		}
 		ByteToDir( es->eventParm, dir );
-		CG_MissileHitWall( es->weapon, 0, position, dir, IMPACTSOUND_METAL );
+		CG_MissileHitWall( es->weapon, 0, position, dir, IMPACTSOUND_METAL,
+			       cent->currentState.eType == ET_MISSILE ? &cent->missileStatus : NULL);
+		if (cent->currentState.eType == ET_MISSILE) {
+			CG_UpdateMissileStatus(&cent->missileStatus, 
+					MF_EXPLOSIONCONFIRMED | MF_EXPLODED | MF_HITWALLMETAL,
+					position, ENTITYNUM_WORLD);
+		}
 		break;
 
 	case EV_RAILTRAIL:
@@ -1162,7 +1159,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 			// if the end was on a nomark surface, don't make an explosion
 			if ( es->eventParm != 255 ) {
 				ByteToDir( es->eventParm, dir );
-				CG_MissileHitWall( es->weapon, es->clientNum, position, dir, IMPACTSOUND_DEFAULT );
+				CG_MissileHitWall( es->weapon, es->clientNum, position, dir, IMPACTSOUND_DEFAULT, NULL );
 			}
 			//Com_Printf("Non-predicted rail trail\n");
 		}

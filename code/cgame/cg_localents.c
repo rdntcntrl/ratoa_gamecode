@@ -28,10 +28,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 //#define	MAX_LOCAL_ENTITIES	512 
 // increase to accomodate plasma trails / dense rocket trails (XXX: might cause problems, reduce again)
-#define	MAX_LOCAL_ENTITIES	512 
+// Predicted Missiles also need to be rendered, make sure they together don't exceed 512
+#define	MAX_LOCAL_ENTITIES	(512 - MAX_PREDICTED_MISSILES)
 localEntity_t	cg_localEntities[MAX_LOCAL_ENTITIES];
 localEntity_t	cg_activeLocalEntities;		// double linked list
 localEntity_t	*cg_freeLocalEntities;		// single linked list
+
+static int cg_localentityId = 0;
 
 /*
 ===================
@@ -50,6 +53,8 @@ void	CG_InitLocalEntities( void ) {
 	for ( i = 0 ; i < MAX_LOCAL_ENTITIES - 1 ; i++ ) {
 		cg_localEntities[i].next = &cg_localEntities[i+1];
 	}
+
+	cg_localentityId = 0;
 }
 
 
@@ -62,6 +67,8 @@ void CG_FreeLocalEntity( localEntity_t *le ) {
 	if ( !le->prev ) {
 		CG_Error( "CG_FreeLocalEntity: not active" );
 	}
+
+	le->id = 0;
 
 	// remove from the doubly linked active list
 	le->prev->next = le->next;
@@ -98,7 +105,32 @@ localEntity_t	*CG_AllocLocalEntity( void ) {
 	le->prev = &cg_activeLocalEntities;
 	cg_activeLocalEntities.next->prev = le;
 	cg_activeLocalEntities.next = le;
+
+	if (++cg_localentityId == 0) {
+		le->id = ++cg_localentityId;
+	} else {
+		le->id = cg_localentityId;
+	}
 	return le;
+}
+
+void CG_FreeLocalEntityById(int id) {
+	localEntity_t *le, *next;
+
+	if (id == 0) {
+		// only free entities have id == 0
+		return;
+	}
+
+	le = cg_activeLocalEntities.next;
+	for ( ; le != &cg_activeLocalEntities ; le = next ) {
+		next = le->next;
+
+		if (le->id == id) {
+			CG_FreeLocalEntity(le);
+			return;
+		}
+	}
 }
 
 
@@ -925,157 +957,7 @@ void CG_AddRefEntity( localEntity_t *le ) {
 	trap_R_AddRefEntityToScene( &le->refEntity );
 }
 
-qboolean CG_ShouldPredictExplosion(void) {
-	return !(CG_ReliablePing() + 20 > cgs.unlagMissileMaxLatency);
-}
 
-void CG_PredictedExplosion(trace_t *tr, localEntity_t *le) {
-	centity_t *hitEnt;
-	if (!cg_predictExplosions.integer) {
-		return;
-	}
-	if (tr->surfaceFlags & SURF_NOIMPACT) {
-		return;
-	}
-	switch (le->weapon) {
-		// TODO: predict grenade bounce
-		case WP_GRENADE_LAUNCHER:
-		case WP_PROX_LAUNCHER:
-			return;
-	}
-
-	if (!CG_ShouldPredictExplosion()) {
-		return;
-	}
-
-	hitEnt = &cg_entities[tr->entityNum];
-	if (hitEnt->currentState.eType == ET_PLAYER ) {
-		if (!cg_predictPlayerExplosions.integer) {
-			return;
-		}
-		CG_MissileHitPlayer( le->weapon, tr->endpos, tr->plane.normal, tr->entityNum );
-	} else if (tr->surfaceFlags & SURF_METALSTEPS) {
-		CG_MissileHitWall(le->weapon, 0, tr->endpos, tr->plane.normal, IMPACTSOUND_METAL);
-	} else {
-		CG_MissileHitWall(le->weapon, 0, tr->endpos, tr->plane.normal, IMPACTSOUND_DEFAULT);
-	}
-}
-
-void CG_PredictedMissile( localEntity_t *le ) {
-	vec3_t	newOrigin;
-	trace_t	trace;
-	//trace_t	trace2;
-	int timeshift = 0;
-	int time;
-
-	const weaponInfo_t *weapon = &cg_weapons[le->weapon];
-
-	if (le->endTime < cg.time) {
-		CG_FreeLocalEntity( le );
-		return;
-	}
-
-	timeshift = 1000 / sv_fps.integer;
-	time = cg.time + timeshift;
-
-	// calculate new position
-	BG_EvaluateTrajectory( &le->pos, time, newOrigin);
-
-	//BG_EvaluateTrajectory( &le->pos, cg.time, newOrigin );
-
-	// trace a line from previous position to new position
-	if (cg_predictExplosions.integer) {
-		if (CG_MissileTouchedPortal(le->refEntity.origin, newOrigin)) {
-			CG_FreeLocalEntity( le );
-			return; 
-		}
-	}
-	//CG_Trace( &trace, le->refEntity.origin, NULL, NULL, newOrigin, -1, MASK_SHOT );
-	CG_Trace( &trace,  le->refEntity.origin, NULL, NULL, newOrigin, cg.predictedPlayerState.clientNum, MASK_SHOT );
-	//if ( trace.fraction == 1.0 ) {
-	if ( trace.fraction == 1.0 ) {
-
-		// still in free fall
-		VectorCopy( newOrigin, le->refEntity.origin );
-		if ( weapon->missileDlight ) {
-			trap_R_AddLightToScene(newOrigin, weapon->missileDlight, 
-					weapon->missileDlightColor[0], weapon->missileDlightColor[1], weapon->missileDlightColor[2] );
-		}
-
-		if (le->weapon == WP_PLASMAGUN) {
-			trap_R_AddRefEntityToScene( &le->refEntity );
-			return;
-		}
-
-		if ( VectorNormalize2( le->pos.trDelta, le->refEntity.axis[0] ) == 0 ) {
-			le->refEntity.axis[0][2] = 1;
-		}
-		if ( le->pos.trType != TR_STATIONARY ) {
-			RotateAroundDirection( le->refEntity.axis, cg.time / 4 );
-		}
-
-		trap_R_AddRefEntityToScene( &le->refEntity );
-
-		return;
-	} else {
-		CG_PredictedExplosion(&trace, le);
-		CG_FreeLocalEntity( le );
-		return; 
-	}
-}
-
-qboolean CG_IsOwnMissile(centity_t *missile) {
-	return ( (((missile->currentState.otherEntityNum == cg.clientNum && missile->currentState.time2 <= 0)) ||
-	     (missile->currentState.otherEntityNum2 == cg.clientNum && missile->currentState.time2 > 0) ));
-}
-
-void CG_RemovePredictedMissile( centity_t *missile) {
-	localEntity_t	*le, *next;
-
-	if (!cg_ratPredictMissiles.integer) {
-		return;
-	}
-
-	if (missile->removePredictedMissileRan) {
-		return;
-	}
-
-	missile->removePredictedMissileRan = qtrue;
-
-	if (missile->missileTeleported) {
-		return;
-	}
-
-	if (missile->removedPredictedMissile) {
-		return;
-	}
-
-	if (!CG_IsOwnMissile(missile)) {
-		return;
-	}
-
-	le = cg_activeLocalEntities.prev;
-	for ( ; le != &cg_activeLocalEntities ; le = next ) {
-		next = le->prev;
-
-		if (le->leType != LE_PREDICTEDMISSILE) {
-			continue;
-		}
-
-		if (le->weapon != missile->currentState.weapon) {
-			continue;
-		}
-
-		if (missile->currentState.pos.trTime - 30 > le->pos.trTime
-				|| missile->currentState.pos.trTime + 30 < le->pos.trTime) {
-			continue;
-		}
-
-		CG_FreeLocalEntity( le );
-		missile->removedPredictedMissile = qtrue;
-		return;
-	}
-}
 
 //#endif
 /*
@@ -1247,9 +1129,6 @@ void CG_AddLocalEntities( void ) {
 
 		case LE_GORE:			// blood
 			CG_AddGore( le );
-			break;
-		case LE_PREDICTEDMISSILE:
-			CG_PredictedMissile( le );
 			break;
 		}
 	}

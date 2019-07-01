@@ -3729,7 +3729,7 @@ static void CG_ScanForCrosshairEntity( void ) {
 	}
 
 	// if the player is in fog, don't show it
-	content = CG_PointContents( trace.endpos, 0 );
+	content = CG_PointContents( trace.endpos, cg.snap->ps.clientNum );
 	if ( content & CONTENTS_FOG ) {
 		return;
 	}
