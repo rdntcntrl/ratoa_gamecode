@@ -2501,6 +2501,38 @@ static void Cmd_VoiceTaunt_f( gentity_t *ent ) {
 	G_Voice( ent, NULL, SAY_ALL, VOICECHAT_TAUNT, qfalse );
 }
 
+static void Cmd_Taunt_f( gentity_t *ent ){
+	char		*p;
+	int		i;
+
+	if (!g_tauntAllowed.integer) {
+		return;
+	}
+
+	if (ent->client->sess.muted 
+			|| ent->client->pers.tauntTime > level.time) {
+		return;
+	}
+
+	ent->client->pers.tauntTime = level.time + g_tauntTime.integer;
+
+	if( trap_Argc( ) < 2 )
+		return;
+
+	p = ConcatArgs( 1 );
+
+	for ( i = 0 ; i < level.maxclients ; i++ ) {
+		if ( level.clients[ i ].pers.connected != CON_CONNECTED 
+				|| !(g_usesRatVM.integer > 0 || G_MixedClientHasRatVM(&level.clients[i]))
+				) {
+			continue;
+		}
+		trap_SendServerCommand( i, va("taunt %i \"%s\"", 
+					(int)(ent - g_entities),
+					p));
+	}
+}
+
 
 
 static char	*gc_orders[] = {
@@ -3444,6 +3476,9 @@ commands_t cmds[ ] =
   { "vosay_local", CMD_MESSAGE|CMD_INTERMISSION, Cmd_Voice_f },
   { "votell", CMD_MESSAGE|CMD_INTERMISSION, Cmd_VoiceTell_f },
   { "vtaunt", CMD_MESSAGE|CMD_INTERMISSION, Cmd_VoiceTaunt_f },
+
+  { "taunt", CMD_MESSAGE|CMD_TEAM, Cmd_Taunt_f },
+
   /*{ "m", CMD_MESSAGE|CMD_INTERMISSION, Cmd_PrivateMessage_f },
   { "mt", CMD_MESSAGE|CMD_INTERMISSION, Cmd_PrivateMessage_f },
   { "a", CMD_MESSAGE|CMD_INTERMISSION, Cmd_AdminMessage_f },*/
