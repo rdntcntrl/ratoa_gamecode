@@ -417,6 +417,7 @@ typedef struct {
 	int			topweapon2;
 	int			topweapon3;
 	int			ratclient;
+	int			gameId;
 
 } score_t;
 

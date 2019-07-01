@@ -275,7 +275,7 @@ static void CG_ParseRatScores2( void ) {
 		return;
 	}
 
-#define NUM_RAT2_DATA 8
+#define NUM_RAT2_DATA 9
 #define FIRST_RAT2_DATA 1
 
 	for ( i = 0 ; i < numScores ; i++ ) {
@@ -287,6 +287,7 @@ static void CG_ParseRatScores2( void ) {
 		cg.scores_buf[i].topweapon2 = atoi(CG_Argv(i * NUM_RAT2_DATA + FIRST_RAT2_DATA + 6));
 		cg.scores_buf[i].topweapon3 = atoi(CG_Argv(i * NUM_RAT2_DATA + FIRST_RAT2_DATA + 7));
 		cg.scores_buf[i].ratclient = atoi(CG_Argv(i * NUM_RAT2_DATA + FIRST_RAT2_DATA + 8));
+		cg.scores_buf[i].gameId = atoi(CG_Argv(i * NUM_RAT2_DATA + FIRST_RAT2_DATA + 9));
 
 		if (cg.scores_buf[i].topweapon1 >= WP_NUM_WEAPONS || cg.scores_buf[i].topweapon1 < WP_NONE) {
 			cg.scores_buf[i].topweapon1 = WP_NONE;

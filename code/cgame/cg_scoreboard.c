@@ -649,7 +649,7 @@ static void CG_RatDrawClientScore(int y, score_t *score, float *color, float fad
 CG_RatTeamScoreboard
 =================
  */
-static int CG_RatTeamScoreboard(int y, team_t team, float fade, int maxClients, int lineHeight, qboolean countOnly) {
+static int CG_RatTeamScoreboardGameId(int y, team_t team, float fade, int maxClients, int lineHeight, qboolean countOnly, int gameId) {
 	int i;
 	score_t *score;
 	float color[4];
@@ -672,6 +672,10 @@ static int CG_RatTeamScoreboard(int y, team_t team, float fade, int maxClients, 
 			continue;
 		}
 
+		if (gameId >= 0 && gameId != score->gameId) {
+			continue;
+		}
+
 		if (!countOnly) {
 			if (cg.showScores && cg.predictedPlayerState.pm_type == PM_INTERMISSION && cg.stats_available) {
 				// score key is pressed during intermission and we have the data to display the stats board
@@ -686,6 +690,11 @@ static int CG_RatTeamScoreboard(int y, team_t team, float fade, int maxClients, 
 
 	return count;
 }
+
+static int CG_RatTeamScoreboard(int y, team_t team, float fade, int maxClients, int lineHeight, qboolean countOnly) {
+	return CG_RatTeamScoreboardGameId(y, team, fade, maxClients, lineHeight, countOnly, -1);
+}
+
 
 
 /*
@@ -966,6 +975,30 @@ qboolean CG_DrawRatScoreboard(void) {
 		if (n1) 
 			y += (n1 * lineHeight) + SCORECHAR_HEIGHT;
 
+	} else if (cgs.gametype == GT_MULTITOURNAMENT) {
+		int gameId;
+		int maxGameId = -1;
+		score_t *score;
+		for (i = 0; i < cg.numScores; i++) {
+			score = &cg.scores[i];
+			if (score->gameId > maxGameId) {
+				maxGameId = score->gameId;
+			}
+		}
+		n1 = 0;
+		for (gameId = 0; gameId <= maxGameId; ++gameId) {
+			int num = CG_RatTeamScoreboardGameId(y, TEAM_FREE, fade, maxClients - n1, lineHeight, qfalse, gameId);
+			y += (num * lineHeight) + SCORECHAR_HEIGHT * (num > 0 ? 1 : 0);
+			if (n1 && num ) { 
+				// if we add a gap between the games, that
+				// dcreases the space available to draw
+				// spectators;
+				num += 1;
+			}
+			n1 += num;
+		}
+		n2 = CG_RatTeamScoreboard(y, TEAM_SPECTATOR, fade, maxClients - n1, lineHeight, qfalse);
+		y += (n2 * lineHeight) + SCORECHAR_HEIGHT;
 	} else {
 		//
 		// free for all scoreboard
