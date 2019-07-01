@@ -238,6 +238,11 @@ vmCvar_t        g_teleporterPrediction;
 vmCvar_t	g_tournamentSpawnsystem;
 vmCvar_t	g_ffaSpawnsystem;
 
+vmCvar_t	g_ra3compat;
+vmCvar_t	g_ra3maxArena;
+vmCvar_t	g_ra3forceArena;
+vmCvar_t	g_ra3nextForceArena;
+
 vmCvar_t	g_enableGreenArmor;
 
 vmCvar_t	g_readSpawnVarFiles;
@@ -507,6 +512,11 @@ static cvarTable_t		gameCvarTable[] = {
         { &g_tournamentSpawnsystem, "g_tournamentSpawnsystem", "1", CVAR_ARCHIVE, 0, qfalse },
 
         { &g_ffaSpawnsystem, "g_ffaSpawnsystem", "1", CVAR_ARCHIVE, 0, qfalse },
+
+        { &g_ra3compat, "g_ra3compat", "1", CVAR_ARCHIVE, 0, qfalse },
+        { &g_ra3maxArena, "g_ra3maxArena", "-1", CVAR_ROM, 0, qfalse },
+        { &g_ra3forceArena, "g_ra3forceArena", "-1", 0, 0, qfalse },
+        { &g_ra3nextForceArena, "g_ra3nextForceArena", "-1", 0, 0, qfalse },
 
         { &g_enableGreenArmor, "g_enableGreenArmor", "0", CVAR_ARCHIVE, 0, qfalse },
 
@@ -1771,6 +1781,19 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 		level.FFALocked = qtrue;
 		trap_Cvar_Set("g_teamslocked",va("%i", g_teamslocked.integer - 1));
 	}
+
+	if (!restart && g_ra3forceArena.integer != -1) {
+		trap_Cvar_Set("g_ra3forceArena","-1");
+	}
+
+	if (g_ra3nextForceArena.integer != -1) {
+		// use trap_Cvar_VariableIntegerValue so we get the recently set value already
+		if (g_ra3compat.integer &&  trap_Cvar_VariableIntegerValue("g_ra3maxArena")
+				&& G_RA3ArenaAllowed(g_ra3nextForceArena.integer)) {
+			trap_Cvar_Set("g_ra3forceArena",va("%i", g_ra3nextForceArena.integer));
+		}
+		trap_Cvar_Set("g_ra3nextForceArena", "-1");
+	}
 }
 
 
@@ -2347,11 +2370,17 @@ void MoveClientToIntermission( gentity_t *ent ) {
 		StopFollowing( ent );
 	}
 
-	FindIntermissionPoint();
-	// move to the spot
-	VectorCopy( level.intermission_origin, ent->s.origin );
-	VectorCopy( level.intermission_origin, ent->client->ps.origin );
-	VectorCopy (level.intermission_angle, ent->client->ps.viewangles);
+	if (g_ra3compat.integer && g_ra3maxArena.integer >= 0 
+			&& G_RA3ArenaAllowed(ent->client->pers.arenaNum)) {
+		FindIntermissionPointArena(ent->client->pers.arenaNum, ent->s.origin, ent->client->ps.viewangles);
+		VectorCopy( ent->s.origin, ent->client->ps.origin );
+	} else {
+		FindIntermissionPoint();
+		// move to the spot
+		VectorCopy( level.intermission_origin, ent->s.origin );
+		VectorCopy( level.intermission_origin, ent->client->ps.origin );
+		VectorCopy (level.intermission_angle, ent->client->ps.viewangles);
+	}
 	ent->client->ps.pm_type = PM_INTERMISSION;
 
 	// clean up powerup info
@@ -2390,6 +2419,37 @@ void FindIntermissionPoint( void ) {
 			if ( target ) {
 				VectorSubtract( target->s.origin, level.intermission_origin, dir );
 				vectoangles( dir, level.intermission_angle );
+			}
+		}
+	}
+
+}
+
+void FindIntermissionPointArena( int arenaNum, vec3_t origin, vec3_t angles ) {
+	gentity_t	*ent, *target;
+	vec3_t		dir;
+
+	ent = NULL;
+	// find the intermission spot
+	while ((ent = G_Find (ent, FOFS(classname), "info_player_intermission")) != NULL) {
+		if (ent->arenaNum == arenaNum) {
+			break;
+		}
+	}
+	if (!ent) {
+		ent = G_Find (NULL, FOFS(classname), "info_player_intermission");
+	}
+	if ( !ent ) {	// the map creator forgot to put in an intermission point...
+		SelectSpawnPointArena ( arenaNum, vec3_origin, level.intermission_origin, level.intermission_angle );
+	} else {
+		VectorCopy (ent->s.origin, origin);
+		VectorCopy (ent->s.angles, angles);
+		// if it has a target, look towards it
+		if ( ent->target ) {
+			target = G_PickTarget( ent->target );
+			if ( target ) {
+				VectorSubtract( target->s.origin, origin, dir );
+				vectoangles( dir, angles );
 			}
 		}
 	}

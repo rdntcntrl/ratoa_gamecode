@@ -215,6 +215,9 @@ struct gentity_s {
 	qboolean	missileTeleported;
 
 	qboolean	teamToken;
+
+	// for ra3compat
+	int arenaNum;
 };
 
 
@@ -408,6 +411,9 @@ typedef struct {
     int th_tokens;
 
     int tauntTime;
+
+    // for ra3compat
+    int arenaNum;
 } clientPersistant_t;
 
 //unlagged - backward reconciliation #1
@@ -954,6 +960,8 @@ int TeamLeader( int team );
 team_t PickTeam( int ignoreClientNum );
 void SetClientViewAngle( gentity_t *ent, vec3_t angle );
 gentity_t *SelectSpawnPoint ( vec3_t avoidPoint, vec3_t origin, vec3_t angles );
+gentity_t *SelectSpawnPointArena ( int arenaNum,  vec3_t avoidPoint, vec3_t origin, vec3_t angles );
+gentity_t *SelectRandomDeathmatchSpawnPointArena( int arenaNum );
 void CopyToBodyQue( gentity_t *ent );
 void ClientRespawn(gentity_t *ent);
 void BeginIntermission (void);
@@ -969,6 +977,7 @@ void motd_chat (gentity_t *ent);
 void G_UpdateTopWeapons(gclient_t *client);
 qboolean G_MixedClientHasRatVM(gclient_t *client);
 void G_UnnamedPlayerRename(gentity_t *ent);
+qboolean G_RA3ArenaAllowed(int arenaNum);
 
 //
 // g_svcmds.c
@@ -1020,6 +1029,7 @@ void TreasureHuntMessage(gentity_t *ent);
 // g_main.c
 //
 void FindIntermissionPoint( void );
+void FindIntermissionPointArena( int arenaNum, vec3_t origin, vec3_t angles );
 void SetLeader(int team, int client);
 void CheckTeamLeader( int team );
 void G_RunThink (gentity_t *ent);
@@ -1386,6 +1396,12 @@ extern  vmCvar_t        g_teleporterPrediction;
 //extern  vmCvar_t	g_tournamentMinSpawnDistance;
 extern  vmCvar_t	g_tournamentSpawnsystem;
 extern  vmCvar_t	g_ffaSpawnsystem;
+
+extern  vmCvar_t	g_ra3compat;
+extern  vmCvar_t	g_ra3maxArena;
+extern  vmCvar_t	g_ra3forceArena;
+extern  vmCvar_t	g_ra3nextForceArena;
+
 extern  vmCvar_t	g_enableGreenArmor;
 
 extern  vmCvar_t	g_readSpawnVarFiles;

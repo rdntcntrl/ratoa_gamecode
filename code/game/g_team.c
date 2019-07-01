@@ -1621,12 +1621,13 @@ go to a random point that doesn't telefrag
 ================
 */
 #define	MAX_TEAM_SPAWN_POINTS	32
-gentity_t *SelectRandomTeamSpawnPoint( int teamstate, team_t team ) {
-	gentity_t	*spot;
-	int			count;
+gentity_t *SelectRandomTeamSpawnPointArena( int teamstate, team_t team, int arenaNum ) {
+	gentity_t	*spot = NULL;
+	int			count = 0;
 	int			selection;
 	gentity_t	*spots[MAX_TEAM_SPAWN_POINTS];
 	char		*classname;
+	int i;
 
 	if(g_gametype.integer == GT_ELIMINATION) { //change sides every round
 		if((level.roundNumber+level.eliminationSides)%2==1){
@@ -1652,25 +1653,40 @@ gentity_t *SelectRandomTeamSpawnPoint( int teamstate, team_t team ) {
 		else
 			return NULL;
 	}
-	count = 0;
 
-	spot = NULL;
 
-	while ((spot = G_Find (spot, FOFS(classname), classname)) != NULL) {
-		if ( SpotWouldTelefrag( spot ) ) {
-			continue;
+	// try this twice, first trying to exclude spots that would telefrag
+	for (i = 0; i < 2; ++i) {
+		count = 0;
+		spot = NULL;
+
+		while ((spot = G_Find (spot, FOFS(classname), classname)) != NULL) {
+			if ( i == 0 && SpotWouldTelefrag( spot ) ) {
+				continue;
+			}
+			if (g_ra3compat.integer && arenaNum >= 0 && spot->arenaNum != arenaNum) {
+				continue;
+			}
+			spots[ count ] = spot;
+			if (++count == MAX_TEAM_SPAWN_POINTS)
+				break;
 		}
-		spots[ count ] = spot;
-		if (++count == MAX_TEAM_SPAWN_POINTS)
+
+		if (count) {
 			break;
+		}
 	}
 
-	if ( !count ) {	// no spots that won't telefrag
-		return G_Find( NULL, FOFS(classname), classname);
+	if (!count) {
+		return NULL;
 	}
 
 	selection = rand() % count;
 	return spots[ selection ];
+}
+
+gentity_t *SelectRandomTeamSpawnPoint( int teamstate, team_t team ) {
+	return SelectRandomTeamSpawnPointArena(teamstate, team, -1);
 }
 
 /*
@@ -1759,6 +1775,26 @@ gentity_t *SelectCTFSpawnPoint ( team_t team, int teamstate, vec3_t origin, vec3
 
 	if (!spot) {
 		return SelectSpawnPoint( vec3_origin, origin, angles );
+	}
+
+	VectorCopy (spot->s.origin, origin);
+	origin[2] += 9;
+	VectorCopy (spot->s.angles, angles);
+
+	return spot;
+}
+
+gentity_t *SelectCTFSpawnPointArena ( team_t team, int teamstate, int arenaNum, vec3_t origin, vec3_t angles ) {
+	gentity_t	*spot;
+
+	spot = SelectRandomTeamSpawnPointArena ( teamstate, team, arenaNum );
+
+	if (!spot) {
+		spot = SelectSpawnPointArena( arenaNum, vec3_origin, origin, angles );
+	}
+
+	if (!spot) {
+		return SelectCTFSpawnPoint( team, teamstate, origin, angles);
 	}
 
 	VectorCopy (spot->s.origin, origin);

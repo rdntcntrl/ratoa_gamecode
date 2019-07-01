@@ -152,26 +152,36 @@ go to a random point that doesn't telefrag
 ================
 */
 #define	MAX_SPAWN_POINTS	128
-gentity_t *SelectRandomDeathmatchSpawnPoint( void ) {
-	gentity_t	*spot;
-	int			count;
+gentity_t *SelectRandomDeathmatchSpawnPointArena( int arenaNum ) {
+	gentity_t	*spot = NULL;
+	int			count = 0;
 	int			selection;
 	gentity_t	*spots[MAX_SPAWN_POINTS];
+	int i;
 
-	count = 0;
-	spot = NULL;
+	// try this twice, first trying to exclude spots that would telefrag
+	for (i = 0; i < 2; ++i) {
+		count = 0;
+		spot = NULL;
 
-	while ((spot = G_Find (spot, FOFS(classname), "info_player_deathmatch")) != NULL
-			&& count < MAX_SPAWN_POINTS) {
-		if ( SpotWouldTelefrag( spot ) ) {
-			continue;
+		while ((spot = G_Find (spot, FOFS(classname), "info_player_deathmatch")) != NULL
+				&& count < MAX_SPAWN_POINTS) {
+			if ( i == 0 && SpotWouldTelefrag( spot ) ) {
+				continue;
+			}
+			if (g_ra3compat.integer && arenaNum != -1 && spot->arenaNum != arenaNum) {
+				continue;
+			}
+			spots[ count ] = spot;
+			count++;
 		}
-		spots[ count ] = spot;
-		count++;
+
+		if (count)
+			break;
 	}
 
-	if ( !count ) {	// no spots that won't telefrag
-		return G_Find( NULL, FOFS(classname), "info_player_deathmatch");
+	if (!count) {
+		return NULL;
 	}
 
 	selection = rand() % count;
@@ -339,7 +349,7 @@ SelectSpawnPoint
 Chooses a player start, deathmatch start, etc
 ============
 */
-gentity_t *SelectSpawnPoint ( vec3_t avoidPoint, vec3_t origin, vec3_t angles ) {
+gentity_t *SelectSpawnPointArena ( int arenaNum,  vec3_t avoidPoint, vec3_t origin, vec3_t angles ) {
 	//return SelectRandomFurthestSpawnPoint( avoidPoint, origin, angles );
 
 	
@@ -348,13 +358,13 @@ gentity_t *SelectSpawnPoint ( vec3_t avoidPoint, vec3_t origin, vec3_t angles ) 
 
 	nearestSpot = SelectNearestDeathmatchSpawnPoint( avoidPoint );
 
-	spot = SelectRandomDeathmatchSpawnPoint ( );
+	spot = SelectRandomDeathmatchSpawnPointArena ( arenaNum );
 	if ( spot == nearestSpot ) {
 		// roll again if it would be real close to point of death
-		spot = SelectRandomDeathmatchSpawnPoint ( );
+		spot = SelectRandomDeathmatchSpawnPointArena ( arenaNum );
 		if ( spot == nearestSpot ) {
 			// last try
-			spot = SelectRandomDeathmatchSpawnPoint ( );
+			spot = SelectRandomDeathmatchSpawnPointArena ( arenaNum );
 		}		
 	}
 
@@ -369,6 +379,10 @@ gentity_t *SelectSpawnPoint ( vec3_t avoidPoint, vec3_t origin, vec3_t angles ) 
 	VectorCopy (spot->s.angles, angles);
 
 	return spot;
+}
+
+gentity_t *SelectSpawnPoint ( vec3_t avoidPoint, vec3_t origin, vec3_t angles ) {
+	return SelectSpawnPointArena( -1, avoidPoint, origin, angles );
 }
 
 /*
@@ -437,6 +451,12 @@ gentity_t *SelectSpectatorSpawnPoint( vec3_t origin, vec3_t angles ) {
 	//VectorCopy (angles, spot->s.angles);
 
 	return NULL; //spot;
+}
+
+gentity_t *SelectSpectatorSpawnPointArena( int arenaNum, vec3_t origin, vec3_t angles ) {
+	FindIntermissionPointArena(arenaNum, origin, angles);
+
+	return NULL; 
 }
 
 /*
@@ -2178,6 +2198,18 @@ void ClientBegin( int clientNum ) {
             PlayerStore_restore(Info_ValueForKey(userinfo,"cl_guid"),&(client->ps));
 	client->ps.eFlags = flags;
 
+	if (g_ra3compat.integer && g_ra3maxArena.integer >= 0) {
+		if (g_ra3forceArena.integer >= 0 && G_RA3ArenaAllowed(g_ra3forceArena.integer)) {
+			client->pers.arenaNum = g_ra3forceArena.integer;
+		} else if (G_RA3ArenaAllowed(0)) {
+			client->pers.arenaNum = 0;
+		} else {
+			client->pers.arenaNum = -1;
+		}
+	} else {
+		client->pers.arenaNum = -1;
+	}
+
 	// locate ent at a spawn point
 	ClientSpawn( ent );
 
@@ -2378,16 +2410,30 @@ void ClientSpawn(gentity_t *ent) {
 	// ranging doesn't count this client
 	if ((client->sess.sessionTeam == TEAM_SPECTATOR) 
 			|| ( (client->ps.pm_type == PM_SPECTATOR || client->isEliminated )  && (g_gametype.integer == GT_ELIMINATION || g_gametype.integer == GT_CTF_ELIMINATION) ) ) {
-		spawnPoint = SelectSpectatorSpawnPoint ( spawn_origin, spawn_angles);
+		if (g_ra3compat.integer && client->pers.arenaNum >= 0) {
+			spawnPoint = SelectSpectatorSpawnPointArena (
+					client->pers.arenaNum,
+				       	spawn_origin, spawn_angles);
+		} else {
+			spawnPoint = SelectSpectatorSpawnPoint ( spawn_origin, spawn_angles);
+		}
 	} else if (g_gametype.integer == GT_DOUBLE_D) {
 		//Double Domination uses special spawn points:
 		spawnPoint = SelectDoubleDominationSpawnPoint (client->sess.sessionTeam, spawn_origin, spawn_angles);
 	} else if (g_gametype.integer >= GT_CTF && g_ffa_gt==0 && g_gametype.integer!= GT_DOMINATION) {
 		// all base oriented team games use the CTF spawn points
-		spawnPoint = SelectCTFSpawnPoint ( 
-						client->sess.sessionTeam, 
-						client->pers.teamState.state, 
-						spawn_origin, spawn_angles);
+		if (g_ra3compat.integer && client->pers.arenaNum >= 0) {
+			spawnPoint = SelectCTFSpawnPointArena ( 
+					client->sess.sessionTeam, 
+					client->pers.teamState.state, 
+					client->pers.arenaNum,
+					spawn_origin, spawn_angles);
+		} else {
+			spawnPoint = SelectCTFSpawnPoint ( 
+					client->sess.sessionTeam, 
+					client->pers.teamState.state, 
+					spawn_origin, spawn_angles);
+		}
 	} else {
 		do {
 			// the first spawn should be at a good looking spot
@@ -2907,3 +2953,23 @@ qboolean G_MixedClientHasRatVM(gclient_t *client) {
 }
 
 
+
+qboolean G_RA3ArenaAllowed(int arenaNum) {
+	gentity_t	*spot;
+
+	// need to use trap_Cvar_VariableIntegerValue to make sure we're
+	// getting the most recently set value during G_InitGame()
+	if (arenaNum < 0 || arenaNum > trap_Cvar_VariableIntegerValue("g_ra3maxArena")) {
+		return qfalse;
+	}
+
+	spot = NULL;
+
+	while ((spot = G_Find (spot, FOFS(classname), "info_player_deathmatch")) != NULL) {
+		if (spot->arenaNum == arenaNum) {
+			// found a spawnpoint for this arena, therefore allow it
+			return qtrue;
+		}
+	}
+	return qfalse;
+}
