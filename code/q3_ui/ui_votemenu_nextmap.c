@@ -55,6 +55,11 @@ sfxHandle_t talkSound;
 //}
 
 
+void UI_VoteNextMapMenu_Close( void ) {
+	if (uis.activemenu == &s_votemenu_nextmap.menu) {
+		UI_PopMenu();
+	}
+}
 
 
 static void UI_VoteNextMapMenu_Draw( void ) {

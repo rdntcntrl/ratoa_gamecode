@@ -556,6 +556,7 @@ extern void UI_VoteMapMenuInternal( void );
 // ui_votemenu_nextmap.c
 //
 extern void UI_VoteNextMapMenu( void );
+extern void UI_VoteNextMapMenu_Close( void );
 
 //
 // ui_password.c
