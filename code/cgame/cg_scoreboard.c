@@ -340,6 +340,10 @@ static void CG_RatDrawClientStats(int y, score_t *score, float *color, float fad
 	Com_sprintf(string, sizeof (string), "%s", ci->name);
 	CG_DrawScoreString(RATSB2_NAME_X, y, string, fade, RATSB2_NAME_LENGTH);
 
+	if (ci->team == TEAM_SPECTATOR) {
+		return;
+	}
+
 	x = RATSB2_AWARDS_X;
 	x = CG_RatDrawClientAward(y, x, score->captures, cgs.media.medalCapture);
 	x = CG_RatDrawClientAward(y, x, score->assistCount, cgs.media.medalAssist);
