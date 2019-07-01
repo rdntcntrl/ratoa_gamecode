@@ -1112,6 +1112,18 @@ void G_CheckRocketSniper(gentity_t *victim, gentity_t *inflictor, gentity_t *att
 	AwardMessage(attacker, EAWARD_ROCKETSNIPER, ++(attacker->client->pers.awardCounts[EAWARD_ROCKETSNIPER]));
 }
 
+void G_CheckImmortality(gentity_t *ent) {
+	if (g_gametype.integer == GT_ELIMINATION || g_gametype.integer == GT_CTF_ELIMINATION || g_gametype.integer == GT_LMS) {
+		// immortality award doesn't make sense in those gametypes
+		return;
+	}
+	if (ent->client->dmgTakenImmortality < 1000) {
+		return;
+	}
+	ent->client->dmgTakenImmortality -= 1000;
+	AwardMessage(ent, EAWARD_IMMORTALITY, ++(ent->client->pers.awardCounts[EAWARD_IMMORTALITY]));
+}
+
 int G_WeaponForMOD(int mod) {
 	// XXX: not necessarily complete
 	switch (mod) {
@@ -1503,6 +1515,10 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 				}
 			} else {
 				targ->client->pers.dmgTaken += dmgTaken;
+				if (attacker->client && targ != attacker && !OnSameTeam(targ, attacker)) {
+					// you only get the immortality award for damage done by an enemy player
+					targ->client->dmgTakenImmortality += dmgTaken;
+				}
 			}
 		}
 		if (targ != attacker) {
@@ -1538,6 +1554,11 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 			return;
 		} else if ( targ->pain ) {
 			targ->pain (targ, attacker, take);
+		}
+
+		if (targ->client && dmgTaken)  {
+			// player took damage but survived, check for immortality award
+			G_CheckImmortality(targ);
 		}
 	}
 

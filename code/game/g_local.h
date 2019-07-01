@@ -461,6 +461,9 @@ struct gclient_s {
 	vec3_t		damage_from;		// origin for vector calculation
 	qboolean	damage_fromWorld;	// if true, don't use the damage_from vector
 
+	// damage taken for EAWARD_IMMORTALITY. Cleared each time the award is issue
+	int		dmgTakenImmortality;
+
 	int			accurateCount;		// for "impressive" reward sound
 
 	int			accuracy_shots;		// total number of shots
