@@ -1203,7 +1203,7 @@ void ClientThink_real( gentity_t *ent ) {
 		return;
 	}
 
-	if (client->ps.groundEntityNum != ENTITYNUM_NONE) {
+	if (client->ps.groundEntityNum != ENTITYNUM_NONE || pm.waterlevel >= 2) {
 		client->lastGroundTime = level.time;
 	}
 
