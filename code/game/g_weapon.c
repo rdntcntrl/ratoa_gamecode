@@ -473,6 +473,8 @@ void ShotgunPattern( vec3_t origin, vec3_t origin2, int seed, gentity_t *ent ) {
 	if (!hitAll) {
 		// make sure we don't get the EAWARD_ACCURACY if we didn't hit all pellets
 		ent->client->consecutive_hits = 0;
+	} else {
+		AwardMessage(ent, EAWARD_FULLSG, ++(ent->client->pers.awardCounts[EAWARD_FULLSG]));
 	}
 
 //unlagged - backward reconciliation #2

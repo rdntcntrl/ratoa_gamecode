@@ -1100,12 +1100,12 @@ qboolean G_TreasureHuntDamage( gentity_t *targ, gentity_t *attacker, int mod ) {
 	return qtrue;
 }
 
-void G_CheckRocketSniper(gentity_t *victim, gentity_t *inflictor, gentity_t *attacker, int meansOfDeath, vec3_t point) {
+void G_CheckRocketSniper(gentity_t *victim, gentity_t *inflictor, gentity_t *attacker, int meansOfDeath) {
 	if (meansOfDeath != MOD_ROCKET || !victim || !victim->client || !attacker || !attacker->client || !inflictor) {
 		return;
 	}
 
-	if (Distance(point, inflictor->s.pos.trBase) < 1500.0) {
+	if (Distance(victim->r.currentOrigin, inflictor->s.pos.trBase) < 1000.0) {
 		return;
 	}
 	
@@ -1486,7 +1486,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 			targ->client->ps.stats[STAT_HEALTH] = targ->health;
 		}
 
-		G_CheckRocketSniper(targ, inflictor, attacker, mod, point);
+		G_CheckRocketSniper(targ, inflictor, attacker, mod);
 
 		// stats
 		if (targ->health < 0) {
