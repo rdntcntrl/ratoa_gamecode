@@ -1,5 +1,6 @@
+build/
 TAGS
 tags
 *.swp
 *~
-build.sh
+build*.sh
