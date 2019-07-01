@@ -44,7 +44,7 @@ void G_WriteClientSessionData( gclient_t *client ) {
 	const char	*s;
 	const char	*var;
 
-	s = va("%i %i %i %i %i %i %i %i %i %i %i %i %i %i %f",
+	s = va("%i %i %i %i %i %i %i %i %i %i %i %i %i %i %f %i",
 		client->sess.sessionTeam,
 		client->sess.spectatorNum,
 		client->sess.spectatorState,
@@ -59,7 +59,8 @@ void G_WriteClientSessionData( gclient_t *client ) {
 		client->sess.unnamedPlayerState,
 		client->sess.playerColorIdx,
 		client->sess.skillPlaytime,
-		client->sess.skillScore
+		client->sess.skillScore,
+		client->sess.gameId
 		);
 
 	var = va( "session%i", (int)(client - level.clients) );
@@ -94,7 +95,7 @@ void G_ReadSessionData( gclient_t *client ) {
 	var = va( "session%i", (int)(client - level.clients) );
 	trap_Cvar_VariableStringBuffer( var, s, sizeof(s) );
 
-	sscanf( s, "%i %i %i %i %i %i %i %i %i %i %i %i %i %i %f",
+	sscanf( s, "%i %i %i %i %i %i %i %i %i %i %i %i %i %i %f %i",
 		&sessionTeam,                 // bk010221 - format
 		&client->sess.spectatorNum,
 		&spectatorState,              // bk010221 - format
@@ -109,7 +110,8 @@ void G_ReadSessionData( gclient_t *client ) {
 		&unnamedPlayerState,
 		&playerColorIdx,
 		&skillPlaytime,
-		&skillScore
+		&skillScore,
+		&client->sess.gameId
 		);
 
 	// bk001205 - format issues
@@ -141,7 +143,7 @@ void G_InitSessionData( gclient_t *client, char *userinfo, qboolean firstTime,
 
 	sess = &client->sess;
 
-	if (g_gametype.integer == GT_TOURNAMENT) {
+	if (g_gametype.integer == GT_TOURNAMENT || g_gametype.integer == GT_MULTITOURNAMENT) {
 		sess->spectatorGroup = SPECTATORGROUP_QUEUED;
 	} else {
 		sess->spectatorGroup = SPECTATORGROUP_SPEC;
@@ -171,7 +173,7 @@ void G_InitSessionData( gclient_t *client, char *userinfo, qboolean firstTime,
 		if ( value[0] == 's' ) {
 			// a willing spectator, not a waiting-in-line
 			sess->sessionTeam = TEAM_SPECTATOR;
-			if (g_gametype.integer == GT_TOURNAMENT) {
+			if (g_gametype.integer == GT_TOURNAMENT || g_gametype.integer == GT_MULTITOURNAMENT) {
 				sess->spectatorGroup = SPECTATORGROUP_SPEC;
 			}
 		} else {
@@ -204,13 +206,22 @@ void G_InitSessionData( gclient_t *client, char *userinfo, qboolean firstTime,
 					sess->spectatorGroup = SPECTATORGROUP_SPEC;
 				}
 				break;
+			case GT_MULTITOURNAMENT:
+				sess->sessionTeam = TEAM_SPECTATOR;
+				sess->gameId = 0;
+				if (levelNewSession && !firstTime) {
+					// GT changed, make sure previous lurkers don't block duel
+					sess->sessionTeam = TEAM_SPECTATOR;
+					sess->spectatorGroup = SPECTATORGROUP_SPEC;
+				} 
+				break;
 			}
 		}
 	}
 
 
 	sess->spectatorState = SPECTATOR_FREE;
-	 AddTournamentQueue(client);
+	AddTournamentQueue(client);
 
 	G_WriteClientSessionData( client );
 }

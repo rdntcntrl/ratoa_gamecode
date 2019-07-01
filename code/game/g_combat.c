@@ -66,11 +66,12 @@ void AddScore( gentity_t *ent, vec3_t origin, int score ) {
 	}
 
         //No scoring during intermission
-        if ( level.intermissiontime ) {
+        if ( level.intermissiontime || G_MtrnIntermissionTime(level.currentGameId)) {
             return;
         }
 	// show score plum
-        if( level.numNonSpectatorClients<3 && score < 0 && (g_gametype.integer<GT_TEAM || g_ffa_gt==1)) {
+        if( level.numNonSpectatorClients<3 && score < 0 && (g_gametype.integer<GT_TEAM || g_ffa_gt==1)
+			&& g_gametype.integer != GT_MULTITOURNAMENT) {
             for ( i = 0 ; i < level.maxclients ; i++ ) {
                 if ( level.clients[ i ].pers.connected != CON_CONNECTED )
                     continue; //Client was not connected
@@ -339,7 +340,7 @@ void GibEntity( gentity_t *self, int killer ) {
 		// check if there is a kamikaze timer around for this owner
 		for (i = 0; i < MAX_GENTITIES; i++) {
 			ent = &g_entities[i];
-			if (!ent->inuse)
+			if (!G_InUse(ent))
 				continue;
 			if (ent->activator != self)
 				continue;
@@ -867,7 +868,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 		return;
 	}
 
-	if ( level.intermissiontime ) {
+	if ( level.intermissiontime || G_MtrnIntermissionTime(level.currentGameId)) {
 		return;
 	}
 
@@ -1829,6 +1830,10 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 	// the intermission has allready been qualified for, so don't
 	// allow any extra scoring
 	if ( level.intermissionQueued ) {
+		return;
+	}
+
+	if (G_MtrnIntermissionQueued(level.currentGameId)) {
 		return;
 	}
 

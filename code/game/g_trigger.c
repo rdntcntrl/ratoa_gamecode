@@ -336,7 +336,7 @@ void G_SetTeleporterDestinations(void) {
 		gentity_t	*unique_target = NULL;
 		ent = &g_entities[i];
 
-		if (!ent->inuse) {
+		if (!G_InUse(ent)) {
 			continue;
 		}
 

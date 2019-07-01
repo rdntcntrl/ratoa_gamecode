@@ -171,7 +171,7 @@ gentity_t *G_Find (gentity_t *from, int fieldofs, const char *match)
 
 	for ( ; from < &g_entities[level.num_entities] ; from++)
 	{
-		if (!from->inuse)
+		if (!G_InUse(from))
 			continue;
 		s = *(char **) ((byte *)from + fieldofs);
 		if (!s)
@@ -262,7 +262,7 @@ void G_UseTargets( gentity_t *ent, gentity_t *activator ) {
 				t->use (t, ent, activator);
 			}
 		}
-		if ( !ent->inuse ) {
+		if ( !G_InUse(ent) ) {
                         G_Printf("entity was removed while using targets\n");
 			return;
 		}
@@ -373,6 +373,14 @@ void G_InitGentity( gentity_t *e ) {
 	e->classname = "noclass";
 	e->s.number = e - g_entities;
 	e->r.ownerNum = ENTITYNUM_NONE;
+
+	if (g_gametype.integer == GT_MULTITOURNAMENT) {
+		if (!G_ValidGameId(level.currentGameId)) {
+			Com_Printf("^3Warning: creating entity %i with invalid gameId %i\n",
+					e->s.number, level.currentGameId);
+		}
+		G_SetGameIDMask(e, level.currentGameId);
+	}
 }
 
 /*
@@ -694,4 +702,79 @@ int DebugLine(vec3_t start, vec3_t end, int color) {
 	VectorMA(points[3], 2, cross, points[3]);
 
 	return trap_DebugPolygonCreate(color, 4, points);
+}
+
+qboolean G_ValidGameId(int gameId) {
+	return (gameId >= 0 && gameId <= level.multiTrnNumGames);
+}
+
+qboolean G_InUse(gentity_t *ent) {
+	return ent->inuse && (g_gametype.integer != GT_MULTITOURNAMENT 
+			|| level.currentGameId == ent->gameId 
+			|| ent->gameId == -1);
+}
+
+void G_SetGameIDMask(gentity_t *ent, int gameId) {
+	if (g_gametype.integer != GT_MULTITOURNAMENT) {
+		return;
+	}
+	ent->gameId = gameId;
+	ent->r.svFlags |= SVF_CLIENTMASK;
+	if (!G_ValidGameId(ent->gameId)) { 
+		ent->r.singleClient = 0;
+		return;
+	}
+	ent->r.singleClient = level.multiTrnGames[ent->gameId].clientMask;
+	ent->r.singleClient &= ~(ent->multiTrnClientExcludeMask);
+}
+
+void G_LinkGameId(int gameId) {
+	int i;
+	gentity_t *ent;
+
+	if (g_gametype.integer != GT_MULTITOURNAMENT) {
+		return;
+	}
+
+	if (!G_ValidGameId(gameId)) {
+		gameId = -1;
+	}
+
+	for (i=0, ent = &g_entities[0]; i<level.num_entities ; i++, ent++) {
+		if (!ent->inuse) {
+			continue;
+		}
+		if (i < MAX_CLIENTS) {
+			// don't change client's gameId, but update the mask
+			G_SetGameIDMask(ent, ent->gameId);
+			continue;
+		}
+		G_SetGameIDMask(ent, ent->gameId);
+	}
+	if (gameId == -1) {
+		for (i=0, ent = &g_entities[0]; i<level.num_entities ; i++, ent++) {
+			if (ent->inuse && (ent->r.linked || ent->wasLinked)) {
+				ent->wasLinked = qtrue;
+				trap_LinkEntity(ent);
+			}
+		}
+		level.currentGameId = -1;
+		return;
+	}
+	for (i=0, ent = &g_entities[0]; i<level.num_entities ; i++, ent++) {
+		if (!ent->inuse) {
+			continue;
+		}
+		if (G_InUse(ent)) {
+			ent->wasLinked = ent->r.linked;
+		}
+		trap_UnlinkEntity(ent);
+	}
+	for (i=0, ent = &g_entities[0]; i<level.num_entities ; i++, ent++) {
+		if (ent->inuse && ent->wasLinked 
+				&& (ent->gameId == gameId || ent->gameId == -1)) {
+			trap_LinkEntity(ent);
+		}
+	}
+	level.currentGameId = gameId;
 }

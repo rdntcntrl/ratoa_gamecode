@@ -118,6 +118,10 @@ struct gentity_s {
 
 	qboolean	inuse;
 
+	int		gameId;
+	qboolean	wasLinked;
+	int		multiTrnClientExcludeMask;	
+
 	char		*classname;			// set in QuakeEd
 	int			spawnflags;			// set in QuakeEd
 
@@ -284,6 +288,22 @@ typedef struct {
 #define	FOLLOW_ACTIVE1	-1
 #define	FOLLOW_ACTIVE2	-2
 
+
+#define MULTITRN_WAITTIME	5000
+#define	MULTITRN_INTERMISSION_DELAY_TIME	800
+
+#define	MTRN_GFL_STARTEDATBEGINNING	1
+#define	MTRN_GFL_RUNNING		2
+#define	MTRN_GFL_FORFEITED		4
+typedef struct {
+	int numPlayers;
+	int gameFlags;
+	int intermissionQueued;
+	int intermissiontime;
+	int clientMask;
+	int clients[2];
+} multiTrnGame_t;
+
 typedef enum {
 	UNNAMEDSTATE_CLEAN = 0,
 	UNNAMEDSTATE_ISUNNAMED,
@@ -312,6 +332,9 @@ typedef struct {
 	// to compute "skill" metric for balancing
 	int    skillPlaytime; // play time, over multiple games
 	float  skillScore; // score, over multiple games
+
+	// GT_MULTITOURNAMENT:
+	int gameId;
 } clientSession_t;
 
 
@@ -854,6 +877,13 @@ typedef struct {
 
     int teamBalanceTime;
      
+    
+    // for GT_MULTITOURNAMENT
+    int			multiTrnNumGames;
+    int			currentGameId;
+    multiTrnGame_t	multiTrnGames[MULTITRN_MAX_GAMES];
+    qboolean		multiTrnReorder;	
+    qboolean		multiTrnInit;	
 } level_locals_t;
 
 //KK-OAX These are some Print Shortcuts for KillingSprees and Admin
@@ -989,6 +1019,10 @@ void G_SetOrigin( gentity_t *ent, vec3_t origin );
 void AddRemap(const char *oldShader, const char *newShader, float timeOffset);
 void ClearRemaps(void);
 const char *BuildShaderStateConfig( void );
+qboolean G_InUse(gentity_t *ent);
+qboolean G_ValidGameId(int gameId);
+void G_LinkGameId(int gameId);
+void G_SetGameIDMask(gentity_t *ent, int gameId);
 
 //
 // g_combat.c
@@ -1214,6 +1248,12 @@ void G_CheckUnlockTeams(void);
 void G_EQPingSet(int maxEQPing, qboolean forceMax);
 void G_EQPingClientSet(gclient_t *client);
 void G_EQPingClientReset(gclient_t *client);
+int G_FindFreeMultiTrnSlot(void);
+void G_UpdateMultiTrnGames(void);
+qboolean G_MtrnIntermissionQueued(int gameId);
+qboolean G_MtrnIntermissionTimeClient(gclient_t *cl);
+qboolean G_MtrnIntermissionTime(int gameId);
+int G_NumActiveMultiTrnGames(void);
 
 //
 // g_client.c
@@ -1631,6 +1671,8 @@ extern  vmCvar_t	g_ra3compat;
 extern  vmCvar_t	g_ra3maxArena;
 extern  vmCvar_t	g_ra3forceArena;
 extern  vmCvar_t	g_ra3nextForceArena;
+
+extern  vmCvar_t	g_multiTournamentGames;
 
 extern  vmCvar_t	g_enableGreenArmor;
 

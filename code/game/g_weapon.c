@@ -1280,7 +1280,7 @@ static void KamikazeDamage( gentity_t *self ) {
 	for (i = 0; i < MAX_CLIENTS; i++)
 	{
 		ent = &g_entities[i];
-		if (!ent->inuse)
+		if (!G_InUse(ent))
 			continue;
 		if (!ent->client)
 			continue;
@@ -1553,7 +1553,7 @@ locationping_t G_PingFindEnemiesInFOV( gentity_t *pingPlayer, vec3_t muzzle, vec
 
 		for ( i = MAX_CLIENTS; i < level.num_entities; ++i) {
 			ent = g_entities + i;
-			if (!ent->inuse ) {
+			if (!G_InUse(ent) ) {
 				continue;
 			}
 			powerup = G_PingEntityPowerup(pingPlayer, ent);

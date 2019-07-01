@@ -51,7 +51,7 @@ void G_RankRunFrame()
 		for( i = 0; i < level.maxclients; i++ )
 		{
 			ent = &(g_entities[i]);
-			if ( !ent->inuse )
+			if ( !G_InUse(ent) )
 				continue;
 			if ( ent->client == NULL )
 				continue;
@@ -116,7 +116,7 @@ void G_RankRunFrame()
 					for( j = 0; j < level.maxclients; j++ )
 					{
 						ent2 = &(g_entities[j]);
-						if ( !ent2->inuse )
+						if ( !G_InUse(ent2) )
 							continue;
 						if ( ent2->client == NULL )
 							continue;

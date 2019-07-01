@@ -356,7 +356,7 @@ void Team_ForceGesture(int team) {
 
 	for (i = 0; i < MAX_CLIENTS; i++) {
 		ent = &g_entities[i];
-		if (!ent->inuse)
+		if (!G_InUse(ent))
 			continue;
 		if (!ent->client)
 			continue;
@@ -380,7 +380,7 @@ void Team_DD_bonusAtPoints(int team) {
 
 	for (i = 0; i < MAX_CLIENTS; i++) {
 		player = &g_entities[i];
-		if (!player->inuse)
+		if (!G_InUse(player))
 			continue;
 		if (!player->client)
 			continue;
@@ -468,7 +468,7 @@ void Team_FragBonuses(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker
 		// field on the other team
 		for (i = 0; i < g_maxclients.integer; i++) {
 			ent = g_entities + i;
-			if (ent->inuse && ent->client->sess.sessionTeam == otherteam)
+			if (G_InUse(ent) && ent->client->sess.sessionTeam == otherteam)
 				ent->client->pers.teamState.lasthurtcarrier = 0;
 		}
 		return;
@@ -490,7 +490,7 @@ void Team_FragBonuses(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker
 		// field on the other team
 		for (i = 0; i < g_maxclients.integer; i++) {
 			ent = g_entities + i;
-			if (ent->inuse && ent->client->sess.sessionTeam == otherteam)
+			if (G_InUse(ent) && ent->client->sess.sessionTeam == otherteam)
 				ent->client->pers.teamState.lasthurtcarrier = 0;
 		}
 		return;
@@ -651,7 +651,7 @@ void Team_FragBonuses(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker
 	// find attacker's team's flag carrier
 	for (i = 0; i < g_maxclients.integer; i++) {
 		carrier = g_entities + i;
-		if (carrier->inuse && carrier->client->ps.powerups[flag_pw])
+		if (G_InUse(carrier) && carrier->client->ps.powerups[flag_pw])
 			break;
 		carrier = NULL;
 	}
@@ -776,7 +776,7 @@ gentity_t *Team_ResetFlag( int team ) {
 	ent = NULL;
 	for ( i = 0; i < level.num_entities; ++i) {
 		ent = &g_entities[i];
-		if (!ent->inuse) {
+		if (!G_InUse(ent)) {
 			continue;
 		}
 		
@@ -980,7 +980,7 @@ void Team_DD_makeB2team( gentity_t *target, int team ) {
 }
 
 void Team_TH_TokenDestroyed( gentity_t *ent ) {
-	if (level.th_phase == TH_HIDE && ent->parent && ent->parent->inuse) {
+	if (level.th_phase == TH_HIDE && ent->parent && G_InUse(ent->parent)) {
 		gentity_t *player = ent->parent;
 		if (!ent->teamToken && player && player->client 
 				&& player->client->pers.connected  == CON_CONNECTED &&
@@ -1441,7 +1441,7 @@ int Team_TouchOurFlag( gentity_t *ent, gentity_t *other, int team ) {
 	// Ok, let's do the player loop, hand out the bonuses
 	for (i = 0; i < g_maxclients.integer; i++) {
 		player = &g_entities[i];
-		if (!player->inuse || player == other)
+		if (!G_InUse(player) || player == other)
 			continue;
 
 		if (player->client->sess.sessionTeam !=
@@ -2082,7 +2082,7 @@ void TeamplayInfoMessage( gentity_t *ent ) {
 	// but in client order (so they don't keep changing position on the overlay)
 	for (i = 0, cnt = 0; i < g_maxclients.integer && cnt < TEAM_MAXOVERLAY; i++) {
 		player = g_entities + level.sortedClients[i];
-		if (player->inuse && player->client->sess.sessionTeam == 
+		if (G_InUse(player) && player->client->sess.sessionTeam == 
 			ent->client->sess.sessionTeam ) {
 			clients[cnt++] = level.sortedClients[i];
 		}
@@ -2097,7 +2097,7 @@ void TeamplayInfoMessage( gentity_t *ent ) {
 
 	for (i = 0, cnt = 0; i < g_maxclients.integer && cnt < TEAM_MAXOVERLAY; i++) {
 		player = g_entities + i;
-		if (player->inuse && player->client->sess.sessionTeam == 
+		if (G_InUse(player) && player->client->sess.sessionTeam == 
 			ent->client->sess.sessionTeam ) {
 
 			h = player->client->ps.stats[STAT_HEALTH];
@@ -2160,7 +2160,7 @@ void CheckTeamStatus(void) {
 				continue;
 			}
 
-			if (ent->inuse && (ent->client->sess.sessionTeam == TEAM_RED ||	ent->client->sess.sessionTeam == TEAM_BLUE)) {
+			if (G_InUse(ent) && (ent->client->sess.sessionTeam == TEAM_RED ||	ent->client->sess.sessionTeam == TEAM_BLUE)) {
 				loc = Team_GetLocation( ent );
 				if (loc)
 					ent->client->pers.teamState.location = loc->health;
@@ -2176,7 +2176,7 @@ void CheckTeamStatus(void) {
 				continue;
 			}
 
-			if (ent->inuse && (ent->client->sess.sessionTeam == TEAM_RED ||	ent->client->sess.sessionTeam == TEAM_BLUE)) {
+			if (G_InUse(ent) && (ent->client->sess.sessionTeam == TEAM_RED ||	ent->client->sess.sessionTeam == TEAM_BLUE)) {
 				TeamplayInfoMessage( ent );
 			}
 		}
@@ -2986,7 +2986,7 @@ void SetPlayerTokens(int num, qboolean updateOnly) {
 	for( i=0;i < level.numPlayingClients; i++ ) {
 		ent = &g_entities[level.sortedClients[i]];
 
-		if (!ent->inuse || ent->client->sess.sessionTeam == TEAM_SPECTATOR) {
+		if (!G_InUse(ent) || ent->client->sess.sessionTeam == TEAM_SPECTATOR) {
 			continue;
 		}
 
@@ -3004,7 +3004,7 @@ int G_TeamClientMask(int team) {
 	for( i=0;i < level.numPlayingClients; i++ ) {
 		int cNum = level.sortedClients[i];
 		gentity_t *ent = &g_entities[cNum];
-		if (!ent->inuse) {
+		if (!G_InUse(ent)) {
 			continue;
 		}
 

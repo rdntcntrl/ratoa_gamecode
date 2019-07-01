@@ -258,7 +258,7 @@ void G_TimeShiftAllClients( int time, gentity_t *skip ) {
 	ent = &g_entities[0];
 	for ( i = 0; i < MAX_CLIENTS; i++, ent++ ) {
 		if ( ent->client
-				&& ent->inuse
+				&& G_InUse(ent)
 				&& ent->client->sess.sessionTeam < TEAM_SPECTATOR
 				&& ent != skip
 				// do not timeshift eliminated clients, as
@@ -286,7 +286,7 @@ void G_DoTimeShiftFor( gentity_t *ent ) {
 	int time;
 
 	// don't time shift for mistakes or bots
-	if ( !ent->inuse || !ent->client || (ent->r.svFlags & SVF_BOT) ) {
+	if ( !G_InUse(ent) || !ent->client || (ent->r.svFlags & SVF_BOT) ) {
 		return;
 	}
 
@@ -347,7 +347,7 @@ void G_UnTimeShiftAllClients( gentity_t *skip ) {
 
 	ent = &g_entities[0];
 	for ( i = 0; i < MAX_CLIENTS; i++, ent++) {
-		if ( ent->client && ent->inuse && ent->client->sess.sessionTeam < TEAM_SPECTATOR && ent != skip ) {
+		if ( ent->client && G_InUse(ent) && ent->client->sess.sessionTeam < TEAM_SPECTATOR && ent != skip ) {
 			G_UnTimeShiftClient( ent );
 		}
 	}
@@ -364,7 +364,7 @@ Put everyone except for this client back where they were
 void G_UndoTimeShiftFor( gentity_t *ent ) {
 
 	// don't un-time shift for mistakes or bots
-	if ( !ent->inuse || !ent->client || (ent->r.svFlags & SVF_BOT) ) {
+	if ( !G_InUse(ent) || !ent->client || (ent->r.svFlags & SVF_BOT) ) {
 		return;
 	}
 

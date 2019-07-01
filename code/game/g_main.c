@@ -280,6 +280,8 @@ vmCvar_t	g_ra3maxArena;
 vmCvar_t	g_ra3forceArena;
 vmCvar_t	g_ra3nextForceArena;
 
+vmCvar_t	g_multiTournamentGames;
+
 vmCvar_t	g_enableGreenArmor;
 
 vmCvar_t	g_readSpawnVarFiles;
@@ -598,6 +600,8 @@ static cvarTable_t		gameCvarTable[] = {
         { &g_ra3forceArena, "g_ra3forceArena", "-1", 0, 0, qfalse },
         { &g_ra3nextForceArena, "g_ra3nextForceArena", "-1", 0, 0, qfalse },
 
+        { &g_multiTournamentGames, "g_multiTournamentGames", "4", CVAR_INIT, 0, qfalse },
+
         { &g_enableGreenArmor, "g_enableGreenArmor", "0", CVAR_ARCHIVE, 0, qfalse },
 
         { &g_readSpawnVarFiles, "g_readSpawnVarFiles", "0", CVAR_ARCHIVE, 0, qfalse },
@@ -839,6 +843,8 @@ static cvarTable_t		gameCvarTable[] = {
 // bk001129 - made static to avoid aliasing
 static int gameCvarTableSize = sizeof( gameCvarTable ) / sizeof( gameCvarTable[0] );
 
+int QDECL SortRanksMultiTournament( const void *a, const void *b );
+int QDECL SortRanks( const void *a, const void *b );
 
 void G_InitGame( int levelTime, int randomSeed, int restart );
 void G_RunFrame( int levelTime );
@@ -855,38 +861,60 @@ This must be the very first function compiled into the .q3vm file
 ================
 */
 intptr_t vmMain( int command, int arg0, int arg1, int arg2, int arg3, int arg4, int arg5, int arg6, int arg7, int arg8, int arg9, int arg10, int arg11  ) {
+	intptr_t ret;
+	int reti;
+	qboolean retb;
 	switch ( command ) {
 	case GAME_INIT:
 		G_InitGame( arg0, arg1, arg2 );
+		G_LinkGameId(-1);
 		return 0;
 	case GAME_SHUTDOWN:
+		G_LinkGameId(-1);
 		G_ShutdownGame( arg0 );
 		return 0;
 	case GAME_CLIENT_CONNECT:
-		return (intptr_t)ClientConnect( arg0, arg1, arg2 );
+		G_LinkGameId(-1);
+		ret = (intptr_t)ClientConnect( arg0, arg1, arg2 );
+		G_LinkGameId(-1);
+		return ret;
 	case GAME_CLIENT_THINK:
 		ClientThink( arg0 );
+		G_LinkGameId(-1);
 		return 0;
 	case GAME_CLIENT_USERINFO_CHANGED:
 		ClientUserinfoChangedLimited( arg0 );
+		G_LinkGameId(-1);
 		return 0;
 	case GAME_CLIENT_DISCONNECT:
 		ClientDisconnect( arg0 );
+		G_LinkGameId(-1);
 		return 0;
 	case GAME_CLIENT_BEGIN:
 		ClientBegin( arg0 );
+		G_LinkGameId(-1);
 		return 0;
 	case GAME_CLIENT_COMMAND:
 		ClientCommand( arg0 );
+		G_LinkGameId(-1);
 		return 0;
 	case GAME_RUN_FRAME:
+		G_LinkGameId(-1);
 		G_RunFrame( arg0 );
+		G_LinkGameId(-1);
 		return 0;
 	case GAME_CONSOLE_COMMAND:
-		return ConsoleCommand();
+		G_LinkGameId(-1);
+		retb = ConsoleCommand();
+		G_LinkGameId(-1);
+		return retb;
 	case BOTAI_START_FRAME:
-		return BotAIStartFrame( arg0 );
+		G_LinkGameId(-1);
+		reti = BotAIStartFrame( arg0 );
+		G_LinkGameId(-1);
+		return reti;
 	}
+	G_LinkGameId(-1);
 
 	return -1;
 }
@@ -933,7 +961,7 @@ void G_FindTeams( void ) {
 	c = 0;
 	c2 = 0;
 	for ( i=1, e=g_entities+i ; i < level.num_entities ; i++,e++ ){
-		if (!e->inuse)
+		if (!G_InUse(e))
 			continue;
 		if (!e->team)
 			continue;
@@ -944,7 +972,7 @@ void G_FindTeams( void ) {
 		c2++;
 		for (j=i+1, e2=e+1 ; j < level.num_entities ; j++,e2++)
 		{
-			if (!e2->inuse)
+			if (!G_InUse(e2))
 				continue;
 			if (!e2->team)
 				continue;
@@ -1477,7 +1505,7 @@ void G_RegisterCvars( void ) {
 	}
 
 	//set FFA status for high gametypes:
-	if ( g_gametype.integer == GT_LMS ) {
+	if ( g_gametype.integer == GT_LMS || g_gametype.integer == GT_MULTITOURNAMENT ) {
 		g_ffa_gt = 1;	//Last Man standig is a FFA gametype
 	} else {
 		g_ffa_gt = 0;	//If >GT_CTF use bases
@@ -1836,17 +1864,38 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 
 	ClearRegisteredItems();
 
+	if (g_gametype.integer == GT_MULTITOURNAMENT) {
+		if (g_multiTournamentGames.integer > 0 
+			       && g_multiTournamentGames.integer <= MULTITRN_MAX_GAMES) {
+			level.multiTrnNumGames = g_multiTournamentGames.integer;
+		} else {
+			level.multiTrnNumGames = MULTITRN_MAX_GAMES;
+		}
+	}
+
 	// parse the key/value pairs and spawn gentities
 	G_SpawnEntitiesFromString();
 
-	G_SetTeleporterDestinations();
+	for (i = 0; i < level.multiTrnNumGames; ++i) {
+		G_LinkGameId(i);
 
-	// general initialization
-	G_FindTeams();
+		G_SetTeleporterDestinations();
 
-	// make sure we have flags for CTF, etc
-	if( g_gametype.integer >= GT_TEAM && (g_ffa_gt!=1)) {
-		G_CheckTeamItems();
+		// general initialization
+		G_FindTeams();
+
+		// make sure we have flags for CTF, etc
+		if( g_gametype.integer >= GT_TEAM && (g_ffa_gt!=1)) {
+			G_CheckTeamItems();
+		}
+
+		if (g_gametype.integer != GT_MULTITOURNAMENT) {
+			break;
+		}
+
+	}
+	if (g_gametype.integer == GT_MULTITOURNAMENT) {
+		G_LinkGameId(-1);
 	}
 
 	SaveRegisteredItems();
@@ -1955,6 +2004,9 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 	if (g_autoClans.integer) {
 		G_LoadClans();
 	}
+
+	G_UpdateMultiTrnGames();
+	CalculateRanks();
 }
 
 
@@ -2502,6 +2554,42 @@ void AddTournamentQueue(gclient_t *client)
     }
 }
 
+void ReorderMultiTournament( void ) {
+	int i;
+	int numConnectedClients;
+	gclient_t *cl;
+	int			sortedClients[MAX_CLIENTS];
+
+	if (level.multiTrnReorder) {
+		return;
+	}
+	level.multiTrnReorder = qtrue;
+
+	memcpy(sortedClients, level.sortedClients, sizeof(sortedClients));
+	numConnectedClients = level.numConnectedClients;
+
+	// sort by win/loss count
+	// winners move up, losers down
+	qsort( sortedClients, numConnectedClients, 
+		sizeof(sortedClients[0]), SortRanksMultiTournament );
+
+	level.shuffling_teams = qtrue;
+	for ( i = 0;  i < numConnectedClients; i++ ) {
+		cl = &level.clients[ sortedClients[i] ];
+		if (cl->sess.sessionTeam == TEAM_FREE) {
+			SetTeam( &g_entities[ sortedClients[i] ], "q");
+		}
+	}
+	for ( i = 0;  i < numConnectedClients; i++ ) {
+		cl = &level.clients[ sortedClients[i] ];
+		if (cl->sess.sessionTeam == TEAM_SPECTATOR) {
+			cl->sess.spectatorNum = numConnectedClients - i;
+		}
+	}
+	G_UpdateMultiTrnGames();
+	level.shuffling_teams = qfalse;
+}
+
 /*
 =======================
 AddTournamentQueueFront
@@ -2575,6 +2663,38 @@ void RemoveTournamentWinner( void ) {
 	SetTeam( &g_entities[ clientNum ], "q" );
 }
 
+
+void AdjustMultiTournamentScores( multiTrnGame_t *game ) {
+	gclient_t *cl1, *cl2;
+
+	if (game->numPlayers < 1) {
+		return;
+	}
+	if (game->numPlayers == 1) {
+		cl1 = &level.clients[game->clients[0]];
+		cl1->sess.wins++;
+		ClientUserinfoChanged( cl1 - level.clients );
+		return;
+	}
+
+	cl1 = &level.clients[game->clients[0]];
+	cl2 = &level.clients[game->clients[1]];
+
+	if (cl2->ps.persistant[PERS_SCORE] > cl1->ps.persistant[PERS_SCORE]) {
+		gclient_t  *tmp;
+		tmp = cl2;
+		cl2 = cl1;
+		cl1 = tmp;
+	}
+
+	cl1->sess.wins++;
+	ClientUserinfoChanged( cl1 - level.clients );
+	cl2->sess.losses++;
+	ClientUserinfoChanged( cl2 - level.clients );
+
+
+}
+
 /*
 =======================
 AdjustTournamentScores
@@ -2597,6 +2717,70 @@ void AdjustTournamentScores( void ) {
 		ClientUserinfoChanged( clientNum );
 	}
 
+}
+
+int QDECL SortRanksMultiTournament( const void *a, const void *b ) {
+	gclient_t	*ca, *cb;
+
+	ca = &level.clients[*(int *)a];
+	cb = &level.clients[*(int *)b];
+
+	// sort special clients last
+	if ( ca->sess.spectatorState == SPECTATOR_SCOREBOARD || ca->sess.spectatorClient < 0 ) {
+		return 1;
+	}
+	if ( cb->sess.spectatorState == SPECTATOR_SCOREBOARD || cb->sess.spectatorClient < 0  ) {
+		return -1;
+	}
+
+	// then connecting clients
+	if ( ca->pers.connected == CON_CONNECTING ) {
+		return 1;
+	}
+	if ( cb->pers.connected == CON_CONNECTING ) {
+		return -1;
+	}
+
+	// afk spectators
+	if ( ca->sess.spectatorGroup == SPECTATORGROUP_AFK ) {
+		return 1;
+	}
+	if ( cb->sess.spectatorGroup == SPECTATORGROUP_AFK ) {
+		return -1;
+	}
+
+	//// notready spectators
+	//if ( ca->sess.spectatorGroup == SPECTATORGROUP_SPEC ) {
+	//	return 1;
+	//}
+	//if ( cb->sess.spectatorGroup == SPECTATORGROUP_SPEC ) {
+	//	return -1;
+	//}
+
+	// by wins/losses:
+	if (ca->sess.wins - ca->sess.losses > cb->sess.wins - cb->sess.losses) {
+		return -1;
+	} else if (ca->sess.wins - ca->sess.losses < cb->sess.wins - cb->sess.losses) {
+		return 1;
+	}
+
+	// if win/loss score is equal, prioritize spectators (to let them join)
+	if (ca->sess.sessionTeam == TEAM_SPECTATOR && cb->sess.sessionTeam != TEAM_SPECTATOR) {
+		return -1;
+	} else if (cb->sess.sessionTeam == TEAM_SPECTATOR && ca->sess.sessionTeam != TEAM_SPECTATOR) {
+		return 1;
+	}
+
+	if ( ca->sess.sessionTeam == TEAM_SPECTATOR && cb->sess.sessionTeam == TEAM_SPECTATOR ) {
+		if ( ca->sess.spectatorNum > cb->sess.spectatorNum ) {
+			return -1;
+		}
+		if ( ca->sess.spectatorNum < cb->sess.spectatorNum ) {
+			return 1;
+		}
+		return 0;
+	}
+	return 0;
 }
 
 /*
@@ -2660,6 +2844,17 @@ int QDECL SortRanks( const void *a, const void *b ) {
         //    if( cb->isEliminated )
         //        return -1;
         //} // confusing
+	
+	if (g_gametype.integer == GT_MULTITOURNAMENT) {
+		gentity_t *ea = &g_entities[ca->ps.clientNum];
+		gentity_t *eb = &g_entities[cb->ps.clientNum];
+		// sort by gameId
+		if (ea->gameId < eb->gameId) {
+			return -1;
+		} else if (ea->gameId > eb->gameId) {
+			return 1;
+		}
+	}
 
 	// then sort by score
 	if ( ca->ps.persistant[PERS_SCORE]
@@ -2671,6 +2866,36 @@ int QDECL SortRanks( const void *a, const void *b ) {
 		return 1;
 	}
 	return 0;
+}
+
+char *G_MultiTrnScoreString(int scoreId) {
+	int gameId;
+	char scoreStr[256] = "";
+
+	for (gameId = 0; gameId < MULTITRN_MAX_GAMES; ++gameId) {
+		multiTrnGame_t *game = &level.multiTrnGames[gameId];
+		int score = SCORE_NOT_PRESENT;
+		if (game->numPlayers == 1) {
+			score = scoreId == CS_SCORES1 ? level.clients[ game->clients[0] ].ps.persistant[PERS_SCORE] : SCORE_NOT_PRESENT;
+		} else if (game->numPlayers == 2) {
+			if (level.clients[ game->clients[0] ].ps.persistant[PERS_SCORE] 
+					> level.clients[ game->clients[1] ].ps.persistant[PERS_SCORE]) {
+				score = scoreId == CS_SCORES1 ? 
+					level.clients[ game->clients[0] ].ps.persistant[PERS_SCORE] 
+					: level.clients[ game->clients[1] ].ps.persistant[PERS_SCORE] ;
+			} else {
+				score = scoreId == CS_SCORES1 ? 
+					level.clients[ game->clients[1] ].ps.persistant[PERS_SCORE] 
+					: level.clients[ game->clients[0] ].ps.persistant[PERS_SCORE] ;
+			}
+		}
+		Q_strcat(scoreStr, sizeof(scoreStr), va(
+					"%i%s",
+					score,
+					gameId == MULTITRN_MAX_GAMES - 1 ? "" : " "
+					));
+	}
+	return va("%s", scoreStr);
 }
 
 /*
@@ -2746,6 +2971,27 @@ void CalculateRanks( void ) {
 				cl->ps.persistant[PERS_RANK] = 1;
 			}
 		}
+	} else if ( g_gametype.integer == GT_MULTITOURNAMENT ) {	
+		for ( i = 0; i < level.multiTrnNumGames; ++i) {
+			multiTrnGame_t *game = &level.multiTrnGames[i];
+			if (game->numPlayers == 2) {
+				if ( level.clients[ game->clients[0] ].ps.persistant[PERS_SCORE] >
+						level.clients[ game->clients[1] ].ps.persistant[PERS_SCORE]) {
+					level.clients[ game->clients[0] ].ps.persistant[PERS_RANK] = 0;
+					level.clients[ game->clients[1] ].ps.persistant[PERS_RANK] = 1;
+				} else if (level.clients[ game->clients[0] ].ps.persistant[PERS_SCORE] ==
+						level.clients[ game->clients[1] ].ps.persistant[PERS_SCORE]) {
+					level.clients[ game->clients[0] ].ps.persistant[PERS_RANK] = RANK_TIED_FLAG;
+					level.clients[ game->clients[1] ].ps.persistant[PERS_RANK] = RANK_TIED_FLAG;
+				} else {
+					level.clients[ game->clients[0] ].ps.persistant[PERS_RANK] = 1;
+					level.clients[ game->clients[1] ].ps.persistant[PERS_RANK] = 0;
+				}
+
+			} else if (game->numPlayers == 1) {
+				level.clients[ game->clients[0] ].ps.persistant[PERS_RANK] = 0;
+			}
+		}
 	} else {	
 		rank = -1;
 		score = 0;
@@ -2772,6 +3018,9 @@ void CalculateRanks( void ) {
 	if ( g_gametype.integer >= GT_TEAM && g_ffa_gt!=1) {
 		trap_SetConfigstring( CS_SCORES1, va("%i", level.teamScores[TEAM_RED] ) );
 		trap_SetConfigstring( CS_SCORES2, va("%i", level.teamScores[TEAM_BLUE] ) );
+	} else if (g_gametype.integer == GT_MULTITOURNAMENT ) {
+		trap_SetConfigstring( CS_SCORES1, G_MultiTrnScoreString(CS_SCORES1));
+		trap_SetConfigstring( CS_SCORES2, G_MultiTrnScoreString(CS_SCORES2));
 	} else {
 		if ( level.numConnectedClients == 0 ) {
 			trap_SetConfigstring( CS_SCORES1, va("%i", SCORE_NOT_PRESENT) );
@@ -2971,6 +3220,51 @@ void MoveClientToIntermission( gentity_t *ent ) {
 	ent->r.contents = 0;
 }
 
+void G_MultitrnIntermission(multiTrnGame_t *game) {
+	int i;
+	gentity_t *ent;
+	int oldGameId = level.currentGameId;
+
+	if (game->intermissiontime) {
+		return;
+	}
+
+	if (game->gameFlags & MTRN_GFL_STARTEDATBEGINNING) {
+		// only log games that started at the beginning of the level
+		AdjustMultiTournamentScores(game);
+	}
+
+	game->intermissiontime = level.time;
+
+	// stop all spectators from following this game
+	for ( i = 0;  i < level.numConnectedClients; i++ ) {
+		ent = g_entities + level.sortedClients[i];
+		if ( ent->client->sess.spectatorState == SPECTATOR_FOLLOW ) {
+			int j;
+			for (j=0 ; j< game->numPlayers ; j++) {
+				if (ent->client->sess.spectatorClient == game->clients[j]) {
+					StopFollowing( ent );
+					break;
+				}
+			}
+		}
+	}
+
+	for (i=0 ; i< game->numPlayers ; i++) {
+		ent = g_entities + game->clients[i];
+		if (!ent->inuse)
+			continue;
+		// respawn if dead
+		if (ent->health <= 0) {
+			G_LinkGameId(0); // make sure everybody has a spawn point, including spectators
+			ClientRespawn(ent);
+		}
+		G_LinkGameId(0);
+		MoveClientToIntermission( ent );
+	}
+	G_LinkGameId(oldGameId);
+}
+
 /*
 ==================
 FindIntermissionPoint
@@ -3040,6 +3334,7 @@ BeginIntermission
 void BeginIntermission( void ) {
 	int			i;
 	gentity_t	*client;
+	int oldGameId = level.currentGameId;
 
 	if ( level.intermissiontime ) {
 		return;		// already active
@@ -3057,11 +3352,14 @@ void BeginIntermission( void ) {
 		if (!client->inuse)
 			continue;
 		// respawn if dead
+		G_LinkGameId(0); // make sure everybody has a spawn point, including spectators
 		if (client->health <= 0) {
 			ClientRespawn(client);
 		}
+		G_LinkGameId(0);
 		MoveClientToIntermission( client );
 	}
+	G_LinkGameId(oldGameId);
 #ifdef MISSIONPACK
 	if (g_singlePlayer.integer) {
 		trap_Cvar_Set("ui_singlePlayerActive", "0");
@@ -3104,6 +3402,15 @@ void ExitLevel (void) {
 	if ( g_gametype.integer == GT_TOURNAMENT  ) {
 		if ( !level.restarted ) {
 			RemoveTournamentLoser();
+			trap_SendConsoleCommand( EXEC_APPEND, "map_restart 0\n" );
+			level.restarted = qtrue;
+			level.changemap = NULL;
+			level.intermissiontime = 0;
+		}
+		return;	
+	} else if ( g_gametype.integer == GT_MULTITOURNAMENT  ) {
+		if ( !level.restarted ) {
+			ReorderMultiTournament();
 			trap_SendConsoleCommand( EXEC_APPEND, "map_restart 0\n" );
 			level.restarted = qtrue;
 			level.changemap = NULL;
@@ -3235,6 +3542,33 @@ void QDECL G_LogPrintf( const char *fmt, ... ) {
 
 	trap_FS_Write( string, strlen( string ), level.logFile );
 }
+
+void LogMtrnExit( const char *string, int gameId) {
+	gclient_t *cl;
+	multiTrnGame_t *game;
+	int i;
+
+	if (!G_ValidGameId(gameId)) {
+		return;
+	}
+
+	game = &level.multiTrnGames[gameId];
+
+	G_LogPrintf( "MtrnExit: game %i: %s\n", gameId, string );
+
+	game->intermissionQueued = level.time;
+
+	for (i = 0; i < game->numPlayers; ++i) {
+		int ping;
+		cl = &level.clients[game->clients[i]];
+		ping = cl->ps.ping < 999 ? cl->ps.ping : 999;
+		G_LogPrintf( "score: %i  ping: %i  client: %i %s\n", 
+				cl->ps.persistant[PERS_SCORE],
+				ping, game->clients[i],
+				cl->pers.netname );
+	}
+}
+
 
 /*
 ================
@@ -3502,6 +3836,20 @@ void CheckIntermissionExit( void ) {
 	ExitLevel();
 }
 
+qboolean ScoreIsTiedMtrnGame(int gameId) {
+	multiTrnGame_t *game;
+	if (!G_ValidGameId(gameId)) {
+		return qfalse;
+	}
+	game = &level.multiTrnGames[gameId];
+	if (game->numPlayers != 2) {
+		return qfalse;
+	}
+
+	return (level.clients[game->clients[0]].ps.persistant[PERS_SCORE] 
+			== level.clients[game->clients[1]].ps.persistant[PERS_SCORE]);
+}
+
 /*
 =============
 ScoreIsTied
@@ -3511,6 +3859,17 @@ qboolean ScoreIsTied( void ) {
 	int		a, b;
 
 	if ( level.numPlayingClients < 2 ) {
+		return qfalse;
+	}
+
+	if ( g_gametype.integer == GT_MULTITOURNAMENT ) {
+		int i;
+		// just check if there is one tied game
+		for (i = 0; i < level.multiTrnNumGames; ++i) {
+			if (ScoreIsTiedMtrnGame(i)) {
+				return qtrue;
+			}
+		}
 		return qfalse;
 	}
         
@@ -3532,6 +3891,17 @@ qboolean ScoreIsTied( void ) {
 	return a == b;
 }
 
+qboolean G_MultiTrnFinished(void) {
+	int i;
+	for ( i = 0; i < level.multiTrnNumGames; ++i ) {
+		if (level.multiTrnGames[i].gameFlags & MTRN_GFL_RUNNING
+				&& !(level.multiTrnGames[i].intermissionQueued)) {
+			return qfalse;
+		}
+	}
+	return qtrue;
+}
+
 /*
 =================
 CheckExitRules
@@ -3544,6 +3914,7 @@ can see the last frag.
 void CheckExitRules( void ) {
  	int			i;
 	gclient_t	*cl;
+
 	// if at the intermission, wait for all non-bots to
 	// signal ready, then go to next level
 	if ( level.intermissiontime ) {
@@ -3560,6 +3931,58 @@ void CheckExitRules( void ) {
             }
         }
 
+
+	if (g_gametype.integer == GT_MULTITOURNAMENT && !level.warmupTime) {
+		int gameId;
+		qboolean sendScores = qfalse;
+		for (gameId = 0; gameId < level.multiTrnNumGames; ++gameId) {
+			multiTrnGame_t *game = &level.multiTrnGames[gameId];
+			if (game->intermissionQueued) {
+				if ( !game->intermissiontime && level.time - game->intermissionQueued >= MULTITRN_INTERMISSION_DELAY_TIME ) {
+					G_MultitrnIntermission(game);
+					sendScores = qtrue;
+				}
+				continue;
+			}
+			if (game->gameFlags & MTRN_GFL_FORFEITED) {
+				LogMtrnExit("Match ended due to forfeit!", gameId);
+				continue;
+			}
+			if (game->numPlayers != 2 
+					|| !(game->gameFlags & MTRN_GFL_RUNNING)) {
+				continue;
+			}
+			if ( g_timelimit.integer > 0 && !level.warmupTime ) {
+				if (ScoreIsTiedMtrnGame(gameId)) {
+					continue;
+				}
+				if ( (level.time - level.startTime) >= g_timelimit.integer * 60000 
+						+ level.timeoutOvertime + g_overtime.integer * 60*1000 *  level.overtimeCount) {
+					trap_SendServerCommand( -1, va("print \"Game %i: Timelimit hit.\n\"", gameId));
+					LogMtrnExit("Timelimit hit", gameId);
+				}
+			}
+
+			if (g_fraglimit.integer) {
+				if (ScoreIsTiedMtrnGame(gameId)) {
+					continue;
+				}
+				for (int i = 0; i < 2; ++i) {
+					gclient_t *cl = &level.clients[game->clients[i]];
+					if (cl->ps.persistant[PERS_SCORE] >= g_fraglimit.integer ) {
+						trap_SendServerCommand( -1, va("print \"Game %i: %s" S_COLOR_WHITE " hit the fraglimit.\n\"",
+									gameId, cl->pers.netname ) );
+						LogMtrnExit("Fraglimit hit", gameId);
+					}
+				}
+			}
+
+		}
+		if (sendScores && !level.intermissiontime && !level.intermissionQueued) {
+			SendScoreboardMessageToAllClients();
+		}
+	}
+
 	if ( level.intermissionQueued ) {
 #ifdef MISSIONPACK
 		int time = (g_singlePlayer.integer) ? SP_INTERMISSION_DELAY_TIME : INTERMISSION_DELAY_TIME;
@@ -3574,15 +3997,14 @@ void CheckExitRules( void ) {
 		}
 #endif
 		return;
-	}
+	} 
 
 	// check for sudden death
 	if ( ScoreIsTied() && g_overtime.integer <= 0) {
 		// always wait for sudden death
 		return;
 	}
-
-	if ( g_timelimit.integer > 0 && !level.warmupTime ) {
+	if ( g_gametype.integer != GT_MULTITOURNAMENT && g_timelimit.integer > 0 && !level.warmupTime ) {
 		//if ( (level.time - level.startTime)/60000 >= g_timelimit.integer ) {
 		if ( (level.time - level.startTime) >= g_timelimit.integer * 60000 + level.timeoutOvertime + g_overtime.integer * 60*1000 *  level.overtimeCount) {
 			if (ScoreIsTied() && g_overtime.integer > 0) {
@@ -3615,12 +4037,28 @@ void CheckExitRules( void ) {
 		LogExit("Match ended due to forfeit!");
 		return;
 	}
+	if (g_gametype.integer == GT_MULTITOURNAMENT) {
+		if (level.tournamentForfeited) {
+			LogExit("All matches ended due to forfeit!\n");
+			return;
+		}
+		
+		if (G_NumActiveMultiTrnGames() <= 0) {
+			return;
+		}
+
+		if (!level.warmupTime && G_MultiTrnFinished()) {
+			LogExit("All matches ended!\n");
+			return;
+		}
+	}
+
 
 	if ( level.numPlayingClients < 2 ) {
 		return;
 	}
 
-	if ( (g_gametype.integer < GT_CTF || g_ffa_gt>0 ) && g_fraglimit.integer ) {
+	if ( g_gametype.integer != GT_MULTITOURNAMENT && (g_gametype.integer < GT_CTF || g_ffa_gt>0 ) && g_fraglimit.integer ) {
 		if ( level.teamScores[TEAM_RED] >= g_fraglimit.integer ) {
 			trap_SendServerCommand( -1, "print \"Red hit the fraglimit.\n\"" );
 			LogExit( "Fraglimit hit." );
@@ -4328,7 +4766,7 @@ void UpdateTreasureEntityVisiblity(qboolean hiddenFromEnemy) {
 	ent = &g_entities[0];
 	for (i=0 ; i<level.num_entities ; i++, ent++) {
 		int team = TEAM_SPECTATOR;
-		if (!ent->inuse) {
+		if (!G_InUse(ent)) {
 			continue;
 		}
 
@@ -4407,7 +4845,7 @@ int CountPlayerTokens(int team) {
 	for( i=0;i < level.numPlayingClients; i++ ) {
 		ent = &g_entities[level.sortedClients[i]];
 
-		if (!ent->inuse) {
+		if (!G_InUse(ent)) {
 			continue;
 		}
 		if (ent->client->pers.th_tokens <= 0) {
@@ -4450,7 +4888,7 @@ void CheckTreasureHunter(void) {
 	for( i=0;i < level.numPlayingClients; i++ ) {
 		int cNum = level.sortedClients[i];
 		gentity_t *ent = &g_entities[cNum];
-		if (!ent->inuse) {
+		if (!G_InUse(ent)) {
 			continue;
 		}
 
@@ -4754,7 +5192,7 @@ void CheckTournament( void ) {
 			level.restarted = qtrue;
 			return;
 		}
-	} else if ( g_gametype.integer != GT_SINGLE_PLAYER && level.warmupTime != 0 ) {
+	} else if ( g_gametype.integer != GT_MULTITOURNAMENT && g_gametype.integer != GT_SINGLE_PLAYER && level.warmupTime != 0 ) {
 		int		counts[TEAM_NUM_TEAMS];
 		qboolean	notEnough = qfalse;
 		int i;
@@ -4776,7 +5214,7 @@ void CheckTournament( void ) {
 
 		if( g_startWhenReady.integer ){
 			for( i = 0; i < level.numPlayingClients; i++ ){
-				if( ( g_entities[level.sortedClients[i]].client->ready || g_entities[level.sortedClients[i]].r.svFlags & SVF_BOT ) && g_entities[level.sortedClients[i]].inuse ) {
+				if( ( g_entities[level.sortedClients[i]].client->ready || g_entities[level.sortedClients[i]].r.svFlags & SVF_BOT ) && G_InUse(&g_entities[level.sortedClients[i]]) ) {
 					clientsReady++;
 					switch (g_entities[level.sortedClients[i]].client->sess.sessionTeam) {
 						case TEAM_RED:
@@ -4864,6 +5302,290 @@ void CheckTournament( void ) {
 		}
 	}
 }
+
+int G_NumActiveMultiTrnGames(void) {
+	int i;
+	int numActiveGames = 0;
+	for (i=0; i < level.multiTrnNumGames; ++i) {
+		if (level.multiTrnGames[i].numPlayers >= 2) {
+			++numActiveGames;
+		}
+	}
+	return numActiveGames;
+}
+
+
+void AddMultiTournamentPlayer( void ) {
+	int			i;
+	gclient_t	*client;
+	gclient_t	*nextInLine;
+
+	// never change during intermission
+	if ( level.intermissiontime ) {
+		return;
+	}
+
+	nextInLine = NULL;
+
+	for ( i = 0 ; i < level.maxclients ; i++ ) {
+		client = &level.clients[i];
+		if ( client->pers.connected != CON_CONNECTED ) {
+			continue;
+		}
+		if ( client->sess.sessionTeam != TEAM_SPECTATOR ) {
+			continue;
+		}
+		// never select the dedicated follow or scoreboard clients
+		if ( client->sess.spectatorState == SPECTATOR_SCOREBOARD || 
+			client->sess.spectatorClient < 0  ) {
+			continue;
+		}
+
+		if ( client->sess.spectatorGroup == SPECTATORGROUP_AFK ||
+				client->sess.spectatorGroup == SPECTATORGROUP_SPEC) {
+			continue;
+		}
+
+		if(!nextInLine || client->sess.spectatorNum > nextInLine->sess.spectatorNum) {
+			nextInLine = client;
+		}
+	}
+
+	if ( !nextInLine ) {
+		return;
+	}
+
+	// set them to free-for-all team
+	SetTeam( &g_entities[ nextInLine - level.clients ], "f" );
+}
+
+void G_UpdateMultiTrnGames(void) {
+	int i;
+	gclient_t *client;
+	int clindexes[MULTITRN_MAX_GAMES];
+	int spectatormask = 0;
+	multiTrnGame_t *game;
+
+	if (g_gametype.integer != GT_MULTITOURNAMENT) {
+		return;
+	}
+
+	memset(clindexes, 0, sizeof(clindexes));
+
+	for (i=0; i < MULTITRN_MAX_GAMES; ++i) {
+		level.multiTrnGames[i].clients[0] = 0;
+		level.multiTrnGames[i].clients[1] = 0;
+		level.multiTrnGames[i].numPlayers = 0;
+		level.multiTrnGames[i].clientMask = 0;
+	}
+	for (i=0, client = &level.clients[0] ; i < level.maxclients ; i++, client++ ) {
+		if (client->pers.connected == CON_DISCONNECTED) {
+			continue;
+		}
+		if (client->sess.sessionTeam == TEAM_SPECTATOR && client->sess.gameId == -1) {
+			// spectators that want to free-spec every game
+			// simultaneously
+			spectatormask |= (1 << i);
+			continue;
+		}
+		if (!G_ValidGameId(client->sess.gameId)) {
+			continue;
+		}
+		game = &level.multiTrnGames[client->sess.gameId];
+		if (client->sess.sessionTeam == TEAM_FREE) {
+			int clidx = clindexes[client->sess.gameId];
+			if (clidx > 2) {
+				// this should never happen
+				continue;
+			}
+
+			++(clindexes[client->sess.gameId]);
+			game->clients[clidx] = i;
+			game->numPlayers++;
+			game->clientMask |= (1 << i);
+		} else if (client->sess.sessionTeam == TEAM_SPECTATOR) {
+			game->clientMask |= (1 << i);
+		}
+	}
+	for (i=0; i < MULTITRN_MAX_GAMES; ++i) {
+		game = &level.multiTrnGames[i];
+		if (game->numPlayers == 0) {
+			// allow players to join again if
+			// the game ended and players left
+			game->gameFlags = 0;
+			game->intermissionQueued = 0;
+			game->intermissiontime = 0;
+		} else if (!level.warmupTime && game->numPlayers == 2) {
+			game->gameFlags |= MTRN_GFL_RUNNING;
+		}
+		level.multiTrnGames[i].clientMask |= spectatormask;
+	}
+}
+
+qboolean G_MtrnIntermissionQueued(int gameId) {
+	return (g_gametype.integer == GT_MULTITOURNAMENT 
+			&& G_ValidGameId(gameId)
+			&& level.multiTrnGames[gameId].intermissionQueued);
+}
+
+qboolean G_MtrnIntermissionTimeClient(gclient_t *cl ) {
+	return (cl->sess.sessionTeam == TEAM_FREE 
+			&& G_MtrnIntermissionTime(cl->sess.gameId));
+}
+
+qboolean G_MtrnIntermissionTime(int gameId) {
+	return (g_gametype.integer == GT_MULTITOURNAMENT 
+			&& G_ValidGameId(gameId)
+			&& level.multiTrnGames[gameId].intermissiontime);
+}
+
+
+qboolean G_MultiTrnGameOpen(multiTrnGame_t *game) {
+	return ((game->numPlayers < 2 && !(game->gameFlags & MTRN_GFL_RUNNING)));
+}
+
+int G_FindFreeMultiTrnSlot(void) {
+	int i;
+	int openGameId = -1;
+
+	// favor joining a game that already has a player in it
+	for (i=0; i < level.multiTrnNumGames; ++i) {
+		if (G_MultiTrnGameOpen(&level.multiTrnGames[i])) {
+			if (openGameId == -1) {
+				openGameId = i;
+			}
+			if (level.multiTrnGames[i].numPlayers == 1) {
+				return i;
+			}
+		}
+	}
+	return openGameId;
+}
+
+/*
+=============
+CheckMultiTournament
+
+Once a frame, check for changes in multitournement player state
+=============
+*/
+void CheckMultiTournament( void ) {
+	int i;
+
+	if ( g_gametype.integer != GT_MULTITOURNAMENT) {
+		return;
+	}
+
+	// check because we run 3 game frames before calling Connect and/or ClientBegin
+	// for clients on a map_restart
+	//if ( level.numPlayingClients == 0 ) {
+	//	return;
+	//}
+	if ( level.numConnectedClients == 0 ) {
+		return;
+	}
+
+	if (!level.warmupTime && !level.multiTrnInit) {
+		// in a real game (not warmup), but not initiazlized yet
+		if (G_NumActiveMultiTrnGames() <= 0) {
+			return;
+		}
+
+		level.multiTrnInit = qtrue;
+		// this is the first time we get called since the warmup
+		// ended and the game started, so mark all active games
+		// as having started from the beginning of the level
+		for (i=0; i < level.multiTrnNumGames; ++i) {
+			if (level.multiTrnGames[i].numPlayers == 2) {
+				level.multiTrnGames[i].gameFlags |= MTRN_GFL_STARTEDATBEGINNING;
+			}
+		}
+	}
+
+	for (i=0; i < level.multiTrnNumGames; ++i) {
+		int j;
+		for (j = 0; j < 2; ++j) {
+			if (G_MultiTrnGameOpen(&level.multiTrnGames[i])) {
+				AddMultiTournamentPlayer();
+			}
+		}
+		if (level.multiTrnGames[i].numPlayers < 2 && 
+				level.multiTrnGames[i].gameFlags & MTRN_GFL_RUNNING) {
+			level.multiTrnGames[i].gameFlags |= MTRN_GFL_FORFEITED;
+		}
+	}
+
+	if (!level.warmupTime) {
+		if (G_NumActiveMultiTrnGames() <= 0) {
+			level.tournamentForfeited = qtrue;
+			return;
+		}
+	}
+
+	// if we don't have a game going on, go back to "waiting for players"
+	if ( G_NumActiveMultiTrnGames() <= 0) {
+		if ( level.warmupTime != -1 ) {
+			level.warmupTime = -1;
+			trap_SetConfigstring( CS_WARMUP, va("%i", level.warmupTime) );
+			G_LogPrintf( "Warmup:\n" );
+		}
+		return;
+	}
+
+	if ( level.warmupTime == 0 ) {
+		return;
+	}
+
+	// if the warmup is changed at the console, restart it
+	if ( g_warmup.modificationCount != level.warmupModificationCount ) {
+		level.warmupModificationCount = g_warmup.modificationCount;
+		level.warmupTime = -1;
+	}
+
+	// if all players have arrived, start the countdown
+	if ( level.warmupTime < 0 ) {
+		if ( G_NumActiveMultiTrnGames() > 0) {
+			qboolean ready = qtrue;
+			if (g_startWhenReady.integer) {
+				for (i=0; i < level.multiTrnNumGames; ++i) {
+					multiTrnGame_t *game = &level.multiTrnGames[i];
+					if (game->numPlayers < 2) {
+						continue;
+					}
+					if (( !g_entities[game->clients[0]].client->ready && !( g_entities[game->clients[0]].r.svFlags & SVF_BOT ) ) ||
+					    ( !g_entities[game->clients[1]].client->ready && ( g_entities[game->clients[1]].r.svFlags & SVF_BOT ) )) {
+						ready = qfalse;
+					}
+				}
+			} 
+		       	if (g_doWarmup.integer && G_AutoStartReady()) {
+				ready = qtrue;
+			}
+			if (ready) { 
+				// fudge by -1 to account for extra delays
+				if ( g_warmup.integer > 1 ) {
+					level.warmupTime = level.time + ( g_warmup.integer - 1 ) * 1000;
+				} else {
+					level.warmupTime = 0;
+				}
+
+				trap_SetConfigstring( CS_WARMUP, va("%i", level.warmupTime) );
+			}
+		}
+		return;
+	}
+
+	// if the warmup time has counted down, restart
+	if ( level.time > level.warmupTime ) {
+		level.warmupTime += 10000;
+		trap_Cvar_Set( "g_restarted", "1" );
+		trap_SendConsoleCommand( EXEC_APPEND, "map_restart 0\n" );
+		level.restarted = qtrue;
+		return;
+	}
+}
+
+
 
 
 
@@ -5042,6 +5764,7 @@ Advances the non-player objects in the world
 */
 void G_RunFrame( int levelTime ) {
 	int			i;
+	int			gameId;
 	gentity_t	*ent;
 	int			msec;
 
@@ -5100,124 +5823,135 @@ void G_RunFrame( int levelTime ) {
             trap_Cvar_Set("elimflags",va("%i",g_elimflags.integer&(~EF_ONEWAY) ) );
         }
 
-	//
-	// go through all allocated objects
-	//
-	//start = trap_Milliseconds();
-	ent = &g_entities[0];
-	for (i=0 ; i<level.num_entities ; i++, ent++) {
-		if ( !ent->inuse ) {
-			continue;
-		}
+	for (gameId = 0; gameId < level.multiTrnNumGames; ++gameId) {
+		G_LinkGameId(gameId);
+		//
+		// go through all allocated objects
+		//
+		//start = trap_Milliseconds();
+		ent = &g_entities[0];
+		for (i=0 ; i<level.num_entities ; i++, ent++) {
+			if ( !G_InUse(ent) ) {
+				continue;
+			}
 
-		// clear events that are too old
-		if ( level.time - ent->eventTime > EVENT_VALID_MSEC ) {
-			if ( ent->s.event ) {
-				ent->s.event = 0;	// &= EV_EVENT_BITS;
-				if ( ent->client ) {
-					ent->client->ps.externalEvent = 0;
-					// predicted events should never be set to zero
-					//ent->client->ps.events[0] = 0;
-					//ent->client->ps.events[1] = 0;
+			// clear events that are too old
+			if ( level.time - ent->eventTime > EVENT_VALID_MSEC ) {
+				if ( ent->s.event ) {
+					ent->s.event = 0;	// &= EV_EVENT_BITS;
+					if ( ent->client ) {
+						ent->client->ps.externalEvent = 0;
+						// predicted events should never be set to zero
+						//ent->client->ps.events[0] = 0;
+						//ent->client->ps.events[1] = 0;
+					}
+				}
+				if ( ent->freeAfterEvent ) {
+					// tempEntities or dropped items completely go away after their event
+					G_FreeEntity( ent );
+					continue;
+				} else if ( ent->unlinkAfterEvent ) {
+					// items that will respawn will hide themselves after their pickup event
+					ent->unlinkAfterEvent = qfalse;
+					trap_UnlinkEntity( ent );
 				}
 			}
+
+			// temporary entities don't think
 			if ( ent->freeAfterEvent ) {
-				// tempEntities or dropped items completely go away after their event
-				G_FreeEntity( ent );
 				continue;
-			} else if ( ent->unlinkAfterEvent ) {
-				// items that will respawn will hide themselves after their pickup event
-				ent->unlinkAfterEvent = qfalse;
-				trap_UnlinkEntity( ent );
+			}
+
+			if ( !ent->r.linked && ent->neverFree ) {
+				continue;
+			}
+
+			//unlagged - backward reconciliation #2
+			// we'll run missiles separately to save CPU in backward reconciliation
+			/*
+			   if ( ent->s.eType == ET_MISSILE ) {
+			   G_RunMissile( ent );
+			   continue;
+			   }
+			   */
+			//unlagged - backward reconciliation #2
+
+			if ( G_IsFrozenPlayerRemnant(ent) ) {
+				G_RunFrozenPlayer( ent );
+				continue;
+			}
+
+			if ( ent->s.eType == ET_ITEM || ent->physicsObject ) {
+				G_RunItem( ent );
+				continue;
+			}
+
+			if ( ent->s.eType == ET_MOVER ) {
+				G_RunMover( ent );
+				continue;
+			}
+
+			if ( i < MAX_CLIENTS ) {
+				G_RunClient( ent );
+				continue;
+			}
+
+			G_RunThink( ent );
+		}
+
+		for (i=0 ; i < level.num_entities ; ++i ) {
+			ent = &g_entities[i];
+			G_MissileRunDelag(ent, msec);
+		}
+
+		//unlagged - backward reconciliation #2
+		// NOW run the missiles, with all players backward-reconciled
+		// to the positions they were in exactly 50ms ago, at the end
+		// of the last server frame
+		G_TimeShiftAllClients( level.previousTime, NULL );
+
+		ent = &g_entities[0];
+		for (i=0 ; i<level.num_entities ; i++, ent++) {
+			if ( !G_InUse(ent) ) {
+				continue;
+			}
+
+			// temporary entities don't think
+			if ( ent->freeAfterEvent ) {
+				continue;
+			}
+
+			if ( ent->s.eType == ET_MISSILE ) {
+				G_RunMissile( ent );
 			}
 		}
 
-		// temporary entities don't think
-		if ( ent->freeAfterEvent ) {
-			continue;
+		G_UnTimeShiftAllClients( NULL );
+		//unlagged - backward reconciliation #2
+
+		//end = trap_Milliseconds();
+
+		//start = trap_Milliseconds();
+		// perform final fixups on the players
+		ent = &g_entities[0];
+		for (i=0 ; i < level.maxclients ; i++, ent++ ) {
+			if ( G_InUse(ent) ) {
+				ClientEndFrame( ent );
+			}
 		}
 
-		if ( !ent->r.linked && ent->neverFree ) {
-			continue;
-		}
-
-//unlagged - backward reconciliation #2
-		// we'll run missiles separately to save CPU in backward reconciliation
-/*
-		if ( ent->s.eType == ET_MISSILE ) {
-			G_RunMissile( ent );
-			continue;
-		}
-*/
-//unlagged - backward reconciliation #2
-
-		if ( G_IsFrozenPlayerRemnant(ent) ) {
-			G_RunFrozenPlayer( ent );
-			continue;
-		}
-
-		if ( ent->s.eType == ET_ITEM || ent->physicsObject ) {
-			G_RunItem( ent );
-			continue;
-		}
-
-		if ( ent->s.eType == ET_MOVER ) {
-			G_RunMover( ent );
-			continue;
-		}
-
-		if ( i < MAX_CLIENTS ) {
-			G_RunClient( ent );
-			continue;
-		}
-
-		G_RunThink( ent );
-	}
-
-	for (i=0 ; i < level.num_entities ; ++i ) {
-		ent = &g_entities[i];
-		G_MissileRunDelag(ent, msec);
-	}
-
-//unlagged - backward reconciliation #2
-	// NOW run the missiles, with all players backward-reconciled
-	// to the positions they were in exactly 50ms ago, at the end
-	// of the last server frame
-	G_TimeShiftAllClients( level.previousTime, NULL );
-
-	ent = &g_entities[0];
-	for (i=0 ; i<level.num_entities ; i++, ent++) {
-		if ( !ent->inuse ) {
-			continue;
-		}
-
-		// temporary entities don't think
-		if ( ent->freeAfterEvent ) {
-			continue;
-		}
-
-		if ( ent->s.eType == ET_MISSILE ) {
-			G_RunMissile( ent );
+		if (g_gametype.integer != GT_MULTITOURNAMENT) {
+			break;
 		}
 	}
+	G_LinkGameId(-1);
 
-	G_UnTimeShiftAllClients( NULL );
-//unlagged - backward reconciliation #2
-
-//end = trap_Milliseconds();
-
-//start = trap_Milliseconds();
-	// perform final fixups on the players
-	ent = &g_entities[0];
-	for (i=0 ; i < level.maxclients ; i++, ent++ ) {
-		if ( ent->inuse ) {
-			ClientEndFrame( ent );
-		}
-	}
 //end = trap_Milliseconds();
 
 	// see if it is time to do a tournement restart
 	CheckTournament();
+
+	CheckMultiTournament();
 
 	//Check Elimination state
 	CheckElimination();

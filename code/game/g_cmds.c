@@ -232,7 +232,7 @@ void Ratscores2Message( gentity_t *ent ) {
 		cl = &level.clients[level.sortedClients[i]];
 
 		Com_sprintf (entry, sizeof(entry),
-				" %i %i %i %i %i %i %i %i",
+				" %i %i %i %i %i %i %i %i %i",
 				cl->pers.dmgGiven,
 				cl->pers.dmgTaken,
 				cl->sess.spectatorGroup,
@@ -240,7 +240,8 @@ void Ratscores2Message( gentity_t *ent ) {
 				cl->pers.topweapons[0][1] > 0 ? cl->pers.topweapons[0][0] : WP_NONE,
 				cl->pers.topweapons[1][1] > 0 ? cl->pers.topweapons[1][0] : WP_NONE,
 				cl->pers.topweapons[2][1] > 0 ? cl->pers.topweapons[2][0] : WP_NONE,
-				G_RatScoreboardIndicator(cl)
+				G_RatScoreboardIndicator(cl),
+				cl->sess.gameId
 			    );
 
 		j = strlen(entry);
@@ -492,7 +493,7 @@ void AwardMessage(gentity_t *ent, extAward_t award, int count) {
 	for (i = 0; i < level.maxclients; i++) {
 		other = &g_entities[i];
 		// this sends the message to all the followers of ent as well
-		if (!other->inuse
+		if (!G_InUse(other)
 				|| !other->client
 				|| other->client->pers.connected != CON_CONNECTED
 				|| other->client->ps.clientNum != ent - g_entities) {
@@ -936,7 +937,7 @@ void Cmd_Give_f (gentity_t *ent)
 		FinishSpawningItem(it_ent );
 		memset( &trace, 0, sizeof( trace ) );
 		Touch_Item (it_ent, ent, &trace);
-		if (it_ent->inuse) {
+		if (G_InUse(it_ent)) {
 			G_FreeEntity( it_ent );
 		}
 	}
@@ -1188,24 +1189,36 @@ Let everyone know about a team change
 */
 void BroadcastTeamChange( gclient_t *client, int oldTeam )
 {
+	const char *printCmd = "cp";
 	if (level.time < level.startTime + 2000
 			|| level.shuffling_teams) {
 		// don't print anything if the game just started or we are moving many players around 
 		// to avoid a command overflow / annoying players
 		return;
 	}
+
+	if (level.shuffling_teams) {
+		// don't print anything during shuffle/re-order at the end of the game
+		return;
+	}
+
+	if (g_gametype.integer == GT_MULTITOURNAMENT && !level.warmupTime) {
+		// don't annoy players in other games during multitournament
+		printCmd = "print";
+	}
+
 	if ( client->sess.sessionTeam == TEAM_RED && oldTeam != TEAM_RED) {
-		trap_SendServerCommand( -1, va("cp \"%s" S_COLOR_WHITE " joined the red team.\n\"",
-			client->pers.netname) );
+		trap_SendServerCommand( -1, va("%s \"%s" S_COLOR_WHITE " joined the red team.\n\"",
+			printCmd, client->pers.netname) );
 	} else if ( client->sess.sessionTeam == TEAM_BLUE && oldTeam != TEAM_BLUE) {
-		trap_SendServerCommand( -1, va("cp \"%s" S_COLOR_WHITE " joined the blue team.\n\"",
-		client->pers.netname));
+		trap_SendServerCommand( -1, va("%s \"%s" S_COLOR_WHITE " joined the blue team.\n\"",
+		printCmd, client->pers.netname));
 	} else if ( client->sess.sessionTeam == TEAM_SPECTATOR && oldTeam != TEAM_SPECTATOR ) {
-		trap_SendServerCommand( -1, va("cp \"%s" S_COLOR_WHITE " joined the spectators.\n\"",
-		client->pers.netname));
+		trap_SendServerCommand( -1, va("%s \"%s" S_COLOR_WHITE " joined the spectators.\n\"",
+		printCmd, client->pers.netname));
 	} else if ( client->sess.sessionTeam == TEAM_FREE && oldTeam != TEAM_FREE) {
-		trap_SendServerCommand( -1, va("cp \"%s" S_COLOR_WHITE " joined the battle.\n\"",
-		client->pers.netname));
+		trap_SendServerCommand( -1, va("%s \"%s" S_COLOR_WHITE " joined the battle.\n\"",
+		printCmd, client->pers.netname));
 	}
 
 	//if ( client->sess.sessionTeam == TEAM_SPECTATOR &&
@@ -1369,6 +1382,12 @@ void SetTeam_Force( gentity_t *ent, char *s, gentity_t *by, qboolean tryforce ) 
 			specGroup = SPECTATORGROUP_QUEUED;
 		}
 		team = TEAM_SPECTATOR;
+	} else if ( g_gametype.integer == GT_MULTITOURNAMENT &&
+			G_FindFreeMultiTrnSlot() == -1) {
+		if (team == TEAM_FREE) {
+			specGroup = SPECTATORGROUP_QUEUED;
+		}
+		team = TEAM_SPECTATOR;
 	}
 
 	//
@@ -1474,6 +1493,13 @@ void SetTeam_Force( gentity_t *ent, char *s, gentity_t *by, qboolean tryforce ) 
 		CheckTeamLeader( oldTeam );
 	}
 
+	if ( g_gametype.integer == GT_MULTITOURNAMENT
+			&& client->sess.sessionTeam == TEAM_FREE) {
+		ent->client->sess.gameId = G_FindFreeMultiTrnSlot();
+		ent->gameId = ent->client->sess.gameId;
+		G_UpdateMultiTrnGames();
+	}
+
 	BroadcastTeamChange( client, oldTeam );
 
 	// get and distribute relevent paramters
@@ -1505,6 +1531,21 @@ void StopFollowing( gentity_t *ent ) {
 	ent->client->ps.pm_flags &= ~PMF_FOLLOW;
 	//ent->r.svFlags &= ~SVF_BOT;
 	ent->client->ps.clientNum = ent - g_entities;
+}
+
+void G_MultiTrnSpecLoss( gentity_t *ent ) {
+	if ( g_gametype.integer != GT_MULTITOURNAMENT
+		|| ent->client->sess.sessionTeam != TEAM_FREE ) {
+		return;
+	}
+	if (!G_ValidGameId(ent->client->sess.gameId)) {
+		return;
+	}
+	if (level.multiTrnGames[ent->client->sess.gameId].gameFlags & MTRN_GFL_STARTEDATBEGINNING 
+			&& level.multiTrnGames[ent->client->sess.gameId].intermissiontime <= 0 ) {
+		// count it as a loss if the player left mid-game
+		ent->client->sess.losses++;
+	}
 }
 
 /*
@@ -1568,6 +1609,7 @@ void Cmd_Team_f( gentity_t *ent ) {
 		&& ent->client->sess.sessionTeam == TEAM_FREE ) {
 		ent->client->sess.losses++;
 	}
+	G_MultiTrnSpecLoss(ent);
 
 	trap_Argv( 1, s, sizeof( s ) );
 
@@ -1626,6 +1668,7 @@ void Cmd_Follow_f( gentity_t *ent ) {
 		&& ent->client->sess.sessionTeam == TEAM_FREE ) {
 		ent->client->sess.losses++;
 	}
+	G_MultiTrnSpecLoss(ent);
 
 	// first set them to spectator
 	//if ( ent->client->sess.sessionTeam != TEAM_SPECTATOR ) {
@@ -1678,6 +1721,8 @@ void Cmd_FollowCycle_f( gentity_t *ent ) {
 		&& ent->client->sess.sessionTeam == TEAM_FREE ) {
 		ent->client->sess.losses++;
 	}
+	G_MultiTrnSpecLoss(ent);
+
 	// first set them to spectator
 	if ( ent->client->sess.spectatorState == SPECTATOR_NOT ) {
 		SetTeam( ent, "spectator" );
@@ -1750,7 +1795,7 @@ void G_TimeoutModTimes(int delta) {
 	int i,j;
 	gentity_t *tent = &g_entities[0];
 	for (i=0 ; i < level.num_entities ; i++, tent++) {
-		if ( tent->inuse ) {
+		if ( G_InUse(tent) ) {
 			if ( tent->nextthink > 0 )
 				tent->nextthink += delta;
 			if ( tent->eventTime > 0 )
@@ -1762,7 +1807,7 @@ void G_TimeoutModTimes(int delta) {
 
 	tent = &g_entities[0];
 	for (i=0 ; i < level.maxclients ; i++, tent++ ) {
-		if ( tent->inuse && tent->client ) {
+		if ( G_InUse(tent) && tent->client ) {
 			for ( j = 0; j < MAX_POWERUPS; j++ ) {
 				if ( tent->client->ps.powerups[j] > 0 && tent->client->ps.powerups[j] < INT_MAX)
 					tent->client->ps.powerups[j] += delta;
@@ -2003,6 +2048,33 @@ qboolean G_Forfeit(gentity_t *ent, qboolean quiet) {
 	return qtrue;
 
 }
+
+void Cmd_Game_f( gentity_t *ent ) {
+	int gameId;
+	char        arg[MAX_TOKEN_CHARS];
+
+	if( trap_Argc( ) != 2 ) {
+		trap_SendServerCommand( ent - g_entities, va("print \"%s game %i \n\"", 
+					ent->client->sess.sessionTeam == TEAM_FREE ? "Playing in" : "Spectating",
+					ent->client->sess.gameId));
+		return;
+	}
+	trap_Argv( 1, arg, sizeof( arg ) );
+	gameId = atoi(arg);
+	if (gameId < -1 || gameId >= level.multiTrnNumGames) {
+		trap_SendServerCommand( ent - g_entities, va("print \"Invalid Game Id\n\""));
+		return;
+	}
+	if (ent->client->sess.sessionTeam == TEAM_SPECTATOR) {
+		if ( ent->client->sess.spectatorState == SPECTATOR_FOLLOW ) {
+			StopFollowing( ent );
+		}
+		ent->client->sess.gameId = gameId;
+		G_UpdateMultiTrnGames();
+	}
+
+}
+
 
 
 void Cmd_GoodGame_f( gentity_t *ent ) {
@@ -2927,6 +2999,14 @@ static void Cmd_Taunt_f( gentity_t *ent ){
 				) {
 			continue;
 		}
+
+		if (g_gametype.integer == GT_MULTITOURNAMENT &&
+				(!G_ValidGameId(ent->client->sess.gameId) ||
+				 !(level.multiTrnGames[ent->client->sess.gameId].clientMask & (1 << level.clients[ i ].ps.clientNum))
+				)) {
+			continue;
+		}
+
 		trap_SendServerCommand( i, va("taunt %i \"%s\"", 
 					(int)(ent - g_entities),
 					p));
@@ -3746,7 +3826,7 @@ void Cmd_CallTeamVote_f( gentity_t *ent ) {
 					return;
 				}
 
-				if ( !g_entities[i].inuse ) {
+				if ( !G_InUse(&g_entities[i]) ) {
 					trap_SendServerCommand( ent-g_entities, va("print \"Client %i is not active\n\"", i) );
 					return;
 				}
@@ -4044,7 +4124,8 @@ commands_t cmds[ ] =
   { "motd", 0, Cmd_Motd_f },
   { "help", 0, Cmd_Motd_f },
   { "nextmapvote", CMD_INTERMISSION|CMD_FLOODLIMITED, Cmd_NextmapVote_f },
-  { "arena", 0, Cmd_Arena_f }
+  { "arena", 0, Cmd_Arena_f },
+  { "game", 0, Cmd_Game_f }
 };
 
 static int numCmds = sizeof( cmds ) / sizeof( cmds[ 0 ] );
@@ -4065,6 +4146,8 @@ void ClientCommand( int clientNum )
     ent = g_entities + clientNum;
     if( !ent->client )
         return;   // not fully in game yet
+
+    G_LinkGameId(ent->gameId);
 
     trap_Argv( 0, cmd, sizeof( cmd ) );
 

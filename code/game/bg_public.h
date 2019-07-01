@@ -104,6 +104,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #error overflow: (CS_MAX) > MAX_CONFIGSTRINGS
 #endif
 
+#define MULTITRN_MAX_GAMES	6
+
 typedef enum {
 	GT_FFA,				// free for all
 	GT_TOURNAMENT,		// one on one tournament
@@ -128,6 +130,7 @@ typedef enum {
 	GT_DOUBLE_D,			// Double Domination
 	GT_DOMINATION,			// Standard domination 12
 	GT_TREASURE_HUNTER,			
+	GT_MULTITOURNAMENT,			
 	GT_MAX_GAME_TYPE
 	
 } gametype_t;
