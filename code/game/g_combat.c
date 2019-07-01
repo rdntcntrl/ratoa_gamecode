@@ -490,6 +490,7 @@ void G_CheckDeathEAwards(gentity_t *victim, gentity_t *inflictor, gentity_t *att
 	if (!attacker || !attacker->client || attacker == victim) {
 		return;
 	}
+
 	switch (meansOfDeath) {
 		case MOD_TELEFRAG:
 			AwardMessage(attacker, EAWARD_TELEFRAG, ++(attacker->client->pers.awardCounts[EAWARD_TELEFRAG]));
@@ -503,6 +504,9 @@ void G_CheckDeathEAwards(gentity_t *victim, gentity_t *inflictor, gentity_t *att
 		case MOD_NAIL:
 		case MOD_BFG:
 		case MOD_BFG_SPLASH:
+			if (attacker->client->ps.pm_type == PM_DEAD && attacker->enemy == victim) {
+				AwardMessage(attacker, EAWARD_REVENGE, ++(attacker->client->pers.awardCounts[EAWARD_REVENGE]));
+			}
 			if (!inflictor || !inflictor->missileTeleported) {
 				return;
 			}
@@ -1144,6 +1148,23 @@ void G_CheckAirrocket(gentity_t *victim, gentity_t *inflictor, gentity_t *attack
 	AwardMessage(attacker, award, ++(attacker->client->pers.awardCounts[award]));
 }
 
+void G_CheckRailtwo(gentity_t *victim, gentity_t *attacker, int meansOfDeath, int lastDmgGivenTime, int lastDmgGivenMOD) {
+	if (meansOfDeath != MOD_RAILGUN
+			|| !victim 
+			|| !victim->client 
+			|| !attacker 
+			|| !attacker->client 
+			|| OnSameTeam(attacker, victim)) {
+		return;
+	}
+
+	if (lastDmgGivenMOD != MOD_RAILGUN || lastDmgGivenTime != level.time) {
+		return;
+	}
+
+	AwardMessage(attacker, EAWARD_RAILTWO, ++(attacker->client->pers.awardCounts[EAWARD_RAILTWO]));
+}
+
 //#define ROCKETRAIL_TIME 1350
 #define ROCKETRAIL_TIME 1450
 #define LGRAIL_TIME 600
@@ -1580,6 +1601,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 
 		G_CheckRocketSniper(targ, inflictor, attacker, mod);
 		G_CheckAirrocket(targ, inflictor, attacker, mod);
+		G_CheckRailtwo(targ, attacker, mod, lastDmgGivenTime, lastDmgGivenMOD);
 
 		// stats
 		if (targ->health < 0) {
