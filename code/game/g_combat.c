@@ -1101,7 +1101,13 @@ qboolean G_TreasureHuntDamage( gentity_t *targ, gentity_t *attacker, int mod ) {
 }
 
 void G_CheckRocketSniper(gentity_t *victim, gentity_t *inflictor, gentity_t *attacker, int meansOfDeath) {
-	if (meansOfDeath != MOD_ROCKET || !victim || !victim->client || !attacker || !attacker->client || !inflictor) {
+	if (meansOfDeath != MOD_ROCKET 
+			|| !victim 
+			|| !victim->client 
+			|| !attacker 
+			|| !attacker->client 
+			|| !inflictor
+			|| OnSameTeam(attacker, victim)) {
 		return;
 	}
 
@@ -1110,6 +1116,32 @@ void G_CheckRocketSniper(gentity_t *victim, gentity_t *inflictor, gentity_t *att
 	}
 	
 	AwardMessage(attacker, EAWARD_ROCKETSNIPER, ++(attacker->client->pers.awardCounts[EAWARD_ROCKETSNIPER]));
+}
+
+void G_CheckAirrocket(gentity_t *victim, gentity_t *inflictor, gentity_t *attacker, int meansOfDeath) {
+	extAward_t award;
+	if ((meansOfDeath != MOD_ROCKET && meansOfDeath != MOD_GRENADE)
+			|| !victim 
+			|| !victim->client 
+			|| !attacker 
+			|| !attacker->client 
+			|| !inflictor
+			|| OnSameTeam(attacker, victim)) {
+		return;
+	}
+
+	// make sure that victim was actually in the air for longer than just a normal jump
+	if (victim->client->lastGroundTime != 0 && level.time - victim->client->lastGroundTime < 800) {
+		return;
+	}
+
+	// don't count point-blank hits
+	if (Distance(victim->r.currentOrigin, inflictor->s.pos.trBase) < (meansOfDeath == MOD_ROCKET ? 250 : 200)) {
+		return;
+	}
+
+	award = meansOfDeath == MOD_ROCKET ? EAWARD_AIRROCKET : EAWARD_AIRGRENADE;
+	AwardMessage(attacker, award, ++(attacker->client->pers.awardCounts[award]));
 }
 
 void G_CheckImmortality(gentity_t *ent) {
@@ -1499,6 +1531,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		}
 
 		G_CheckRocketSniper(targ, inflictor, attacker, mod);
+		G_CheckAirrocket(targ, inflictor, attacker, mod);
 
 		// stats
 		if (targ->health < 0) {

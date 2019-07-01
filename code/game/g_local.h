@@ -516,6 +516,8 @@ struct gclient_s {
         
         int lastSentFlying;                             //The last client that sent the player flying
         int lastSentFlyingTime;                         //So we can time out
+
+        int lastGroundTime;                             // the last time the player touched the ground
         
 
 	//unlagged - backward reconciliation #1
