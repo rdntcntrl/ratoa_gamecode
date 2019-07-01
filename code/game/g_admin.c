@@ -3217,7 +3217,12 @@ qboolean G_admin_rename( gentity_t *ent, int skiparg )
   Q_strncpyz( oldname, s, sizeof( oldname ) );
   Info_SetValueForKey( userinfo, "name", newname );
   trap_SetUserinfo( pids[ 0 ], userinfo );
+
+  // force the rename, even if the client is muted somehow
+  level.clients[ pids[ 0 ] ].pers.forceRename = qtrue;
   ClientUserinfoChanged( pids[ 0 ] );
+  level.clients[ pids[ 0 ] ].pers.forceRename = qfalse;
+
   AP( va( "print \"^3!rename: ^7%s^7 has been renamed to %s^7 by %s\n\"",
           oldname,
           newname,

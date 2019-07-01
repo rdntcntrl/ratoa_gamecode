@@ -364,7 +364,9 @@ typedef struct {
     int quadNum;
     int quadWhore;
 
-    int		unnamedPlayerRenameTime;
+
+    int	unnamedPlayerRenameTime;
+    qboolean forceRename; // set to qtrue while a player is forcefully renamed
 } clientPersistant_t;
 
 //unlagged - backward reconciliation #1

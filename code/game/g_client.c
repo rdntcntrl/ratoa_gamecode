@@ -1398,9 +1398,9 @@ void ClientUserinfoChanged( int clientNum ) {
     //KK-OAPub Added From Tremulous-Control Name Changes
     if( strcmp( oldname, client->pers.netname ) )
     {
-        if( client->pers.nameChangeTime &&
-            ( level.time - client->pers.nameChangeTime )
-            <= ( g_minNameChangePeriod.value * 1000 ) )
+        if( client->pers.nameChangeTime 
+			&& ( level.time - client->pers.nameChangeTime ) <= ( g_minNameChangePeriod.value * 1000 )
+	 		&& !client->pers.forceRename )
         {
             trap_SendServerCommand( ent - g_entities, va(
             "print \"Name change spam protection (g_minNameChangePeriod = %d)\n\"",
@@ -1408,14 +1408,17 @@ void ClientUserinfoChanged( int clientNum ) {
             revertName = qtrue;
         }
         else if( g_maxNameChanges.integer > 0
-            && client->pers.nameChanges >= g_maxNameChanges.integer  )
+            && client->pers.nameChanges >= g_maxNameChanges.integer
+	    && !client->pers.forceRename  )
         {
             trap_SendServerCommand( ent - g_entities, va(
                 "print \"Maximum name changes reached (g_maxNameChanges = %d)\n\"",
                 g_maxNameChanges.integer ) );
             revertName = qtrue;
         }
-        else if( client->sess.muted && client->pers.connected == CON_CONNECTED)
+        else if( client->sess.muted 
+			&& client->pers.connected == CON_CONNECTED
+			&& !client->pers.forceRename)
         {
             trap_SendServerCommand( ent - g_entities,
                 "print \"You cannot change your name while you are muted\n\"" );
@@ -1423,7 +1426,8 @@ void ClientUserinfoChanged( int clientNum ) {
         }
         else if( G_TournamentSpecMuted() && g_tournamentMuteSpec.integer & MUTED_RENAME
 		       	&& ( client->sess.sessionTeam == TEAM_SPECTATOR 
-				&& client->pers.connected == CON_CONNECTED )) {
+				&& client->pers.connected == CON_CONNECTED 
+				&& !client->pers.forceRename)) {
             trap_SendServerCommand( ent - g_entities,
                 "print \"You cannot change your name while spectators are muted\n\"" );
             revertName = qtrue;
@@ -2028,12 +2032,21 @@ void G_UnnamedPlayerRename(gentity_t *ent) {
 
 		Info_SetValueForKey( userinfo, "name", newname );
 		trap_SetUserinfo( clientNum, userinfo );
+
+
+		// force the rename, even if the client is muted somehow
+		ent->client->pers.forceRename = qtrue;
 		ClientUserinfoChanged( clientNum );
+		ent->client->pers.forceRename = qfalse;
+
 		trap_SendServerCommand( -1, va("print \"" S_COLOR_WHITE "%s"
 				        S_COLOR_WHITE " was assigned the name "
 					S_COLOR_WHITE "%s"
 					S_COLOR_WHITE "!\n\"",
 					oldname, newname));
+		trap_SendServerCommand( clientNum, va("cp \"" S_COLOR_WHITE "Everyone deserves a name!\n"
+					S_COLOR_WHITE "Yours shall be " S_COLOR_WHITE "%s" S_COLOR_WHITE "!\n\"",
+				       	newname));
 
 		ent->client->sess.unnamedPlayerState = UNNAMEDSTATE_WASRENAMED;
 
