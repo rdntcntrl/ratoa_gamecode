@@ -5587,7 +5587,7 @@ void CheckMultiTournament( void ) {
 						continue;
 					}
 					if (( !g_entities[game->clients[0]].client->ready && !( g_entities[game->clients[0]].r.svFlags & SVF_BOT ) ) ||
-					    ( !g_entities[game->clients[1]].client->ready && ( g_entities[game->clients[1]].r.svFlags & SVF_BOT ) )) {
+					    ( !g_entities[game->clients[1]].client->ready && !( g_entities[game->clients[1]].r.svFlags & SVF_BOT ) )) {
 						ready = qfalse;
 					}
 				}
