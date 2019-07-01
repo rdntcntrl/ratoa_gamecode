@@ -1175,15 +1175,16 @@ void G_CheckComboAwards(gentity_t *victim, gentity_t *attacker, int mod, int las
 
 }
 
+#define IMMORTALITY_DAMAGE 800
 void G_CheckImmortality(gentity_t *ent) {
 	if (g_gametype.integer == GT_ELIMINATION || g_gametype.integer == GT_CTF_ELIMINATION || g_gametype.integer == GT_LMS) {
 		// immortality award doesn't make sense in those gametypes
 		return;
 	}
-	if (ent->client->dmgTakenImmortality < 1000) {
+	if (ent->client->dmgTakenImmortality < IMMORTALITY_DAMAGE) {
 		return;
 	}
-	ent->client->dmgTakenImmortality -= 1000;
+	ent->client->dmgTakenImmortality -= IMMORTALITY_DAMAGE;
 	AwardMessage(ent, EAWARD_IMMORTALITY, ++(ent->client->pers.awardCounts[EAWARD_IMMORTALITY]));
 }
 
