@@ -472,7 +472,7 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_crosshairY, "cg_crosshairY", "0", CVAR_ARCHIVE },
 	{ &cg_crosshairHit, "cg_crosshairHit", "0", CVAR_ARCHIVE },
 	{ &cg_crosshairHitColor, "cg_crosshairHitColor", "H0 1.0 1.0", CVAR_ARCHIVE },
-	{ &cg_crosshairHitTime, "cg_crosshairHitTime", "200", CVAR_CHEAT },
+	{ &cg_crosshairHitTime, "cg_crosshairHitTime", "250", CVAR_CHEAT },
 	{ &cg_crosshairHitStyle, "cg_crosshairHitStyle", "2", CVAR_ARCHIVE },
 	{ &cg_brassTime, "cg_brassTime", "0", CVAR_ARCHIVE },
 	{ &cg_simpleItems, "cg_simpleItems", "1", CVAR_ARCHIVE },

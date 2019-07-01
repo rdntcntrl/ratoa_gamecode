@@ -3518,9 +3518,9 @@ static void CG_DrawCrosshair(void)
 		float h,s,v;
 		float fcolor[4];
 		float frac;
-		int fadeTime = 75.0;
 		int hueRange = 60;
 		int maxDamage = 100;
+		int fadeTime = MIN(75.0, cg_crosshairHitTime.integer);
 
 		CG_PlayerColorFromString(cg_crosshairHitColor.string, &h, &s, &v);
 		frac = 1.0;
