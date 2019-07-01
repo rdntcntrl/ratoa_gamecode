@@ -701,6 +701,18 @@ static void CG_ParseAward( void ) {
 		case EAWARD_IMMORTALITY:
 			CG_PushReward(cgs.media.holyCrapSound, cgs.media.medalImmortality, count);
 			break;
+		case EAWARD_AIRROCKET:
+			CG_PushReward(cgs.media.accuracySound, cgs.media.medalAirrocket, count);
+			break;
+		case EAWARD_AIRGRENADE:
+			CG_PushReward(cgs.media.accuracySound, cgs.media.medalAirgrenade, count);
+			break;
+		case EAWARD_ROCKETRAIL:
+			CG_PushReward(cgs.media.perfectSound, cgs.media.medalRocketRail, count);
+			break;
+		case EAWARD_LGRAIL:
+			CG_PushReward(cgs.media.perfectSound, cgs.media.medalLgRail, count);
+			break;
 		default:
 			return;
 	}
