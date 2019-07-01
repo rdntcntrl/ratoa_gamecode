@@ -384,6 +384,11 @@ typedef struct {
 	int				telemissilefragCount;
 	int				rocketsniperCount;
 	int				fullSGCount;
+	int				immortalityCount;
+	int				airrocketCount;
+	int				airgrenadeCount;
+	int				rocketrailCount;
+	int				lgrailCount;
 	int				captures;
 	int			flagrecovery;
 	qboolean	perfect;

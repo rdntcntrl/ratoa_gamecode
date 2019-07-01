@@ -329,7 +329,7 @@ static void CG_ParseRatScores3( void ) {
 	}
 	//memset( cg.scores, 0, sizeof( cg.scores ) );
 
-#define NUM_RAT3_DATA 6
+#define NUM_RAT3_DATA 11
 #define FIRST_RAT3_DATA 1
 
 	for ( i = 0 ; i < numScores ; i++ ) {
@@ -339,6 +339,11 @@ static void CG_ParseRatScores3( void ) {
 		cg.scores_buf[i].telemissilefragCount = atoi(CG_Argv(i * NUM_RAT3_DATA + FIRST_RAT3_DATA + 4));
 		cg.scores_buf[i].rocketsniperCount = atoi(CG_Argv(i * NUM_RAT3_DATA + FIRST_RAT3_DATA + 5));
 		cg.scores_buf[i].fullSGCount = atoi(CG_Argv(i * NUM_RAT3_DATA + FIRST_RAT3_DATA + 6));
+		cg.scores_buf[i].immortalityCount = atoi(CG_Argv(i * NUM_RAT3_DATA + FIRST_RAT3_DATA + 7));
+		cg.scores_buf[i].airrocketCount = atoi(CG_Argv(i * NUM_RAT3_DATA + FIRST_RAT3_DATA + 8));
+		cg.scores_buf[i].airgrenadeCount = atoi(CG_Argv(i * NUM_RAT3_DATA + FIRST_RAT3_DATA + 9));
+		cg.scores_buf[i].rocketrailCount = atoi(CG_Argv(i * NUM_RAT3_DATA + FIRST_RAT3_DATA + 10));
+		cg.scores_buf[i].lgrailCount = atoi(CG_Argv(i * NUM_RAT3_DATA + FIRST_RAT3_DATA + 11));
 	}
 
 	CG_CheckScoreUpdate();

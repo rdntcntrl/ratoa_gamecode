@@ -134,7 +134,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define RATSB2_AWARDS_X         (RATSB2_NAME_X      + RATSB2_NAME_WIDTH      + 1 * SCORESMALLCHAR_WIDTH)
 
 #define RATSB2_NAME_WIDTH     	(RATSB2_NAME_LENGTH * SCORECHAR_WIDTH)
-#define RATSB2_AWARDS_NUM 	10
+#define RATSB2_AWARDS_NUM 	17
 #define RATSB2_AWARDS_WIDTH     (RATSB2_AWARDS_NUM * (RATSB2_AWARD_HEIGHT + TINYCHAR_WIDTH*3))
 
 #define RATSB2_AWARD_HEIGHT	(SCORECHAR_HEIGHT)
@@ -353,6 +353,11 @@ static void CG_RatDrawClientStats(int y, score_t *score, float *color, float fad
 	x = CG_RatDrawClientAward(y, x, score->telemissilefragCount, cgs.media.medalTelemissilefrag);
 	x = CG_RatDrawClientAward(y, x, score->rocketsniperCount, cgs.media.medalRocketsniper);
 	x = CG_RatDrawClientAward(y, x, score->fullSGCount, cgs.media.medalFullSG);
+	x = CG_RatDrawClientAward(y, x, score->immortalityCount, cgs.media.medalImmortality);
+	x = CG_RatDrawClientAward(y, x, score->airrocketCount, cgs.media.medalAirrocket);
+	x = CG_RatDrawClientAward(y, x, score->airgrenadeCount, cgs.media.medalAirgrenade);
+	x = CG_RatDrawClientAward(y, x, score->rocketrailCount, cgs.media.medalRocketRail);
+	x = CG_RatDrawClientAward(y, x, score->lgrailCount, cgs.media.medalLgRail);
 
 }
 
