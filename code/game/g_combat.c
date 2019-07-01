@@ -1147,7 +1147,7 @@ void G_CheckAirrocket(gentity_t *victim, gentity_t *inflictor, gentity_t *attack
 //#define ROCKETRAIL_TIME 1350
 #define ROCKETRAIL_TIME 1450
 #define LGRAIL_TIME 600
-void G_CheckComboAwards(gentity_t *victim, gentity_t *attacker, int mod, int lastDmgGivenTime, int lastDmgGivenMOD) {
+void G_CheckComboAwards(gentity_t *victim, gentity_t *attacker, int mod, int lastDmgGivenEntityNum, int lastDmgGivenTime, int lastDmgGivenMOD) {
 	int elapsed;
 	if (mod != MOD_RAILGUN
 			|| lastDmgGivenTime == 0
@@ -1155,7 +1155,8 @@ void G_CheckComboAwards(gentity_t *victim, gentity_t *attacker, int mod, int las
 			|| !victim->client 
 			|| !attacker 
 			|| !attacker->client 
-			|| OnSameTeam(attacker, victim)) {
+			|| OnSameTeam(attacker, victim)
+			|| victim->s.number != lastDmgGivenEntityNum) {
 		return;
 	}
 
@@ -1562,10 +1563,12 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 	// do the damage
 	if (take) {
 		int dmgTaken = (take >= 0 ? take : 0) + (asave >= 0 ? asave : 0);
+		int lastDmgGivenEntityNum = -1;
 		int lastDmgGivenTime = 0;
 		int lastDmgGivenMOD = MOD_UNKNOWN;
 
 		if (attacker->client) {
+			lastDmgGivenEntityNum = attacker->client->lastDmgGivenEntityNum;
 			lastDmgGivenTime = attacker->client->lastDmgGivenTime;
 			lastDmgGivenMOD = attacker->client->lastDmgGivenMOD;
 		}
@@ -1616,6 +1619,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 						attacker->client->pers.damage[weapon] += dmgTaken;
 					}
 				}
+				attacker->client->lastDmgGivenEntityNum = targ->s.number;
 				attacker->client->lastDmgGivenTime = level.time;
 				attacker->client->lastDmgGivenMOD = mod;
 			}
@@ -1623,7 +1627,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		///
 			
 		if ( targ->health <= 0 ) {
-			G_CheckComboAwards(targ, attacker, mod, lastDmgGivenTime, lastDmgGivenMOD);
+			G_CheckComboAwards(targ, attacker, mod, lastDmgGivenEntityNum, lastDmgGivenTime, lastDmgGivenMOD);
 			if ( client )
 				targ->flags |= FL_NO_KNOCKBACK;
 

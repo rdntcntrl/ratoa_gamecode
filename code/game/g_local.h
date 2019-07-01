@@ -520,6 +520,7 @@ struct gclient_s {
         int lastGroundTime;                             // the last time the player touched the ground
 
 	// for rocker + rail, lg + rail combo awards
+        int lastDmgGivenEntityNum; 
         int lastDmgGivenTime; 
         int lastDmgGivenMOD; 
         
