@@ -120,6 +120,10 @@ vmCvar_t	cg_drawRewards;
 vmCvar_t	cg_crosshairSize;
 vmCvar_t	cg_crosshairX;
 vmCvar_t	cg_crosshairY;
+vmCvar_t	cg_crosshairHit;
+vmCvar_t	cg_crosshairHitTime;
+vmCvar_t	cg_crosshairHitStyle;
+vmCvar_t	cg_crosshairHitColor;
 vmCvar_t	cg_crosshairHealth;
 vmCvar_t	cg_draw2D;
 vmCvar_t	cg_drawStatus;
@@ -466,6 +470,10 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_crosshairHealth, "cg_crosshairHealth", "1", CVAR_ARCHIVE },
 	{ &cg_crosshairX, "cg_crosshairX", "0", CVAR_ARCHIVE },
 	{ &cg_crosshairY, "cg_crosshairY", "0", CVAR_ARCHIVE },
+	{ &cg_crosshairHit, "cg_crosshairHit", "0", CVAR_ARCHIVE },
+	{ &cg_crosshairHitColor, "cg_crosshairHitColor", "H0 1.0 1.0", CVAR_ARCHIVE },
+	{ &cg_crosshairHitTime, "cg_crosshairHitTime", "200", CVAR_CHEAT },
+	{ &cg_crosshairHitStyle, "cg_crosshairHitStyle", "2", CVAR_ARCHIVE },
 	{ &cg_brassTime, "cg_brassTime", "0", CVAR_ARCHIVE },
 	{ &cg_simpleItems, "cg_simpleItems", "1", CVAR_ARCHIVE },
 	{ &cg_addMarks, "cg_marks", "1", CVAR_ARCHIVE },

@@ -3479,6 +3479,7 @@ static void CG_DrawCrosshair(void)
 	float		x, y;
 	int			ca = 0; //only to get rid of the warning(not useful)
 	int 		currentWeapon;
+	vec4_t         color;
 	
 	currentWeapon = cg.predictedPlayerState.weapon;
 
@@ -3496,25 +3497,62 @@ static void CG_DrawCrosshair(void)
 
 	// set color based on health
 	if ( cg_crosshairHealth.integer ) {
-		vec4_t		hcolor;
 
 		switch (cg_crosshairHealth.integer) {
 			case 2:
-				CG_ColorForHealth2( hcolor );
+				CG_ColorForHealth2( color );
 				break;
 			default:
-				CG_ColorForHealth( hcolor );
+				CG_ColorForHealth( color );
 				break;
 		}
-		trap_R_SetColor( hcolor );
 	} else {
-                vec4_t         color;
                 color[0]=cg_crosshairColorRed.value;
                 color[1]=cg_crosshairColorGreen.value;
                 color[2]=cg_crosshairColorBlue.value;
                 color[3]=1.0f;
-		trap_R_SetColor( color );
 	}
+	if (cg_crosshairHit.integer &&
+		       	cg.time - cg.lastHitTime <= cg_crosshairHitTime.integer &&
+		       	cg.lastHitDamage > 0)  {
+		float h,s,v;
+		float fcolor[4];
+		float frac;
+		int fadeTime = 75.0;
+		int hueRange = 60;
+		int maxDamage = 100;
+
+		CG_PlayerColorFromString(cg_crosshairHitColor.string, &h, &s, &v);
+		frac = 1.0;
+		// adjust color based on damage
+		if (cg_crosshairHitStyle.integer == 1) {
+			// style based on difference between hit color and default crosshair color
+			frac = 0.5+0.5*(float)MIN(maxDamage, cg.lastHitDamage)/(float)maxDamage;
+		} else if (cg_crosshairHitStyle.integer == 2) {
+			// style based on hue range, positive direction
+			h = h + (1.0-(float)MIN(maxDamage, cg.lastHitDamage)/(float)maxDamage) * hueRange;
+			if (h >= 360.0) {
+				h -= 360.0;
+			}
+		} else {
+			// style based on hue range, negative direction
+			h = h - (1.0 - (float)MIN(maxDamage, cg.lastHitDamage)/(float)maxDamage) * hueRange;
+			if (h < 0) {
+				h += 360;
+			}
+		}
+		CG_HSV2RGB(h,s,v, fcolor);
+		fcolor[3] = 1.0f;
+		// fade color over time
+		if (cg_crosshairHitTime.integer - (cg.time - cg.lastHitTime) <= fadeTime) {
+			frac *= (float)(cg_crosshairHitTime.integer - (cg.time - cg.lastHitTime))/(float)fadeTime;
+		}
+		color[0] = color[0] + frac * (fcolor[0] - color[0]);
+		color[1] = color[1] + frac * (fcolor[1] - color[1]);
+		color[2] = color[2] + frac * (fcolor[2] - color[2]);
+
+	}
+	trap_R_SetColor( color );
 
 	if( cg_differentCrosshairs.integer == 1 ){
 		switch( currentWeapon ){

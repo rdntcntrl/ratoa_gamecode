@@ -785,6 +785,9 @@ typedef struct {
 	int spectatorHelpDrawTime;
 
 	int elimLastPlayerTime;
+
+	int lastHitTime;
+	int lastHitDamage;
 } cg_t;
 
 
@@ -1444,6 +1447,10 @@ extern	vmCvar_t		cg_drawTeamOverlay;
 extern	vmCvar_t		cg_teamOverlayUserinfo;
 extern	vmCvar_t		cg_crosshairX;
 extern	vmCvar_t		cg_crosshairY;
+extern	vmCvar_t		cg_crosshairHit;
+extern	vmCvar_t		cg_crosshairHitTime;
+extern	vmCvar_t		cg_crosshairHitColor;
+extern	vmCvar_t		cg_crosshairHitStyle;
 extern	vmCvar_t		cg_crosshairSize;
 extern	vmCvar_t		cg_crosshairHealth;
 extern	vmCvar_t		cg_drawStatus;
