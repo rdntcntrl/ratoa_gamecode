@@ -1957,6 +1957,8 @@ static void CG_RegisterGraphics( void ) {
 	cgs.media.medalAirgrenade = trap_R_RegisterShaderNoMip( "medal_airgrenade" );
 	cgs.media.medalRocketRail = trap_R_RegisterShaderNoMip( "medal_rocketrail" );
 	cgs.media.medalLgRail = trap_R_RegisterShaderNoMip( "medal_lgrail" );
+	cgs.media.medalRailtwo = trap_R_RegisterShaderNoMip( "medal_railtwo" );
+	cgs.media.medalRevenge = trap_R_RegisterShaderNoMip( "medal_revenge" );
 
 	// LEILEI SHADERS
 	cgs.media.lsmkShader1 = trap_R_RegisterShader("leismoke1" );

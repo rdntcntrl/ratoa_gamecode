@@ -718,6 +718,12 @@ static void CG_ParseAward( void ) {
 		case EAWARD_LGRAIL:
 			CG_PushReward(cgs.media.perfectSound, cgs.media.medalLgRail, count);
 			break;
+		case EAWARD_RAILTWO:
+			CG_PushReward(cgs.media.accuracySound, cgs.media.medalRailtwo, count);
+			break;
+		case EAWARD_REVENGE:
+			CG_PushReward(cgs.media.perfectSound, cgs.media.medalRevenge, count);
+			break;
 		default:
 			return;
 	}
