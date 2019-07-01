@@ -213,6 +213,8 @@ struct gentity_s {
 
 	// for EAWARD_TELEMISSILE_FRAG:
 	qboolean	missileTeleported;
+
+	qboolean	teamToken;
 };
 
 
@@ -395,13 +397,14 @@ typedef struct {
     int quadNum;
     int quadWhore;
 
-
     int	unnamedPlayerRenameTime;
     qboolean forceRename; // set to qtrue while a player is forcefully renamed
 
     int awardCounts[EAWARD_NUM_AWARDS];
 
     int nextmapVoteFlags;
+
+    int th_tokens;
 } clientPersistant_t;
 
 //unlagged - backward reconciliation #1
@@ -654,6 +657,24 @@ typedef struct {
 	int dom_scoreGiven;				//Number of times we have provided scores
 	int domination_points_count;
 	char domination_points_names[MAX_DOMINATION_POINTS][MAX_DOMINATION_POINTS_NAMES];
+
+	int th_round;
+	int th_roundFinished;
+	int th_hideTime;
+	//qboolean th_hideActive;
+	//qboolean th_hideFinished;
+	//qboolean th_seekActive;
+	treasurehunter_t th_phase;
+	int th_seekTime;
+	int th_redClientMask;
+	int th_blueClientMask;
+	int th_specClientMask;
+	int th_placedTokensBlue;
+	int th_placedTokensRed;
+	int th_teamTokensRed;
+	int th_teamTokensBlue;
+	int th_lastClientTokenUpdate;
+	int th_allTokensHiddenTime;
 
 	//Added to keep track of challenges (can only be completed against humanplayers)
 	qboolean hadBots;	//There was bots in the level
@@ -982,6 +1003,7 @@ void DominationPointNamesMessage (gentity_t *client);
 void DominationPointStatusMessage( gentity_t *ent );
 void ChallengeMessage( gentity_t *ent, int challengeNumber );
 void SendCustomVoteCommands(int clientNum);
+void TreasureHuntMessage(gentity_t *ent);
 
 //
 // g_pweapon.c
@@ -1002,6 +1024,7 @@ void SendScoreboardMessageToAllClients( void );
 void SendEliminationMessageToAllClients( void );
 void SendDDtimetakenMessageToAllClients( void );
 void SendDominationPointsStatusMessageToAllClients( void );
+void SendTreasureHuntMessageToAllClients( void );
 void SendYourTeamMessageToTeam( team_t team );
 void QDECL G_Printf( const char *fmt, ... );
 void QDECL G_Error( const char *fmt, ... ) __attribute__((noreturn));
@@ -1041,6 +1064,9 @@ void ShuffleTeams(void);
 //KK-OAX Added for Command Handling Changes (r24)
 team_t G_TeamFromString( char *str );
 void G_SendTeamPlayerCounts(void);
+void Token_die(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod);
+void Team_TH_TokenDestroyed( gentity_t *ent );
+void SetPlayerTokens(int num, qboolean updateOnly);
 
 //KK-OAX Removed these in Code in favor of bg_alloc.c from Tremulous
 // g_mem.c
@@ -1223,6 +1249,15 @@ extern	vmCvar_t	g_blueteam;
 #endif
 extern	vmCvar_t	g_redclan;
 extern	vmCvar_t	g_blueclan;
+
+extern vmCvar_t		g_treasureTokens;
+extern vmCvar_t		g_treasureHideTime;
+extern vmCvar_t		g_treasureSeekTime;
+extern vmCvar_t		g_treasureRounds;
+extern vmCvar_t		g_treasureTokensDestructible;
+extern vmCvar_t		g_treasureTokenHealth;
+extern vmCvar_t		g_treasureTokenStyle;
+
 extern	vmCvar_t	g_enableDust;
 extern	vmCvar_t	g_enableBreath;
 extern	vmCvar_t	g_proxMineTimeout;

@@ -2260,6 +2260,14 @@ void ClientBegin( int clientNum ) {
 
 	G_UnnamedPlayerRename(ent);
 
+	if (g_gametype.integer == GT_TREASURE_HUNTER) {
+		client->pers.th_tokens = 0;		
+		if (level.th_phase == TH_HIDE) {
+			ent->client->pers.th_tokens = (g_treasureTokens.integer <= 0) ? 1 : g_treasureTokens.integer;
+			SetPlayerTokens(0, qtrue);
+		}
+		TreasureHuntMessage(ent);
+	}
 }
 
 /*
@@ -2515,6 +2523,10 @@ void ClientSpawn(gentity_t *ent) {
 	if (g_passThroughInvisWalls.integer) {
 		ent->clipmask &= ~CONTENTS_PLAYERCLIP;
 	}
+	if (g_gametype.integer == GT_TREASURE_HUNTER) {
+		// allow players to pass through each other
+		ent->r.contents = CONTENTS_CORPSE;
+	}
 	ent->die = player_die;
 	ent->waterlevel = 0;
 	ent->watertype = 0;
@@ -2620,6 +2632,11 @@ else
 	{
 		client->ps.stats[STAT_WEAPONS] = ( 1 << WP_ROCKET_LAUNCHER );
 		client->ps.ammo[WP_ROCKET_LAUNCHER] = 999;
+	}
+
+	if (g_gametype.integer == GT_TREASURE_HUNTER) {
+		ent->client->ps.generic1 = ent->client->pers.th_tokens 
+			+ ((ent->client->sess.sessionTeam == TEAM_RED) ? level.th_teamTokensRed : level.th_teamTokensBlue);
 	}
 
 	G_SetOrigin( ent, spawn_origin );

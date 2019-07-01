@@ -421,6 +421,39 @@ void DominationPointNamesMessage( gentity_t *ent ) {
 
 /*
 ==================
+TreasureHuntMessage
+
+==================
+*/
+void TreasureHuntMessage(gentity_t *ent) {
+	switch (level.th_phase) {
+		case TH_INIT:
+		case TH_HIDE:
+			trap_SendServerCommand( ent-g_entities, va("treasureHunt %i %i %i %i %i %i",
+						level.th_phase,
+						g_treasureHideTime.integer,
+						level.th_hideTime,
+						level.th_placedTokensRed,
+						level.th_placedTokensBlue,
+						g_treasureTokenStyle.integer
+						) );
+			break;
+		case TH_INTER:
+		case TH_SEEK:
+			trap_SendServerCommand( ent-g_entities, va("treasureHunt %i %i %i %i %i %i",
+						level.th_phase,
+						g_treasureSeekTime.integer,
+						level.th_seekTime,
+						level.th_placedTokensRed,
+						level.th_placedTokensBlue,
+						g_treasureTokenStyle.integer
+						) );
+			break;
+	}
+}
+
+/*
+==================
 YourTeamMessage
 ==================
 */
@@ -1819,6 +1852,71 @@ void Cmd_Drop_f( gentity_t *ent ) {
 		item->s.time = item->dropPickupTime; // so client can know about it and avoid predicting pickup
 	}
 
+}
+
+
+void Cmd_PlaceToken_f( gentity_t *ent ) {
+	gentity_t *token = NULL;
+	gitem_t *item;
+	vec3_t velocity = {0.0, 0.0, 0.0};
+	qboolean teamToken = qtrue;
+
+	if (g_gametype.integer != GT_TREASURE_HUNTER) {
+		return;
+	}
+
+	if (ent->client->sess.sessionTeam == TEAM_SPECTATOR 
+			|| ent->client->isEliminated
+			|| ent->client->ps.pm_type == PM_DEAD) {
+		return;
+	}
+
+	if (level.th_phase != TH_HIDE) {
+		trap_SendServerCommand( ent - g_entities, "cp \"Can only drop tokens \nduring the hiding phase!\n");
+		return;
+	}
+
+	if (ent->client->pers.th_tokens) {
+		ent->client->pers.th_tokens--;
+		ent->client->ps.generic1 = ent->client->pers.th_tokens 
+			+ ((ent->client->sess.sessionTeam == TEAM_RED) ? level.th_teamTokensRed : level.th_teamTokensBlue);
+		teamToken = qfalse;
+	} else if (ent->client->sess.sessionTeam == TEAM_RED && level.th_teamTokensRed) {
+		level.th_teamTokensRed--;
+		SetPlayerTokens(0, qtrue);
+	} else if (ent->client->sess.sessionTeam == TEAM_BLUE && level.th_teamTokensBlue) {
+		level.th_teamTokensBlue--;
+		SetPlayerTokens(0, qtrue);
+	} else {
+		trap_SendServerCommand( ent - g_entities, "cp \"No tokens left!\n");
+		return;
+	}
+
+	item = ent->client->sess.sessionTeam == TEAM_RED ? BG_FindItem("Red Cube") : BG_FindItem("Blue Cube");
+
+	token = LaunchItem(item, ent->s.pos.trBase, velocity);
+	token->think = NULL;
+	token->nextthink = 0;
+
+	token->health = 50;
+	token->die = Token_die;
+	token->takedamage = qtrue;
+	token->r.contents |= CONTENTS_CORPSE;
+	token->clipmask = MASK_PLAYERSOLID & ~CONTENTS_BODY;
+	if (g_passThroughInvisWalls.integer) {
+		token->clipmask &= ~CONTENTS_PLAYERCLIP;
+	}
+
+	token->spawnflags = ent->client->sess.sessionTeam;
+	token->s.generic1 = 0;
+
+	token->parent = ent;
+
+	token->teamToken = teamToken;
+
+	token->r.svFlags |= SVF_CLIENTMASK;
+	token->r.svFlags |= SVF_BROADCAST;
+	token->r.singleClient = ent->client->sess.sessionTeam == TEAM_BLUE ? level.th_blueClientMask : level.th_redClientMask;
 }
 
 /*
@@ -3384,6 +3482,8 @@ commands_t cmds[ ] =
   { "gg", 0, Cmd_GoodGame_f },
 
   { "drop", CMD_LIVING, Cmd_Drop_f },
+
+  { "placeToken", CMD_LIVING, Cmd_PlaceToken_f },
 
   { "ready", 0, Cmd_Ready_f },
 

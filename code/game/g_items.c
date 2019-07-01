@@ -947,7 +947,7 @@ void ClearRegisteredItems( void ) {
 			RegisterItem( BG_FindItemForWeapon( WP_CHAINGUN ) );
 		}
 	}
-	if( g_gametype.integer == GT_HARVESTER ) {
+	if( g_gametype.integer == GT_HARVESTER || g_gametype.integer == GT_TREASURE_HUNTER ) {
 		RegisterItem( BG_FindItem( "Red Cube" ) );
 		RegisterItem( BG_FindItem( "Blue Cube" ) );
 	}

@@ -961,6 +961,39 @@ void Team_DD_makeB2team( gentity_t *target, int team ) {
 	FinishSpawningItem(ddB );
 }
 
+void Team_TH_TokenDestroyed( gentity_t *ent ) {
+	if (level.th_phase == TH_HIDE && ent->parent && ent->parent->inuse) {
+		gentity_t *player = ent->parent;
+		if (!ent->teamToken && player && player->client 
+				&& player->client->pers.connected  == CON_CONNECTED &&
+				player->client->sess.sessionTeam != TEAM_SPECTATOR) {
+			// give token back to player if it gets destroyed during hiding phase
+			player->client->pers.th_tokens++;
+			player->client->ps.generic1 = player->client->pers.th_tokens 
+				+ ((player->client->sess.sessionTeam == TEAM_RED) ? level.th_teamTokensRed : level.th_teamTokensBlue);
+			trap_SendServerCommand( player - g_entities, "cp \"Token got destroyed!\n");
+			G_FreeEntity(ent);
+			return;
+		} else {
+			// give token back to team
+			if (ent->item->giTag == HARVESTER_REDCUBE) {
+				level.th_teamTokensRed++;
+			} else if (ent->item->giTag == HARVESTER_BLUECUBE) {
+				level.th_teamTokensBlue++;
+			}
+			SetPlayerTokens(0, qtrue);
+			G_FreeEntity(ent);
+			return;
+		}
+	}
+	if (ent->item->giTag == HARVESTER_REDCUBE) {
+		AddTeamScore(level.intermission_origin, TEAM_BLUE, 1);
+	} else if (ent->item->giTag == HARVESTER_BLUECUBE) {
+		AddTeamScore(level.intermission_origin, TEAM_RED, 1);
+	}
+	G_FreeEntity( ent );
+}
+
 void Team_ResetFlags( void ) {
 	if( g_gametype.integer == GT_CTF || g_gametype.integer == GT_CTF_ELIMINATION) {
 		Team_ResetFlag( TEAM_RED );
@@ -1084,6 +1117,9 @@ void Team_FreeEntity( gentity_t *ent ) {
 	}
 	else if( ent->item->giTag == PW_NEUTRALFLAG ) {
 		Team_ReturnFlag( TEAM_FREE );
+	}
+	if (g_gametype.integer == GT_TREASURE_HUNTER) {
+		Team_TH_TokenDestroyed( ent );
 	}
 }
 
@@ -1431,7 +1467,7 @@ int Team_TouchEnemyFlag( gentity_t *ent, gentity_t *other, int team ) {
 int Pickup_Team( gentity_t *ent, gentity_t *other ) {
 	int team;
 	gclient_t *cl = other->client;
-	
+
 	if( g_gametype.integer == GT_OBELISK ) {
 		// there are no team items that can be picked up in obelisk
 		G_FreeEntity( ent );
@@ -1453,6 +1489,23 @@ int Pickup_Team( gentity_t *ent, gentity_t *other ) {
 		G_FreeEntity( ent ); //Destory skull
 		return 0;
 	}
+
+	if( g_gametype.integer == GT_TREASURE_HUNTER ) {
+		if (level.th_phase != TH_SEEK) {
+			return 0;
+		}
+		// the only team items that can be picked up in treasure hunter are the tokens
+		if( ent->spawnflags != cl->sess.sessionTeam ) {
+			AddTeamScore(level.intermission_origin, cl->sess.sessionTeam, 1);
+			AddScore(other, ent->r.currentOrigin, 3);
+                        G_LogPrintf("TREASURE_HUNTER: %i %i: %s picked up a token.\n",
+                            cl->ps.clientNum,cl->sess.sessionTeam,
+                            cl->pers.netname);
+			G_FreeEntity( ent ); //Destory token
+			return 0;
+		} 
+	}
+
 	if ( g_gametype.integer == GT_DOMINATION ) {
 		Team_Dom_TakePoint(ent, cl->sess.sessionTeam,cl->ps.clientNum);
 		return 0;
@@ -2318,3 +2371,41 @@ void ShuffleTeams(void) {
 
 }
 
+
+void Token_die(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod) {
+	if (level.th_phase == TH_HIDE) {
+		Team_TH_TokenDestroyed(self);
+		return;
+	}
+	if (self->spawnflags == TEAM_RED) {
+		AddTeamScore(level.intermission_origin, TEAM_BLUE, 1);
+		if (attacker && attacker->client) {
+			AddScore(attacker, self->r.currentOrigin, 3);
+		}
+	} else if (self->spawnflags == TEAM_BLUE) {
+		AddTeamScore(level.intermission_origin, TEAM_RED, 1);
+		if (attacker && attacker->client) {
+			AddScore(attacker, self->r.currentOrigin, 3);
+		}
+	}
+	G_FreeEntity(self);
+}
+
+void SetPlayerTokens(int num, qboolean updateOnly) {
+	int i;
+	gentity_t *ent;
+
+	for( i=0;i < level.numPlayingClients; i++ ) {
+		ent = &g_entities[level.sortedClients[i]];
+
+		if (!ent->inuse || ent->client->sess.sessionTeam == TEAM_SPECTATOR) {
+			continue;
+		}
+
+		if (!updateOnly) {
+			ent->client->pers.th_tokens = num;
+		}
+		ent->client->ps.generic1 = ent->client->pers.th_tokens 
+			+ ((ent->client->sess.sessionTeam == TEAM_RED) ? level.th_teamTokensRed : level.th_teamTokensBlue);
+	}
+}

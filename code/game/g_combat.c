@@ -625,11 +625,11 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 		attacker->client->lastkilled_client = self->s.number;
 
 		if ( attacker == self || OnSameTeam (self, attacker ) ) {
-			if(g_gametype.integer!=GT_LMS && !((g_gametype.integer==GT_ELIMINATION || g_gametype.integer==GT_CTF_ELIMINATION) && level.time < level.roundStartTime))
+			if(g_gametype.integer != GT_TREASURE_HUNTER && g_gametype.integer!=GT_LMS && !((g_gametype.integer==GT_ELIMINATION || g_gametype.integer==GT_CTF_ELIMINATION) && level.time < level.roundStartTime))
                             //if( (g_gametype.integer <GT_TEAM && g_ffa_gt!=1 && self->client->ps.persistant[PERS_SCORE]>0) || level.numNonSpectatorClients<3) //Cannot get negative scores by suicide
                                 AddScore( attacker, self->r.currentOrigin, -1 );
 		} else {
-			if(g_gametype.integer!=GT_LMS)
+			if(g_gametype.integer!=GT_LMS && g_gametype.integer != GT_TREASURE_HUNTER)
 				AddScore( attacker, self->r.currentOrigin, 1 );
 
 			if( meansOfDeath == MOD_GAUNTLET ) {
@@ -801,7 +801,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 			attacker->client->lastKillTime = level.time;
 		}
 	} else {
-		if(g_gametype.integer!=GT_LMS && !((g_gametype.integer==GT_ELIMINATION || g_gametype.integer==GT_CTF_ELIMINATION) && level.time < level.roundStartTime))
+		if(g_gametype.integer != GT_TREASURE_HUNTER && g_gametype.integer!=GT_LMS && !((g_gametype.integer==GT_ELIMINATION || g_gametype.integer==GT_CTF_ELIMINATION) && level.time < level.roundStartTime))
                     //if(self->client->ps.persistant[PERS_SCORE]>0 || level.numNonSpectatorClients<3) //Cannot get negative scores by suicide
 			AddScore( self, self->r.currentOrigin, -1 );
 	}
@@ -1071,6 +1071,35 @@ static int catchup_damage(int damage, int attacker_points, int target_points) {
     return newdamage;
 }
 
+qboolean G_TreasureHuntDamage( gentity_t *targ, gentity_t *attacker, int mod ) {
+	if (!attacker || !attacker->client) {
+		return qtrue;
+	}
+	if (targ->client && !OnSameTeam(targ, attacker)) {
+		// don't do any damage to enemy players
+		return qfalse;
+	} else if (targ->s.eType == ET_ITEM 
+			&& targ->item 
+			&& targ->item->giType == IT_TEAM) {
+		if (g_treasureTokensDestructible.integer 
+				&& targ->spawnflags != attacker->client->sess.sessionTeam
+				&& level.th_phase == TH_SEEK) {
+			// only allow enemies to attack cubes during seek time
+			return qtrue;
+		} else if (targ->spawnflags == attacker->client->sess.sessionTeam
+				&& level.th_phase == TH_HIDE
+				&& targ->parent == attacker
+				&& (mod == MOD_MACHINEGUN || mod == MOD_SHOTGUN || mod == MOD_GAUNTLET 
+						|| mod == MOD_RAILGUN || mod == MOD_LIGHTNING || mod == MOD_CHAINGUN)) {
+			// players can destroy their own tokens during hiding phase, but only with hitscan weapons
+			return qtrue;
+		} else {
+			return qfalse;
+		}
+	}
+	return qtrue;
+}
+
 void G_CheckRocketSniper(gentity_t *victim, gentity_t *inflictor, gentity_t *attacker, int meansOfDeath, vec3_t point) {
 	if (meansOfDeath != MOD_ROCKET || !victim || !victim->client || !attacker || !attacker->client || !inflictor) {
 		return;
@@ -1167,6 +1196,10 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		// avoid doing damage w/ gaunt during elimination warmup
 		if( (( level.time < level.roundStartTime ) && ( level.time>level.roundStartTime-1000*g_elimination_activewarmup.integer ))
 				&& mod != MOD_FALLING && mod != MOD_SUICIDE && mod != MOD_TELEFRAG && mod != MOD_SUICIDE) {
+			return;
+		}
+	} else if (g_gametype.integer == GT_TREASURE_HUNTER) {
+		if (!G_TreasureHuntDamage(targ, attacker, mod)) {
 			return;
 		}
 	}
