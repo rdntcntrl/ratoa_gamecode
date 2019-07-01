@@ -772,6 +772,16 @@ typedef struct {
 	qhandle_t	blueFlagShader[3];
 	qhandle_t	flagShader[4];
 
+// For Treasure Hunter:
+	qhandle_t	thToken;
+	//qhandle_t	thTokenTeamShader;
+	//qhandle_t	thTokenRedShader;
+	//qhandle_t	thTokenBlueShader;
+	qhandle_t	thTokenRedIShader;
+	qhandle_t	thTokenBlueIShader;
+	qhandle_t	thTokenRedISolidShader;
+	qhandle_t	thTokenBlueISolidShader;
+
 //For Double Domination:
 	//qhandle_t	ddPointA;
 	//qhandle_t	ddPointB;
@@ -1255,6 +1265,15 @@ typedef struct {
 	int				roundStartTime;	
 	int				roundtime;
 
+// Treasure Hunter
+	treasurehunter_t th_phase;
+	int th_roundStart;
+	int th_roundDuration;
+	int th_redTokens;
+	int th_blueTokens;
+	int th_oldTokenStyle;
+	int th_tokenStyle;
+
 //CTF Elimination
 	int				attackingTeam;
 
@@ -1569,6 +1588,9 @@ extern vmCvar_t			cg_itemFadeTime;
 
 extern vmCvar_t			cg_bobGun;
 
+extern vmCvar_t			cg_thTokenIndicator;
+extern vmCvar_t			cg_thTokenstyle;
+
 extern vmCvar_t			cg_timerAlpha;
 extern vmCvar_t			cg_fpsAlpha;
 extern vmCvar_t			cg_speedAlpha;
@@ -1850,6 +1872,7 @@ void CG_PlayerAutoHeadColor(clientInfo_t *ci, byte *outColor);
 void CG_FloatColorToRGBA(float *color, byte *out);
 void CG_ParseForcedColors( void );
 byte CG_GetBrightShellAlpha(void);
+qboolean CG_THPlayerVisible(centity_t *cent);
 
 //
 // cg_predict.c

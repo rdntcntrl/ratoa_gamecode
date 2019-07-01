@@ -125,6 +125,7 @@ typedef enum {
 	GT_LMS,				// Last man standing
 	GT_DOUBLE_D,			// Double Domination
 	GT_DOMINATION,			// Standard domination 12
+	GT_TREASURE_HUNTER,			
 	GT_MAX_GAME_TYPE
 	
 } gametype_t;
@@ -382,6 +383,12 @@ typedef enum {
 
 	WP_NUM_WEAPONS
 } weapon_t;
+
+typedef enum {
+	HARVESTER_NONE,
+	HARVESTER_BLUECUBE,
+	HARVESTER_REDCUBE
+} harvester_t;
 
 
 // reward sounds (stored in ps->persistant[PERS_PLAYEREVENTS])
@@ -781,6 +788,14 @@ qboolean	BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const play
 #define RAT_FASTSWIM 		(1 << 19)
 
 #define MAX_RAT_SAY_TEXT 256
+
+// for treasure hunter
+typedef enum {
+	TH_INIT,
+	TH_HIDE,
+	TH_INTER,
+	TH_SEEK,
+} treasurehunter_t;
 
 // content masks
 #define	MASK_ALL				(-1)

@@ -301,6 +301,9 @@ vmCvar_t	cg_itemFadeTime;
 
 vmCvar_t	cg_bobGun;
 
+vmCvar_t	cg_thTokenIndicator;
+vmCvar_t	cg_thTokenstyle;
+
 vmCvar_t	cg_timerAlpha;
 vmCvar_t	cg_fpsAlpha;
 vmCvar_t	cg_speedAlpha;
@@ -695,6 +698,10 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_itemFadeTime ,           "cg_itemFadeTime", "3000", CVAR_CHEAT},
 
 	{ &cg_bobGun ,           "cg_bobGun", "0", CVAR_ARCHIVE},
+
+	// TREASURE HUNTER:
+	{ &cg_thTokenIndicator ,           "cg_thTokenIndicator", "1", CVAR_ARCHIVE},
+	{ &cg_thTokenstyle ,           	   "cg_thTokenstyle", "-999", CVAR_ROM},
 
 	// / RAT ===================
 
@@ -1736,11 +1743,24 @@ static void CG_RegisterGraphics( void ) {
 
 	cgs.media.spawnPointShader = trap_R_RegisterShader("spawnPoint" );
 
-	if ( cgs.gametype == GT_CTF || cgs.gametype == GT_CTF_ELIMINATION|| cgs.gametype == GT_1FCTF || cgs.gametype == GT_HARVESTER || cg_buildScript.integer ) {
+	if ( cgs.gametype == GT_CTF || cgs.gametype == GT_CTF_ELIMINATION|| cgs.gametype == GT_1FCTF || cgs.gametype == GT_HARVESTER || cgs.gametype == GT_TREASURE_HUNTER || cg_buildScript.integer ) {
 		cgs.media.redCubeModel = trap_R_RegisterModel( "models/powerups/orb/r_orb.md3" );
 		cgs.media.blueCubeModel = trap_R_RegisterModel( "models/powerups/orb/b_orb.md3" );
 		cgs.media.redCubeIcon = trap_R_RegisterShader( "icons/skull_red" );
 		cgs.media.blueCubeIcon = trap_R_RegisterShader( "icons/skull_blue" );
+	}
+
+	if (cgs.gametype == GT_TREASURE_HUNTER) {
+		//cgs.media.thEnemyToken = trap_R_RegisterModel( "models/powerups/overload_base.md3" );
+		cgs.th_oldTokenStyle = -1000;
+		cgs.th_tokenStyle = -999;
+		//cgs.media.thTokenTeamShader = trap_R_RegisterShader( "models/powerups/treasure/thTokenTeam" );
+		//cgs.media.thTokenRedShader = trap_R_RegisterShader( "models/powerups/treasure/thTokenRed" );
+		//cgs.media.thTokenBlueShader = trap_R_RegisterShader( "models/powerups/treasure/thTokenBlue" );
+		cgs.media.thTokenBlueIShader = trap_R_RegisterShaderNoMip("sprites/thTokenIndicatorBlue.tga");
+		cgs.media.thTokenRedIShader = trap_R_RegisterShaderNoMip("sprites/thTokenIndicatorRed.tga");
+		cgs.media.thTokenBlueISolidShader= trap_R_RegisterShaderNoMip("sprites/thTokenIndicatorBlueSolid.tga");
+		cgs.media.thTokenRedISolidShader= trap_R_RegisterShaderNoMip("sprites/thTokenIndicatorRedSolid.tga");
 	}
         
         if( ( cgs.gametype >= GT_TEAM ) && ( cgs.ffa_gt != 1 ) ) {
@@ -1803,7 +1823,7 @@ static void CG_RegisterGraphics( void ) {
 		cgs.media.overloadEnergyModel = trap_R_RegisterModel( "models/powerups/overload_energy.md3" );
 	}
 
-	if ( cgs.gametype == GT_HARVESTER || cg_buildScript.integer ) {
+	if ( cgs.gametype == GT_HARVESTER || cgs.gametype == GT_TREASURE_HUNTER || cg_buildScript.integer ) {
 		cgs.media.harvesterModel = trap_R_RegisterModel( "models/powerups/harvester/harvester.md3" );
 		cgs.media.harvesterRedSkin = trap_R_RegisterSkin( "models/powerups/harvester/red.skin" );
 		cgs.media.harvesterBlueSkin = trap_R_RegisterSkin( "models/powerups/harvester/blue.skin" );

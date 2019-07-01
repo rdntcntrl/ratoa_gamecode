@@ -3222,6 +3222,11 @@ void CG_Player( centity_t *cent ) {
 		}
 	}
 
+	// hide enemies during Treasure Hunter Hiding phase
+	if (cgs.gametype == GT_TREASURE_HUNTER && !CG_THPlayerVisible(cent)) {
+		return;
+	}
+
 
 	memset( &legs, 0, sizeof(legs) );
 	memset( &torso, 0, sizeof(torso) );
@@ -3607,4 +3612,27 @@ int CG_GetTotalHitPoints(int health, int armor) {
 	health += count;
 
 	return health;
+}
+
+qboolean CG_THPlayerVisible(centity_t *cent) {
+	int clientNum;
+	clientInfo_t *ci;
+	clientInfo_t *player = &cgs.clientinfo[cg.clientNum];
+	int myteam = player->team;
+
+	if (cgs.th_phase != TH_HIDE && cgs.th_phase != TH_INTER) {
+		return qtrue;
+	}
+
+	clientNum = cent->currentState.clientNum;
+	if ( clientNum < 0 || clientNum >= MAX_CLIENTS ) {
+		CG_Error( "Bad clientNum on player entity");
+	}
+	ci = &cgs.clientinfo[ clientNum ];
+
+	if (myteam != TEAM_SPECTATOR && myteam != ci->team) {
+		return qfalse;
+	}
+
+	return qtrue;
 }

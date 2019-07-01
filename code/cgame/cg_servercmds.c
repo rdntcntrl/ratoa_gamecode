@@ -450,6 +450,27 @@ static void CG_ParseNextMapVote( void ) {
 
 /*
 =================
+CG_ParseTreasureHunt
+
+=================
+*/
+static void CG_ParseTreasureHunt( void ) {
+	if(cgs.gametype != GT_TREASURE_HUNTER) {
+		return;
+	}
+	cgs.th_phase = atoi( CG_Argv( 1 ) );
+	if (cgs.th_phase > TH_SEEK || cgs.th_phase < TH_INIT) {
+		cgs.th_phase = TH_INIT;
+	}
+	cgs.th_roundDuration = atoi( CG_Argv( 2 ) );
+	cgs.th_roundStart = atoi( CG_Argv( 3 ) );
+	cgs.th_redTokens = atoi( CG_Argv( 4 ) );
+	cgs.th_blueTokens = atoi( CG_Argv( 5 ) );
+	cgs.th_tokenStyle = atoi( CG_Argv( 6 ) );
+}
+
+/*
+=================
 CG_ParseMappage
 Sago: This parses values from the server rather directly. Some checks are performed, but beware if you change it or new
 security holes are found
@@ -1906,6 +1927,11 @@ static void CG_ServerCommand( void ) {
 
         if ( !strcmp( cmd, "team" ) ) {
 		CG_ParseTeam();
+		return;
+	}
+
+	if ( !strcmp( cmd, "treasureHunt" ) ) {
+		CG_ParseTreasureHunt();
 		return;
 	}
 

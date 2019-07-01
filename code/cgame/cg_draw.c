@@ -796,15 +796,15 @@ static void CG_DrawStatusBar( void ) {
 					   cgs.media.armorModel, 0, origin, angles );
 	}
         
-        if( cgs.gametype == GT_HARVESTER ) {
+        if( cgs.gametype == GT_HARVESTER || cgs.gametype == GT_TREASURE_HUNTER) {
 		origin[0] = 90;
 		origin[1] = 0;
 		origin[2] = -10;
 		angles[YAW] = ( cg.time & 2047 ) * 360 / 2048.0;
 		if( cg.snap->ps.persistant[PERS_TEAM] == TEAM_BLUE ) {
-			handle = cgs.media.redCubeModel;
+			handle = cgs.gametype == GT_HARVESTER ? cgs.media.redCubeModel : cgs.media.blueCubeModel;
 		} else {
-			handle = cgs.media.blueCubeModel;
+			handle = cgs.gametype == GT_HARVESTER ? cgs.media.blueCubeModel : cgs.media.redCubeModel;
 		}
 		CG_Draw3DModel( 470 + CHAR_WIDTH*3 + TEXT_ICON_SPACE, 432, ICON_SIZE, ICON_SIZE, handle, 0, origin, angles );
 	}
@@ -881,7 +881,7 @@ static void CG_DrawStatusBar( void ) {
 	}
         
         //Skulls!
-        if(cgs.gametype == GT_HARVESTER)
+        if(cgs.gametype == GT_HARVESTER || cgs.gametype == GT_TREASURE_HUNTER)
         {
             value = ps->generic1;
             if (value > 0 ) {
@@ -891,9 +891,9 @@ static void CG_DrawStatusBar( void ) {
                     // if we didn't draw a 3D icon, draw a 2D icon for skull
                     if ( !cg_draw3dIcons.integer && cg_drawIcons.integer ) {
                             if( cg.snap->ps.persistant[PERS_TEAM] == TEAM_BLUE ) {
-                                    handle = cgs.media.redCubeIcon;
+                                    handle = cgs.gametype == GT_HARVESTER ? cgs.media.redCubeIcon : cgs.media.blueCubeIcon;
                             } else {
-                                    handle = cgs.media.blueCubeIcon;
+                                    handle = cgs.gametype == GT_HARVESTER ? cgs.media.blueCubeIcon : cgs.media.redCubeIcon;
                             }
                             CG_DrawPic( 470 + CHAR_WIDTH*3 + TEXT_ICON_SPACE, 432, ICON_SIZE, ICON_SIZE, handle );
                     }
@@ -1455,6 +1455,121 @@ Lots of stuff
 	return y + BIGCHAR_HEIGHT + 4;
 }
 
+/*
+=================
+CG_DrawTreasureHuntTimer
+=================
+*/
+static float CG_DrawTreasureHuntTimer( float y ) {
+	char		*s, *phase;
+	int			w;
+	int			mins, seconds, sec;
+	int			msec = -1;
+	vec4_t			*color;
+	const char	*st;
+	int cw;
+	int rst;
+
+
+	rst = cgs.th_roundStart;
+
+	//default color is white
+	color = &g_color_table[ColorIndex(COLOR_WHITE)];
+
+	if (rst == 0) {
+		return y;
+	}
+
+	switch (cgs.th_phase) {
+		case TH_INIT:
+		case TH_HIDE:
+			phase = "Hiding";
+			break;
+		case TH_INTER:
+		case TH_SEEK:
+			phase = "Seeking";
+			break;
+		default:
+			return y;
+			break;
+	}
+
+	//msec = cg.time - cgs.levelStartTime;
+	if(cg.time > rst) { //We are started
+		if (cgs.th_roundDuration > 0) {
+			msec = cgs.th_roundDuration*1000 - (cg.time - rst);
+			if(msec<=30*1000-1) //<= 30 seconds
+				color = &g_color_table[ColorIndex(COLOR_YELLOW)];
+			if(msec<=10*1000-1) //<= 10 seconds
+				color = &g_color_table[ColorIndex(COLOR_RED)];
+			msec += 1000; //120-1 instead of 119-0
+		}
+	}
+	else
+	{
+		//Warmup
+		msec = - cg.time + rst;
+		color = &g_color_table[ColorIndex(COLOR_GREEN)];
+		sec = msec/1000;
+		msec += 1000; //5-1 instead of 4-0
+
+		if(cg.warmup == 0)
+		{
+			st = va( "%s in: %i", phase,sec + 1 );
+			if ( sec != cg.warmupCount ) {
+				cg.warmupCount = sec;
+				switch ( sec ) {
+					case 0:
+						trap_S_StartLocalSound( cgs.media.count1Sound, CHAN_ANNOUNCER );
+						break;
+					case 1:
+						trap_S_StartLocalSound( cgs.media.count2Sound, CHAN_ANNOUNCER );
+						break;
+					case 2:
+						trap_S_StartLocalSound( cgs.media.count3Sound, CHAN_ANNOUNCER );
+						break;
+					default:
+						break;
+				}
+			} 
+			switch ( cg.warmupCount ) {
+				case 0:
+					cw = 28;
+					break;
+				case 1:
+					cw = 24;
+					break;
+				case 2:
+					cw = 20;
+					break;
+				default:
+					cw = 16;
+					break;
+			}
+
+
+			w = CG_DrawStrlen( st );
+			CG_DrawStringExt( 320 - w * cw/2, 70, st, colorWhite,
+					qfalse, qtrue, cw, (int)(cw * 1.5), 0 );
+		}
+	}
+
+	seconds = msec / 1000;
+	mins = seconds / 60;
+	seconds -= mins * 60;
+
+
+	if(msec>=0)
+		s = va( "%.1s %i:%02i", phase, mins, seconds );
+	else
+		s = va( "%s", phase);
+	w = CG_DrawStrlen( s ) * BIGCHAR_WIDTH;
+	
+	CG_DrawBigStringColor( 635 - w, y + 2, s, *color);
+
+	return y + BIGCHAR_HEIGHT + 4;
+}
+
 
 static void CG_DrawHealthBar(float x, float y, float width, float height, int health, int armor) {
 	int hp = CG_GetTotalHitPoints(health, armor);
@@ -1799,6 +1914,46 @@ void CG_DrawEliminationStatus(void) {
 	CG_DrawBigString( x + 4, y, s, 1.0F);
 }
 
+void CG_DrawTreasureHunterStatus(void) {
+	const char	*s;
+	int		x, w, y;
+	vec4_t		color;
+
+	if (cgs.gametype != GT_TREASURE_HUNTER) {
+		return;
+	}
+
+
+	y = 240;
+	x = 640;
+	color[0] = 0.0f;
+	color[1] = 0.0f;
+	color[2] = 1.0f;
+	color[3] = 0.33f;
+	s = va( "%2i", cgs.th_blueTokens );
+	w = CG_DrawStrlen( s ) * BIGCHAR_WIDTH + 8;
+	x -= w;
+	CG_FillRect( x, y-4,  w, BIGCHAR_HEIGHT+8, color );
+	if ( cg.snap->ps.persistant[PERS_TEAM] == TEAM_BLUE ) {
+		CG_DrawPic( x, y-4, w, BIGCHAR_HEIGHT+8, cgs.media.selectShader );
+	}
+	CG_DrawBigString( x + 4, y, s, 1.0F);
+
+
+	color[0] = 1.0f;
+	color[1] = 0.0f;
+	color[2] = 0.0f;
+	color[3] = 0.33f;
+	s = va( "%2i", cgs.th_redTokens );
+	w = CG_DrawStrlen( s ) * BIGCHAR_WIDTH + 8;
+	x -= w;
+	CG_FillRect( x, y-4,  w, BIGCHAR_HEIGHT+8, color );
+	if ( cg.snap->ps.persistant[PERS_TEAM] == TEAM_RED ) {
+		CG_DrawPic( x, y-4, w, BIGCHAR_HEIGHT+8, cgs.media.selectShader );
+	}
+	CG_DrawBigString( x + 4, y, s, 1.0F);
+}
+
 
 /*
 =====================
@@ -1841,6 +1996,10 @@ static void CG_DrawUpperRight(stereoFrame_t stereoFrame)
 		y = CG_DrawEliminationTimer( y );
 		/*if (cgs.clientinfo[ cg.clientNum ].isDead)
 			y = CG_DrawEliminationDeathMessage( y);*/
+	}
+
+	if (cgs.gametype==GT_TREASURE_HUNTER) {
+		y = CG_DrawTreasureHuntTimer( y );
 	}
 
 	//y = CG_DrawFollowMessage( y );
@@ -3580,6 +3739,11 @@ static void CG_ScanForCrosshairEntity( void ) {
 		return;
 	}
 
+	// hide enemies during Treasure Hunter Hiding phase
+	if (cgs.gametype == GT_TREASURE_HUNTER && !CG_THPlayerVisible(&cg_entities[ trace.entityNum ])) {
+		return;
+	}
+
 	if (throughwall && lookedThroughWall) {
 		// XXX: technically, this could give an enemy's position away
 		// when he obscures the position of a friend
@@ -4342,7 +4506,7 @@ static void CG_Draw2D(stereoFrame_t stereoFrame)
 				CG_DrawTimedMenus();
 			}
 #else
-			if (cg_ratStatusbar.integer && cgs.gametype != GT_HARVESTER) {
+			if (cg_ratStatusbar.integer && cgs.gametype != GT_HARVESTER && cgs.gametype != GT_TREASURE_HUNTER) {
 				CG_DrawRatStatusBar();
 			} else {
 				CG_DrawStatusBar();
@@ -4405,6 +4569,7 @@ static void CG_Draw2D(stereoFrame_t stereoFrame)
 	cg.scoreBoardShowing = CG_DrawScoreboard();
 	if ( !cg.scoreBoardShowing) {
 		CG_DrawEliminationStatus();
+		CG_DrawTreasureHunterStatus();
                 CG_DrawCenterDDString();
                 CG_DrawCenter1FctfString();
 		CG_DrawCenterString();

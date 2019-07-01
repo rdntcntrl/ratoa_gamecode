@@ -219,6 +219,122 @@ static void CG_Speaker( centity_t *cent ) {
 	cent->miscTime = cg.time + cent->currentState.frame * 100 + cent->currentState.clientNum * 100 * crandom();
 }
 
+static void CG_TreasureHuntToken ( centity_t *cent ) {
+	refEntity_t		ent;
+	entityState_t	*es;
+	gitem_t			*item;
+	float			scale;
+	int team = cgs.clientinfo[ cg.clientNum ].team;
+
+	es = &cent->currentState;
+	item = &bg_itemlist[ es->modelindex ];
+
+	memset (&ent, 0, sizeof(ent));
+
+	if (cgs.th_tokenStyle == -999) {
+		// restore tokenstyle after vid_restart
+		cgs.th_tokenStyle = cg_thTokenstyle.integer;
+	}
+
+	if (cgs.th_oldTokenStyle != cgs.th_tokenStyle) {
+		cgs.media.thToken = trap_R_RegisterModel( 
+				cgs.th_tokenStyle > 0 ? 
+					va("models/powerups/treasure/thToken%i.md3", cgs.th_tokenStyle )
+					:
+					"models/powerups/treasure/thToken.md3" 
+				);
+		cgs.th_oldTokenStyle = cgs.th_tokenStyle;
+		trap_Cvar_Set("cg_thTokenstyle", va("%i", cgs.th_tokenStyle));
+	}
+
+
+	if (cgs.th_tokenStyle == -1
+			//((item->giTag == HARVESTER_REDCUBE && team == TEAM_RED)
+			// || (item->giTag == HARVESTER_BLUECUBE && team == TEAM_BLUE)
+			 ) {
+		ent.hModel = cg_items[es->modelindex].models[0];
+
+		// items bob up and down continuously
+		scale = 0.005 + cent->currentState.number * 0.00001;
+		cent->lerpOrigin[2] += 4 + cos( ( cg.time + 1000 ) *  scale ) * 4;
+		VectorCopy( cg.autoAngles, cent->lerpAngles );
+		AxisCopy( cg.autoAxis, ent.axis );
+
+		//cent->lerpOrigin[2] -= 10;
+	} else {
+		// tokenstyle == 0 -> make enemy token harder to see
+		ent.hModel = cgs.media.thToken;
+		//cent->lerpOrigin[2] += 8; // good for OA model
+		//cent->lerpOrigin[2] -= 9; // for new token model
+		//cent->lerpOrigin[2] -= 4; // for new token model
+		//cent->lerpOrigin[2] -= 5; // for new token model
+
+		cent->lerpOrigin[2] -= ITEM_RADIUS; // for new token model with anchor at the bottom
+
+		// make it stationary
+		VectorSet( cent->lerpAngles, 0, 0, 0);
+		AnglesToAxis(cent->lerpAngles, ent.axis);
+
+		//// use blue/red shaders for your own team's tokens:
+		//if (item->giTag == HARVESTER_REDCUBE && team == TEAM_RED) {
+		//	ent.customShader = cgs.media.thTokenRedShader;
+		//	//ent.customShader = cgs.media.thTokenTeamShader;
+		//	//ent.shaderRGBA[0] = 255;
+		//	//ent.shaderRGBA[1] = 0;
+		//	//ent.shaderRGBA[2] = 0;
+		//	//ent.shaderRGBA[3] = 255;
+		//} else if (item->giTag == HARVESTER_BLUECUBE && team == TEAM_BLUE) {
+		//	ent.customShader = cgs.media.thTokenBlueShader;
+		//	//ent.customShader = cgs.media.thTokenTeamShader;
+		//	//ent.shaderRGBA[0] = 0;
+		//	//ent.shaderRGBA[1] = 0;
+		//	//ent.shaderRGBA[2] = 255;
+		//	//ent.shaderRGBA[3] = 255;
+		//}
+	}
+
+	VectorCopy( cent->lerpOrigin, ent.origin);
+	VectorCopy( cent->lerpOrigin, ent.oldorigin);
+
+	ent.nonNormalizedAxes = qfalse;
+
+	if (cgs.th_tokenStyle != -1 && ((item->giTag == HARVESTER_REDCUBE && team == TEAM_RED)
+				|| (item->giTag == HARVESTER_BLUECUBE && team == TEAM_BLUE))) {
+		switch (cg_thTokenIndicator.integer) {
+			case 1:
+				if (cgs.th_phase != TH_SEEK) {
+					trap_R_AddRefEntityToScene(&ent);
+				}
+				//ent.radius = 7;
+				ent.radius = 8;
+				//ent.origin[2] += 21; 
+				//ent.oldorigin[2] += 21; 
+				ent.origin[2] += ITEM_RADIUS * 2 + 1;
+				ent.oldorigin[2] += ITEM_RADIUS * 2 + 1;
+				ent.customShader = (team == TEAM_BLUE) ? cgs.media.thTokenBlueISolidShader : cgs.media.thTokenRedISolidShader;
+				break;
+			case 2:
+				trap_R_AddRefEntityToScene(&ent);
+				ent.radius = 17;
+				ent.origin[2] += 11; 
+				ent.oldorigin[2] += 11; 
+				ent.customShader = (team == TEAM_BLUE) ? cgs.media.thTokenBlueIShader : cgs.media.thTokenRedIShader;
+				break;
+			default:
+				return;
+		}
+		ent.reType = RT_SPRITE;
+		ent.shaderRGBA[0] = 255;
+		ent.shaderRGBA[1] = 255;
+		ent.shaderRGBA[2] = 255;
+		ent.shaderRGBA[3] = 255;
+		trap_R_AddRefEntityToScene(&ent);
+	} else {
+		// always add enemy tokens
+		trap_R_AddRefEntityToScene(&ent);
+	}
+}
+
 /*
 ==================
 CG_Item
@@ -266,6 +382,11 @@ static void CG_Item( centity_t *cent ) {
 			ent.shaderRGBA[3] = 0;
 		}
 		trap_R_AddRefEntityToScene(&ent);
+		return;
+	}
+
+	if (cgs.gametype == GT_TREASURE_HUNTER && item->giType == IT_TEAM) {
+		CG_TreasureHuntToken( cent );
 		return;
 	}
 

@@ -714,6 +714,8 @@ qboolean CG_DrawRatScoreboard(void) {
 		s = "Harvester";
           } else if ( cgs.gametype == GT_DOMINATION ) {
 		s = "Domination";
+          } else if ( cgs.gametype == GT_TREASURE_HUNTER ) {
+		s = "Treasure Hunter";
 	} else {
 		s = "";
 	}
