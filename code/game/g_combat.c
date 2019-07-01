@@ -1159,6 +1159,11 @@ void G_CheckComboAwards(gentity_t *victim, gentity_t *attacker, int mod, int las
 		return;
 	}
 
+	if ( victim->client->ps.pm_type == PM_DEAD ) {
+		// we just railed a dead body
+		return;
+	}
+
 	elapsed = level.time - lastDmgGivenTime;
 
 	if (lastDmgGivenMOD == MOD_ROCKET || lastDmgGivenMOD == MOD_ROCKET_SPLASH) {
@@ -1618,6 +1623,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		///
 			
 		if ( targ->health <= 0 ) {
+			G_CheckComboAwards(targ, attacker, mod, lastDmgGivenTime, lastDmgGivenMOD);
 			if ( client )
 				targ->flags |= FL_NO_KNOCKBACK;
 
@@ -1626,7 +1632,6 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
                         
 			targ->enemy = attacker;
 			targ->die (targ, inflictor, attacker, take, mod);
-			G_CheckComboAwards(targ, attacker, mod, lastDmgGivenTime, lastDmgGivenMOD);
 			return;
 		} else if ( targ->pain ) {
 			targ->pain (targ, attacker, take);
