@@ -553,10 +553,15 @@ static void CG_TouchTriggerPrediction( void ) {
 		}
 
 		if ( ent->eType == ET_TELEPORT_TRIGGER ) {
-			if (cg_predictTeleport.integer && ent->generic1) {
+			if (cg_predictTeleport.integer && ent->generic1 && !cg.predictedTeleports) {
 				qboolean noAngles;
+
+				// only predict 1 teleport until we get confirmation from the server
+				cg.predictedTeleports++;
+						
 				// teleporter has unique destination
 				VectorCopy( ent->origin2, cg.predictedPlayerState.origin );
+
 				cg.predictedPlayerState.origin[2] += 1;
 				noAngles = (ent->angles2[0] > 999999.0);
 				if (!noAngles) {
@@ -764,6 +769,7 @@ void CG_PredictPlayerState( void ) {
 //unlagged - optimized prediction
 
 	cg.hyperspace = qfalse;	// will be set if touching a trigger_teleport
+	cg.predictedTeleports = 0;
 
 	// if this is the first frame we must guarantee
 	// predictedPlayerState is valid even if there is some
