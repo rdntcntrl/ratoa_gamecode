@@ -1525,6 +1525,8 @@ static void CG_RegisterSounds( void ) {
 	cgs.media.humiliationSound = trap_S_RegisterSound( "sound/feedback/humiliation.wav", qtrue );
 	cgs.media.assistSound = trap_S_RegisterSound( "sound/feedback/assist.wav", qtrue );
 	cgs.media.defendSound = trap_S_RegisterSound( "sound/feedback/defense.wav", qtrue );
+	cgs.media.perfectSound = trap_S_RegisterSound( "sound/feedback/perfect.wav", qtrue );
+	cgs.media.holyCrapSound = trap_S_RegisterSound( "sound/feedback/voc_holyshit.wav", qtrue );
 #ifdef MISSIONPACK
 	cgs.media.firstImpressiveSound = trap_S_RegisterSound( "sound/feedback/first_impressive.wav", qtrue );
 	cgs.media.firstExcellentSound = trap_S_RegisterSound( "sound/feedback/first_excellent.wav", qtrue );
@@ -1950,6 +1952,7 @@ static void CG_RegisterGraphics( void ) {
 	cgs.media.medalTelemissilefrag = trap_R_RegisterShaderNoMip( "medal_telemissilefrag" );
 	cgs.media.medalRocketsniper = trap_R_RegisterShaderNoMip( "medal_rocketsniper" );
 	cgs.media.medalFullSG = trap_R_RegisterShaderNoMip( "medal_fullsg" );
+	cgs.media.medalImmortality = trap_R_RegisterShaderNoMip( "medal_immortality" );
 
 	// LEILEI SHADERS
 	cgs.media.lsmkShader1 = trap_R_RegisterShader("leismoke1" );

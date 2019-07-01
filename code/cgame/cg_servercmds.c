@@ -690,13 +690,16 @@ static void CG_ParseAward( void ) {
 			CG_PushReward(cgs.media.humiliationSound, cgs.media.medalTelefrag, count);
 			break;
 		case EAWARD_TELEMISSILE_FRAG:
-			CG_PushReward(cgs.media.accuracySound, cgs.media.medalTelemissilefrag, count);
+			CG_PushReward(cgs.media.perfectSound, cgs.media.medalTelemissilefrag, count);
 			break;
 		case EAWARD_ROCKETSNIPER:
 			CG_PushReward(cgs.media.accuracySound, cgs.media.medalRocketsniper, count);
 			break;
 		case EAWARD_FULLSG:
 			CG_PushReward(cgs.media.accuracySound, cgs.media.medalFullSG, count);
+			break;
+		case EAWARD_IMMORTALITY:
+			CG_PushReward(cgs.media.holyCrapSound, cgs.media.medalImmortality, count);
 			break;
 		default:
 			return;
