@@ -1105,7 +1105,7 @@ void G_CheckRocketSniper(gentity_t *victim, gentity_t *inflictor, gentity_t *att
 		return;
 	}
 
-	if (Distance(victim->r.currentOrigin, inflictor->s.pos.trBase) < 1000.0) {
+	if (Distance(victim->r.currentOrigin, inflictor->s.pos.trBase) < 800.0) {
 		return;
 	}
 	
