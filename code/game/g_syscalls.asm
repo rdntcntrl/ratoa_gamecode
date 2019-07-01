@@ -223,3 +223,7 @@ equ trap_BotLibFreeSource				-580
 equ trap_BotLibReadToken				-581
 equ trap_BotLibSourceFileAndLine		-582
  
+equ trap_RAT_EQPing_Reset			-583
+equ trap_RAT_EQPing_SetDelay			-584
+equ trap_RAT_EQPing_GetDelay			-585
+

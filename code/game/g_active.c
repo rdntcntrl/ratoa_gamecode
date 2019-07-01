@@ -867,22 +867,23 @@ void ClientThink_real( gentity_t *ent ) {
 
 	// we use level.previousTime to account for 50ms lag correction
 	// besides, this will turn out numbers more like what players are used to
-	client->pers.pingsamples[client->pers.samplehead] = level.previousTime + client->frameOffset - ucmd->serverTime;
-	client->pers.samplehead++;
-	if ( client->pers.samplehead >= NUM_PING_SAMPLES ) {
-		client->pers.samplehead -= NUM_PING_SAMPLES;
-	}
+	client->pers.pingsamples[client->pers.pingsample_counter % NUM_PING_SAMPLES] = level.previousTime + client->frameOffset - ucmd->serverTime;
+	client->pers.pingsample_counter++;
+	//if ( client->pers.samplehead >= NUM_PING_SAMPLES ) {
+	//	client->pers.samplehead -= NUM_PING_SAMPLES;
+	//}
 
 	// initialize the real ping
 	if ( g_truePing.integer ) {
 		int i, sum = 0;
+		int num = client->pers.pingsample_counter > NUM_PING_SAMPLES ? NUM_PING_SAMPLES : client->pers.pingsample_counter;
 
 		// get an average of the samples we saved up
-		for ( i = 0; i < NUM_PING_SAMPLES; i++ ) {
+		for ( i = 0; i < num; i++ ) {
 			sum += client->pers.pingsamples[i];
 		}
 
-		client->pers.realPing = sum / NUM_PING_SAMPLES;
+		client->pers.realPing = sum / num;
 	}
 	else {
 		// if g_truePing is off, use the normal ping

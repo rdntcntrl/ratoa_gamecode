@@ -363,7 +363,8 @@ typedef struct {
 //unlagged - true ping
 	int			realPing;
 	int			pingsamples[NUM_PING_SAMPLES];
-	int			samplehead;
+	unsigned int		pingsample_counter;
+	//int			samplehead;
 //unlagged - true ping
 //KK-OAX Killing Sprees/Multikills
     int         killstreak;
@@ -708,6 +709,9 @@ typedef struct {
 
     qboolean	shuffling_teams;
 
+    int		eqPing; // ping to which all pings are equalized
+    int		eqPingAdjustTime; // time of last EQPing update
+
     int		nextMapVoteManual;
     int		nextMapVoteTime;
     int		nextMapVoteExecuted;
@@ -1038,6 +1042,9 @@ void G_SetRuleset(int ruleset);
 void G_LockTeams(void);
 void G_UnlockTeams(void);
 void G_CheckUnlockTeams(void);
+void G_EQPingSet(int maxEQPing, qboolean forceMax);
+void G_EQPingClientSet(gclient_t *client);
+void G_EQPingClientReset(gclient_t *client);
 
 //
 // g_client.c
@@ -1386,6 +1393,10 @@ extern  vmCvar_t	g_readSpawnVarFiles;
 extern vmCvar_t		g_damageThroughWalls;
 
 extern  vmCvar_t	g_pingEqualizer;
+extern  vmCvar_t	g_eqpingMax;
+extern  vmCvar_t	g_eqpingAuto;
+extern  vmCvar_t	g_eqpingSavedPing;
+extern  vmCvar_t	g_eqpingAutoTourney;
 
 extern  vmCvar_t        g_autoClans;
 
@@ -1688,6 +1699,9 @@ void	trap_BotResetWeaponState(int weaponstate);
 int		trap_GeneticParentsAndChildSelection(int numranks, float *ranks, int *parent1, int *parent2, int *child);
 
 void	trap_SnapVector( float *v );
+void	trap_RAT_EQPing_Reset( void );
+void	trap_RAT_EQPing_SetDelay( int clientnum, int msec );
+int	trap_RAT_EQPing_GetDelay( int clientnum );
 
 //KK-OAX
 //These enable the simplified command handling. 

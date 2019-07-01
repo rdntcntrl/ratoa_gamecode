@@ -95,6 +95,11 @@ g_admin_cmd_t g_admin_cmds[ ] =
 		""
 	},
 
+    {"setping", "", G_admin_setping,	"E",
+		"Set a specific EQping ping",
+		""
+	},
+
     {"handicap", "", G_admin_handicap, "S",
         "sets a handicap for a player",
         "[^3name|slot#] [handicap]"
@@ -3569,16 +3574,62 @@ qboolean G_admin_orient(gentity_t *ent, int skiparg)
 	return qtrue;
 }
 
+qboolean G_admin_setping(gentity_t *ent, int skiparg) {
+	int eqping = 0;
+
+	if (G_SayArgc() == 2+skiparg) {
+		char pingstr[MAX_STRING_CHARS];
+		G_SayArgv(1+skiparg, pingstr, sizeof(pingstr));
+		eqping = atoi(pingstr);
+	} 
+	if (eqping > g_eqpingMax.integer) {
+		eqping = g_eqpingMax.integer;
+	}
+	AP( va( "print \"^3!setping: ping equalizer FIXED to %ims\n", eqping));
+
+	G_EQPingSet(eqping, qtrue);
+	return qtrue;
+}
+
+
 qboolean G_admin_eqping(gentity_t *ent, int skiparg) {
-	if (g_pingEqualizer.integer == 0) {
-		trap_Cvar_Set("g_pingEqualizer", "1");
-		AP( va( "print \"^3!eqping: ping equalizer ON\n"));
+	int eqping = 0;
+
+	if (G_SayArgc() == 2+skiparg) {
+		char pingstr[MAX_STRING_CHARS];
+		G_SayArgv(1+skiparg, pingstr, sizeof(pingstr));
+		eqping = atoi(pingstr);
+	} else if (level.eqPing == 0) {
+		eqping = g_eqpingMax.integer;
+	}
+
+	if (eqping < 0 ) {
+		eqping = 0;
+	}
+	
+	if (eqping > 0 && level.eqPing) {
+		AP( va( "print \"^3!eqping: ping already set!\n"));
+		return qfalse;
+	}
+
+	if (eqping > 0 ) {
+		AP( va( "print \"^3!eqping: ping equalizer set to %ims maximum\n", eqping));
 	} else {
-		G_PingEqualizerReset();
-		trap_Cvar_Set("g_pingEqualizer", "0");
 		AP( va( "print \"^3!eqping: ping equalizer OFF\n"));
 	}
+	G_EQPingSet(eqping, qfalse);
 	return qtrue;
+
+
+	//if (g_pingEqualizer.integer == 0) {
+	//	trap_Cvar_Set("g_pingEqualizer", "1");
+	//	AP( va( "print \"^3!eqping: ping equalizer ON\n"));
+	//} else {
+	//	G_PingEqualizerReset();
+	//	trap_Cvar_Set("g_pingEqualizer", "0");
+	//	AP( va( "print \"^3!eqping: ping equalizer OFF\n"));
+	//}
+	//return qtrue;
 }
 
 
