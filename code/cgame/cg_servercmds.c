@@ -643,6 +643,18 @@ static void CG_ParseAward( void ) {
 	}
 }
 
+static void CG_ParseTaunt( void ) {
+	int clientNum = atoi( CG_Argv( 1 ) );
+
+	if( clientNum < 0 || clientNum >= MAX_CLIENTS ) {
+		return;
+	}
+
+	CG_PlayTaunt(clientNum, CG_Argv(2));
+
+	//trap_S_StartSound (NULL, clientNum, CHAN_VOICE, CG_CustomSound( clientNum, "*taunt.wav" ) );
+}
+
 /*
 =================
 CG_ParseTeam
@@ -1649,6 +1661,97 @@ void CG_VoiceChat( int mode ) {
 #endif
 }
 
+#define MAX_TAUNTFILESIZE	16384
+#define MAX_TAUNTS		128
+
+struct taunt_s
+{
+	char id[64];
+	sfxHandle_t sound;
+};
+
+struct tauntList_s 
+{
+	int numTaunts;
+	struct taunt_s taunts[MAX_TAUNTS];
+};
+
+struct tauntList_s tauntList;
+
+void CG_LoadTaunts(void) {
+	int	len;
+	fileHandle_t f;
+	char buf[MAX_TAUNTFILESIZE];
+	char **p, *ptr;
+	char *token;
+	sfxHandle_t sound;
+
+	memset(&tauntList, 0, sizeof(tauntList));
+
+	len = trap_FS_FOpenFile( "sound/taunts/tauntlist.cfg", &f, FS_READ );
+	if ( !f ) {
+		return;
+	}
+	if ( len >= MAX_TAUNTFILESIZE ) {
+		trap_Print( va( S_COLOR_RED "taunt file too large: is %i, max allowed is %i\n", len, MAX_TAUNTFILESIZE ) );
+		trap_FS_FCloseFile( f );
+		return;
+	}
+
+	trap_FS_Read( buf, len, f );
+	buf[len] = 0;
+	trap_FS_FCloseFile( f );
+
+	ptr = buf;
+	p = &ptr;
+
+	for (tauntList.numTaunts = 0; tauntList.numTaunts < MAX_TAUNTS; tauntList.numTaunts++) {
+		token = COM_ParseExt(p, qtrue);
+		if (!token || token[0] == 0) {
+			return;
+		}
+		Com_sprintf(tauntList.taunts[tauntList.numTaunts].id, sizeof( tauntList.taunts[tauntList.numTaunts].id ), "%s", token);
+		token = COM_ParseExt(p, qtrue);
+		if (Q_stricmp(token, "{")) {
+			trap_Print( va( S_COLOR_RED "expected { found %s in taunt file\n", token ) );
+			return;
+		}
+
+		token = COM_ParseExt(p, qtrue);
+		if (!token || token[0] == 0) {
+			return;
+		}
+		if (!Q_stricmp(token, "}"))
+			break;
+		sound = trap_S_RegisterSound( token, qtrue );
+		tauntList.taunts[tauntList.numTaunts].sound = sound;
+		token = COM_ParseExt(p, qtrue);
+		if (!token || token[0] == 0) {
+			return;
+		}
+	}
+}
+
+void CG_PlayTaunt(int clientNum, const char *id) {
+	int i;
+
+	for (i = 0; i < tauntList.numTaunts; ++i) {
+		if (!Q_stricmp(tauntList.taunts[i].id, id)) {
+			trap_S_StartSound (NULL, clientNum, CHAN_VOICE, tauntList.taunts[i].sound );
+			return;
+		}
+	}
+}
+
+void CG_PrintTaunts( void ) {
+	int i;
+
+	CG_Printf("List of taunts:\n");
+	for (i = 0; i < tauntList.numTaunts; ++i) {
+		CG_Printf(" %s\n", tauntList.taunts[i].id);
+	}
+}
+
 /*
 =================
 CG_RemoveChatEscapeChar
@@ -1927,6 +2030,11 @@ static void CG_ServerCommand( void ) {
 
         if ( !strcmp( cmd, "team" ) ) {
 		CG_ParseTeam();
+		return;
+	}
+	
+        if ( !strcmp( cmd, "taunt" ) ) {
+		CG_ParseTaunt();
 		return;
 	}
 

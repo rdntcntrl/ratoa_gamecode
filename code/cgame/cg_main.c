@@ -1640,6 +1640,8 @@ static void CG_RegisterSounds( void ) {
 	trap_S_RegisterSound("sound/player/kyonshi/taunt.wav", qfalse );
 #endif
 
+	CG_LoadTaunts();
+
 }
 
 

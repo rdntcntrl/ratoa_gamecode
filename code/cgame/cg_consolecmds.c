@@ -110,7 +110,17 @@ void CG_Mapvote_f( void ) {
 		trap_SendConsoleCommand("toggleconsole;");
 	}
 	trap_SendConsoleCommand("ui_votemapmenu;");
+}
 
+void CG_Taunt_f( void ) {
+	int n = trap_Argc();
+
+	if (n == 1) {
+		CG_PrintTaunts();
+		return;
+	}
+
+	trap_SendClientCommand(va("taunt %s\n", ConcatArgs(1)));
 }
 
 #define MAX_SAMPLECFGSIZE (24*1024)
@@ -617,6 +627,7 @@ static consoleCommand_t	commands[] = {
 	{ "cecho", CG_Echo_f },
 	{ "randomcolors", CG_Randomcolors_f },
 	{ "mv", CG_Mapvote_f },
+	{ "taunt", CG_Taunt_f },
 #ifdef MISSIONPACK
 	{ "loadhud", CG_LoadHud_f },
 	{ "nextTeamMember", CG_NextTeamMember_f },
