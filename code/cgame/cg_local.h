@@ -941,6 +941,11 @@ typedef struct {
 	qhandle_t	rsb4_armor_decorShaders[RSB4_NUM_HA_BAR_DECOR_ELEMENTS];
 	qhandle_t	rsb4_weapon_decorShaders[RSB4_NUM_W_BAR_DECOR_ELEMENTS];
 
+	qhandle_t	rsb4_health_bg;
+	qhandle_t	rsb4_health_bg_border;
+	qhandle_t	rsb4_armor_bg;
+	qhandle_t	rsb4_armor_bg_border;
+
 	qhandle_t	teamStatusBar;
 
 	qhandle_t	deferShader;
@@ -1641,6 +1646,7 @@ extern vmCvar_t			cg_specShowZoom;
 extern vmCvar_t			cg_zoomToggle;
 extern vmCvar_t			cg_zoomAnim;
 extern vmCvar_t			cg_zoomAnimScale;
+extern vmCvar_t			cg_drawHabarBackground;
 extern vmCvar_t			cg_hudDamageIndicator;
 extern vmCvar_t			cg_hudDamageIndicatorScale;
 extern vmCvar_t			cg_hudDamageIndicatorOffset;

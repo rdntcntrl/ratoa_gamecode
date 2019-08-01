@@ -43,6 +43,7 @@ char teamChat1[256];
 char teamChat2[256];
 
 static float CG_DrawPickupItem( float y );
+void CG_GetScoreColor(int team, float *color);
 
 #ifdef MISSIONPACK
 
@@ -1404,6 +1405,11 @@ void CG_Ratstatusbar4RegisterShaders(void) {
 	for (i = 0; i < RSB4_NUM_W_BAR_DECOR_ELEMENTS; ++i) {
 		cgs.media.rsb4_weapon_decorShaders[i] = trap_R_RegisterShader(va("rsb_weapon_decor%i", i+1));
 	}
+
+	cgs.media.rsb4_health_bg = trap_R_RegisterShader("rsb4_health_bg");
+	cgs.media.rsb4_health_bg_border = trap_R_RegisterShader("rsb4_health_bg_border");
+	cgs.media.rsb4_armor_bg = trap_R_RegisterShader("rsb4_armor_bg");
+	cgs.media.rsb4_armor_bg_border = trap_R_RegisterShader("rsb4_armor_bg_border");
 }
 
 static void CG_DrawRatStatusBar4( void ) {
@@ -1616,6 +1622,56 @@ static void CG_DrawRatStatusBar4( void ) {
 
 
 	trap_R_SetColor( NULL );
+}
+
+static void CG_DrawRatStatusBar4Bg( void ) {
+	float bg_color[4] = { 0.0, 0.0, 0.0, 0.33 };
+	float border_color[4] = { 0.33, 0.33, 0.33, 1.0 };
+	float h = RSB4_HABAR_HEIGHT*RSB4_HABAR_BASE_SCALE;
+	float w = CG_HeightToWidth(4*h);
+	float y = SCREEN_HEIGHT - h * 0.92;
+	int team = TEAM_FREE;
+
+	if (!cg_drawHabarBackground.integer) {
+		return;
+	}
+
+	trap_R_SetColor(bg_color);
+
+	CG_DrawPic( SCREEN_WIDTH/2.0 - w,
+			y,
+			w,
+			h,
+			cgs.media.rsb4_health_bg );
+	CG_DrawPic( SCREEN_WIDTH/2.0,
+			y,
+			w,
+			h,
+			cgs.media.rsb4_armor_bg );
+
+	if ( !(cg.snap->ps.pm_flags & PMF_FOLLOW) ) {
+		team = cg.snap->ps.persistant[PERS_TEAM];
+	} else {
+		team = cgs.clientinfo[ cg.snap->ps.clientNum ].team;
+	}
+	if (team != TEAM_FREE) {
+		CG_GetScoreColor(team, border_color);
+	}
+	border_color[3] = RSB4_DECOR_ALPHA;
+	trap_R_SetColor(border_color);
+
+	CG_DrawPic( SCREEN_WIDTH/2.0 - w,
+			y,
+			w,
+			h,
+			cgs.media.rsb4_health_bg_border );
+	CG_DrawPic( SCREEN_WIDTH/2.0,
+			y,
+			w,
+			h,
+			cgs.media.rsb4_armor_bg_border );
+
+	trap_R_SetColor(NULL);
 }
 
 #define	RSB3_BIGCHAR_HEIGHT		32
@@ -6259,6 +6315,9 @@ static void CG_Draw2D(stereoFrame_t stereoFrame)
 	} else {
 		// don't draw any status if dead or the scoreboard is being explicitly shown
 		if ( !cg.showScores && cg.snap->ps.stats[STAT_HEALTH] > 0 ) {
+			if (cg_ratStatusbar.integer == 4 && cgs.gametype != GT_HARVESTER && cgs.gametype != GT_TREASURE_HUNTER) {
+				CG_DrawRatStatusBar4Bg();
+			}
 			CG_DrawHudDamageIndicator();
 
 #ifdef MISSIONPACK

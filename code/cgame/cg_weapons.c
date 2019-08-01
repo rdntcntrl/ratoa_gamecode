@@ -3517,7 +3517,7 @@ void CG_DrawWeaponBar15(int count, int bits, float *color){
 	y = 376 + circleSz/2.0;
 	x = 320 - (count > 0 ? count-1 : 0) * circleDistance/2.0;
 
-	text_y = y + circleSz/2.0 - 5;
+	text_y = y + circleSz/2.0 - 7;
 	bar_y = text_y + char_height + 1;
 
 
