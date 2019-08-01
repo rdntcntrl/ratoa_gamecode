@@ -275,6 +275,8 @@ void CG_DrawChar( int x, int y, int width, int height, int ch ) {
 					   CG_SelectFont(aw, ah) );
 }
 
+#define FONTSHADOW_OFFSETFACTOR (1.0/14.0)
+
 /*
 ==================
 CG_DrawStringExtFloat
@@ -297,10 +299,11 @@ void CG_DrawStringExtFloat( float x, float y, const char *string, const float *s
 
 	// draw the drop shadow
 	if (shadow) {
-		int shadow_offset = 2;
-		if (charHeight <= SCORECHAR_HEIGHT || charWidth <= SCORECHAR_WIDTH) {
-			shadow_offset = 1;
-		}
+		//int shadow_offset = 2;
+		//if (charHeight <= SCORECHAR_HEIGHT || charWidth <= SCORECHAR_WIDTH) {
+		//	shadow_offset = 1;
+		//}
+		float shadow_offset = (FONTSHADOW_OFFSETFACTOR) * charHeight;
 
 		color[0] = color[1] = color[2] = 0;
 		color[3] = setColor[3];
@@ -313,7 +316,7 @@ void CG_DrawStringExtFloat( float x, float y, const char *string, const float *s
 				s += 2;
 				continue;
 			}
-			CG_DrawCharFloat( xx + shadow_offset, y + shadow_offset, charWidth, charHeight, *s );
+			CG_DrawCharFloat( xx + CG_HeightToWidth(shadow_offset), y + shadow_offset, charWidth, charHeight, *s );
 			cnt++;
 			xx += charWidth;
 			s++;
@@ -366,10 +369,11 @@ void CG_DrawStringExt( int x, int y, const char *string, const float *setColor,
 
 	// draw the drop shadow
 	if (shadow) {
-		int shadow_offset = 2;
-		if (charHeight <= SCORECHAR_HEIGHT || charWidth <= SCORECHAR_WIDTH) {
-			shadow_offset = 1;
-		}
+		//int shadow_offset = 2;
+		//if (charHeight <= SCORECHAR_HEIGHT || charWidth <= SCORECHAR_WIDTH) {
+		//	shadow_offset = 1;
+		//}
+		float shadow_offset = (FONTSHADOW_OFFSETFACTOR) * charHeight;
 
 		color[0] = color[1] = color[2] = 0;
 		color[3] = setColor[3];
@@ -382,7 +386,7 @@ void CG_DrawStringExt( int x, int y, const char *string, const float *setColor,
 				s += 2;
 				continue;
 			}
-			CG_DrawChar( xx + shadow_offset, y + shadow_offset, charWidth, charHeight, *s );
+			CG_DrawCharFloat( xx + CG_HeightToWidth(shadow_offset), y + shadow_offset, charWidth, charHeight, *s );
 			cnt++;
 			xx += charWidth;
 			s++;
