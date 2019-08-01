@@ -624,7 +624,7 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_friendFloatHealth, "cg_friendFloatHealth", "1", CVAR_ARCHIVE},
 	{ &cg_friendFloatHealthSize, "cg_friendFloatHealthSize", "8", CVAR_ARCHIVE},
 	{ &cg_radar, "cg_radar", "1", CVAR_ARCHIVE},
-	{ &cg_announcer, "cg_announcer", "", CVAR_ARCHIVE|CVAR_LATCH},
+	{ &cg_announcer, "cg_announcer", "treb", CVAR_ARCHIVE|CVAR_LATCH},
 	{ &cg_announcerNewAwards, "cg_announcerNewAwards", "", CVAR_ARCHIVE|CVAR_LATCH},
 	{ &cg_soundBufferDelay, "cg_soundBufferDelay", "750", 0},
 	{ &cg_powerupBlink, "cg_powerupBlink", "0", CVAR_ARCHIVE},
@@ -856,7 +856,7 @@ void CG_RatRemapShaders(void) {
 	}
 }
 
-#define LATEST_RATINITIALIZED 14
+#define LATEST_RATINITIALIZED 15
 
 /*
  *
@@ -1087,12 +1087,20 @@ void CG_RatOldCfgUpdate(void) {
 		CG_Cvar_SetAndUpdate( "cg_ratInitialized", "13" );
 	}
 
-	if (cg_ratInitialized.integer < LATEST_RATINITIALIZED) {
+	if (cg_ratInitialized.integer < 14) {
 		if (cg_weaponBarStyle.integer == 8) {
 			CG_Cvar_SetAndUpdate("cg_weaponBarStyle", "11");
 		} else if (cg_weaponBarStyle.integer == 9) {
 			CG_Cvar_SetAndUpdate("cg_weaponBarStyle", "12");
 		}
+		CG_Cvar_SetAndUpdate( "cg_ratInitialized", "14" );
+	}
+
+	if (cg_ratInitialized.integer < 15) {
+		CG_Cvar_SetAndUpdate( "cg_announcer", "treb" );
+		CG_Cvar_SetAndUpdate( "cg_announcerNewAwards", "" );
+
+		CG_Cvar_SetAndUpdate( "cg_ratInitialized", "15" );
 	}
 
 }
