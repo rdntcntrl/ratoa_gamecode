@@ -2265,7 +2265,7 @@ static float CG_DrawFPS( float y ) {
 		if (cg_drawFPS.integer == 1) {
 			w = CG_DrawStrlen( s ) * char_width;
 			CG_DrawStringExt( 635-w, y + 2, s, color, qfalse, qtrue, char_width, char_height, 0 );
-		} else if (cg_drawFPS.integer == 2) {
+		} else if (cg_drawFPS.integer == 2 || cg_drawFPS.integer == 3) {
 			char_width *= 0.75;
 			char_height *= 0.75;
 			w = CG_DrawStrlen( s ) * char_width;
@@ -4617,7 +4617,7 @@ static void CG_DrawBottomFPS( void ) {
 	float w_s;
 	float x = SCREEN_WIDTH - w;
 	float y = SCREEN_HEIGHT - BOTTOM_FPS_SIZE;
-	int fps = CG_FPS();
+	int fps;
 	float	color[4];
 	float	char_height = 13;
 	float	char_width = CG_HeightToWidth(8);
@@ -4626,8 +4626,16 @@ static void CG_DrawBottomFPS( void ) {
 	char		*s;
 
 	if (cg_lagometer.integer && !cgs.localServer) {
+		if (cg.scoreBoardShowing) {
+			// draw it over the lagometer in case the scoreboard is
+			// up
+			CG_DrawFPS(0);
+			return;
+		}
 		x -= 48;
 	}
+
+	fps = CG_FPS();
 
 	CG_DrawPic(x, y, w, h, cgs.media.bottomFPSShader );
 
