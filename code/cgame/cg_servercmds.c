@@ -345,7 +345,7 @@ static void CG_ParseRatScores3( void ) {
 		cg.scores_buf[i].eaward_counts[EAWARD_ROCKETRAIL] = atoi(CG_Argv(i * NUM_RAT3_DATA + FIRST_RAT3_DATA + 10));
 		cg.scores_buf[i].eaward_counts[EAWARD_LGRAIL] = atoi(CG_Argv(i * NUM_RAT3_DATA + FIRST_RAT3_DATA + 11));
 		cg.scores_buf[i].eaward_counts[EAWARD_RAILTWO] = atoi(CG_Argv(i * NUM_RAT3_DATA + FIRST_RAT3_DATA + 12));
-		cg.scores_buf[i].eaward_counts[EAWARD_REVENGE] = atoi(CG_Argv(i * NUM_RAT3_DATA + FIRST_RAT3_DATA + 13));
+		cg.scores_buf[i].eaward_counts[EAWARD_DEADHAND] = atoi(CG_Argv(i * NUM_RAT3_DATA + FIRST_RAT3_DATA + 13));
 		cg.scores_buf[i].eaward_counts[EAWARD_SHOWSTOPPER] = atoi(CG_Argv(i * NUM_RAT3_DATA + FIRST_RAT3_DATA + 14));
 		cg.scores_buf[i].eaward_counts[EAWARD_AMBUSH] = atoi(CG_Argv(i * NUM_RAT3_DATA + FIRST_RAT3_DATA + 15));
 		cg.scores_buf[i].eaward_counts[EAWARD_KAMIKAZE] = atoi(CG_Argv(i * NUM_RAT3_DATA + FIRST_RAT3_DATA + 16));
@@ -374,7 +374,7 @@ static void CG_ParseRatScores4( void ) {
 	}
 	//memset( cg.scores, 0, sizeof( cg.scores ) );
 
-#define NUM_RAT4_DATA 8
+#define NUM_RAT4_DATA 12
 #define FIRST_RAT4_DATA 1
 
 	for ( i = 0 ; i < numScores ; i++ ) {
@@ -386,6 +386,11 @@ static void CG_ParseRatScores4( void ) {
 		cg.scores_buf[i].eaward_counts[EAWARD_MASSACRE]= atoi(CG_Argv(i * NUM_RAT4_DATA + FIRST_RAT4_DATA + 6));
 		cg.scores_buf[i].eaward_counts[EAWARD_UNSTOPPABLE]= atoi(CG_Argv(i * NUM_RAT4_DATA + FIRST_RAT4_DATA + 7));
 		cg.scores_buf[i].eaward_counts[EAWARD_GRIMREAPER]= atoi(CG_Argv(i * NUM_RAT4_DATA + FIRST_RAT4_DATA + 8));
+
+		cg.scores_buf[i].eaward_counts[EAWARD_REVENGE]= atoi(CG_Argv(i * NUM_RAT4_DATA + FIRST_RAT4_DATA + 9));
+		cg.scores_buf[i].eaward_counts[EAWARD_BERSERKER]= atoi(CG_Argv(i * NUM_RAT4_DATA + FIRST_RAT4_DATA + 10));
+		cg.scores_buf[i].eaward_counts[EAWARD_VAPORIZED]= atoi(CG_Argv(i * NUM_RAT4_DATA + FIRST_RAT4_DATA + 11));
+		cg.scores_buf[i].eaward_counts[EAWARD_TWITCHRAIL]= atoi(CG_Argv(i * NUM_RAT4_DATA + FIRST_RAT4_DATA + 12));
 	}
 
 	CG_CheckScoreUpdate();
@@ -814,38 +819,10 @@ static void CG_ParseAward( void ) {
 		return;
 	}
 
-	switch (award) {
-		case EAWARD_FRAGS:
-		case EAWARD_ACCURACY:
-		case EAWARD_ROCKETSNIPER:
-		case EAWARD_FULLSG:
-		case EAWARD_AIRROCKET:
-		case EAWARD_AIRGRENADE:
-		case EAWARD_TWITCHRAIL:
-		case EAWARD_ROCKETRAIL:
-		case EAWARD_LGRAIL:
-		case EAWARD_TELEMISSILE_FRAG:
-		case EAWARD_REVENGE:
-		case EAWARD_KAMIKAZE:
-		case EAWARD_RAT:
-		case EAWARD_AMBUSH:
-		case EAWARD_TELEFRAG:
-		case EAWARD_BUTCHER:
-		case EAWARD_IMMORTALITY:
-		case EAWARD_HERO:
-		case EAWARD_STRONGMAN:
-		case EAWARD_RAILTWO:
-		case EAWARD_SHOWSTOPPER:
-		case EAWARD_KILLINGSPREE:
-		case EAWARD_RAMPAGE:
-		case EAWARD_MASSACRE:
-		case EAWARD_UNSTOPPABLE:
-		case EAWARD_GRIMREAPER:
-			CG_PushReward(cgs.media.eaward_sounds[award], cgs.media.eaward_medals[award], count);
-			break;
-		default:
-			return;
+	if (award < 0 || award >= EAWARD_NUM_AWARDS) {
+		return;
 	}
+	CG_PushReward(cgs.media.eaward_sounds[award], cgs.media.eaward_medals[award], count);
 }
 
 static void CG_ParseTaunt( void ) {

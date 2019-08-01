@@ -1686,7 +1686,7 @@ static void CG_RegisterSounds( void ) {
 		cgs.media.eaward_sounds[EAWARD_ROCKETRAIL] = trap_S_RegisterSound( va("sound/%sratmod/medals/combokill.%s", announcer, format), qtrue);
 		cgs.media.eaward_sounds[EAWARD_LGRAIL] = trap_S_RegisterSound( va("sound/%sratmod/medals/combokill.%s", announcer, format), qtrue);
 		cgs.media.eaward_sounds[EAWARD_RAILTWO] = trap_S_RegisterSound( va("sound/%sratmod/medals/railmaster.%s", announcer, format), qtrue);
-		cgs.media.eaward_sounds[EAWARD_REVENGE] = trap_S_RegisterSound( va("sound/%sratmod/medals/deadhand.%s", announcer, format), qtrue);
+		cgs.media.eaward_sounds[EAWARD_DEADHAND] = trap_S_RegisterSound( va("sound/%sratmod/medals/deadhand.%s", announcer, format), qtrue);
 		cgs.media.eaward_sounds[EAWARD_TWITCHRAIL] = trap_S_RegisterSound( va("sound/%sratmod/medals/aimbot.%s", announcer, format), qtrue);
 		cgs.media.eaward_sounds[EAWARD_SHOWSTOPPER] = trap_S_RegisterSound( va("sound/%sratmod/medals/showstopper.%s", announcer, format), qtrue);
 		cgs.media.eaward_sounds[EAWARD_AMBUSH] = trap_S_RegisterSound( va("sound/%sratmod/medals/ambush.%s", announcer, format), qtrue);
@@ -1701,6 +1701,10 @@ static void CG_RegisterSounds( void ) {
 		cgs.media.eaward_sounds[EAWARD_MASSACRE] = trap_S_RegisterSound( va("sound/%sratmod/medals/massacre.%s", announcer, format), qtrue);
 		cgs.media.eaward_sounds[EAWARD_UNSTOPPABLE] = trap_S_RegisterSound( va("sound/%sratmod/medals/unstoppable.%s", announcer, format), qtrue);
 		cgs.media.eaward_sounds[EAWARD_GRIMREAPER] = trap_S_RegisterSound( va("sound/%sratmod/medals/grimreaper.%s", announcer, format), qtrue);
+
+		cgs.media.eaward_sounds[EAWARD_BERSERKER] = trap_S_RegisterSound( va("sound/%sratmod/medals/berserker.%s", announcer, format), qtrue);
+		cgs.media.eaward_sounds[EAWARD_REVENGE] = trap_S_RegisterSound( va("sound/%sratmod/medals/revenge.%s", announcer, format), qtrue);
+		cgs.media.eaward_sounds[EAWARD_VAPORIZED] = trap_S_RegisterSound( va("sound/%sratmod/medals/vaporized.%s", announcer, format), qtrue);
 	} else {
 		cgs.media.eaward_sounds[EAWARD_TELEFRAG] = cgs.media.humiliationSound;
 		cgs.media.eaward_sounds[EAWARD_TELEMISSILE_FRAG] = cgs.media.perfectSound;
@@ -1712,7 +1716,7 @@ static void CG_RegisterSounds( void ) {
 		cgs.media.eaward_sounds[EAWARD_ROCKETRAIL] = cgs.media.perfectSound;
 		cgs.media.eaward_sounds[EAWARD_LGRAIL] = cgs.media.perfectSound;
 		cgs.media.eaward_sounds[EAWARD_RAILTWO] = cgs.media.holyShitSound;
-		cgs.media.eaward_sounds[EAWARD_REVENGE] = cgs.media.perfectSound;
+		cgs.media.eaward_sounds[EAWARD_DEADHAND] = cgs.media.perfectSound;
 		cgs.media.eaward_sounds[EAWARD_TWITCHRAIL] = cgs.media.accuracySound;
 		cgs.media.eaward_sounds[EAWARD_SHOWSTOPPER] = cgs.media.perfectSound;
 		cgs.media.eaward_sounds[EAWARD_AMBUSH] = cgs.media.perfectSound;
@@ -1721,6 +1725,16 @@ static void CG_RegisterSounds( void ) {
 		cgs.media.eaward_sounds[EAWARD_HERO] = cgs.media.holyShitSound;
 		cgs.media.eaward_sounds[EAWARD_RAT] = cgs.media.perfectSound;
 		cgs.media.eaward_sounds[EAWARD_BUTCHER] = cgs.media.perfectSound;
+
+		cgs.media.eaward_sounds[EAWARD_KILLINGSPREE] = cgs.media.perfectSound;
+		cgs.media.eaward_sounds[EAWARD_RAMPAGE] = cgs.media.holyShitSound;
+		cgs.media.eaward_sounds[EAWARD_MASSACRE] = cgs.media.holyShitSound;
+		cgs.media.eaward_sounds[EAWARD_UNSTOPPABLE] = cgs.media.holyShitSound;
+		cgs.media.eaward_sounds[EAWARD_GRIMREAPER] = cgs.media.holyShitSound;
+
+		cgs.media.eaward_sounds[EAWARD_BERSERKER] = cgs.media.perfectSound;
+		cgs.media.eaward_sounds[EAWARD_REVENGE] = cgs.media.perfectSound;
+		cgs.media.eaward_sounds[EAWARD_VAPORIZED] = cgs.media.perfectSound;
 	}
 
 	cgs.media.watrInSound = trap_S_RegisterSound( "sound/player/watr_in.wav", qfalse);
@@ -2146,7 +2160,7 @@ static void CG_RegisterGraphics( void ) {
 	cgs.media.eaward_medals[EAWARD_ROCKETRAIL] = trap_R_RegisterShaderNoMip( "medal_rocketrail" );
 	cgs.media.eaward_medals[EAWARD_LGRAIL] = trap_R_RegisterShaderNoMip( "medal_lgrail" );
 	cgs.media.eaward_medals[EAWARD_RAILTWO] = trap_R_RegisterShaderNoMip( "medal_railtwo" );
-	cgs.media.eaward_medals[EAWARD_REVENGE] = trap_R_RegisterShaderNoMip( "medal_grave" );
+	cgs.media.eaward_medals[EAWARD_DEADHAND] = trap_R_RegisterShaderNoMip( "medal_grave" );
 	cgs.media.eaward_medals[EAWARD_TWITCHRAIL] = trap_R_RegisterShaderNoMip( "medal_twitchrail" );
 	cgs.media.eaward_medals[EAWARD_SHOWSTOPPER] = trap_R_RegisterShaderNoMip( "medal_showstopper" );
 	cgs.media.eaward_medals[EAWARD_AMBUSH] = trap_R_RegisterShaderNoMip( "medal_ambush" );
@@ -2159,6 +2173,9 @@ static void CG_RegisterGraphics( void ) {
 	cgs.media.eaward_medals[EAWARD_MASSACRE] = trap_R_RegisterShaderNoMip( "medal_massacre" );
 	cgs.media.eaward_medals[EAWARD_UNSTOPPABLE] = trap_R_RegisterShaderNoMip( "medal_unstoppable" );
 	cgs.media.eaward_medals[EAWARD_GRIMREAPER] = trap_R_RegisterShaderNoMip( "medal_grimreaper" );
+	cgs.media.eaward_medals[EAWARD_REVENGE] = trap_R_RegisterShaderNoMip( "medal_revenge" );
+	cgs.media.eaward_medals[EAWARD_BERSERKER] = trap_R_RegisterShaderNoMip( "medal_berserker" );
+	cgs.media.eaward_medals[EAWARD_VAPORIZED] = trap_R_RegisterShaderNoMip( "medal_vaporized" );
 
 
 

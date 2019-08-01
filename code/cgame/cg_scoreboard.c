@@ -373,11 +373,15 @@ static void CG_RatDrawClientStats(int y, score_t *score, float *color, float fad
 	x = CG_RatDrawClientAward(y, x, score->eaward_counts[EAWARD_ROCKETSNIPER], cgs.media.eaward_medals[EAWARD_ROCKETSNIPER]);
 	x = CG_RatDrawClientAward(y, x, score->eaward_counts[EAWARD_ROCKETRAIL], cgs.media.eaward_medals[EAWARD_ROCKETRAIL]);
 	x = CG_RatDrawClientAward(y, x, score->eaward_counts[EAWARD_LGRAIL], cgs.media.eaward_medals[EAWARD_LGRAIL]);
+	x = CG_RatDrawClientAward(y, x, score->eaward_counts[EAWARD_VAPORIZED], cgs.media.eaward_medals[EAWARD_VAPORIZED]);
+	x = CG_RatDrawClientAward(y, x, score->eaward_counts[EAWARD_REVENGE], cgs.media.eaward_medals[EAWARD_REVENGE]);
+	x = CG_RatDrawClientAward(y, x, score->eaward_counts[EAWARD_BERSERKER], cgs.media.eaward_medals[EAWARD_BERSERKER]);
+	x = CG_RatDrawClientAward(y, x, score->eaward_counts[EAWARD_TWITCHRAIL], cgs.media.eaward_medals[EAWARD_TWITCHRAIL]);
 	x = CG_RatDrawClientAward(y, x, score->eaward_counts[EAWARD_AIRROCKET], cgs.media.eaward_medals[EAWARD_AIRROCKET]);
 	x = CG_RatDrawClientAward(y, x, score->eaward_counts[EAWARD_AIRGRENADE], cgs.media.eaward_medals[EAWARD_AIRGRENADE]);
 	x = CG_RatDrawClientAward(y, x, score->eaward_counts[EAWARD_SHOWSTOPPER], cgs.media.eaward_medals[EAWARD_SHOWSTOPPER]);
 	x = CG_RatDrawClientAward(y, x, score->eaward_counts[EAWARD_AMBUSH], cgs.media.eaward_medals[EAWARD_AMBUSH]);
-	x = CG_RatDrawClientAward(y, x, score->eaward_counts[EAWARD_REVENGE], cgs.media.eaward_medals[EAWARD_REVENGE]);
+	x = CG_RatDrawClientAward(y, x, score->eaward_counts[EAWARD_DEADHAND], cgs.media.eaward_medals[EAWARD_DEADHAND]);
 	x = CG_RatDrawClientAward(y, x, score->eaward_counts[EAWARD_KAMIKAZE], cgs.media.eaward_medals[EAWARD_KAMIKAZE]);
 
 	x = CG_RatDrawClientAward(y, x, score->eaward_counts[EAWARD_FULLSG], cgs.media.eaward_medals[EAWARD_FULLSG]);
