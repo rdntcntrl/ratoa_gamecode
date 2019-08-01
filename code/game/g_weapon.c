@@ -940,16 +940,27 @@ qboolean LogAccuracyHit( gentity_t *target, gentity_t *attacker ) {
 }
 
 void G_CheckAccuracyAward( gentity_t *ent, int old_accuracy_hits) {
+	int requiredhits = 20;
 	if (ent->client->accuracy_hits - old_accuracy_hits <= 0) {
 		ent->client->consecutive_hits = 0;
 		return;
 	}
 	switch (ent->s.weapon) {
 		case WP_LIGHTNING:
-		case WP_MACHINEGUN:
-		case WP_RAILGUN:
-		case WP_CHAINGUN:
 			ent->client->consecutive_hits++;
+			break;
+		case WP_MACHINEGUN:
+			requiredhits = 10;
+			ent->client->consecutive_hits++;
+			break;
+		case WP_RAILGUN:
+			requiredhits = 7;
+			ent->client->consecutive_hits++;
+			break;
+		case WP_CHAINGUN:
+			requiredhits = 10;
+			ent->client->consecutive_hits++;
+			break;
 		case WP_SHOTGUN:
 			// shotcun hits are already counted in ShotgunPattern()
 			break;
@@ -957,7 +968,7 @@ void G_CheckAccuracyAward( gentity_t *ent, int old_accuracy_hits) {
 			return;
 	}
 
-	if (ent->client->consecutive_hits >= 20) {
+	if (ent->client->consecutive_hits >= requiredhits) {
 		ent->client->consecutive_hits = 0;
 		// all hits, give an award
 		AwardMessage(ent, EAWARD_ACCURACY, ++(ent->client->pers.awardCounts[EAWARD_ACCURACY]));
