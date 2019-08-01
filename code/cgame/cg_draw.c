@@ -1663,6 +1663,8 @@ static float CG_DrawTeamOverlay( float y, qboolean right, qboolean upper ) {
 	clientInfo_t *ci;
 	gitem_t	*item;
 	int ret_y, count;
+	float char_width = 8 * cg_teamOverlayScale.value;
+	float char_height = 12 * cg_teamOverlayScale.value;
 
 	if ( !cg_drawTeamOverlay.integer ) {
 		return y;
@@ -1707,14 +1709,14 @@ static float CG_DrawTeamOverlay( float y, qboolean right, qboolean upper ) {
 	if (lwidth > TEAM_OVERLAY_MAXLOCATION_WIDTH)
 		lwidth = TEAM_OVERLAY_MAXLOCATION_WIDTH;
 
-	w = (pwidth + lwidth + 5 + 7) * TINYCHAR_WIDTH * cg_teamOverlayScaleX.value;
+	w = CG_HeightToWidth((pwidth + lwidth + 5 + 7) * char_width);
 
 	if ( right )
 		x = 640 - w;
 	else
 		x = 0;
 
-	h = plyrs * TINYCHAR_HEIGHT * cg_teamOverlayScaleY.value;
+	h = plyrs * char_height;
 
 	if ( upper ) {
 		ret_y = y + h;
@@ -1748,43 +1750,43 @@ static float CG_DrawTeamOverlay( float y, qboolean right, qboolean upper ) {
 				hcolor[2] = 1.0f;
 				hcolor[3] = 0.25;
 				trap_R_SetColor( hcolor );
-				CG_FillRect( x, y, w, TINYCHAR_HEIGHT * cg_teamOverlayScaleY.value, hcolor);
+				CG_FillRect( x, y, w, char_height, hcolor);
 				trap_R_SetColor( NULL );
 			}
 
 			hcolor[0] = hcolor[1] = hcolor[2] = hcolor[3] = 1.0;
 
-			xx = x + TINYCHAR_WIDTH * cg_teamOverlayScaleX.value;
+			xx = x + CG_HeightToWidth(char_width);
 
-			CG_DrawStringExt( xx, y,
+			CG_DrawStringExtFloat( xx, y,
 				ci->name, hcolor, qfalse, qfalse,
-				TINYCHAR_WIDTH * cg_teamOverlayScaleX.value, TINYCHAR_HEIGHT * cg_teamOverlayScaleY.value, pwidth);
+				CG_HeightToWidth(char_width), char_height, pwidth);
 
-			xx = x + cg_teamOverlayScaleX.value * TINYCHAR_WIDTH * (pwidth + 2);
+			xx = x + CG_HeightToWidth(char_width * (pwidth + 2));
 
 			CG_DrawHealthBar(xx, y,
-					       	TINYCHAR_WIDTH * 9 * cg_teamOverlayScaleX.value,
-					       	TINYCHAR_HEIGHT * cg_teamOverlayScaleY.value,
+					       	CG_HeightToWidth(char_width * 9),
+					       	char_height,
 					      	ci->health, ci->armor);
 
 			CG_GetColorForHealth( ci->health, ci->armor, hcolor );
 
 			Com_sprintf (st, sizeof(st), "%3i %i", ci->health,	ci->armor);
 
-			xx = x + cg_teamOverlayScaleX.value * TINYCHAR_WIDTH * (pwidth + 2 + 1);
+			xx = x + CG_HeightToWidth(char_width * (pwidth + 2 + 1));
 
-			CG_DrawStringExt( xx, y,
+			CG_DrawStringExtFloat( xx, y,
 				st, hcolor, qfalse, qfalse,
-				TINYCHAR_WIDTH * cg_teamOverlayScaleX.value, TINYCHAR_HEIGHT * cg_teamOverlayScaleY.value, 0 );
+				CG_HeightToWidth(char_width), char_height, 0 );
 
 			// draw weapon icon
-			xx += TINYCHAR_WIDTH * cg_teamOverlayScaleX.value * 3;
+			xx += CG_HeightToWidth(char_width * 3);
 
 			if ( cg_weapons[ci->curWeapon].weaponIcon ) {
-				CG_DrawPic( xx, y, TINYCHAR_WIDTH * cg_teamOverlayScaleX.value, TINYCHAR_HEIGHT * cg_teamOverlayScaleY.value, 
+				CG_DrawPic( xx, y, CG_HeightToWidth(char_width), char_height, 
 					cg_weapons[ci->curWeapon].weaponIcon );
 			} else {
-				CG_DrawPic( xx, y, TINYCHAR_WIDTH * cg_teamOverlayScaleX.value, TINYCHAR_HEIGHT * cg_teamOverlayScaleY.value, 
+				CG_DrawPic( xx, y, CG_HeightToWidth(char_width), char_height, 
 					cgs.media.deferShader );
 			}
 
@@ -1805,9 +1807,9 @@ static float CG_DrawTeamOverlay( float y, qboolean right, qboolean upper ) {
 
 //				xx = x + TINYCHAR_WIDTH * 2 + TINYCHAR_WIDTH * pwidth + 
 //					((lwidth/2 - len/2) * TINYCHAR_WIDTH);
-				xx = x + cg_teamOverlayScaleX.value * TINYCHAR_WIDTH * (3 + pwidth + 9);
-				CG_DrawStringExt( xx, y,
-					p, autocolor, qfalse, qfalse, TINYCHAR_WIDTH * cg_teamOverlayScaleX.value, TINYCHAR_HEIGHT * cg_teamOverlayScaleY.value,
+				xx = x + CG_HeightToWidth(char_width * (3 + pwidth + 9));
+				CG_DrawStringExtFloat( xx, y,
+					p, autocolor, qfalse, qfalse, CG_HeightToWidth(char_width), char_height,
 					lwidth);
 			}
 
@@ -1815,7 +1817,7 @@ static float CG_DrawTeamOverlay( float y, qboolean right, qboolean upper ) {
 			if (right) {
 				xx = x;
 			} else {
-				xx = x + w - TINYCHAR_WIDTH * cg_teamOverlayScaleX.value;
+				xx = x + w - CG_HeightToWidth(char_width);
 			}
 			for (j = 0; j <= PW_NUM_POWERUPS; j++) {
 				if (ci->powerups & (1 << j)) {
@@ -1823,18 +1825,18 @@ static float CG_DrawTeamOverlay( float y, qboolean right, qboolean upper ) {
 					item = BG_FindItemForPowerup( j );
 
 					if (item) {
-						CG_DrawPic( xx, y, TINYCHAR_WIDTH * cg_teamOverlayScaleX.value, TINYCHAR_HEIGHT * cg_teamOverlayScaleY.value, 
+						CG_DrawPic( xx, y, CG_HeightToWidth(char_width), char_height, 
 						trap_R_RegisterShader( item->icon ) );
 						if (right) {
-							xx -= TINYCHAR_WIDTH * cg_teamOverlayScaleX.value;
+							xx -= CG_HeightToWidth(char_width);
 						} else {
-							xx += TINYCHAR_WIDTH * cg_teamOverlayScaleX.value;
+							xx += CG_HeightToWidth(char_width);
 						}
 					}
 				}
 			}
 
-			y += TINYCHAR_HEIGHT * cg_teamOverlayScaleY.value;
+			y += char_height;
 		}
 	}
 

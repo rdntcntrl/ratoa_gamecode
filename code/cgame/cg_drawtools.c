@@ -160,7 +160,7 @@ CG_DrawCharFloat
 Coordinates and size in 640*480 virtual screen size
 ===============
 */
-void CG_DrawCharFloat( int x, int y, float width, float height, int ch ) {
+void CG_DrawCharFloat( float x, float y, float width, float height, int ch ) {
 	int row, col;
 	float frow, fcol;
 	float size;
@@ -240,7 +240,7 @@ to a fixed color.
 Coordinates are at 640 by 480 virtual resolution
 ==================
 */
-void CG_DrawStringExtFloat( int x, int y, const char *string, const float *setColor, 
+void CG_DrawStringExtFloat( float x, float y, const char *string, const float *setColor, 
 		qboolean forceColor, qboolean shadow, float charWidth, float charHeight, int maxChars ) {
 	vec4_t		color;
 	const char	*s;

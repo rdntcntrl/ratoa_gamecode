@@ -1589,8 +1589,7 @@ extern vmCvar_t			cg_quadAlpha;
 extern vmCvar_t			cg_quadHue;
 extern vmCvar_t			cg_bloodOnHit;
 extern vmCvar_t			cg_drawSpawnpoints;
-extern vmCvar_t			cg_teamOverlayScaleX;
-extern vmCvar_t			cg_teamOverlayScaleY;
+extern vmCvar_t			cg_teamOverlayScale;
 extern vmCvar_t			cg_teamOverlayAutoColor;
 extern vmCvar_t			cg_drawTeamBackground;
 
@@ -1870,7 +1869,7 @@ void CG_DrawString( float x, float y, const char *string,
 
 void CG_DrawStringExt( int x, int y, const char *string, const float *setColor, 
 		qboolean forceColor, qboolean shadow, int charWidth, int charHeight, int maxChars );
-void CG_DrawStringExtFloat( int x, int y, const char *string, const float *setColor, 
+void CG_DrawStringExtFloat( float x, float y, const char *string, const float *setColor, 
 		qboolean forceColor, qboolean shadow, float charWidth, float charHeight, int maxChars );
 void CG_DrawScoreString( int x, int y, const char *s, float alpha, int maxchars );
 void CG_DrawScoreStringColor( int x, int y, const char *s, vec4_t color );

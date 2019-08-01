@@ -260,8 +260,7 @@ vmCvar_t	cg_teamChatLines;
 
 vmCvar_t	cg_commonConsole;
 
-vmCvar_t	cg_teamOverlayScaleX;
-vmCvar_t	cg_teamOverlayScaleY;
+vmCvar_t	cg_teamOverlayScale;
 vmCvar_t	cg_teamOverlayAutoColor;
 
 
@@ -626,8 +625,7 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_quadHue, "cg_quadHue", "250", CVAR_ARCHIVE},
 	{ &cg_bloodOnHit, "cg_bloodOnHit", "0", CVAR_ARCHIVE},
 	{ &cg_drawSpawnpoints, "cg_drawSpawnpoints", "1", CVAR_ARCHIVE},
-	{ &cg_teamOverlayScaleX, "cg_teamOverlayScaleX", "0.7", CVAR_ARCHIVE},
-	{ &cg_teamOverlayScaleY, "cg_teamOverlayScaleY", "1", CVAR_ARCHIVE},
+	{ &cg_teamOverlayScale, "cg_teamOverlayScale", "0.7", CVAR_ARCHIVE},
 	{ &cg_teamOverlayAutoColor, "cg_teamOverlayAutoColor", "1", CVAR_ARCHIVE},
 	{ &cg_drawTeamBackground, "cg_drawTeamBackground", "0", CVAR_ARCHIVE},
 	{ &cg_timerAlpha  ,     "cg_timerAlpha", "1", CVAR_ARCHIVE},
@@ -887,13 +885,6 @@ void CG_RatOldCfgUpdate(void) {
 		CG_Cvar_SetAndUpdate( "cl_maxpackets", "125" );
 
 		CG_Cvar_SetAndUpdate( "cg_ratInitialized", "2" );
-	}
-
-	if (cg_ratInitialized.integer < 3) {
-		if (cg_teamOverlayScaleX.value == 0.7) {
-			CG_Cvar_SetAndUpdate("cg_teamOverlayScaleX", "0.63");
-		}
-		CG_Cvar_SetAndUpdate( "cg_ratInitialized", "3" );
 	}
 
 	if (cg_ratInitialized.integer < 4) {
