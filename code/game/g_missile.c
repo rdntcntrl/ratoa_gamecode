@@ -393,6 +393,7 @@ Explode a missile without an impact
 void G_ExplodeMissile( gentity_t *ent ) {
 	vec3_t		dir;
 	vec3_t		origin;
+	int ownerKills = 0, ownerDeaths = 0;
 
 	BG_EvaluateTrajectory( &ent->s.pos, level.time, origin );
 	SnapVector( origin );
@@ -407,6 +408,11 @@ void G_ExplodeMissile( gentity_t *ent ) {
 
 	ent->freeAfterEvent = qtrue;
 
+	if (ent->parent && ent->parent->client) {
+		ownerKills = ent->parent->client->pers.kills;
+		ownerDeaths = ent->parent->client->pers.deaths;
+	}
+
 	// splash damage
 	if ( ent->splashDamage ) {
 		if( G_RadiusDamage( ent->r.currentOrigin, ent, ent->parent, ent->splashDamage, ent->splashRadius, ent
@@ -417,6 +423,8 @@ void G_ExplodeMissile( gentity_t *ent ) {
 	}
 
 	trap_LinkEntity( ent );
+
+	G_CheckKamikazeAward(ent->parent, ownerKills, ownerDeaths);
 }
 
 /*
@@ -875,6 +883,8 @@ void G_RunMissile( gentity_t *ent ) {
 	int		unlinked = 0;
 	int		i;
 	int		telepushed = 0;
+	int ownerKills = 0, ownerDeaths = 0;
+	gentity_t *owner = ent->parent;
 
 	ent->missileRan = 1;
 
@@ -896,6 +906,11 @@ void G_RunMissile( gentity_t *ent ) {
 	else {
 		// ignore interactions with the missile owner
 		passent = ent->r.ownerNum;
+	}
+
+	if (ent->parent && ent->parent->client) {
+		ownerKills = ent->parent->client->pers.kills;
+		ownerDeaths = ent->parent->client->pers.deaths;
 	}
 
 	if (g_teleMissiles.integer == 1 || g_pushGrenades.integer == 1) {
@@ -974,6 +989,7 @@ void G_RunMissile( gentity_t *ent ) {
 		}
 		G_MissileImpact( ent, &tr );
 		if ( ent->s.eType != ET_MISSILE || ent->missileExploded) {
+			G_CheckKamikazeAward(owner, ownerKills, ownerDeaths);
 			return;		// exploded
 		}
 	}

@@ -878,6 +878,7 @@ void body_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int d
 void TossClientItems( gentity_t *self );
 void TossClientPersistantPowerups( gentity_t *self );
 void TossClientCubes( gentity_t *self );
+void G_CheckKamikazeAward(gentity_t *attacker, int killsBefore, int deathsBefore);
 
 // damage flags
 #define DAMAGE_RADIUS				0x00000001	// damage was indirect

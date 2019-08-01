@@ -486,9 +486,29 @@ void rampage_notify(gentity_t *attacker) {
 	AwardMessage(attacker, EAWARD_FRAGS, attacker->client->pers.awardCounts[EAWARD_FRAGS]);
 }
 
+void G_CheckKamikazeAward(gentity_t *attacker, int killsBefore, int deathsBefore) {
+	if (!attacker || !attacker->client) {
+		return;
+	}
+	if (attacker->client->pers.kills <= killsBefore || attacker->client->pers.deaths <= deathsBefore) {
+		return;
+	}
+	AwardMessage(attacker, EAWARD_KAMIKAZE, ++(attacker->client->pers.awardCounts[EAWARD_KAMIKAZE]));
+}
+
 void G_CheckDeathEAwards(gentity_t *victim, gentity_t *inflictor, gentity_t *attacker, int meansOfDeath) {
 	if (!attacker || !attacker->client || attacker == victim) {
 		return;
+	}
+
+	if (victim->s.powerups & (
+			(1 << PW_QUAD) |
+			(1 << PW_BATTLESUIT) |
+			(1 << PW_HASTE) |
+			(1 << PW_INVIS) |
+			(1 << PW_REGEN) |
+			(1 << PW_FLIGHT))) {
+		AwardMessage(attacker, EAWARD_SHOWSTOPPER, ++(attacker->client->pers.awardCounts[EAWARD_SHOWSTOPPER]));
 	}
 
 	switch (meansOfDeath) {
@@ -653,6 +673,10 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 
 				// also play humiliation on target
 				self->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_GAUNTLETREWARD;
+
+				if (attacker->client->ps.powerups[PW_INVIS]) {
+					AwardMessage(attacker, EAWARD_AMBUSH, ++(attacker->client->pers.awardCounts[EAWARD_AMBUSH]));
+				}
 			}
 
                         //If neither attacker or taget is bots and not the same
