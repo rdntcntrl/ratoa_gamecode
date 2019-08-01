@@ -907,6 +907,7 @@ typedef struct {
 	qhandle_t	weaponSelectShaderTech;
 	qhandle_t	weaponSelectShaderTechBorder;
 
+	qhandle_t	powerupFrameShader;
 	qhandle_t	bottomFPSShader;
 
 	qhandle_t	damageIndicatorBottom;

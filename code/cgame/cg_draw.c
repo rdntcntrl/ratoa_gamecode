@@ -3627,6 +3627,26 @@ CG_DrawPowerups
 ================
 */
 #ifndef MISSIONPACK
+
+//#define DPW_MARGIN 1
+//#define DPW_DECOR_WIDTH 48
+//#define DPW_DECOR_HEIGHT 43
+//#define DPW_CHAR_SIZE 20
+//#define DPW_NUMBER_XOFFSET (0.672*DPW_DECOR_WIDTH)
+//#define DPW_NUMBER_YOFFSET (0.084*DPW_DECOR_WIDTH)
+//#define DPW_ICON_XOFFSET (0.319*DPW_DECOR_WIDTH)
+//#define DPW_ICON_YOFFSET (0.418*DPW_DECOR_WIDTH)
+//#define DPW_ICON_SIZE 20
+
+#define DPW_MARGIN 1
+#define DPW_DECOR_WIDTH 52
+#define DPW_DECOR_HEIGHT (0.75*DPW_DECOR_WIDTH)
+#define DPW_CHAR_SIZE (DPW_DECOR_WIDTH*0.45)
+#define DPW_NUMBER_XOFFSET (0.672*DPW_DECOR_WIDTH)
+#define DPW_NUMBER_YOFFSET (0.084*DPW_DECOR_WIDTH)
+#define DPW_ICON_XOFFSET (0.319*DPW_DECOR_WIDTH)
+#define DPW_ICON_YOFFSET (0.418*DPW_DECOR_WIDTH)
+#define DPW_ICON_SIZE 23
 static float CG_DrawPowerups( float y ) {
 	int		sorted[MAX_POWERUPS];
 	int		sortedTime[MAX_POWERUPS];
@@ -3635,10 +3655,13 @@ static float CG_DrawPowerups( float y ) {
 	playerState_t	*ps;
 	int		t;
 	gitem_t	*item;
-	float		x;
+	float		decor_x = 0;
 	int		color;
 	float	size;
 	float	f;
+	float char_width, char_height;
+	float icon_sz;
+	float powerup_height;
 	static float colors[2][4] = { 
     { 0.2f, 1.0f, 0.2f, 1.0f } , 
     { 1.0f, 0.2f, 0.2f, 1.0f } 
@@ -3648,6 +3671,22 @@ static float CG_DrawPowerups( float y ) {
 
 	if ( ps->stats[STAT_HEALTH] <= 0 ) {
 		return y;
+	}
+
+	if (cg_ratStatusbar.integer == 4444) {
+		char_height = DPW_CHAR_SIZE;
+		char_width = CG_HeightToWidth(char_height);
+		icon_sz = DPW_ICON_SIZE;
+
+		powerup_height = DPW_DECOR_HEIGHT;
+
+		decor_x = SCREEN_WIDTH - char_width * 2 - CG_HeightToWidth(DPW_MARGIN + DPW_NUMBER_XOFFSET);
+	} else {
+		char_width = CG_HeightToWidth(CHAR_WIDTH);
+		char_height = CHAR_HEIGHT;
+		icon_sz = ICON_SIZE;
+
+		powerup_height = icon_sz;
 	}
 
 	// sort the list by time remaining
@@ -3683,42 +3722,65 @@ static float CG_DrawPowerups( float y ) {
 	}
 
 	// draw the icons and timers
-	x = 640 - CG_HeightToWidth(ICON_SIZE + CHAR_WIDTH * 2);
 	for ( i = 0 ; i < active ; i++ ) {
 		item = BG_FindItemForPowerup( sorted[i] );
 
-    if (item) {
+		if (item) {
 
-		  color = 1;
+			color = 1;
 
-		  y -= ICON_SIZE;
+			y -= powerup_height;
 
-		  trap_R_SetColor( colors[color] );
-		  CG_DrawField( x, y, 2, sortedTime[ i ] / 1000, qfalse, CG_HeightToWidth(CHAR_WIDTH), CHAR_HEIGHT);
+			trap_R_SetColor( colors[color] );
+			if (cg_ratStatusbar.integer == 4444) {
+				int numDigits, v;
 
-		  t = ps->powerups[ sorted[i] ];
-		  if ( t - cg.time >= POWERUP_BLINKS * POWERUP_BLINK_TIME ) {
-			  trap_R_SetColor( NULL );
-		  } else {
-			  vec4_t	modulate;
+				CG_DrawPic( decor_x,
+					       	y, 
+						CG_HeightToWidth(DPW_DECOR_WIDTH),
+					       	DPW_DECOR_WIDTH, 
+						cgs.media.powerupFrameShader);
 
-			  f = (float)( t - cg.time ) / POWERUP_BLINK_TIME;
-			  f -= (int)f;
-			  modulate[0] = modulate[1] = modulate[2] = modulate[3] = f;
-			  trap_R_SetColor( modulate );
-		  }
+				v = sortedTime[ i ] / 1000;
+				numDigits = 1;
+				while (numDigits < 2 && (v /= 10)) {
+					numDigits++;
+				}
+				CG_DrawField( decor_x + CG_HeightToWidth(DPW_NUMBER_XOFFSET),
+					       	y + DPW_NUMBER_YOFFSET, numDigits, sortedTime[ i ] / 1000, qfalse, char_width, char_height);
+			} else {
+				CG_DrawField( SCREEN_WIDTH - CG_HeightToWidth(icon_sz) - char_width * 2, y, 2, sortedTime[ i ] / 1000, qfalse, char_width, char_height);
+			}
 
-		  if ( cg.powerupActive == sorted[i] && 
-			  cg.time - cg.powerupTime < PULSE_TIME ) {
-			  f = 1.0 - ( ( (float)cg.time - cg.powerupTime ) / PULSE_TIME );
-			  size = ICON_SIZE * ( 1.0 + ( PULSE_SCALE - 1.0 ) * f );
-		  } else {
-			  size = ICON_SIZE;
-		  }
+			t = ps->powerups[ sorted[i] ];
+			if ( t - cg.time >= POWERUP_BLINKS * POWERUP_BLINK_TIME ) {
+				trap_R_SetColor( NULL );
+			} else {
+				vec4_t	modulate;
 
-		  CG_DrawPic( 640 - CG_HeightToWidth(size), y + ICON_SIZE / 2 - size / 2, 
-			  CG_HeightToWidth(size), size, trap_R_RegisterShader( item->icon ) );
-    }
+				f = (float)( t - cg.time ) / POWERUP_BLINK_TIME;
+				f -= (int)f;
+				modulate[0] = modulate[1] = modulate[2] = modulate[3] = f;
+				trap_R_SetColor( modulate );
+			}
+
+			if ( cg.powerupActive == sorted[i] && 
+					cg.time - cg.powerupTime < PULSE_TIME ) {
+				f = 1.0 - ( ( (float)cg.time - cg.powerupTime ) / PULSE_TIME );
+				size = icon_sz * ( 1.0 + ( PULSE_SCALE - 1.0 ) * f );
+			} else {
+				size = icon_sz;
+			}
+			
+			if (cg_ratStatusbar.integer == 4444) {
+				CG_DrawPic( decor_x + CG_HeightToWidth(DPW_ICON_XOFFSET - size/2.0),
+					       	y + DPW_ICON_YOFFSET - size/2.0,
+						CG_HeightToWidth(size), size, trap_R_RegisterShader( item->icon ) );
+			} else {
+				CG_DrawPic( SCREEN_WIDTH - CG_HeightToWidth(size), y + icon_sz / 2 - size / 2, 
+						CG_HeightToWidth(size), size, trap_R_RegisterShader( item->icon ) );
+			}
+		}
 	}
 	trap_R_SetColor( NULL );
 

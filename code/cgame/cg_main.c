@@ -2227,7 +2227,8 @@ static void CG_RegisterGraphics( void ) {
 	cgs.media.weaponSelectShaderTech = trap_R_RegisterShaderNoMip("weapselectTech");
 	cgs.media.weaponSelectShaderTechBorder = trap_R_RegisterShaderNoMip("weapselectTechBorder");
 
-	cgs.media.bottomFPSShader = trap_R_RegisterShaderNoMip("bottomFPSDecor");
+	cgs.media.powerupFrameShader = trap_R_RegisterShader("powerupFrame");
+	cgs.media.bottomFPSShader = trap_R_RegisterShader("bottomFPSDecor");
 
 	cgs.media.damageIndicatorBottom = trap_R_RegisterShaderNoMip("damageIndicatorBottom");
 	cgs.media.damageIndicatorTop = trap_R_RegisterShaderNoMip("damageIndicatorTop");
