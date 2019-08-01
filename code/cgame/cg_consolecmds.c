@@ -565,6 +565,25 @@ static void CG_EditHud_f( void ) {
 #endif
 
 /*
+ * Sends a client command to the server
+ * This is used by the UI since it doesn't have the necessary interface to send
+ * client commands directly
+ */
+void CG_UI_SendClientCommand( void ) {
+	char cmd[MAX_CVAR_VALUE_STRING] = "";
+
+	trap_Cvar_VariableStringBuffer("cg_ui_clientCommand", cmd, sizeof(cmd));
+
+	if (strlen(cmd) <= 0) {
+		Com_Printf("failed to send client command: empty\n");
+		return;
+	}
+
+	trap_Cvar_Set("cg_ui_clientCommand", "");
+	trap_SendClientCommand( cmd );
+}
+
+/*
 ==================
 CG_StartOrbit_f
 ==================
@@ -666,7 +685,9 @@ static consoleCommand_t	commands[] = {
 	{ "loaddeferred", CG_LoadDeferredPlayers },
         { "+acc", CG_AccDown_f },
 	{ "-acc", CG_AccUp_f },
-        { "clients", CG_PrintClientNumbers }
+        { "clients", CG_PrintClientNumbers },
+
+        { "cg_ui_SendClientCommand", CG_UI_SendClientCommand }
 };
 
 

@@ -435,6 +435,8 @@ vmCvar_t	cg_weaponBarStyle;
 vmCvar_t	cg_chatBeep;
 vmCvar_t	cg_teamChatBeep;
 
+vmCvar_t	cg_ui_clientCommand;
+
 typedef struct {
 	vmCvar_t	*vmCvar;
 	char		*cvarName;
@@ -797,7 +799,9 @@ static cvarTable_t cvarTable[] = { // bk001129
         //{ &cg_weaponOrder,"cg_weaponOrder", "/1/2/4/3/6/7/8/9/5/", CVAR_ARCHIVE},
         { &cg_weaponOrder,"cg_weaponOrder", "/1/2/4/3/7/6/8/5/13/11/9/", CVAR_ARCHIVE},
         {&cg_chatBeep, "cg_chatBeep", "1", CVAR_ARCHIVE },
-        {&cg_teamChatBeep, "cg_teamChatBeep", "1", CVAR_ARCHIVE }
+        {&cg_teamChatBeep, "cg_teamChatBeep", "1", CVAR_ARCHIVE },
+
+        {&cg_ui_clientCommand, "cg_ui_clientCommand", "", CVAR_ROM }
 };
 
 static int  cvarTableSize = sizeof( cvarTable ) / sizeof( cvarTable[0] );

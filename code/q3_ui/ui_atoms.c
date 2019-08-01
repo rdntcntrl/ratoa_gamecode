@@ -967,6 +967,14 @@ int UI_Cvar_VariableInteger( const char *var_name ) {
 	return atoi(UI_Cvar_VariableString(var_name));
 }
 
+/*
+ * Sends a client command to the server via cgame
+ */
+void UI_SendClientCommand( const char *command ) {
+	trap_Cvar_Set("cg_ui_clientCommand", command);
+	trap_Cmd_ExecuteText( EXEC_APPEND, "cg_ui_SendCLientCommand\n");
+}
+
 
 /*
 =================

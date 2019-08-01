@@ -721,6 +721,7 @@ extern void			UI_ForceMenuOff (void);
 extern char			*UI_Argv( int arg );
 extern char			*UI_Cvar_VariableString( const char *var_name );
 extern int 			UI_Cvar_VariableInteger( const char *var_name );
+extern void 			UI_SendClientCommand( const char *command );
 extern void			UI_Refresh( int time );
 extern void			UI_StartDemoLoop( void );
 extern qboolean		m_entersound;

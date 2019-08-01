@@ -160,7 +160,9 @@ static void VoteMapMenu_Event( void* ptr, int event )
 		}
                 if(!Q_stricmp(filtered_list.mapname[mapidx],"---"))
                     return; //Blank spaces have string "---"
-                trap_Cmd_ExecuteText( EXEC_APPEND, va("cmd callvote map %s;", filtered_list.mapname[mapidx]) );
+                //trap_Cmd_ExecuteText( EXEC_APPEND, va("cmd callvote map %s\n", filtered_list.mapname[mapidx]) );
+		// this uses cvars to communicate with cgame:
+		UI_SendClientCommand(va("callvote map %s\n", filtered_list.mapname[mapidx]));
                 UI_PopMenu();
 		if (UI_PushedMenus()) {
 			// this menu may be opened directly, so don't pop parent if it's not there
@@ -175,7 +177,7 @@ static void VoteMapMenu_Event( void* ptr, int event )
         //            return;
         //        if(!Q_stricmp(mappage.mapname[s_votemenu_map.selected-ID_MAPNAME0],"---"))
         //            return; //Blank spaces have string "---"
-        //        trap_Cmd_ExecuteText( EXEC_APPEND, va("callvote map %s", mappage.mapname[s_votemenu_map.selected-ID_MAPNAME0]) );
+        //        trap_Cmd_ExecuteText( EXEC_APPEND, va("cmd callvote map %s\n", mappage.mapname[s_votemenu_map.selected-ID_MAPNAME0]) );
         //        UI_PopMenu();
         //        UI_PopMenu();
         //        break;
@@ -228,8 +230,6 @@ static void ResetMaplist(void) {
 	s_votemenu_map.currentmap = 0;
 	UpdateFilter();
 	UI_VoteMapMenu_Update();
-	//trap_Cmd_ExecuteText( EXEC_APPEND,va("%s 0", getmappage_cmd) );
-	//maplist.num_sent_cmds++;
 }
 
 
@@ -239,7 +239,7 @@ void Maplist_RequestNextPage( struct maplist_s *list ) {
 		return;
 	}
 	mappage = (list->num_maps / MAPPAGE_NUM) + ((list->num_maps % MAPPAGE_NUM == 0) ? 0 : 1);
-	trap_Cmd_ExecuteText( EXEC_APPEND,va("%s %i",getmappage_cmd, mappage));
+	trap_Cmd_ExecuteText( EXEC_APPEND,va("cmd %s %i\n",getmappage_cmd, mappage));
 	mappage_in_flight = 1;
 	current_list->num_sent_cmds++;
 }
@@ -262,7 +262,6 @@ static void UI_VoteMapMenu_PreviousPageEvent( void* ptr, int event ) {
 		return;
 	}
 
-        //trap_Cmd_ExecuteText( EXEC_APPEND,va("%s %d",getmappage_cmd, mappage.pagenumber-1) );
 	if (s_votemenu_map.pagenum > 0) {
 		s_votemenu_map.pagenum--;
 		UI_VoteMapMenu_Update();
@@ -280,7 +279,6 @@ static void UI_VoteMapMenu_NextPageEvent( void* ptr, int event ) {
 		UI_VoteMapMenu_Update();
 	}
 
-        //trap_Cmd_ExecuteText( EXEC_APPEND,va("%s %d",getmappage_cmd, mappage.pagenumber+1) );
 }
 
 
@@ -600,10 +598,7 @@ void UI_VoteMapMenuInternal( void )
 			if (current_list->num_maps < MAX_MAP_NUMBER) {
 				current_list->num_maps++;
 			}
-			//Com_Printf("adding map no. %i, %s\n", current_list->num_maps, mappage.mapname[i]);
 		}
-		//trap_Cmd_ExecuteText( EXEC_APPEND,va("%s %d",getmappage_cmd, mappage.pagenumber+1) );
-		//current_list->num_sent_cmds++;
 		Maplist_RequestNextPage(current_list);
 	}
 
@@ -800,8 +795,6 @@ void UI_VoteMapMenu( void ) {
     ResetMaplist();
     if (!current_list->loaded_all) {
 	    Maplist_RequestNextPage(current_list);
-	    //trap_Cmd_ExecuteText( EXEC_APPEND,va("%s 0", getmappage_cmd) );
-	    //current_list->num_sent_cmds++;
     }
 
     trap_Cvar_Set( "cl_paused", "0" ); //We cannot send server commands while paused!
