@@ -3886,20 +3886,6 @@ static void CG_DrawReloadIndicator( void ) {
 		ammoSaved=cg.snap->ps.ammo[weapon];
 	}
 
-	if (ammoSaved != 0) {
-		if (cg.predictedPlayerState.weaponstate != WEAPON_FIRING || time <= 0) {
-			return;
-		}
-
-		switch ( weapon ) {
-			case WP_LIGHTNING:
-			case WP_MACHINEGUN:
-			case WP_PLASMAGUN:
-			case WP_BFG:
-			case WP_CHAINGUN:
-				return;
-		}
-	}
 	ammo = ammoSaved;
 	ammo = MIN(100, (ammo*100)/CG_FullAmmo(weapon));
 
@@ -3918,7 +3904,29 @@ static void CG_DrawReloadIndicator( void ) {
 	}
 	color[3] = MAX(0.0, MIN(1.0, cg_reloadIndicatorAlpha.value));
 
+	if (ammoSaved == 0 || ammo <= 20) {
+		int char_height = 8; 
+		int char_width = CG_HeightToWidth(char_height);
+		width = 3 * char_width;
+		CG_DrawStringExtFloat( (SCREEN_WIDTH - width) / 2.0, cg_reloadIndicatorY.value - char_height,
+			       	ammoSaved == 0 ? "out" : "low", color, qtrue, qfalse,
+				char_width,
+				char_height, 0 );
+	}
+
 	if (ammoSaved != 0) {
+		if (cg.predictedPlayerState.weaponstate != WEAPON_FIRING || time <= 0) {
+			return;
+		}
+
+		switch ( weapon ) {
+			case WP_LIGHTNING:
+			case WP_MACHINEGUN:
+			case WP_PLASMAGUN:
+			case WP_BFG:
+			case WP_CHAINGUN:
+				return;
+		}
 		width = MIN(1.0,(float)time/MAX_RELOADTIME) * CG_HeightToWidth(cg_reloadIndicatorWidth.value);
 	} else {
 		width = CG_HeightToWidth(cg_reloadIndicatorWidth.value);
@@ -3930,15 +3938,6 @@ static void CG_DrawReloadIndicator( void ) {
 			cg_reloadIndicatorHeight.value,
 			color);
 
-	if (ammoSaved == 0) {
-		int char_height = 8; 
-		int char_width = CG_HeightToWidth(char_height);
-		width = 3 * char_width;
-		CG_DrawStringExtFloat( (SCREEN_WIDTH - width) / 2.0, cg_reloadIndicatorY.value - char_height,
-			       	"out", color, qtrue, qfalse,
-				char_width,
-				char_height, 0 );
-	}
 }
 
 /*
