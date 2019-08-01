@@ -611,6 +611,12 @@ void G_CheckDeathEAwards(gentity_t *victim, gentity_t *inflictor, gentity_t *att
 			&& attacker->client->pers.lastKilledBy == victim->s.number) {
 		AwardMessage(attacker, EAWARD_REVENGE, ++(attacker->client->pers.awardCounts[EAWARD_REVENGE]));
 	}
+	
+	if (meansOfDeath == MOD_PLASMA 
+			&& attacker->client->lastDmgGivenEntityNum == victim->s.number 
+			&& attacker->client->totalPlasmaDmgOnTarget >= 200) {
+		AwardMessage(attacker, EAWARD_VAPORIZED, ++(attacker->client->pers.awardCounts[EAWARD_VAPORIZED]));
+	}
 
 	switch (meansOfDeath) {
 		case MOD_TELEFRAG:
@@ -1356,6 +1362,29 @@ void G_CheckImmortality(gentity_t *ent) {
 	AwardMessage(ent, EAWARD_IMMORTALITY, ++(ent->client->pers.awardCounts[EAWARD_IMMORTALITY]));
 }
 
+void G_UpdateVaporizedData(gentity_t *attacker, gentity_t *targ, gentity_t *inflictor, int mod, int dmg) {
+	if (!targ || !targ->client || !attacker || !attacker->client) {
+		return;
+	}
+	if ( mod != MOD_PLASMA
+			|| !inflictor
+			|| targ->client->ps.pm_type == PM_DEAD
+			|| OnSameTeam(attacker, targ)) {
+		attacker->client->totalPlasmaDmgOnTarget = 0;
+		attacker->client->lastPlasmaHitLaunchTime = 0;
+		return;
+	}
+	if (attacker->client->totalPlasmaDmgOnTarget == 0 
+			|| (attacker->client->lastDmgGivenEntityNum == targ->s.number
+				&& attacker->client->lastPlasmaHitLaunchTime + 100 == inflictor->nextthink - PLASMA_THINKTIME)) {
+		attacker->client->totalPlasmaDmgOnTarget += dmg;
+		attacker->client->lastPlasmaHitLaunchTime = inflictor->nextthink - PLASMA_THINKTIME;
+	} else {
+		attacker->client->totalPlasmaDmgOnTarget = 0;
+		attacker->client->lastPlasmaHitLaunchTime = 0;
+	}
+}
+
 int G_WeaponForMOD(int mod) {
 	// XXX: not necessarily complete
 	switch (mod) {
@@ -1782,6 +1811,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 						attacker->client->pers.damage[weapon] += dmgTaken;
 					}
 				}
+				G_UpdateVaporizedData(attacker, targ, inflictor, mod, dmgTaken);
 				attacker->client->lastDmgGivenEntityNum = targ->s.number;
 				attacker->client->lastDmgGivenTime = level.time;
 				attacker->client->lastDmgGivenMOD = mod;
