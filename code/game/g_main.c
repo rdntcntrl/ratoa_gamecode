@@ -1008,16 +1008,16 @@ void G_EQPingClientReset(gclient_t *client) {
 	}
 
 	if ( client->pers.connected != CON_CONNECTED || client->sess.sessionTeam == TEAM_SPECTATOR ) {
-		trap_RAT_EQPing_SetDelay(client->ps.clientNum, 0);
+		trap_RAT_EQPing_SetDelay(client - g_clients, 0);
 		return;
 	}
 }
 
 void G_EQPingClientSet(gclient_t *client) {
 	if (client->pers.realPing < level.eqPing) {
-		trap_RAT_EQPing_SetDelay(client->ps.clientNum, level.eqPing - client->pers.realPing);
+		trap_RAT_EQPing_SetDelay(client - g_clients, level.eqPing - client->pers.realPing);
 	} else {
-		trap_RAT_EQPing_SetDelay(client->ps.clientNum, 0);
+		trap_RAT_EQPing_SetDelay(client - g_clients, 0);
 	}
 
 }
@@ -1117,7 +1117,7 @@ void G_EQPingAutoAdjust(void) {
 	for ( i = 0;  i < level.numPlayingClients; i++ ) {
 		cl = &level.clients[ level.sortedClients[i] ];
 		ping = cl->pers.realPing;
-		pingMod = trap_RAT_EQPing_GetDelay(cl->ps.clientNum);
+		pingMod = trap_RAT_EQPing_GetDelay(cl - g_clients);
 		
 		pingdiff = level.eqPing - ping;
 		pingdiff = pingdiff * MIN(1.0, MAX(0.0, g_eqpingAutoConvergeFactor.value));
@@ -1126,7 +1126,7 @@ void G_EQPingAutoAdjust(void) {
 		// default converge factor is 0.5, it can be increased / decreased for
 		// faster/slower convergence
 		trap_RAT_EQPing_SetDelay(
-				cl->ps.clientNum, 
+				cl - g_clients, 
 				(pingdiff < 0 ? floor(pingdiff) : ceil(pingdiff)) + pingMod
 				);
 	}
@@ -2863,7 +2863,7 @@ void CheckIntermissionExit( void ) {
 		if ( cl->pers.connected != CON_CONNECTED ) {
 			continue;
 		}
-		if ( g_entities[cl->ps.clientNum].r.svFlags & SVF_BOT ) {
+		if ( g_entities[i].r.svFlags & SVF_BOT ) {
 			continue;
 		}
 

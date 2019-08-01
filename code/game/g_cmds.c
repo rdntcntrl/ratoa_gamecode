@@ -470,7 +470,7 @@ void AwardMessage(gentity_t *ent, extAward_t award, int count) {
 		if (!other->inuse
 				|| !other->client
 				|| other->client->pers.connected != CON_CONNECTED
-				|| other->client->ps.clientNum != ent->client->ps.clientNum) {
+				|| other->client->ps.clientNum != ent - g_entities) {
 			continue;
 		}
 		if (!g_usesRatVM.integer && !G_MixedClientHasRatVM(other->client)) {
@@ -1855,7 +1855,7 @@ void G_Timein( void ) {
 }
 
 qboolean G_Forfeit(gentity_t *ent, qboolean quiet) {
-	int cnum = ent->client->ps.clientNum;
+	int cnum = ent - g_entities;
 	int opponentCnum;
 
 	if (ent->client->sess.sessionTeam == TEAM_SPECTATOR) {
@@ -2111,7 +2111,7 @@ void SendReadymask( int clientnum ) {
 		}
 
 		playerCount++;
-		if ( cl->ready || ( g_entities[cl->ps.clientNum].r.svFlags & SVF_BOT ) ) {
+		if ( cl->ready || ( g_entities[i].r.svFlags & SVF_BOT ) ) {
 			ready++;
 			if ( i < 32 ) {
 			    readyMask |= 1 << i;
