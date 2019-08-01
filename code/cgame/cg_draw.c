@@ -2432,14 +2432,8 @@ static float CG_DrawRadar( float y ) {
 	r = (RADAR_RADIUS * MIN(1.0, distance/RADAR_RANGE) + RADAR_MINRADIUS) * sin(flagangle);
 
 
-	w = h = RADAR_SIZE;
-	if ( cgs.screenXScale > cgs.screenYScale ) {
-		w = w * cgs.screenYScale / cgs.screenXScale;
-		r = r * cgs.screenYScale / cgs.screenXScale;
-	} else if ( cgs.screenXScale < cgs.screenYScale ) {
-		h = h * cgs.screenXScale / cgs.screenYScale;
-		r = r * cgs.screenXScale / cgs.screenYScale;
-	}
+	h = RADAR_SIZE;
+	w = CG_HeightToWidth(h);
 
 	switch (cg_radar.integer) {
 		case 2:
@@ -2455,21 +2449,21 @@ static float CG_DrawRadar( float y ) {
 			break;
 	}
 
-	ci_namewidth = MIN(CG_DrawStrlen(ci->name), (RADAR_CARRIERINFO_WIDTH-1)/SUPERTINYCHAR_WIDTH)*SUPERTINYCHAR_WIDTH;
-	CG_DrawHealthBar(cg_radar.integer == 2 ? (x + w/2.0 - RADAR_CARRIERINFO_WIDTH) : (x - RADAR_CARRIERINFO_WIDTH/2.0), 
+	ci_namewidth = MIN(CG_DrawStrlen(ci->name), (RADAR_CARRIERINFO_WIDTH-2)/SUPERTINYCHAR_WIDTH) * CG_HeightToWidth(SUPERTINYCHAR_WIDTH);
+	CG_DrawHealthBar(cg_radar.integer == 2 ? (x + w/2.0 - CG_HeightToWidth(RADAR_CARRIERINFO_WIDTH)) : (x - CG_HeightToWidth(RADAR_CARRIERINFO_WIDTH/2.0)), 
 			y - h/2.0 - RADAR_CARRIERINFO_HEIGHT,
-			RADAR_CARRIERINFO_WIDTH,
+			CG_HeightToWidth(RADAR_CARRIERINFO_WIDTH),
 			RADAR_CARRIERINFO_HEIGHT,
 			ci->health, ci->armor);
 	color[0] = 1.0;
 	color[1] = 1.0;
 	color[2] = 1.0;
 	color[3] = 1.0;
-	CG_DrawStringExt(cg_radar.integer == 2 ? (x + w/2.0 - RADAR_CARRIERINFO_WIDTH/2.0 - ci_namewidth/2.0) : (x - ci_namewidth/2.0),
+	CG_DrawStringExt(cg_radar.integer == 2 ? (x + w/2.0 - CG_HeightToWidth(RADAR_CARRIERINFO_WIDTH-2)/2.0 - ci_namewidth/2.0) : (x - ci_namewidth/2.0),
 		       	y - h/2.0 - (RADAR_CARRIERINFO_HEIGHT-1),
 			ci->name, color, qfalse, qtrue,
-			SUPERTINYCHAR_WIDTH, RADAR_CARRIERINFO_HEIGHT-1,
-		       	(RADAR_CARRIERINFO_WIDTH-1)/SUPERTINYCHAR_WIDTH);
+			CG_HeightToWidth(SUPERTINYCHAR_WIDTH), RADAR_CARRIERINFO_HEIGHT-1,
+		       	(RADAR_CARRIERINFO_WIDTH-2)/SUPERTINYCHAR_WIDTH);
 
 
 
@@ -2497,12 +2491,9 @@ static float CG_DrawRadar( float y ) {
 		color[2] = 1.0;
 	}
 	trap_R_SetColor(color);
-	w = h = RADARDOT_SIZE;
-	if ( cgs.screenXScale > cgs.screenYScale ) {
-		w = w * cgs.screenYScale / cgs.screenXScale;
-	} else if ( cgs.screenXScale < cgs.screenYScale ) {
-		h = h * cgs.screenXScale / cgs.screenYScale;
-	}
+	h = RADARDOT_SIZE;
+	w = CG_HeightToWidth(h);
+
 	CG_DrawPic(x + r - w/2.0, 
 			y - u - h/2.0, w, h, cgs.media.radarDotShader);
 
