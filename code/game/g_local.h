@@ -419,6 +419,11 @@ typedef struct {
     // for awards, clientno of enemy that last killed us, reset upon strongman award
     int lastKilledByStrongMan;
 
+    // for revenge award, entitynum of enemy that last killed us
+    int lastKilledBy;
+    // time of last death;
+    int lastDeathTime;
+
     int gauntCorpseGibCount;
 } clientPersistant_t;
 

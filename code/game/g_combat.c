@@ -606,6 +606,12 @@ void G_CheckDeathEAwards(gentity_t *victim, gentity_t *inflictor, gentity_t *att
 		AwardMessage(attacker, EAWARD_AMBUSH, ++(attacker->client->pers.awardCounts[EAWARD_AMBUSH]));
 	}
 
+	if (attacker->client->pers.lastDeathTime > 0 
+			&& attacker->client->pers.lastDeathTime + 10 * 1000 > level.time
+			&& attacker->client->pers.lastKilledBy == victim->s.number) {
+		AwardMessage(attacker, EAWARD_REVENGE, ++(attacker->client->pers.awardCounts[EAWARD_REVENGE]));
+	}
+
 	switch (meansOfDeath) {
 		case MOD_TELEFRAG:
 			AwardMessage(attacker, EAWARD_TELEFRAG, ++(attacker->client->pers.awardCounts[EAWARD_TELEFRAG]));
@@ -619,7 +625,11 @@ void G_CheckDeathEAwards(gentity_t *victim, gentity_t *inflictor, gentity_t *att
 		case MOD_NAIL:
 		case MOD_BFG:
 		case MOD_BFG_SPLASH:
-			if (attacker->client->ps.pm_type == PM_DEAD && attacker->enemy == victim) {
+			// I suppose it doesn't have to be a revenge kill for
+			// DEAD HAND, since that would be a bit redundant
+			// considering the REVENGE award
+			//if (attacker->client->ps.pm_type == PM_DEAD && attacker->enemy == victim) {
+			if (attacker->client->ps.pm_type == PM_DEAD) {
 				AwardMessage(attacker, EAWARD_DEADHAND, ++(attacker->client->pers.awardCounts[EAWARD_DEADHAND]));
 			}
 			if (!inflictor || !inflictor->missileTeleported) {
@@ -737,6 +747,9 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 	self->enemy = attacker;
 
 	self->client->ps.persistant[PERS_KILLED]++;
+
+	self->client->pers.lastDeathTime = level.time;
+	self->client->pers.lastKilledBy = killer;
 
 	if (attacker && attacker->client) {
 		attacker->client->lastkilled_client = self->s.number;
