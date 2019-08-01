@@ -5352,6 +5352,62 @@ static void CG_ScanForCrosshairEntity( void ) {
 	cg.crosshairClientTime = cg.time;
 }
 
+
+static void CG_DrawEmptyIndicator( void ) {
+	int ammo, ammoSaved;
+	vec4_t color = { 1.0, 0.0, 0.0, 1.0 };
+	int weapon = cg.predictedPlayerState.weapon;
+	int char_height;
+	int char_width;
+	char *s;
+	float h;
+	float w;
+
+	if (!cg_emptyIndicator.integer) {
+		return;
+	}
+
+	if (weapon < 0 || weapon >= MAX_WEAPONS) {
+		return;
+	}
+
+	if (cg_predictWeapons.integer) {
+		ammoSaved=cg.predictedPlayerState.ammo[weapon];
+	} else {
+		ammoSaved=cg.snap->ps.ammo[weapon];
+	}
+
+	ammo = ammoSaved;
+	ammo = MIN(100, (ammo*100)/CG_FullAmmo(weapon));
+
+	if (ammo > 20 || ammo < 0) {
+		return;
+	}
+
+	char_height = 8; 
+	char_width = CG_HeightToWidth(char_height);
+	s = ammoSaved == 0 ? "EMPTY" : "LOW";
+
+	h = 180;
+
+	w = CG_DrawStrlen(s) * char_width;
+	CG_DrawStringExtFloat( (SCREEN_WIDTH - w) / 2.0, (SCREEN_HEIGHT + h - char_height)/2.0,
+			s, color, qtrue, qfalse,
+			char_width,
+			char_height, 0 );
+	if (ammoSaved == 0) {
+		color[3] = 0.5;
+		w = CG_HeightToWidth(h*1.6);
+		CG_DrawCorners((SCREEN_WIDTH - w)/2.0,
+				(SCREEN_HEIGHT - h)/2.0,
+				w,
+				h,
+				h/5.0,
+				4,
+				color);
+	}
+}
+
 #define MAX_RELOADTIME 1500
 static void CG_DrawReloadIndicator( void ) {
 	int time = cg.predictedPlayerState.weaponTime;
@@ -5392,15 +5448,6 @@ static void CG_DrawReloadIndicator( void ) {
 	}
 	color[3] = MAX(0.0, MIN(1.0, cg_reloadIndicatorAlpha.value));
 
-	if (ammoSaved == 0 || (ammo <= 20 && ammo > 0)) {
-		int char_height = 8; 
-		int char_width = CG_HeightToWidth(char_height);
-		width = 3 * char_width;
-		CG_DrawStringExtFloat( (SCREEN_WIDTH - width) / 2.0, cg_reloadIndicatorY.value - char_height,
-			       	ammoSaved == 0 ? "out" : "low", color, qtrue, qfalse,
-				char_width,
-				char_height, 0 );
-	}
 
 	if (ammoSaved != 0) {
 		if (cg.predictedPlayerState.weaponstate != WEAPON_FIRING || time <= 0) {
@@ -6157,6 +6204,7 @@ static void CG_Draw2D(stereoFrame_t stereoFrame)
 			CG_DrawCrosshair();
 
 		CG_DrawReloadIndicator();
+		CG_DrawEmptyIndicator();
 		CG_DrawCrosshairNames();
 	} else {
 		// don't draw any status if dead or the scoreboard is being explicitly shown
@@ -6196,6 +6244,7 @@ static void CG_Draw2D(stereoFrame_t stereoFrame)
 			if(stereoFrame == STEREO_CENTER)
 				CG_DrawCrosshair();
 			CG_DrawReloadIndicator();
+			CG_DrawEmptyIndicator();
 			CG_DrawCrosshairNames();
 			CG_DrawWeaponSelect();
 

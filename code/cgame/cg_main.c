@@ -227,6 +227,7 @@ vmCvar_t	cg_hudDamageIndicator;
 vmCvar_t	cg_hudDamageIndicatorScale;
 vmCvar_t	cg_hudDamageIndicatorOffset;
 vmCvar_t	cg_hudDamageIndicatorAlpha;
+vmCvar_t	cg_emptyIndicator;
 vmCvar_t	cg_reloadIndicator;
 vmCvar_t	cg_reloadIndicatorY;
 vmCvar_t	cg_reloadIndicatorWidth;
@@ -626,11 +627,12 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_hudDamageIndicatorScale, "cg_hudDamageIndicatorScale", "0.8", CVAR_ARCHIVE},
 	{ &cg_hudDamageIndicatorOffset, "cg_hudDamageIndicatorOffset", "0.1", CVAR_ARCHIVE},
 	{ &cg_hudDamageIndicatorAlpha, "cg_hudDamageIndicatorAlpha", "1.0", CVAR_ARCHIVE},
+	{ &cg_emptyIndicator, "cg_emptyIndicator", "0", CVAR_ARCHIVE},
 	{ &cg_reloadIndicator, "cg_reloadIndicator", "0", CVAR_ARCHIVE},
-	{ &cg_reloadIndicatorY, "cg_reloadIndicatorY", "220", CVAR_ARCHIVE},
+	{ &cg_reloadIndicatorY, "cg_reloadIndicatorY", "340", CVAR_ARCHIVE},
 	{ &cg_reloadIndicatorWidth, "cg_reloadIndicatorWidth", "40", CVAR_ARCHIVE},
-	{ &cg_reloadIndicatorHeight, "cg_reloadIndicatorHeight", "1", CVAR_ARCHIVE},
-	{ &cg_reloadIndicatorAlpha, "cg_reloadIndicatorAlpha", "1", CVAR_ARCHIVE},
+	{ &cg_reloadIndicatorHeight, "cg_reloadIndicatorHeight", "2", CVAR_ARCHIVE},
+	{ &cg_reloadIndicatorAlpha, "cg_reloadIndicatorAlpha", "0.2", CVAR_ARCHIVE},
 	{ &cg_crosshairNamesY, "cg_crosshairNamesY", "280", CVAR_ARCHIVE},
 	{ &cg_crosshairNamesHealth, "cg_crosshairNamesHealth", "1", CVAR_ARCHIVE},
 	{ &cg_friendFloatHealth, "cg_friendFloatHealth", "1", CVAR_ARCHIVE},

@@ -1639,6 +1639,7 @@ extern vmCvar_t			cg_hudDamageIndicator;
 extern vmCvar_t			cg_hudDamageIndicatorScale;
 extern vmCvar_t			cg_hudDamageIndicatorOffset;
 extern vmCvar_t			cg_hudDamageIndicatorAlpha;
+extern vmCvar_t			cg_emptyIndicator;
 extern vmCvar_t			cg_reloadIndicator;
 extern vmCvar_t			cg_reloadIndicatorY;
 extern vmCvar_t			cg_reloadIndicatorWidth;
