@@ -613,17 +613,6 @@ void G_CheckDeathEAwards(gentity_t *victim, gentity_t *inflictor, gentity_t *att
 	}
 
 
-	if (attacker->client->pers.lastDeathTime > 0 
-			&& attacker->client->pers.lastDeathTime + 10 * 1000 > level.time
-			&& attacker->client->pers.lastKilledBy == victim->s.number
-			// revenge kill has to be the first kill after respawn or a dead hand kill
-			&& (attacker->client->lastkilled_client == -1 || attacker->client->ps.pm_type == PM_DEAD)
-			&& !attacker->client->pers.gotRevenge
-			) {
-		attacker->client->pers.gotRevenge = qtrue;
-		AwardMessage(attacker, EAWARD_REVENGE, ++(attacker->client->pers.awardCounts[EAWARD_REVENGE]));
-
-	}
 	
 	// The damage required for VAPORIZED should be high enough that no other gun
 	// (apart from TA weapons) could have done the same amount of damage in the same amount of time
@@ -639,7 +628,7 @@ void G_CheckDeathEAwards(gentity_t *victim, gentity_t *inflictor, gentity_t *att
 	switch (meansOfDeath) {
 		case MOD_TELEFRAG:
 			AwardMessage(attacker, EAWARD_TELEFRAG, ++(attacker->client->pers.awardCounts[EAWARD_TELEFRAG]));
-			return;
+			break;
 		case MOD_ROCKET:
 		case MOD_ROCKET_SPLASH:
 		case MOD_GRENADE:
@@ -655,12 +644,24 @@ void G_CheckDeathEAwards(gentity_t *victim, gentity_t *inflictor, gentity_t *att
 				AwardMessage(attacker, EAWARD_DEADHAND, ++(attacker->client->pers.awardCounts[EAWARD_DEADHAND]));
 			}
 			if (!inflictor || !inflictor->missileTeleported) {
-				return;
+				break;
 			}
 			AwardMessage(attacker, EAWARD_TELEMISSILE_FRAG, ++(attacker->client->pers.awardCounts[EAWARD_TELEMISSILE_FRAG]));
-
-			return;
+			break;
 	}
+
+	if (attacker->client->pers.lastDeathTime > 0 
+			&& attacker->client->pers.lastDeathTime + 10 * 1000 > level.time
+			&& attacker->client->pers.lastKilledBy == victim->s.number
+			// revenge kill has to be the first kill after respawn or a dead hand kill
+			&& (attacker->client->lastkilled_client == -1 || attacker->client->ps.pm_type == PM_DEAD)
+			&& !attacker->client->pers.gotRevenge
+			) {
+		attacker->client->pers.gotRevenge = qtrue;
+		AwardMessage(attacker, EAWARD_REVENGE, ++(attacker->client->pers.awardCounts[EAWARD_REVENGE]));
+
+	}
+
 }
 
 
