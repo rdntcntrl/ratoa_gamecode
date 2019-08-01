@@ -276,6 +276,38 @@ static void CG_ResetCfg_f( void ) {
         trap_SendConsoleCommand("vid_restart\n");
 }
 
+static void CG_HUD_f( void ) {
+	int		num;
+
+	if (trap_Argc() != 2) {
+		CG_Printf("Usage: \\hud <n>\n"
+				"  Traditional HUD:\n"
+				"    \\hud 0\n"
+				"  Futuristic HUD:\n"
+				"    \\hud 1\n"
+			 );
+		return;
+	}
+	num = atoi( CG_Argv( 1 ) );
+	switch (num) {
+		case 1:
+			CG_Cvar_SetAndUpdate("cg_ratStatusbar", "4");
+			CG_Cvar_SetAndUpdate("cg_hudDamageIndicator", "1");
+			CG_Cvar_SetAndUpdate("cg_emptyIndicator", "1");
+			CG_Cvar_SetAndUpdate("cg_weaponbarStyle", "14");
+			CG_Cvar_SetAndUpdate("cg_drawFPS", "3");
+			break;
+		default:
+			CG_Cvar_SetAndUpdate("cg_ratStatusbar", "1");
+			CG_Cvar_SetAndUpdate("cg_hudDamageIndicator", "0");
+			CG_Cvar_SetAndUpdate("cg_emptyIndicator", "0");
+			CG_Cvar_SetAndUpdate("cg_weaponbarStyle", "13");
+			CG_Cvar_SetAndUpdate("cg_drawFPS", "1");
+			break;
+	}
+
+}
+
 
 #ifdef MISSIONPACK
 extern menuDef_t *menuScoreboard;
@@ -694,7 +726,8 @@ static consoleCommand_t	commands[] = {
         { "clients", CG_PrintClientNumbers },
 
         { "cg_ui_SendClientCommand", CG_UI_SendClientCommand },
-        { "resetcfg", CG_ResetCfg_f }
+        { "resetcfg", CG_ResetCfg_f },
+        { "hud", CG_HUD_f }
 };
 
 

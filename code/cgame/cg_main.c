@@ -866,7 +866,7 @@ void CG_RatRemapShaders(void) {
 	}
 }
 
-#define LATEST_RATINITIALIZED 17
+#define LATEST_RATINITIALIZED 18
 
 /*
  *
@@ -1125,6 +1125,15 @@ void CG_RatOldCfgUpdate(void) {
 		CG_Cvar_ResetToDefault( "cg_hudDamageIndicatorOffset" );
 		CG_Cvar_ResetToDefault( "cg_hudDamageIndicatorAlpha" );
 		CG_Cvar_SetAndUpdate( "cg_ratInitialized", "17" );
+	}
+	if (cg_ratInitialized.integer < 18) {
+		switch (cg_weaponBarStyle.integer) {
+			case 10:
+			case 11:
+				CG_Cvar_SetAndUpdate("cg_weaponBarStyle", "13");
+				break;
+		}
+		CG_Cvar_SetAndUpdate( "cg_ratInitialized", "18" );
 	}
 
 }
