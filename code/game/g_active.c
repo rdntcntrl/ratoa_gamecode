@@ -177,7 +177,6 @@ void P_WorldEffects( gentity_t *ent ) {
 }
 
 
-
 /*
 ===============
 G_SetClientSound
@@ -1317,6 +1316,7 @@ void SpectatorClientEndFrame( gentity_t *ent ) {
 	}
 }
 
+
 /*
 ==============
 ClientEndFrame
@@ -1445,6 +1445,8 @@ void ClientEndFrame( gentity_t *ent ) {
 	G_UpdateTopWeapons(ent->client);
 
 	G_UnnamedPlayerRename(ent);
+
+	G_StoreViewVectorHistory(ent->client);
 }
 
 

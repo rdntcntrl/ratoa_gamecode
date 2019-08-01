@@ -1345,6 +1345,67 @@ void G_CheckComboAwards(gentity_t *victim, gentity_t *attacker, int mod, int las
 
 }
 
+void G_StoreViewVectorHistory ( gclient_t *client ) {
+	AngleVectors (client->ps.viewangles, client->viewvector_history[client->viewvector_head], NULL, NULL);
+	client->viewvector_head = (client->viewvector_head + 1) % VIEWVECTOR_HISTORY;
+	if (++(client->viewvector_historysize) > VIEWVECTOR_HISTORY) {
+		client->viewvector_historysize = VIEWVECTOR_HISTORY;
+	}
+}
+
+#define TWITCHRAIL_TIME 150
+#define TWITCHRAIL_ANGLE 45.0
+#define TWITCHRAIL_DISTANCE 100.0
+void G_CheckTwitchRail(gentity_t *attacker, gentity_t *victim, int mod) {
+	int idx;
+	int i;
+	int sz;
+	vec3_t forward;
+	gclient_t *cl;
+	double angle;
+
+	if (mod != MOD_RAILGUN
+			|| !victim 
+			|| !victim->client 
+			|| victim->client->ps.pm_type == PM_DEAD
+			|| !attacker 
+			|| !attacker->client 
+			|| OnSameTeam(attacker, victim)) {
+		return;
+	}
+
+	cl = attacker->client;
+
+	if (cl->lastTeleportTime + TWITCHRAIL_TIME >= level.time) {
+		return;
+	}
+	
+	if (Distance(victim->r.currentOrigin, attacker->r.currentOrigin) < TWITCHRAIL_DISTANCE) {
+		return;
+	}
+
+	sz = cl->viewvector_historysize;
+	if ((TWITCHRAIL_TIME*sv_fps.integer)/1000 < sz) {
+		sz = (TWITCHRAIL_TIME*sv_fps.integer)/1000;
+	}
+
+	AngleVectors (cl->ps.viewangles, forward, NULL, NULL);
+
+	idx = (cl->viewvector_head + VIEWVECTOR_HISTORY - sz) % VIEWVECTOR_HISTORY;
+	for (i = 0; i < sz; ++i ) {
+		angle = acos(DotProduct(forward, cl->viewvector_history[idx]));
+		//Com_Printf("angle %i = %f\n", idx, (float) angle * 180.0/M_PI);
+		if (angle * 180.0/M_PI > TWITCHRAIL_ANGLE) {
+			AwardMessage(attacker, EAWARD_TWITCHRAIL, ++(attacker->client->pers.awardCounts[EAWARD_TWITCHRAIL]));
+			return;
+		}
+		idx = (idx + 1) % VIEWVECTOR_HISTORY;
+	}
+
+}
+
+
+
 #define IMMORTALITY_DAMAGE 800
 void G_CheckImmortality(gentity_t *ent) {
 	if (g_gametype.integer == GT_ELIMINATION || g_gametype.integer == GT_CTF_ELIMINATION || g_gametype.integer == GT_LMS) {
@@ -1768,6 +1829,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		G_CheckRocketSniper(targ, inflictor, attacker, mod);
 		G_CheckAirrocket(targ, inflictor, attacker, mod);
 		G_CheckRailtwo(targ, attacker, mod, lastDmgGivenTime, lastDmgGivenMOD);
+		G_CheckTwitchRail(attacker, targ, mod);
 
 		// stats
 		if (targ->health < 0) {

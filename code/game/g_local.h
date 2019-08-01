@@ -429,6 +429,10 @@ typedef struct {
     int gauntCorpseGibCount;
 } clientPersistant_t;
 
+// for twitchrail award
+// might need to be increased if a server uses sv_fps > 40
+#define VIEWVECTOR_HISTORY 10
+
 //unlagged - backward reconciliation #1
 // the size of history we'll keep
 #define NUM_CLIENT_HISTORY 17
@@ -546,6 +550,11 @@ struct gclient_s {
 	// for vaporized award
 	int lastPlasmaHitLaunchTime;
 	int totalPlasmaDmgOnTarget;
+
+	// for twitchrail award
+	vec3_t viewvector_history[VIEWVECTOR_HISTORY];
+	int    viewvector_head;
+	int    viewvector_historysize;
         
 
 	//unlagged - backward reconciliation #1
@@ -903,6 +912,7 @@ void TossClientItems( gentity_t *self );
 void TossClientPersistantPowerups( gentity_t *self );
 void TossClientCubes( gentity_t *self );
 void G_CheckKamikazeAward(gentity_t *attacker, int killsBefore, int deathsBefore);
+void G_StoreViewVectorHistory ( gclient_t *client );
 
 // damage flags
 #define DAMAGE_RADIUS				0x00000001	// damage was indirect
