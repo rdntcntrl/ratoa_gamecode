@@ -221,6 +221,9 @@ vmCvar_t	cg_specShowZoom;
 vmCvar_t	cg_zoomToggle;
 vmCvar_t	cg_zoomAnim;
 vmCvar_t	cg_zoomAnimScale;
+vmCvar_t	cg_hudDamageIndicator;
+vmCvar_t	cg_hudDamageIndicatorScale;
+vmCvar_t	cg_hudDamageIndicatorOffset;
 vmCvar_t	cg_reloadIndicator;
 vmCvar_t	cg_reloadIndicatorY;
 vmCvar_t	cg_reloadIndicatorWidth;
@@ -616,6 +619,9 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_zoomToggle, "cg_zoomToggle", "0", CVAR_ARCHIVE},
 	{ &cg_zoomAnim, "cg_zoomAnim", "1", CVAR_ARCHIVE},
 	{ &cg_zoomAnimScale, "cg_zoomAnimScale", "2", CVAR_ARCHIVE},
+	{ &cg_hudDamageIndicator, "cg_hudDamageIndicator", "0", CVAR_ARCHIVE},
+	{ &cg_hudDamageIndicatorScale, "cg_hudDamageIndicatorScale", "1.0", CVAR_ARCHIVE},
+	{ &cg_hudDamageIndicatorOffset, "cg_hudDamageIndicatorOffset", "0.0", CVAR_ARCHIVE},
 	{ &cg_reloadIndicator, "cg_reloadIndicator", "0", CVAR_ARCHIVE},
 	{ &cg_reloadIndicatorY, "cg_reloadIndicatorY", "220", CVAR_ARCHIVE},
 	{ &cg_reloadIndicatorWidth, "cg_reloadIndicatorWidth", "40", CVAR_ARCHIVE},
@@ -2192,6 +2198,12 @@ static void CG_RegisterGraphics( void ) {
 	cgs.media.eaward_medals[EAWARD_VAPORIZED] = trap_R_RegisterShaderNoMip( "medal_vaporized" );
 
 
+
+	cgs.media.damageIndicatorBottom = trap_R_RegisterShaderNoMip("damageIndicatorBottom");
+	cgs.media.damageIndicatorTop = trap_R_RegisterShaderNoMip("damageIndicatorTop");
+	cgs.media.damageIndicatorTop = trap_R_RegisterShaderNoMip("damageIndicatorTop");
+	cgs.media.damageIndicatorRight = trap_R_RegisterShaderNoMip("damageIndicatorRight");
+	cgs.media.damageIndicatorLeft = trap_R_RegisterShaderNoMip("damageIndicatorLeft");
 
 	// LEILEI SHADERS
 	cgs.media.lsmkShader1 = trap_R_RegisterShader("leismoke1" );

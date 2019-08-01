@@ -879,6 +879,11 @@ typedef struct {
 	qhandle_t	weaponSelectShader11;
 	qhandle_t	weaponSelectShader13;
 
+	qhandle_t	damageIndicatorBottom;
+	qhandle_t	damageIndicatorTop;
+	qhandle_t	damageIndicatorRight;
+	qhandle_t	damageIndicatorLeft;
+
 	qhandle_t	teamStatusBar;
 
 	qhandle_t	deferShader;
@@ -1576,6 +1581,9 @@ extern vmCvar_t			cg_specShowZoom;
 extern vmCvar_t			cg_zoomToggle;
 extern vmCvar_t			cg_zoomAnim;
 extern vmCvar_t			cg_zoomAnimScale;
+extern vmCvar_t			cg_hudDamageIndicator;
+extern vmCvar_t			cg_hudDamageIndicatorScale;
+extern vmCvar_t			cg_hudDamageIndicatorOffset;
 extern vmCvar_t			cg_reloadIndicator;
 extern vmCvar_t			cg_reloadIndicatorY;
 extern vmCvar_t			cg_reloadIndicatorWidth;

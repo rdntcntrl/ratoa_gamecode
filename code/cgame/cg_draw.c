@@ -912,6 +912,82 @@ static void CG_DrawStatusBar( void ) {
 }
 #endif
 
+#define HUD_DAMAGE_TIME 500
+#define HUD_DAMAGE_SIZE (48*2.25)
+static void CG_DrawHudDamageIndicator(void) {
+	int			t;
+	int			maxTime;
+	refEntity_t		ent;
+	float color[4] = { 1.0, 0.0, 0.0, 0.5 };
+	float x,y, w, h;
+	float damageModifier;
+	float directionThreshold = 0.4;
+	qboolean left, right, top, bottom;
+	float size = HUD_DAMAGE_SIZE * cg_hudDamageIndicatorScale.value;
+	float offsetFactor = MAX(0.0, MIN(1.0,cg_hudDamageIndicatorOffset.value));
+
+
+	if (!cg_hudDamageIndicator.integer) {
+		return;
+	}
+
+	if ( !cg.damageValue || !cg.snap ) {
+		return;
+	}
+
+	maxTime = HUD_DAMAGE_TIME;
+	t = cg.time - cg.damageTime;
+	if ( t <= 0 || t >= maxTime ) {
+		return;
+	}
+
+	damageModifier = MIN(1.0, (float)cg.snap->ps.damageCount/100.0);
+
+	//color[3] = (0.2 + 0.3 * damageModifier) * ( 1.0 - ((float)t / maxTime) );
+	color[3] = (0.4 + 0.5 * damageModifier) * ( 1.0 - ((float)t / maxTime) );
+	trap_R_SetColor(color);
+
+	left = right = top = bottom = qfalse;
+	top =    (cg.damageY > directionThreshold);
+	bottom = (cg.damageY < -directionThreshold);
+	left =   (cg.damageX < -directionThreshold);
+	right =  (cg.damageX > directionThreshold);
+
+	if (!(left || top || bottom || right)) {
+		left = right = top = bottom = qtrue;
+	}
+
+	h = size;
+	w = 4.0 * CG_HeightToWidth(h);
+	x = (SCREEN_WIDTH - w)/2.0;
+	if (bottom) {
+		// bottom
+		y = SCREEN_HEIGHT - h * (1-offsetFactor);
+		CG_DrawPic( x, y, w, h, cgs.media.damageIndicatorBottom );
+	}
+	if (top) {
+		// top
+		y = 0 - h * offsetFactor;
+		CG_DrawPic( x, y, w, h, cgs.media.damageIndicatorTop );
+	}
+	h = 4.0 * size;
+	w = CG_HeightToWidth(size);
+	y = (SCREEN_HEIGHT - h)/2.0;
+	if (left) {
+		// left
+		x = 0 - w * offsetFactor;
+		CG_DrawPic( x, y, w, h, cgs.media.damageIndicatorLeft );
+	}
+	if (right) {
+		// right
+		x = SCREEN_WIDTH - w * (1-offsetFactor);
+		CG_DrawPic( x, y, w, h, cgs.media.damageIndicatorRight );
+	}
+
+	trap_R_SetColor(NULL);
+
+}
+
 /*
 ===========================================================================================
 
@@ -4673,6 +4749,7 @@ static void CG_Draw2D(stereoFrame_t stereoFrame)
 	} else {
 		// don't draw any status if dead or the scoreboard is being explicitly shown
 		if ( !cg.showScores && cg.snap->ps.stats[STAT_HEALTH] > 0 ) {
+			CG_DrawHudDamageIndicator();
 
 #ifdef MISSIONPACK
 			if ( cg_drawStatus.integer ) {
