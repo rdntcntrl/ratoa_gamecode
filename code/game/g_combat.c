@@ -1273,7 +1273,7 @@ void G_CheckRailtwo(gentity_t *victim, gentity_t *attacker, int meansOfDeath, in
 }
 
 //#define ROCKETRAIL_TIME 1350
-#define ROCKETRAIL_TIME 1450
+#define ROCKETRAIL_TIME 1550
 #define LGRAIL_TIME 600
 void G_CheckComboAwards(gentity_t *victim, gentity_t *attacker, int mod, int lastDmgGivenEntityNum, int lastDmgGivenTime, int lastDmgGivenMOD) {
 	int elapsed;
