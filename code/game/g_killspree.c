@@ -336,7 +336,8 @@ void G_CheckForSpree( gentity_t *ent, int streak2Test, qboolean checkKillSpree )
     int     i;
     char    *returnedString;
     //If somebody want's to award killing sprees above 99 kills he/she can mod this his/herself!!! :)
-    char    streakcount[ 3 ];
+    // Update (Rat): yes, I do like my 100+ killing sprees, so I did change this :D
+    char    streakcount[ 5 ];
     char    *sound;
     int     position;
     int     soundIndex;
