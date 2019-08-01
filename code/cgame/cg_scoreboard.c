@@ -356,9 +356,16 @@ static void CG_RatDrawClientStats(int y, score_t *score, float *color, float fad
 	x = CG_RatDrawClientAward(y, x, score->eaward_counts[EAWARD_RAILTWO], cgs.media.eaward_medals[EAWARD_RAILTWO]);
 	x = CG_RatDrawClientAward(y, x, score->eaward_counts[EAWARD_IMMORTALITY], cgs.media.eaward_medals[EAWARD_IMMORTALITY]);
 	x = CG_RatDrawClientAward(y, x, score->eaward_counts[EAWARD_FRAGS], cgs.media.eaward_medals[EAWARD_FRAGS]);
-	x = CG_RatDrawClientAward(y, x, score->eaward_counts[EAWARD_ACCURACY], cgs.media.eaward_medals[EAWARD_ACCURACY]);
+
+	x = CG_RatDrawClientAward(y, x, score->eaward_counts[EAWARD_GRIMREAPER], cgs.media.eaward_medals[EAWARD_GRIMREAPER]);
+	x = CG_RatDrawClientAward(y, x, score->eaward_counts[EAWARD_UNSTOPPABLE], cgs.media.eaward_medals[EAWARD_UNSTOPPABLE]);
+	x = CG_RatDrawClientAward(y, x, score->eaward_counts[EAWARD_MASSACRE], cgs.media.eaward_medals[EAWARD_MASSACRE]);
+	x = CG_RatDrawClientAward(y, x, score->eaward_counts[EAWARD_RAMPAGE], cgs.media.eaward_medals[EAWARD_RAMPAGE]);
+	x = CG_RatDrawClientAward(y, x, score->eaward_counts[EAWARD_KILLINGSPREE], cgs.media.eaward_medals[EAWARD_KILLINGSPREE]);
 
 	x = CG_RatDrawClientAward(y, x, score->guantletCount, cgs.media.medalGauntlet);
+
+	x = CG_RatDrawClientAward(y, x, score->eaward_counts[EAWARD_ACCURACY], cgs.media.eaward_medals[EAWARD_ACCURACY]);
 
 	x = CG_RatDrawClientAward(y, x, score->eaward_counts[EAWARD_BUTCHER], cgs.media.eaward_medals[EAWARD_BUTCHER]);
 	x = CG_RatDrawClientAward(y, x, score->eaward_counts[EAWARD_TELEFRAG], cgs.media.eaward_medals[EAWARD_TELEFRAG]);
@@ -370,10 +377,10 @@ static void CG_RatDrawClientStats(int y, score_t *score, float *color, float fad
 	x = CG_RatDrawClientAward(y, x, score->eaward_counts[EAWARD_AIRGRENADE], cgs.media.eaward_medals[EAWARD_AIRGRENADE]);
 	x = CG_RatDrawClientAward(y, x, score->eaward_counts[EAWARD_SHOWSTOPPER], cgs.media.eaward_medals[EAWARD_SHOWSTOPPER]);
 	x = CG_RatDrawClientAward(y, x, score->eaward_counts[EAWARD_AMBUSH], cgs.media.eaward_medals[EAWARD_AMBUSH]);
-	x = CG_RatDrawClientAward(y, x, score->eaward_counts[EAWARD_FULLSG], cgs.media.eaward_medals[EAWARD_FULLSG]);
 	x = CG_RatDrawClientAward(y, x, score->eaward_counts[EAWARD_REVENGE], cgs.media.eaward_medals[EAWARD_REVENGE]);
 	x = CG_RatDrawClientAward(y, x, score->eaward_counts[EAWARD_KAMIKAZE], cgs.media.eaward_medals[EAWARD_KAMIKAZE]);
 
+	x = CG_RatDrawClientAward(y, x, score->eaward_counts[EAWARD_FULLSG], cgs.media.eaward_medals[EAWARD_FULLSG]);
 	x = CG_RatDrawClientAward(y, x, score->excellentCount, cgs.media.medalExcellent);
 	x = CG_RatDrawClientAward(y, x, score->impressiveCount, cgs.media.medalImpressive);
 

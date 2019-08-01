@@ -374,13 +374,18 @@ static void CG_ParseRatScores4( void ) {
 	}
 	//memset( cg.scores, 0, sizeof( cg.scores ) );
 
-#define NUM_RAT4_DATA 3
+#define NUM_RAT4_DATA 8
 #define FIRST_RAT4_DATA 1
 
 	for ( i = 0 ; i < numScores ; i++ ) {
 		cg.scores_buf[i].eaward_counts[EAWARD_STRONGMAN] = atoi(CG_Argv(i * NUM_RAT4_DATA + FIRST_RAT4_DATA + 1));
 		cg.scores_buf[i].eaward_counts[EAWARD_HERO]= atoi(CG_Argv(i * NUM_RAT4_DATA + FIRST_RAT4_DATA + 2));
 		cg.scores_buf[i].eaward_counts[EAWARD_BUTCHER]= atoi(CG_Argv(i * NUM_RAT4_DATA + FIRST_RAT4_DATA + 3));
+		cg.scores_buf[i].eaward_counts[EAWARD_KILLINGSPREE]= atoi(CG_Argv(i * NUM_RAT4_DATA + FIRST_RAT4_DATA + 4));
+		cg.scores_buf[i].eaward_counts[EAWARD_RAMPAGE]= atoi(CG_Argv(i * NUM_RAT4_DATA + FIRST_RAT4_DATA + 5));
+		cg.scores_buf[i].eaward_counts[EAWARD_MASSACRE]= atoi(CG_Argv(i * NUM_RAT4_DATA + FIRST_RAT4_DATA + 6));
+		cg.scores_buf[i].eaward_counts[EAWARD_UNSTOPPABLE]= atoi(CG_Argv(i * NUM_RAT4_DATA + FIRST_RAT4_DATA + 7));
+		cg.scores_buf[i].eaward_counts[EAWARD_GRIMREAPER]= atoi(CG_Argv(i * NUM_RAT4_DATA + FIRST_RAT4_DATA + 8));
 	}
 
 	CG_CheckScoreUpdate();
@@ -831,6 +836,11 @@ static void CG_ParseAward( void ) {
 		case EAWARD_STRONGMAN:
 		case EAWARD_RAILTWO:
 		case EAWARD_SHOWSTOPPER:
+		case EAWARD_KILLINGSPREE:
+		case EAWARD_RAMPAGE:
+		case EAWARD_MASSACRE:
+		case EAWARD_UNSTOPPABLE:
+		case EAWARD_GRIMREAPER:
 			CG_PushReward(cgs.media.eaward_sounds[award], cgs.media.eaward_medals[award], count);
 			break;
 		default:
