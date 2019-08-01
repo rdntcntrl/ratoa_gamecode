@@ -4042,12 +4042,13 @@ CG_DrawPickupItem
 static int CG_DrawPickupItem( int y ) {
 	int		value;
 	float	*fadeColor;
+	float iconSz = MEDIUMCHAR_HEIGHT;
 
 	if ( cg.snap->ps.stats[STAT_HEALTH] <= 0 ) {
 		return y;
 	}
 
-	y -= ICON_SIZE;
+	y -= iconSz;
 
 	value = cg.itemPickup;
 	if ( value ) {
@@ -4055,8 +4056,12 @@ static int CG_DrawPickupItem( int y ) {
 		if ( fadeColor ) {
 			CG_RegisterItemVisuals( value );
 			trap_R_SetColor( fadeColor );
-			CG_DrawPic( 8, y, ICON_SIZE, ICON_SIZE, cg_items[ value ].icon );
-			CG_DrawBigString( ICON_SIZE + 16, y + (ICON_SIZE/2 - BIGCHAR_HEIGHT/2), bg_itemlist[ value ].pickup_name, fadeColor[0] );
+			CG_DrawPic( CG_HeightToWidth(8), y, CG_HeightToWidth(iconSz), iconSz, cg_items[ value ].icon );
+			CG_DrawStringExt( CG_HeightToWidth(iconSz + 8 + 4),
+				       	y + (iconSz - MEDIUMCHAR_HEIGHT)/2.0,
+				       	bg_itemlist[ value ].pickup_name,
+					fadeColor,
+				       	qfalse, qfalse, CG_HeightToWidth(MEDIUMCHAR_WIDTH), MEDIUMCHAR_HEIGHT, 0 );
 			trap_R_SetColor( NULL );
 		}
 	}
