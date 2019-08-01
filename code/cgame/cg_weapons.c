@@ -3501,9 +3501,11 @@ void CG_DrawWeaponBar15(int count, int bits, float *color){
 	float bg[4];
 	int weaponSelect = (cg.snap->ps.pm_flags & PMF_FOLLOW) ? 
 		cg.predictedPlayerState.weapon : cg.weaponSelect;
-	float circleSz = 42;
+	//float circleSz = 42;
+	float circleSz = 43;
 	float circleWidth = CG_HeightToWidth(circleSz);
-	float iconheight = 22.0;
+	//float iconheight = 22.0;
+	float iconheight = 20.0;
 	float iconwidth = CG_HeightToWidth(iconheight);
 	float bar_y;
 	float text_y;
@@ -3589,7 +3591,10 @@ void CG_DrawWeaponBar15(int count, int bits, float *color){
 		CG_DrawPic( x - iconwidth/2.0, y - iconheight/2.0, iconwidth, iconheight, cg_weapons[i].weaponIcon );
 
 		//if (!ammoSaved){
-		//	CG_DrawPic( x - circleWidth/2.0, y - circleSz/2.0, circleWidth, circleSz, cgs.media.noammoShader );
+		//	bg[3] = 0.25;
+		//	trap_R_SetColor(bg);
+		//	CG_DrawPic( x - circleWidth/2.0, y - circleSz/2.0, circleWidth, circleSz, cgs.media.noammoCircleShader );
+		//	trap_R_SetColor(NULL);
 		//}	
 			
 		if(ammoSaved!=-1){

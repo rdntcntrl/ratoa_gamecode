@@ -2265,6 +2265,7 @@ static void CG_RegisterGraphics( void ) {
 
 	cgs.media.weaponSelectShaderCircle = trap_R_RegisterShaderNoMip("weapselectTechCircle");
 	cgs.media.weaponSelectShaderCircleGlow = trap_R_RegisterShaderNoMip("weapselectTechCircleGlow");
+	cgs.media.noammoCircleShader = trap_R_RegisterShaderNoMip("noammoCircle");
 
 	cgs.media.powerupFrameShader = trap_R_RegisterShader("powerupFrame");
 	cgs.media.bottomFPSShader = trap_R_RegisterShader("bottomFPSDecor");

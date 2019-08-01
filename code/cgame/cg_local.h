@@ -910,6 +910,7 @@ typedef struct {
 	qhandle_t	weaponSelectShaderTechBorder;
 	qhandle_t	weaponSelectShaderCircle;
 	qhandle_t	weaponSelectShaderCircleGlow;
+	qhandle_t	noammoCircleShader;
 
 	qhandle_t	powerupFrameShader;
 	qhandle_t	bottomFPSShader;
