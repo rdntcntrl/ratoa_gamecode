@@ -3038,7 +3038,7 @@ void CG_DrawWeaponBar10(int count, int bits, float *color){
 	green[3] = 1.0f;
 
 	if (cg_weaponBarStyle.integer == 11 && !cgs.media.weaponSelectShader) {
-		cgs.media.weaponSelectShader = trap_R_RegisterShader("gfx/2d/hud/weapselect");
+		cgs.media.weaponSelectShader = trap_R_RegisterShaderNoMip("weapselect");
 	}
 
 	memcpy(bg, green, sizeof(bg));
