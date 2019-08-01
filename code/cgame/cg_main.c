@@ -1802,6 +1802,13 @@ static void CG_RegisterSounds( void ) {
 	cgs.media.hgrenb1aSound = trap_S_RegisterSound("sound/weapons/grenade/hgrenb1a.wav", qfalse);
 	cgs.media.hgrenb2aSound = trap_S_RegisterSound("sound/weapons/grenade/hgrenb2a.wav", qfalse);
 
+	cgs.media.announceQuad = trap_S_RegisterSound("sound/treb/ratmod/powerups/quad_damage.ogg", qtrue);
+	cgs.media.announceBattlesuit = trap_S_RegisterSound("sound/treb/ratmod/powerups/battlesuit.ogg", qtrue);
+	cgs.media.announceHaste = trap_S_RegisterSound("sound/treb/ratmod/powerups/haste.ogg", qtrue);
+	cgs.media.announceInvis = trap_S_RegisterSound("sound/treb/ratmod/powerups/invisibility.ogg", qtrue);
+	cgs.media.announceRegen = trap_S_RegisterSound("sound/treb/ratmod/powerups/regeneration.ogg", qtrue);
+	cgs.media.announceFlight = trap_S_RegisterSound("sound/treb/ratmod/powerups/flight.ogg", qtrue);
+
 #ifdef MISSIONPACK
 	trap_S_RegisterSound("sound/player/sergei/death1.wav", qfalse );
 	trap_S_RegisterSound("sound/player/sergei/death2.wav", qfalse );

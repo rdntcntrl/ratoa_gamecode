@@ -442,6 +442,32 @@ void CG_CheckLocalSounds( playerState_t *ps, playerState_t *ops ) {
 			trap_S_StartLocalSound( cgs.media.youHaveFlagSound, CHAN_ANNOUNCER );
 		}
 	}
+	
+	// check for powerup pickup
+	if ((ps->powerups[PW_QUAD] != ops->powerups[PW_QUAD] && ps->powerups[PW_QUAD])
+			&& cgs.media.announceQuad) {
+		trap_S_StartLocalSound( cgs.media.announceQuad, CHAN_ANNOUNCER );
+	}
+	if ((ps->powerups[PW_BATTLESUIT] != ops->powerups[PW_BATTLESUIT] && ps->powerups[PW_BATTLESUIT])
+			&& cgs.media.announceBattlesuit) {
+		trap_S_StartLocalSound( cgs.media.announceBattlesuit, CHAN_ANNOUNCER );
+	}
+	if ((ps->powerups[PW_HASTE] != ops->powerups[PW_HASTE] && ps->powerups[PW_HASTE])
+			&& cgs.media.announceHaste) {
+		trap_S_StartLocalSound( cgs.media.announceHaste, CHAN_ANNOUNCER );
+	}
+	if ((ps->powerups[PW_INVIS] != ops->powerups[PW_INVIS] && ps->powerups[PW_INVIS])
+			&& cgs.media.announceInvis) {
+		trap_S_StartLocalSound( cgs.media.announceInvis, CHAN_ANNOUNCER );
+	}
+	if ((ps->powerups[PW_REGEN] != ops->powerups[PW_REGEN] && ps->powerups[PW_REGEN])
+			&& cgs.media.announceRegen) {
+		trap_S_StartLocalSound( cgs.media.announceRegen, CHAN_ANNOUNCER );
+	}
+	if ((ps->powerups[PW_FLIGHT] != ops->powerups[PW_FLIGHT] && ps->powerups[PW_FLIGHT])
+			&& cgs.media.announceFlight) {
+		trap_S_StartLocalSound( cgs.media.announceFlight, CHAN_ANNOUNCER );
+	}
 
 	// lead changes
 	if (!reward) {

@@ -1236,6 +1236,14 @@ typedef struct {
 	sfxHandle_t	wstbimpdSound;
 	sfxHandle_t	wstbactvSound;
 
+
+	sfxHandle_t	announceQuad;
+	sfxHandle_t	announceBattlesuit;
+	sfxHandle_t	announceHaste;
+	sfxHandle_t	announceInvis;
+	sfxHandle_t	announceRegen;
+	sfxHandle_t	announceFlight;
+
 } cgMedia_t;
 
 #define CONSOLE_MAXHEIGHT 16
