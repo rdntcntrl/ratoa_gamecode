@@ -985,8 +985,8 @@ static float CG_DrawSpeedMeter( float y ) {
 	vec_t       *vel;
 	int         speed;
 	float	color[4];
-	int char_width = cg_speedScaleX.value * BIGCHAR_WIDTH;
-	int char_height = cg_speedScaleY.value * BIGCHAR_WIDTH;
+	int char_width = CG_HeightToWidth(cg_speedScale.value * BIGCHAR_WIDTH);
+	int char_height = cg_speedScale.value * BIGCHAR_WIDTH;
 
 	/* speed meter can get in the way of the scoreboard */
 	if ( cg.scoreBoardShowing ) {
@@ -1055,8 +1055,8 @@ static float CG_DrawFPS( float y ) {
 	static	int	previous;
 	int		t, frameTime;
 	float	color[4];
-	int	char_width = BIGCHAR_WIDTH * cg_fpsScaleX.value;		
-	int	char_height = BIGCHAR_HEIGHT * cg_fpsScaleY.value;		
+	float	char_height = BIGCHAR_HEIGHT * cg_fpsScale.value;		
+	float	char_width = CG_HeightToWidth(BIGCHAR_WIDTH * cg_fpsScale.value);
 
 	// don't use serverTime, because that will be drifting to
 	// correct for internet lag changes, timescales, timedemos, etc
@@ -1101,8 +1101,8 @@ static float CG_DrawTimer( float y ) {
 	int			mins, seconds, tens;
 	int			msec;
 	float	color[4];
-	int char_width = BIGCHAR_WIDTH * cg_timerScaleX.value;
-	int char_height = BIGCHAR_HEIGHT * cg_timerScaleY.value;
+	int char_width = CG_HeightToWidth(BIGCHAR_WIDTH * cg_timerScale.value);
+	int char_height = BIGCHAR_HEIGHT * cg_timerScale.value;
 	qboolean negative = qfalse;
 
 	color[0] = color[1] = color[2] = 1.0;
@@ -1149,8 +1149,8 @@ static float CG_DrawTimeout( float y ) {
 	int			mins, seconds, tens;
 	int			msec;
 	float	color[4];
-	int char_width = BIGCHAR_WIDTH * cg_timerScaleX.value;
-	int char_height = BIGCHAR_HEIGHT * cg_timerScaleY.value;
+	int char_width = CG_HeightToWidth(BIGCHAR_WIDTH * cg_timerScale.value);
+	int char_height = BIGCHAR_HEIGHT * cg_timerScale.value;
 
 	if (cg.time >= cgs.timeoutEnd) {
 		return y;

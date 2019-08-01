@@ -311,12 +311,9 @@ vmCvar_t	cg_thTokenstyle;
 vmCvar_t	cg_timerAlpha;
 vmCvar_t	cg_fpsAlpha;
 vmCvar_t	cg_speedAlpha;
-vmCvar_t	cg_timerScaleX;
-vmCvar_t	cg_fpsScaleX;
-vmCvar_t	cg_speedScaleX;
-vmCvar_t	cg_timerScaleY;
-vmCvar_t	cg_fpsScaleY;
-vmCvar_t	cg_speedScaleY;
+vmCvar_t	cg_fpsScale;
+vmCvar_t	cg_speedScale;
+vmCvar_t	cg_timerScale;
 
 vmCvar_t	cg_drawTeamBackground;
 
@@ -636,12 +633,9 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_timerAlpha  ,     "cg_timerAlpha", "1", CVAR_ARCHIVE},
 	{ &cg_fpsAlpha    ,     "cg_fpsAlpha", "0.5", CVAR_ARCHIVE},
 	{ &cg_speedAlpha  ,     "cg_speedAlpha", "0.5", CVAR_ARCHIVE},
-	{ &cg_timerScaleX ,     "cg_timerScaleX", "1", CVAR_ARCHIVE},
-	{ &cg_fpsScaleX   ,     "cg_fpsScaleX", "0.6", CVAR_ARCHIVE},
-	{ &cg_speedScaleX ,     "cg_speedScaleX", "0.6", CVAR_ARCHIVE},
-	{ &cg_timerScaleY ,     "cg_timerScaleY", "1", CVAR_ARCHIVE},
-	{ &cg_fpsScaleY   ,     "cg_fpsScaleY", "0.75", CVAR_ARCHIVE},
-	{ &cg_speedScaleY ,     "cg_speedScaleY", "0.75", CVAR_ARCHIVE},
+	{ &cg_timerScale ,     "cg_timerScale", "1", CVAR_ARCHIVE},
+	{ &cg_fpsScale   ,     "cg_fpsScale", "0.6", CVAR_ARCHIVE},
+	{ &cg_speedScale ,     "cg_speedScale", "0.6", CVAR_ARCHIVE},
 
 	{ &cg_chatTime ,    "cg_chatTime", "10000", CVAR_ARCHIVE},
 	{ &cg_consoleTime , "cg_consoleTime", "10000", CVAR_ARCHIVE},

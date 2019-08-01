@@ -1667,12 +1667,9 @@ extern vmCvar_t			cg_thTokenstyle;
 extern vmCvar_t			cg_timerAlpha;
 extern vmCvar_t			cg_fpsAlpha;
 extern vmCvar_t			cg_speedAlpha;
-extern vmCvar_t			cg_timerScaleX;
-extern vmCvar_t			cg_fpsScaleX;
-extern vmCvar_t			cg_speedScaleX;
-extern vmCvar_t			cg_timerScaleY;
-extern vmCvar_t			cg_fpsScaleY;
-extern vmCvar_t			cg_speedScaleY;
+extern vmCvar_t			cg_timerScale;
+extern vmCvar_t			cg_fpsScale;
+extern vmCvar_t			cg_speedScale;
 
 //unlagged - smooth clients #2
 // this is done server-side now
