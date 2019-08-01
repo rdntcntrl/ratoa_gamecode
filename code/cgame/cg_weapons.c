@@ -1143,7 +1143,11 @@ void CG_RegisterWeapon( int weaponNum ) {
 		break;
 
 	case WP_ROCKET_LAUNCHER:
-		weaponInfo->missileModel = trap_R_RegisterModel( "models/ammo/rocket/rocket.md3" );
+		if (cg_rocketStyle.integer > 0 && cg_rocketStyle.integer < 4) {
+			weaponInfo->missileModel = trap_R_RegisterModel( va("models/ammo/rocket/rocket%i/rocket.md3", cg_rocketStyle.integer) );
+		} else {
+			weaponInfo->missileModel = trap_R_RegisterModel( "models/ammo/rocket/rocket.md3" );
+		}
 		weaponInfo->missileSound = trap_S_RegisterSound( "sound/weapons/rocket/rockfly.wav", qfalse );
 		weaponInfo->missileTrailFunc = CG_RocketTrail;
 		weaponInfo->missileDlight = 200;

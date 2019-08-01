@@ -211,6 +211,7 @@ vmCvar_t	cg_ratPlasmaTrail;
 vmCvar_t	cg_ratPlasmaTrailAlpha;
 vmCvar_t	cg_ratPlasmaTrailStep;
 vmCvar_t	cg_ratPlasmaTrailTime;
+vmCvar_t	cg_rocketStyle;
 vmCvar_t	cg_ratRocketTrail;
 vmCvar_t	cg_ratRocketTrailAlpha;
 vmCvar_t	cg_ratRocketTrailRadius;
@@ -614,6 +615,7 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_ratPlasmaTrailStep, "cg_ratPlasmaTrailStep", "12", CVAR_ARCHIVE},
 	{ &cg_ratPlasmaTrailTime, "cg_ratPlasmaTrailTime", "500", CVAR_ARCHIVE},
 	//
+	{ &cg_rocketStyle, "cg_rocketStyle", "0", CVAR_ARCHIVE | CVAR_LATCH },
 	{ &cg_ratRocketTrail, "cg_ratRocketTrail", "1", CVAR_ARCHIVE},
 	{ &cg_ratRocketTrailAlpha, "cg_ratRocketTrailAlpha", "0.6", CVAR_ARCHIVE},
 	{ &cg_ratRocketTrailRadius, "cg_ratRocketTrailRadius", "6", CVAR_ARCHIVE},
