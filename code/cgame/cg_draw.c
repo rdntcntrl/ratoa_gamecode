@@ -3872,27 +3872,73 @@ static void CG_ScanForCrosshairEntity( void ) {
 static void CG_DrawReloadIndicator( void ) {
 	int time = cg.predictedPlayerState.weaponTime;
 	float width;
+	int ammo, ammoSaved;
+	vec4_t color;
+	int weapon = cg.predictedPlayerState.weapon;
 
-	if (cg.predictedPlayerState.weaponstate != WEAPON_FIRING || time <= 0) {
+	if (weapon < 0 || weapon >= MAX_WEAPONS) {
 		return;
 	}
 
-	switch ( cg.predictedPlayerState.weapon ) {
-		case WP_LIGHTNING:
-		case WP_MACHINEGUN:
-		case WP_PLASMAGUN:
-		case WP_BFG:
-		case WP_CHAINGUN:
-			return;
+	if (cg_predictWeapons.integer) {
+		ammoSaved=cg.predictedPlayerState.ammo[weapon];
+	} else {
+		ammoSaved=cg.snap->ps.ammo[weapon];
 	}
 
-	width = MIN(1.0,(float)time/MAX_RELOADTIME)*cg_reloadIndicatorWidth.value;
+	if (ammoSaved != 0) {
+		if (cg.predictedPlayerState.weaponstate != WEAPON_FIRING || time <= 0) {
+			return;
+		}
+
+		switch ( weapon ) {
+			case WP_LIGHTNING:
+			case WP_MACHINEGUN:
+			case WP_PLASMAGUN:
+			case WP_BFG:
+			case WP_CHAINGUN:
+				return;
+		}
+	}
+	ammo = ammoSaved;
+	ammo = MIN(100, (ammo*100)/CG_FullAmmo(weapon));
+
+	if (ammo <= 20) {
+		color[0] = 1.0;
+		color[1] = 0.0;
+		color[2] = 0.0;
+	} else if (ammo <= 50) {
+		color[0] = 1.0;
+		color[1] = 1.0;
+		color[2] = 0.0;
+	} else {
+		color[0] = 1.0;
+		color[1] = 1.0;
+		color[2] = 1.0;
+	}
+	color[3] = MAX(0.0, MIN(1.0, cg_reloadIndicatorAlpha.value));
+
+	if (ammoSaved != 0) {
+		width = MIN(1.0,(float)time/MAX_RELOADTIME) * CG_HeightToWidth(cg_reloadIndicatorWidth.value);
+	} else {
+		width = CG_HeightToWidth(cg_reloadIndicatorWidth.value);
+	}
 
 	CG_FillRect((SCREEN_WIDTH - width)/2,
 			cg_reloadIndicatorY.value,
 			width,
 			cg_reloadIndicatorHeight.value,
-			colorWhite);
+			color);
+
+	if (ammoSaved == 0) {
+		int char_height = 8; 
+		int char_width = CG_HeightToWidth(char_height);
+		width = 3 * char_width;
+		CG_DrawStringExtFloat( (SCREEN_WIDTH - width) / 2.0, cg_reloadIndicatorY.value - char_height,
+			       	"out", color, qtrue, qfalse,
+				char_width,
+				char_height, 0 );
+	}
 }
 
 /*

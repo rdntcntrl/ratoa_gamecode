@@ -1580,6 +1580,7 @@ extern vmCvar_t			cg_reloadIndicator;
 extern vmCvar_t			cg_reloadIndicatorY;
 extern vmCvar_t			cg_reloadIndicatorWidth;
 extern vmCvar_t			cg_reloadIndicatorHeight;
+extern vmCvar_t			cg_reloadIndicatorAlpha;
 extern vmCvar_t			cg_crosshairNamesY;
 extern vmCvar_t			cg_crosshairNamesHealth;
 extern vmCvar_t			cg_friendFloatHealth;
@@ -2048,6 +2049,7 @@ void CG_DrawWeaponBar12(int count, int bits, float *color);
 void CG_DrawWeaponBar13(int count, int bits, float *color);
 
 void CG_OutOfAmmoChange( void );	// should this be in pmove?
+int CG_FullAmmo(int weapon);
 
 //
 // cg_marks.c

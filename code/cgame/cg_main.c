@@ -225,6 +225,7 @@ vmCvar_t	cg_reloadIndicator;
 vmCvar_t	cg_reloadIndicatorY;
 vmCvar_t	cg_reloadIndicatorWidth;
 vmCvar_t	cg_reloadIndicatorHeight;
+vmCvar_t	cg_reloadIndicatorAlpha;
 vmCvar_t	cg_crosshairNamesY;
 vmCvar_t	cg_crosshairNamesHealth;
 vmCvar_t	cg_friendFloatHealth;
@@ -616,9 +617,10 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_zoomAnim, "cg_zoomAnim", "1", CVAR_ARCHIVE},
 	{ &cg_zoomAnimScale, "cg_zoomAnimScale", "2", CVAR_ARCHIVE},
 	{ &cg_reloadIndicator, "cg_reloadIndicator", "0", CVAR_ARCHIVE},
-	{ &cg_reloadIndicatorY, "cg_reloadIndicatorY", "260", CVAR_ARCHIVE},
+	{ &cg_reloadIndicatorY, "cg_reloadIndicatorY", "220", CVAR_ARCHIVE},
 	{ &cg_reloadIndicatorWidth, "cg_reloadIndicatorWidth", "40", CVAR_ARCHIVE},
 	{ &cg_reloadIndicatorHeight, "cg_reloadIndicatorHeight", "1", CVAR_ARCHIVE},
+	{ &cg_reloadIndicatorAlpha, "cg_reloadIndicatorAlpha", "1", CVAR_ARCHIVE},
 	{ &cg_crosshairNamesY, "cg_crosshairNamesY", "280", CVAR_ARCHIVE},
 	{ &cg_crosshairNamesHealth, "cg_crosshairNamesHealth", "1", CVAR_ARCHIVE},
 	{ &cg_friendFloatHealth, "cg_friendFloatHealth", "1", CVAR_ARCHIVE},
