@@ -1507,6 +1507,13 @@ static void CG_LightningBolt( centity_t *cent, vec3_t origin ) {
 			angles[1] = rand() % 360;
 			angles[2] = rand() % 360;
 			AnglesToAxis( angles, beam.axis );
+
+			// scale down crackle
+			beam.nonNormalizedAxes = qtrue;
+			VectorScale(beam.axis[0], 0.5, beam.axis[0]);
+			VectorScale(beam.axis[1], 0.5, beam.axis[1]);
+			VectorScale(beam.axis[2], 0.5, beam.axis[2]);
+
 			trap_R_AddRefEntityToScene( &beam );
 		}
 	}
