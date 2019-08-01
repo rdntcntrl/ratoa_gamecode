@@ -601,11 +601,6 @@ void CG_DrawTeamBackground( int x, int y, int w, int h, float alpha, int team )
 
 #define	RAT_ICON_HEIGHT			20
 #define	RAT_CHAR_HEIGHT			24
-
-#define RATSTATUS_HEALTHX (320-RAT_CHAR_WIDTH*2-10)
-#define RATSTATUS_ARMORX  (320+RAT_CHAR_WIDTH*2+10)
-#define RATSTATUS_FLAGX_R   (RATSTATUS_ARMORX + ICON_SIZE + TEXT_ICON_SPACE + CHAR_WIDTH*3 + TEXT_ICON_SPACE)
-#define RATSTATUS_FLAGX_L   (32)
 static void CG_DrawRatStatusBar( void ) {
 	int			color;
 	centity_t	*cent;
