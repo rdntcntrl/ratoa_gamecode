@@ -3904,7 +3904,7 @@ static void CG_DrawReloadIndicator( void ) {
 	}
 	color[3] = MAX(0.0, MIN(1.0, cg_reloadIndicatorAlpha.value));
 
-	if (ammoSaved == 0 || ammo <= 20) {
+	if (ammoSaved == 0 || (ammo <= 20 && ammo > 0)) {
 		int char_height = 8; 
 		int char_width = CG_HeightToWidth(char_height);
 		width = 3 * char_width;
