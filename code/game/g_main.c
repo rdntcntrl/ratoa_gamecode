@@ -2816,9 +2816,9 @@ qboolean CheckNextmapVote( void ) {
 	Com_Printf("NextMapVote: switching to map %s\n", map);
 	trap_Cvar_VariableStringBuffer( "nextmap", nextmap, sizeof(nextmap) );
 	if (*nextmap) {
-		trap_SendConsoleCommand( EXEC_APPEND, va("map \"%s\"; set nextmap \"%s\"", map, nextmap ));
+		trap_SendConsoleCommand( EXEC_APPEND, va("map \"%s\"; set nextmap \"%s\"\n", map, nextmap ));
 	} else {
-		trap_SendConsoleCommand( EXEC_APPEND, va("map \"%s\";", map));
+		trap_SendConsoleCommand( EXEC_APPEND, va("map \"%s\"\n", map));
 	}
 	return qfalse;
 }

@@ -132,7 +132,7 @@ void UpdateTournamentInfo( void ) {
 		}
 		strcat( msg, buf );
 	}
-	trap_SendConsoleCommand( EXEC_APPEND, msg );
+	trap_SendConsoleCommand( EXEC_APPEND, va("%s\n", msg) );
 }
 
 

@@ -1021,7 +1021,7 @@ qboolean G_admin_cmd_check( gentity_t *ent, qboolean say )
       // flooding say will have already been accounted for in ClientCommand
       if( !say && G_FloodLimited( ent ) )
         return qtrue;
-      trap_SendConsoleCommand( EXEC_APPEND, g_admin_commands[ i ]->exec );
+      trap_SendConsoleCommand( EXEC_APPEND, va("%s\n", g_admin_commands[ i ]->exec) );
       admin_log( ent, cmd, skip );
     }
     else
@@ -2413,7 +2413,7 @@ qboolean G_admin_map( gentity_t *ent, int skiparg )
     return qfalse;
   }
 
-  trap_SendConsoleCommand( EXEC_APPEND, va( "map %s", map ) );
+  trap_SendConsoleCommand( EXEC_APPEND, va( "map %s\n", map ) );
   level.restarted = qtrue;
   AP( va( "print \"^3!map: ^7map '%s' started by %s\n\"", map,
           ( ent ) ? ent->client->pers.netname : "console" ) );
@@ -3264,7 +3264,7 @@ qboolean G_admin_restart( gentity_t *ent, int skiparg )
 
   }
 
-  trap_SendConsoleCommand( EXEC_APPEND, "map_restart" );
+  trap_SendConsoleCommand( EXEC_APPEND, "map_restart\n" );
   AP( va( "print \"^3!restart: ^7map restarted by %s \n\"",
           ( ent ) ? ent->client->pers.netname : "console" ) );
   return qtrue;
@@ -3880,7 +3880,7 @@ qboolean G_admin_warn( gentity_t *ent, int skiparg )
 
 qboolean G_admin_shuffle( gentity_t *ent, int skipargs ) 
 {  
-  trap_SendConsoleCommand( EXEC_APPEND, "shuffle" );
+  trap_SendConsoleCommand( EXEC_APPEND, "shuffle\n" );
   AP( va( "print \"^3!shuffle: ^7teams shuffled by %s \n\"",
           ( ent ) ? ent->client->pers.netname : "console" ) );
   return qtrue;
