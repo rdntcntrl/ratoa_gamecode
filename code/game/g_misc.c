@@ -133,6 +133,8 @@ void TeleportPlayer( gentity_t *player, vec3_t origin, vec3_t angles ) {
 	if ( player->client->sess.sessionTeam != TEAM_SPECTATOR && player->client->ps.pm_type != PM_SPECTATOR ) {
 		trap_LinkEntity (player);
 	}
+
+	player->client->lastTeleportTime = level.time;
 }
 
 

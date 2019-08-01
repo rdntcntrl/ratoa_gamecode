@@ -578,6 +578,7 @@ void G_CheckDeathEAwards(gentity_t *victim, gentity_t *inflictor, gentity_t *att
 		return;
 	}
 
+
 	if (victim->s.powerups & (
 			(1 << PW_QUAD) |
 			(1 << PW_BATTLESUIT) |
@@ -586,6 +587,10 @@ void G_CheckDeathEAwards(gentity_t *victim, gentity_t *inflictor, gentity_t *att
 			(1 << PW_REGEN) |
 			(1 << PW_FLIGHT))) {
 		AwardMessage(attacker, EAWARD_SHOWSTOPPER, ++(attacker->client->pers.awardCounts[EAWARD_SHOWSTOPPER]));
+	}
+
+	if (victim->client->lastTeleportTime + 500 >= level.time) {
+		AwardMessage(attacker, EAWARD_AMBUSH, ++(attacker->client->pers.awardCounts[EAWARD_AMBUSH]));
 	}
 
 	switch (meansOfDeath) {

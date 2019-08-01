@@ -526,6 +526,9 @@ struct gclient_s {
         int lastDmgGivenEntityNum; 
         int lastDmgGivenTime; 
         int lastDmgGivenMOD; 
+
+	// for ambush award
+	int lastTeleportTime;
         
 
 	//unlagged - backward reconciliation #1
@@ -552,7 +555,6 @@ struct gclient_s {
         int			accuracy[WP_NUM_WEAPONS][2];
 
 	int		timeouts; // number of timeouts called;
-
 };
 
 
