@@ -129,6 +129,8 @@ vmCvar_t	g_elimination_nail;
 
 vmCvar_t        g_elimination_lockspectator;
 
+vmCvar_t	g_swingGrapple;
+
 vmCvar_t	g_rockets;
 
 vmCvar_t	g_ratPhysics;
@@ -356,6 +358,7 @@ static cvarTable_t		gameCvarTable[] = {
         { &g_persistantpowerups, "g_runes", "0", CVAR_LATCH|CVAR_ARCHIVE, 0, qfalse },
         #endif
 
+	{ &g_swingGrapple, "g_swingGrapple", "0", CVAR_ROM, 0, qfalse },
 
 	//nexuiz style rocket arena
 	{ &g_rockets, "g_rockets", "0", CVAR_SERVERINFO | CVAR_LATCH | CVAR_NORESTART, 0, qfalse },

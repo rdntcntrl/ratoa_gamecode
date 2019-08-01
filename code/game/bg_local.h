@@ -88,3 +88,4 @@ extern vmCvar_t        g_fastSwitch;
 extern vmCvar_t        g_fastWeapons;
 extern vmCvar_t        g_regularFootsteps;
 extern vmCvar_t        g_fastSwim;
+extern vmCvar_t        g_swingGrapple;
