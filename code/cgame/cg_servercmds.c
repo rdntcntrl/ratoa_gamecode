@@ -1083,13 +1083,13 @@ void CG_SetConfigValues( void ) {
 	cgs.levelStartTime = atoi( CG_ConfigString( CS_LEVEL_START_TIME ) );
 	if( cgs.gametype == GT_CTF || cgs.gametype == GT_CTF_ELIMINATION || cgs.gametype == GT_DOUBLE_D) {
 		s = CG_ConfigString( CS_FLAGSTATUS );
-		cgs.redflag = s[0] - '0';
-		cgs.blueflag = s[1] - '0';
+		cgs.redflag = MIN(2,MAX(0,s[0] - '0'));
+		cgs.blueflag = MIN(2,MAX(0,s[1] - '0'));
 	}
 //#ifdef MISSIONPACK
 	else if( cgs.gametype == GT_1FCTF ) {
 		s = CG_ConfigString( CS_FLAGSTATUS );
-		cgs.flagStatus = s[0] - '0';
+		cgs.flagStatus = MIN(2,MAX(0,s[0] - '0'));
 	}
 //#endif
 	cg.warmup = atoi( CG_ConfigString( CS_WARMUP ) );
