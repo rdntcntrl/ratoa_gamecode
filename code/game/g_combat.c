@@ -1283,11 +1283,20 @@ void G_CheckAirrocket(gentity_t *victim, gentity_t *inflictor, gentity_t *attack
 
 	// make sure that victim was actually in the air for longer than just a normal jump
 	if (victim->client->lastGroundTime != 0 && level.time - victim->client->lastGroundTime < 800) {
-		return;
+		trace_t	tr;
+		vec3_t below = {0, 0, -140};
+
+		// if the victim has not been airborne for long, check if he at
+		// least is at a significant height above ground
+		VectorAdd(below, victim->r.currentOrigin, below);
+		trap_Trace ( &tr, victim->r.currentOrigin, vec3_origin, vec3_origin, below, victim->s.number, MASK_SOLID|MASK_WATER);
+		if (tr.fraction < 1.0) {
+			return;
+		}
 	}
 
 	// don't count point-blank hits
-	if (Distance(victim->r.currentOrigin, inflictor->s.pos.trBase) < (meansOfDeath == MOD_ROCKET ? 180 : 140)) {
+	if (Distance(victim->r.currentOrigin, inflictor->s.pos.trBase) < (meansOfDeath == MOD_ROCKET ? 140 : 100)) {
 		return;
 	}
 
