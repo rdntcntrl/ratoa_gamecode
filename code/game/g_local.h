@@ -585,6 +585,8 @@ typedef struct {
 	int			time;					// in msec
 	int			previousTime;			// so movers can back up when blocked
 
+	int			realtime;			// real level.time that advances during timeouts
+
 	int			startTime;				// level.time the map was started
 
 	int 			overtimeCount;			// number of times the game was extended by g_overtime seconds

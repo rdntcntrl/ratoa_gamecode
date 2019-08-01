@@ -4394,6 +4394,7 @@ void G_RunFrame( int levelTime ) {
 
 	if (!level.timeout)
 		level.time = levelTime;
+	level.realtime = levelTime;
 
 	msec = level.time - level.previousTime;
 
