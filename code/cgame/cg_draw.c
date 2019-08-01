@@ -3457,7 +3457,8 @@ Draw the small two score display
 =================
 */
 #ifndef MISSIONPACK
-#define SCORE_FLAGICON_HEIGHT (SCOREBOX_CHAR_MIN_WIDTH * 0.5)
+//#define SCORE_FLAGICON_HEIGHT (SCOREBOX_CHAR_MIN_WIDTH * 0.75)
+#define SCORE_FLAGICON_HEIGHT (SCOREBOX_CHAR_MIN_WIDTH * 0.6)
 static float CG_DrawScores( float y ) {
 	const char	*s;
 	int			s1, s2, score;
