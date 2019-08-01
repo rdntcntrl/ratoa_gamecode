@@ -2896,11 +2896,13 @@ static void CG_DrawReward( void ) {
 	int numMedals;
 	int skip;
 	float lineLength = 0.0;
-	float iconSz;
+	float iconWidth;
+	float iconHeight;
 	float charWidth;
 	float charHeight;
 	float scale;
 
+	iconWidth = CG_HeightToWidth(ICON_SIZE);
 	skip = 0;
 	numMedals = 0;
 	for (i = 0; i < MAX_REWARDROW; ++i) {
@@ -2909,7 +2911,7 @@ static void CG_DrawReward( void ) {
 		}
 		if (cg.reward2RowTimes[i] != 0 && cg.reward2RowTimes[i] + CG_Reward2Time(i) > cg.time) {
 			++numMedals;
-			lineLength += (float)ICON_SIZE * CG_FadeScale(cg.reward2RowTimes[i], CG_Reward2Time(i));
+			lineLength +=  iconWidth * CG_FadeScale(cg.reward2RowTimes[i], CG_Reward2Time(i));
 			// shift backwards over empty slots
 			if (skip) {
 				cg.reward2RowTimes[i-skip] = cg.reward2RowTimes[i];
@@ -2930,21 +2932,22 @@ static void CG_DrawReward( void ) {
 	for ( i = 0 ; i < numMedals ; ++i ) {
 		color = CG_FadeColor( cg.reward2RowTimes[i], CG_Reward2Time(i) );
 		scale = CG_FadeScale( cg.reward2RowTimes[i], CG_Reward2Time(i) );
-		iconSz = MAX(1.0,(float)ICON_SIZE * scale);
+		iconHeight = (float)ICON_SIZE * scale;
 		trap_R_SetColor( color );
 
-		yy = y + (ICON_SIZE - iconSz)/2.0;
+		yy = y + (ICON_SIZE - iconHeight)/2.0;
 
-		CG_DrawPic( x+2, yy, MAX(1.0,iconSz-4), MAX(1.0,iconSz-4), cg.reward2Shader[i] );
+		CG_DrawPicSquareByHeight( x+CG_HeightToWidth(2), yy, MAX(0.0,iconHeight-4), cg.reward2Shader[i] );
 
-		charWidth  = MAX(1.0,(float)SMALLCHAR_WIDTH * scale);
-		charHeight = MAX(1.0,(float)SMALLCHAR_HEIGHT * scale);
+		charWidth  = CG_HeightToWidth((float)SMALLCHAR_WIDTH * scale);
+		charHeight = (float)SMALLCHAR_HEIGHT * scale;
+		iconWidth = CG_HeightToWidth(iconHeight);
 
 		Com_sprintf(buf, sizeof(buf), "%d", cg.reward2Count[i]);
-		xx = x + (iconSz - charWidth * CG_DrawStrlen(buf)) / 2;
-		CG_DrawStringExt( xx, yy+iconSz, buf, color, qfalse, qtrue,
+		xx = x + (iconWidth - charWidth * CG_DrawStrlen(buf)) / 2;
+		CG_DrawStringExt( xx, yy+iconHeight, buf, color, qfalse, qtrue,
 								charWidth, charHeight, 0 );
-		x += iconSz;
+		x += iconWidth;
 	}
 
 	trap_R_SetColor( NULL );

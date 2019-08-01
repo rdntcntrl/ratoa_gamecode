@@ -45,6 +45,14 @@ void CG_AdjustFrom640( float *x, float *y, float *w, float *h ) {
 }
 
 /*
+ * Converts a height referring to the virtual 640x480 screen to a width,
+ * preserving the aspect ratio on the real screen
+ */
+float CG_HeightToWidth(float h) {
+	return (h*cgs.screenYScale)/cgs.screenXScale;
+}
+
+/*
 ================
 CG_FillRect
 
@@ -108,6 +116,16 @@ Coordinates are 640*480 virtual values
 void CG_DrawPic( float x, float y, float width, float height, qhandle_t hShader ) {
 	CG_AdjustFrom640( &x, &y, &width, &height );
 	trap_R_DrawStretchPic( x, y, width, height, 0, 0, 1, 1, hShader );
+}
+
+/*
+ * Preserves aspect ratio on the real screen (not the 640x480 virtual screen)
+ */
+float CG_DrawPicSquareByHeight( float x, float y, float height, qhandle_t hShader ) {
+	float width = CG_HeightToWidth(height);
+	CG_AdjustFrom640( &x, &y, &width, &height );
+	trap_R_DrawStretchPic( x, y, width, height, 0, 0, 1, 1, hShader );
+	return width;
 }
 
 qhandle_t CG_SelectFont(float width, float height) {
