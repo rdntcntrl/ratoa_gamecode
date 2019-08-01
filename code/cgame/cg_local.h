@@ -1580,8 +1580,6 @@ extern vmCvar_t			cg_zoomToggle;
 extern vmCvar_t			cg_zoomAnim;
 extern vmCvar_t			cg_zoomAnimScale;
 extern vmCvar_t			cg_crosshairNamesY;
-extern vmCvar_t			cg_crosshairNamesScaleX;
-extern vmCvar_t			cg_crosshairNamesScaleY;
 extern vmCvar_t			cg_crosshairNamesHealth;
 extern vmCvar_t			cg_friendFloatHealth;
 extern vmCvar_t			cg_friendFloatHealthSize;

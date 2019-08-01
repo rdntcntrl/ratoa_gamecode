@@ -3868,8 +3868,9 @@ static void CG_DrawCrosshairNames( void ) {
 	float		*color;
 	char		*name;
 	float		w;
-	int	char_width = 8;
+	int	char_width;
 	int	char_height = 8;
+
 
 	if ( !cg_drawCrosshair.integer ) {
 		return;
@@ -3897,13 +3898,8 @@ static void CG_DrawCrosshairNames( void ) {
 	w = CG_Text_Width(name, 0.3f, 0);
 	CG_Text_Paint( 320 - w / 2, 190, 0.3f, color, name, 0, 0, ITEM_TEXTSTYLE_SHADOWED);
 #else
-	//w = CG_DrawStrlen( name ) * BIGCHAR_WIDTH;
-	//CG_DrawBigString( 320 - w / 2, 170, name, color[3] * 0.5f );
-	char_width *= cg_crosshairNamesScaleX.value;
-	char_height *= cg_crosshairNamesScaleY.value;
+	char_width = CG_HeightToWidth(char_height);
 	w = CG_DrawStrlen( name ) * char_width;
-	//CG_DrawSmallString( 320 - w / 2, cg_crossHairNamesY.integer, name, 1.0f );
-	//CG_DrawSmallString( 320 - w / 2, cg_crossHairNamesY.integer, name, 1.0f );
 	color [0] = color[1] = color[2] = color[3] = 1.0;
 	CG_DrawStringExt( 320 -w / 2, cg_crosshairNamesY.integer, name, color, qfalse, qfalse,
 		       	char_width,
@@ -3921,7 +3917,7 @@ static void CG_DrawCrosshairNames( void ) {
 			} else {
 				healthcolor = &colorRed;
 			}
-			CG_DrawStringExt( 320 - 3 * char_width - 3,
+			CG_DrawStringExt( 320 - 3 * char_width - char_width/2.5,
 				       	cg_crosshairNamesY.integer + (char_height*1.20),
 				       	va("%3i", cgs.clientinfo[cg.crosshairClientNum].health),
 					*healthcolor,
@@ -3943,7 +3939,7 @@ static void CG_DrawCrosshairNames( void ) {
 			} else {
 				healthcolor = &colorRed;
 			}
-			CG_DrawStringExt( 320 + 3,
+			CG_DrawStringExt( 320 + char_width/2.5,
 				       	cg_crosshairNamesY.integer + (char_height*1.20),
 				       	va("%i", cgs.clientinfo[cg.crosshairClientNum].armor),
 					*healthcolor,
