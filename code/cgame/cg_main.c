@@ -866,7 +866,7 @@ void CG_RatRemapShaders(void) {
 	}
 }
 
-#define LATEST_RATINITIALIZED 16
+#define LATEST_RATINITIALIZED 17
 
 /*
  *
@@ -1120,6 +1120,12 @@ void CG_RatOldCfgUpdate(void) {
 					);
 		CG_Cvar_SetAndUpdate( "cg_ratInitialized", "16" );
 	}
+	if (cg_ratInitialized.integer < 17) {
+		CG_Cvar_ResetToDefault( "cg_hudDamageIndicatorScale" );
+		CG_Cvar_ResetToDefault( "cg_hudDamageIndicatorOffset" );
+		CG_Cvar_ResetToDefault( "cg_hudDamageIndicatorAlpha" );
+		CG_Cvar_SetAndUpdate( "cg_ratInitialized", "17" );
+	}
 
 }
 
@@ -1170,6 +1176,19 @@ void CG_Cvar_Update( const char *var_name ) {
 void CG_Cvar_SetAndUpdate( const char *var_name, const char *value ) {
 	trap_Cvar_Set( var_name, value );
 	CG_Cvar_Update(var_name);
+}
+
+void CG_Cvar_ResetToDefault( const char *var_name ) {
+	int i;
+	cvarTable_t *cv;
+
+	for ( i = 0, cv = cvarTable ; i < cvarTableSize ; i++, cv++ ) {
+		if (Q_stricmp(var_name, cv->cvarName) != 0) {
+			continue;
+		}
+		trap_Cvar_Set( cv->cvarName, cv->defaultString );
+		trap_Cvar_Update( cv->vmCvar );
+	}
 }
 
 void CG_CvarResetDefaults( void ) {
@@ -1914,7 +1933,7 @@ static void CG_RegisterNumbers(void) {
 	for ( i=0 ; i<11 ; i++) {
 		cgs.media.numberShaders[i] = trap_R_RegisterShader( 
 				va(sb_nums[i],
-					cg_ratStatusbar.integer == 4444 ? "_trebfuture" : ""
+					cg_ratStatusbar.integer == 4 ? "_trebfuture" : ""
 				  )
 			       	);
 	}
@@ -2218,10 +2237,10 @@ static void CG_RegisterGraphics( void ) {
 	cgs.media.eaward_medals[EAWARD_VAPORIZED] = trap_R_RegisterShaderNoMip( "medal_vaporized" );
 
 	switch (cg_ratStatusbar.integer) {
-		case 3333:
+		case 3:
 			CG_Ratstatusbar3RegisterShaders();
 			break;
-		case 4444:
+		case 4:
 			CG_Ratstatusbar4RegisterShaders();
 			break;
 	}

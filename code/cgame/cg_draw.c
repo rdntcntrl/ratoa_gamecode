@@ -3673,7 +3673,7 @@ static float CG_DrawPowerups( float y ) {
 		return y;
 	}
 
-	if (cg_ratStatusbar.integer == 4444) {
+	if (cg_ratStatusbar.integer == 4) {
 		char_height = DPW_CHAR_SIZE;
 		char_width = CG_HeightToWidth(char_height);
 		icon_sz = DPW_ICON_SIZE;
@@ -3730,7 +3730,7 @@ static float CG_DrawPowerups( float y ) {
 
 			y -= powerup_height;
 
-			if (cg_ratStatusbar.integer == 4444) {
+			if (cg_ratStatusbar.integer == 4) {
 				int numDigits, v;
 
 				CG_DrawPic( decor_x,
@@ -3776,7 +3776,7 @@ static float CG_DrawPowerups( float y ) {
 				size = icon_sz;
 			}
 			
-			if (cg_ratStatusbar.integer == 4444) {
+			if (cg_ratStatusbar.integer == 4) {
 				CG_DrawPic( decor_x + CG_HeightToWidth(DPW_ICON_XOFFSET - size/2.0),
 					       	y + DPW_ICON_YOFFSET - size/2.0,
 						CG_HeightToWidth(size), size, trap_R_RegisterShader( item->icon ) );
@@ -6223,10 +6223,10 @@ static void CG_Draw2D(stereoFrame_t stereoFrame)
 					case 2:
 						CG_DrawRatStatusBar();
 						break;
-					case 3333:
+					case 3:
 						CG_DrawRatStatusBar3();
 						break;
-					case 4444:
+					case 4:
 						CG_DrawRatStatusBar4();
 						break;
 					default:

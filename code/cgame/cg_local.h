@@ -1908,6 +1908,7 @@ void SnapVectorTowards( vec3_t v, vec3_t to );
 void CG_FairCvars( void );
 void CG_CvarResetDefaults( void );
 void CG_Cvar_SetAndUpdate( const char *var_name, const char *value );
+void CG_Cvar_ResetToDefault( const char *var_name );
 void CG_Cvar_Update( const char *var_name );
 
 //
