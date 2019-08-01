@@ -343,6 +343,7 @@ vmCvar_t	cg_noTaunt;
 vmCvar_t	cg_noProjectileTrail;
 vmCvar_t	cg_oldRail;
 vmCvar_t	cg_oldRocket;
+vmCvar_t	cg_oldMachinegun;
 vmCvar_t	cg_leiEnhancement;		// ANOTHER LEILEI LINE!!!
 vmCvar_t	cg_leiBrassNoise;		// ANOTHER LEILEI LINE!!!
 vmCvar_t	cg_leiGoreNoise;		// ANOTHER LEILEI LINE!!!
@@ -736,6 +737,7 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_bigFont, "ui_bigFont", "0.4", CVAR_ARCHIVE},
 	{ &cg_oldRail, "cg_oldRail", "0", CVAR_ARCHIVE},
 	{ &cg_oldRocket, "cg_oldRocket", "1", CVAR_ARCHIVE},
+	{ &cg_oldMachinegun, "cg_oldMachinegun", "0", CVAR_ARCHIVE|CVAR_LATCH},
 	{ &cg_leiEnhancement, "cg_leiEnhancement", "0", CVAR_ARCHIVE},				// LEILEI default off (in case of whiner)
 	{ &cg_leiGoreNoise, "cg_leiGoreNoise", "0", CVAR_ARCHIVE},					// LEILEI 
 	{ &cg_leiBrassNoise, "cg_leiBrassNoise", "0", CVAR_ARCHIVE},				// LEILEI 

@@ -965,9 +965,17 @@ static void CG_GrenadeTrail( centity_t *ent, const weaponInfo_t *wi ) {
 	CG_RocketTrail( ent, wi );
 }
 
-	
+const char *CG_GetMachinegunModel(gitem_t *item) {
+	if (item->giType == IT_WEAPON && item->giTag == WP_MACHINEGUN && cg_oldMachinegun.integer) {
+		const char *oldMg = "models/weapons2/oldmachine/machinegun.md3";
+		qhandle_t model = trap_R_RegisterModel(oldMg);
+		if (model != 0) {
+			return oldMg;
+		}
+	}
 
-
+	return item->world_model[0];
+}
 
 
 /*
@@ -983,6 +991,7 @@ void CG_RegisterWeapon( int weaponNum ) {
 	char			path[MAX_QPATH];
 	vec3_t			mins, maxs;
 	int				i;
+	const char *worldmodel = NULL;
 
 	weaponInfo = &cg_weapons[weaponNum];
 
@@ -1008,8 +1017,13 @@ void CG_RegisterWeapon( int weaponNum ) {
 	}
 	CG_RegisterItemVisuals( item - bg_itemlist );
 
+	worldmodel = item->world_model[0];
+	if (item->giType == IT_WEAPON && item->giTag == WP_MACHINEGUN) {
+		worldmodel = CG_GetMachinegunModel(item);
+	}
+
 	// load cmodel before model so filecache works
-	weaponInfo->weaponModel = trap_R_RegisterModel( item->world_model[0] );
+	weaponInfo->weaponModel = trap_R_RegisterModel( worldmodel );
 
 	// calc midpoint for rotation
 	trap_R_ModelBounds( weaponInfo->weaponModel, mins, maxs );
@@ -1029,17 +1043,17 @@ void CG_RegisterWeapon( int weaponNum ) {
 		weaponInfo->ammoModel = trap_R_RegisterModel( ammo->world_model[0] );
 	}
 
-	Q_strncpyz( path, item->world_model[0], MAX_QPATH );
+	Q_strncpyz( path, worldmodel, MAX_QPATH );
 	COM_StripExtension(path, path, sizeof(path));
 	strcat( path, "_flash.md3" );
 	weaponInfo->flashModel = trap_R_RegisterModel( path );
 
-	Q_strncpyz( path, item->world_model[0], MAX_QPATH );
+	Q_strncpyz( path, worldmodel, MAX_QPATH );
 	COM_StripExtension(path, path, sizeof(path));
 	strcat( path, "_barrel.md3" );
 	weaponInfo->barrelModel = trap_R_RegisterModel( path );
 
-	Q_strncpyz( path, item->world_model[0], MAX_QPATH );
+	Q_strncpyz( path, worldmodel, MAX_QPATH );
 	COM_StripExtension(path, path, sizeof(path));
 	strcat( path, "_hand.md3" );
 	weaponInfo->handsModel = trap_R_RegisterModel( path );
@@ -1235,6 +1249,7 @@ The server says this item is used on this level
 void CG_RegisterItemVisuals( int itemNum ) {
 	itemInfo_t		*itemInfo;
 	gitem_t			*item;
+	const char *worldmodel = NULL;
 
 	if ( itemNum < 0 || itemNum >= bg_numItems ) {
 		CG_Error( "CG_RegisterItemVisuals: itemNum %d out of range [0-%d]", itemNum, bg_numItems-1 );
@@ -1250,7 +1265,12 @@ void CG_RegisterItemVisuals( int itemNum ) {
 	memset( itemInfo, 0, sizeof( &itemInfo ) );
 	itemInfo->registered = qtrue;
 
-	itemInfo->models[0] = trap_R_RegisterModel( item->world_model[0] );
+	worldmodel = item->world_model[0];
+	if (item->giType == IT_WEAPON && item->giTag == WP_MACHINEGUN) {
+		worldmodel = CG_GetMachinegunModel(item);
+	}
+
+	itemInfo->models[0] = trap_R_RegisterModel( worldmodel );
 
 	itemInfo->icon = trap_R_RegisterShader( item->icon );
 
