@@ -5426,11 +5426,15 @@ static void CG_DrawEmptyIndicator( void ) {
 	ammo = ammoSaved;
 	ammo = MIN(100, (ammo*100)/CG_FullAmmo(weapon));
 
-	if (ammo > 20 || ammo < 0) {
+	if (ammo > 20 
+			|| ammo < 0
+			|| cg.predictedPlayerState.weaponstate == WEAPON_DROPPING
+			|| cg.predictedPlayerState.weaponstate == WEAPON_RAISING
+			) {
 		return;
 	}
 
-	char_height = 8; 
+	char_height = 10; 
 	char_width = CG_HeightToWidth(char_height);
 	s = ammoSaved == 0 ? "EMPTY" : "LOW";
 
