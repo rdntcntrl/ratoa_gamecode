@@ -496,6 +496,83 @@ void G_CheckKamikazeAward(gentity_t *attacker, int killsBefore, int deathsBefore
 	AwardMessage(attacker, EAWARD_KAMIKAZE, ++(attacker->client->pers.awardCounts[EAWARD_KAMIKAZE]));
 }
 
+void G_CheckStrongmanAward(gentity_t *attacker, gentity_t *victim) {
+	int i;
+	int numKilled = 0, numEnemies = 0;
+	qboolean reset = qfalse;
+
+	// make sure that if a player dies, he has to start the strongman challenge all over again
+	for ( i = 0 ; i < level.maxclients ; i++ ) {
+		gclient_t	*client;
+
+		client = &level.clients[i];
+		if ( client->pers.connected != CON_CONNECTED ) {
+			continue;
+		}
+
+		if (client->pers.lastKilledByStrongMan == victim->s.number) {
+			client->pers.lastKilledByStrongMan = -1;
+		}
+	}
+
+	if (!attacker || !attacker->client || (attacker == victim)) {
+		return;
+	}
+
+	victim->client->pers.lastKilledByStrongMan = attacker->s.number;
+
+	for (;;) {
+		for ( i = 0 ; i < level.maxclients ; i++ ) {
+			gclient_t	*client;
+
+			client = &level.clients[i];
+			if ( client->pers.connected != CON_CONNECTED ) {
+				continue;
+			}
+			if ( client->sess.sessionTeam == TEAM_SPECTATOR ) {
+				continue;
+			}
+
+			if (!reset && client->pers.lastKilledByStrongMan == victim->s.number) {
+				// make sure that the victim has to start over again 
+				client->pers.lastKilledByStrongMan = -1;
+			}
+
+			if (g_gametype.integer >= GT_TEAM && !g_ffa_gt) { 
+				if (client->sess.sessionTeam == attacker->client->sess.sessionTeam)   {
+					continue;
+				}
+			} else if ( i == attacker->s.number ) {
+				client->pers.lastKilledByStrongMan = -1;
+				continue;
+			}
+			
+			if (reset) {
+				client->pers.lastKilledByStrongMan = -1;
+				continue;
+			}
+
+			numEnemies++;
+
+			if (client->pers.lastKilledByStrongMan == attacker->s.number) {
+				numKilled++;
+			} else {
+				client->pers.lastKilledByStrongMan = -1;
+			}
+
+		}
+		if (reset) {
+			break;
+		}
+		if (numKilled == numEnemies && numEnemies >= 2) {
+			AwardMessage(attacker, EAWARD_STRONGMAN, ++(attacker->client->pers.awardCounts[EAWARD_STRONGMAN]));
+			reset = qtrue;
+		}  else {
+			break;
+		}
+	}
+}
+
 void G_CheckDeathEAwards(gentity_t *victim, gentity_t *inflictor, gentity_t *attacker, int meansOfDeath) {
 	if (!attacker || !attacker->client || attacker == victim) {
 		return;
@@ -574,8 +651,6 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 //unlagged - backward reconciliation #2
     //KK-OAX Here is where we run the streak logic. 
     G_RunStreakLogic( attacker, self );
-    
-    	G_CheckDeathEAwards(self, inflictor, attacker, meansOfDeath);
 	
 	// check for an almost capture
 	CheckAlmostCapture( self, attacker );
@@ -833,6 +908,9 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
                     //if(self->client->ps.persistant[PERS_SCORE]>0 || level.numNonSpectatorClients<3) //Cannot get negative scores by suicide
 			AddScore( self, self->r.currentOrigin, -1 );
 	}
+    
+	G_CheckStrongmanAward(attacker, self);
+    	G_CheckDeathEAwards(self, inflictor, attacker, meansOfDeath);
 
 	// Add team bonuses
 	Team_FragBonuses(self, inflictor, attacker);

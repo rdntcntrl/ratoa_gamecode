@@ -414,6 +414,9 @@ typedef struct {
 
     // for ra3compat
     int arenaNum;
+
+    // for awards, clientno of enemy that last killed us, reset upon strongman award
+    int lastKilledByStrongMan;
 } clientPersistant_t;
 
 //unlagged - backward reconciliation #1
