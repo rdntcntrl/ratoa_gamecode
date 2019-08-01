@@ -589,9 +589,10 @@ void G_CheckDeathEAwards(gentity_t *victim, gentity_t *inflictor, gentity_t *att
 		AwardMessage(attacker, EAWARD_SHOWSTOPPER, ++(attacker->client->pers.awardCounts[EAWARD_SHOWSTOPPER]));
 	}
 
-	if (victim->client->lastTeleportTime + 800 >= level.time
-			&& attacker->client->lastTeleportTime + 1500 < level.time
-			&& (!inflictor || !inflictor->missileTeleported)) {
+	if (((victim->client->lastTeleportTime + 800 >= level.time && attacker->client->lastTeleportTime + 1500 < level.time)
+				|| 
+				(victim->client->respawnTime + 800 >= level.time)
+			) && (!inflictor || !inflictor->missileTeleported)) {
 		AwardMessage(attacker, EAWARD_AMBUSH, ++(attacker->client->pers.awardCounts[EAWARD_AMBUSH]));
 	}
 
