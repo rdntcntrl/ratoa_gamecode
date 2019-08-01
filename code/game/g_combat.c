@@ -1164,7 +1164,7 @@ void G_CheckAirrocket(gentity_t *victim, gentity_t *inflictor, gentity_t *attack
 	}
 
 	// don't count point-blank hits
-	if (Distance(victim->r.currentOrigin, inflictor->s.pos.trBase) < (meansOfDeath == MOD_ROCKET ? 250 : 200)) {
+	if (Distance(victim->r.currentOrigin, inflictor->s.pos.trBase) < (meansOfDeath == MOD_ROCKET ? 180 : 140)) {
 		return;
 	}
 
