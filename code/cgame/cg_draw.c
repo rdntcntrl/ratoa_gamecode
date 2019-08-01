@@ -42,6 +42,8 @@ char systemChat[256];
 char teamChat1[256];
 char teamChat2[256];
 
+static float CG_DrawPickupItem( float y );
+
 #ifdef MISSIONPACK
 
 int CG_Text_Width(const char *text, float scale, int limit) {
@@ -3266,6 +3268,9 @@ static void CG_DrawUpperRight(stereoFrame_t stereoFrame)
 	if ( cg_drawTimer.integer) {
 		y = CG_DrawTimer( y );
 	}
+	if ( cg_drawPickup.integer == 1) {
+		y = CG_DrawPickupItem( y );
+	}
 	y = CG_DrawTimeout( y );
 	if ( cg_drawAttacker.integer ) {
 		y = CG_DrawAttacker( y );
@@ -4039,16 +4044,24 @@ CG_DrawPickupItem
 ===================
 */
 #ifndef MISSIONPACK
-static int CG_DrawPickupItem( int y ) {
+static float CG_DrawPickupItem( float y ) {
 	int		value;
 	float	*fadeColor;
-	float iconSz = MEDIUMCHAR_HEIGHT;
+	float iconSz = cg_pickupScale.value * MEDIUMCHAR_HEIGHT;
+	float char_width = CG_HeightToWidth(cg_pickupScale.value * MEDIUMCHAR_WIDTH);
+	float char_height = cg_pickupScale.value * MEDIUMCHAR_HEIGHT;
+
+	if (!cg_drawPickup.integer) {
+		return y;
+	}
 
 	if ( cg.snap->ps.stats[STAT_HEALTH] <= 0 ) {
 		return y;
 	}
 
-	y -= iconSz;
+	if (cg_drawPickup.integer == 2) {
+		y -= iconSz;
+	} 
 
 	value = cg.itemPickup;
 	if ( value ) {
@@ -4056,17 +4069,30 @@ static int CG_DrawPickupItem( int y ) {
 		if ( fadeColor ) {
 			CG_RegisterItemVisuals( value );
 			trap_R_SetColor( fadeColor );
-			CG_DrawPic( CG_HeightToWidth(8), y, CG_HeightToWidth(iconSz), iconSz, cg_items[ value ].icon );
-			CG_DrawStringExt( CG_HeightToWidth(iconSz + 8 + 4),
-				       	y + (iconSz - MEDIUMCHAR_HEIGHT)/2.0,
-				       	bg_itemlist[ value ].pickup_name,
-					fadeColor,
-				       	qfalse, qfalse, CG_HeightToWidth(MEDIUMCHAR_WIDTH), MEDIUMCHAR_HEIGHT, 0 );
+			if (cg_drawPickup.integer == 2) {
+				CG_DrawPic( CG_HeightToWidth(8), y, CG_HeightToWidth(iconSz), iconSz, cg_items[ value ].icon );
+				CG_DrawStringExtFloat( CG_HeightToWidth(iconSz + 8 + 4),
+						y + (iconSz - char_height)/2.0,
+						bg_itemlist[ value ].pickup_name,
+						fadeColor,
+						qfalse, qfalse, char_width, char_height, 0 );
+			} else {
+				int len = CG_DrawStrlen(bg_itemlist[ value ].pickup_name);
+				float x = SCREEN_WIDTH - CG_HeightToWidth(iconSz + 6);
+				CG_DrawPic( x, y, CG_HeightToWidth(iconSz), iconSz, cg_items[ value ].icon );
+				x -= char_width/2.0 + len * char_width;
+				CG_DrawStringExtFloat( x,
+						y + (iconSz - char_height)/2.0,
+						bg_itemlist[ value ].pickup_name,
+						fadeColor,
+						qfalse, qfalse, char_width, char_height, 0 );
+				y += iconSz;
+			}
 			trap_R_SetColor( NULL );
 		}
 	}
 	
-	return y;
+	return	y;
 }
 #endif // MISSIONPACK
 
@@ -4087,7 +4113,9 @@ static void CG_DrawLowerLeft( void ) {
 	} 
 
 
-	y = CG_DrawPickupItem( y );
+	if (cg_drawPickup.integer == 2) {
+		y = CG_DrawPickupItem( y );
+	}
 }
 #endif // MISSIONPACK
 

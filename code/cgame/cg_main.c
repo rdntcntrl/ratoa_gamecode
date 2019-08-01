@@ -160,6 +160,8 @@ vmCvar_t	cg_thirdPersonRange;
 vmCvar_t	cg_thirdPersonAngle;
 vmCvar_t	cg_lagometer;
 vmCvar_t	cg_drawAttacker;
+vmCvar_t	cg_drawPickup;
+vmCvar_t	cg_pickupScale;
 vmCvar_t	cg_drawSpeed;
 vmCvar_t	cg_drawSpeed3D;
 vmCvar_t	cg_synchronousClients;
@@ -474,6 +476,7 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_drawIcons, "cg_drawIcons", "1", CVAR_ARCHIVE  },
 	{ &cg_drawAmmoWarning, "cg_drawAmmoWarning", "1", CVAR_ARCHIVE  },
 	{ &cg_drawAttacker, "cg_drawAttacker", "1", CVAR_ARCHIVE  },
+	{ &cg_drawPickup, "cg_drawPickup", "1", CVAR_ARCHIVE  },
 	{ &cg_drawSpeed, "cg_drawSpeed", "1", CVAR_ARCHIVE  },
 	{ &cg_drawSpeed3D, "cg_drawSpeed3D", "0", 0  },
 	{ &cg_drawCrosshair, "cg_drawCrosshair", "19", CVAR_ARCHIVE },
@@ -656,6 +659,7 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_timerScale ,     "cg_timerScale", "1", CVAR_ARCHIVE},
 	{ &cg_fpsScale   ,     "cg_fpsScale", "0.6", CVAR_ARCHIVE},
 	{ &cg_speedScale ,     "cg_speedScale", "0.6", CVAR_ARCHIVE},
+	{ &cg_pickupScale ,     "cg_pickupScale", "0.75", CVAR_ARCHIVE},
 
 	{ &cg_chatTime ,    "cg_chatTime", "10000", CVAR_ARCHIVE},
 	{ &cg_consoleTime , "cg_consoleTime", "10000", CVAR_ARCHIVE},

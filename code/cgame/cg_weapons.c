@@ -1959,8 +1959,10 @@ void CG_DrawWeaponSelect( void ) {
 	}
 	trap_R_SetColor( color );
 
-	// showing weapon select clears pickup item display, but not the blend blob
-	cg.itemPickupTime = 0;
+	if (cg_drawPickup.integer == 2) {
+		// showing weapon select clears pickup item display, but not the blend blob
+		cg.itemPickupTime = 0;
+	}
 
 	// count the number of weapons owned
 	if (cg_predictWeapons.integer) {
