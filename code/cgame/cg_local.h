@@ -908,6 +908,8 @@ typedef struct {
 	qhandle_t	weaponSelectShader13;
 	qhandle_t	weaponSelectShaderTech;
 	qhandle_t	weaponSelectShaderTechBorder;
+	qhandle_t	weaponSelectShaderCircle;
+	qhandle_t	weaponSelectShaderCircleGlow;
 
 	qhandle_t	powerupFrameShader;
 	qhandle_t	bottomFPSShader;
@@ -2120,6 +2122,7 @@ void CG_DrawWeaponBar10(int count, int bits, float *color);
 void CG_DrawWeaponBar12(int count, int bits, float *color);
 void CG_DrawWeaponBar13(int count, int bits, float *color);
 void CG_DrawWeaponBar14(int count, int bits, float *color);
+void CG_DrawWeaponBar15(int count, int bits, float *color);
 
 void CG_OutOfAmmoChange( void );	// should this be in pmove?
 int CG_FullAmmo(int weapon);
