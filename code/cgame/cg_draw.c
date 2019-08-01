@@ -920,7 +920,7 @@ static void CG_DrawHudDamageIndicator(void) {
 	refEntity_t		ent;
 	float color[4] = { 1.0, 0.0, 0.0, 0.5 };
 	float x,y, w, h;
-	float damageModifier;
+	//float damageModifier;
 	float directionThreshold = 0.4;
 	qboolean left, right, top, bottom;
 	float size = HUD_DAMAGE_SIZE * cg_hudDamageIndicatorScale.value;
@@ -941,10 +941,11 @@ static void CG_DrawHudDamageIndicator(void) {
 		return;
 	}
 
-	damageModifier = MIN(1.0, (float)cg.snap->ps.damageCount/100.0);
+	//damageModifier = MIN(1.0, (float)cg.snap->ps.damageCount/100.0);
 
 	//color[3] = (0.2 + 0.3 * damageModifier) * ( 1.0 - ((float)t / maxTime) );
-	color[3] = (0.4 + 0.5 * damageModifier) * ( 1.0 - ((float)t / maxTime) );
+	//color[3] = (0.4 + 0.5 * damageModifier) * ( 1.0 - ((float)t / maxTime) );
+	color[3] = MAX(0.0, MIN(1.0, cg_hudDamageIndicatorAlpha.value)) * ( 1.0 - ((float)t / maxTime) );
 	trap_R_SetColor(color);
 
 	left = right = top = bottom = qfalse;
