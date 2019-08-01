@@ -3124,9 +3124,6 @@ void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum ) {
 
 	// load a few needed things before we do any screen updates
 	cgs.media.charsetShader		= trap_R_RegisterShader( "gfx/2d/bigchars" );
-	// TODO: remove this
-	cgs.media.charsetShaderHiRes	= trap_R_RegisterShader( "gfx/2d/bigcharsHiRes" );
-
 	cgs.media.charsetShader16	= trap_R_RegisterShader( "gfx/2d/bigchars16" );
 	cgs.media.charsetShader32	= trap_R_RegisterShader( "gfx/2d/bigchars32" );
 	cgs.media.charsetShader64	= trap_R_RegisterShader( "gfx/2d/bigchars64" );

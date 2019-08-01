@@ -186,16 +186,12 @@ qhandle_t CG_SelectFont(float width, float height) {
 	if (!cg_newFont.integer) {
 		return cgs.media.charsetShader;
 	}
-	// TODO: update this one testing is done
-	if (cg_newFont.integer == 1111) {
-		if (height <= 16) {
-			return cgs.media.charsetShader16;
-		} else if (height > 32) {
-			return cgs.media.charsetShader64;
-		} 
-		return cgs.media.charsetShader32;
-	}
-	return cgs.media.charsetShaderHiRes;
+	if (height <= 16) {
+		return cgs.media.charsetShader16;
+	} else if (height > 32) {
+		return cgs.media.charsetShader64;
+	} 
+	return cgs.media.charsetShader32;
 }
 
 /*
