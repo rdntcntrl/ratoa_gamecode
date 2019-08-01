@@ -483,6 +483,32 @@ static void CG_ParseElimination( void ) {
 	cgs.roundStartTime = atoi( CG_Argv( 3 ) );
 }
 
+static void CG_ParseCustomVotes( void ) {
+    char customvotes[MAX_CVAR_VALUE_STRING] = "";
+    const char *temp;
+    const char*	c;
+    int i;
+
+    memset(&customvotes,0,sizeof(customvotes));
+
+    for(i=1;i<=12;i++) {
+        temp = CG_Argv( i );
+        for( c = temp; *c; ++c) {
+		if (!(isalnum(*c) 
+			|| *c == '-' 
+			|| *c == '_'
+			|| *c == '+'
+		    		 )) {
+			//The server tried something bad!
+			Com_Printf("Error: illegal character %c in customvotes received from server\n", *c);
+			return;
+		}
+            }
+        Q_strcat(customvotes,sizeof(customvotes),va("%s ",temp));
+    }
+    trap_Cvar_Set("cg_vote_custom_commands",customvotes);
+}
+
 #define NEXTMAPVOTE_NUM_MAPS 6
 
 static void CG_ParseNextMapVotes( void ) {
@@ -2229,15 +2255,7 @@ static void CG_ServerCommand( void ) {
 	}
 
         if ( !strcmp( cmd, "customvotes" ) ) {
-            char infoString[2048];
-            int i;
-            //TODO: Create a ParseCustomvotes function
-            memset(&infoString,0,sizeof(infoString));
-            for(i=1;i<=12;i++) {
-                Q_strcat(infoString,sizeof(infoString),CG_Argv( i ));
-                Q_strcat(infoString,sizeof(infoString)," ");
-            }
-            trap_Cvar_Set("cg_vote_custom_commands",infoString);
+		CG_ParseCustomVotes();
 		return;
 	}
 
