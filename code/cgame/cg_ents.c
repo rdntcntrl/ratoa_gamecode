@@ -626,7 +626,7 @@ static void CG_Missile( centity_t *cent ) {
 
 	if ( cent->currentState.weapon == WP_PLASMAGUN ) {
 		ent.reType = RT_SPRITE;
-		ent.radius = 16;
+		ent.radius = PLASMABALL_RADIUS;
 		ent.rotation = 0;
 		ent.customShader = cgs.media.plasmaBallShader;
 		trap_R_AddRefEntityToScene( &ent );

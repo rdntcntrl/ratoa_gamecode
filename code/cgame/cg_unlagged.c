@@ -697,7 +697,7 @@ void CG_PredictWeaponEffects( centity_t *cent ) {
 				SnapVector(pm->pos.trDelta);
 				pm->pos.trType = TR_LINEAR;
 				bolt->reType = RT_SPRITE;
-				bolt->radius = 16;
+				bolt->radius = PLASMABALL_RADIUS;
 				bolt->rotation = 0;
 				bolt->customShader = cgs.media.plasmaBallShader;
 				// NOTE RETURN!
