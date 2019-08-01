@@ -1227,6 +1227,7 @@ void G_CheckRocketSniper(gentity_t *victim, gentity_t *inflictor, gentity_t *att
 	if (meansOfDeath != MOD_ROCKET 
 			|| !victim 
 			|| !victim->client 
+			|| victim->client->ps.pm_type == PM_DEAD
 			|| !attacker 
 			|| !attacker->client 
 			|| !inflictor
@@ -1246,6 +1247,7 @@ void G_CheckAirrocket(gentity_t *victim, gentity_t *inflictor, gentity_t *attack
 	if ((meansOfDeath != MOD_ROCKET && meansOfDeath != MOD_GRENADE)
 			|| !victim 
 			|| !victim->client 
+			|| victim->client->ps.pm_type == PM_DEAD
 			|| !attacker 
 			|| !attacker->client 
 			|| !inflictor
@@ -1271,6 +1273,7 @@ void G_CheckRailtwo(gentity_t *victim, gentity_t *attacker, int meansOfDeath, in
 	if (meansOfDeath != MOD_RAILGUN
 			|| !victim 
 			|| !victim->client 
+			|| victim->client->ps.pm_type == PM_DEAD
 			|| !attacker 
 			|| !attacker->client 
 			|| OnSameTeam(attacker, victim)) {
