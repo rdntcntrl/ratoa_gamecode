@@ -2111,6 +2111,10 @@ static float CG_DrawAttacker( float y ) {
 	const char	*info;
 	const char	*name;
 	int			clientNum;
+	float color[4] = { 1.0, 1.0, 1.0, 1.0 };
+	float char_width = CG_HeightToWidth(cg_attackerScale.value * MEDIUMCHAR_WIDTH);
+	float char_height = cg_attackerScale.value * MEDIUMCHAR_HEIGHT;
+
 
 	if ( cg.predictedPlayerState.stats[STAT_HEALTH] <= 0 ) {
 		return y;
@@ -2131,19 +2135,28 @@ static float CG_DrawAttacker( float y ) {
 		return y;
 	}
 
-	size = ICON_SIZE * 1.25;
+	//size = ICON_SIZE * 1.25;
+	size = ICON_SIZE * 0.75;
 
 	angles[PITCH] = 0;
 	angles[YAW] = 180;
 	angles[ROLL] = 0;
-	CG_DrawHead( 640 - size, y, size, size, clientNum, angles );
+	CG_DrawHead( SCREEN_WIDTH - CG_HeightToWidth(size), y, CG_HeightToWidth(size), size, clientNum, angles );
 
 	info = CG_ConfigString( CS_PLAYERS + clientNum );
 	name = Info_ValueForKey(  info, "n" );
 	y += size;
-	CG_DrawBigString( 640 - ( Q_PrintStrlen( name ) * BIGCHAR_WIDTH), y, name, 0.5 );
+	//CG_DrawBigString( 640 - ( Q_PrintStrlen( name ) * BIGCHAR_WIDTH), y, name, 0.5 );
+	color[3] = 0.5;
+	CG_DrawStringExtFloat( SCREEN_WIDTH - CG_DrawStrlen( name ) * char_width - CG_HeightToWidth(2),
+		       	y,
+		       	name,
+		       	color, qfalse, qtrue,
+			char_width,
+			char_height,
+		       	0 );
 
-	return y + BIGCHAR_HEIGHT + 2;
+	return y + char_height + 2;
 }
 
 /*

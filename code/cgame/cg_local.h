@@ -1574,6 +1574,7 @@ extern	vmCvar_t		cg_thirdPersonAngle;
 extern	vmCvar_t		cg_thirdPerson;
 extern	vmCvar_t		cg_lagometer;
 extern	vmCvar_t		cg_drawAttacker;
+extern	vmCvar_t		cg_attackerScale;
 extern	vmCvar_t		cg_drawPickup;
 extern	vmCvar_t		cg_pickupScale;
 extern	vmCvar_t		cg_drawSpeed;
