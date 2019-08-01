@@ -1306,6 +1306,10 @@ void G_CheckAirrocket(gentity_t *victim, gentity_t *inflictor, gentity_t *attack
 		trace_t	tr;
 		vec3_t below = {0, 0, -140};
 
+		if (level.time - victim->client->lastGroundTime < 200) {
+			return;
+		}
+
 		// if the victim has not been airborne for long, check if he at
 		// least is at a significant height above ground
 		VectorAdd(below, victim->r.currentOrigin, below);
