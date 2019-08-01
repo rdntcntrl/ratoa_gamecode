@@ -3109,8 +3109,7 @@ void CG_DrawWeaponBar10(int count, int bits, float *color){
 		if(ammoSaved!=-1){
 			s = va("%i", ammoSaved );
 			w = CG_DrawStrlen( s ) * 6;
-			//CG_DrawSmallStringColor(x - w/2 + 14, y+26, s, color);
-			CG_DrawStringExt(x + CG_HeightToWidth(14.0 - (float)(w)/2.0), y+26, s, color, qtrue, qfalse, CG_HeightToWidth(6), 14, 0);
+			CG_DrawStringExtFloat(x + CG_HeightToWidth(14.0 - (float)(w)/2.0), y+26, s, color, qtrue, qfalse, CG_HeightToWidth(6), 14, 0);
 		}
 			
 		x += boxwidth;
@@ -3131,11 +3130,11 @@ void CG_DrawWeaponBar12(int count, int bits, float *color){
 	int y = 90 + count * 20;
 	int x = 0;
 	int i;
+	int w;
 	int ammo;
 	int ammoSaved;
 	int max;
 	int br;
-	int w;
 	char *s;
 	float red[4];
 	float yellow[4];
@@ -3222,7 +3221,8 @@ void CG_DrawWeaponBar12(int count, int bits, float *color){
 		if(ammoSaved!=-1){
 			s = va("%i", ammoSaved );
 			w = CG_DrawStrlen( s ) * SMALLCHAR_WIDTH;
-			CG_DrawSmallStringColor(x + CG_HeightToWidth(12.0 - (float)w/2.0 + 20.0), y+3, s, color);
+			CG_DrawStringExtFloat( x + CG_HeightToWidth(12.0 - (float)w/2.0 + 20.0), y+3, s, color,
+				       	qtrue, qfalse, CG_HeightToWidth(SMALLCHAR_WIDTH), SMALLCHAR_HEIGHT, 0 );
 		}
 
 		y -= 20;
