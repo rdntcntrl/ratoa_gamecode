@@ -486,28 +486,26 @@ static void CG_ParseElimination( void ) {
 #define NEXTMAPVOTE_NUM_MAPS 6
 
 static void CG_ParseNextMapVotes( void ) {
-    char command[1024];
+    char votes[1024] = "";
     const char *temp;
     const char*	c;
     int i;
 
-    Q_strncpyz(command, "ui_nextmapvotes ", sizeof(command));
     for(i=1;i<NEXTMAPVOTE_NUM_MAPS+1;i++) {
-        Q_strcat(command,sizeof(command),va(" %i ",atoi(CG_Argv(i))));
+        Q_strcat(votes,sizeof(votes),va("%i ",atoi(CG_Argv(i))));
     }
-    Q_strcat(command,sizeof(command), "\n");
-    trap_SendConsoleCommand(command);
-
+    trap_Cvar_Set("ui_nextmapvote_votes", votes);
 }
 
 /*
 =================
 CG_ParseNextMapVote
 Rat: Based on CG_ParseMappage, same security considerations apply
+Rat: Update: now doesn't pass data as command arguments anymore
 =================
 */
 static void CG_ParseNextMapVote( void ) {
-    char command[1024];
+    char maps[1024] = "";
     const char *temp;
     const char*	c;
     int i;
@@ -517,7 +515,6 @@ static void CG_ParseNextMapVote( void ) {
 	    cgs.nextmapVoteEndTime = cg.time;
     }
 
-    Q_strncpyz(command, "ui_nextmapvote ", sizeof(command));
     for(i=2;i<NEXTMAPVOTE_NUM_MAPS+2;i++) {
         temp = CG_Argv( i );
         for( c = temp; *c; ++c) {
@@ -533,11 +530,11 @@ static void CG_ParseNextMapVote( void ) {
             }
         if(strlen(temp)<1)
             temp = "---";
-        Q_strcat(command,sizeof(command),va(" %s ",temp));
+        Q_strcat(maps,sizeof(maps),va("%s ",temp));
     }
-    Q_strcat(command,sizeof(command), "\n");
-    trap_SendConsoleCommand(command);
-
+    trap_Cvar_Set("ui_nextmapvote_votes", "");
+    trap_Cvar_Set("ui_nextmapvote_maps", maps);
+    trap_SendConsoleCommand("ui_nextmapvote\n");
 }
 
 /*

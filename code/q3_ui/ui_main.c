@@ -199,6 +199,8 @@ vmCvar_t        ui_mapvote_filter;
 vmCvar_t        ui_mapvote_sort;
 
 vmCvar_t        ui_nextmapvote_remaining;
+vmCvar_t	ui_nextmapvote_maps;
+vmCvar_t	ui_nextmapvote_votes;
 
 
 // bk001129 - made static to avoid aliasing.
@@ -301,6 +303,8 @@ static cvarTable_t		cvarTable[] = {
         { &ui_mapvote_sort, "ui_mapvote_sort", "0", CVAR_ARCHIVE },
 
         { &ui_nextmapvote_remaining, "ui_nextmapvote_remaining", "0", 0 },
+        { &ui_nextmapvote_maps, "ui_nextmapvote_maps", "", 0 },
+        { &ui_nextmapvote_votes, "ui_nextmapvote_votes", "", 0 },
 };
 
 // bk001129 - made static to avoid aliasing

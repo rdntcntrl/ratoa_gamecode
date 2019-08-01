@@ -126,6 +126,8 @@ extern vmCvar_t	ui_mapvote_filter;
 extern vmCvar_t	ui_mapvote_sort;
 
 extern vmCvar_t	ui_nextmapvote_remaining;
+extern vmCvar_t	ui_nextmapvote_maps;
+extern vmCvar_t	ui_nextmapvote_votes;
 
 //extern vmCvar_t	ui_cdkey;
 //extern vmCvar_t	ui_cdkeychecked;
@@ -313,14 +315,6 @@ typedef struct {
 } t_mappage;
 
 extern t_mappage mappage;
-
-struct nextmapvote_maplist_s {
-	qboolean active;
-	char mapname[NEXTMAPVOTE_MAP_NUM][MAX_MAPNAME_LENGTH];
-	int votes[NEXTMAPVOTE_MAP_NUM];
-};
-
-extern struct nextmapvote_maplist_s nextmapvote_maplist;
 
 extern void			Menu_Cache( void );
 extern void			Menu_Focus( menucommon_s *m );

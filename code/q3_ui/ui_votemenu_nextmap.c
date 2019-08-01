@@ -34,6 +34,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define NMV_MAX_MAPROWS		2
 #define NMV_MAX_MAPSPERPAGE	(NMV_MAX_MAPCOLS * NMV_MAX_MAPROWS)
 
+struct nextmapvote_maplist_s {
+	char mapname[NEXTMAPVOTE_MAP_NUM][MAX_MAPNAME_LENGTH];
+	int votes[NEXTMAPVOTE_MAP_NUM];
+};
+
+struct nextmapvote_maplist_s nextmapvote_maplist;
+
 typedef struct {
 	menuframework_s	menu;
         menutext_s	banner;
@@ -46,7 +53,6 @@ typedef struct {
 
 static votemenu_nextmap_t	s_votemenu_nextmap;
 
-struct nextmapvote_maplist_s nextmapvote_maplist;
 
 sfxHandle_t talkSound;
 
@@ -54,6 +60,67 @@ sfxHandle_t talkSound;
 //{
 //}
 
+
+static qboolean UI_VoteNextMapParseMaps( void ) {
+	int i;
+	char *mapp, *p;
+	char mapList[MAX_CVAR_VALUE_STRING] = "";
+	
+	memset(&nextmapvote_maplist, 0, sizeof(nextmapvote_maplist));
+
+	trap_Cvar_VariableStringBuffer("ui_nextmapvote_maps",mapList,sizeof(mapList));
+
+	mapp = mapList;
+	for (i = 0 ; i < NEXTMAPVOTE_MAP_NUM && mapp; ++i) {
+		if ((p = strchr(mapp, ' ')) != NULL) {
+			*p = '\0';
+			p++;
+		} 
+		if (strlen(mapp) <= 0) {
+			return qfalse;
+		}
+		Q_strncpyz(nextmapvote_maplist.mapname[i], mapp, MAX_MAPNAME_LENGTH);
+		mapp = p;
+
+	}
+	if (i != NEXTMAPVOTE_MAP_NUM) {
+		return qfalse;
+	}
+
+	return qtrue;
+}
+
+static int UI_VoteNextMapParseVotes( void ) {
+	int i;
+	char *votep, *p;
+	int votes = 0;
+	char voteList[MAX_CVAR_VALUE_STRING] = "";
+
+	trap_Cvar_VariableStringBuffer("ui_nextmapvote_votes",voteList,sizeof(voteList));
+
+	votep = voteList;
+	for (i = 0 ; i < NEXTMAPVOTE_MAP_NUM && votep; ++i) {
+		if ((p = strchr(votep, ' ')) != NULL) {
+			*p = '\0';
+			p++;
+		} 
+		if (strlen(votep) <= 0) {
+			return qfalse;
+		}
+		votes = atoi(votep);
+		if (nextmapvote_maplist.votes[i] < votes) {
+			talkSound = trap_S_RegisterSound( "sound/player/talk.wav", qfalse );
+			trap_S_StartLocalSound( talkSound, CHAN_LOCAL_SOUND );
+		}
+		nextmapvote_maplist.votes[i] = votes;
+		votep = p;
+
+	}
+	if (i != NEXTMAPVOTE_MAP_NUM) {
+		return qfalse;
+	}
+	return qtrue;
+}
 
 void UI_VoteNextMapMenu_Close( void ) {
 	if (uis.activemenu == &s_votemenu_nextmap.menu) {
@@ -66,6 +133,8 @@ static void UI_VoteNextMapMenu_Draw( void ) {
 	vec4_t	bg = {0.0, 0.0, 0.0, 0.85};
 	UI_FillRect( 0, 90, 640, 480, bg );
 	UI_DrawString( 640/2, 150, va("Time remaining: %is", ui_nextmapvote_remaining.integer), UI_CENTER|UI_SMALLFONT, color_white );
+
+	UI_VoteNextMapParseVotes();
 
 	// standard menu drawing
 	Menu_Draw( &s_votemenu_nextmap.menu );
@@ -163,7 +232,6 @@ static void VoteNextMapMenu_MapEvent( void* ptr, int event ) {
 }
 
 
-
 void UI_VoteNextMapMenu( void ) {
     int x,y,i;
     
@@ -224,6 +292,9 @@ void UI_VoteNextMapMenu( void ) {
 
     trap_Cvar_Set( "cl_paused", "0" ); //We cannot send server commands while paused!
 
+    if (!UI_VoteNextMapParseMaps()) {
+	    return;
+    }
 
     UI_PushMenu( &s_votemenu_nextmap.menu );
 }

@@ -1940,6 +1940,7 @@ void CG_FloatColorToRGBA(float *color, byte *out);
 void CG_ParseForcedColors( void );
 byte CG_GetBrightShellAlpha(void);
 qboolean CG_THPlayerVisible(centity_t *cent);
+void CG_PlayerColorFromString(char *str, float *h, float *s, float *v);
 
 //
 // cg_predict.c
