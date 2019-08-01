@@ -1880,6 +1880,7 @@ void CG_DrawTinyScoreString( int x, int y, const char *s, float alpha );
 void CG_DrawTinyScoreStringColor( int x, int y, const char *s, vec4_t color );
 void CG_DrawMediumString( int x, int y, const char *s, float alpha );
 void CG_DrawBigString( int x, int y, const char *s, float alpha );
+void CG_DrawBigStringAspect( int x, int y, const char *s, float alpha );
 void CG_DrawBigStringColor( int x, int y, const char *s, vec4_t color );
 void CG_DrawSmallString( int x, int y, const char *s, float alpha );
 void CG_DrawSmallStringColor( int x, int y, const char *s, vec4_t color );
