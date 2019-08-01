@@ -271,6 +271,11 @@ static void CG_AccUp_f( void ) {
         }
 }
 
+static void CG_ResetCfg_f( void ) {
+	CG_CvarResetDefaults();
+        trap_SendConsoleCommand("vid_restart\n");
+}
+
 
 #ifdef MISSIONPACK
 extern menuDef_t *menuScoreboard;
@@ -687,7 +692,8 @@ static consoleCommand_t	commands[] = {
 	{ "-acc", CG_AccUp_f },
         { "clients", CG_PrintClientNumbers },
 
-        { "cg_ui_SendClientCommand", CG_UI_SendClientCommand }
+        { "cg_ui_SendClientCommand", CG_UI_SendClientCommand },
+        { "resetcfg", CG_ResetCfg_f }
 };
 
 

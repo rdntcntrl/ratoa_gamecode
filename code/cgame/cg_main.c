@@ -437,6 +437,8 @@ vmCvar_t	cg_teamChatBeep;
 
 vmCvar_t	cg_ui_clientCommand;
 
+#define MASTER_SERVER_NAME "dpmaster.deathmask.net"
+
 typedef struct {
 	vmCvar_t	*vmCvar;
 	char		*cvarName;
@@ -445,7 +447,7 @@ typedef struct {
 } cvarTable_t;
 
 static cvarTable_t cvarTable[] = { // bk001129
-	{ &sv_master1, "sv_master1", "dpmaster.deathmask.net", 0 },
+	{ &sv_master1, "sv_master1", MASTER_SERVER_NAME, CVAR_ARCHIVE },
 	{ &cg_ignore, "cg_ignore", "0", 0 },	// used for debugging
 	{ &cg_autoswitch, "cg_autoswitch", "0", CVAR_ARCHIVE },
 	{ &cg_drawGun, "cg_drawGun", "1", CVAR_ARCHIVE },
@@ -852,76 +854,83 @@ void CG_RatRemapShaders(void) {
 	}
 }
 
-void CG_RatInitDefaults(void)  {
+#define LATEST_RATINITIALIZED 14
+
+/*
+ *
+ * Update really old ratmod configurations
+ * This might be removed in the future
+ */
+void CG_RatOldCfgUpdate(void) {
 	if (cg_ratInitialized.integer < 1) {
 		if (cg_drawCrosshair.integer < 10) {
-			trap_Cvar_Set( "cg_drawCrosshair", "19" );
+			CG_Cvar_SetAndUpdate( "cg_drawCrosshair", "19" );
 		}
 
 		CG_Randomcolors_f();
 
-		trap_Cvar_Set( "cg_ratInitialized", "1" );
+		CG_Cvar_SetAndUpdate( "cg_ratInitialized", "1" );
 	}
 
 	if (cg_ratInitialized.integer < 2) {
-		trap_Cvar_Set( "cg_delag", "1" );
-		trap_Cvar_Set( "cg_drawTimer", "1" );
-		trap_Cvar_Set( "cg_drawSpeed", "1" );
-		trap_Cvar_Set( "cg_drawFPS", "1" );
-		trap_Cvar_Set( "cg_drawSpawnpoints", "1" );
-		trap_Cvar_Set( "cg_bobpitch", "0.0" );
-		trap_Cvar_Set( "cg_bobroll", "0.0" );
-		trap_Cvar_Set( "cg_hitsound", "1");
+		CG_Cvar_SetAndUpdate( "cg_delag", "1" );
+		CG_Cvar_SetAndUpdate( "cg_drawTimer", "1" );
+		CG_Cvar_SetAndUpdate( "cg_drawSpeed", "1" );
+		CG_Cvar_SetAndUpdate( "cg_drawFPS", "1" );
+		CG_Cvar_SetAndUpdate( "cg_drawSpawnpoints", "1" );
+		CG_Cvar_SetAndUpdate( "cg_bobpitch", "0.0" );
+		CG_Cvar_SetAndUpdate( "cg_bobroll", "0.0" );
+		CG_Cvar_SetAndUpdate( "cg_hitsound", "1");
 
-		//trap_Cvar_Set( "cg_forceBrightModels", "2");
+		//CG_Cvar_SetAndUpdate( "cg_forceBrightModels", "2");
 
 		if (cg_drawTeamOverlay.integer <= 0) {
-			trap_Cvar_Set( "cg_drawTeamOverlay", "4" );
+			CG_Cvar_SetAndUpdate( "cg_drawTeamOverlay", "4" );
 		}
 		if (cg_fragmsgsize.value == 1.0) {
-			trap_Cvar_Set( "cg_fragmsgsize", "0.75" );
+			CG_Cvar_SetAndUpdate( "cg_fragmsgsize", "0.75" );
 		}
 
 		// non-cgame settings
-		trap_Cvar_Set( "cl_maxpackets", "125" );
+		CG_Cvar_SetAndUpdate( "cl_maxpackets", "125" );
 
-		trap_Cvar_Set( "cg_ratInitialized", "2" );
+		CG_Cvar_SetAndUpdate( "cg_ratInitialized", "2" );
 	}
 
 	if (cg_ratInitialized.integer < 3) {
 		if (cg_teamOverlayScaleX.value == 0.7) {
-			trap_Cvar_Set("cg_teamOverlayScaleX", "0.63");
+			CG_Cvar_SetAndUpdate("cg_teamOverlayScaleX", "0.63");
 		}
-		trap_Cvar_Set( "cg_ratInitialized", "3" );
+		CG_Cvar_SetAndUpdate( "cg_ratInitialized", "3" );
 	}
 
 	if (cg_ratInitialized.integer < 4) {
-		trap_Cvar_Set("cg_alwaysWeaponBar", "1");
+		CG_Cvar_SetAndUpdate("cg_alwaysWeaponBar", "1");
 		switch (cg_weaponBarStyle.integer) {
 			case 2:
 			case 3:
 			case 4:
-				trap_Cvar_Set("cg_weaponBarStyle", "9");
+				CG_Cvar_SetAndUpdate("cg_weaponBarStyle", "9");
 				break;
 			default:
-				trap_Cvar_Set("cg_weaponBarStyle", "8");
+				CG_Cvar_SetAndUpdate("cg_weaponBarStyle", "8");
 				break;
 		}
 
-		trap_Cvar_Set( "cg_ratInitialized", "4" );
+		CG_Cvar_SetAndUpdate( "cg_ratInitialized", "4" );
 	}
 	
 	if (cg_ratInitialized.integer < 5) {
-		trap_Cvar_Set("cg_runpitch", "0.0");
-		trap_Cvar_Set("cg_runroll", "0.0");
+		CG_Cvar_SetAndUpdate("cg_runpitch", "0.0");
+		CG_Cvar_SetAndUpdate("cg_runroll", "0.0");
 
-		trap_Cvar_Set( "cg_ratInitialized", "5" );
+		CG_Cvar_SetAndUpdate( "cg_ratInitialized", "5" );
 	}
 
 	if (cg_ratInitialized.integer < 6) {
-		trap_Cvar_Set("snaps", "40");
+		CG_Cvar_SetAndUpdate("snaps", "40");
 
-		trap_Cvar_Set( "cg_ratInitialized", "6" );
+		CG_Cvar_SetAndUpdate( "cg_ratInitialized", "6" );
 	}
 
 	if (cg_ratInitialized.integer < 7) {
@@ -929,26 +938,26 @@ void CG_RatInitDefaults(void)  {
 		float s,v;
 
 		// Update corpse color cvars
-		trap_Cvar_Set( "cg_teamCorpseSaturation", "" );
-		trap_Cvar_Set( "cg_enemyCorpseSaturation", "" );
+		CG_Cvar_SetAndUpdate( "cg_teamCorpseSaturation", "" );
+		CG_Cvar_SetAndUpdate( "cg_enemyCorpseSaturation", "" );
 
-		trap_Cvar_Set( "cg_teamCorpseValue", "0.2" );
-		trap_Cvar_Set( "cg_enemyCorpseValue", "0.2" );
+		CG_Cvar_SetAndUpdate( "cg_teamCorpseValue", "0.2" );
+		CG_Cvar_SetAndUpdate( "cg_enemyCorpseValue", "0.2" );
 
 		// Update default team colors
 		h = CG_Cvar_Get("cg_modelHueBlue");
 		if (h == 185) {
-			trap_Cvar_Set( "cg_teamHueBlue", va("%i", h));
+			CG_Cvar_SetAndUpdate( "cg_teamHueBlue", va("%i", h));
 		} else {
-			trap_Cvar_Set( "cg_teamHueBlue", "210" );
+			CG_Cvar_SetAndUpdate( "cg_teamHueBlue", "210" );
 		}
 		h = CG_Cvar_Get("cg_modelHueRed");
 		if (h == 10) {
-			trap_Cvar_Set( "cg_teamHueRed", va("%i", h));
+			CG_Cvar_SetAndUpdate( "cg_teamHueRed", va("%i", h));
 		} else {
-			trap_Cvar_Set( "cg_teamHueRed", "0" );
+			CG_Cvar_SetAndUpdate( "cg_teamHueRed", "0" );
 		}
-		trap_Cvar_Set( "cg_teamHueDefault", "125" );
+		CG_Cvar_SetAndUpdate( "cg_teamHueDefault", "125" );
 
 		// update forced colors
 		if (CG_Cvar_Get("cg_forceEnemyModelColor")) {
@@ -956,9 +965,9 @@ void CG_RatInitDefaults(void)  {
 			s = CG_Cvar_Get("cg_forceEnemyModelSaturation");
 			v = CG_Cvar_Get("cg_forceEnemyModelValue");
 
-			trap_Cvar_Set( "cg_enemyColor", va("H%i %.2f %.2f", h, s, v) );
+			CG_Cvar_SetAndUpdate( "cg_enemyColor", va("H%i %.2f %.2f", h, s, v) );
 		} else {
-			trap_Cvar_Set( "cg_enemyColor", "" );
+			CG_Cvar_SetAndUpdate( "cg_enemyColor", "" );
 		}
 
 		if (CG_Cvar_Get("cg_forceModelColor")) {
@@ -966,36 +975,36 @@ void CG_RatInitDefaults(void)  {
 			s = CG_Cvar_Get("cg_forceModelSaturation");
 			v = CG_Cvar_Get("cg_forceModelValue");
 
-			trap_Cvar_Set( "cg_teamColor", va("H%i %.2f %.2f", h, s, v) );
+			CG_Cvar_SetAndUpdate( "cg_teamColor", va("H%i %.2f %.2f", h, s, v) );
 		} else {
-			trap_Cvar_Set( "cg_teamColor", "" );
+			CG_Cvar_SetAndUpdate( "cg_teamColor", "" );
 		}
 
 		switch ((int)CG_Cvar_Get("cg_autoHeadColors")) {
 			case 2:
-				trap_Cvar_Set( "cg_teamHeadColorAuto", "0");
-				trap_Cvar_Set( "cg_enemyHeadColorAuto", "1");
+				CG_Cvar_SetAndUpdate( "cg_teamHeadColorAuto", "0");
+				CG_Cvar_SetAndUpdate( "cg_enemyHeadColorAuto", "1");
 				break;
 			case 3:
-				trap_Cvar_Set( "cg_teamHeadColorAuto", "1");
-				trap_Cvar_Set( "cg_enemyHeadColorAuto", "0");
+				CG_Cvar_SetAndUpdate( "cg_teamHeadColorAuto", "1");
+				CG_Cvar_SetAndUpdate( "cg_enemyHeadColorAuto", "0");
 				break;
 		}
 		//trap_SendConsoleCommand("unset cg_autoHeadColors");
 
 		switch ((int)CG_Cvar_Get("cg_forceBrightModels")) {
 			case 1:
-				trap_Cvar_Set( "cg_teamModel", "sarge/bright");
-				trap_Cvar_Set( "cg_enemyModel","sarge/bright");
+				CG_Cvar_SetAndUpdate( "cg_teamModel", "sarge/bright");
+				CG_Cvar_SetAndUpdate( "cg_enemyModel","sarge/bright");
 				break;
 			case 3:
-				trap_Cvar_Set( "cg_teamModel", "smarine/bright");
-				trap_Cvar_Set( "cg_enemyModel","smarine/bright");
+				CG_Cvar_SetAndUpdate( "cg_teamModel", "smarine/bright");
+				CG_Cvar_SetAndUpdate( "cg_enemyModel","smarine/bright");
 				break;
 			case 2:
 			default:
-				trap_Cvar_Set( "cg_enemyModel","smarine/bright");
-				trap_Cvar_Set( "cg_teamModel", "sarge/bright");
+				CG_Cvar_SetAndUpdate( "cg_enemyModel","smarine/bright");
+				CG_Cvar_SetAndUpdate( "cg_teamModel", "sarge/bright");
 				break;
 		}
 		
@@ -1022,60 +1031,80 @@ void CG_RatInitDefaults(void)  {
 				        "unset cg_forceBrightModels\n"
 					);
 
-		trap_Cvar_Set( "cg_ratInitialized", "7" );
+		CG_Cvar_SetAndUpdate( "cg_ratInitialized", "7" );
 	}
 
 	if (cg_ratInitialized.integer < 8) {
 		trap_SendConsoleCommand("unset cg_corpseSaturation\n");
 
-		trap_Cvar_Set("cg_weaponOrder", "/1/2/4/3/7/6/8/5/13/11/9/");
+		CG_Cvar_SetAndUpdate("cg_weaponOrder", "/1/2/4/3/7/6/8/5/13/11/9/");
 
-		trap_Cvar_Set( "cg_ratInitialized", "8" );
+		CG_Cvar_SetAndUpdate( "cg_ratInitialized", "8" );
 	}
 
 	if (cg_ratInitialized.integer < 9) {
 		if ((int)CG_Cvar_Get("cg_ratStatusbar") == 0) {
-			trap_Cvar_Set("cg_ratStatusbar", "1");
+			CG_Cvar_SetAndUpdate("cg_ratStatusbar", "1");
 		}
 
-		trap_Cvar_Set( "cg_ratInitialized", "9" );
+		CG_Cvar_SetAndUpdate( "cg_ratInitialized", "9" );
 	}
 
 	if (cg_ratInitialized.integer < 10) {
-		trap_Cvar_Set("cg_projectileNudgeAuto", "0");
-		trap_Cvar_Set("cg_predictPlayerExplosions", "0");
+		CG_Cvar_SetAndUpdate("cg_projectileNudgeAuto", "0");
+		CG_Cvar_SetAndUpdate("cg_predictPlayerExplosions", "0");
 
-		trap_Cvar_Set("cg_ratRocketTrailRadius", "6");
-		trap_Cvar_Set("cg_ratRocketTrailAlpha", "0.6");
+		CG_Cvar_SetAndUpdate("cg_ratRocketTrailRadius", "6");
+		CG_Cvar_SetAndUpdate("cg_ratRocketTrailAlpha", "0.6");
 
-		trap_SendConsoleCommand("unset cg_ratRocketTrailRadius2\n"
-			       		"unset cg_ratRocketTrailAlpha2;");
+		trap_SendConsoleCommand("unset cg_ratRocketTrailRadius2; "
+			       		"unset cg_ratRocketTrailAlpha2\n");
 
-		trap_Cvar_Set( "cg_ratInitialized", "10" );
+		CG_Cvar_SetAndUpdate( "cg_ratInitialized", "10" );
 	}
 
 	if (cg_ratInitialized.integer < 11) {
 		if (cg_weaponBarStyle.integer == 8) {
-			trap_Cvar_Set("cg_weaponBarStyle", "11");
+			CG_Cvar_SetAndUpdate("cg_weaponBarStyle", "11");
 		} else if (cg_weaponBarStyle.integer == 9) {
-			trap_Cvar_Set("cg_weaponBarStyle", "12");
+			CG_Cvar_SetAndUpdate("cg_weaponBarStyle", "12");
 		}
 
-		trap_Cvar_Set( "cg_ratInitialized", "11" );
+		CG_Cvar_SetAndUpdate( "cg_ratInitialized", "11" );
 	}
 
 	if (cg_ratInitialized.integer < 12) {
-		trap_Cvar_Set("cg_itemFade", "1");
+		CG_Cvar_SetAndUpdate("cg_itemFade", "1");
 
-		trap_Cvar_Set( "cg_ratInitialized", "12" );
+		CG_Cvar_SetAndUpdate( "cg_ratInitialized", "12" );
 	}
 
 	if (cg_ratInitialized.integer < 13) {
-		trap_Cvar_Set("cg_consoleStyle", "2");
+		CG_Cvar_SetAndUpdate("cg_consoleStyle", "2");
 
-		trap_Cvar_Set( "cg_ratInitialized", "13" );
+		CG_Cvar_SetAndUpdate( "cg_ratInitialized", "13" );
 	}
 
+	if (cg_ratInitialized.integer < LATEST_RATINITIALIZED) {
+		if (cg_weaponBarStyle.integer == 8) {
+			CG_Cvar_SetAndUpdate("cg_weaponBarStyle", "11");
+		} else if (cg_weaponBarStyle.integer == 9) {
+			CG_Cvar_SetAndUpdate("cg_weaponBarStyle", "12");
+		}
+	}
+
+}
+
+/*
+ * Make sure defaults are up to date
+ */
+void CG_RatInitDefaults(void)  {
+	if (cg_ratInitialized.integer == 0) {
+		CG_CvarResetDefaults();
+		CG_Cvar_SetAndUpdate( "cg_ratInitialized", va("%i", LATEST_RATINITIALIZED) );
+	} else if (cg_ratInitialized.integer < LATEST_RATINITIALIZED) {
+		CG_RatOldCfgUpdate();
+	}
 }
 
 /*																																			
@@ -1096,6 +1125,33 @@ void CG_ForceModelChange( void ) {
 		CG_NewClientInfo( i );
 	}
 	CG_LoadDeferredPlayers();
+}
+
+void CG_Cvar_Update( const char *var_name ) {
+	int i;
+	cvarTable_t *cv;
+
+	for ( i = 0, cv = cvarTable ; i < cvarTableSize ; i++, cv++ ) {
+		if (Q_stricmp(cv->cvarName, var_name) == 0) {
+			trap_Cvar_Update( cv->vmCvar );
+			break;
+		}
+	}
+}
+
+void CG_Cvar_SetAndUpdate( const char *var_name, const char *value ) {
+	trap_Cvar_Set( var_name, value );
+	CG_Cvar_Update(var_name);
+}
+
+void CG_CvarResetDefaults( void ) {
+	int i;
+	cvarTable_t *cv;
+
+	for ( i = 0, cv = cvarTable ; i < cvarTableSize ; i++, cv++ ) {
+		trap_Cvar_Set( cv->cvarName, cv->defaultString );
+		trap_Cvar_Update( cv->vmCvar );
+	}
 }
 
 /*
