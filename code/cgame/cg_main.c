@@ -1015,14 +1015,14 @@ void CG_RatInitDefaults(void)  {
 				        "unset cg_forceEnemyModelSaturation;"
 				        "unset cg_forceEnemyModelValue;"
 				        "unset cg_autoHeadColors;"
-				        "unset cg_forceBrightModels;"
+				        "unset cg_forceBrightModels\n"
 					);
 
 		trap_Cvar_Set( "cg_ratInitialized", "7" );
 	}
 
 	if (cg_ratInitialized.integer < 8) {
-		trap_SendConsoleCommand("unset cg_corpseSaturation;");
+		trap_SendConsoleCommand("unset cg_corpseSaturation\n");
 
 		trap_Cvar_Set("cg_weaponOrder", "/1/2/4/3/7/6/8/5/13/11/9/");
 
@@ -1044,7 +1044,7 @@ void CG_RatInitDefaults(void)  {
 		trap_Cvar_Set("cg_ratRocketTrailRadius", "6");
 		trap_Cvar_Set("cg_ratRocketTrailAlpha", "0.6");
 
-		trap_SendConsoleCommand("unset cg_ratRocketTrailRadius2;"
+		trap_SendConsoleCommand("unset cg_ratRocketTrailRadius2\n"
 			       		"unset cg_ratRocketTrailAlpha2;");
 
 		trap_Cvar_Set( "cg_ratInitialized", "10" );
@@ -3239,7 +3239,7 @@ void CG_FairCvars() {
     }
 
     if(vid_restart_required && do_vid_restart)
-        trap_SendConsoleCommand("vid_restart");
+        trap_SendConsoleCommand("vid_restart\n");
 
     do_vid_restart = qtrue;
 }

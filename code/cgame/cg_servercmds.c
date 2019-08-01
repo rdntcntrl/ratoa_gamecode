@@ -495,6 +495,7 @@ static void CG_ParseNextMapVotes( void ) {
     for(i=1;i<NEXTMAPVOTE_NUM_MAPS+1;i++) {
         Q_strcat(command,sizeof(command),va(" %i ",atoi(CG_Argv(i))));
     }
+    Q_strcat(command,sizeof(command), "\n");
     trap_SendConsoleCommand(command);
 
 }
@@ -534,6 +535,7 @@ static void CG_ParseNextMapVote( void ) {
             temp = "---";
         Q_strcat(command,sizeof(command),va(" %s ",temp));
     }
+    Q_strcat(command,sizeof(command), "\n");
     trap_SendConsoleCommand(command);
 
 }
@@ -619,6 +621,7 @@ static void CG_ParseMappage( void ) {
             temp = "---";
         Q_strcat(command,sizeof(command),va(" %s ",temp));
     }
+    Q_strcat(command,sizeof(command), "\n");
     trap_SendConsoleCommand(command);
 
 }
