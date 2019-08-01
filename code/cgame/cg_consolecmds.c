@@ -577,6 +577,7 @@ static void CG_EditHud_f( void ) {
 void CG_UI_SendClientCommand( void ) {
 	char cmd[MAX_CVAR_VALUE_STRING] = "";
 
+	CG_Cvar_Update("cg_ui_clientCommand");
 	trap_Cvar_VariableStringBuffer("cg_ui_clientCommand", cmd, sizeof(cmd));
 
 	if (strlen(cmd) <= 0) {
@@ -584,7 +585,7 @@ void CG_UI_SendClientCommand( void ) {
 		return;
 	}
 
-	trap_Cvar_Set("cg_ui_clientCommand", "");
+	CG_Cvar_SetAndUpdate("cg_ui_clientCommand", "");
 	trap_SendClientCommand( cmd );
 }
 
