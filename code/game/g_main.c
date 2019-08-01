@@ -149,6 +149,9 @@ vmCvar_t	g_elimination_nail;
 
 vmCvar_t        g_elimination_lockspectator;
 
+vmCvar_t	g_swingGrapple;
+vmCvar_t	g_grapple;
+
 vmCvar_t	g_rockets;
 
 //dmn_clowns suggestions (with my idea of implementing):
@@ -663,6 +666,8 @@ static cvarTable_t		gameCvarTable[] = {
         { &g_persistantpowerups, "g_runes", "0", CVAR_LATCH|CVAR_ARCHIVE, 0, qfalse },
         #endif
 
+	{ &g_swingGrapple, "g_swingGrapple", "0", CVAR_ARCHIVE, 0, qfalse },
+	{ &g_grapple, "g_grapple", "0", CVAR_ARCHIVE, 0, qtrue },
 
 	//nexuiz style rocket arena
 	{ &g_rockets, "g_rockets", "0", CVAR_SERVERINFO | CVAR_LATCH | CVAR_NORESTART, 0, qfalse },
@@ -1451,6 +1456,10 @@ void G_UpdateRatFlags( void ) {
 		rflags |= RAT_FASTSWIM;
 	}
 
+	if (g_swingGrapple.integer) {
+		rflags |= RAT_SWINGGRAPPLE;
+	}
+
 	// XXX --> also update code where this is called!
 
 	trap_Cvar_Set("g_ratFlags",va("%i",rflags));
@@ -1546,6 +1555,7 @@ void G_UpdateCvars( void ) {
 						|| cv->vmCvar == &g_passThroughInvisWalls
 						|| cv->vmCvar == &g_bobup
 						|| cv->vmCvar == &g_fastSwim
+						|| cv->vmCvar == &g_swingGrapple
 						) {
 					updateRatFlags = qtrue;
 				}

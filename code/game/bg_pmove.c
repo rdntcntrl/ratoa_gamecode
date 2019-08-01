@@ -777,6 +777,33 @@ static void PM_GrappleMove( void ) {
 	pml.groundPlane = qfalse;
 }
 
+#define GRAPPLE_PULLSPEED 350
+#define GRAPPLE_ACCEL 1000
+static void PM_SwingGrappleMove( void ) {
+	vec3_t vel, v;
+	vec3_t grappleTargetVel;
+	float scale;
+
+	VectorScale(pml.forward, -16, v);
+	VectorAdd(pm->ps->grapplePoint, v, v);
+	VectorSubtract(v, pm->ps->origin, vel);
+	VectorNormalize( vel );
+
+	scale = DotProduct(pm->ps->velocity, vel);
+	
+	if (scale < 0) {
+		vec3_t vel2;
+		VectorScale(vel, scale, vel2);
+		VectorSubtract(pm->ps->velocity, vel2, pm->ps->velocity);
+	}
+	if (scale < GRAPPLE_PULLSPEED) {
+		VectorScale(vel, GRAPPLE_ACCEL * pml.frametime, grappleTargetVel);
+		VectorAdd(grappleTargetVel, pm->ps->velocity, pm->ps->velocity);
+	}
+
+	pml.groundPlane = qfalse;
+}
+
 /*
 ===================
 PM_WalkMove
@@ -2135,7 +2162,11 @@ void PmoveSingle (pmove_t *pmove) {
 		// flight powerup doesn't allow jump and has different friction
 		PM_FlyMove();
 	} else if (pm->ps->pm_flags & PMF_GRAPPLE_PULL) {
-		PM_GrappleMove();
+		if (g_swingGrapple.integer) {
+			PM_SwingGrappleMove();
+		} else {
+			PM_GrappleMove();
+		}
 		// We can wiggle a bit
 		PM_AirMove();
 	} else if (pm->ps->pm_flags & PMF_TIME_WATERJUMP) {

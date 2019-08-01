@@ -2600,7 +2600,7 @@ if(g_gametype.integer != GT_ELIMINATION && g_gametype.integer != GT_CTF_ELIMINAT
 	} else {
 		client->ps.ammo[WP_MACHINEGUN] = 100;
 	}
-
+	
 	client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_GAUNTLET );
 	client->ps.ammo[WP_GAUNTLET] = -1;
 	client->ps.ammo[WP_GRAPPLING_HOOK] = -1;
@@ -2684,6 +2684,9 @@ else
 	{
 		client->ps.stats[STAT_WEAPONS] = ( 1 << WP_ROCKET_LAUNCHER );
 		client->ps.ammo[WP_ROCKET_LAUNCHER] = 999;
+	}
+	if (g_grapple.integer) {
+		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_GRAPPLING_HOOK );
 	}
 
 	if (g_gametype.integer == GT_TREASURE_HUNTER) {
