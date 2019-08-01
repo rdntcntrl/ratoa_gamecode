@@ -3223,6 +3223,7 @@ void StartEliminationRound(void) {
 		client->elimRoundDmgDone = 0;
 		client->elimRoundDmgTaken = 0;
 		client->elimRoundKills = 0;
+		client->pers.lastKilledByStrongMan = -1;
 	}
 }
 

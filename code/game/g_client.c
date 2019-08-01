@@ -2340,10 +2340,6 @@ void ClientSpawn(gentity_t *ent) {
 	index = ent - g_entities;
 	client = ent->client;
 
-	if (g_gametype.integer == GT_ELIMINATION || g_gametype.integer == GT_CTF_ELIMINATION || g_gametype.integer == GT_LMS) {
-		client->pers.lastKilledByStrongMan = -1;
-	}
-
 	//In Elimination the player should not spawn if he have already spawned in the round (but not for spectators)
 	// N_G: You've obviously wanted something ELSE
 	//Sago: Yes, the !level.intermissiontime is currently redundant but it might still be the bast place to make the test, CheckElimination in g_main makes sure the next if will fail and the rest of the things this block does might not affect if in Intermission (I'll just test that)
