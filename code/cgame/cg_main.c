@@ -844,7 +844,7 @@ void CG_RatRemapShaders(void) {
 	}
 }
 
-#define LATEST_RATINITIALIZED 15
+#define LATEST_RATINITIALIZED 16
 
 /*
  *
@@ -1082,6 +1082,21 @@ void CG_RatOldCfgUpdate(void) {
 		CG_Cvar_SetAndUpdate( "cg_announcerNewAwards", "" );
 
 		CG_Cvar_SetAndUpdate( "cg_ratInitialized", "15" );
+	}
+
+	if (cg_ratInitialized.integer < 16) {
+		trap_SendConsoleCommand("unset cg_timerScaleX;"
+				        "unset cg_timerScaleY;"
+				        "unset cg_fpsScaleX;"
+				        "unset cg_fpsScaleY;"
+				        "unset cg_speedScaleX;"
+				        "unset cg_speedScaleY;"
+				        "unset cg_teamOverlayScaleX;"
+				        "unset cg_teamOverlayScaleY;"
+				        "unset cg_crosshairNamesScaleX;"
+				        "unset cg_crosshairNamesScaleY\n"
+					);
+		CG_Cvar_SetAndUpdate( "cg_ratInitialized", "16" );
 	}
 
 }
