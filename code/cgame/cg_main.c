@@ -472,7 +472,7 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_drawStatus, "cg_drawStatus", "1", CVAR_ARCHIVE  },
 	{ &cg_drawTimer, "cg_drawTimer", "1", CVAR_ARCHIVE  },
 	{ &cg_timerPosition, "cg_timerPosition", "0", CVAR_ARCHIVE  },
-	{ &cg_drawFPS, "cg_drawFPS", "1", CVAR_ARCHIVE  },
+	{ &cg_drawFPS, "cg_drawFPS", "3", CVAR_ARCHIVE  },
 	{ &cg_drawSnapshot, "cg_drawSnapshot", "0", CVAR_ARCHIVE  },
 	{ &cg_draw3dIcons, "cg_draw3dIcons", "1", CVAR_ARCHIVE  },
 	{ &cg_drawIcons, "cg_drawIcons", "1", CVAR_ARCHIVE  },
@@ -607,7 +607,7 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_delagProjectileTrail, "cg_delagProjectileTrail", "1", 0},
 	{ &cg_ratScoreboard, "cg_ratScoreboard", "1", CVAR_ARCHIVE},
 	{ &cg_ratScoreboardAccuracy, "cg_ratScoreboardAccuracy", "1", 0},
-	{ &cg_ratStatusbar, "cg_ratStatusbar", "1", CVAR_ARCHIVE},
+	{ &cg_ratStatusbar, "cg_ratStatusbar", "4", CVAR_ARCHIVE},
 
 	{ &cg_ratPlasmaTrail, "cg_ratPlasmaTrail", "0", CVAR_ARCHIVE},
 	{ &cg_ratPlasmaTrailAlpha, "cg_ratPlasmaTrailAlpha", "0.1", CVAR_ARCHIVE},
@@ -630,11 +630,11 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_zoomAnim, "cg_zoomAnim", "1", CVAR_ARCHIVE},
 	{ &cg_zoomAnimScale, "cg_zoomAnimScale", "2", CVAR_ARCHIVE},
 	{ &cg_drawHabarBackground, "cg_drawHabarBackground", "0", CVAR_ARCHIVE},
-	{ &cg_hudDamageIndicator, "cg_hudDamageIndicator", "0", CVAR_ARCHIVE},
+	{ &cg_hudDamageIndicator, "cg_hudDamageIndicator", "1", CVAR_ARCHIVE},
 	{ &cg_hudDamageIndicatorScale, "cg_hudDamageIndicatorScale", "0.8", CVAR_ARCHIVE},
 	{ &cg_hudDamageIndicatorOffset, "cg_hudDamageIndicatorOffset", "0.1", CVAR_ARCHIVE},
 	{ &cg_hudDamageIndicatorAlpha, "cg_hudDamageIndicatorAlpha", "1.0", CVAR_ARCHIVE},
-	{ &cg_emptyIndicator, "cg_emptyIndicator", "0", CVAR_ARCHIVE},
+	{ &cg_emptyIndicator, "cg_emptyIndicator", "1", CVAR_ARCHIVE},
 	{ &cg_reloadIndicator, "cg_reloadIndicator", "0", CVAR_ARCHIVE},
 	{ &cg_reloadIndicatorY, "cg_reloadIndicatorY", "340", CVAR_ARCHIVE},
 	{ &cg_reloadIndicatorWidth, "cg_reloadIndicatorWidth", "40", CVAR_ARCHIVE},
@@ -817,7 +817,7 @@ static cvarTable_t cvarTable[] = { // bk001129
         { &cg_crosshairColorGreen, "cg_crosshairColorGreen", "1.0", CVAR_ARCHIVE},
         { &cg_crosshairColorBlue, "cg_crosshairColorBlue", "0.0", CVAR_ARCHIVE},
 
-	{ &cg_weaponBarStyle, "cg_weaponBarStyle", "11", CVAR_ARCHIVE},
+	{ &cg_weaponBarStyle, "cg_weaponBarStyle", "14", CVAR_ARCHIVE},
         //{ &cg_weaponOrder,"cg_weaponOrder", "/1/2/4/3/6/7/8/9/5/", CVAR_ARCHIVE},
         { &cg_weaponOrder,"cg_weaponOrder", "/1/2/4/3/7/6/8/5/13/11/9/", CVAR_ARCHIVE},
         {&cg_chatBeep, "cg_chatBeep", "1", CVAR_ARCHIVE },
@@ -874,7 +874,7 @@ void CG_RatRemapShaders(void) {
 	}
 }
 
-#define LATEST_RATINITIALIZED 18
+#define LATEST_RATINITIALIZED 19
 
 /*
  *
@@ -1142,6 +1142,31 @@ void CG_RatOldCfgUpdate(void) {
 				break;
 		}
 		CG_Cvar_SetAndUpdate( "cg_ratInitialized", "18" );
+	}
+	
+	if (cg_ratInitialized.integer < 19) {
+		switch (cg_weaponBarStyle.integer) {
+			case 1:
+			case 5:
+			case 6:
+			case 7:
+			case 8:
+			case 10:
+			case 11:
+			case 13:
+				CG_Cvar_SetAndUpdate("cg_weaponBarStyle", "14");
+				break;
+		}
+		CG_Cvar_SetAndUpdate("cg_ratStatusbar", "4");
+		CG_Cvar_SetAndUpdate("cg_hudDamageIndicator", "1");
+		CG_Cvar_SetAndUpdate("cg_emptyIndicator", "1");
+		CG_Cvar_SetAndUpdate("cg_drawFPS", "3");
+
+		CG_Cvar_ResetToDefault( "cg_reloadIndicatorY" );
+		CG_Cvar_ResetToDefault( "cg_reloadIndicatorAlpha" );
+		CG_Cvar_ResetToDefault( "cg_reloadIndicatorHeight" );
+
+		CG_Cvar_SetAndUpdate( "cg_ratInitialized", "19" );
 	}
 
 }
