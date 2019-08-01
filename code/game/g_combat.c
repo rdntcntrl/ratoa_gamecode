@@ -631,11 +631,7 @@ void G_CheckDeathEAwards(gentity_t *victim, gentity_t *inflictor, gentity_t *att
 		case MOD_NAIL:
 		case MOD_BFG:
 		case MOD_BFG_SPLASH:
-			// I suppose it doesn't have to be a revenge kill for
-			// DEAD HAND, since that would be a bit redundant
-			// considering the REVENGE award
-			//if (attacker->client->ps.pm_type == PM_DEAD && attacker->enemy == victim) {
-			if (attacker->client->ps.pm_type == PM_DEAD) {
+			if (attacker->client->ps.pm_type == PM_DEAD && attacker->enemy == victim) {
 				AwardMessage(attacker, EAWARD_DEADHAND, ++(attacker->client->pers.awardCounts[EAWARD_DEADHAND]));
 			}
 			if (!inflictor || !inflictor->missileTeleported) {
