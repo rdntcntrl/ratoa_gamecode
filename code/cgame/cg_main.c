@@ -2201,6 +2201,8 @@ static void CG_RegisterGraphics( void ) {
 
 
 
+	cgs.media.bottomFPSShader = trap_R_RegisterShaderNoMip("bottomFPSDecor");
+
 	cgs.media.damageIndicatorBottom = trap_R_RegisterShaderNoMip("damageIndicatorBottom");
 	cgs.media.damageIndicatorTop = trap_R_RegisterShaderNoMip("damageIndicatorTop");
 	cgs.media.damageIndicatorTop = trap_R_RegisterShaderNoMip("damageIndicatorTop");

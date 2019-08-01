@@ -1111,24 +1111,13 @@ static float CG_DrawSnapshot( float y ) {
 	return y + BIGCHAR_HEIGHT + 4;
 }
 
-/*
-==================
-CG_DrawFPS
-==================
-*/
 #define	FPS_FRAMES	4
-static float CG_DrawFPS( float y ) {
-	char		*s;
-	int			w;
+static int CG_FPS( void ) {
 	static int	previousTimes[FPS_FRAMES];
 	static int	index;
 	int		i, total;
-	int		fps;
 	static	int	previous;
 	int		t, frameTime;
-	float	color[4];
-	float	char_height = BIGCHAR_HEIGHT * cg_fpsScale.value;		
-	float	char_width = CG_HeightToWidth(BIGCHAR_WIDTH * cg_fpsScale.value);
 
 	// don't use serverTime, because that will be drifting to
 	// correct for internet lag changes, timescales, timedemos, etc
@@ -1147,16 +1136,43 @@ static float CG_DrawFPS( float y ) {
 		if ( !total ) {
 			total = 1;
 		}
-		fps = 1000 * FPS_FRAMES / total;
+		return 1000 * FPS_FRAMES / total;
+	}
 
+	return -1;
+}
+
+/*
+==================
+CG_DrawFPS
+==================
+*/
+static float CG_DrawFPS( float y ) {
+	char		*s;
+	int		w;
+	int		fps;
+	float	color[4];
+	int	char_height = BIGCHAR_HEIGHT * cg_fpsScale.value;
+	int	char_width = CG_HeightToWidth(BIGCHAR_WIDTH * cg_fpsScale.value);
+
+	fps = CG_FPS();
+	if ( fps != -1 ) {
 		s = va( "%ifps", fps );
-		w = CG_DrawStrlen( s ) * char_width;
 
 		//CG_DrawBigString( 635 - w, y + 2, s, 1.0F);
 
 		color[0] = color[1] = color[2] = 1.0;
 		color[3] = cg_fpsAlpha.value;
-		CG_DrawStringExt( 635-w, y + 2, s, color, qfalse, qtrue, char_width, char_height, 0 );
+		if (cg_drawFPS.integer == 1) {
+			w = CG_DrawStrlen( s ) * char_width;
+			CG_DrawStringExt( 635-w, y + 2, s, color, qfalse, qtrue, char_width, char_height, 0 );
+		} else if (cg_drawFPS.integer == 2) {
+			char_width *= 0.75;
+			char_height *= 0.75;
+			w = CG_DrawStrlen( s ) * char_width;
+			CG_DrawStringExt( SCREEN_WIDTH - (48 + w)/2.0, SCREEN_HEIGHT - 48*1.0/3.0 - char_height/2.0,
+				       	s, color, qfalse, qtrue, char_width, char_height, 0 );
+		}
 	}
 
 	return y + char_height + 4;
@@ -2079,7 +2095,7 @@ static void CG_DrawUpperRight(stereoFrame_t stereoFrame)
 	if ( cg_drawSnapshot.integer ) {
 		y = CG_DrawSnapshot( y );
 	}
-	if (cg_drawFPS.integer && (stereoFrame == STEREO_CENTER || stereoFrame == STEREO_RIGHT)) {
+	if (cg_drawFPS.integer == 1 && (stereoFrame == STEREO_CENTER || stereoFrame == STEREO_RIGHT)) {
 		y = CG_DrawFPS( y );
 	}
 	if (cgs.gametype==GT_ELIMINATION || cgs.gametype == GT_CTF_ELIMINATION || cgs.gametype==GT_LMS) {
@@ -3248,6 +3264,38 @@ vec_t *CG_TableColorAlpha(int colorIndex, vec_t alpha) {
 	color[3] = alpha;
 
 	return color;
+}
+
+#define BOTTOM_FPS_SIZE 48
+static void CG_DrawBottomFPS( void ) {
+	float h = BOTTOM_FPS_SIZE;
+	float w = CG_HeightToWidth(h);
+	float w_s;
+	float x = SCREEN_WIDTH - w;
+	float y = SCREEN_HEIGHT - BOTTOM_FPS_SIZE;
+	int fps = CG_FPS();
+	float	color[4];
+	float	char_height = 13;
+	float	char_width = CG_HeightToWidth(8);
+	//float	char_height = 12;
+	//float	char_width = CG_HeightToWidth(6);
+	char		*s;
+
+	if (cg_lagometer.integer && !cgs.localServer) {
+		x -= 48;
+	}
+
+	CG_DrawPic(x, y, w, h, cgs.media.bottomFPSShader );
+
+	if (fps == -1) {
+		return;
+	}
+
+	s = va( "%i", fps );
+	w_s = CG_DrawStrlen( s ) * char_width;
+
+	color[0] = color[1] = color[2] = color[3] = 1.0;
+	CG_DrawStringExt( x + CG_HeightToWidth(29) - w_s, y+5, s, color, qfalse, qtrue, char_width, char_height, 0 );
 }
 
 
@@ -4799,6 +4847,11 @@ static void CG_Draw2D(stereoFrame_t stereoFrame)
 	CG_DrawTeamVote();
 
 	CG_DrawLagometer();
+	if (cg_drawFPS.integer == 2) {
+		CG_DrawFPS(0);
+	} else if (cg_drawFPS.integer == 3) {
+		CG_DrawBottomFPS();
+	}
 
 #ifdef MISSIONPACK
 	if (!cg_paused.integer) {

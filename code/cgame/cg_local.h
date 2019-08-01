@@ -879,6 +879,8 @@ typedef struct {
 	qhandle_t	weaponSelectShader11;
 	qhandle_t	weaponSelectShader13;
 
+	qhandle_t	bottomFPSShader;
+
 	qhandle_t	damageIndicatorBottom;
 	qhandle_t	damageIndicatorTop;
 	qhandle_t	damageIndicatorRight;
