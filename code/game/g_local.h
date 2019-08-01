@@ -257,10 +257,11 @@ typedef struct {
 	int			fragcarrier;
 	int			assists;
 
-	float		lasthurtcarrier;
-	float		lastreturnedflag;
-	float		flagsince;
-	float		lastfraggedcarrier;
+	int		lasthurtcarrier;
+	int		lastreturnedflag;
+	int		flagsince;
+	int		lastfraggedcarrier;
+	int 		lastFlagFromBase;
 } playerTeamState_t;
 
 // the auto following clients don't follow a specific client

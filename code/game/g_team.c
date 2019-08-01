@@ -302,6 +302,20 @@ void Team_SetFlagStatus( int team, flagStatus_t status ) {
 	}
 }
 
+flagStatus_t Team_GetFlagStatus( int team ) {
+	switch (team) {
+		case TEAM_RED:	// CTF
+			return teamgame.redStatus;
+
+		case TEAM_BLUE:	// CTF
+			return teamgame.blueStatus;
+
+		case TEAM_FREE:	// One Flag CTF
+			return teamgame.flagStatus;
+	}
+	return FLAG_ATBASE;
+}
+
 void Team_CheckDroppedItem( gentity_t *dropped ) {
 	gentity_t *te;
 	if( dropped->item->giTag == PW_REDFLAG ) {
@@ -1289,6 +1303,53 @@ int Team_TouchDoubleDominationPoint( gentity_t *ent, gentity_t *other, int team 
 	return 0;
 }
 
+void Team_CheckHeroAward(gentity_t *capturePlayer) {
+	int i;
+	int teamClients = 0;
+
+	if (g_gametype.integer != GT_CTF) {
+		return;
+	}
+
+	// player who captured needs to have returned the own flag since he
+	// took the enemy flag from the base to get the award
+	if (capturePlayer->client->pers.teamState.lastreturnedflag <= capturePlayer->client->pers.teamState.lastFlagFromBase) {
+		return;
+	}
+
+	for (i = 0; i < level.maxclients; i++) {
+		gclient_t	*client;
+
+		client = &level.clients[i];
+		if ( client->pers.connected != CON_CONNECTED ) {
+			continue;
+		}
+
+		if (client->sess.sessionTeam != capturePlayer->client->sess.sessionTeam) {
+			continue;
+		}
+
+		teamClients++;
+
+		if (client == capturePlayer->client) {
+			continue;
+		}
+
+		// no teammate may have touched any flags since the capturing player got the flag from the enemy base
+		if ((client->pers.teamState.flagsince >= capturePlayer->client->pers.teamState.lastFlagFromBase) 
+				|| (client->pers.teamState.lastreturnedflag >= capturePlayer->client->pers.teamState.lastFlagFromBase) 
+				) {
+			return;
+		}
+	}
+
+	// don't award if we're the only one in the team
+	if (teamClients > 1) {
+		AwardMessage(capturePlayer, EAWARD_HERO, ++(capturePlayer->client->pers.awardCounts[EAWARD_HERO]));
+	}
+
+}
+
 /*
 ==============
 Team_TouchOurFlag
@@ -1343,6 +1404,8 @@ int Team_TouchOurFlag( gentity_t *ent, gentity_t *other, int team ) {
             if(g_gametype.integer == GT_CTF_ELIMINATION)
                 G_LogPrintf( "CTF_ELIMINATION: %i %i %i %i: %s captured the %s flag!\n", level.roundNumber, cl->ps.clientNum, OtherTeam(team), 1, cl->pers.netname, TeamName(OtherTeam(team)) );
 	}
+
+	Team_CheckHeroAward(other);
 
 	cl->ps.powerups[enemy_flag] = 0;
 
@@ -1454,6 +1517,9 @@ int Team_TouchEnemyFlag( gentity_t *ent, gentity_t *other, int team ) {
 		else
 			cl->ps.powerups[PW_BLUEFLAG] = INT_MAX; // flags never expire
 
+		if (Team_GetFlagStatus(team) == FLAG_ATBASE) {
+			cl->pers.teamState.lastFlagFromBase = level.time;
+		}
 		Team_SetFlagStatus( team, FLAG_TAKEN );
 	}
 
