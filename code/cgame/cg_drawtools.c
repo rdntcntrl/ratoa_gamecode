@@ -511,6 +511,32 @@ float *CG_FadeColor( int startMsec, int totalMsec ) {
 	return color;
 }
 
+/*
+================
+CG_FadeScale
+================
+*/
+float CG_FadeScale( int startMsec, int totalMsec ) {
+	int			t;
+
+	if ( startMsec == 0 ) {
+		return 0.0;
+	}
+
+	t = cg.time - startMsec;
+
+	if ( t >= totalMsec ) {
+		return 0.0;
+	}
+
+	// scale out
+	if ( totalMsec - t < FADE_TIME ) {
+		return ( totalMsec - t ) * 1.0/FADE_TIME;
+	} 
+	return 1.0;
+}
+
+
 
 /*
 ================

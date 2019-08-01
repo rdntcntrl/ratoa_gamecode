@@ -2891,10 +2891,15 @@ int CG_Reward2Time(int idx) {
 static void CG_DrawReward( void ) { 
 	float	*color;
 	int	i;
-	int	x,xx, y;
+	float	x,xx, y, yy;
 	char	buf[16];
 	int numMedals;
 	int skip;
+	float lineLength = 0.0;
+	float iconSz;
+	float charWidth;
+	float charHeight;
+	float scale;
 
 	skip = 0;
 	numMedals = 0;
@@ -2904,6 +2909,7 @@ static void CG_DrawReward( void ) {
 		}
 		if (cg.reward2RowTimes[i] != 0 && cg.reward2RowTimes[i] + CG_Reward2Time(i) > cg.time) {
 			++numMedals;
+			lineLength += (float)ICON_SIZE * CG_FadeScale(cg.reward2RowTimes[i], CG_Reward2Time(i));
 			// shift backwards over empty slots
 			if (skip) {
 				cg.reward2RowTimes[i-skip] = cg.reward2RowTimes[i];
@@ -2920,22 +2926,25 @@ static void CG_DrawReward( void ) {
 
 
 	y = 56;
-	x = 320 - numMedals * ICON_SIZE/2;
+	x = 320 - lineLength/2.0;
 	for ( i = 0 ; i < numMedals ; ++i ) {
-	//for ( i = 0 ; i < MAX_REWARDROW ; ++i ) {
-		//if (cg.rewar2RowTimes[i] == 0 || cg.reward2RowTimes[i] + CG_Reward2Time(i) <= cg.time) {
-		//	continue;
-		//}
 		color = CG_FadeColor( cg.reward2RowTimes[i], CG_Reward2Time(i) );
+		scale = CG_FadeScale( cg.reward2RowTimes[i], CG_Reward2Time(i) );
+		iconSz = MAX(1.0,(float)ICON_SIZE * scale);
 		trap_R_SetColor( color );
 
-		CG_DrawPic( x+2, y, ICON_SIZE-4, ICON_SIZE-4, cg.reward2Shader[i] );
+		yy = y + (ICON_SIZE - iconSz)/2.0;
+
+		CG_DrawPic( x+2, yy, MAX(1.0,iconSz-4), MAX(1.0,iconSz-4), cg.reward2Shader[i] );
+
+		charWidth  = MAX(1.0,(float)SMALLCHAR_WIDTH * scale);
+		charHeight = MAX(1.0,(float)SMALLCHAR_HEIGHT * scale);
 
 		Com_sprintf(buf, sizeof(buf), "%d", cg.reward2Count[i]);
-		xx = x + (ICON_SIZE - SMALLCHAR_WIDTH * CG_DrawStrlen(buf)) / 2;
-		CG_DrawStringExt( xx, y+ICON_SIZE, buf, color, qfalse, qtrue,
-								SMALLCHAR_WIDTH, SMALLCHAR_HEIGHT, 0 );
-		x += ICON_SIZE;
+		xx = x + (iconSz - charWidth * CG_DrawStrlen(buf)) / 2;
+		CG_DrawStringExt( xx, yy+iconSz, buf, color, qfalse, qtrue,
+								charWidth, charHeight, 0 );
+		x += iconSz;
 	}
 
 	trap_R_SetColor( NULL );
