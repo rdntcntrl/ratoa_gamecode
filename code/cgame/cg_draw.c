@@ -2257,7 +2257,7 @@ static float CG_DrawPowerups( float y ) {
 	playerState_t	*ps;
 	int		t;
 	gitem_t	*item;
-	int		x;
+	float		x;
 	int		color;
 	float	size;
 	float	f;
@@ -2305,7 +2305,7 @@ static float CG_DrawPowerups( float y ) {
 	}
 
 	// draw the icons and timers
-	x = 640 - ICON_SIZE - CHAR_WIDTH * 2;
+	x = 640 - CG_HeightToWidth(ICON_SIZE + CHAR_WIDTH * 2);
 	for ( i = 0 ; i < active ; i++ ) {
 		item = BG_FindItemForPowerup( sorted[i] );
 
@@ -2316,7 +2316,7 @@ static float CG_DrawPowerups( float y ) {
 		  y -= ICON_SIZE;
 
 		  trap_R_SetColor( colors[color] );
-		  CG_DrawField( x, y, 2, sortedTime[ i ] / 1000, qfalse, CHAR_WIDTH, CHAR_HEIGHT);
+		  CG_DrawField( x, y, 2, sortedTime[ i ] / 1000, qfalse, CG_HeightToWidth(CHAR_WIDTH), CHAR_HEIGHT);
 
 		  t = ps->powerups[ sorted[i] ];
 		  if ( t - cg.time >= POWERUP_BLINKS * POWERUP_BLINK_TIME ) {
@@ -2338,8 +2338,8 @@ static float CG_DrawPowerups( float y ) {
 			  size = ICON_SIZE;
 		  }
 
-		  CG_DrawPic( 640 - size, y + ICON_SIZE / 2 - size / 2, 
-			  size, size, trap_R_RegisterShader( item->icon ) );
+		  CG_DrawPic( 640 - CG_HeightToWidth(size), y + ICON_SIZE / 2 - size / 2, 
+			  CG_HeightToWidth(size), size, trap_R_RegisterShader( item->icon ) );
     }
 	}
 	trap_R_SetColor( NULL );
@@ -2881,7 +2881,7 @@ static void CG_DrawHoldableItem( void ) {
 	value = cg.snap->ps.stats[STAT_HOLDABLE_ITEM];
 	if ( value ) {
 		CG_RegisterItemVisuals( value );
-		CG_DrawPic( 640-ICON_SIZE, (SCREEN_HEIGHT-ICON_SIZE)/2, ICON_SIZE, ICON_SIZE, cg_items[ value ].icon );
+		CG_DrawPic( 640-CG_HeightToWidth(ICON_SIZE), (SCREEN_HEIGHT-ICON_SIZE)/2, CG_HeightToWidth(ICON_SIZE), ICON_SIZE, cg_items[ value ].icon );
 	}
 
 }
