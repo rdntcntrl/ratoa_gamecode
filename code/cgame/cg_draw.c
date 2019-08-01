@@ -3868,6 +3868,32 @@ static void CG_ScanForCrosshairEntity( void ) {
 	cg.crosshairClientTime = cg.time;
 }
 
+#define MAX_RELOADTIME 1500
+static void CG_DrawReloadIndicator( void ) {
+	int time = cg.predictedPlayerState.weaponTime;
+	float width;
+
+	if (cg.predictedPlayerState.weaponstate != WEAPON_FIRING || time <= 0) {
+		return;
+	}
+
+	switch ( cg.predictedPlayerState.weapon ) {
+		case WP_LIGHTNING:
+		case WP_MACHINEGUN:
+		case WP_PLASMAGUN:
+		case WP_BFG:
+		case WP_CHAINGUN:
+			return;
+	}
+
+	width = MIN(1.0,(float)time/MAX_RELOADTIME)*cg_reloadIndicatorWidth.value;
+
+	CG_FillRect((SCREEN_WIDTH - width)/2,
+			cg_reloadIndicatorY.value,
+			width,
+			cg_reloadIndicatorHeight.value,
+			colorWhite);
+}
 
 /*
 =====================
@@ -4597,6 +4623,7 @@ static void CG_Draw2D(stereoFrame_t stereoFrame)
 		if(stereoFrame == STEREO_CENTER)
 			CG_DrawCrosshair();
 
+		CG_DrawReloadIndicator();
 		CG_DrawCrosshairNames();
 	} else {
 		// don't draw any status if dead or the scoreboard is being explicitly shown
@@ -4620,6 +4647,7 @@ static void CG_Draw2D(stereoFrame_t stereoFrame)
 			CG_DrawProxWarning();
 			if(stereoFrame == STEREO_CENTER)
 				CG_DrawCrosshair();
+			CG_DrawReloadIndicator();
 			CG_DrawCrosshairNames();
 			CG_DrawWeaponSelect();
 
