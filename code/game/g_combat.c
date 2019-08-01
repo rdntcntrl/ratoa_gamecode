@@ -612,9 +612,14 @@ void G_CheckDeathEAwards(gentity_t *victim, gentity_t *inflictor, gentity_t *att
 		AwardMessage(attacker, EAWARD_REVENGE, ++(attacker->client->pers.awardCounts[EAWARD_REVENGE]));
 	}
 	
+	// The damage required for VAPORIZED should be high enough that no other gun
+	// (apart from TA weapons) could have done the same amount of damage in the same amount of time
+	// This is true for a value of 140dmg, which takes 700ms to do with plasma, but would
+	// require 2 rockets which takes at least 800ms
+	// It's also true for 120dmg, which takes 600ms with plasma gun, but again at least 800ms with rockets
 	if (meansOfDeath == MOD_PLASMA 
 			&& attacker->client->lastDmgGivenEntityNum == victim->s.number 
-			&& attacker->client->totalPlasmaDmgOnTarget >= 200) {
+			&& attacker->client->totalPlasmaDmgOnTarget >= 140) {
 		AwardMessage(attacker, EAWARD_VAPORIZED, ++(attacker->client->pers.awardCounts[EAWARD_VAPORIZED]));
 	}
 
