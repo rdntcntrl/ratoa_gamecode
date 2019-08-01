@@ -840,6 +840,9 @@ typedef struct {
 typedef struct {
 	qhandle_t	charsetShader;
 	qhandle_t	charsetShaderHiRes;
+	qhandle_t	charsetShader64;
+	qhandle_t	charsetShader32;
+	qhandle_t	charsetShader16;
 	qhandle_t	charsetProp;
 	qhandle_t	charsetPropGlow;
 	qhandle_t	charsetPropB;
