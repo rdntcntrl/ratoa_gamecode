@@ -198,6 +198,17 @@ vmCvar_t        sv_master1;
 vmCvar_t        ui_mapvote_filter;
 vmCvar_t        ui_mapvote_sort;
 
+vmCvar_t        ui_mappage_pagenum;
+vmCvar_t        ui_mappage_page0;
+vmCvar_t        ui_mappage_page1;
+vmCvar_t        ui_mappage_page2;
+vmCvar_t        ui_mappage_page3;
+vmCvar_t        ui_mappage_page4;
+vmCvar_t        ui_mappage_page5;
+vmCvar_t        ui_mappage_page6;
+vmCvar_t        ui_mappage_page7;
+vmCvar_t        ui_mappage_page8;
+
 vmCvar_t        ui_nextmapvote_remaining;
 vmCvar_t	ui_nextmapvote_maps;
 vmCvar_t	ui_nextmapvote_votes;
@@ -302,9 +313,20 @@ static cvarTable_t		cvarTable[] = {
         { &ui_mapvote_filter, "ui_mapvote_filter", "", 0 },
         { &ui_mapvote_sort, "ui_mapvote_sort", "0", CVAR_ARCHIVE },
 
-        { &ui_nextmapvote_remaining, "ui_nextmapvote_remaining", "0", 0 },
-        { &ui_nextmapvote_maps, "ui_nextmapvote_maps", "", 0 },
-        { &ui_nextmapvote_votes, "ui_nextmapvote_votes", "", 0 },
+        { &ui_mappage_pagenum, "ui_mappage_pagenum", "0", CVAR_ROM },
+        { &ui_mappage_page0, "ui_mappage_page0", "", CVAR_ROM },
+        { &ui_mappage_page1, "ui_mappage_page1", "", CVAR_ROM },
+        { &ui_mappage_page2, "ui_mappage_page2", "", CVAR_ROM },
+        { &ui_mappage_page3, "ui_mappage_page3", "", CVAR_ROM },
+        { &ui_mappage_page4, "ui_mappage_page4", "", CVAR_ROM },
+        { &ui_mappage_page5, "ui_mappage_page5", "", CVAR_ROM },
+        { &ui_mappage_page6, "ui_mappage_page6", "", CVAR_ROM },
+        { &ui_mappage_page7, "ui_mappage_page7", "", CVAR_ROM },
+        { &ui_mappage_page8, "ui_mappage_page8", "", CVAR_ROM },
+
+        { &ui_nextmapvote_remaining, "ui_nextmapvote_remaining", "0", CVAR_ROM },
+        { &ui_nextmapvote_maps, "ui_nextmapvote_maps", "", CVAR_ROM },
+        { &ui_nextmapvote_votes, "ui_nextmapvote_votes", "", CVAR_ROM },
 };
 
 // bk001129 - made static to avoid aliasing

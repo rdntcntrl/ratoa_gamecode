@@ -963,6 +963,10 @@ char *UI_Cvar_VariableString( const char *var_name ) {
 	return buffer;
 }
 
+int UI_Cvar_VariableInteger( const char *var_name ) {
+	return atoi(UI_Cvar_VariableString(var_name));
+}
+
 
 /*
 =================
@@ -1061,16 +1065,22 @@ qboolean UI_ConsoleCommand( int realTime ) {
 		return qtrue;
 	}
 
-        if ( Q_stricmp (cmd, "ui_mappage") == 0 ) {
-		int i;
-		mappage.pagenumber = atoi(UI_Argv( 1 ));
-		for (i = 0; i < MAPPAGE_NUM; ++i) {
-			Q_strncpyz(mappage.mapname[i],UI_Argv(i+2),MAX_MAPNAME_LENGTH);
-		}
+        //if ( Q_stricmp (cmd, "ui_mappage") == 0 ) {
+	//	int i;
+	//	mappage.pagenumber = atoi(UI_Argv( 1 ));
+	//	for (i = 0; i < MAPPAGE_NUM; ++i) {
+	//		Q_strncpyz(mappage.mapname[i],UI_Argv(i+2),MAX_MAPNAME_LENGTH);
+	//	}
 
+        //        UI_VoteMapMenuInternal();
+	//	return qtrue;
+	//}
+	
+        if ( Q_stricmp (cmd, "ui_mappage_update") == 0 ) {
                 UI_VoteMapMenuInternal();
 		return qtrue;
 	}
+
         if ( Q_stricmp (cmd, "ui_votemapmenu") == 0 ) {
 		UI_VoteMapMenu();
 		return qtrue;

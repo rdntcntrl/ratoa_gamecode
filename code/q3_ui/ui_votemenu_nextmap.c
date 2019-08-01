@@ -221,7 +221,7 @@ static void VoteNextMapMenu_MapEvent( void* ptr, int event ) {
 		if (mapNo < 0 || mapNo > NEXTMAPVOTE_MAP_NUM) {
 			return;
 		}
-		trap_Cmd_ExecuteText( EXEC_APPEND,va("nextmapvote %i", mapNo));
+		trap_Cmd_ExecuteText( EXEC_APPEND,va("cmd nextmapvote %i", mapNo));
 		s_votemenu_nextmap.voted = qtrue;
 		s_votemenu_nextmap.mappics[mapNo].generic.flags    |= QMF_HIGHLIGHT;
 		for (i=0; i<NMV_MAX_MAPSPERPAGE; i++) {

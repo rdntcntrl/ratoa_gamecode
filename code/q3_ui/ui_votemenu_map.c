@@ -118,6 +118,7 @@ struct maplist_s *current_list;
 
 static void InitMappage(void) {
     int i;
+    memset(&mappage, 0, sizeof(mappage));
     //We need to initialize the list or it will be impossible to click on the items
     for(i=0;i<MAX_MAPSPERPAGE;i++) {
         Q_strncpyz(mappage.mapname[i],"----",5);
@@ -159,7 +160,7 @@ static void VoteMapMenu_Event( void* ptr, int event )
 		}
                 if(!Q_stricmp(filtered_list.mapname[mapidx],"---"))
                     return; //Blank spaces have string "---"
-                trap_Cmd_ExecuteText( EXEC_APPEND, va("callvote map %s;", filtered_list.mapname[mapidx]) );
+                trap_Cmd_ExecuteText( EXEC_APPEND, va("cmd callvote map %s;", filtered_list.mapname[mapidx]) );
                 UI_PopMenu();
 		if (UI_PushedMenus()) {
 			// this menu may be opened directly, so don't pop parent if it's not there
@@ -513,6 +514,45 @@ static void VoteMapMenu_MapEvent( void* ptr, int event ) {
 	UI_VoteMapMenu_Update();
 }
 
+static qboolean UI_VoteMapMenuParseMappage(void) {
+	int i;
+	char *mapp, *p;
+	char mapList[1024] = "";
+	int cvarNum;
+	int cvarMaps;
+	
+	memset(&mappage, 0, sizeof(mappage));
+	mappage.pagenumber = UI_Cvar_VariableInteger("ui_mappage_pagenum");
+
+	cvarNum = 0;
+	cvarMaps = 0;
+	trap_Cvar_VariableStringBuffer(va("ui_mappage_page%i", cvarNum), mapList, sizeof(mapList));
+	mapp = mapList;
+	for (i = 0 ; i < MAPPAGE_NUM && mapp; ++i) {
+		if (cvarMaps == 7) {
+			trap_Cvar_VariableStringBuffer(va("ui_mappage_page%i", ++cvarNum), mapList, sizeof(mapList));
+			cvarMaps = 0;
+			mapp = mapList;
+		}
+		if ((p = strchr(mapp, ' ')) != NULL) {
+			*p = '\0';
+			p++;
+		} 
+		if (strlen(mapp) <= 0) {
+			return qfalse;
+		}
+		Q_strncpyz(mappage.mapname[i], mapp, MAX_MAPNAME_LENGTH);
+		mapp = p;
+		++cvarMaps;
+
+	}
+	if (i != MAPPAGE_NUM) {
+		return qfalse;
+	}
+
+	return qtrue;
+}
+
 
 /*
 =================
@@ -522,6 +562,12 @@ UI_VoteMapMenuInternal
 void UI_VoteMapMenuInternal( void )
 {
 	int i;
+
+	if (!UI_VoteMapMenuParseMappage()) {
+		Com_Printf("failed to parse mappage\n");
+		return;
+	}
+
 	mappage_in_flight = 0;
 	if (ignore_next_cmd) {
 		ignore_next_cmd = 0;

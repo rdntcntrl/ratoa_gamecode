@@ -487,8 +487,6 @@ static void CG_ParseElimination( void ) {
 
 static void CG_ParseNextMapVotes( void ) {
     char votes[1024] = "";
-    const char *temp;
-    const char*	c;
     int i;
 
     for(i=1;i<NEXTMAPVOTE_NUM_MAPS+1;i++) {
@@ -561,16 +559,18 @@ static void CG_ParseTreasureHunt( void ) {
 /*
 =================
 CG_ParseMappage
-Sago: This parses values from the server rather directly. Some checks are performed, but beware if you change it or new
-security holes are found
+Rat: This uses a Cvar to transmit the data isntead
 =================
 */
 static void CG_ParseMappage( void ) {
-    char command[1024];
+    char maplist[MAX_CVAR_VALUE_STRING] = "";
     const char *temp;
     const char*	c;
     int i;
     int nummaps = 30;
+    int pagenum = 0;
+    int cvarNum;
+    int cvarMaps;
 
     temp = CG_Argv( 1 );
     for( c = temp; *c; ++c) {
@@ -583,17 +583,22 @@ static void CG_ParseMappage( void ) {
 		    Com_Printf("Error: illegal character %c in mappage received from server\n", *c);
 		    return;
 	    }
-		//switch(*c) {
-		//	case '\n':
-		//	case '\r':
-		//	case ';':
-		//		//The server tried something bad!
-		//		return;
-		//	break;
-		//}
-        }
-    Q_strncpyz(command,va("ui_mappage %s",temp),sizeof(command));
+    }
+    pagenum = atoi(temp);
+    if (pagenum < 0) {
+	    pagenum = 0;
+    }
+    trap_Cvar_Set("ui_mappage_pagenum", va("%i", pagenum));
+
+    cvarNum = 0;
+    cvarMaps = 0;
     for(i=2;i<nummaps+2;i++) {
+	if (cvarMaps == 7) {
+		trap_Cvar_Set(va("ui_mappage_page%i", cvarNum), maplist);
+		++cvarNum;
+		cvarMaps = 0;
+		maplist[0] = '\0';
+	}
         temp = CG_Argv( i );
         for( c = temp; *c; ++c) {
 		if (!(isalnum(*c) 
@@ -605,23 +610,80 @@ static void CG_ParseMappage( void ) {
 			Com_Printf("Error: illegal character %c in mappage received from server\n", *c);
 			return;
 		}
-                //    switch(*c) {
-                //            case '\n':
-                //            case '\r':
-                //            case ';':
-                //                    //The server tried something bad!
-                //                    return;
-                //            break;
-                //    }
             }
         if(strlen(temp)<1)
             temp = "---";
-        Q_strcat(command,sizeof(command),va(" %s ",temp));
+        Q_strcat(maplist,sizeof(maplist),va("%s ",temp));
+	++cvarMaps;
     }
-    Q_strcat(command,sizeof(command), "\n");
-    trap_SendConsoleCommand(command);
+    trap_Cvar_Set(va("ui_mappage_page%i", cvarNum), maplist);
+    trap_SendConsoleCommand("ui_mappage_update\n");
 
 }
+
+///*
+//=================
+//CG_ParseMappage2
+//Sago: This parses values from the server rather directly. Some checks are performed, but beware if you change it or new
+//security holes are found
+//=================
+//*/
+//static void CG_ParseMappage2( void ) {
+//    char command[1024];
+//    const char *temp;
+//    const char*	c;
+//    int i;
+//    int nummaps = 30;
+//
+//    temp = CG_Argv( 1 );
+//    for( c = temp; *c; ++c) {
+//	    if (!(isalnum(*c) 
+//			|| *c == '-' 
+//			|| *c == '_'
+//			|| *c == '+'
+//				)) {
+//		    //The server tried something bad!
+//		    Com_Printf("Error: illegal character %c in mappage received from server\n", *c);
+//		    return;
+//	    }
+//		//switch(*c) {
+//		//	case '\n':
+//		//	case '\r':
+//		//	case ';':
+//		//		//The server tried something bad!
+//		//		return;
+//		//	break;
+//		//}
+//        }
+//    Q_strncpyz(command,va("ui_mappage %s",temp),sizeof(command));
+//    for(i=2;i<nummaps+2;i++) {
+//        temp = CG_Argv( i );
+//        for( c = temp; *c; ++c) {
+//		if (!(isalnum(*c) 
+//			|| *c == '-' 
+//			|| *c == '_'
+//			|| *c == '+'
+//		    		 )) {
+//			//The server tried something bad!
+//			Com_Printf("Error: illegal character %c in mappage received from server\n", *c);
+//			return;
+//		}
+//                //    switch(*c) {
+//                //            case '\n':
+//                //            case '\r':
+//                //            case ';':
+//                //                    //The server tried something bad!
+//                //                    return;
+//                //            break;
+//                //    }
+//            }
+//        if(strlen(temp)<1)
+//            temp = "---";
+//        Q_strcat(command,sizeof(command),va(" %s ",temp));
+//    }
+//    trap_SendConsoleCommand(command);
+//
+//}
 
 /*
 =================

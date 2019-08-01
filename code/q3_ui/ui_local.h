@@ -125,6 +125,17 @@ extern vmCvar_t	ui_server16;
 extern vmCvar_t	ui_mapvote_filter;
 extern vmCvar_t	ui_mapvote_sort;
 
+extern vmCvar_t	ui_mappage_pagenum;
+extern vmCvar_t ui_mappage_page0;
+extern vmCvar_t ui_mappage_page1;
+extern vmCvar_t ui_mappage_page2;
+extern vmCvar_t ui_mappage_page3;
+extern vmCvar_t ui_mappage_page4;
+extern vmCvar_t ui_mappage_page5;
+extern vmCvar_t ui_mappage_page6;
+extern vmCvar_t ui_mappage_page7;
+extern vmCvar_t ui_mappage_page8;
+
 extern vmCvar_t	ui_nextmapvote_remaining;
 extern vmCvar_t	ui_nextmapvote_maps;
 extern vmCvar_t	ui_nextmapvote_votes;
@@ -709,6 +720,7 @@ extern void			UI_PopMenu (void);
 extern void			UI_ForceMenuOff (void);
 extern char			*UI_Argv( int arg );
 extern char			*UI_Cvar_VariableString( const char *var_name );
+extern int 			UI_Cvar_VariableInteger( const char *var_name );
 extern void			UI_Refresh( int time );
 extern void			UI_StartDemoLoop( void );
 extern qboolean		m_entersound;
