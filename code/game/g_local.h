@@ -532,6 +532,9 @@ struct gclient_s {
 
 	// for ambush award
 	int lastTeleportTime;
+
+	// for berserker award
+	int gauntSpree;
         
 
 	//unlagged - backward reconciliation #1
