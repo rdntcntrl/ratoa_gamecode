@@ -3285,7 +3285,7 @@ static void CG_DrawBottomFPS( void ) {
 	w_s = CG_DrawStrlen( s ) * char_width;
 
 	color[0] = color[1] = color[2] = color[3] = 1.0;
-	CG_DrawStringExt( x + CG_HeightToWidth(29) - w_s, y+5, s, color, qfalse, qtrue, char_width, char_height, 0 );
+	CG_DrawStringExt( x + CG_HeightToWidth(33) - w_s, SCREEN_HEIGHT-2-char_height, s, color, qfalse, qfalse, char_width, char_height, 0 );
 }
 
 
