@@ -3093,7 +3093,7 @@ void CG_DrawWeaponBar10(int count, int bits, float *color){
 				bg[3] = 0.25f;
 				CG_FillRect( x, y, boxwidth, 41, bg );
 				bg[3] = 1.0f;
-				CG_DrawRect( x, y, boxwidth, 41, 1, bg); 
+				CG_DrawRectAspect( x, y, boxwidth, 41, 1, bg); 
 			}
 		}
 		CG_RegisterWeapon( i );	
@@ -3188,38 +3188,38 @@ void CG_DrawWeaponBar12(int count, int bits, float *color){
 				
 		if(i!=WP_GAUNTLET && i!=WP_GRAPPLING_HOOK){
 			if(ammo <= 20) {
-				CG_FillRect( x, y+2+16-br, 2,br, red);
+				CG_FillRect( x, y+2+16-br, CG_HeightToWidth(2),br, red);
 				memcpy(bg, red, sizeof(bg));
 			} else if(ammo <= 50) {
-				CG_FillRect( x, y+2+16-br, 2,br, yellow);
+				CG_FillRect( x, y+2+16-br, CG_HeightToWidth(2),br, yellow);
 				memcpy(bg, yellow, sizeof(bg));
 			} else {
-				CG_FillRect( x, y+2+16-br, 2,br, green);
+				CG_FillRect( x, y+2+16-br, CG_HeightToWidth(2),br, green);
 				memcpy(bg, green, sizeof(bg));
 			}
 		}
 			
 		if ( i == weaponSelect) {
 			bg[3] = 0.25f;
-			CG_FillRect( x+3, y, 46, 20, bg );
+			CG_FillRect( x+CG_HeightToWidth(3), y, CG_HeightToWidth(46), 20, bg );
 			bg[3] = 1.0f;
-			CG_DrawRect( x+3, y, 46, 20, 1, bg);
+			CG_DrawRectAspect( x+CG_HeightToWidth(3), y, CG_HeightToWidth(46), 20, 1, bg);
 		}
 		CG_RegisterWeapon( i );
 		// draw weapon icon
 		//CG_DrawPic( x+6, y+2, 24, 24, cg_weapons[i].weaponIcon );
-		CG_DrawPic( x+5, y+2, 16, 16, cg_weapons[i].weaponIcon );
+		CG_DrawPic( x+CG_HeightToWidth(5), y+2, CG_HeightToWidth(16), 16, cg_weapons[i].weaponIcon );
 
 		if(!ammoSaved){
 			//CG_DrawPic( x+6, y+2, 24, 24, cgs.media.noammoShader );
-			CG_DrawPic( x+5, y+2, 16, 16, cgs.media.noammoShader );
+			CG_DrawPic( x+CG_HeightToWidth(5), y+2, CG_HeightToWidth(16), 16, cgs.media.noammoShader );
 		}
 
 		/** Draw Weapon Ammo **/
 		if(ammoSaved!=-1){
 			s = va("%i", ammoSaved );
 			w = CG_DrawStrlen( s ) * SMALLCHAR_WIDTH;
-			CG_DrawSmallStringColor(x+12 - w/2 + 20, y+3, s, color);
+			CG_DrawSmallStringColor(x + CG_HeightToWidth(12.0 - (float)w/2.0 + 20.0), y+3, s, color);
 		}
 
 		y -= 20;
