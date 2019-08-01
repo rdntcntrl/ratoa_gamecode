@@ -5592,10 +5592,10 @@ static void CG_DrawSpectator(void) {
 		CG_DrawSmallScoreString(320 - (CG_DrawStrlen(s)*SCORESMALLCHAR_WIDTH)/2, 460, s, 1.0F);
 	} else {
 		if ( cgs.gametype == GT_TOURNAMENT ) {
-			CG_DrawBigString(320 - 15 * 8, 460, "waiting to play", 1.0F);
+			CG_DrawSmallScoreString(320 - (15 * SCORESMALLCHAR_WIDTH)/2, 460, "waiting to play", 1.0F);
 		}
 		else if ( cgs.gametype >= GT_TEAM && cgs.ffa_gt!=1) {
-			CG_DrawBigString(320 - 39 * 8, 460, "press ESC and use the JOIN menu to play", 1.0F);
+			CG_DrawSmallScoreString(320 - (39 * SCORESMALLCHAR_WIDTH)/2, 460, "press ESC and use the JOIN menu to play", 1.0F);
 		}
 	}
 }
