@@ -425,6 +425,7 @@ typedef struct {
     int lastKilledBy;
     // time of last death;
     int lastDeathTime;
+    qboolean gotRevenge;
 
     int gauntCorpseGibCount;
 } clientPersistant_t;

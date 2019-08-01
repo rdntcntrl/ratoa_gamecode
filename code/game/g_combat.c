@@ -615,8 +615,14 @@ void G_CheckDeathEAwards(gentity_t *victim, gentity_t *inflictor, gentity_t *att
 
 	if (attacker->client->pers.lastDeathTime > 0 
 			&& attacker->client->pers.lastDeathTime + 10 * 1000 > level.time
-			&& attacker->client->pers.lastKilledBy == victim->s.number) {
+			&& attacker->client->pers.lastKilledBy == victim->s.number
+			// revenge kill has to be the first kill after respawn or a dead hand kill
+			&& (attacker->client->lastkilled_client == -1 || attacker->client->ps.pm_type == PM_DEAD)
+			&& !attacker->client->pers.gotRevenge
+			) {
+		attacker->client->pers.gotRevenge = qtrue;
 		AwardMessage(attacker, EAWARD_REVENGE, ++(attacker->client->pers.awardCounts[EAWARD_REVENGE]));
+
 	}
 	
 	// The damage required for VAPORIZED should be high enough that no other gun
@@ -769,6 +775,10 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 
 	self->client->pers.lastDeathTime = level.time;
 	self->client->pers.lastKilledBy = killer;
+	self->client->pers.gotRevenge = qfalse;
+    
+	G_CheckStrongmanAward(attacker, self);
+    	G_CheckDeathEAwards(self, inflictor, attacker, meansOfDeath);
 
 	if (attacker && attacker->client) {
 		attacker->client->lastkilled_client = self->s.number;
@@ -963,9 +973,6 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
                     //if(self->client->ps.persistant[PERS_SCORE]>0 || level.numNonSpectatorClients<3) //Cannot get negative scores by suicide
 			AddScore( self, self->r.currentOrigin, -1 );
 	}
-    
-	G_CheckStrongmanAward(attacker, self);
-    	G_CheckDeathEAwards(self, inflictor, attacker, meansOfDeath);
 
 	// Add team bonuses
 	Team_FragBonuses(self, inflictor, attacker);

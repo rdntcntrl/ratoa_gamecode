@@ -2630,7 +2630,7 @@ static void Cmd_VoiceTaunt_f( gentity_t *ent ) {
 					G_Voice( ent, ent, SAY_TELL, VOICECHAT_KILLINSULT, qfalse );
 				}
 			}
-			ent->client->lastkilled_client = -1;
+			//ent->client->lastkilled_client = -1;
 			return;
 		}
 	}
