@@ -131,6 +131,7 @@ qboolean G_ReadAltKillSettings( gentity_t *ent, int skiparg )
             if( ksc >= MAX_KSPREE )
                 return qfalse;
             k = BG_Alloc( sizeof( killspree_t ) );
+	    memset(k, 0, sizeof ( killspree_t ) );
             killSprees[ ksc++ ] = k;
             kspree_read = qtrue;
             dspree_read = qfalse;
@@ -141,6 +142,7 @@ qboolean G_ReadAltKillSettings( gentity_t *ent, int skiparg )
             if( dsc >= MAX_DSPREE )
                 return qfalse;
             d = BG_Alloc( sizeof( deathspree_t ) );
+	    memset(d, 0, sizeof ( deathspree_t ) );
             deathSprees[ dsc++ ] = d;
             dspree_read = qtrue;
             kspree_read = qfalse;
@@ -150,6 +152,7 @@ qboolean G_ReadAltKillSettings( gentity_t *ent, int skiparg )
             if( mc >= MAX_MULTIKILLS )
                 return qfalse;
             m = BG_Alloc( sizeof( multikill_t ) );
+	    memset(m, 0, sizeof ( multikill_t ) );
             multiKills[ mc++ ] = m;
             mkill_read = qtrue;
             kspree_read = qfalse;
@@ -164,6 +167,8 @@ qboolean G_ReadAltKillSettings( gentity_t *ent, int skiparg )
                 readFile_string( &cnf, k->spreeMsg, sizeof( k->spreeMsg ) );
             } else if ( !Q_stricmp( t, "printpos" ) ) {
                 readFile_int( &cnf, &k->position );
+            } else if ( !Q_stricmp( t, "award" ) ) {
+                readFile_int( &cnf, &k->award );
             } else if ( !Q_stricmp( t, "sound" ) ) {
                 readFile_string( &cnf, k->sound2Play, sizeof( k->sound2Play ) );
             } else {
@@ -222,14 +227,19 @@ static char *fillPlaceHolder( char *stringToSearch, char *placeHolder, char *rep
 {
   static char output[ MAX_SAY_TEXT ];
   char *p;
+  int sz;
 
   if( !( p = strstr( stringToSearch, placeHolder ) ) )
     return stringToSearch;
-    
-  strncpy( output, stringToSearch, p - stringToSearch ); 
-  output[ p - stringToSearch ] = '\0';
+
+  sz = p-stringToSearch+1;
+  if (sizeof(output) < sz) {
+	  sz = sizeof(output);
+  }
+  Q_strncpyz(output, stringToSearch, sz);
  
-  Q_snprintf( output + ( p - stringToSearch ), output - stringToSearch,  "%s%s", replaceWith, p + strlen( placeHolder ) ); 
+  Q_strcat(output, sizeof(output), replaceWith);
+  Q_strcat(output, sizeof(output), p + strlen(placeHolder));
   
   return output;
 }
@@ -326,6 +336,29 @@ static qboolean TestSpreeWhole( int streak2Test ) {
     }
 }
 
+static void G_Spreeaward( gentity_t *ent, int level) {
+	if (level < 1) {
+		return;
+	}
+	switch (level) {
+		case 1:
+			AwardMessage(ent, EAWARD_KILLINGSPREE, ++(ent->client->pers.awardCounts[EAWARD_KILLINGSPREE]));
+			break;
+		case 2:
+			AwardMessage(ent, EAWARD_RAMPAGE, ++(ent->client->pers.awardCounts[EAWARD_RAMPAGE]));
+			break;
+		case 3:
+			AwardMessage(ent, EAWARD_MASSACRE, ++(ent->client->pers.awardCounts[EAWARD_MASSACRE]));
+			break;
+		case 4:
+			AwardMessage(ent, EAWARD_UNSTOPPABLE, ++(ent->client->pers.awardCounts[EAWARD_UNSTOPPABLE]));
+			break;
+		default:
+			AwardMessage(ent, EAWARD_GRIMREAPER, ++(ent->client->pers.awardCounts[EAWARD_GRIMREAPER]));
+			break;
+	}
+}
+
 /*
 ==================
 G_CheckForSpree
@@ -418,10 +451,14 @@ void G_CheckForSpree( gentity_t *ent, int streak2Test, qboolean checkKillSpree )
             returnedString = CreateMessage( ent, killSprees[ level.kSpreeUBound ]->spreeMsg, streakcount ); 
             position = killSprees[ level.kSpreeUBound ]->position;
             sound = killSprees[ level.kSpreeUBound ]->sound2Play;
-            soundIndex = G_SoundIndex( sound );
-            soundIndex = G_SoundIndex( sound );
-            //G_GlobalSound( soundIndex );
-            G_Sound(ent,0,soundIndex);
+	    if (strlen(sound)) {
+		    soundIndex = G_SoundIndex( sound );
+		    //G_GlobalSound( soundIndex );
+		    G_Sound(ent,0,soundIndex);
+	    }
+	    if (killSprees[ level.kSpreeUBound ]->award) {
+		    G_Spreeaward(ent, killSprees[ level.kSpreeUBound ]->spreeLevel);
+	    }
             /* Doesn't do anything at the moment. cp does not work while kill message is displayed
              * if( position == CENTER_PRINT ) {
                 //Only Center print for player doing the killing spree
@@ -435,10 +472,14 @@ void G_CheckForSpree( gentity_t *ent, int streak2Test, qboolean checkKillSpree )
                     returnedString = CreateMessage ( ent, killSprees[ i ]->spreeMsg, streakcount );
                     position = killSprees[ i ]->position;
                     sound = killSprees[ i ]->sound2Play;
-                    soundIndex = G_SoundIndex( sound );                
-                    soundIndex = G_SoundIndex( sound );
-                    //G_GlobalSound( soundIndex );
-                    G_Sound(ent,0,soundIndex);
+		    if (strlen(sound)) {
+			    soundIndex = G_SoundIndex( sound );                
+			    //G_GlobalSound( soundIndex );
+			    G_Sound(ent,0,soundIndex);
+		    }
+		    if (killSprees[ i ]->award) {
+			    G_Spreeaward(ent, killSprees[ i ]->spreeLevel);
+		    }
                     /*if( position == CENTER_PRINT ) {
                         //Only Center print for player doing the killing spree
                         CP( va("cp \"%s\"", returnedString ) );

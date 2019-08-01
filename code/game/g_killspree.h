@@ -42,6 +42,7 @@ typedef struct killspree
     char                spreeMsg[ MAX_STRING_CHARS ];
     char                sound2Play[ MAX_STRING_CHARS ];
     int                 position;
+    int                 award; // award a killing spree award
 } killspree_t;
 
 
