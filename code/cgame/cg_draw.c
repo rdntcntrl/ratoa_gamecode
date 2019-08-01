@@ -2017,7 +2017,6 @@ static void CG_DrawStatusBar( void ) {
 static void CG_DrawHudDamageIndicator(void) {
 	int			t;
 	int			maxTime;
-	refEntity_t		ent;
 	float color[4] = { 1.0, 0.0, 0.0, 0.5 };
 	float x,y, w, h;
 	//float damageModifier;
