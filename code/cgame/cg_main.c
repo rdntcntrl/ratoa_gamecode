@@ -472,7 +472,7 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_drawSpeed3D, "cg_drawSpeed3D", "0", 0  },
 	{ &cg_drawCrosshair, "cg_drawCrosshair", "19", CVAR_ARCHIVE },
 	{ &cg_drawCrosshairNames, "cg_drawCrosshairNames", "1", CVAR_ARCHIVE },
-	{ &cg_drawRewards, "cg_drawRewards", "1", CVAR_ARCHIVE },
+	{ &cg_drawRewards, "cg_drawRewards", "1", CVAR_ARCHIVE|CVAR_LATCH },
 	{ &cg_crosshairSize, "cg_crosshairSize", "30", CVAR_ARCHIVE },
 	{ &cg_crosshairHealth, "cg_crosshairHealth", "1", CVAR_ARCHIVE },
 	{ &cg_crosshairX, "cg_crosshairX", "0", CVAR_ARCHIVE },

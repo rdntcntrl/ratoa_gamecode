@@ -58,6 +58,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define	SINK_TIME			1000		// time for fragments to sink into ground before going away
 #define	ATTACKER_HEAD_TIME	10000
 #define	REWARD_TIME		2000
+#define	REWARD2_TIME		3000
+#define	REWARD2_SOUNDDELAY	750
 
 #define	PULSE_SCALE			1.5			// amount to scale up the icons when activating
 
@@ -544,6 +546,9 @@ typedef struct {
 #define MAX_REWARDSTACK		10
 #define MAX_SOUNDBUFFER		30
 
+#define MAX_REWARDROW		10
+#define MAX_REWARDSOUNDBUFFER	10
+
 //======================================================================
 
 // all cg.stepTime, cg.duckTime, cg.landTime, etc are set to cg.time when the action
@@ -708,11 +713,23 @@ typedef struct {
 	qhandle_t	rewardShader[MAX_REWARDSTACK];
 	qhandle_t	rewardSound[MAX_REWARDSTACK];
 
+	// for new, faster reward display row
+	qhandle_t	reward2Shader[MAX_REWARDROW];
+	int		reward2RowTimes[MAX_REWARDROW];
+	int		reward2Count[MAX_REWARDROW];
+	int		reward2SoundDelay[MAX_REWARDROW];
+
 	// sound buffer mainly for announcer sounds
 	int			soundBufferIn;
 	int			soundBufferOut;
 	int			soundTime;
 	qhandle_t	soundBuffer[MAX_SOUNDBUFFER];
+
+	// sound buffer for reward sounds
+	int			rewardSoundBufferIn;
+	int			rewardSoundBufferOut;
+	int			rewardSoundTime;
+	qhandle_t		rewardSoundBuffer[MAX_REWARDSOUNDBUFFER];
 
 	// for voice chat buffer
 	int			voiceChatTime;
@@ -1845,6 +1862,7 @@ void CG_TestModelPrevSkin_f (void);
 void CG_ZoomDown_f( void );
 void CG_ZoomUp_f( void );
 void CG_AddBufferedSound( sfxHandle_t sfx);
+int CG_AddBufferedRewardSound( sfxHandle_t sfx );
 
 void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demoPlayback );
 
@@ -1931,6 +1949,7 @@ qboolean CG_YourTeamHasFlag( void );
 qboolean CG_OtherTeamHasFlag( void );
 qhandle_t CG_StatusHandle(int task);
 void CG_AddToGenericConsole( const char *str, console_t *console );
+int CG_Reward2Time(int idx);
 
 
 

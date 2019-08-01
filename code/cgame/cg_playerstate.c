@@ -276,11 +276,43 @@ void CG_CheckChangedPredictableEvents( playerState_t *ps ) {
 }
 
 void CG_PushReward(sfxHandle_t sfx, qhandle_t shader, int rewardCount) {
-	if (cg.rewardStack < (MAX_REWARDSTACK-1)) {
-		cg.rewardStack++;
-		cg.rewardSound[cg.rewardStack] = sfx;
-		cg.rewardShader[cg.rewardStack] = shader;
-		cg.rewardCount[cg.rewardStack] = rewardCount;
+	if (cg_drawRewards.integer == 2) {
+		if (cg.rewardStack < (MAX_REWARDSTACK-1)) {
+			cg.rewardStack++;
+			cg.rewardSound[cg.rewardStack] = sfx;
+			cg.rewardShader[cg.rewardStack] = shader;
+			cg.rewardCount[cg.rewardStack] = rewardCount;
+		}
+	} else {
+		int i = 0;
+		qboolean found = qfalse;
+		for (i = 0; i < MAX_REWARDROW; ++i) {
+			if (cg.reward2Shader[i] == shader 
+					&& (cg.reward2RowTimes[i] == -1 
+						|| (cg.reward2RowTimes[i] > 0 
+							&& cg.reward2RowTimes[i] + CG_Reward2Time(i) > cg.time)
+						)
+					) {
+				found = qtrue;
+				break;
+			}
+		}
+		if (!found) {
+			for (i = 0; i < MAX_REWARDROW; ++i) {
+				if (cg.reward2RowTimes[i] == -1 || (cg.reward2RowTimes[i] > 0 && cg.reward2RowTimes[i] + CG_Reward2Time(i) > cg.time)) {
+					continue;
+				}
+				found = qtrue;
+				break;
+			}
+		}
+		if (!found) {
+			return;
+		}
+		cg.reward2RowTimes[i] = -1;
+		cg.reward2Shader[i] = shader;
+		cg.reward2Count[i] = rewardCount;
+		cg.reward2SoundDelay[i] = CG_AddBufferedRewardSound(sfx);
 	}
 }
 

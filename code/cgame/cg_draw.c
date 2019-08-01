@@ -2884,21 +2884,68 @@ static void CG_DrawPersistantPowerup( void ) {
 #endif
 #endif // MISSIONPACK
 
+int CG_Reward2Time(int idx) {
+	return REWARD2_TIME + cg.reward2SoundDelay[idx] + 200;
+}
 
-/*
-===================
-CG_DrawReward
-===================
-*/
 static void CG_DrawReward( void ) { 
+	float	*color;
+	int	i;
+	int	x,xx, y;
+	char	buf[16];
+	int numMedals;
+	int skip;
+
+	skip = 0;
+	numMedals = 0;
+	for (i = 0; i < MAX_REWARDROW; ++i) {
+		if (cg.reward2RowTimes[i] == -1) {
+			cg.reward2RowTimes[i] = cg.time;
+		}
+		if (cg.reward2RowTimes[i] != 0 && cg.reward2RowTimes[i] + CG_Reward2Time(i) > cg.time) {
+			++numMedals;
+			// shift backwards over empty slots
+			if (skip) {
+				cg.reward2RowTimes[i-skip] = cg.reward2RowTimes[i];
+				cg.reward2Shader[i-skip] = cg.reward2Shader[i];
+				cg.reward2Count[i-skip] = cg.reward2Count[i];
+				cg.reward2SoundDelay[i-skip] = cg.reward2SoundDelay[i];
+
+				cg.reward2RowTimes[i] = 0;
+			}
+		} else {
+			skip++;
+		}
+	}
+
+
+	y = 56;
+	x = 320 - numMedals * ICON_SIZE/2;
+	for ( i = 0 ; i < numMedals ; ++i ) {
+	//for ( i = 0 ; i < MAX_REWARDROW ; ++i ) {
+		//if (cg.rewar2RowTimes[i] == 0 || cg.reward2RowTimes[i] + CG_Reward2Time(i) <= cg.time) {
+		//	continue;
+		//}
+		color = CG_FadeColor( cg.reward2RowTimes[i], CG_Reward2Time(i) );
+		trap_R_SetColor( color );
+
+		CG_DrawPic( x+2, y, ICON_SIZE-4, ICON_SIZE-4, cg.reward2Shader[i] );
+
+		Com_sprintf(buf, sizeof(buf), "%d", cg.reward2Count[i]);
+		xx = x + (ICON_SIZE - SMALLCHAR_WIDTH * CG_DrawStrlen(buf)) / 2;
+		CG_DrawStringExt( xx, y+ICON_SIZE, buf, color, qfalse, qtrue,
+								SMALLCHAR_WIDTH, SMALLCHAR_HEIGHT, 0 );
+		x += ICON_SIZE;
+	}
+
+	trap_R_SetColor( NULL );
+}
+
+static void CG_DrawReward2( void ) { 
 	float	*color;
 	int		i, count;
 	float	x, y;
 	char	buf[32];
-
-	if ( !cg_drawRewards.integer ) {
-		return;
-	}
 
 	color = CG_FadeColor( cg.rewardTime, REWARD_TIME );
 	if ( !color ) {
@@ -2943,7 +2990,7 @@ static void CG_DrawReward( void ) {
 	if ( cg.rewardCount[0] >= 10 ) {
 		y = 56;
 		x = 320 - ICON_SIZE/2;
-		CG_DrawPic( x, y, ICON_SIZE-4, ICON_SIZE-4, cg.rewardShader[0] );
+		CG_DrawPic( x+2, y, ICON_SIZE-4, ICON_SIZE-4, cg.rewardShader[0] );
 		Com_sprintf(buf, sizeof(buf), "%d", cg.rewardCount[0]);
 		x = ( SCREEN_WIDTH - SMALLCHAR_WIDTH * CG_DrawStrlen( buf ) ) / 2;
 		CG_DrawStringExt( x, y+ICON_SIZE, buf, color, qfalse, qtrue,
@@ -2956,7 +3003,7 @@ static void CG_DrawReward( void ) {
 		y = 56;
 		x = 320 - count * ICON_SIZE/2;
 		for ( i = 0 ; i < count ; i++ ) {
-			CG_DrawPic( x, y, ICON_SIZE-4, ICON_SIZE-4, cg.rewardShader[0] );
+			CG_DrawPic( x+2, y, ICON_SIZE-4, ICON_SIZE-4, cg.rewardShader[0] );
 			x += ICON_SIZE;
 		}
 	}
@@ -4567,7 +4614,13 @@ static void CG_Draw2D(stereoFrame_t stereoFrame)
 			CG_DrawPersistantPowerup();
 			#endif
 
-                        CG_DrawReward();
+			if (cg_drawRewards.integer) {
+				if (cg_drawRewards.integer == 2) {
+					CG_DrawReward2();
+				} else {
+					CG_DrawReward();
+				}
+			}
 		}
     
 	}
