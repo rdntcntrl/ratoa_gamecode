@@ -378,17 +378,7 @@ typedef struct {
 	int				guantletCount;
 	int				defendCount;
 	int				assistCount;
-	int				fragsawardCount;
-	int				accuracyCount;
-	int				telefragCount;
-	int				telemissilefragCount;
-	int				rocketsniperCount;
-	int				fullSGCount;
-	int				immortalityCount;
-	int				airrocketCount;
-	int				airgrenadeCount;
-	int				rocketrailCount;
-	int				lgrailCount;
+	int				eaward_counts[EAWARD_NUM_AWARDS];
 	int				captures;
 	int			flagrecovery;
 	qboolean	perfect;

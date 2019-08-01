@@ -329,21 +329,26 @@ static void CG_ParseRatScores3( void ) {
 	}
 	//memset( cg.scores, 0, sizeof( cg.scores ) );
 
-#define NUM_RAT3_DATA 11
+#define NUM_RAT3_DATA 16
 #define FIRST_RAT3_DATA 1
 
 	for ( i = 0 ; i < numScores ; i++ ) {
-		cg.scores_buf[i].fragsawardCount = atoi(CG_Argv(i * NUM_RAT3_DATA + FIRST_RAT3_DATA + 1));
-		cg.scores_buf[i].accuracyCount = atoi(CG_Argv(i * NUM_RAT3_DATA + FIRST_RAT3_DATA + 2));
-		cg.scores_buf[i].telefragCount = atoi(CG_Argv(i * NUM_RAT3_DATA + FIRST_RAT3_DATA + 3));
-		cg.scores_buf[i].telemissilefragCount = atoi(CG_Argv(i * NUM_RAT3_DATA + FIRST_RAT3_DATA + 4));
-		cg.scores_buf[i].rocketsniperCount = atoi(CG_Argv(i * NUM_RAT3_DATA + FIRST_RAT3_DATA + 5));
-		cg.scores_buf[i].fullSGCount = atoi(CG_Argv(i * NUM_RAT3_DATA + FIRST_RAT3_DATA + 6));
-		cg.scores_buf[i].immortalityCount = atoi(CG_Argv(i * NUM_RAT3_DATA + FIRST_RAT3_DATA + 7));
-		cg.scores_buf[i].airrocketCount = atoi(CG_Argv(i * NUM_RAT3_DATA + FIRST_RAT3_DATA + 8));
-		cg.scores_buf[i].airgrenadeCount = atoi(CG_Argv(i * NUM_RAT3_DATA + FIRST_RAT3_DATA + 9));
-		cg.scores_buf[i].rocketrailCount = atoi(CG_Argv(i * NUM_RAT3_DATA + FIRST_RAT3_DATA + 10));
-		cg.scores_buf[i].lgrailCount = atoi(CG_Argv(i * NUM_RAT3_DATA + FIRST_RAT3_DATA + 11));
+		cg.scores_buf[i].eaward_counts[EAWARD_FRAGS] = atoi(CG_Argv(i * NUM_RAT3_DATA + FIRST_RAT3_DATA + 1));
+		cg.scores_buf[i].eaward_counts[EAWARD_ACCURACY]= atoi(CG_Argv(i * NUM_RAT3_DATA + FIRST_RAT3_DATA + 2));
+		cg.scores_buf[i].eaward_counts[EAWARD_TELEFRAG] = atoi(CG_Argv(i * NUM_RAT3_DATA + FIRST_RAT3_DATA + 3));
+		cg.scores_buf[i].eaward_counts[EAWARD_TELEMISSILE_FRAG] = atoi(CG_Argv(i * NUM_RAT3_DATA + FIRST_RAT3_DATA + 4));
+		cg.scores_buf[i].eaward_counts[EAWARD_ROCKETSNIPER] = atoi(CG_Argv(i * NUM_RAT3_DATA + FIRST_RAT3_DATA + 5));
+		cg.scores_buf[i].eaward_counts[EAWARD_FULLSG] = atoi(CG_Argv(i * NUM_RAT3_DATA + FIRST_RAT3_DATA + 6));
+		cg.scores_buf[i].eaward_counts[EAWARD_IMMORTALITY] = atoi(CG_Argv(i * NUM_RAT3_DATA + FIRST_RAT3_DATA + 7));
+		cg.scores_buf[i].eaward_counts[EAWARD_AIRROCKET] = atoi(CG_Argv(i * NUM_RAT3_DATA + FIRST_RAT3_DATA + 8));
+		cg.scores_buf[i].eaward_counts[EAWARD_AIRGRENADE] = atoi(CG_Argv(i * NUM_RAT3_DATA + FIRST_RAT3_DATA + 9));
+		cg.scores_buf[i].eaward_counts[EAWARD_ROCKETRAIL] = atoi(CG_Argv(i * NUM_RAT3_DATA + FIRST_RAT3_DATA + 10));
+		cg.scores_buf[i].eaward_counts[EAWARD_LGRAIL] = atoi(CG_Argv(i * NUM_RAT3_DATA + FIRST_RAT3_DATA + 11));
+		cg.scores_buf[i].eaward_counts[EAWARD_RAILTWO] = atoi(CG_Argv(i * NUM_RAT3_DATA + FIRST_RAT3_DATA + 12));
+		cg.scores_buf[i].eaward_counts[EAWARD_REVENGE] = atoi(CG_Argv(i * NUM_RAT3_DATA + FIRST_RAT3_DATA + 13));
+		cg.scores_buf[i].eaward_counts[EAWARD_SHOWSTOPPER] = atoi(CG_Argv(i * NUM_RAT3_DATA + FIRST_RAT3_DATA + 14));
+		cg.scores_buf[i].eaward_counts[EAWARD_AMBUSH] = atoi(CG_Argv(i * NUM_RAT3_DATA + FIRST_RAT3_DATA + 15));
+		cg.scores_buf[i].eaward_counts[EAWARD_KAMIKAZE] = atoi(CG_Argv(i * NUM_RAT3_DATA + FIRST_RAT3_DATA + 16));
 	}
 
 	CG_CheckScoreUpdate();
