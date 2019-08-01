@@ -187,7 +187,7 @@ void Ratscores1Message( gentity_t *ent ) {
 	} else {
 		teamsLocked = level.FFALocked ? 1 : 0;
 	}
-	trap_SendServerCommand( ent-g_entities, va("%s %i %i %i %i %i %i%s", "ratscores1", send_statsboard ? 3 : 2, i, 
+	trap_SendServerCommand( ent-g_entities, va("%s %i %i %i %i %i %i%s", "ratscores1", send_statsboard ? 4 : 2, i, 
 		level.teamScores[TEAM_RED], level.teamScores[TEAM_BLUE], level.roundStartTime, teamsLocked,
 		string ) );
 }
@@ -280,11 +280,46 @@ void Ratscores3Message( gentity_t *ent ) {
 		string ) );
 }
 
+void Ratscores4Message( gentity_t *ent ) {
+	char		entry[2048];
+	char		string[4096];
+	int		stringlength;
+	int		i, j;
+	gclient_t	*cl;
+	int		numSorted;
+
+	string[0] = 0;
+	stringlength = 0;
+
+	numSorted = level.numConnectedClients;
+	
+	for (i=0 ; i < numSorted ; i++) {
+		cl = &level.clients[level.sortedClients[i]];
+
+		Com_sprintf (entry, sizeof(entry),
+				" %i %i",
+				cl->pers.awardCounts[EAWARD_STRONGMAN],
+				cl->pers.awardCounts[EAWARD_HERO]
+			    );
+
+		j = strlen(entry);
+		if (stringlength + j > 1024)
+			break;
+		strcpy (string + stringlength, entry);
+		stringlength += j;
+	}
+
+
+	trap_SendServerCommand( ent-g_entities, va("%s %i%s", "ratscores4", i, 
+		string ) );
+}
+
 void DeathmatchScoreboardMessageSplit( gentity_t *ent ) {
 	Ratscores1Message(ent);
 	Ratscores2Message(ent);
 	if (g_statsboard.integer && level.intermissiontime) {
 		Ratscores3Message(ent);
+		Ratscores4Message(ent);
 	}
 }
 
