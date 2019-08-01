@@ -211,6 +211,9 @@ void G_TimeShiftClient( gentity_t *ent, int time, qboolean debug, gentity_t *deb
 
 			// this will recalculate absmin and absmax
 			trap_LinkEntity( ent );
+
+			// some of the code needs to know that this entity was time shifted
+			ent->client->timeshiftTime = ent->client->history[j].leveltime;
 		} else {
 			// we wrapped, so grab the earliest
 			VectorCopy( ent->client->history[k].currentOrigin, ent->r.currentOrigin );
@@ -219,6 +222,9 @@ void G_TimeShiftClient( gentity_t *ent, int time, qboolean debug, gentity_t *deb
 
 			// this will recalculate absmin and absmax
 			trap_LinkEntity( ent );
+
+			// some of the code needs to know that this entity was time shifted
+			ent->client->timeshiftTime = ent->client->history[k].leveltime;
 		}
 	}
 	else {
@@ -314,6 +320,8 @@ void G_UnTimeShiftClient( gentity_t *ent ) {
 		// this will recalculate absmin and absmax
 		trap_LinkEntity( ent );
 	}
+
+	ent->client->timeshiftTime = 0;
 }
 
 

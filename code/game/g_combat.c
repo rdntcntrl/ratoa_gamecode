@@ -582,11 +582,25 @@ void G_CheckStrongmanAward(gentity_t *attacker, gentity_t *victim) {
 	}
 }
 
+void G_CheckAmbushAward(gentity_t *victim, gentity_t *inflictor, gentity_t *attacker, int meansOfDeath) {
+	if (!attacker || !attacker->client || attacker == victim) {
+		return;
+	}
+	// also makes sure the client wasn't moved back through the portal due to unlag
+	if ((((victim->client->timeshiftTime == 0 || victim->client->timeshiftTime > victim->client->lastTeleportTime) && 
+					(victim->client->lastTeleportTime + 800 >= level.time && attacker->client->lastTeleportTime + 1500 < level.time))
+				|| 
+				(victim->client->respawnTime + 800 >= level.time)
+			) && (!inflictor || !inflictor->missileTeleported)
+			&& meansOfDeath != MOD_TELEFRAG) {
+		AwardMessage(attacker, EAWARD_AMBUSH, ++(attacker->client->pers.awardCounts[EAWARD_AMBUSH]));
+	}
+}
+
 void G_CheckDeathEAwards(gentity_t *victim, gentity_t *inflictor, gentity_t *attacker, int meansOfDeath) {
 	if (!attacker || !attacker->client || attacker == victim) {
 		return;
 	}
-
 
 	if (victim->s.powerups & (
 			(1 << PW_QUAD) |
@@ -598,13 +612,6 @@ void G_CheckDeathEAwards(gentity_t *victim, gentity_t *inflictor, gentity_t *att
 		AwardMessage(attacker, EAWARD_SHOWSTOPPER, ++(attacker->client->pers.awardCounts[EAWARD_SHOWSTOPPER]));
 	}
 
-	if (((victim->client->lastTeleportTime + 800 >= level.time && attacker->client->lastTeleportTime + 1500 < level.time)
-				|| 
-				(victim->client->respawnTime + 800 >= level.time)
-			) && (!inflictor || !inflictor->missileTeleported)
-			&& meansOfDeath != MOD_TELEFRAG) {
-		AwardMessage(attacker, EAWARD_AMBUSH, ++(attacker->client->pers.awardCounts[EAWARD_AMBUSH]));
-	}
 
 	if (attacker->client->pers.lastDeathTime > 0 
 			&& attacker->client->pers.lastDeathTime + 10 * 1000 > level.time
@@ -679,6 +686,9 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 			self->client->pers.deaths += 1;
 		}
 	}
+
+	// needs to be checked before we untimeshift the victim
+    	G_CheckAmbushAward(self, inflictor, attacker, meansOfDeath);
 
 //unlagged - backward reconciliation #2
 	// make sure the body shows up in the client's current position
