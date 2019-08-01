@@ -598,6 +598,10 @@ void CG_DrawTeamBackground( int x, int y, int w, int h, float alpha, int team )
 }
 
 #ifndef MISSIONPACK
+
+#define	RAT_ICON_HEIGHT			20
+#define	RAT_CHAR_HEIGHT			24
+
 #define RATSTATUS_HEALTHX (320-RAT_CHAR_WIDTH*2-10)
 #define RATSTATUS_ARMORX  (320+RAT_CHAR_WIDTH*2+10)
 #define RATSTATUS_FLAGX_R   (RATSTATUS_ARMORX + ICON_SIZE + TEXT_ICON_SPACE + CHAR_WIDTH*3 + TEXT_ICON_SPACE)
@@ -611,6 +615,12 @@ static void CG_DrawRatStatusBar( void ) {
 	qhandle_t	icon_a;
 	qhandle_t	icon_h;
 	int team = TEAM_FREE;
+	float rat_char_width = CG_HeightToWidth((float)RAT_CHAR_HEIGHT*2.0/3.0);
+	float rat_icon_width = CG_HeightToWidth(RAT_ICON_HEIGHT);
+	float char_width = CG_HeightToWidth((float)CHAR_HEIGHT*2.0/3.0);
+	float healthx = 320.0 - rat_char_width*2 - rat_char_width*2.0/3.0;
+	float armorx = 320.0 + rat_char_width*2 + rat_char_width*2.0/3.0;
+	int flagteam = TEAM_NUM_TEAMS;
         
 
 	static float colors[4][4] = { 
@@ -635,16 +645,22 @@ static void CG_DrawRatStatusBar( void ) {
 
 
 	if (cg_ratStatusbar.integer == 2) {
-		flagx = RATSTATUS_FLAGX_R;
+		//flagx = armorx + CG_HeightToWidth(ICON_SIZE + TEXT_ICON_SPACE*2) + char_width*3;
+		
+		// adjust for lagometer
+		flagx = 640 - 16 - 48 - CG_HeightToWidth(ICON_SIZE);
 	} else {
-		flagx = RATSTATUS_FLAGX_L;
+		flagx = 32;
 	}
 	if( cg.predictedPlayerState.powerups[PW_REDFLAG] ) {
-		CG_DrawStatusBarFlag( flagx, TEAM_RED );
+		flagteam = TEAM_RED;
 	} else if( cg.predictedPlayerState.powerups[PW_BLUEFLAG] ) {
-		CG_DrawStatusBarFlag( flagx, TEAM_BLUE );
+		flagteam = TEAM_BLUE;
 	} else if( cg.predictedPlayerState.powerups[PW_NEUTRALFLAG] ) {
-		CG_DrawStatusBarFlag( flagx, TEAM_FREE );
+		flagteam = TEAM_FREE;
+	}
+	if (flagteam != TEAM_NUM_TEAMS) {
+		CG_DrawFlagModel( flagx, 480 - ICON_SIZE, CG_HeightToWidth(ICON_SIZE), ICON_SIZE, flagteam, qfalse );
 	}
 
 	//
@@ -667,14 +683,13 @@ static void CG_DrawRatStatusBar( void ) {
 			}
 			trap_R_SetColor( colors[color] );
 			
-			CG_DrawField (320, 454, 3, value, qtrue, RAT_CHAR_WIDTH, RAT_CHAR_HEIGHT);
+			CG_DrawField (320, 454, 3, value, qtrue, rat_char_width, RAT_CHAR_HEIGHT);
 			trap_R_SetColor( NULL );
 
 		}
 		icon = cg_weapons[ cg.predictedPlayerState.weapon ].weaponIcon;
 		if ( icon ) {
-			//CG_DrawPic( CHAR_WIDTH*3 + TEXT_ICON_SPACE, 432, ICON_SIZE, ICON_SIZE, icon );
-			CG_DrawPic( 320-RAT_ICON_SIZE/2, 432, RAT_ICON_SIZE, RAT_ICON_SIZE, icon );
+			CG_DrawPic( 320-rat_icon_width/2, 432, rat_icon_width, RAT_ICON_HEIGHT, icon );
 		}
 	}
 
@@ -706,8 +721,8 @@ static void CG_DrawRatStatusBar( void ) {
 		trap_R_SetColor( colors[1] );
 	}
 
-	CG_DrawField ( RATSTATUS_HEALTHX-ICON_SIZE-TEXT_ICON_SPACE-CHAR_WIDTH*3, 432, 3, value, qfalse, CHAR_WIDTH, CHAR_HEIGHT);
-	CG_DrawPic( RATSTATUS_HEALTHX-ICON_SIZE, 432, ICON_SIZE, ICON_SIZE, icon_h );
+	CG_DrawField ( healthx - CG_HeightToWidth(ICON_SIZE + TEXT_ICON_SPACE) - char_width*3, 432, 3, value, qfalse, char_width, CHAR_HEIGHT);
+	CG_DrawPic( healthx - CG_HeightToWidth(ICON_SIZE), 432, CG_HeightToWidth(ICON_SIZE), ICON_SIZE, icon_h );
 
 	//
 	// armor
@@ -719,11 +734,10 @@ static void CG_DrawRatStatusBar( void ) {
 		} else  {
 			trap_R_SetColor( colors[0] );
 		}
-		CG_DrawField (RATSTATUS_ARMORX+ICON_SIZE+TEXT_ICON_SPACE, 432, 3, value, qfalse, CHAR_WIDTH, CHAR_HEIGHT);
+		CG_DrawField (armorx + CG_HeightToWidth(ICON_SIZE+TEXT_ICON_SPACE), 432, 3, value, qfalse, char_width, CHAR_HEIGHT);
 		trap_R_SetColor( NULL );
 	}
-	//CG_DrawPic( 370 + CHAR_WIDTH*3 + TEXT_ICON_SPACE, 432, ICON_SIZE, ICON_SIZE, cgs.media.armorIcon );
-	CG_DrawPic( RATSTATUS_ARMORX, 432, ICON_SIZE, ICON_SIZE, icon_a );
+	CG_DrawPic( armorx, 432, CG_HeightToWidth(ICON_SIZE), ICON_SIZE, icon_a );
 }
 #endif
 /*
