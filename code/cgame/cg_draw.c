@@ -2913,7 +2913,10 @@ static void CG_DrawReward( void ) {
 			cg.rewardStack--;
 			color = CG_FadeColor( cg.rewardTime, REWARD_TIME );
 			
-			trap_S_StartLocalSound(cg.rewardSound[0], CHAN_ANNOUNCER);  
+			// some awards may not have sounds
+			if (cg.rewardSound[0]) {
+				trap_S_StartLocalSound(cg.rewardSound[0], CHAN_ANNOUNCER);  
+			}
 
 		} else {
 			return;
