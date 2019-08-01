@@ -5491,6 +5491,7 @@ static void CG_DrawEmptyIndicator( void ) {
 			|| ammo < 0
 			|| cg.predictedPlayerState.weaponstate == WEAPON_DROPPING
 			|| cg.predictedPlayerState.weaponstate == WEAPON_RAISING
+			|| cg.predictedPlayerState.pm_type == PM_DEAD
 			) {
 		return;
 	}
@@ -5527,7 +5528,9 @@ static void CG_DrawReloadIndicator( void ) {
 	vec4_t color;
 	int weapon = cg.predictedPlayerState.weapon;
 
-	if (!cg_reloadIndicator.integer) {
+	if (!cg_reloadIndicator.integer
+			|| cg.predictedPlayerState.pm_type == PM_DEAD
+			) {
 		return;
 	}
 
