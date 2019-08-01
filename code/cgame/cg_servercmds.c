@@ -686,43 +686,38 @@ static void CG_ParseAward( void ) {
 
 	switch (award) {
 		case EAWARD_FRAGS:
-			CG_PushReward(cgs.media.fragsSound, cgs.media.medalFrags, count);
+			CG_PushReward(cgs.media.fragsSound, cgs.media.eaward_medals[award], count);
 			break;
 		case EAWARD_ACCURACY:
-			CG_PushReward(cgs.media.accuracySound, cgs.media.medalAccuracy, count);
-			break;
-		case EAWARD_TELEFRAG:
-			CG_PushReward(cgs.media.humiliationSound, cgs.media.medalTelefrag, count);
-			break;
-		case EAWARD_TELEMISSILE_FRAG:
-			CG_PushReward(cgs.media.perfectSound, cgs.media.medalTelemissilefrag, count);
-			break;
 		case EAWARD_ROCKETSNIPER:
-			CG_PushReward(cgs.media.accuracySound, cgs.media.medalRocketsniper, count);
-			break;
 		case EAWARD_FULLSG:
-			CG_PushReward(cgs.media.accuracySound, cgs.media.medalFullSG, count);
-			break;
-		case EAWARD_IMMORTALITY:
-			CG_PushReward(cgs.media.holyCrapSound, cgs.media.medalImmortality, count);
-			break;
 		case EAWARD_AIRROCKET:
-			CG_PushReward(cgs.media.accuracySound, cgs.media.medalAirrocket, count);
-			break;
 		case EAWARD_AIRGRENADE:
-			CG_PushReward(cgs.media.accuracySound, cgs.media.medalAirgrenade, count);
+		case EAWARD_TWITCHRAIL:
+			CG_PushReward(cgs.media.accuracySound, cgs.media.eaward_medals[award], count);
 			break;
 		case EAWARD_ROCKETRAIL:
-			CG_PushReward(cgs.media.perfectSound, cgs.media.medalRocketRail, count);
-			break;
 		case EAWARD_LGRAIL:
-			CG_PushReward(cgs.media.perfectSound, cgs.media.medalLgRail, count);
-			break;
-		case EAWARD_RAILTWO:
-			CG_PushReward(cgs.media.accuracySound, cgs.media.medalRailtwo, count);
+		case EAWARD_TELEMISSILE_FRAG:
+			CG_PushReward(cgs.media.perfectSound, cgs.media.eaward_medals[award], count);
 			break;
 		case EAWARD_REVENGE:
-			CG_PushReward(cgs.media.perfectSound, cgs.media.medalRevenge, count);
+		case EAWARD_KAMIKAZE:
+		case EAWARD_RAT:
+		case EAWARD_AMBUSH:
+			CG_PushReward(cgs.media.excellentSound, cgs.media.eaward_medals[award], count);
+			break;
+		case EAWARD_TELEFRAG:
+			CG_PushReward(cgs.media.humiliationSound, cgs.media.eaward_medals[award], count);
+			break;
+		case EAWARD_IMMORTALITY:
+		case EAWARD_HERO:
+		case EAWARD_STRONGMAN:
+		case EAWARD_RAILTWO:
+			CG_PushReward(cgs.media.holyCrapSound, cgs.media.eaward_medals[award], count);
+			break;
+		case EAWARD_SHOWSTOPPER:
+			CG_PushReward(cgs.media.deniedSound, cgs.media.eaward_medals[award], count);
 			break;
 		default:
 			return;

@@ -1940,25 +1940,34 @@ static void CG_RegisterGraphics( void ) {
 
 
 	cgs.media.invulnerabilityPowerupModel = trap_R_RegisterModel( "models/powerups/shield/shield.md3" );
-	cgs.media.medalAccuracy = trap_R_RegisterShaderNoMip( "medal_accuracy" );
-	cgs.media.medalFrags = trap_R_RegisterShaderNoMip( "medal_frags" );
 	cgs.media.medalImpressive = trap_R_RegisterShaderNoMip( "medal_impressive" );
 	cgs.media.medalExcellent = trap_R_RegisterShaderNoMip( "medal_excellent" );
 	cgs.media.medalGauntlet = trap_R_RegisterShaderNoMip( "medal_gauntlet" );
 	cgs.media.medalDefend = trap_R_RegisterShaderNoMip( "medal_defend" );
 	cgs.media.medalAssist = trap_R_RegisterShaderNoMip( "medal_assist" );
 	cgs.media.medalCapture = trap_R_RegisterShaderNoMip( "medal_capture" );
-	cgs.media.medalTelefrag = trap_R_RegisterShaderNoMip( "medal_telefrag" );
-	cgs.media.medalTelemissilefrag = trap_R_RegisterShaderNoMip( "medal_telemissilefrag" );
-	cgs.media.medalRocketsniper = trap_R_RegisterShaderNoMip( "medal_rocketsniper" );
-	cgs.media.medalFullSG = trap_R_RegisterShaderNoMip( "medal_fullsg" );
-	cgs.media.medalImmortality = trap_R_RegisterShaderNoMip( "medal_immortality" );
-	cgs.media.medalAirrocket = trap_R_RegisterShaderNoMip( "medal_airrocket" );
-	cgs.media.medalAirgrenade = trap_R_RegisterShaderNoMip( "medal_airgrenade" );
-	cgs.media.medalRocketRail = trap_R_RegisterShaderNoMip( "medal_rocketrail" );
-	cgs.media.medalLgRail = trap_R_RegisterShaderNoMip( "medal_lgrail" );
-	cgs.media.medalRailtwo = trap_R_RegisterShaderNoMip( "medal_railtwo" );
-	cgs.media.medalRevenge = trap_R_RegisterShaderNoMip( "medal_revenge" );
+
+	cgs.media.eaward_medals[EAWARD_FRAGS] = trap_R_RegisterShaderNoMip( "medal_frags" );
+	cgs.media.eaward_medals[EAWARD_ACCURACY] = trap_R_RegisterShaderNoMip( "medal_accuracy" );
+	cgs.media.eaward_medals[EAWARD_TELEFRAG] = trap_R_RegisterShaderNoMip( "medal_telefrag" );
+	cgs.media.eaward_medals[EAWARD_TELEMISSILE_FRAG] = trap_R_RegisterShaderNoMip( "medal_telemissilefrag" );
+	cgs.media.eaward_medals[EAWARD_ROCKETSNIPER] = trap_R_RegisterShaderNoMip( "medal_rocketsniper" );
+	cgs.media.eaward_medals[EAWARD_FULLSG] = trap_R_RegisterShaderNoMip( "medal_fullsg" );
+	cgs.media.eaward_medals[EAWARD_IMMORTALITY] = trap_R_RegisterShaderNoMip( "medal_immortality" );
+	cgs.media.eaward_medals[EAWARD_AIRROCKET] = trap_R_RegisterShaderNoMip( "medal_airrocket" );
+	cgs.media.eaward_medals[EAWARD_AIRGRENADE] = trap_R_RegisterShaderNoMip( "medal_airgrenade" );
+	cgs.media.eaward_medals[EAWARD_ROCKETRAIL] = trap_R_RegisterShaderNoMip( "medal_rocketrail" );
+	cgs.media.eaward_medals[EAWARD_LGRAIL] = trap_R_RegisterShaderNoMip( "medal_lgrail" );
+	cgs.media.eaward_medals[EAWARD_RAILTWO] = trap_R_RegisterShaderNoMip( "medal_railtwo" );
+	cgs.media.eaward_medals[EAWARD_REVENGE] = trap_R_RegisterShaderNoMip( "medal_revenge" );
+	cgs.media.eaward_medals[EAWARD_TWITCHRAIL] = trap_R_RegisterShaderNoMip( "medal_twitchrail" );
+	cgs.media.eaward_medals[EAWARD_SHOWSTOPPER] = trap_R_RegisterShaderNoMip( "medal_showstopper" );
+	cgs.media.eaward_medals[EAWARD_AMBUSH] = trap_R_RegisterShaderNoMip( "medal_ambush" );
+	cgs.media.eaward_medals[EAWARD_KAMIKAZE] = trap_R_RegisterShaderNoMip( "medal_kamikaze" );
+	cgs.media.eaward_medals[EAWARD_STRONGMAN] = trap_R_RegisterShaderNoMip( "medal_strongman" );
+	cgs.media.eaward_medals[EAWARD_HERO] = trap_R_RegisterShaderNoMip( "medal_hero" );
+
+
 
 	// LEILEI SHADERS
 	cgs.media.lsmkShader1 = trap_R_RegisterShader("leismoke1" );

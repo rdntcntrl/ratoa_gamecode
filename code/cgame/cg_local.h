@@ -1049,25 +1049,14 @@ typedef struct {
 	qhandle_t	scoreboardTime;
 
 	// medals shown during gameplay
-	qhandle_t	medalAccuracy;
-	qhandle_t	medalFrags;
 	qhandle_t	medalImpressive;
 	qhandle_t	medalExcellent;
 	qhandle_t	medalGauntlet;
 	qhandle_t	medalDefend;
 	qhandle_t	medalAssist;
 	qhandle_t	medalCapture;
-	qhandle_t	medalTelefrag;
-	qhandle_t	medalTelemissilefrag;
-	qhandle_t	medalRocketsniper;
-	qhandle_t	medalFullSG;
-	qhandle_t	medalImmortality;
-	qhandle_t	medalAirrocket;
-	qhandle_t	medalAirgrenade;
-	qhandle_t	medalRocketRail;
-	qhandle_t	medalLgRail;
-	qhandle_t	medalRailtwo;
-	qhandle_t	medalRevenge;
+	// new extended medals
+	qhandle_t	eaward_medals[EAWARD_NUM_AWARDS];
 
 	// sounds
 	sfxHandle_t	quadSound;

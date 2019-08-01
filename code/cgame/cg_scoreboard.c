@@ -348,20 +348,25 @@ static void CG_RatDrawClientStats(int y, score_t *score, float *color, float fad
 	x = CG_RatDrawClientAward(y, x, score->captures, cgs.media.medalCapture);
 	x = CG_RatDrawClientAward(y, x, score->assistCount, cgs.media.medalAssist);
 	x = CG_RatDrawClientAward(y, x, score->defendCount, cgs.media.medalDefend);
-	x = CG_RatDrawClientAward(y, x, score->fragsawardCount, cgs.media.medalFrags);
+
+	x = CG_RatDrawClientAward(y, x, score->guantletCount, cgs.media.medalGauntlet);
+
+	//x = CG_RatDrawClientAward(y, x, score->multirailCount, cgs.media.eaward_medals[EAWARD_RAILTWO]);
+	x = CG_RatDrawClientAward(y, x, score->immortalityCount, cgs.media.eaward_medals[EAWARD_IMMORTALITY]);
+	x = CG_RatDrawClientAward(y, x, score->fragsawardCount, cgs.media.eaward_medals[EAWARD_FRAGS]);
+	x = CG_RatDrawClientAward(y, x, score->accuracyCount, cgs.media.eaward_medals[EAWARD_ACCURACY]);
+	x = CG_RatDrawClientAward(y, x, score->telefragCount, cgs.media.eaward_medals[EAWARD_TELEFRAG]);
+	x = CG_RatDrawClientAward(y, x, score->telemissilefragCount, cgs.media.eaward_medals[EAWARD_TELEMISSILE_FRAG]);
+	x = CG_RatDrawClientAward(y, x, score->rocketsniperCount, cgs.media.eaward_medals[EAWARD_ROCKETSNIPER]);
+	x = CG_RatDrawClientAward(y, x, score->rocketrailCount, cgs.media.eaward_medals[EAWARD_ROCKETRAIL]);
+	x = CG_RatDrawClientAward(y, x, score->lgrailCount, cgs.media.eaward_medals[EAWARD_LGRAIL]);
+	x = CG_RatDrawClientAward(y, x, score->airrocketCount, cgs.media.eaward_medals[EAWARD_AIRROCKET]);
+	x = CG_RatDrawClientAward(y, x, score->airgrenadeCount, cgs.media.eaward_medals[EAWARD_AIRGRENADE]);
+	x = CG_RatDrawClientAward(y, x, score->fullSGCount, cgs.media.eaward_medals[EAWARD_FULLSG]);
+	//x = CG_RatDrawClientAward(y, x, score->revengeCount, cgs.media.eaward_medals[EAWARD_REVENGE]);
+
 	x = CG_RatDrawClientAward(y, x, score->excellentCount, cgs.media.medalExcellent);
 	x = CG_RatDrawClientAward(y, x, score->impressiveCount, cgs.media.medalImpressive);
-	x = CG_RatDrawClientAward(y, x, score->guantletCount, cgs.media.medalGauntlet);
-	x = CG_RatDrawClientAward(y, x, score->accuracyCount, cgs.media.medalAccuracy);
-	x = CG_RatDrawClientAward(y, x, score->telefragCount, cgs.media.medalTelefrag);
-	x = CG_RatDrawClientAward(y, x, score->telemissilefragCount, cgs.media.medalTelemissilefrag);
-	x = CG_RatDrawClientAward(y, x, score->rocketsniperCount, cgs.media.medalRocketsniper);
-	x = CG_RatDrawClientAward(y, x, score->fullSGCount, cgs.media.medalFullSG);
-	x = CG_RatDrawClientAward(y, x, score->immortalityCount, cgs.media.medalImmortality);
-	x = CG_RatDrawClientAward(y, x, score->airrocketCount, cgs.media.medalAirrocket);
-	x = CG_RatDrawClientAward(y, x, score->airgrenadeCount, cgs.media.medalAirgrenade);
-	x = CG_RatDrawClientAward(y, x, score->rocketrailCount, cgs.media.medalRocketRail);
-	x = CG_RatDrawClientAward(y, x, score->lgrailCount, cgs.media.medalLgRail);
 
 }
 
