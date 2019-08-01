@@ -3639,14 +3639,14 @@ CG_DrawPowerups
 //#define DPW_ICON_SIZE 20
 
 #define DPW_MARGIN 1
-#define DPW_DECOR_WIDTH 52
+#define DPW_DECOR_WIDTH 58
 #define DPW_DECOR_HEIGHT (0.75*DPW_DECOR_WIDTH)
 #define DPW_CHAR_SIZE (DPW_DECOR_WIDTH*0.45)
 #define DPW_NUMBER_XOFFSET (0.672*DPW_DECOR_WIDTH)
 #define DPW_NUMBER_YOFFSET (0.084*DPW_DECOR_WIDTH)
 #define DPW_ICON_XOFFSET (0.319*DPW_DECOR_WIDTH)
 #define DPW_ICON_YOFFSET (0.418*DPW_DECOR_WIDTH)
-#define DPW_ICON_SIZE 23
+#define DPW_ICON_SIZE 27
 static float CG_DrawPowerups( float y ) {
 	int		sorted[MAX_POWERUPS];
 	int		sortedTime[MAX_POWERUPS];
@@ -3656,16 +3656,16 @@ static float CG_DrawPowerups( float y ) {
 	int		t;
 	gitem_t	*item;
 	float		decor_x = 0;
-	int		color;
 	float	size;
 	float	f;
 	float char_width, char_height;
 	float icon_sz;
 	float powerup_height;
-	static float colors[2][4] = { 
-    { 0.2f, 1.0f, 0.2f, 1.0f } , 
-    { 1.0f, 0.2f, 0.2f, 1.0f } 
-  };
+	static float colors[3][4] = { 
+		{ 1.0f, 1.0f, 1.0f, 1.0f } , 
+		{ 1.0f, 0.2f, 0.2f, 1.0f } ,
+		{ 1.0f, 0.071f, 0.1177f, 1.0f },
+	};
 
 	ps = &cg.snap->ps;
 
@@ -3727,11 +3727,9 @@ static float CG_DrawPowerups( float y ) {
 
 		if (item) {
 
-			color = 1;
 
 			y -= powerup_height;
 
-			trap_R_SetColor( colors[color] );
 			if (cg_ratStatusbar.integer == 4444) {
 				int numDigits, v;
 
@@ -3746,9 +3744,15 @@ static float CG_DrawPowerups( float y ) {
 				while (numDigits < 2 && (v /= 10)) {
 					numDigits++;
 				}
+				if (sortedTime[ i ] / 1000 <= 5) {
+					trap_R_SetColor( colors[2] );
+				} else {
+					trap_R_SetColor( colors[0] );
+				}
 				CG_DrawField( decor_x + CG_HeightToWidth(DPW_NUMBER_XOFFSET),
 					       	y + DPW_NUMBER_YOFFSET, numDigits, sortedTime[ i ] / 1000, qfalse, char_width, char_height);
 			} else {
+				trap_R_SetColor( colors[1] );
 				CG_DrawField( SCREEN_WIDTH - CG_HeightToWidth(icon_sz) - char_width * 2, y, 2, sortedTime[ i ] / 1000, qfalse, char_width, char_height);
 			}
 
