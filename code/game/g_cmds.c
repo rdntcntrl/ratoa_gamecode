@@ -297,9 +297,10 @@ void Ratscores4Message( gentity_t *ent ) {
 		cl = &level.clients[level.sortedClients[i]];
 
 		Com_sprintf (entry, sizeof(entry),
-				" %i %i",
+				" %i %i %i",
 				cl->pers.awardCounts[EAWARD_STRONGMAN],
-				cl->pers.awardCounts[EAWARD_HERO]
+				cl->pers.awardCounts[EAWARD_HERO],
+				cl->pers.awardCounts[EAWARD_BUTCHER]
 			    );
 
 		j = strlen(entry);

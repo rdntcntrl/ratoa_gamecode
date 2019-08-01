@@ -299,6 +299,8 @@ void GibEntity( gentity_t *self, int killer ) {
 	self->r.contents = 0;
 }
 
+#define BUTCHER_GIBCOUNT 25
+
 /*
 ==================
 body_die
@@ -311,6 +313,13 @@ void body_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int d
 	if ( !g_blood.integer ) {
 		self->health = GIB_HEALTH+1;
 		return;
+	}
+
+	if (meansOfDeath == MOD_GAUNTLET && attacker && attacker->client) {
+		if (++attacker->client->pers.gauntCorpseGibCount >= BUTCHER_GIBCOUNT) {
+			attacker->client->pers.gauntCorpseGibCount -= BUTCHER_GIBCOUNT;
+			AwardMessage(attacker, EAWARD_BUTCHER, ++(attacker->client->pers.awardCounts[EAWARD_BUTCHER]));
+		}
 	}
 
 	GibEntity( self, 0 );
