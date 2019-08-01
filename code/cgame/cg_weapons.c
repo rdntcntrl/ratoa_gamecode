@@ -2013,6 +2013,9 @@ void CG_DrawWeaponSelect( void ) {
 		case 12:
 			CG_DrawWeaponBar12(count,bits, color);
 			break;
+		case 13:
+			CG_DrawWeaponBar13(count,bits, color);
+			break;
 	}
 	trap_R_SetColor(NULL);
 	return;
@@ -3037,8 +3040,8 @@ void CG_DrawWeaponBar10(int count, int bits, float *color){
 	green[2] = 0;
 	green[3] = 1.0f;
 
-	if (cg_weaponBarStyle.integer == 11 && !cgs.media.weaponSelectShader) {
-		cgs.media.weaponSelectShader = trap_R_RegisterShaderNoMip("weapselect");
+	if (cg_weaponBarStyle.integer == 11 && !cgs.media.weaponSelectShader11) {
+		cgs.media.weaponSelectShader11 = trap_R_RegisterShaderNoMip("weapselect");
 	}
 
 	memcpy(bg, green, sizeof(bg));
@@ -3087,7 +3090,7 @@ void CG_DrawWeaponBar10(int count, int bits, float *color){
 		if ( i == weaponSelect) {
 			if (cg_weaponBarStyle.integer == 11) {
 				trap_R_SetColor(bg);
-				CG_DrawPic( x, y, boxwidth, 41, cgs.media.weaponSelectShader);
+				CG_DrawPic( x, y, boxwidth, 41, cgs.media.weaponSelectShader11);
 				trap_R_SetColor(NULL);
 			} else {
 				bg[3] = 0.25f;
@@ -3227,6 +3230,128 @@ void CG_DrawWeaponBar12(int count, int bits, float *color){
                 if(i==10)
                         i=0;
 	}
+}
+
+void CG_DrawWeaponBar13(int count, int bits, float *color){
+
+	int x,y;
+	int i;
+	int ammo;
+	int ammoSaved;
+	int max;
+	float br;
+	float w;
+	char *s;
+	float red[4];
+	float yellow[4];
+	float green[4];
+	float bg[4];
+	int weaponSelect = (cg.snap->ps.pm_flags & PMF_FOLLOW) ? 
+		cg.predictedPlayerState.weapon : cg.weaponSelect;
+	float boxheight = 41.0;
+	float boxwidthreal = boxheight*0.8;
+	float boxwidth = CG_HeightToWidth(boxwidthreal);
+	float boxshaderwidth = CG_HeightToWidth(boxheight);
+	float barindent = CG_HeightToWidth(4);
+	float barwidth = boxwidth-barindent*2;
+	float iconheight = 22.0;
+	float iconwidth = CG_HeightToWidth(iconheight);
+	float iconindent = (boxwidth-iconwidth)/2.0;
+	float bar_y;
+	float char_width = 7;
+	float char_height = 12;
+
+	y = 376;
+	x = 320 - count * boxwidth/2.0;
+
+	bar_y = y + boxheight + 1;
+	
+	red[0] = 1.0f;
+	red[1] = 0;
+	red[2] = 0;
+	red[3] = 1.0f;
+	
+	yellow[0] = 1.0f;
+	yellow[1] = 1.0f;
+	yellow[2] = 0;
+	yellow[3] = 1.0f;
+	
+	green[0] = 0;
+	green[1] = 1.0f;
+	green[2] = 0;
+	green[3] = 1.0f;
+
+	if (!cgs.media.weaponSelectShader13) {
+		cgs.media.weaponSelectShader13 = trap_R_RegisterShaderNoMip("weapselectRect2");
+	}
+
+	memcpy(bg, green, sizeof(bg));
+	
+	for ( i = 0 ; i < MAX_WEAPONS ; i++ ) {
+                //Sago: Do mad change of grapple placement:
+                if(i==10)
+                    continue;
+                if(i==0)
+                    i=10;
+		if ( !( bits & ( 1 << i ) ) ) {
+                    if(i==10)
+                        i=0;
+		    continue;
+		}
+		
+		if (cg_predictWeapons.integer) {
+			ammoSaved=cg.predictedPlayerState.ammo[i];
+		} else {
+			ammoSaved=cg.snap->ps.ammo[i];
+		}
+		ammo = ammoSaved;
+		
+		max = CG_FullAmmo(i);
+			
+		ammo = (ammo*100)/max;
+			
+		if(ammo >=100)
+			ammo=100;
+			
+		br=ammo * barwidth / 100;
+				
+		if(i!=WP_GAUNTLET && i!=WP_GRAPPLING_HOOK){
+			if(ammo <= 20) {
+				CG_FillRect( x+barindent, bar_y, br, 2, red);
+				memcpy(bg, red, sizeof(bg));
+			} else if(ammo <= 50) {
+				CG_FillRect( x+barindent, bar_y, br, 2, yellow);
+				memcpy(bg, yellow, sizeof(bg));
+			} else {
+				CG_FillRect( x+barindent, bar_y, br, 2, green);
+				memcpy(bg, green, sizeof(bg));
+			}
+		}
+			
+		if ( i == weaponSelect) {
+			trap_R_SetColor(bg);
+			CG_DrawPic( x - (boxshaderwidth - boxwidth)/2.0, y, boxshaderwidth, boxheight, cgs.media.weaponSelectShader13);
+			trap_R_SetColor(NULL);
+		}
+		CG_RegisterWeapon( i );	
+		CG_DrawPic( x+iconindent, y+3, iconwidth, iconheight, cg_weapons[i].weaponIcon );
+
+		if (!ammoSaved){
+			//CG_DrawPic( x, y, boxwidth, boxheight, cgs.media.noammoShader );
+			CG_DrawPic( x, y, CG_HeightToWidth(boxwidthreal-1), boxheight-1, cgs.media.noammoShader );
+		}	
+			
+		if(ammoSaved!=-1){
+			s = va("%i", ammoSaved );
+			w = CG_HeightToWidth(CG_DrawStrlen( s ) * char_width);
+			CG_DrawStringExtFloat(x + (boxwidth - w)/2.0, y+3+iconheight+2, s, color, qtrue, qfalse, CG_HeightToWidth(char_width), char_height, 0);
+		}
+			
+		x += boxwidth;
+                //Sago: Undo mad change of weapons
+                if(i==10)
+                        i=0;
+	}	
 }
 
 

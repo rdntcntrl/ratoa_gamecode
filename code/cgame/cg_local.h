@@ -876,7 +876,8 @@ typedef struct {
 	qhandle_t	armorIconRed;
 	qhandle_t	healthIconRed;
 
-	qhandle_t	weaponSelectShader;
+	qhandle_t	weaponSelectShader11;
+	qhandle_t	weaponSelectShader13;
 
 	qhandle_t	teamStatusBar;
 
@@ -2040,6 +2041,7 @@ void CG_DrawWeaponBar8(int count, int bits, float *color);
 void CG_DrawWeaponBar9(int count, int bits, float *color);
 void CG_DrawWeaponBar10(int count, int bits, float *color);
 void CG_DrawWeaponBar12(int count, int bits, float *color);
+void CG_DrawWeaponBar13(int count, int bits, float *color);
 
 void CG_OutOfAmmoChange( void );	// should this be in pmove?
 
