@@ -374,12 +374,13 @@ static void CG_ParseRatScores4( void ) {
 	}
 	//memset( cg.scores, 0, sizeof( cg.scores ) );
 
-#define NUM_RAT4_DATA 2
+#define NUM_RAT4_DATA 3
 #define FIRST_RAT4_DATA 1
 
 	for ( i = 0 ; i < numScores ; i++ ) {
 		cg.scores_buf[i].eaward_counts[EAWARD_STRONGMAN] = atoi(CG_Argv(i * NUM_RAT4_DATA + FIRST_RAT4_DATA + 1));
 		cg.scores_buf[i].eaward_counts[EAWARD_HERO]= atoi(CG_Argv(i * NUM_RAT4_DATA + FIRST_RAT4_DATA + 2));
+		cg.scores_buf[i].eaward_counts[EAWARD_BUTCHER]= atoi(CG_Argv(i * NUM_RAT4_DATA + FIRST_RAT4_DATA + 3));
 	}
 
 	CG_CheckScoreUpdate();
@@ -744,6 +745,7 @@ static void CG_ParseAward( void ) {
 			CG_PushReward(cgs.media.excellentSound, cgs.media.eaward_medals[award], count);
 			break;
 		case EAWARD_TELEFRAG:
+		case EAWARD_BUTCHER:
 			CG_PushReward(cgs.media.humiliationSound, cgs.media.eaward_medals[award], count);
 			break;
 		case EAWARD_IMMORTALITY:

@@ -1966,6 +1966,7 @@ static void CG_RegisterGraphics( void ) {
 	cgs.media.eaward_medals[EAWARD_KAMIKAZE] = trap_R_RegisterShaderNoMip( "medal_kamikaze" );
 	cgs.media.eaward_medals[EAWARD_STRONGMAN] = trap_R_RegisterShaderNoMip( "medal_strongman" );
 	cgs.media.eaward_medals[EAWARD_HERO] = trap_R_RegisterShaderNoMip( "medal_hero" );
+	cgs.media.eaward_medals[EAWARD_BUTCHER] = trap_R_RegisterShaderNoMip( "medal_butcher" );
 
 
 

@@ -360,6 +360,7 @@ static void CG_RatDrawClientStats(int y, score_t *score, float *color, float fad
 
 	x = CG_RatDrawClientAward(y, x, score->guantletCount, cgs.media.medalGauntlet);
 
+	x = CG_RatDrawClientAward(y, x, score->eaward_counts[EAWARD_BUTCHER], cgs.media.eaward_medals[EAWARD_BUTCHER]);
 	x = CG_RatDrawClientAward(y, x, score->eaward_counts[EAWARD_TELEFRAG], cgs.media.eaward_medals[EAWARD_TELEFRAG]);
 	x = CG_RatDrawClientAward(y, x, score->eaward_counts[EAWARD_TELEMISSILE_FRAG], cgs.media.eaward_medals[EAWARD_TELEMISSILE_FRAG]);
 	x = CG_RatDrawClientAward(y, x, score->eaward_counts[EAWARD_ROCKETSNIPER], cgs.media.eaward_medals[EAWARD_ROCKETSNIPER]);
