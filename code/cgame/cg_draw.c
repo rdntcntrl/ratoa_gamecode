@@ -1358,7 +1358,7 @@ CG_DrawEliminationTimer
 */
 static float CG_DrawEliminationTimer( float y ) {
 	char		*s;
-	int			w;
+	float			w;
 	int			mins, seconds, tens, sec;
 	int			msec;
 	vec4_t			color;
@@ -1443,8 +1443,8 @@ Lots of stuff
 	#else
                 
                     w = CG_DrawStrlen( st );
-                    CG_DrawStringExt( 320 - w * cw/2, 70, st, colorWhite,
-				qfalse, qtrue, cw, (int)(cw * 1.5), 0 );
+                    CG_DrawStringExt( 320 - CG_HeightToWidth(w * (float)cw/2.0), 70, st, colorWhite,
+				qfalse, qtrue, (int)CG_HeightToWidth(cw), (int)(cw * 1.5), 0 );
 	#endif
 	}
 /*
@@ -1462,9 +1462,9 @@ Lots of stuff
 		s = va( " %i:%i%i", mins, tens, seconds );
 	else
 		s = va( " Overtime");
-	w = CG_DrawStrlen( s ) * BIGCHAR_WIDTH;
+	w = CG_DrawStrlen( s ) * CG_HeightToWidth(BIGCHAR_WIDTH);
 	
-	CG_DrawBigStringColor( 635 - w, y + 2, s, color);
+	CG_DrawStringExt( 635 -w , y + 2, s, color, qtrue, qtrue, CG_HeightToWidth(BIGCHAR_WIDTH), BIGCHAR_HEIGHT, 0 );
 
 	return y + BIGCHAR_HEIGHT + 4;
 }
@@ -1476,10 +1476,10 @@ CG_DrawTreasureHuntTimer
 */
 static float CG_DrawTreasureHuntTimer( float y ) {
 	char		*s, *phase;
-	int			w;
+	float			w;
 	int			mins, seconds, sec;
 	int			msec = -1;
-	vec4_t			*color;
+	vec4_t			color;
 	const char	*st;
 	int cw;
 	int rst;
@@ -1488,7 +1488,7 @@ static float CG_DrawTreasureHuntTimer( float y ) {
 	rst = cgs.th_roundStart;
 
 	//default color is white
-	color = &g_color_table[ColorIndex(COLOR_WHITE)];
+	memcpy(color,g_color_table[ColorIndex(COLOR_WHITE)],sizeof(color));
 
 	if (rst == 0) {
 		return y;
@@ -1513,9 +1513,9 @@ static float CG_DrawTreasureHuntTimer( float y ) {
 		if (cgs.th_roundDuration > 0) {
 			msec = cgs.th_roundDuration*1000 - (cg.time - rst);
 			if(msec<=30*1000-1) //<= 30 seconds
-				color = &g_color_table[ColorIndex(COLOR_YELLOW)];
+				memcpy(color,g_color_table[ColorIndex(COLOR_YELLOW)],sizeof(color));
 			if(msec<=10*1000-1) //<= 10 seconds
-				color = &g_color_table[ColorIndex(COLOR_RED)];
+				memcpy(color,g_color_table[ColorIndex(COLOR_RED)],sizeof(color));
 			msec += 1000; //120-1 instead of 119-0
 		}
 	}
@@ -1523,7 +1523,7 @@ static float CG_DrawTreasureHuntTimer( float y ) {
 	{
 		//Warmup
 		msec = - cg.time + rst;
-		color = &g_color_table[ColorIndex(COLOR_GREEN)];
+		memcpy(color,g_color_table[ColorIndex(COLOR_GREEN)],sizeof(color));
 		sec = msec/1000;
 		msec += 1000; //5-1 instead of 4-0
 
@@ -1563,8 +1563,8 @@ static float CG_DrawTreasureHuntTimer( float y ) {
 
 
 			w = CG_DrawStrlen( st );
-			CG_DrawStringExt( 320 - w * cw/2, 70, st, colorWhite,
-					qfalse, qtrue, cw, (int)(cw * 1.5), 0 );
+			CG_DrawStringExt( 320 - CG_HeightToWidth(w * (float)cw/2.0), 70, st, colorWhite,
+					qfalse, qtrue, (int)CG_HeightToWidth(cw), (int)(cw * 1.5), 0 );
 		}
 	}
 
@@ -1577,9 +1577,9 @@ static float CG_DrawTreasureHuntTimer( float y ) {
 		s = va( "%.1s %i:%02i", phase, mins, seconds );
 	else
 		s = va( "%s", phase);
-	w = CG_DrawStrlen( s ) * BIGCHAR_WIDTH;
+	w = CG_DrawStrlen( s ) * CG_HeightToWidth(BIGCHAR_WIDTH);
 	
-	CG_DrawBigStringColor( 635 - w, y + 2, s, *color);
+	CG_DrawStringExt( 635 -w , y + 2, s, color, qtrue, qtrue, CG_HeightToWidth(BIGCHAR_WIDTH), BIGCHAR_HEIGHT, 0 );
 
 	return y + BIGCHAR_HEIGHT + 4;
 }
