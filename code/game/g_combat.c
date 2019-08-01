@@ -620,7 +620,7 @@ void G_CheckDeathEAwards(gentity_t *victim, gentity_t *inflictor, gentity_t *att
 		case MOD_BFG:
 		case MOD_BFG_SPLASH:
 			if (attacker->client->ps.pm_type == PM_DEAD && attacker->enemy == victim) {
-				AwardMessage(attacker, EAWARD_REVENGE, ++(attacker->client->pers.awardCounts[EAWARD_REVENGE]));
+				AwardMessage(attacker, EAWARD_DEADHAND, ++(attacker->client->pers.awardCounts[EAWARD_DEADHAND]));
 			}
 			if (!inflictor || !inflictor->missileTeleported) {
 				return;

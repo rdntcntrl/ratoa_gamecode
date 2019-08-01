@@ -262,7 +262,7 @@ void Ratscores3Message( gentity_t *ent ) {
 				cl->pers.awardCounts[EAWARD_ROCKETRAIL],
 				cl->pers.awardCounts[EAWARD_LGRAIL],
 				cl->pers.awardCounts[EAWARD_RAILTWO],
-				cl->pers.awardCounts[EAWARD_REVENGE],
+				cl->pers.awardCounts[EAWARD_DEADHAND],
 				cl->pers.awardCounts[EAWARD_SHOWSTOPPER],
 				cl->pers.awardCounts[EAWARD_AMBUSH],
 				cl->pers.awardCounts[EAWARD_KAMIKAZE]
@@ -297,7 +297,7 @@ void Ratscores4Message( gentity_t *ent ) {
 		cl = &level.clients[level.sortedClients[i]];
 
 		Com_sprintf (entry, sizeof(entry),
-				" %i %i %i %i %i %i %i %i",
+				" %i %i %i %i %i %i %i %i %i %i %i %i",
 				cl->pers.awardCounts[EAWARD_STRONGMAN],
 				cl->pers.awardCounts[EAWARD_HERO],
 				cl->pers.awardCounts[EAWARD_BUTCHER],
@@ -305,7 +305,11 @@ void Ratscores4Message( gentity_t *ent ) {
 				cl->pers.awardCounts[EAWARD_RAMPAGE],
 				cl->pers.awardCounts[EAWARD_MASSACRE],
 				cl->pers.awardCounts[EAWARD_UNSTOPPABLE],
-				cl->pers.awardCounts[EAWARD_GRIMREAPER]
+				cl->pers.awardCounts[EAWARD_GRIMREAPER],
+				cl->pers.awardCounts[EAWARD_REVENGE],
+				cl->pers.awardCounts[EAWARD_BERSERKER],
+				cl->pers.awardCounts[EAWARD_VAPORIZED],
+				cl->pers.awardCounts[EAWARD_TWITCHRAIL]
 			    );
 
 		j = strlen(entry);
