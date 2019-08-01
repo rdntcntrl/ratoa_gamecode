@@ -166,7 +166,7 @@ static void CG_CheckScoreUpdate(void) {
 	// TODO: switching pointers would be more efficient
 	memcpy( cg.scores, cg.scores_buf, sizeof(cg.scores));
 	cg.numScores = cg.numScores_buf;
-	cg.stats_available = (cg.received_ratscores == 3);
+	cg.stats_available = (cg.received_ratscores == 4);
 
 	CG_PurgeScoreBuf();
 }
@@ -183,7 +183,7 @@ static void CG_ParseRatScores1( void ) {
 
 	// defines whether we have to wait for stats as well (ratscores3)
 	cg.ratscores_expected = atoi( CG_Argv( 1 ) );
-	if (cg.ratscores_expected < 2 || cg.ratscores_expected > 3) {
+	if (cg.ratscores_expected != 2 && cg.ratscores_expected != 4) {
 		cg.ratscores_expected = 2;
 	}
 
@@ -349,6 +349,37 @@ static void CG_ParseRatScores3( void ) {
 		cg.scores_buf[i].eaward_counts[EAWARD_SHOWSTOPPER] = atoi(CG_Argv(i * NUM_RAT3_DATA + FIRST_RAT3_DATA + 14));
 		cg.scores_buf[i].eaward_counts[EAWARD_AMBUSH] = atoi(CG_Argv(i * NUM_RAT3_DATA + FIRST_RAT3_DATA + 15));
 		cg.scores_buf[i].eaward_counts[EAWARD_KAMIKAZE] = atoi(CG_Argv(i * NUM_RAT3_DATA + FIRST_RAT3_DATA + 16));
+	}
+
+	CG_CheckScoreUpdate();
+}
+
+static void CG_ParseRatScores4( void ) {
+	int		i;
+	int numScores;
+
+	if (cg.ratscores_expected < 4 || cg.received_ratscores >= 4) {
+		return;
+	}
+	cg.received_ratscores++;
+
+	numScores = atoi( CG_Argv( 1 ) );
+	if ( numScores > MAX_CLIENTS ) {
+		numScores = MAX_CLIENTS;
+	}
+
+	if (cg.numScores_buf != numScores) {
+		CG_PurgeScoreBuf();
+		return;
+	}
+	//memset( cg.scores, 0, sizeof( cg.scores ) );
+
+#define NUM_RAT4_DATA 2
+#define FIRST_RAT4_DATA 1
+
+	for ( i = 0 ; i < numScores ; i++ ) {
+		cg.scores_buf[i].eaward_counts[EAWARD_STRONGMAN] = atoi(CG_Argv(i * NUM_RAT4_DATA + FIRST_RAT4_DATA + 1));
+		cg.scores_buf[i].eaward_counts[EAWARD_HERO]= atoi(CG_Argv(i * NUM_RAT4_DATA + FIRST_RAT4_DATA + 2));
 	}
 
 	CG_CheckScoreUpdate();
@@ -1982,6 +2013,11 @@ static void CG_ServerCommand( void ) {
 
 	if ( !strcmp( cmd, "ratscores3" ) ) {
 		CG_ParseRatScores3();
+		return;
+	}
+
+	if ( !strcmp( cmd, "ratscores4" ) ) {
+		CG_ParseRatScores4();
 		return;
 	}
 

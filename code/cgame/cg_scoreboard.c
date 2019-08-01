@@ -345,16 +345,21 @@ static void CG_RatDrawClientStats(int y, score_t *score, float *color, float fad
 	}
 
 	x = RATSB2_AWARDS_X;
+	x = CG_RatDrawClientAward(y, x, score->eaward_counts[EAWARD_HERO], cgs.media.eaward_medals[EAWARD_HERO]);
+	x = CG_RatDrawClientAward(y, x, score->eaward_counts[EAWARD_STRONGMAN], cgs.media.eaward_medals[EAWARD_STRONGMAN]);
+
 	x = CG_RatDrawClientAward(y, x, score->captures, cgs.media.medalCapture);
 	x = CG_RatDrawClientAward(y, x, score->assistCount, cgs.media.medalAssist);
 	x = CG_RatDrawClientAward(y, x, score->defendCount, cgs.media.medalDefend);
 
-	x = CG_RatDrawClientAward(y, x, score->guantletCount, cgs.media.medalGauntlet);
 
 	x = CG_RatDrawClientAward(y, x, score->eaward_counts[EAWARD_RAILTWO], cgs.media.eaward_medals[EAWARD_RAILTWO]);
 	x = CG_RatDrawClientAward(y, x, score->eaward_counts[EAWARD_IMMORTALITY], cgs.media.eaward_medals[EAWARD_IMMORTALITY]);
 	x = CG_RatDrawClientAward(y, x, score->eaward_counts[EAWARD_FRAGS], cgs.media.eaward_medals[EAWARD_FRAGS]);
 	x = CG_RatDrawClientAward(y, x, score->eaward_counts[EAWARD_ACCURACY], cgs.media.eaward_medals[EAWARD_ACCURACY]);
+
+	x = CG_RatDrawClientAward(y, x, score->guantletCount, cgs.media.medalGauntlet);
+
 	x = CG_RatDrawClientAward(y, x, score->eaward_counts[EAWARD_TELEFRAG], cgs.media.eaward_medals[EAWARD_TELEFRAG]);
 	x = CG_RatDrawClientAward(y, x, score->eaward_counts[EAWARD_TELEMISSILE_FRAG], cgs.media.eaward_medals[EAWARD_TELEMISSILE_FRAG]);
 	x = CG_RatDrawClientAward(y, x, score->eaward_counts[EAWARD_ROCKETSNIPER], cgs.media.eaward_medals[EAWARD_ROCKETSNIPER]);
