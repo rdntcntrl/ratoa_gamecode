@@ -1144,10 +1144,11 @@ typedef struct {
 	sfxHandle_t assistSound;
 	sfxHandle_t defendSound;
 	sfxHandle_t perfectSound;
-	sfxHandle_t holyCrapSound;
 	sfxHandle_t firstImpressiveSound;
 	sfxHandle_t firstExcellentSound;
 	sfxHandle_t firstHumiliationSound;
+
+	sfxHandle_t eaward_sounds[EAWARD_NUM_AWARDS];
 
 	sfxHandle_t takenLeadSound;
 	sfxHandle_t tiedLeadSound;
@@ -1560,6 +1561,8 @@ extern vmCvar_t			cg_crosshairNamesHealth;
 extern vmCvar_t			cg_friendFloatHealth;
 extern vmCvar_t			cg_friendFloatHealthSize;
 extern vmCvar_t			cg_radar;
+extern vmCvar_t			cg_announcer;
+extern vmCvar_t			cg_announcerNewAwards;
 extern vmCvar_t			cg_soundBufferDelay;
 extern vmCvar_t			cg_powerupBlink;
 extern vmCvar_t			cg_quadStyle;

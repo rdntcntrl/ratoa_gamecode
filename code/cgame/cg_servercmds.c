@@ -723,39 +723,27 @@ static void CG_ParseAward( void ) {
 
 	switch (award) {
 		case EAWARD_FRAGS:
-			CG_PushReward(cgs.media.fragsSound, cgs.media.eaward_medals[award], count);
-			break;
 		case EAWARD_ACCURACY:
 		case EAWARD_ROCKETSNIPER:
 		case EAWARD_FULLSG:
 		case EAWARD_AIRROCKET:
 		case EAWARD_AIRGRENADE:
 		case EAWARD_TWITCHRAIL:
-			CG_PushReward(cgs.media.accuracySound, cgs.media.eaward_medals[award], count);
-			break;
 		case EAWARD_ROCKETRAIL:
 		case EAWARD_LGRAIL:
 		case EAWARD_TELEMISSILE_FRAG:
-			CG_PushReward(cgs.media.perfectSound, cgs.media.eaward_medals[award], count);
-			break;
 		case EAWARD_REVENGE:
 		case EAWARD_KAMIKAZE:
 		case EAWARD_RAT:
 		case EAWARD_AMBUSH:
-			CG_PushReward(cgs.media.excellentSound, cgs.media.eaward_medals[award], count);
-			break;
 		case EAWARD_TELEFRAG:
 		case EAWARD_BUTCHER:
-			CG_PushReward(cgs.media.humiliationSound, cgs.media.eaward_medals[award], count);
-			break;
 		case EAWARD_IMMORTALITY:
 		case EAWARD_HERO:
 		case EAWARD_STRONGMAN:
 		case EAWARD_RAILTWO:
-			CG_PushReward(cgs.media.holyCrapSound, cgs.media.eaward_medals[award], count);
-			break;
 		case EAWARD_SHOWSTOPPER:
-			CG_PushReward(cgs.media.deniedSound, cgs.media.eaward_medals[award], count);
+			CG_PushReward(cgs.media.eaward_sounds[award], cgs.media.eaward_medals[award], count);
 			break;
 		default:
 			return;

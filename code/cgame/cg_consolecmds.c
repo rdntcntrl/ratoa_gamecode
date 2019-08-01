@@ -142,7 +142,13 @@ void CG_Doc_f( void ) {
 		return;
 	}
 
+	if (len >= sizeof(buf)-1) {
+		CG_Printf("doc file too large\n");
+		return;
+	}
+
 	trap_FS_Read(buf, sizeof(buf)-1, f);
+	buf[len] = '\0';
 	trap_FS_FCloseFile(f);
 
 
