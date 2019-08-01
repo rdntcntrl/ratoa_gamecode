@@ -1704,11 +1704,11 @@ static void CG_RegisterSounds( void ) {
 		cgs.media.eaward_sounds[EAWARD_RAT] = trap_S_RegisterSound( va("sound/%sratmod/medals/rat.%s", announcer, format), qtrue);
 		cgs.media.eaward_sounds[EAWARD_BUTCHER] = trap_S_RegisterSound( va("sound/%sratmod/medals/butcher.%s", announcer, format), qtrue);
 
-		cgs.media.eaward_sounds[EAWARD_KILLINGSPREE] = trap_S_RegisterSound( va("sound/%sratmod/medals/killingspree.%s", announcer, format), qtrue);
+		cgs.media.eaward_sounds[EAWARD_KILLINGSPREE] = trap_S_RegisterSound( va("sound/%sratmod/medals/killing_spree.%s", announcer, format), qtrue);
 		cgs.media.eaward_sounds[EAWARD_RAMPAGE] = trap_S_RegisterSound( va("sound/%sratmod/medals/rampage.%s", announcer, format), qtrue);
-		cgs.media.eaward_sounds[EAWARD_MASSACRE] = trap_S_RegisterSound( va("sound/%sratmod/medals/massacre.%s", announcer, format), qtrue);
+		cgs.media.eaward_sounds[EAWARD_MASSACRE] = trap_S_RegisterSound( va("sound/%sratmod/medals/masacre.%s", announcer, format), qtrue);
 		cgs.media.eaward_sounds[EAWARD_UNSTOPPABLE] = trap_S_RegisterSound( va("sound/%sratmod/medals/unstoppable.%s", announcer, format), qtrue);
-		cgs.media.eaward_sounds[EAWARD_GRIMREAPER] = trap_S_RegisterSound( va("sound/%sratmod/medals/grimreaper.%s", announcer, format), qtrue);
+		cgs.media.eaward_sounds[EAWARD_GRIMREAPER] = trap_S_RegisterSound( va("sound/%sratmod/medals/grim_reaper.%s", announcer, format), qtrue);
 
 		cgs.media.eaward_sounds[EAWARD_BERSERKER] = trap_S_RegisterSound( va("sound/%sratmod/medals/berserker.%s", announcer, format), qtrue);
 		cgs.media.eaward_sounds[EAWARD_REVENGE] = trap_S_RegisterSound( va("sound/%sratmod/medals/revenge.%s", announcer, format), qtrue);
