@@ -619,7 +619,7 @@ void G_CheckDeathEAwards(gentity_t *victim, gentity_t *inflictor, gentity_t *att
 	// It's also true for 120dmg, which takes 600ms with plasma gun, but again at least 800ms with rockets
 	if (meansOfDeath == MOD_PLASMA 
 			&& attacker->client->lastDmgGivenEntityNum == victim->s.number 
-			&& attacker->client->totalPlasmaDmgOnTarget >= 140) {
+			&& attacker->client->totalPlasmaDmgOnTarget >= 120) {
 		AwardMessage(attacker, EAWARD_VAPORIZED, ++(attacker->client->pers.awardCounts[EAWARD_VAPORIZED]));
 	}
 
