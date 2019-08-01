@@ -201,15 +201,9 @@ void CG_Text_Paint(float x, float y, float scale, vec4_t color, const char *text
 
 #endif
 
-/*
-==============
-CG_DrawField
-
-Draws large numbers for status bar and powerups
-==============
-*/
 #ifndef MISSIONPACK
-static void CG_DrawField (int x, int y, int width, int value, qboolean centered, int char_width, int char_height) {
+
+static void CG_DrawFieldFloat (float x, float y, int width, int value, qboolean centered, float char_width, float char_height) {
 	char	num[16], *ptr;
 	int		l;
 	int		frame;
@@ -247,12 +241,12 @@ static void CG_DrawField (int x, int y, int width, int value, qboolean centered,
 	if (l > width)
 		l = width;
 	if (centered) {
-		x -= char_width*(l/2);
+		x -= char_width*(l/2.0);
 		if (l % 2 == 1) {
-			x -= char_width/2;
+			x -= char_width/2.0;
 		} 
 	} else {
-		x += 2 + char_width*(width - l);
+		x += char_width*(width - l);
 	}
 
 	ptr = num;
@@ -268,6 +262,16 @@ static void CG_DrawField (int x, int y, int width, int value, qboolean centered,
 		ptr++;
 		l--;
 	}
+}
+/*
+==============
+CG_DrawField
+
+Draws large numbers for status bar and powerups
+==============
+*/
+static void CG_DrawField (int x, int y, int width, int value, qboolean centered, int char_width, int char_height) {
+	CG_DrawFieldFloat(x, y, width, value, centered, char_width, char_height);
 }
 #endif // MISSIONPACK
 
@@ -734,6 +738,1102 @@ static void CG_DrawRatStatusBar( void ) {
 	}
 	CG_DrawPic( armorx, 432, CG_HeightToWidth(ICON_SIZE), ICON_SIZE, icon_a );
 }
+
+static vec4_t weaponColors[WP_NUM_WEAPONS] =
+	{
+	{ 1.0, 1.0, 1.0, 1.0 }, // WP_NONE
+	{ 0.0, 0.8, 1.0, 1.0 }, // WP_GAUNTLET,
+	{ 1.0, 1.0, 0.0, 1.0 }, // WP_MACHINEGUN,
+	{ 1.0, 0.4, 0.0, 1.0 }, // WP_SHOTGUN,
+	{ 0.0, 0.6, 0.0, 1.0 }, // WP_GRENADE_LAUNCHER,
+	{ 1.0, 0.0, 0.0, 1.0 }, // WP_ROCKET_LAUNCHER,
+	{ 1.0, 1.0, 0.6, 1.0 }, // WP_LIGHTNING,
+	{ 0.0, 1.0, 0.0, 1.0 }, // WP_RAILGUN,
+	{ 1.0, 0.0, 1.0, 1.0 }, // WP_PLASMAGUN,
+	{ 0.0, 0.4, 1.0, 1.0 }, // WP_BFG,
+	{ 0.4, 0.6, 0.0, 1.0 }, // WP_GRAPPLING_HOOK,
+	{ 1.0, 0.6, 0.6, 1.0 }, // WP_NAILGUN,
+	{ 1.0, 0.6, 0.4, 1.0 }, // WP_PROX_LAUNCHER,
+	{ 0.8, 0.8, 0.8, 1.0 }, // WP_CHAINGUN,
+	};
+
+static float *CG_GetWeaponColor(int weapon) {
+	if (weapon <= WP_NONE || weapon >= WP_NUM_WEAPONS) {
+		return weaponColors[0];
+	}
+	return weaponColors[weapon];
+}
+
+
+#define	DOTBAR_UNLIT_ALPHA		0.2
+//#define PULSEDELEMENT_PULSETIME		200
+#define PULSEDELEMENT_PULSETIME		250
+#define PULSEDELEMENT_CONTINUOUS_PERIOD	400
+#define PULSEDELEMENT_OVERLAY_ALPHA	0.25
+
+float CG_PulseFactor(int lastfilledtime) {
+	float f;
+	f = MAX(0,MIN(PULSEDELEMENT_PULSETIME, cg.time - lastfilledtime));
+
+	// starts at 0, ends at 0
+	f = sin(f/PULSEDELEMENT_PULSETIME * M_PI);
+	return f;
+}
+
+float CG_PulseFactorContinuous(int lastfilledtime) {
+	float f;
+	f = (float)(cg.time - lastfilledtime)/PULSEDELEMENT_CONTINUOUS_PERIOD;
+
+	f = sin(f * M_PI);
+	return f;
+}
+void CG_DrawPulsedElementOverlay(float x, float y, float w, float h,
+	       	qhandle_t shader, qhandle_t glowshader, qhandle_t additiveglowshader,
+	       	int lastfilledtime, qboolean continuousPulse, float *color) {
+	float f;
+
+	if (continuousPulse) {
+		f = CG_PulseFactorContinuous(lastfilledtime);
+	} else {
+		f = CG_PulseFactor(lastfilledtime);
+	}
+
+	if (f > 0.01) {
+		color[3] = f;
+		trap_R_SetColor(color);
+		CG_DrawPic( x, y, w, h, glowshader);
+	}
+	color[3] = 1.0;
+	trap_R_SetColor(color);
+	CG_DrawPic( x, y, w, h, additiveglowshader);
+	if (shader) {
+		color[3] = PULSEDELEMENT_OVERLAY_ALPHA;
+		trap_R_SetColor(color);
+		CG_DrawPic( x, y, w, h, shader);
+	}
+}
+
+static float CG_DrawDottedBar(float x, float y, dotbar_t *dotbar, int num_elements, float dotheight, float xspace, float yspace, int weapon, int value, int maxvalue) {
+	static float healthbarcolors[4][4] = { 
+		{ 1.0f, 1.0f, 1.0f, 1.0f },      // white
+		//{ 1.0f, 0.0f, 0.0f, 1.0f },     // red
+		{ 1.0f, 0.071f, 0.1177f, 1.0f },     // red
+		{ 0.138f, 0.812f, 1.0f, DOTBAR_UNLIT_ALPHA },     // health > 100, not lit
+		{ 0.0f, 0.8f, 1.0f, 1.0f } };   // health > 100
+		//{ 0.138f, 0.812f, 1.0f, 1.0f } };   // health > 100
+	float dotwidth = CG_HeightToWidth(dotheight);
+	int stepvalue = maxvalue/num_elements;
+	int i;
+	int v;
+	float xx, yy;
+	vec4_t color = { 1.0, 1.0, 1.0, 1.0 };
+
+	if (num_elements > DOTBAR_MAX_ELEMENTS) {
+		return 0;
+	}
+
+
+	if (weapon != WP_NONE) {
+		memcpy(color, CG_GetWeaponColor(weapon), sizeof(color));
+	}
+
+	xspace = CG_HeightToWidth(xspace);
+	xx = x;
+	yy = y;
+	v = 0;
+	for (i = 0; i < num_elements; ++i) {
+		v += stepvalue;
+		if ((value >= v && weapon == WP_NONE) || (weapon != WP_NONE && value > v - stepvalue)) {
+			// this element is active, because we have that much health/armor/ammo
+			if (weapon == WP_NONE) {
+				// this is a health/armor bar
+				if (v <= 100) {
+					memcpy(color, healthbarcolors[0], sizeof(color));
+				} else {
+					memcpy(color, healthbarcolors[3], sizeof(color));
+				}
+			} else {
+				// this is a weapon bar
+				color[3] = 1.0;
+			}
+
+			if (dotbar->filled[i] != DB_FILLED_FULL && dotbar->filled[i] != DB_FILLED_EMPTYGLOW) {
+				dotbar->lastFilledTimes[i] = cg.time;
+			}
+			CG_DrawPulsedElementOverlay(xx, yy,
+				       	dotwidth, dotheight,
+				       	cgs.media.bardot, cgs.media.bardot_transparentglow, cgs.media.bardot_additiveglow,
+				       	dotbar->lastFilledTimes[i],
+					qfalse,
+				       	color);
+
+			dotbar->filled[i] = DB_FILLED_FULL;
+
+			//color[3] = alpha;
+			//trap_R_SetColor(color);
+			//CG_DrawPic( xx, yy, dotwidth, dotheight, cgs.media.bardot );
+		} else {
+			// this element is empty
+			if (v <= 100 && weapon == WP_NONE) {
+				// element is lighting up to signify lack of health/armor
+				memcpy(color, healthbarcolors[1], sizeof(color));
+
+				if (dotbar->filled[i] != DB_FILLED_FULL && dotbar->filled[i] != DB_FILLED_EMPTYGLOW) {
+					dotbar->lastFilledTimes[i] = cg.time;
+				}
+				CG_DrawPulsedElementOverlay(xx, yy,
+						dotwidth, dotheight,
+						cgs.media.bardot, cgs.media.bardot_transparentglow, cgs.media.bardot_additiveglow,
+						dotbar->lastFilledTimes[i],
+						qfalse,
+					       	color);
+
+				dotbar->filled[i] = DB_FILLED_EMPTYGLOW;
+			} else {
+				// element is unlit
+				
+				if (weapon == WP_NONE) {
+					memcpy(color, healthbarcolors[2], sizeof(color));
+				} else {
+					color[3] = DOTBAR_UNLIT_ALPHA;
+				}
+				trap_R_SetColor(color);
+				CG_DrawPic( xx, yy, dotwidth, dotheight, cgs.media.bardot );
+				//CG_DrawPic( xx, yy, dotwidth, dotheight, cgs.media.bardot_outline );
+				dotbar->filled[i] = DB_FILLED_EMPTY;
+				dotbar->lastFilledTimes[i] = 0;
+			}
+		}
+		xx += xspace;
+		yy += yspace;
+	}
+	trap_R_SetColor(NULL);
+	if (yspace != 0) {
+		return yy;
+	} 
+	return xx;
+}
+
+void CG_ResetStatusbar(void) {
+	if (cg_ratStatusbar.integer) {
+		memset(&cg.healthbar, 0, sizeof(cg.healthbar));
+		memset(&cg.armorbar, 0, sizeof(cg.armorbar));
+		memset(&cg.weaponbar, 0, sizeof(cg.weaponbar));
+	}
+}
+
+#define	RSB4_BIGCHAR_HEIGHT		28
+#define	RSB4_BIGICON_HEIGHT		27
+
+#define	RSB4_WEAPICON_HEIGHT		16
+#define	RSB4_WEAPCHAR_HEIGHT		RSB4_WEAPICON_HEIGHT
+#define	RSB4_WEAPCHAR_YOFFSET		7
+
+#define RSB4_BAR_MARGIN			4
+#define RSB4_BOTTOM_MARGIN		2
+
+#define	RSB4_CENTER_SPACING		5
+#define RSB4_NUMBER_XOFFSET		12
+#define RSB4_NUMBER_YOFFSET		1
+
+#define RSB4_UNLIT_ALPHA		0.2
+#define RSB4_DECOR_ALPHA		0.5
+
+#define RSB4_HABAR_MAXVALUE		175
+// excludes the extra element (ring) at the end that lights up together with the last real element
+#define RSB4_HABAR_COUNTINGELEMENTS	7
+
+// height of the statusbar relative to the 640x480 virtual screen
+#define RSB4_HEIGHT			48.0
+#define RSB4_HABAR_HEIGHT		RSB4_HEIGHT
+
+/*
+ * These sizes and offsets all refer to pixel measurements in the original (1024x256) image of the health bar
+ */
+// THIS SHOULD BE THE HEIGHT OF THE STATUS HEALTH/ARMOR BAR IN THE DIMENSIONS OF THE ORIGINAL IMAGE(s)
+// It should correspond to RSB4_HABAR_HEIGHT, i.e. in the game,
+// RSB4_HABAR_ORIGHEIGHT pixels of the original image will be scaled to
+// RSB4_HABAR_HEIGHT pixels on the virtual 640x480 display
+#define RSB4_HABAR_ORIGHEIGHT		256
+
+// point in the original image where the actual content starts (bottom right corner)
+#define RSB4_HABAR_BASE_XOFFSET		955
+#define RSB4_HABAR_BASE_YOFFSET		222
+#define RSB4_HABAR_ICON_XOFFSET		167
+#define RSB4_HABAR_ICON_YOFFSET		126
+// how much the image content needs to be scaled to fit into the statusbar
+#define RSB4_HABAR_BASE_SCALE		1.13
+
+#define RSB4_WABAR_ICON_XOFFSET		152
+#define RSB4_WABAR_ICON_YOFFSET		623
+// bottom left corner
+#define RSB4_WABAR_BASE_XOFFSET 	20
+#define RSB4_WABAR_BASE_YOFFSET	 	704
+
+static const int habar_decor_xoffsets[RSB4_NUM_HA_BAR_DECOR_ELEMENTS] = {
+	904,
+	88,
+	140,
+};
+static const int habar_decor_yoffsets[RSB4_NUM_HA_BAR_DECOR_ELEMENTS] = {
+	0,
+	44,
+	147,
+};
+static const int habar_decor_widths[RSB4_NUM_HA_BAR_DECOR_ELEMENTS] = {
+	64,
+	128,
+	128,
+};
+static const int habar_decor_heights[RSB4_NUM_HA_BAR_DECOR_ELEMENTS] = {
+	256,
+	32,
+	64,
+};
+
+static const int habar_xoffsets[RSB4_NUM_HA_BAR_ELEMENTS] = {
+	791,
+	693,
+	595,
+	497,
+	399,
+	301,
+	203,
+	39,
+};
+static const int habar_yoffsets[RSB4_NUM_HA_BAR_ELEMENTS] = {
+	16,
+	16,
+	16,
+	16,
+	16,
+	16,
+	16,
+	0,
+};
+static const int habar_widths[RSB4_NUM_HA_BAR_ELEMENTS] = {
+	128,
+	128,
+	128,
+	128,
+	128,
+	128,
+	128,
+	256,
+};
+static const int habar_heights[RSB4_NUM_HA_BAR_ELEMENTS] = {
+	128,
+	128,
+	128,
+	128,
+	128,
+	128,
+	128,
+	256,
+};
+
+static const int wabar_decor_xoffsets[RSB4_NUM_W_BAR_DECOR_ELEMENTS] = {
+	128,
+	76,
+	66,
+};
+static const int wabar_decor_yoffsets[RSB4_NUM_W_BAR_DECOR_ELEMENTS] = {
+	549,
+	598,
+	286,
+};
+static const int wabar_decor_widths[RSB4_NUM_W_BAR_DECOR_ELEMENTS] = {
+	128,
+	32,
+	64,
+};
+static const int wabar_decor_heights[RSB4_NUM_W_BAR_DECOR_ELEMENTS] = {
+	256,
+	32,
+	256,
+};
+
+static const int wabar_xoffsets[RSB4_NUM_W_BAR_ELEMENTS] = {
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+};
+static const int wabar_yoffsets[RSB4_NUM_W_BAR_ELEMENTS] = {
+	622,
+	579,
+	536,
+	493,
+	450,
+	407,
+	364,
+	321,
+	278,
+	235,
+	500,
+};
+static const int wabar_widths[RSB4_NUM_W_BAR_ELEMENTS] = {
+	256,
+	128,
+	128,
+	128,
+	128,
+	128,
+	128,
+	128,
+	128,
+	128,
+	256,
+
+};
+static const int wabar_heights[RSB4_NUM_W_BAR_ELEMENTS] = {
+	128,
+	128,
+	128,
+	128,
+	128,
+	128,
+	128,
+	128,
+	128,
+	128,
+	256,
+};
+
+// Y scale relative to height
+float CG_HABarElementScaleY(int elem_height) {
+	return (float)elem_height/(float)RSB4_HABAR_ORIGHEIGHT * RSB4_HABAR_BASE_SCALE;
+}
+// X scale relative to height
+float CG_HABarElementScaleX(int elem_width) {
+	return (float)elem_width/(float)RSB4_HABAR_ORIGHEIGHT * RSB4_HABAR_BASE_SCALE;
+}
+// how much higher up to draw the image so that the edge is aligned with the desired Y coordinate
+float CG_HABarOffsetY(int elem_yoffset, float statusbarHeight) {
+	return (float)(RSB4_HABAR_BASE_YOFFSET - elem_yoffset)/(float)RSB4_HABAR_ORIGHEIGHT * statusbarHeight * RSB4_HABAR_BASE_SCALE;
+}
+// how much more to the right to draw the image so that the edge is aligned
+float CG_HABarOffsetX(int elem_xoffset, int elem_width, float statusbarHeight, qboolean isArmor) {
+	int dist_from_right = - (elem_xoffset - RSB4_HABAR_BASE_XOFFSET);
+	if (isArmor) {
+		dist_from_right -= elem_width;
+	}
+	return (float)(dist_from_right)/(float)RSB4_HABAR_ORIGHEIGHT * statusbarHeight * RSB4_HABAR_BASE_SCALE;
+}
+
+float CG_WABarOffsetY(int elem_yoffset, float statusbarHeight) {
+	return (float)(RSB4_WABAR_BASE_YOFFSET - elem_yoffset)/(float)RSB4_HABAR_ORIGHEIGHT * statusbarHeight * RSB4_HABAR_BASE_SCALE;
+}
+float CG_WABarOffsetX(int elem_xoffset, float statusbarHeight) {
+	int dist_from_left =  elem_xoffset - RSB4_WABAR_BASE_XOFFSET;
+	return (float)(dist_from_left)/(float)RSB4_HABAR_ORIGHEIGHT * statusbarHeight * RSB4_HABAR_BASE_SCALE;
+}
+
+static void CG_DrawHABarDecor(float x, float y, float barheight, qboolean isArmor) {
+	float w;
+	float h;
+	float xx;
+	float yy;
+	int i;
+	qhandle_t *shaders;
+	float color[4] = { 1.0f, 1.0, 1.0f, RSB4_DECOR_ALPHA };
+
+	trap_R_SetColor(color);
+
+	if (isArmor) {
+		shaders = cgs.media.rsb4_armor_decorShaders;
+	} else {
+		shaders = cgs.media.rsb4_health_decorShaders;
+	}
+
+	xx = x;
+	for (i = 0; i < RSB4_NUM_HA_BAR_DECOR_ELEMENTS; ++i) {
+		h = barheight * CG_HABarElementScaleY(habar_decor_heights[i]);
+		w = CG_HeightToWidth(barheight * CG_HABarElementScaleX(habar_decor_widths[i]));
+
+		yy = y - CG_HABarOffsetY(habar_decor_yoffsets[i], barheight);
+
+		if (isArmor) {
+			xx = x + CG_HeightToWidth(CG_HABarOffsetX(habar_decor_xoffsets[i], habar_decor_widths[i], barheight, isArmor));
+		} else {
+			xx = x - CG_HeightToWidth(CG_HABarOffsetX(habar_decor_xoffsets[i], habar_decor_widths[i], barheight, isArmor));
+		}
+		CG_DrawPic( xx, yy, w, h, shaders[i]);
+	}
+	trap_R_SetColor(NULL);
+}
+
+static void CG_DrawHABar(float x, float y, dotbar_t *dotbar, float barheight, int value, qboolean isArmor) {
+	static float healthbarcolors[4][4] = { 
+		{ 1.0f, 1.0f, 1.0f, 1.0f },      // white
+		//{ 1.0f, 0.0f, 0.0f, 1.0f },     // red
+		{ 1.0f, 0.071f, 0.1177f, 1.0f },     // red
+		{ 0.138f, 0.812f, 1.0f, RSB4_UNLIT_ALPHA },     // health > 100, not lit
+		{ 0.0f, 0.8f, 1.0f, 1.0f } };   // health > 100
+		//{ 0.138f, 0.812f, 1.0f, 1.0f } };   // health > 100
+	float w;
+	float h;
+	float xx;
+	float yy;
+	int i;
+	int v;
+	vec4_t color = { 1.0, 1.0, 1.0, 1.0 };
+	qhandle_t *shaders;
+	qhandle_t *glowShaders;
+	qhandle_t *additiveGlowShaders;
+
+	if (isArmor) {
+		shaders = cgs.media.rsb4_armor_shaders;
+		glowShaders = cgs.media.rsb4_armor_glowShaders;
+		additiveGlowShaders = cgs.media.rsb4_armor_additiveGlowShaders;
+	} else {
+		shaders = cgs.media.rsb4_health_shaders;
+		glowShaders = cgs.media.rsb4_health_glowShaders;
+		additiveGlowShaders = cgs.media.rsb4_health_additiveGlowShaders;
+	}
+
+	xx = x;
+	v = 0;
+	for (i = 0; i < RSB4_NUM_HA_BAR_ELEMENTS; ++i) {
+		v += (RSB4_HABAR_MAXVALUE/RSB4_HABAR_COUNTINGELEMENTS);
+
+		h = barheight * CG_HABarElementScaleY(habar_heights[i]);
+		w = CG_HeightToWidth(barheight * CG_HABarElementScaleX(habar_widths[i]));
+
+		yy = y - CG_HABarOffsetY(habar_yoffsets[i], barheight);
+
+		if (isArmor) {
+			xx = x + CG_HeightToWidth(CG_HABarOffsetX(habar_xoffsets[i], habar_widths[i], barheight, isArmor));
+		} else {
+			xx = x - CG_HeightToWidth(CG_HABarOffsetX(habar_xoffsets[i], habar_widths[i], barheight, isArmor));
+		}
+
+		if (value >= v || value >= RSB4_HABAR_MAXVALUE) {
+			// this element is active, because we have that much health/armor/ammo
+			if (v <= 100) {
+				memcpy(color, healthbarcolors[0], sizeof(color));
+			} else {
+				memcpy(color, healthbarcolors[3], sizeof(color));
+			}
+
+			if (dotbar->filled[i] != DB_FILLED_FULL && dotbar->filled[i] != DB_FILLED_EMPTYGLOW) {
+				dotbar->lastFilledTimes[i] = cg.time;
+			}
+			CG_DrawPulsedElementOverlay(xx, yy,
+					w, h,
+					shaders[i], glowShaders[i], additiveGlowShaders[i],
+					dotbar->lastFilledTimes[i],
+					qfalse,
+				       	color);
+
+			dotbar->filled[i] = DB_FILLED_FULL;
+
+		} else {
+			// this element is empty
+			if (v <= 100) {
+				// element is lighting up to signify lack of health/armor
+				memcpy(color, healthbarcolors[1], sizeof(color));
+
+				if (dotbar->filled[i] != DB_FILLED_FULL && dotbar->filled[i] != DB_FILLED_EMPTYGLOW) {
+					dotbar->lastFilledTimes[i] = cg.time;
+				}
+				CG_DrawPulsedElementOverlay(xx, yy,
+						w, h,
+						shaders[i], glowShaders[i], additiveGlowShaders[i],
+						dotbar->lastFilledTimes[i],
+						qfalse,
+					       	color);
+
+				dotbar->filled[i] = DB_FILLED_EMPTYGLOW;
+			} else {
+				// element is unlit
+
+				memcpy(color, healthbarcolors[2], sizeof(color));
+				trap_R_SetColor(color);
+				CG_DrawPic( xx, yy, w, h, shaders[i] );
+				dotbar->filled[i] = DB_FILLED_EMPTY;
+				dotbar->lastFilledTimes[i] = 0;
+			}
+		}
+	}
+	trap_R_SetColor(NULL);
+}
+
+static float CG_DrawWABarDecor(float x, float y, float barheight) {
+	float w;
+	float h;
+	float xx;
+	float yy;
+	int i;
+	float max_x = 0.0;
+	float color[4] = { 1.0f, 1.0, 1.0f, RSB4_DECOR_ALPHA };
+
+	trap_R_SetColor(color);
+
+	xx = x;
+	for (i = 0; i < RSB4_NUM_W_BAR_DECOR_ELEMENTS; ++i) {
+		h = barheight * CG_HABarElementScaleY(wabar_decor_heights[i]);
+		w = CG_HeightToWidth(barheight * CG_HABarElementScaleX(wabar_decor_widths[i]));
+
+		yy = y - CG_WABarOffsetY(wabar_decor_yoffsets[i], barheight);
+
+		xx = x + CG_HeightToWidth(CG_WABarOffsetX(wabar_decor_xoffsets[i], barheight));
+		CG_DrawPic( xx, yy, w, h, cgs.media.rsb4_weapon_decorShaders[i]);
+
+		if (xx + w > max_x) {
+			max_x = xx + w;
+		}
+	}
+	trap_R_SetColor(NULL);
+	return max_x;
+}
+
+static qboolean CG_AmmoLow(int weapon, int ammo) {
+	return MIN(100, (ammo*100)/CG_FullAmmo(weapon)) <= 20;
+}
+
+// excludes the extra element (ring) at the end that lights up together with the last real element
+#define RSB4_WABAR_COUNTINGELEMENTS	10
+static void CG_DrawWeaponAmmoBar(float x, float y, dotbar_t *dotbar, float barheight, int weapon, int value, int maxvalue) {
+	float w;
+	float h;
+	float xx;
+	float yy;
+	int i;
+	int v;
+	int stepvalue = maxvalue/RSB4_WABAR_COUNTINGELEMENTS;
+	vec4_t color = { 1.0, 1.0, 1.0, 1.0 };
+
+	if (weapon != WP_NONE) {
+		memcpy(color, CG_GetWeaponColor(weapon), sizeof(color));
+	}
+
+	xx = x;
+	v = 0;
+	for (i = 0; i < RSB4_NUM_W_BAR_ELEMENTS; ++i) {
+		h = barheight * CG_HABarElementScaleY(wabar_heights[i]);
+		w = CG_HeightToWidth(barheight * CG_HABarElementScaleX(wabar_widths[i]));
+
+		yy = y - CG_WABarOffsetY(wabar_yoffsets[i], barheight);
+
+		xx = x + CG_HeightToWidth(CG_WABarOffsetX(wabar_xoffsets[i], barheight));
+
+		// ring only lights up with full ammo
+		//if (value > v || value >= maxvalue) {
+		// ring lights up as long as ammo > 0
+		if (value > v || (i >= RSB4_WABAR_COUNTINGELEMENTS && value > 0)) {
+			// this element is active, because we have that much ammo
+			if (dotbar->filled[i] != DB_FILLED_FULL && dotbar->filled[i] != DB_FILLED_EMPTYGLOW) {
+				dotbar->lastFilledTimes[i] = cg.time;
+			}
+			CG_DrawPulsedElementOverlay(xx, yy,
+					w, h,
+					cgs.media.rsb4_weapon_shaders[i],
+					cgs.media.rsb4_weapon_glowShaders[i],
+				       	cgs.media.rsb4_weapon_additiveGlowShaders[i],
+					dotbar->lastFilledTimes[i],
+					CG_AmmoLow(weapon, value),
+				       	color);
+
+			dotbar->filled[i] = DB_FILLED_FULL;
+
+		} else {
+			// element is unlit
+
+			color[3] = RSB4_UNLIT_ALPHA;
+			trap_R_SetColor(color);
+			CG_DrawPic( xx, yy, w, h, cgs.media.rsb4_weapon_shaders[i] );
+			dotbar->filled[i] = DB_FILLED_EMPTY;
+			dotbar->lastFilledTimes[i] = 0;
+		}
+		v += stepvalue;
+	}
+	trap_R_SetColor(NULL);
+}
+
+void CG_Ratstatusbar4RegisterShaders(void) {
+	int i;
+	for (i = 0; i < RSB4_NUM_HA_BAR_ELEMENTS; ++i) {
+		if (i > 0 && i <= 2) {
+			// some of these elements are identical, so just use the same shader
+			cgs.media.rsb4_health_shaders[i] = cgs.media.rsb4_health_shaders[i-1];
+			cgs.media.rsb4_health_glowShaders[i] = cgs.media.rsb4_health_glowShaders[i-1];
+			cgs.media.rsb4_health_additiveGlowShaders[i] = cgs.media.rsb4_health_additiveGlowShaders[i-1];
+
+			cgs.media.rsb4_armor_shaders[i] = cgs.media.rsb4_armor_shaders[i-1];
+			cgs.media.rsb4_armor_glowShaders[i] = cgs.media.rsb4_armor_glowShaders[i-1];
+			cgs.media.rsb4_armor_additiveGlowShaders[i] = cgs.media.rsb4_armor_additiveGlowShaders[i-1];
+		} else {
+			cgs.media.rsb4_health_shaders[i] = trap_R_RegisterShader(va("rsb_health_e%i", i+1));
+			cgs.media.rsb4_health_glowShaders[i] = trap_R_RegisterShader(va("rsb_health_e%i_glow", i+1));
+			cgs.media.rsb4_health_additiveGlowShaders[i] = trap_R_RegisterShader(va("rsb_health_e%i_glow_additive", i+1));
+
+			cgs.media.rsb4_armor_shaders[i] = trap_R_RegisterShader(va("rsb_armor_e%i", i+1));
+			cgs.media.rsb4_armor_glowShaders[i] = trap_R_RegisterShader(va("rsb_armor_e%i_glow", i+1));
+			cgs.media.rsb4_armor_additiveGlowShaders[i] = trap_R_RegisterShader(va("rsb_armor_e%i_glow_additive", i+1));
+		}
+	}
+
+	for (i = 0; i < RSB4_NUM_HA_BAR_DECOR_ELEMENTS; ++i) {
+		cgs.media.rsb4_health_decorShaders[i] = trap_R_RegisterShader(va("rsb_health_decor%i", i+1));
+		cgs.media.rsb4_armor_decorShaders[i] = trap_R_RegisterShader(va("rsb_armor_decor%i", i+1));
+	}
+
+	for (i = 0; i < RSB4_NUM_W_BAR_ELEMENTS; ++i) {
+		if (i > 3 && i <= 9) {
+			// some of these elements are identical, so just use the same shader
+			cgs.media.rsb4_weapon_shaders[i] = cgs.media.rsb4_weapon_shaders[i-1];
+			cgs.media.rsb4_weapon_glowShaders[i] = cgs.media.rsb4_weapon_glowShaders[i-1];
+			cgs.media.rsb4_weapon_additiveGlowShaders[i] = cgs.media.rsb4_weapon_additiveGlowShaders[i-1];
+		} else {
+			cgs.media.rsb4_weapon_shaders[i] = trap_R_RegisterShader(va("rsb_weapon_e%i", i+1));
+			cgs.media.rsb4_weapon_glowShaders[i] = trap_R_RegisterShader(va("rsb_weapon_e%i_glow", i+1));
+			cgs.media.rsb4_weapon_additiveGlowShaders[i] = trap_R_RegisterShader(va("rsb_weapon_e%i_glow_additive", i+1));
+		}
+	}
+
+	for (i = 0; i < RSB4_NUM_W_BAR_DECOR_ELEMENTS; ++i) {
+		cgs.media.rsb4_weapon_decorShaders[i] = trap_R_RegisterShader(va("rsb_weapon_decor%i", i+1));
+	}
+}
+
+static void CG_DrawRatStatusBar4( void ) {
+	float x;
+	float y;
+	playerState_t	*ps;
+	int			value;
+	int k;
+	int numDigits;
+	qhandle_t	icon_a;
+	qhandle_t	icon_h;
+	int team = TEAM_FREE;
+	float bigchar_width = CG_HeightToWidth(RSB4_BIGCHAR_HEIGHT);
+	float weaponchar_width = CG_HeightToWidth(RSB4_WEAPCHAR_HEIGHT);
+	int flagteam = TEAM_NUM_TEAMS;
+	int weaponSelect = (cg.snap->ps.pm_flags & PMF_FOLLOW) ? 
+		cg.predictedPlayerState.weapon : cg.weaponSelect;
+	float flag_x = RSB4_BAR_MARGIN;
+
+	static float colors[2][4] = { 
+		{ 1.0f, 1.0f, 1.0f, 1.0f },    // normal
+		{ 1.0f, 0.071f, 0.1177f, 1.0f },     // low health/armor
+	};
+
+	if ( cg_drawStatus.integer == 0 ) {
+		return;
+	}
+
+	if (!cgs.media.rsb4_health_shaders[0]) {
+		CG_Ratstatusbar4RegisterShaders();
+	}
+
+
+	ps = &cg.snap->ps;
+
+
+	//////
+	////// ammo
+	//
+	if ( weaponSelect && weaponSelect > WP_NONE && weaponSelect < WP_NUM_WEAPONS) {
+		qhandle_t weapicon;
+
+		if (cg_predictWeapons.integer) {
+			value=cg.predictedPlayerState.ammo[weaponSelect];
+		} else {
+			value=cg.snap->ps.ammo[weaponSelect];
+		}
+
+		x = RSB4_BAR_MARGIN;
+		y = SCREEN_HEIGHT - RSB4_BAR_MARGIN;
+
+		flag_x = CG_DrawWABarDecor(x, y, RSB4_HABAR_HEIGHT);
+		CG_DrawWeaponAmmoBar(x,
+			       	y,
+			       	&cg.weaponbar,
+				RSB4_HABAR_HEIGHT, 
+			       	weaponSelect,
+				value > -1 ? value : 200,
+				value > -1 ? CG_FullAmmo(weaponSelect)*2 : 200
+				);
+
+		y -= CG_WABarOffsetY(RSB4_WABAR_ICON_YOFFSET, RSB4_HABAR_HEIGHT) + RSB4_WEAPICON_HEIGHT/2.0,
+		x += CG_HeightToWidth(CG_WABarOffsetX(RSB4_WABAR_ICON_XOFFSET, RSB4_HABAR_HEIGHT) - RSB4_WEAPICON_HEIGHT/2.0),
+		weapicon = cg_weapons[ weaponSelect ].weaponIcon;
+		if ( weapicon ) {
+			CG_DrawPic( x,
+					y,
+					CG_HeightToWidth(RSB4_WEAPICON_HEIGHT),
+					RSB4_WEAPICON_HEIGHT,
+					weapicon );
+		}
+		y -= RSB4_WEAPCHAR_YOFFSET + RSB4_WEAPCHAR_HEIGHT;
+		if (value > -1) {
+			trap_R_SetColor( CG_GetWeaponColor(weaponSelect) );
+			k = value;
+			numDigits = 1;
+			while ((k /= 10) > 0) {
+				numDigits++;
+			}
+			CG_DrawFieldFloat(x - CG_HeightToWidth(RSB4_WEAPCHAR_HEIGHT)/2.0,
+					y,
+					numDigits, 
+					value,
+					qfalse,
+					weaponchar_width,
+					RSB4_WEAPCHAR_HEIGHT );
+		}
+	}
+
+	if ( !(cg.snap->ps.pm_flags & PMF_FOLLOW) ) {
+		team = cg.snap->ps.persistant[PERS_TEAM];
+	} else {
+		team = cgs.clientinfo[ cg.snap->ps.clientNum ].team;
+	}
+
+	if( cg.predictedPlayerState.powerups[PW_REDFLAG] ) {
+		flagteam = TEAM_RED;
+	} else if( cg.predictedPlayerState.powerups[PW_BLUEFLAG] ) {
+		flagteam = TEAM_BLUE;
+	} else if( cg.predictedPlayerState.powerups[PW_NEUTRALFLAG] ) {
+		flagteam = TEAM_FREE;
+	}
+	if (flagteam != TEAM_NUM_TEAMS) {
+		CG_DrawFlagModel( flag_x + CG_HeightToWidth(3), 480 - ICON_SIZE, CG_HeightToWidth(ICON_SIZE), ICON_SIZE, flagteam, qfalse );
+	}
+
+
+	trap_R_SetColor( NULL );
+	switch (team) {
+		case TEAM_BLUE:
+			icon_h = cgs.media.healthIconBlue;
+			icon_a = cgs.media.armorIconBlue;
+			break;
+		case TEAM_RED:
+			icon_h = cgs.media.healthIconRed;
+			icon_a = cgs.media.armorIconRed;
+			break;
+		default:
+			//icon_h = cgs.media.healthIcon;
+			//icon_a = cgs.media.armorIcon;
+			icon_h = cgs.media.healthIconRed;
+			icon_a = cgs.media.armorIconRed;
+			break;
+	}
+
+
+	//
+	// health
+	//
+	value = ps->stats[STAT_HEALTH];
+
+	x = SCREEN_WIDTH/2.0 - CG_HeightToWidth(RSB4_CENTER_SPACING);
+	y = SCREEN_HEIGHT - RSB4_BAR_MARGIN;
+	CG_DrawPic( x - CG_HeightToWidth(CG_HABarOffsetX(RSB4_HABAR_ICON_XOFFSET, 0, RSB4_HABAR_HEIGHT, qfalse) + RSB4_BIGICON_HEIGHT/2.0),
+			y - CG_HABarOffsetY(RSB4_HABAR_ICON_YOFFSET, RSB4_HABAR_HEIGHT) - RSB4_BIGICON_HEIGHT/2.0,
+			CG_HeightToWidth(RSB4_BIGICON_HEIGHT),
+			RSB4_BIGICON_HEIGHT,
+		       	icon_h );
+
+	 if (value > 30) {
+		trap_R_SetColor( colors[0] );
+	} else {
+		trap_R_SetColor( colors[1] );
+	}
+
+	CG_DrawFieldFloat(x - CG_HeightToWidth(RSB4_NUMBER_XOFFSET) - bigchar_width * 3,
+		       	SCREEN_HEIGHT - RSB4_BOTTOM_MARGIN - RSB4_NUMBER_YOFFSET - RSB4_BIGCHAR_HEIGHT,
+		       	3,
+		       	value,
+		       	qfalse,
+		       	bigchar_width,
+		       	RSB4_BIGCHAR_HEIGHT);
+	trap_R_SetColor( NULL );
+
+	
+	CG_DrawHABarDecor(x,
+			y,
+			RSB4_HABAR_HEIGHT, 
+			qfalse);
+	CG_DrawHABar(x,
+			y,
+			&cg.healthbar,
+			RSB4_HABAR_HEIGHT, 
+			value,
+			qfalse);
+
+	//
+	// armor
+	//
+	value = ps->stats[STAT_ARMOR];
+
+	x = SCREEN_WIDTH/2.0 + CG_HeightToWidth(RSB4_CENTER_SPACING);
+	y = SCREEN_HEIGHT - RSB4_BAR_MARGIN;
+	CG_DrawPic( x + CG_HeightToWidth(CG_HABarOffsetX(RSB4_HABAR_ICON_XOFFSET, 0, RSB4_HABAR_HEIGHT, qtrue) - RSB4_BIGICON_HEIGHT/2.0),
+			y - CG_HABarOffsetY(RSB4_HABAR_ICON_YOFFSET, RSB4_HABAR_HEIGHT) - RSB4_BIGICON_HEIGHT/2.0,
+			CG_HeightToWidth(RSB4_BIGICON_HEIGHT),
+			RSB4_BIGICON_HEIGHT,
+		       	icon_a );
+	if (value > 0 ) {
+		if (value > 30) {
+			trap_R_SetColor( colors[0] );
+		} else {
+			trap_R_SetColor( colors[1] );
+		}
+		k = value;
+		numDigits = 1;
+		while ((k /= 10) > 0) {
+			numDigits++;
+		}
+		CG_DrawFieldFloat (x + CG_HeightToWidth(RSB4_NUMBER_XOFFSET),
+			       	SCREEN_HEIGHT - RSB4_BOTTOM_MARGIN - RSB4_NUMBER_YOFFSET - RSB4_BIGCHAR_HEIGHT,
+			       	numDigits,
+			       	value,
+			       	qfalse,
+			       	bigchar_width,
+			       	RSB4_BIGCHAR_HEIGHT);
+		trap_R_SetColor( NULL );
+	}
+
+	CG_DrawHABarDecor(x,
+			y,
+			RSB4_HABAR_HEIGHT, 
+			qtrue);
+	CG_DrawHABar(x,
+			y,
+			&cg.armorbar,
+			RSB4_HABAR_HEIGHT, 
+			value,
+			qtrue);
+
+
+	trap_R_SetColor( NULL );
+}
+
+#define	RSB3_BIGCHAR_HEIGHT		32
+#define	RSB3_BIGICON_HEIGHT		24
+#define	RSB3_TEXT_ICON_SPACE		1
+#define	RSB3_CENTER_SPACING		10
+
+#define RSB3_WEAPONMARGIN		4
+#define	RSB3_WEAPICON_HEIGHT		24
+#define	RSB3_WEAPCHAR_HEIGHT		24
+#define	RSB3_WEAPBAR_YSPACE		10
+#define RSB3_WEAPBAR_DOT_HEIGHT		15
+
+
+//#define RSB3_BAR_MARGIN			52
+//#define RSB3_BAR_DOT_HEIGHT		15
+#define RSB3_BAR_DOT_HEIGHT		20
+//#define RSB3_BAR_BOTTOM_MARGIN		4
+#define RSB3_BAR_MARGIN			4
+#define RSB3_BAR_ALPHA			0.7
+//#define RSB3_BARBORDER			1
+//#define RSB3_BARBORDERALPHA		0.4
+//
+void CG_Ratstatusbar3RegisterShaders(void) {
+	cgs.media.bardot = trap_R_RegisterShaderNoMip("rat_bardot");
+	//cgs.media.bardot_outline = trap_R_RegisterShaderNoMip("rat_bardot_outline");
+	cgs.media.bardot_additiveglow = trap_R_RegisterShaderNoMip("rat_bardot_additiveglow");
+	cgs.media.bardot_transparentglow = trap_R_RegisterShaderNoMip("rat_bardot_transparentglow");
+}
+
+static void CG_DrawRatStatusBar3( void ) {
+	float x;
+	playerState_t	*ps;
+	int			value;
+	qhandle_t	icon_a;
+	qhandle_t	icon_h;
+	int team = TEAM_FREE;
+	float bigchar_width = CG_HeightToWidth((float)RSB3_BIGCHAR_HEIGHT*2.0/3.0);
+	float weaponchar_width = CG_HeightToWidth((float)RSB3_WEAPCHAR_HEIGHT*2.0/3.0);
+	int flagteam = TEAM_NUM_TEAMS;
+	int weaponSelect = (cg.snap->ps.pm_flags & PMF_FOLLOW) ? 
+		cg.predictedPlayerState.weapon : cg.weaponSelect;
+
+	static float colors[4][4] = { 
+		{ 1.0f, 0.69f, 0.0f, 1.0f },    // normal
+		{ 1.0f, 0.2f, 0.2f, 1.0f },     // low health
+		{ 0.5f, 0.5f, 0.5f, 1.0f },     // weapon firing
+		{ 1.0f, 1.0f, 1.0f, 1.0f } };   // health > 100
+
+	if ( cg_drawStatus.integer == 0 ) {
+		return;
+	}
+	
+	if (!cgs.media.bardot || !cgs.media.bardot_additiveglow || !cgs.media.bardot_transparentglow) {
+		CG_Ratstatusbar3RegisterShaders();
+	}
+
+	if ( !(cg.snap->ps.pm_flags & PMF_FOLLOW) ) {
+		team = cg.snap->ps.persistant[PERS_TEAM];
+	} else {
+		team = cgs.clientinfo[ cg.snap->ps.clientNum ].team;
+	}
+
+	ps = &cg.snap->ps;
+
+	if( cg.predictedPlayerState.powerups[PW_REDFLAG] ) {
+		flagteam = TEAM_RED;
+	} else if( cg.predictedPlayerState.powerups[PW_BLUEFLAG] ) {
+		flagteam = TEAM_BLUE;
+	} else if( cg.predictedPlayerState.powerups[PW_NEUTRALFLAG] ) {
+		flagteam = TEAM_FREE;
+	}
+	if (flagteam != TEAM_NUM_TEAMS) {
+		CG_DrawFlagModel( 32, 480 - ICON_SIZE, CG_HeightToWidth(ICON_SIZE), ICON_SIZE, flagteam, qfalse );
+	}
+
+	//////
+	////// ammo
+	//
+	if ( weaponSelect && weaponSelect > WP_NONE && weaponSelect < WP_NUM_WEAPONS) {
+		qhandle_t weapicon;
+		float y;
+
+		if (cg_predictWeapons.integer) {
+			value=cg.predictedPlayerState.ammo[weaponSelect];
+		} else {
+			value=cg.snap->ps.ammo[weaponSelect];
+		}
+
+		x = RSB3_BAR_MARGIN;
+
+
+		CG_DrawDottedBar(x,
+				SCREEN_HEIGHT - RSB3_BAR_MARGIN - RSB3_WEAPBAR_DOT_HEIGHT,
+				&cg.weaponbar,
+				10,
+				RSB3_WEAPBAR_DOT_HEIGHT,
+				0,
+				-RSB3_WEAPBAR_YSPACE,
+				weaponSelect,
+				value > -1 ? value : 200,
+				value > -1 ? CG_FullAmmo(weaponSelect)*2 : 200
+				);
+
+		x += CG_HeightToWidth(RSB3_WEAPBAR_DOT_HEIGHT + RSB3_TEXT_ICON_SPACE*3);
+		y = SCREEN_HEIGHT - RSB3_WEAPONMARGIN - RSB3_WEAPICON_HEIGHT;
+		weapicon = cg_weapons[ weaponSelect ].weaponIcon;
+		if ( weapicon ) {
+			CG_DrawPic( x, 
+				y,
+			       	CG_HeightToWidth(RSB3_WEAPICON_HEIGHT),
+			       	RSB3_WEAPICON_HEIGHT,
+			       	weapicon );
+		}
+		y -= 0 + RSB3_WEAPCHAR_HEIGHT;
+		if (value > -1) {
+			int k;
+			int numDigits;
+			trap_R_SetColor( CG_GetWeaponColor(weaponSelect) );
+			k = value;
+			numDigits = 1;
+			while ((k /= 10) > 0) {
+				numDigits++;
+			}
+			CG_DrawField(x, 
+					y,
+					numDigits, 
+					value,
+					qfalse,
+					weaponchar_width,
+					RSB3_WEAPCHAR_HEIGHT );
+		}
+	}
+
+	trap_R_SetColor( NULL );
+	switch (team) {
+		case TEAM_BLUE:
+			icon_h = cgs.media.healthIconBlue;
+			icon_a = cgs.media.armorIconBlue;
+			break;
+		case TEAM_RED:
+			icon_h = cgs.media.healthIconRed;
+			icon_a = cgs.media.armorIconRed;
+			break;
+		default:
+			icon_h = cgs.media.healthIcon;
+			icon_a = cgs.media.armorIcon;
+			break;
+	}
+
+
+	//
+	// health
+	//
+	value = ps->stats[STAT_HEALTH];
+
+	x = SCREEN_WIDTH/2.0 - CG_HeightToWidth(RSB3_BIGICON_HEIGHT + RSB3_CENTER_SPACING);
+	CG_DrawPic( x, SCREEN_HEIGHT - (RSB3_BIGCHAR_HEIGHT + RSB3_BIGICON_HEIGHT)/2.0, CG_HeightToWidth(RSB3_BIGICON_HEIGHT), RSB3_BIGICON_HEIGHT, icon_h );
+
+	if ( value > 100 ) {
+		trap_R_SetColor( colors[3] );
+	} else if (value > 30) {
+		trap_R_SetColor( colors[0] );
+	} else {
+		trap_R_SetColor( colors[1] );
+	}
+
+	x -= CG_HeightToWidth(RSB3_TEXT_ICON_SPACE) + bigchar_width*3;
+        CG_DrawField(x, SCREEN_HEIGHT-RSB3_BIGCHAR_HEIGHT, 3, value, qfalse, bigchar_width, RSB3_BIGCHAR_HEIGHT);
+
+	x -= CG_HeightToWidth(RSB3_TEXT_ICON_SPACE + RSB3_BAR_DOT_HEIGHT);
+
+	CG_DrawDottedBar(x,
+		       	SCREEN_HEIGHT - RSB3_BAR_MARGIN - RSB3_BAR_DOT_HEIGHT,
+			&cg.healthbar,
+			7,
+		       	RSB3_BAR_DOT_HEIGHT,
+		       	-RSB3_BAR_DOT_HEIGHT,
+			0,
+			WP_NONE,
+			value,
+		       	175
+			);
+
+
+	//
+	// armor
+	//
+	value = ps->stats[STAT_ARMOR];
+
+	x = SCREEN_WIDTH/2.0 + CG_HeightToWidth(RSB3_CENTER_SPACING);
+	CG_DrawPic( x, SCREEN_HEIGHT- (RSB3_BIGCHAR_HEIGHT + RSB3_BIGICON_HEIGHT)/2.0, CG_HeightToWidth(RSB3_BIGICON_HEIGHT), RSB3_BIGICON_HEIGHT, icon_a );
+	x += CG_HeightToWidth(RSB3_BIGICON_HEIGHT + RSB3_TEXT_ICON_SPACE);
+	if (value > 0 ) {
+		if (value > 100) {
+			trap_R_SetColor( colors[3] );
+		} else  {
+			trap_R_SetColor( colors[0] );
+		}
+		CG_DrawField (x, SCREEN_HEIGHT-RSB3_BIGCHAR_HEIGHT, 3, value, qfalse, bigchar_width, RSB3_BIGCHAR_HEIGHT);
+		trap_R_SetColor( NULL );
+	}
+	x += bigchar_width*3 + CG_HeightToWidth( RSB3_TEXT_ICON_SPACE);
+
+	CG_DrawDottedBar(x,
+		       	SCREEN_HEIGHT - RSB3_BAR_MARGIN - RSB3_BAR_DOT_HEIGHT,
+			&cg.armorbar,
+			7,
+		       	RSB3_BAR_DOT_HEIGHT,
+		       	RSB3_BAR_DOT_HEIGHT,
+			0,
+			WP_NONE,
+			value,
+		       	175
+			);
+
+	trap_R_SetColor( NULL );
+}
+
+
 #endif
 /*
 ================
@@ -3998,6 +5098,10 @@ static void CG_DrawReloadIndicator( void ) {
 	vec4_t color;
 	int weapon = cg.predictedPlayerState.weapon;
 
+	if (!cg_reloadIndicator.integer) {
+		return;
+	}
+
 	if (weapon < 0 || weapon >= MAX_WEAPONS) {
 		return;
 	}
@@ -4804,7 +5908,21 @@ static void CG_Draw2D(stereoFrame_t stereoFrame)
 			}
 #else
 			if (cg_ratStatusbar.integer && cgs.gametype != GT_HARVESTER && cgs.gametype != GT_TREASURE_HUNTER) {
-				CG_DrawRatStatusBar();
+				switch (cg_ratStatusbar.integer) {
+					case 1:
+					case 2:
+						CG_DrawRatStatusBar();
+						break;
+					case 3333:
+						CG_DrawRatStatusBar3();
+						break;
+					case 4444:
+						CG_DrawRatStatusBar4();
+						break;
+					default:
+						CG_DrawRatStatusBar();
+						break;
+				}
 			} else {
 				CG_DrawStatusBar();
 			}

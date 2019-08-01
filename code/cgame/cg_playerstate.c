@@ -197,6 +197,8 @@ void CG_Respawn( void ) {
 
 	// select the weapon the server says we are using
 	cg.weaponSelect = cg.snap->ps.weapon;
+
+	CG_ResetStatusbar();
 }
 
 extern char *eventnames[];

@@ -35,7 +35,9 @@ int mySoundModificationCount = -1;
 int teamSoundModificationCount = -1;
 int enemySoundModificationCount = -1;
 int forceColorModificationCounts = -1;
+int ratStatusbarModificationCount = -1;
 
+static void CG_RegisterNumbers(void);
 void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum );
 void CG_Shutdown( void );
 
@@ -1306,6 +1308,11 @@ void CG_UpdateCvars( void ) {
 		CG_ParseForcedColors();
 		forceColorModificationCounts = i;
 	}
+
+	if ( ratStatusbarModificationCount != cg_ratStatusbar.modificationCount ) {
+		CG_RegisterNumbers();
+		ratStatusbarModificationCount = cg_ratStatusbar.modificationCount;
+	}
 }
 
 int CG_CrosshairPlayer( void ) {
@@ -1887,6 +1894,30 @@ static void CG_RegisterSounds( void ) {
 //===================================================================================
 
 
+static void CG_RegisterNumbers(void) {
+	int i;
+	static char		*sb_nums[11] = {
+		"gfx/2d/numbers%s/zero_32b",
+		"gfx/2d/numbers%s/one_32b",
+		"gfx/2d/numbers%s/two_32b",
+		"gfx/2d/numbers%s/three_32b",
+		"gfx/2d/numbers%s/four_32b",
+		"gfx/2d/numbers%s/five_32b",
+		"gfx/2d/numbers%s/six_32b",
+		"gfx/2d/numbers%s/seven_32b",
+		"gfx/2d/numbers%s/eight_32b",
+		"gfx/2d/numbers%s/nine_32b",
+		"gfx/2d/numbers%s/minus_32b",
+	};
+	for ( i=0 ; i<11 ; i++) {
+		cgs.media.numberShaders[i] = trap_R_RegisterShader( 
+				va(sb_nums[i],
+					cg_ratStatusbar.integer == 4444 ? "_trebfuture" : ""
+				  )
+			       	);
+	}
+}
+
 /*
 =================
 CG_RegisterGraphics
@@ -1897,19 +1928,6 @@ This function may execute for a couple of minutes with a slow disk.
 static void CG_RegisterGraphics( void ) {
 	int			i;
 	char		items[MAX_ITEMS+1];
-	static char		*sb_nums[11] = {
-		"gfx/2d/numbers/zero_32b",
-		"gfx/2d/numbers/one_32b",
-		"gfx/2d/numbers/two_32b",
-		"gfx/2d/numbers/three_32b",
-		"gfx/2d/numbers/four_32b",
-		"gfx/2d/numbers/five_32b",
-		"gfx/2d/numbers/six_32b",
-		"gfx/2d/numbers/seven_32b",
-		"gfx/2d/numbers/eight_32b",
-		"gfx/2d/numbers/nine_32b",
-		"gfx/2d/numbers/minus_32b",
-	};
 
 	// clear any references to old media
 	memset( &cg.refdef, 0, sizeof( cg.refdef ) );
@@ -1922,9 +1940,7 @@ static void CG_RegisterGraphics( void ) {
 	// precache status bar pics
 	CG_LoadingString( "game media" );
 
-	for ( i=0 ; i<11 ; i++) {
-		cgs.media.numberShaders[i] = trap_R_RegisterShader( sb_nums[i] );
-	}
+	CG_RegisterNumbers();
 
 	cgs.media.botSkillShaders[0] = trap_R_RegisterShader( "menu/art/skill1.tga" );
 	cgs.media.botSkillShaders[1] = trap_R_RegisterShader( "menu/art/skill2.tga" );
@@ -2200,6 +2216,17 @@ static void CG_RegisterGraphics( void ) {
 	cgs.media.eaward_medals[EAWARD_VAPORIZED] = trap_R_RegisterShaderNoMip( "medal_vaporized" );
 
 
+	switch (cg_ratStatusbar.integer) {
+		case 3333:
+			CG_Ratstatusbar3RegisterShaders();
+			break;
+		case 4444:
+			CG_Ratstatusbar4RegisterShaders();
+			break;
+	}
+
+	cgs.media.weaponSelectShaderTech = trap_R_RegisterShaderNoMip("weapselectTech");
+	cgs.media.weaponSelectShaderTechBorder = trap_R_RegisterShaderNoMip("weapselectTechBorder");
 
 	cgs.media.bottomFPSShader = trap_R_RegisterShaderNoMip("bottomFPSDecor");
 

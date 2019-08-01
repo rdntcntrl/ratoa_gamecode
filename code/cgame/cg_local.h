@@ -115,6 +115,25 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 //#define RATSB_HEADER   86
 #define RATSB_HEADER   90
 
+// for ratstatusbar 4
+#define RSB4_NUM_HA_BAR_ELEMENTS 8
+#define RSB4_NUM_HA_BAR_DECOR_ELEMENTS 3
+#define RSB4_NUM_W_BAR_ELEMENTS 11
+#define RSB4_NUM_W_BAR_DECOR_ELEMENTS 3
+
+// DOTTED HEALTH/ARMOR/WEAPON BARS
+#define DOTBAR_MAX_ELEMENTS MAX(10,MAX(RSB4_NUM_HA_BAR_ELEMENTS, RSB4_NUM_W_BAR_ELEMENTS))
+typedef enum {
+	DB_FILLED_EMPTY,
+	DB_FILLED_FULL,
+	DB_FILLED_EMPTYGLOW,
+} dotbar_filled_t;
+
+typedef struct {
+	int lastFilledTimes[DOTBAR_MAX_ELEMENTS];
+	dotbar_filled_t filled[DOTBAR_MAX_ELEMENTS];
+} dotbar_t;
+
 typedef enum {
 	FOOTSTEP_NORMAL,
 	FOOTSTEP_BOOT,
@@ -545,6 +564,9 @@ typedef struct {
 #define MAX_REWARDROW		10
 #define MAX_REWARDSOUNDBUFFER	10
 
+
+
+
 //======================================================================
 
 // all cg.stepTime, cg.duckTime, cg.landTime, etc are set to cg.time when the action
@@ -804,6 +826,10 @@ typedef struct {
 
 	int lastHitTime;
 	int lastHitDamage;
+
+	dotbar_t healthbar;
+	dotbar_t armorbar;
+	dotbar_t weaponbar;
 } cg_t;
 
 
@@ -878,6 +904,8 @@ typedef struct {
 
 	qhandle_t	weaponSelectShader11;
 	qhandle_t	weaponSelectShader13;
+	qhandle_t	weaponSelectShaderTech;
+	qhandle_t	weaponSelectShaderTechBorder;
 
 	qhandle_t	bottomFPSShader;
 
@@ -885,6 +913,27 @@ typedef struct {
 	qhandle_t	damageIndicatorTop;
 	qhandle_t	damageIndicatorRight;
 	qhandle_t	damageIndicatorLeft;
+
+	qhandle_t	bardot;
+	qhandle_t	bardot_additiveglow;
+	qhandle_t	bardot_transparentglow;
+
+	// for Ratstatusbar 4
+	// glowing elements:
+	qhandle_t	rsb4_health_shaders[RSB4_NUM_HA_BAR_ELEMENTS];
+	qhandle_t	rsb4_health_glowShaders[RSB4_NUM_HA_BAR_ELEMENTS];
+	qhandle_t	rsb4_health_additiveGlowShaders[RSB4_NUM_HA_BAR_ELEMENTS];
+	qhandle_t	rsb4_armor_shaders[RSB4_NUM_HA_BAR_ELEMENTS];
+	qhandle_t	rsb4_armor_glowShaders[RSB4_NUM_HA_BAR_ELEMENTS];
+	qhandle_t	rsb4_armor_additiveGlowShaders[RSB4_NUM_HA_BAR_ELEMENTS];
+
+	qhandle_t	rsb4_weapon_shaders[RSB4_NUM_W_BAR_ELEMENTS];
+	qhandle_t	rsb4_weapon_glowShaders[RSB4_NUM_W_BAR_ELEMENTS];
+	qhandle_t	rsb4_weapon_additiveGlowShaders[RSB4_NUM_W_BAR_ELEMENTS];
+	// decor elements
+	qhandle_t	rsb4_health_decorShaders[RSB4_NUM_HA_BAR_DECOR_ELEMENTS];
+	qhandle_t	rsb4_armor_decorShaders[RSB4_NUM_HA_BAR_DECOR_ELEMENTS];
+	qhandle_t	rsb4_weapon_decorShaders[RSB4_NUM_W_BAR_DECOR_ELEMENTS];
 
 	qhandle_t	teamStatusBar;
 
@@ -1962,6 +2011,9 @@ qboolean CG_OtherTeamHasFlag( void );
 qhandle_t CG_StatusHandle(int task);
 void CG_AddToGenericConsole( const char *str, console_t *console );
 int CG_Reward2Time(int idx);
+void CG_ResetStatusbar(void);
+void CG_Ratstatusbar4RegisterShaders(void);
+void CG_Ratstatusbar3RegisterShaders(void);
 
 
 
@@ -2058,6 +2110,7 @@ void CG_DrawWeaponBar9(int count, int bits, float *color);
 void CG_DrawWeaponBar10(int count, int bits, float *color);
 void CG_DrawWeaponBar12(int count, int bits, float *color);
 void CG_DrawWeaponBar13(int count, int bits, float *color);
+void CG_DrawWeaponBar14(int count, int bits, float *color);
 
 void CG_OutOfAmmoChange( void );	// should this be in pmove?
 int CG_FullAmmo(int weapon);
