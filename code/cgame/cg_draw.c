@@ -3047,11 +3047,93 @@ static float CG_DrawTeamOverlay( float y, qboolean right, qboolean upper ) {
 //	return y + SMALLCHAR_HEIGHT+4;
 //}
 
+#define SCORE_BACKGROUND_ALPHA 0.33f
+void CG_GetScoreColor(int team, float *color) {
+	color[3] = SCORE_BACKGROUND_ALPHA;
+	switch (team) {
+		case TEAM_RED:
+			color[0] = 1.0;
+			color[1] = 0.0;
+			color[2] = 0.0;
+			break;
+		case TEAM_BLUE:
+			//color[0] = 0.0;
+			//color[1] = 0.8;
+			//color[2] = 1.0;
+
+			//color[0] = 0.0;
+			//color[1] = 0.0;
+			//color[2] = 1.0;
+
+			color[0] = 0.0628;
+			color[1] = 0.326;
+			color[2] = 1.0;
+			break;
+		default:
+			color[0] = 0.5;
+			color[1] = 0.5;
+			color[2] = 0.5;
+			break;
+	}
+}
+
+#define SCOREBOX_HEIGHT (SCOREBOX_CHAR_HEIGHT+8)
+#define SCOREBOX_CHAR_HEIGHT (BIGCHAR_HEIGHT)
+#define SCOREBOX_CHAR_WIDTH (BIGCHAR_WIDTH)
+#define SCOREBOX_CHAR_MIN_WIDTH (SCOREBOX_CHAR_WIDTH * 2 + 8)
+#define SCOREBOX_TEAMINDICATOR_SIZE 10
+float CG_DrawScoreBox(float x, float y, int team, const char *s, qboolean selected) {
+	float color[4];
+	float thickness = 1;
+	float w;
+	float h = SCOREBOX_HEIGHT;
+	float char_width = CG_HeightToWidth(SCOREBOX_CHAR_WIDTH);
+	float char_height = SCOREBOX_CHAR_HEIGHT;
+	int len = CG_DrawStrlen(s);
+
+	w = CG_HeightToWidth(SCOREBOX_CHAR_WIDTH * MAX(2,len) + 8);
+	x -= w;
+
+	CG_GetScoreColor(team, color);
+	CG_FillRect(x, y, w, h, color);
+	
+	color[3] = 1.0;
+	if (selected) {
+		color[0] = 1.0;
+		color[1] = 0.9883;
+		color[2] = 0.193;
+		CG_DrawCorners(x, y, w, h, h/5.0, thickness, color);
+	}
+
+	color[0] = color[1] = color[2] = color[3] = 1.0;
+	CG_DrawStringExtFloat(
+		       	x + (w - len * char_width)/2.0,
+		       	y + (h - char_height)/2.0,
+		       	s, color, qfalse, qfalse,
+			char_width, char_height,
+		       	0 );
+	//if (selected) {
+	//	color[0] = 1.0;
+	//	color[1] = 0.9883;
+	//	color[2] = 0.193;
+	//	color[3] = 1.0;
+	//	trap_R_SetColor(color);
+	//	CG_DrawPic( x + w - CG_HeightToWidth(SCOREBOX_TEAMINDICATOR_SIZE),
+	//		       	y + (h - SCOREBOX_TEAMINDICATOR_SIZE)/2.0,
+	//		       	CG_HeightToWidth(SCOREBOX_TEAMINDICATOR_SIZE),
+	//		       	SCOREBOX_TEAMINDICATOR_SIZE,
+	//		       	cgs.media.teamIndicator );
+	//	trap_R_SetColor(NULL);
+	//}
+
+	return w;
+}
+
 void CG_DrawEliminationStatus(void) {
 	const char	*s;
 	int y;
 	float		x, w;
-	vec4_t		color;
+	float color[4] = { 1.0, 1.0, 1.0, 1.0 };
 
 	if (cgs.gametype != GT_ELIMINATION && cgs.gametype != GT_CTF_ELIMINATION) {
 		return;
@@ -3071,7 +3153,7 @@ void CG_DrawEliminationStatus(void) {
 	if (cg_drawTeamOverlay.integer) {
 		int i;
 		int totalhp = 0;
-		y = 240 - BIGCHAR_HEIGHT-8;
+		y = 240 - SCOREBOX_CHAR_HEIGHT-4;
 		x = 640;
 		for (i = 0; i < MAX_CLIENTS; ++i) {
 			clientInfo_t *ci = &cgs.clientinfo[i];
@@ -3084,80 +3166,48 @@ void CG_DrawEliminationStatus(void) {
 			totalhp += CG_GetTotalHitPoints(ci->health, ci->armor);
 		}
 		s = va( "%4i", totalhp );
-		w = CG_HeightToWidth(CG_DrawStrlen( s ) * BIGCHAR_WIDTH + 8);
+		w = CG_HeightToWidth(CG_DrawStrlen( s ) * SCOREBOX_CHAR_WIDTH + 8);
 		x -= w;
-		CG_DrawBigStringAspect( x + CG_HeightToWidth(4), y, s, 1.0F);
+		color[0] = color[1] = color[2] = color[3] = 1.0;
+		CG_DrawStringExtFloat(
+				x + CG_HeightToWidth(4),
+				y,
+				s, color, qfalse, qfalse,
+				CG_HeightToWidth(SCOREBOX_CHAR_WIDTH), SCOREBOX_CHAR_HEIGHT,
+				0 );
 	}
 
 	y = 240;
 	x = 640;
-	color[0] = 0.0f;
-	color[1] = 0.0f;
-	color[2] = 1.0f;
-	color[3] = 0.33f;
-	s = va( "%2i", cgs.blueLivingCount );
-	w = CG_HeightToWidth(CG_DrawStrlen( s ) * BIGCHAR_WIDTH + 8);
+	s = va( "%i", cgs.blueLivingCount );
+	w = CG_DrawScoreBox(x, y, TEAM_BLUE, s, cg.snap->ps.persistant[PERS_TEAM] == TEAM_BLUE);
 	x -= w;
-	CG_FillRect( x, y-4,  w, BIGCHAR_HEIGHT+8, color );
-	if ( cg.snap->ps.persistant[PERS_TEAM] == TEAM_BLUE ) {
-		CG_DrawPic( x, y-4, w, BIGCHAR_HEIGHT+8, cgs.media.selectShader );
-	}
-	CG_DrawBigStringAspect( x + CG_HeightToWidth(4), y, s, 1.0F);
 
-
-	color[0] = 1.0f;
-	color[1] = 0.0f;
-	color[2] = 0.0f;
-	color[3] = 0.33f;
-	s = va( "%2i", cgs.redLivingCount );
-	w = CG_HeightToWidth(CG_DrawStrlen( s ) * BIGCHAR_WIDTH + 8);
+	s = va( "%i", cgs.redLivingCount );
+	w = CG_DrawScoreBox(x, y, TEAM_RED, s, cg.snap->ps.persistant[PERS_TEAM] == TEAM_RED);
 	x -= w;
-	CG_FillRect( x, y-4,  w, BIGCHAR_HEIGHT+8, color );
-	if ( cg.snap->ps.persistant[PERS_TEAM] == TEAM_RED ) {
-		CG_DrawPic( x, y-4, w, BIGCHAR_HEIGHT+8, cgs.media.selectShader );
-	}
-	CG_DrawBigStringAspect( x + CG_HeightToWidth(4), y, s, 1.0F);
 }
 
 void CG_DrawTreasureHunterStatus(void) {
 	const char	*s;
 	int y;
 	float		x, w;
-	vec4_t		color;
 
 	if (cgs.gametype != GT_TREASURE_HUNTER) {
 		return;
 	}
 
-
 	y = 240;
 	x = 640;
-	color[0] = 0.0f;
-	color[1] = 0.0f;
-	color[2] = 1.0f;
-	color[3] = 0.33f;
-	s = va( "%2i", cgs.th_blueTokens );
-	w = CG_HeightToWidth(CG_DrawStrlen( s ) * BIGCHAR_WIDTH + 8);
+
+	s = va( "%i", cgs.th_blueTokens );
+	w = CG_DrawScoreBox(x, y, TEAM_BLUE, s, cg.snap->ps.persistant[PERS_TEAM] == TEAM_BLUE);
 	x -= w;
-	CG_FillRect( x, y-4,  w, BIGCHAR_HEIGHT+8, color );
-	if ( cg.snap->ps.persistant[PERS_TEAM] == TEAM_BLUE ) {
-		CG_DrawPic( x, y-4, w, BIGCHAR_HEIGHT+8, cgs.media.selectShader );
-	}
-	CG_DrawBigStringAspect( x + CG_HeightToWidth(4), y, s, 1.0F);
 
 
-	color[0] = 1.0f;
-	color[1] = 0.0f;
-	color[2] = 0.0f;
-	color[3] = 0.33f;
-	s = va( "%2i", cgs.th_redTokens );
-	w = CG_HeightToWidth(CG_DrawStrlen( s ) * BIGCHAR_WIDTH + 8);
+	s = va( "%i", cgs.th_redTokens );
+	w = CG_DrawScoreBox(x, y, TEAM_RED, s, cg.snap->ps.persistant[PERS_TEAM] == TEAM_RED);
 	x -= w;
-	CG_FillRect( x, y-4,  w, BIGCHAR_HEIGHT+8, color );
-	if ( cg.snap->ps.persistant[PERS_TEAM] == TEAM_RED ) {
-		CG_DrawPic( x, y-4, w, BIGCHAR_HEIGHT+8, cgs.media.selectShader );
-	}
-	CG_DrawBigStringAspect( x + CG_HeightToWidth(4), y, s, 1.0F);
 }
 
 
@@ -3232,6 +3282,173 @@ static void CG_DrawUpperRight(stereoFrame_t stereoFrame)
 ===========================================================================================
 */
 
+//static float CG_DrawScores( float y ) {
+//	const char	*s;
+//	int			s1, s2, score;
+//	float			x, w;
+//	int			v;
+//	float		y1;
+//	gitem_t		*item;
+//        int statusA,statusB;
+//        
+//        statusA = cgs.redflag;
+//        statusB = cgs.blueflag;
+//
+//	s1 = cgs.scores1;
+//	s2 = cgs.scores2;
+//
+//	y -=  BIGCHAR_HEIGHT + 8;
+//
+//	y1 = y;
+//
+//	// draw from the right side to left
+//	if ( cgs.gametype >= GT_TEAM && cgs.ffa_gt!=1) {
+//		x = 640;
+//		s = va( "%2i", s2 );
+//		w = CG_HeightToWidth(CG_DrawStrlen( s ) * BIGCHAR_WIDTH + 8);
+//		x -= w;
+//		CG_DrawScoreBox(x, y-4, w, BIGCHAR_HEIGHT+8, TEAM_BLUE);
+//		if ( cg.snap->ps.persistant[PERS_TEAM] == TEAM_BLUE ) {
+//			CG_DrawPic( x, y-4, w, BIGCHAR_HEIGHT+8, cgs.media.selectShader );
+//		}
+//		CG_DrawBigStringAspect( x + CG_HeightToWidth(4), y, s, 1.0F);
+//
+//		if ( cgs.gametype == GT_CTF || cgs.gametype == GT_CTF_ELIMINATION) {
+//			// Display flag status
+//			item = BG_FindItemForPowerup( PW_BLUEFLAG );
+//
+//			if (item) {
+//				y1 = y - BIGCHAR_HEIGHT - 8;
+//				if( cgs.blueflag >= 0 && cgs.blueflag <= 2 ) {
+//					CG_DrawPic( x, y1-4, w, BIGCHAR_HEIGHT+8, cgs.media.blueFlagShader[cgs.blueflag] );
+//					// TODO: use this for fixed aspect ratio, but needs a new icon:
+//					//CG_DrawPic( x + (w - CG_HeightToWidth(BIGCHAR_HEIGHT+8))/2.0,
+//					//	       	y1-4, CG_HeightToWidth(BIGCHAR_HEIGHT+8), BIGCHAR_HEIGHT+8, cgs.media.blueFlagShader[cgs.blueflag] );
+//				}
+//			}
+//		}
+//                
+//                if ( cgs.gametype == GT_DOUBLE_D ) {
+//			// Display Domination point status
+//			
+//				y1 = y - 32;//BIGCHAR_HEIGHT - 8;
+//				if( cgs.redflag >= 0 && cgs.redflag <= 3 ) {
+//					CG_DrawPic( x, y1-4, w, 32, cgs.media.ddPointSkinB[cgs.blueflag] );
+//				}
+//		}
+//                
+//		s = va( "%2i", s1 );
+//		w = CG_HeightToWidth(CG_DrawStrlen( s ) * BIGCHAR_WIDTH + 8);
+//		x -= w;
+//		CG_DrawScoreBox(x, y-4, w, BIGCHAR_HEIGHT+8, TEAM_RED);
+//		if ( cg.snap->ps.persistant[PERS_TEAM] == TEAM_RED ) {
+//			CG_DrawPic( x, y-4, w, BIGCHAR_HEIGHT+8, cgs.media.selectShader );
+//		}
+//		CG_DrawBigStringAspect( x + CG_HeightToWidth(4), y, s, 1.0F);
+//
+//		if ( cgs.gametype == GT_CTF || cgs.gametype == GT_CTF_ELIMINATION ) {
+//			// Display flag status
+//			item = BG_FindItemForPowerup( PW_REDFLAG );
+//
+//			if (item) {
+//				y1 = y - BIGCHAR_HEIGHT - 8;
+//				if( cgs.redflag >= 0 && cgs.redflag <= 2 ) {
+//					CG_DrawPic( x, y1-4, w, BIGCHAR_HEIGHT+8, cgs.media.redFlagShader[cgs.redflag] );
+//					// TODO: use this for fixed aspect ratio, but needs a new icon:
+//					//CG_DrawPic( x + (w - CG_HeightToWidth(BIGCHAR_HEIGHT+8))/2.0,
+//					//	       	y1-4, CG_HeightToWidth(BIGCHAR_HEIGHT+8), BIGCHAR_HEIGHT+8, cgs.media.redFlagShader[cgs.redflag] );
+//				}
+//			}
+//		}
+//                
+//                if ( cgs.gametype == GT_DOUBLE_D ) {
+//			// Display Domination point status
+//			
+//				y1 = y - 32;//BIGCHAR_HEIGHT - 8;
+//				if( cgs.redflag >= 0 && cgs.redflag <= 3 ) {
+//					CG_DrawPic( x, y1-4, w, 32, cgs.media.ddPointSkinA[cgs.redflag] );
+//				}
+//                                
+//                        
+//                                
+//                        //Time till capture:
+//                        if( ( ( statusB == statusA ) && ( statusA == TEAM_RED ) ) ||
+//                            ( ( statusB == statusA ) && ( statusA == TEAM_BLUE ) ) ) {
+//                                s = va("%i",(cgs.timetaken+10*1000-cg.time)/1000+1);
+//                                w = CG_HeightToWidth(CG_DrawStrlen( s ) * BIGCHAR_WIDTH);
+//                                CG_DrawBigStringAspect( x + CG_HeightToWidth(32+8-w/2.0), y-28, s, 1.0F);
+//                        }
+//		}
+//                
+//                if ( cgs.gametype == GT_OBELISK ) {
+//                    s = va("^1%3i%% ^4%3i%%",cg.redObeliskHealth,cg.blueObeliskHealth);
+//                    CG_DrawSmallString( x, y-28, s, 1.0F);
+//                }
+//                
+//                
+//
+//		if ( cgs.gametype >= GT_CTF && cgs.ffa_gt==0) {
+//			v = cgs.capturelimit;
+//		} else {
+//			v = cgs.fraglimit;
+//		}
+//		if ( v ) {
+//			s = va( "%2i", v );
+//			w = CG_HeightToWidth(CG_DrawStrlen( s ) * BIGCHAR_WIDTH + 8);
+//			x -= w;
+//			CG_DrawBigStringAspect( x + CG_HeightToWidth(4), y, s, 1.0F);
+//		}
+//
+//	} else {
+//		qboolean	spectator;
+//
+//		x = 640;
+//		score = cg.snap->ps.persistant[PERS_SCORE];
+//		spectator = ( cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR );
+//
+//		// always show your score in the second box if not in first place
+//		if ( s1 != score ) {
+//			s2 = score;
+//		}
+//		if ( s2 != SCORE_NOT_PRESENT ) {
+//			s = va( "%2i", s2 );
+//			w = CG_HeightToWidth(CG_DrawStrlen( s ) * BIGCHAR_WIDTH + 8);
+//			x -= w;
+//			if ( !spectator && score == s2 && score != s1 ) {
+//				CG_DrawScoreBox(x, y-4, w, BIGCHAR_HEIGHT+8, TEAM_RED);
+//				CG_DrawPic( x, y-4, w, BIGCHAR_HEIGHT+8, cgs.media.selectShader );
+//			} else {
+//				CG_DrawScoreBox(x, y-4, w, BIGCHAR_HEIGHT+8, TEAM_FREE);
+//			}	
+//			CG_DrawBigStringAspect( x + CG_HeightToWidth(4), y, s, 1.0F);
+//		}
+//
+//		// first place
+//		if ( s1 != SCORE_NOT_PRESENT ) {
+//			s = va( "%2i", s1 );
+//			w = CG_HeightToWidth(CG_DrawStrlen( s ) * BIGCHAR_WIDTH + 8);
+//			x -= w;
+//			if ( !spectator && score == s1 ) {
+//				CG_DrawScoreBox(x, y-4, w, BIGCHAR_HEIGHT+8, TEAM_BLUE);
+//				CG_DrawPic( x, y-4, w, BIGCHAR_HEIGHT+8, cgs.media.selectShader );
+//			} else {
+//				CG_DrawScoreBox(x, y-4, w, BIGCHAR_HEIGHT+8, TEAM_FREE);
+//			}	
+//			CG_DrawBigStringAspect( x + CG_HeightToWidth(4), y, s, 1.0F);
+//		}
+//
+//		if ( cgs.fraglimit ) {
+//			s = va( "%2i", cgs.fraglimit );
+//			w = CG_HeightToWidth(CG_DrawStrlen( s ) * BIGCHAR_WIDTH + 8);
+//			x -= w;
+//			CG_DrawBigStringAspect( x + CG_HeightToWidth(4), y, s, 1.0F);
+//		}
+//
+//	}
+//
+//	return y1 - 8;
+//}
+
 /*
 =================
 CG_DrawScores
@@ -3240,15 +3457,16 @@ Draw the small two score display
 =================
 */
 #ifndef MISSIONPACK
+#define SCORE_FLAGICON_HEIGHT (SCOREBOX_CHAR_MIN_WIDTH * 0.5)
 static float CG_DrawScores( float y ) {
 	const char	*s;
 	int			s1, s2, score;
-	float			x, w;
+	float			x, w, w2;
 	int			v;
-	vec4_t		color;
 	float		y1;
 	gitem_t		*item;
         int statusA,statusB;
+	float color[4] = { 1.0, 1.0, 1.0, 1.0 };
         
         statusA = cgs.redflag;
         statusB = cgs.blueflag;
@@ -3256,37 +3474,25 @@ static float CG_DrawScores( float y ) {
 	s1 = cgs.scores1;
 	s2 = cgs.scores2;
 
-	y -=  BIGCHAR_HEIGHT + 8;
+	y -= SCOREBOX_HEIGHT + 4;
 
 	y1 = y;
 
 	// draw from the right side to left
 	if ( cgs.gametype >= GT_TEAM && cgs.ffa_gt!=1) {
 		x = 640;
-		color[0] = 0.0f;
-		color[1] = 0.0f;
-		color[2] = 1.0f;
-		color[3] = 0.33f;
-		s = va( "%2i", s2 );
-		w = CG_HeightToWidth(CG_DrawStrlen( s ) * BIGCHAR_WIDTH + 8);
+		s = va( "%i", s2 );
+		w = CG_DrawScoreBox(x, y, TEAM_BLUE, s, cg.snap->ps.persistant[PERS_TEAM] == TEAM_BLUE);
 		x -= w;
-		CG_FillRect( x, y-4,  w, BIGCHAR_HEIGHT+8, color );
-		if ( cg.snap->ps.persistant[PERS_TEAM] == TEAM_BLUE ) {
-			CG_DrawPic( x, y-4, w, BIGCHAR_HEIGHT+8, cgs.media.selectShader );
-		}
-		CG_DrawBigStringAspect( x + CG_HeightToWidth(4), y, s, 1.0F);
-
 		if ( cgs.gametype == GT_CTF || cgs.gametype == GT_CTF_ELIMINATION) {
 			// Display flag status
 			item = BG_FindItemForPowerup( PW_BLUEFLAG );
 
 			if (item) {
-				y1 = y - BIGCHAR_HEIGHT - 8;
+				y1 = y - SCORE_FLAGICON_HEIGHT;
 				if( cgs.blueflag >= 0 && cgs.blueflag <= 2 ) {
-					CG_DrawPic( x, y1-4, w, BIGCHAR_HEIGHT+8, cgs.media.blueFlagShader[cgs.blueflag] );
-					// TODO: use this for fixed aspect ratio, but needs a new icon:
-					//CG_DrawPic( x + (w - CG_HeightToWidth(BIGCHAR_HEIGHT+8))/2.0,
-					//	       	y1-4, CG_HeightToWidth(BIGCHAR_HEIGHT+8), BIGCHAR_HEIGHT+8, cgs.media.blueFlagShader[cgs.blueflag] );
+					w2 = CG_HeightToWidth(SCORE_FLAGICON_HEIGHT);
+					CG_DrawPic( x + (w - w2)/2.0, y1, w2, SCORE_FLAGICON_HEIGHT, cgs.media.blueFlagShader[cgs.blueflag] );
 				}
 			}
 		}
@@ -3294,36 +3500,25 @@ static float CG_DrawScores( float y ) {
                 if ( cgs.gametype == GT_DOUBLE_D ) {
 			// Display Domination point status
 			
-				y1 = y - 32;//BIGCHAR_HEIGHT - 8;
+				y1 = y - 32 - 4;//BIGCHAR_HEIGHT - 8;
 				if( cgs.redflag >= 0 && cgs.redflag <= 3 ) {
-					CG_DrawPic( x, y1-4, w, 32, cgs.media.ddPointSkinB[cgs.blueflag] );
+					CG_DrawPic( x, y1, w, 32, cgs.media.ddPointSkinB[cgs.blueflag] );
 				}
 		}
                 
-		color[0] = 1.0f;
-		color[1] = 0.0f;
-		color[2] = 0.0f;
-		color[3] = 0.33f;
-		s = va( "%2i", s1 );
-		w = CG_HeightToWidth(CG_DrawStrlen( s ) * BIGCHAR_WIDTH + 8);
+		s = va( "%i", s1 );
+		w = CG_DrawScoreBox(x, y, TEAM_RED, s, cg.snap->ps.persistant[PERS_TEAM] == TEAM_RED);
 		x -= w;
-		CG_FillRect( x, y-4,  w, BIGCHAR_HEIGHT+8, color );
-		if ( cg.snap->ps.persistant[PERS_TEAM] == TEAM_RED ) {
-			CG_DrawPic( x, y-4, w, BIGCHAR_HEIGHT+8, cgs.media.selectShader );
-		}
-		CG_DrawBigStringAspect( x + CG_HeightToWidth(4), y, s, 1.0F);
 
 		if ( cgs.gametype == GT_CTF || cgs.gametype == GT_CTF_ELIMINATION ) {
 			// Display flag status
 			item = BG_FindItemForPowerup( PW_REDFLAG );
 
 			if (item) {
-				y1 = y - BIGCHAR_HEIGHT - 8;
+				y1 = y - SCORE_FLAGICON_HEIGHT;
 				if( cgs.redflag >= 0 && cgs.redflag <= 2 ) {
-					CG_DrawPic( x, y1-4, w, BIGCHAR_HEIGHT+8, cgs.media.redFlagShader[cgs.redflag] );
-					// TODO: use this for fixed aspect ratio, but needs a new icon:
-					//CG_DrawPic( x + (w - CG_HeightToWidth(BIGCHAR_HEIGHT+8))/2.0,
-					//	       	y1-4, CG_HeightToWidth(BIGCHAR_HEIGHT+8), BIGCHAR_HEIGHT+8, cgs.media.redFlagShader[cgs.redflag] );
+					w2 = CG_HeightToWidth(SCORE_FLAGICON_HEIGHT);
+					CG_DrawPic( x + (w - w2)/2.0, y1, w2, SCORE_FLAGICON_HEIGHT, cgs.media.redFlagShader[cgs.redflag] );
 				}
 			}
 		}
@@ -3331,9 +3526,9 @@ static float CG_DrawScores( float y ) {
                 if ( cgs.gametype == GT_DOUBLE_D ) {
 			// Display Domination point status
 			
-				y1 = y - 32;//BIGCHAR_HEIGHT - 8;
+				y1 = y - 32 - 4;//BIGCHAR_HEIGHT - 8;
 				if( cgs.redflag >= 0 && cgs.redflag <= 3 ) {
-					CG_DrawPic( x, y1-4, w, 32, cgs.media.ddPointSkinA[cgs.redflag] );
+					CG_DrawPic( x, y1, w, 32, cgs.media.ddPointSkinA[cgs.redflag] );
 				}
                                 
                         
@@ -3342,14 +3537,15 @@ static float CG_DrawScores( float y ) {
                         if( ( ( statusB == statusA ) && ( statusA == TEAM_RED ) ) ||
                             ( ( statusB == statusA ) && ( statusA == TEAM_BLUE ) ) ) {
                                 s = va("%i",(cgs.timetaken+10*1000-cg.time)/1000+1);
-                                w = CG_HeightToWidth(CG_DrawStrlen( s ) * BIGCHAR_WIDTH);
-                                CG_DrawBigStringAspect( x + CG_HeightToWidth(32+8-w/2.0), y-28, s, 1.0F);
+                                w2 = CG_HeightToWidth(CG_DrawStrlen( s ) * BIGCHAR_WIDTH);
+                                CG_DrawBigStringAspect( x + w - w2/2.0, y-28, s, 1.0F);
                         }
 		}
                 
                 if ( cgs.gametype == GT_OBELISK ) {
-                    s = va("^1%3i%% ^4%3i%%",cg.redObeliskHealth,cg.blueObeliskHealth);
-                    CG_DrawSmallString( x, y-28, s, 1.0F);
+			y1 = y - 28;
+			s = va("^1%3i%% ^4%3i%%",cg.redObeliskHealth,cg.blueObeliskHealth);
+			CG_DrawSmallString( x, y1, s, 1.0F);
                 }
                 
                 
@@ -3360,10 +3556,17 @@ static float CG_DrawScores( float y ) {
 			v = cgs.fraglimit;
 		}
 		if ( v ) {
-			s = va( "%2i", v );
-			w = CG_HeightToWidth(CG_DrawStrlen( s ) * BIGCHAR_WIDTH + 8);
+			s = va( "%i", v );
+			w = CG_HeightToWidth(CG_DrawStrlen( s ) * SCOREBOX_CHAR_WIDTH + 8);
 			x -= w;
-			CG_DrawBigStringAspect( x + CG_HeightToWidth(4), y, s, 1.0F);
+			CG_DrawStringExtFloat(
+					x + CG_HeightToWidth(4),
+					y + (SCOREBOX_HEIGHT - SCOREBOX_CHAR_HEIGHT)/2.0,
+					s, 
+					color, qfalse, qfalse,
+					CG_HeightToWidth(SCOREBOX_CHAR_WIDTH),
+					SCOREBOX_CHAR_HEIGHT,
+					0);
 		}
 
 	} else {
@@ -3378,58 +3581,43 @@ static float CG_DrawScores( float y ) {
 			s2 = score;
 		}
 		if ( s2 != SCORE_NOT_PRESENT ) {
-			s = va( "%2i", s2 );
-			w = CG_HeightToWidth(CG_DrawStrlen( s ) * BIGCHAR_WIDTH + 8);
-			x -= w;
+			s = va( "%i", s2 );
 			if ( !spectator && score == s2 && score != s1 ) {
-				color[0] = 1.0f;
-				color[1] = 0.0f;
-				color[2] = 0.0f;
-				color[3] = 0.33f;
-				CG_FillRect( x, y-4,  w, BIGCHAR_HEIGHT+8, color );
-				CG_DrawPic( x, y-4, w, BIGCHAR_HEIGHT+8, cgs.media.selectShader );
+				w = CG_DrawScoreBox(x, y, TEAM_RED, s, qtrue);
 			} else {
-				color[0] = 0.5f;
-				color[1] = 0.5f;
-				color[2] = 0.5f;
-				color[3] = 0.33f;
-				CG_FillRect( x, y-4,  w, BIGCHAR_HEIGHT+8, color );
+				w = CG_DrawScoreBox(x, y, TEAM_FREE, s, qfalse);
 			}	
-			CG_DrawBigStringAspect( x + CG_HeightToWidth(4), y, s, 1.0F);
+			x -= w;
 		}
 
 		// first place
 		if ( s1 != SCORE_NOT_PRESENT ) {
-			s = va( "%2i", s1 );
-			w = CG_HeightToWidth(CG_DrawStrlen( s ) * BIGCHAR_WIDTH + 8);
-			x -= w;
+			s = va( "%i", s1 );
 			if ( !spectator && score == s1 ) {
-				color[0] = 0.0f;
-				color[1] = 0.0f;
-				color[2] = 1.0f;
-				color[3] = 0.33f;
-				CG_FillRect( x, y-4,  w, BIGCHAR_HEIGHT+8, color );
-				CG_DrawPic( x, y-4, w, BIGCHAR_HEIGHT+8, cgs.media.selectShader );
+				w = CG_DrawScoreBox(x, y, TEAM_BLUE, s, qtrue);
 			} else {
-				color[0] = 0.5f;
-				color[1] = 0.5f;
-				color[2] = 0.5f;
-				color[3] = 0.33f;
-				CG_FillRect( x, y-4,  w, BIGCHAR_HEIGHT+8, color );
+				w = CG_DrawScoreBox(x, y, TEAM_FREE, s, qfalse);
 			}	
-			CG_DrawBigStringAspect( x + CG_HeightToWidth(4), y, s, 1.0F);
+			x -= w;
 		}
 
 		if ( cgs.fraglimit ) {
-			s = va( "%2i", cgs.fraglimit );
-			w = CG_HeightToWidth(CG_DrawStrlen( s ) * BIGCHAR_WIDTH + 8);
+			s = va( "%i", cgs.fraglimit );
+			w = CG_HeightToWidth(CG_DrawStrlen( s ) * SCOREBOX_CHAR_WIDTH + 8);
 			x -= w;
-			CG_DrawBigStringAspect( x + CG_HeightToWidth(4), y, s, 1.0F);
+			CG_DrawStringExtFloat(
+					x + CG_HeightToWidth(4),
+					y + (SCOREBOX_HEIGHT - SCOREBOX_CHAR_HEIGHT)/2.0,
+					s, 
+					color, qfalse, qfalse,
+					CG_HeightToWidth(SCOREBOX_CHAR_WIDTH),
+					SCOREBOX_CHAR_HEIGHT,
+					0);
 		}
 
 	}
 
-	return y1 - 8;
+	return y1 - 4;
 }
 #endif // MISSIONPACK
 

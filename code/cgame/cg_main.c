@@ -2046,12 +2046,12 @@ static void CG_RegisterGraphics( void ) {
 		cgs.media.redFlagModel = trap_R_RegisterModel( "models/flags/r_flag.md3" );
 		cgs.media.blueFlagModel = trap_R_RegisterModel( "models/flags/b_flag.md3" );
                 cgs.media.neutralFlagModel = trap_R_RegisterModel( "models/flags/n_flag.md3" );
-		cgs.media.redFlagShader[0] = trap_R_RegisterShaderNoMip( "icons/iconf_red1" );
-		cgs.media.redFlagShader[1] = trap_R_RegisterShaderNoMip( "icons/iconf_red2" );
-		cgs.media.redFlagShader[2] = trap_R_RegisterShaderNoMip( "icons/iconf_red3" );
-		cgs.media.blueFlagShader[0] = trap_R_RegisterShaderNoMip( "icons/iconf_blu1" );
-		cgs.media.blueFlagShader[1] = trap_R_RegisterShaderNoMip( "icons/iconf_blu2" );
-		cgs.media.blueFlagShader[2] = trap_R_RegisterShaderNoMip( "icons/iconf_blu3" );
+		cgs.media.redFlagShader[0] = trap_R_RegisterShader( "icons/iconf_red1" );
+		cgs.media.redFlagShader[1] = trap_R_RegisterShader( "icons/iconf_red2" );
+		cgs.media.redFlagShader[2] = trap_R_RegisterShader( "icons/iconf_red3" );
+		cgs.media.blueFlagShader[0] = trap_R_RegisterShader( "icons/iconf_blu1" );
+		cgs.media.blueFlagShader[1] = trap_R_RegisterShader( "icons/iconf_blu2" );
+		cgs.media.blueFlagShader[2] = trap_R_RegisterShader( "icons/iconf_blu3" );
 		cgs.media.flagPoleModel = trap_R_RegisterModel( "models/flag2/flagpole.md3" );
 		cgs.media.flagFlapModel = trap_R_RegisterModel( "models/flag2/flagflap3.md3" );
 
@@ -2214,7 +2214,6 @@ static void CG_RegisterGraphics( void ) {
 	cgs.media.eaward_medals[EAWARD_REVENGE] = trap_R_RegisterShaderNoMip( "medal_revenge" );
 	cgs.media.eaward_medals[EAWARD_BERSERKER] = trap_R_RegisterShaderNoMip( "medal_berserker" );
 	cgs.media.eaward_medals[EAWARD_VAPORIZED] = trap_R_RegisterShaderNoMip( "medal_vaporized" );
-
 
 	switch (cg_ratStatusbar.integer) {
 		case 3333:

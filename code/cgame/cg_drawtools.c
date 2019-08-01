@@ -122,6 +122,42 @@ void CG_DrawRectAspect( float x, float y, float width, float height, float size,
 	trap_R_SetColor( NULL );
 }
 
+void CG_DrawCornersSides(float x, float y, float w, float h, float cornerlength, float size) {
+	CG_AdjustFrom640( &x, &y, &w, &h );
+	size *= cgs.screenXScale;
+	cornerlength *= cgs.screenYScale;
+	trap_R_DrawStretchPic( x, y, size, cornerlength, 0, 0, 0, 0, cgs.media.whiteShader );
+	trap_R_DrawStretchPic( x + w - size, y, size, cornerlength, 0, 0, 0, 0, cgs.media.whiteShader );
+
+	trap_R_DrawStretchPic( x, y+h-cornerlength, size, cornerlength, 0, 0, 0, 0, cgs.media.whiteShader );
+	trap_R_DrawStretchPic( x + w - size, y+h-cornerlength, size, cornerlength, 0, 0, 0, 0, cgs.media.whiteShader );
+}
+
+void CG_DrawCornersTopBottom(float x, float y, float w, float h, float cornerlength, float size) {
+	CG_AdjustFrom640( &x, &y, &w, &h );
+	size *= cgs.screenYScale;
+	cornerlength *= cgs.screenXScale;
+	trap_R_DrawStretchPic( x, y, cornerlength, size, 0, 0, 0, 0, cgs.media.whiteShader );
+	trap_R_DrawStretchPic( x, y + h - size, cornerlength, size, 0, 0, 0, 0, cgs.media.whiteShader );
+
+	trap_R_DrawStretchPic( x+w-cornerlength, y, cornerlength, size, 0, 0, 0, 0, cgs.media.whiteShader );
+	trap_R_DrawStretchPic( x+w-cornerlength, y + h - size, cornerlength, size, 0, 0, 0, 0, cgs.media.whiteShader );
+}
+
+void CG_DrawCorners( float x, float y, float width, float height, float cornerlength, float thickness, const float *color ) {
+	float sidethickness = CG_HeightToWidth(thickness);
+	trap_R_SetColor( color );
+
+	if (sidethickness > width) {
+		sidethickness = width;
+	}
+
+	CG_DrawCornersTopBottom(x, y, width, height, cornerlength, thickness);
+	CG_DrawCornersSides(x, y, width, height, cornerlength, sidethickness);
+
+	trap_R_SetColor( NULL );
+}
+
 
 
 /*
