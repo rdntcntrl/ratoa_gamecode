@@ -4739,7 +4739,12 @@ static void CG_DrawBottomFPS( void ) {
 
 	fps = CG_FPS();
 
-	CG_DrawPic(x, y, w, h, cgs.media.bottomFPSShader );
+	color[0] = color[1] = color[2] = color[3] = 1.0;
+	color[3] = RSB4_DECOR_ALPHA;
+	trap_R_SetColor(color);
+	CG_DrawPic(x, y, w, h, cgs.media.bottomFPSShaderDecor );
+	trap_R_SetColor(NULL);
+	CG_DrawPic(x, y, w, h, cgs.media.bottomFPSShaderColor );
 
 	if (fps == -1) {
 		return;

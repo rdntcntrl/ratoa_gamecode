@@ -913,7 +913,8 @@ typedef struct {
 	qhandle_t	noammoCircleShader;
 
 	qhandle_t	powerupFrameShader;
-	qhandle_t	bottomFPSShader;
+	qhandle_t	bottomFPSShaderDecor;
+	qhandle_t	bottomFPSShaderColor;
 
 	qhandle_t	damageIndicatorBottom;
 	qhandle_t	damageIndicatorTop;

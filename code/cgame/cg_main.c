@@ -2270,7 +2270,8 @@ static void CG_RegisterGraphics( void ) {
 	cgs.media.noammoCircleShader = trap_R_RegisterShaderNoMip("noammoCircle");
 
 	cgs.media.powerupFrameShader = trap_R_RegisterShader("powerupFrame");
-	cgs.media.bottomFPSShader = trap_R_RegisterShader("bottomFPSDecor");
+	cgs.media.bottomFPSShaderDecor = trap_R_RegisterShader("bottomFPSDecorDecor");
+	cgs.media.bottomFPSShaderColor = trap_R_RegisterShader("bottomFPSDecorColor");
 
 	cgs.media.damageIndicatorBottom = trap_R_RegisterShaderNoMip("damageIndicatorBottom");
 	cgs.media.damageIndicatorTop = trap_R_RegisterShaderNoMip("damageIndicatorTop");
