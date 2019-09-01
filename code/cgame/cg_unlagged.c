@@ -673,7 +673,7 @@ void CG_PredictWeaponEffects( centity_t *cent ) {
 
 		// calculate the muzzle point the way the server sees it (snapped vectors)
 		VectorCopy( cg.predictedPlayerState.origin, muzzlePoint );
-		SnapVector(muzzlePoint);
+		//SnapVector(muzzlePoint);
 		muzzlePoint[2] += cg.predictedPlayerState.viewheight;
 		// get forward, right, and up
 		AngleVectors( cg.predictedPlayerState.viewangles, forward, right, up );
