@@ -823,9 +823,9 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_ch13, "cg_ch13", "10", CVAR_ARCHIVE},
 	{ &cg_ch13size, "cg_ch13size", "30", CVAR_ARCHIVE},
 
-	{ &cg_crosshairColorRed, "cg_crosshairColorRed", "0.0", CVAR_ARCHIVE},
+	{ &cg_crosshairColorRed, "cg_crosshairColorRed", "1.0", CVAR_ARCHIVE},
         { &cg_crosshairColorGreen, "cg_crosshairColorGreen", "1.0", CVAR_ARCHIVE},
-        { &cg_crosshairColorBlue, "cg_crosshairColorBlue", "0.0", CVAR_ARCHIVE},
+        { &cg_crosshairColorBlue, "cg_crosshairColorBlue", "1.0", CVAR_ARCHIVE},
 
 	{ &cg_weaponBarStyle, "cg_weaponBarStyle", "14", CVAR_ARCHIVE},
         //{ &cg_weaponOrder,"cg_weaponOrder", "/1/2/4/3/6/7/8/9/5/", CVAR_ARCHIVE},
