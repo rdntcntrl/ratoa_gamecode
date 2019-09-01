@@ -5298,13 +5298,13 @@ static void CG_DrawCrosshair(void)
 	y = cg_crosshairY.integer;
 	CG_AdjustFrom640( &x, &y, &w, &h );
 
-	if (ca < 0) {
-		ca = 0;
+	if (ca < 1) {
+		ca = 1;
 	}
-	hShader = cgs.media.crosshairShader[ ca % NUM_CROSSHAIRS ];
+	hShader = cgs.media.crosshairShader[ (ca-1) % NUM_CROSSHAIRS ];
 
         if(!hShader)
-            hShader = cgs.media.crosshairShader[ ca % 10 ];
+            hShader = cgs.media.crosshairShader[ 0 ];
 
 	trap_R_DrawStretchPic( x + cg.refdef.x + 0.5 * (cg.refdef.width - w), 
 		y + cg.refdef.y + 0.5 * (cg.refdef.height - h), 

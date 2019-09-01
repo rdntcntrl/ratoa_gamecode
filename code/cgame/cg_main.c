@@ -493,7 +493,7 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_zoomScopeSize, "cg_zoomScopeSize", "1.0", CVAR_ARCHIVE },
 	{ &cg_zoomScopeRGColor, "cg_zoomScopeRGColor", "H120 1.0 0.5", CVAR_ARCHIVE },
 	{ &cg_zoomScopeMGColor, "cg_zoomScopeMGColor", "H60 1.0 0.5", CVAR_ARCHIVE },
-	{ &cg_drawCrosshair, "cg_drawCrosshair", "19", CVAR_ARCHIVE },
+	{ &cg_drawCrosshair, "cg_drawCrosshair", "3", CVAR_ARCHIVE },
 	{ &cg_drawCrosshairNames, "cg_drawCrosshairNames", "1", CVAR_ARCHIVE },
 	{ &cg_drawRewards, "cg_drawRewards", "1", CVAR_ARCHIVE|CVAR_LATCH },
 	{ &cg_crosshairSize, "cg_crosshairSize", "30", CVAR_ARCHIVE },
@@ -800,32 +800,32 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_crosshairPulse, "cg_crosshairPulse", "0", CVAR_ARCHIVE},
 	
 	{ &cg_differentCrosshairs, "cg_differentCrosshairs", "0", CVAR_ARCHIVE},
-	{ &cg_ch1, "cg_ch1", "1", CVAR_ARCHIVE},
-	{ &cg_ch1size, "cg_ch1size", "24", CVAR_ARCHIVE},
-	{ &cg_ch2, "cg_ch2", "1", CVAR_ARCHIVE},
-	{ &cg_ch2size, "cg_ch2size", "24", CVAR_ARCHIVE},
-	{ &cg_ch3, "cg_ch3", "1", CVAR_ARCHIVE},
-	{ &cg_ch3size, "cg_ch3size", "24", CVAR_ARCHIVE},
-	{ &cg_ch4, "cg_ch4", "1", CVAR_ARCHIVE},
-	{ &cg_ch4size, "cg_ch4size", "24", CVAR_ARCHIVE},
-	{ &cg_ch5, "cg_ch5", "1", CVAR_ARCHIVE},
-	{ &cg_ch5size, "cg_ch5size", "24", CVAR_ARCHIVE},
-	{ &cg_ch6, "cg_ch6", "1", CVAR_ARCHIVE},
-	{ &cg_ch6size, "cg_ch6size", "24", CVAR_ARCHIVE},
-	{ &cg_ch7, "cg_ch7", "1", CVAR_ARCHIVE},
-	{ &cg_ch7size, "cg_ch7size", "24", CVAR_ARCHIVE},
-	{ &cg_ch8, "cg_ch8", "1", CVAR_ARCHIVE},
-	{ &cg_ch8size, "cg_ch8size", "24", CVAR_ARCHIVE},
-	{ &cg_ch9, "cg_ch9", "1", CVAR_ARCHIVE},
-	{ &cg_ch9size, "cg_ch9size", "24", CVAR_ARCHIVE},
+	{ &cg_ch1, "cg_ch1", "14", CVAR_ARCHIVE},
+	{ &cg_ch1size, "cg_ch1size", "30", CVAR_ARCHIVE},
+	{ &cg_ch2, "cg_ch2", "19", CVAR_ARCHIVE},
+	{ &cg_ch2size, "cg_ch2size", "30", CVAR_ARCHIVE},
+	{ &cg_ch3, "cg_ch3", "8", CVAR_ARCHIVE},
+	{ &cg_ch3size, "cg_ch3size", "30", CVAR_ARCHIVE},
+	{ &cg_ch4, "cg_ch4", "22", CVAR_ARCHIVE},
+	{ &cg_ch4size, "cg_ch4size", "30", CVAR_ARCHIVE},
+	{ &cg_ch5, "cg_ch5", "15", CVAR_ARCHIVE},
+	{ &cg_ch5size, "cg_ch5size", "30", CVAR_ARCHIVE},
+	{ &cg_ch6, "cg_ch6", "20", CVAR_ARCHIVE},
+	{ &cg_ch6size, "cg_ch6size", "30", CVAR_ARCHIVE},
+	{ &cg_ch7, "cg_ch7", "3", CVAR_ARCHIVE},
+	{ &cg_ch7size, "cg_ch7size", "30", CVAR_ARCHIVE},
+	{ &cg_ch8, "cg_ch8", "11", CVAR_ARCHIVE},
+	{ &cg_ch8size, "cg_ch8size", "30", CVAR_ARCHIVE},
+	{ &cg_ch9, "cg_ch9", "24", CVAR_ARCHIVE},
+	{ &cg_ch9size, "cg_ch9size", "30", CVAR_ARCHIVE},
 	{ &cg_ch10, "cg_ch10", "1", CVAR_ARCHIVE},
-	{ &cg_ch10size, "cg_ch10size", "24", CVAR_ARCHIVE},
-	{ &cg_ch11, "cg_ch11", "1", CVAR_ARCHIVE},
-	{ &cg_ch11size, "cg_ch11size", "24", CVAR_ARCHIVE},
-	{ &cg_ch12, "cg_ch12", "1", CVAR_ARCHIVE},
-	{ &cg_ch12size, "cg_ch12size", "24", CVAR_ARCHIVE},
-	{ &cg_ch13, "cg_ch13", "1", CVAR_ARCHIVE},
-	{ &cg_ch13size, "cg_ch13size", "24", CVAR_ARCHIVE},
+	{ &cg_ch10size, "cg_ch10size", "30", CVAR_ARCHIVE},
+	{ &cg_ch11, "cg_ch11", "21", CVAR_ARCHIVE},
+	{ &cg_ch11size, "cg_ch11size", "30", CVAR_ARCHIVE},
+	{ &cg_ch12, "cg_ch12", "23", CVAR_ARCHIVE},
+	{ &cg_ch12size, "cg_ch12size", "30", CVAR_ARCHIVE},
+	{ &cg_ch13, "cg_ch13", "10", CVAR_ARCHIVE},
+	{ &cg_ch13size, "cg_ch13size", "30", CVAR_ARCHIVE},
 
 	{ &cg_crosshairColorRed, "cg_crosshairColorRed", "0.0", CVAR_ARCHIVE},
         { &cg_crosshairColorGreen, "cg_crosshairColorGreen", "1.0", CVAR_ARCHIVE},
@@ -888,7 +888,67 @@ void CG_RatRemapShaders(void) {
 	}
 }
 
-#define LATEST_RATINITIALIZED 21
+
+#define LATEST_RATINITIALIZED 22
+
+int CG_MigrateOldCrosshair(int old) {
+	switch (old) {
+		case 0:
+			return 0;
+		case 1:
+		case 2:
+		case 3:
+		case 24:
+		case 25:
+		case 26:
+		case 27:
+		case 28:
+		case 29:
+		case 30:
+		case 31:
+		case 32:
+		case 33:
+		case 34:
+		case 35:
+			return 8;
+		case 4:
+			return 2;
+		case 5:
+		case 6:
+			return 1;
+		case 7:
+		case 8:
+			return 29;
+		case 9:
+			return 28;
+		case 10:
+		case 11:
+		case 12:
+		case 13:
+		case 14:
+		case 15:
+		case 16:
+			return old-9;
+		case 17:
+		case 18:
+		case 19:
+		case 20:
+		case 21:
+		case 22:
+		case 23:
+			return old-16;
+		case 36:
+		case 38:
+			return 9;
+		case 37:
+		case 39:
+			return 10;
+		default:
+			break;
+	}
+
+	return 1;
+}
 
 /*
  *
@@ -1197,6 +1257,22 @@ void CG_RatOldCfgUpdate(void) {
 		CG_Cvar_ResetToDefault( "cg_zoomScopeMGColor" );
 
 		CG_Cvar_SetAndUpdate( "cg_ratInitialized", "21" );
+	}
+
+	if (cg_ratInitialized.integer < 22) {
+		int i;
+		CG_Cvar_SetAndUpdate("cg_drawCrosshair", va("%i", CG_MigrateOldCrosshair((int)CG_Cvar_Get("cg_drawCrosshair"))));
+		
+		for (i = WP_GAUNTLET; i < WP_NUM_WEAPONS; ++i) {
+			char *cvar = va("cg_ch%i", i);
+			CG_Cvar_SetAndUpdate(cvar, va("%i", CG_MigrateOldCrosshair((int)CG_Cvar_Get(cvar))));
+			cvar = va("cg_ch%isize", i);
+			if ((int)CG_Cvar_Get(cvar) == 24) {
+				CG_Cvar_SetAndUpdate(cvar, "30");
+			}
+		}
+
+		CG_Cvar_SetAndUpdate( "cg_ratInitialized", "22" );
 	}
 
 }
@@ -2071,10 +2147,7 @@ static void CG_RegisterGraphics( void ) {
 	cgs.media.selectShader = trap_R_RegisterShader( "gfx/2d/select" );
 
 	for (i = 0; i < NUM_CROSSHAIRS; i++ ) {
-		if (i < 10)
-			cgs.media.crosshairShader[i] = trap_R_RegisterShader( va("gfx/2d/crosshair%c", 'a'+i) );
-		else
-			cgs.media.crosshairShader[i] = trap_R_RegisterShader( va("gfx/2d/crosshair%02d", i) );
+		cgs.media.crosshairShader[i] = trap_R_RegisterShader( va("gfx/2d/crosshair%d", (i+1)) );
  	}
 
 	cgs.media.backTileShader = trap_R_RegisterShader( "gfx/2d/backtile" );
