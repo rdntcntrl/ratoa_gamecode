@@ -1146,10 +1146,10 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 		else {
                         if(es->clientNum == cg.snap->ps.clientNum && !cg.renderingThirdPerson)
                         {
-                           if(cg_drawGun.integer == 2)
-				VectorMA(es->origin2, 8, cg.refdef.viewaxis[1], es->origin2);
-                           else if(cg_drawGun.integer == 3)
+                           if(cg_drawGun.integer == 3 || (cg_drawZoomScope.integer && cg.zoomed))
 				VectorMA(es->origin2, 4, cg.refdef.viewaxis[1], es->origin2);
+			   else if(cg_drawGun.integer == 2)
+				VectorMA(es->origin2, 8, cg.refdef.viewaxis[1], es->origin2);
                         }
 
 

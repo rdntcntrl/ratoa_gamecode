@@ -512,10 +512,10 @@ void CG_PredictWeaponEffects( centity_t *cent ) {
 			VectorMA( muzzlePoint, -1, up, muzzlePoint );
 
                         if(!cg.renderingThirdPerson) {
-                           if(cg_drawGun.integer == 2)
-				VectorMA(muzzlePoint, 8, cg.refdef.viewaxis[1], muzzlePoint);
-                           else if(cg_drawGun.integer == 3)
+                           if(cg_drawGun.integer == 3 || (cg_drawZoomScope.integer && cg.zoomed))
 				VectorMA(muzzlePoint, 4, cg.refdef.viewaxis[1], muzzlePoint);
+			   else if(cg_drawGun.integer == 2)
+				VectorMA(muzzlePoint, 8, cg.refdef.viewaxis[1], muzzlePoint);
                         }
 
 			// draw a rail trail

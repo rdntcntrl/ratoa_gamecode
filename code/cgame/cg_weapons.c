@@ -2120,7 +2120,10 @@ void CG_AddViewWeapon( playerState_t *ps ) {
 
 
 	// allow the gun to be completely removed
-	if ( !cg_drawGun.integer ) {
+	if ( !cg_drawGun.integer || 
+			(cg_drawZoomScope.integer && cg.zoomed 
+			 && (ps->weapon == WP_RAILGUN || ps->weapon == WP_MACHINEGUN)
+			)) {
 		vec3_t		origin;
 
 		if ( cg.predictedPlayerState.eFlags & EF_FIRING ) {
