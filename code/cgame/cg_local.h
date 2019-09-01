@@ -1081,8 +1081,8 @@ typedef struct {
 	qhandle_t	battleSuitShader;
 	qhandle_t	battleWeaponShader;
 	qhandle_t	hastePuffShader;
-	qhandle_t	redKamikazeShader;
-	qhandle_t	blueKamikazeShader;
+	//qhandle_t	redKamikazeShader;
+	//qhandle_t	blueKamikazeShader;
 
 	qhandle_t	spawnPointShader;
         
