@@ -3218,7 +3218,7 @@ void Cmd_CallVote_f( gentity_t *ent ) {
                 }
 
                 Com_sprintf( level.voteString, sizeof( level.voteString ), "shuffle" );
-		Com_sprintf( level.voteDisplayString, sizeof( level.voteDisplayString ), "Shuffle teams?" );
+		Com_sprintf( level.voteDisplayString, sizeof( level.voteDisplayString ), "Shuffle teams and restart?" );
         } else if ( !Q_stricmp( arg1, "kick" ) ) {
                 i = 0;
  		while( !(g_entities+i) || !((g_entities+i)->client) || Q_stricmp(arg2,(g_entities+i)->client->pers.netname)) {

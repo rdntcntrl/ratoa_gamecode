@@ -2469,7 +2469,7 @@ void ShuffleTeams(void) {
     level.shuffling_teams = qfalse;
 
     //Restart!
-    //trap_SendConsoleCommand( EXEC_APPEND, "map_restart 0\n" );
+    trap_SendConsoleCommand( EXEC_APPEND, "map_restart 0\n" );
 
 }
 

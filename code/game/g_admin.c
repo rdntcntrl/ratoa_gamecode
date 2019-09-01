@@ -215,7 +215,7 @@ g_admin_cmd_t g_admin_cmds[ ] =
     },
     //KK-OAX
     {"shuffle", "", G_admin_shuffle, "f",
-        "Shuffles the teams"
+        "Shuffles the teams and restart"
         ""
     },
     
