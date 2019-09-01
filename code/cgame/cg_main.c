@@ -499,7 +499,7 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_simpleItems, "cg_simpleItems", "1", CVAR_ARCHIVE },
 	{ &cg_addMarks, "cg_marks", "1", CVAR_ARCHIVE },
 	{ &cg_lagometer, "cg_lagometer", "1", CVAR_ARCHIVE },
-	{ &cg_railTrailTime, "cg_railTrailTime", "1200", CVAR_ARCHIVE  },
+	{ &cg_railTrailTime, "cg_railTrailTime", "800", CVAR_ARCHIVE  },
 	{ &cg_gun_x, "cg_gunX", "0", CVAR_CHEAT },
 	{ &cg_gun_y, "cg_gunY", "0", CVAR_CHEAT },
 	{ &cg_gun_z, "cg_gunZ", "0", CVAR_CHEAT },
@@ -616,13 +616,13 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_ratPlasmaTrailStep, "cg_ratPlasmaTrailStep", "12", CVAR_ARCHIVE},
 	{ &cg_ratPlasmaTrailTime, "cg_ratPlasmaTrailTime", "500", CVAR_ARCHIVE},
 	//
-	{ &cg_rocketStyle, "cg_rocketStyle", "0", CVAR_ARCHIVE | CVAR_LATCH },
+	{ &cg_rocketStyle, "cg_rocketStyle", "1", CVAR_ARCHIVE | CVAR_LATCH },
 	{ &cg_ratRocketTrail, "cg_ratRocketTrail", "1", CVAR_ARCHIVE},
 	{ &cg_ratRocketTrailAlpha, "cg_ratRocketTrailAlpha", "0.6", CVAR_ARCHIVE},
 	{ &cg_ratRocketTrailRadius, "cg_ratRocketTrailRadius", "6", CVAR_ARCHIVE},
 	{ &cg_ratRocketTrailStep, "cg_ratRocketTrailStep", "20", CVAR_ARCHIVE},
 	{ &cg_ratRocketTrailTime, "cg_ratRocketTrailTime", "0.5", CVAR_ARCHIVE},
-	{ &cg_ratRail, "cg_ratRail", "1", CVAR_ARCHIVE | CVAR_LATCH},
+	{ &cg_ratRail, "cg_ratRail", "3", CVAR_ARCHIVE | CVAR_LATCH},
 	{ &cg_ratRailBeefy, "cg_ratRailBeefy", "0", CVAR_ARCHIVE},
 	{ &cg_ratRailRadius, "cg_ratRailRadius", "0.5", CVAR_ARCHIVE},
 	{ &cg_ratLg, "cg_ratLg", "3", CVAR_ARCHIVE|CVAR_LATCH},
@@ -878,7 +878,7 @@ void CG_RatRemapShaders(void) {
 	}
 }
 
-#define LATEST_RATINITIALIZED 19
+#define LATEST_RATINITIALIZED 20
 
 /*
  *
@@ -1171,6 +1171,15 @@ void CG_RatOldCfgUpdate(void) {
 		CG_Cvar_ResetToDefault( "cg_reloadIndicatorHeight" );
 
 		CG_Cvar_SetAndUpdate( "cg_ratInitialized", "19" );
+	}
+
+	if (cg_ratInitialized.integer < 20) {
+		CG_Cvar_ResetToDefault( "cg_rocketStyle" );
+		CG_Cvar_ResetToDefault( "cg_ratRail" );
+		CG_Cvar_ResetToDefault( "cg_ratRailRadius" );
+		CG_Cvar_ResetToDefault( "cg_railTrailTime" );
+
+		CG_Cvar_SetAndUpdate( "cg_ratInitialized", "20" );
 	}
 
 }
