@@ -6273,11 +6273,18 @@ void CG_DrawTimedMenus( void ) {
 
 void CG_DrawEngineSupport(void) {
 	if (!CG_SupportsOggVorbis()) {
-		const char *s = "WARNING: Unsupported engine, please upgrade!";
+		static int drawEngineMessageTime = 0;
+		const char *s = "WARNING: Engine lacks Ogg Vorbis support, some sounds might not play!";
 		float char_h = 12;
 		float char_w = CG_HeightToWidth(6);
 		float color[4] = { 1.0, 1.0, 0.0, 1.0 };
-		CG_DrawStringExt( SCREEN_WIDTH * 2.0/3.0 - (CG_DrawStrlen(s) * char_w)/2.0,
+
+		if (drawEngineMessageTime == 0) {
+			drawEngineMessageTime = cg.time;
+		} else if (drawEngineMessageTime + 60 * 1000 < cg.time) {
+			return;
+		}
+		CG_DrawStringExt( SCREEN_WIDTH * 0.5 - (CG_DrawStrlen(s) * char_w)/2.0,
 			       	1,
 			       	s,
 			       	color,
