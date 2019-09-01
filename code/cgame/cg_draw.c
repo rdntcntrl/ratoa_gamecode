@@ -5137,7 +5137,7 @@ CG_DrawCrosshair
 static void CG_DrawCrosshair(void)
 {
 	float		w, h;
-	qhandle_t	hShader;
+	qhandle_t	hShader, hShaderOutline;
 	float		f;
 	float		x, y;
 	int			ca = 0; //only to get rid of the warning(not useful)
@@ -5301,10 +5301,21 @@ static void CG_DrawCrosshair(void)
 	if (ca < 1) {
 		ca = 1;
 	}
-	hShader = cgs.media.crosshairShader[ (ca-1) % NUM_CROSSHAIRS ];
 
-        if(!hShader)
+	hShader = cgs.media.crosshairShader[ (ca-1) % NUM_CROSSHAIRS ];
+	hShaderOutline = cgs.media.crosshairOutlineShader[ (ca-1) % NUM_CROSSHAIRS ];
+
+        if(!hShader) {
             hShader = cgs.media.crosshairShader[ 0 ];
+	    hShaderOutline = cgs.media.crosshairOutlineShader[ 0 ];
+	}
+
+	// draw the outline under the white crosshair
+	if (hShaderOutline) {
+		trap_R_DrawStretchPic( x + cg.refdef.x + 0.5 * (cg.refdef.width - w), 
+				y + cg.refdef.y + 0.5 * (cg.refdef.height - h), 
+				w, h, 0, 0, 1, 1, hShader );
+	}
 
 	trap_R_DrawStretchPic( x + cg.refdef.x + 0.5 * (cg.refdef.width - w), 
 		y + cg.refdef.y + 0.5 * (cg.refdef.height - h), 
