@@ -209,100 +209,16 @@ static void CG_NailgunEjectBrass( centity_t *cent ) {
 //#endif
 
 
-/*
-==========================
-CG_RailTrail
-==========================
-*/
-void CG_RailTrail (clientInfo_t *ci, vec3_t start, vec3_t end) {
+void CG_RailSpiral(clientInfo_t *ci, vec3_t start, vec3_t end) {
 	vec3_t axis[36], move, move2, vec, temp;
 	float  len;
 	int    i, j, skip;
- 
 	localEntity_t *le;
 	refEntity_t   *re;
  
-#define RADIUS   4
-#define ROTATION 1
-#define SPACING  5
- 
-	start[2] -= 4;
- 
-	le = CG_AllocLocalEntity();
-	re = &le->refEntity;
- 
-	le->leType = LE_FADE_RGB;
-	le->startTime = cg.time;
-	le->endTime = cg.time + cg_railTrailTime.value;
-	le->lifeRate = 1.0 / (le->endTime - le->startTime);
- 
-	re->shaderTime = cg.time / 1000.0f;
-	re->reType = RT_RAIL_CORE;
-
-	if (cg_ratRail.integer) {
-		re->customShader = cgs.media.ratRailCoreShader;
-	} else {
-		re->customShader = cgs.media.railCoreShader;
-	}
- 
-	VectorCopy(start, re->origin);
-	VectorCopy(end, re->oldorigin);
- 
-	re->shaderRGBA[0] = ci->color1[0] * 255;
-	re->shaderRGBA[1] = ci->color1[1] * 255;
-	re->shaderRGBA[2] = ci->color1[2] * 255;
-
-	re->shaderRGBA[3] = 255;
-
-	le->color[0] = ci->color1[0] * 0.75;
-	le->color[1] = ci->color1[1] * 0.75;
-	le->color[2] = ci->color1[2] * 0.75;
-
-	le->color[3] = 1.0f;
-
-	AxisClear( re->axis );
-
-	if (cg_ratRail.integer) {
-		le = CG_AllocLocalEntity();
-		re = &le->refEntity;
-
-		le->leType = LE_FADE_RGB;
-		le->startTime = cg.time;
-		le->endTime = cg.time + cg_railTrailTime.value/3.0;
-		le->lifeRate = 1.0 / (le->endTime - le->startTime);
-
-		re->shaderTime = cg.time / 1000.0f;
-		re->reType = RT_RAIL_CORE;
-
-		re->customShader = cgs.media.ratRailCoreShaderOverlay;
-
-		VectorCopy(start, re->origin);
-		VectorCopy(end, re->oldorigin);
-
-		re->shaderRGBA[0] = 255;
-		re->shaderRGBA[1] = 255;
-		re->shaderRGBA[2] = 255;
-		re->shaderRGBA[3] = 255;
-
-		le->color[0] = 1.0;
-		le->color[1] = 1.0;
-		le->color[2] = 1.0;
-		le->color[3] = 1.0f;
-
-		AxisClear( re->axis );
-	}
-
-	if (cg_oldRail.integer && !cg_ratRail.integer) {
-		// nudge down a bit so it isn't exactly in center
-		re->origin[2] -= 8;
-		re->oldorigin[2] -= 8;
-		return;
-	}
-
-	if (cg_ratRail.integer && cg_ratRailRadius.value == 0) {
-		return;
-	}
-
+#define RAIL_RADIUS   4
+#define RAIL_ROTATION 1
+#define RAIL_SPACING  5
 
 	VectorCopy (start, move);
 	VectorSubtract (end, start, vec);
@@ -314,16 +230,16 @@ void CG_RailTrail (clientInfo_t *ci, vec3_t start, vec3_t end) {
 	}
 
 	VectorMA(move, 20, vec, move);
-	VectorScale (vec, SPACING, vec);
+	VectorScale (vec, RAIL_SPACING, vec);
 
 	skip = -1;
  
 	j = 18;
-	for (i = 0; i < len; i += SPACING)
+	for (i = 0; i < len; i += RAIL_SPACING)
 	{
 		if (i != skip)
 		{
-			skip = i + SPACING;
+			skip = i + RAIL_SPACING;
 			le = CG_AllocLocalEntity();
 			re = &le->refEntity;
 			le->leFlags = LEF_PUFF_DONT_SCALE;
@@ -354,7 +270,7 @@ void CG_RailTrail (clientInfo_t *ci, vec3_t start, vec3_t end) {
 			if (cg_ratRail.integer) {
 				VectorMA(move2, cg_ratRailRadius.value , axis[j], move2);
 			} else {
-				VectorMA(move2, RADIUS , axis[j], move2);
+				VectorMA(move2, RAIL_RADIUS , axis[j], move2);
 			}
 			VectorCopy(move2, le->pos.trBase);
 
@@ -371,8 +287,330 @@ void CG_RailTrail (clientInfo_t *ci, vec3_t start, vec3_t end) {
 
 		VectorAdd (move, vec, move);
 
-		j = (j + ROTATION) % 36;
+		j = (j + RAIL_ROTATION) % 36;
 	}
+}
+
+void CG_RailSpiral2(clientInfo_t *ci, vec3_t start, vec3_t end) {
+	vec3_t axis[36], move, move2, vec, temp, last;
+	trajectory_t lastTraj;
+	float  len;
+	int    i, j, skip, k;
+	localEntity_t *le;
+	refEntity_t   *re;
+
+#define RAIL2_ROTATION 1
+#define RAIL2_SPACING  5
+
+	VectorCopy (start, move);
+	VectorSubtract (end, start, vec);
+	len = VectorNormalize (vec);
+	PerpendicularVector(temp, vec);
+	for (i = 0 ; i < 36; i++)
+	{
+		RotatePointAroundVector(axis[i], vec, temp, i * 10);//banshee 2.4 was 10
+	}
+
+	VectorMA(move, 20, vec, move);
+	VectorScale (vec, RAIL2_SPACING, vec);
+
+	skip = -1;
+ 
+	j = 18;
+	VectorCopy(start, last);
+	memset(&lastTraj, 0, sizeof(lastTraj));
+	k = 0;
+	for (i = 0; i < len; i += RAIL2_SPACING)
+	{
+		if (i != skip)
+		{
+			trajectory_t traj;
+			skip = i + RAIL2_SPACING;
+
+			VectorCopy( move, move2);
+			VectorMA(move2, cg_ratRailRadius.value, axis[j], move2);
+
+			traj.trType = TR_LINEAR;
+			traj.trTime = cg.time;
+			VectorCopy(move2, traj.trBase);
+			traj.trDelta[0] = axis[j][0]*6;
+			traj.trDelta[1] = axis[j][1]*6;
+			traj.trDelta[2] = axis[j][2]*6;
+
+			if (i <= RAIL2_SPACING) {
+				VectorCopy(move2, last);
+				memcpy(&lastTraj, &traj, sizeof(lastTraj));
+				continue;
+			}
+
+
+			le = CG_AllocLocalEntity();
+			re = &le->refEntity;
+
+			le->leType = LE_FADE_RGB;
+			le->startTime = cg.time;
+			le->endTime = cg.time + 1000;
+			le->lifeRate = 1.0 / (le->endTime - le->startTime);
+
+			re->shaderTime = cg.time / 1000.0f;
+			if (cg_ratRailBeefy.integer) {
+				re->reType = RT_LIGHTNING;
+			} else {
+				re->reType = RT_RAIL_CORE;
+			}
+
+			re->customShader = cgs.media.ratRailSpiralShaders[(k++) % NUM_RAILSPIRALSHADERS];
+
+			re->shaderRGBA[0] = ci->color2[0] * 255;
+			re->shaderRGBA[1] = ci->color2[1] * 255;
+			re->shaderRGBA[2] = ci->color2[2] * 255;
+
+			re->shaderRGBA[3] = 255;
+
+			le->color[0] = ci->color2[0] * 0.75;
+			le->color[1] = ci->color2[1] * 0.75;
+			le->color[2] = ci->color2[2] * 0.75;
+
+			le->color[3] = 1.0f;
+
+			AxisClear( re->axis );
+
+			if (cg_ratRailBeefy.integer) {
+				// for RT_LIGHTNING, these must be reversed
+				VectorCopy(move2, re->oldorigin);
+				VectorCopy(last, re->origin);
+
+				memcpy(&le->pos2, &traj, sizeof(le->pos2));
+				memcpy(&le->pos, &lastTraj, sizeof(le->pos));
+			} else {
+				VectorCopy(move2, re->origin);
+				VectorCopy(last, re->oldorigin);
+
+				memcpy(&le->pos, &traj, sizeof(le->pos));
+				memcpy(&le->pos2, &lastTraj, sizeof(le->pos2));
+			}
+
+
+			VectorCopy(move2, last);
+			memcpy(&lastTraj, &traj, sizeof(lastTraj));
+
+			le->leFlags = LEF_PUFF_DONT_SCALE | LEF_FADE_RGB | LEF_MOVE_OLDORIGIN;
+			le->leType = LE_MOVE_SCALE_FADE;
+		}
+
+		VectorAdd (move, vec, move);
+
+		j = (j + RAIL2_ROTATION) % 36;
+	}
+}
+
+#define RAIL3_SPIRALLENGTH 180
+#define RAIL3_NUMROT	6
+void CG_RailSpiral3(clientInfo_t *ci, vec3_t start, vec3_t end) {
+	vec3_t rotaxis[RAIL3_NUMROT];
+	vec3_t rotaxis2[RAIL3_NUMROT];
+	vec3_t second;
+	vec3_t direction;
+	vec3_t s;
+	localEntity_t *le;
+	refEntity_t   *re;
+	float l, len, remaining, tubelength;
+	int i, numTubes;
+
+	VectorSubtract(end, start, direction);
+
+	// create other 2 axies
+	len = VectorNormalize(direction);
+	//MakeNormalVectors(direction, axis[1], axis[2]);
+	PerpendicularVector(second, direction);
+	for (i = 0 ; i < RAIL3_NUMROT; i++)
+	{
+		RotatePointAroundVector(rotaxis[i], direction, second, i * 360.0/RAIL3_NUMROT);
+		CrossProduct(direction, rotaxis[i], rotaxis2[i]);
+		VectorScale(rotaxis[i], 10, rotaxis[i]);
+		VectorScale(rotaxis2[i], 10, rotaxis2[i]);
+	}
+	
+	numTubes = len/(float)RAIL3_SPIRALLENGTH;
+	if (numTubes < 1) {
+		numTubes = 1;
+	}
+	tubelength = len/(float)numTubes;
+
+	VectorScale(direction, tubelength, direction);
+
+	VectorCopy(start, s);
+	i = 0;
+	for (l = 0; l < len; l += tubelength) {
+
+		remaining = (len - l)/(float)RAIL3_SPIRALLENGTH;
+		if (remaining < 0.1) {
+			// don't draw very short spirals at all
+			return;
+		}
+
+		le = CG_AllocLocalEntity();
+		re = &le->refEntity;
+
+		le->leType = LE_RAILTUBE;
+		le->startTime = cg.time;
+		le->endTime = cg.time + 1000;
+		le->lifeRate = 1.0 / (le->endTime - le->startTime);
+
+		re->shaderTime = cg.time / 1000.0f;
+
+		re->shaderRGBA[0] = ci->color2[0] * 255;
+		re->shaderRGBA[1] = ci->color2[1] * 255;
+		re->shaderRGBA[2] = ci->color2[2] * 255;
+
+		re->shaderRGBA[3] = 255;
+
+		le->color[0] = ci->color2[0] * 0.75;
+		le->color[1] = ci->color2[1] * 0.75;
+		le->color[2] = ci->color2[2] * 0.75;
+
+		le->color[3] = 1.0f;
+
+
+		re->nonNormalizedAxes = qtrue;
+
+		VectorCopy(direction, re->axis[0]);
+		VectorCopy(rotaxis[i % RAIL3_NUMROT], re->axis[1]);
+		VectorCopy(rotaxis2[i % RAIL3_NUMROT], re->axis[2]);
+
+		// use scaled shader for short tubes
+		re->customShader = cgs.media.ratRailTubeShader100;
+		if (remaining < 0.5) {
+			re->customShader = cgs.media.ratRailTubeShader50;
+		}
+
+		re->reType = RT_MODEL;
+		re->rotation = 0;
+		re->hModel = cgs.media.ratRailSpiralModel;
+		re->renderfx = RF_NOSHADOW;
+
+		VectorCopy(s, re->origin);
+		VectorAdd(s, direction, s);
+		++i;
+	}
+
+}
+
+/*
+==========================
+CG_RailTrail
+==========================
+*/
+void CG_RailTrail (clientInfo_t *ci, vec3_t start, vec3_t end) {
+	localEntity_t *le;
+	refEntity_t   *re;
+	int railTrailTime = MAX(300,cg_railTrailTime.integer);
+
+	start[2] -= 4;
+
+	// add the spiral first
+	// by adding the core last we ensure it is drawn even if we add too
+	// many entities
+	if (cg_ratRailRadius.value > 0 || (!cg_ratRail.integer && !cg_oldRail.integer)) {
+		switch (cg_ratRail.integer) {
+			case 2:
+				CG_RailSpiral2(ci, start, end);
+				break;
+			case 3:
+				CG_RailSpiral3(ci, start, end);
+				break;
+			default:
+				CG_RailSpiral(ci, start, end);
+				break;
+
+		}
+	}
+ 
+	le = CG_AllocLocalEntity();
+	re = &le->refEntity;
+ 
+	le->leType = LE_FADE_RGB;
+	le->startTime = cg.time;
+	le->endTime = cg.time + railTrailTime;
+	le->lifeRate = 1.0 / (le->endTime - le->startTime);
+ 
+	re->shaderTime = cg.time / 1000.0f;
+
+	if (cg_ratRailBeefy.integer) {
+		// this will draw the core 4 at different angles times instead
+		// of just once, with a core width of 8
+		re->reType = RT_LIGHTNING;
+	} else {
+		re->reType = RT_RAIL_CORE;
+	}
+
+	if (cg_ratRail.integer) {
+		re->customShader = cgs.media.ratRailCoreShader;
+	} else {
+		re->customShader = cgs.media.railCoreShader;
+	}
+ 
+	VectorCopy(start, re->origin);
+	VectorCopy(end, re->oldorigin);
+ 
+	re->shaderRGBA[0] = ci->color1[0] * 255;
+	re->shaderRGBA[1] = ci->color1[1] * 255;
+	re->shaderRGBA[2] = ci->color1[2] * 255;
+
+	re->shaderRGBA[3] = 255;
+
+	le->color[0] = ci->color1[0] * 0.75;
+	le->color[1] = ci->color1[1] * 0.75;
+	le->color[2] = ci->color1[2] * 0.75;
+
+	le->color[3] = 1.0f;
+
+	AxisClear( re->axis );
+
+	if (cg_ratRail.integer) {
+		le = CG_AllocLocalEntity();
+		re = &le->refEntity;
+
+		//le->leType = LE_FADE_RGB;
+		le->leType = LE_FADE_RGB;
+		le->leType = LE_FADE_RGB_SIN;
+		le->startTime = cg.time;
+		le->endTime = cg.time + MIN(1200,railTrailTime)/2.0;
+		le->lifeRate = 1.0 / (le->endTime - le->startTime);
+
+		re->shaderTime = cg.time / 1000.0f;
+		if (cg_ratRailBeefy.integer) {
+			re->reType = RT_LIGHTNING;
+		} else {
+			re->reType = RT_RAIL_CORE;
+		}
+
+		re->customShader = cgs.media.ratRailCoreShaderOverlay;
+
+		VectorCopy(start, re->origin);
+		VectorCopy(end, re->oldorigin);
+
+		re->shaderRGBA[0] = 255;
+		re->shaderRGBA[1] = 255;
+		re->shaderRGBA[2] = 255;
+		re->shaderRGBA[3] = 255;
+
+		le->color[0] = 1.0;
+		le->color[1] = 1.0;
+		le->color[2] = 1.0;
+		le->color[3] = 1.0f;
+
+		AxisClear( re->axis );
+	}
+
+	if (cg_oldRail.integer && !cg_ratRail.integer) {
+		// nudge down a bit so it isn't exactly in center
+		re->origin[2] -= 8;
+		re->oldorigin[2] -= 8;
+		return;
+	}
+
+
 }
 
 /*
@@ -1215,14 +1453,28 @@ void CG_RegisterWeapon( int weaponNum ) {
 		cgs.media.railRingsShader = trap_R_RegisterShader( "railDisc" );
 		cgs.media.railCoreShader = trap_R_RegisterShader( "railCore" );
 		switch (cg_ratRail.integer) {
-			case 2:
+			case 4:
 				cgs.media.ratRailCoreShader = trap_R_RegisterShader( "ratRailCoreFat" );
 				cgs.media.ratRailCoreShaderOverlay = trap_R_RegisterShader( "ratRailCoreOverlayFat" );
 				break;
 			case 1:
+				cgs.media.ratRailCoreShader = trap_R_RegisterShader( "ratRailCore" );
+				cgs.media.ratRailCoreShaderOverlay = trap_R_RegisterShader( "ratRailCoreOverlay" );
+				break;
+			case 3:
+				cgs.media.ratRailCoreShader = trap_R_RegisterShader( "ratRailCore" );
+				cgs.media.ratRailCoreShaderOverlay = trap_R_RegisterShader( "ratRailCoreOverlay" );
+				cgs.media.ratRailSpiralModel = trap_R_RegisterModel("models/ammo/rail/railTube.md3");
+				cgs.media.ratRailTubeShader100 = trap_R_RegisterShader("railTube100");
+				cgs.media.ratRailTubeShader50 = trap_R_RegisterShader("railTube50");
+				break;
+			case 2:
 			default:
 				cgs.media.ratRailCoreShader = trap_R_RegisterShader( "ratRailCore" );
 				cgs.media.ratRailCoreShaderOverlay = trap_R_RegisterShader( "ratRailCoreOverlay" );
+				for (i = 0; i < NUM_RAILSPIRALSHADERS ; ++i) {
+					cgs.media.ratRailSpiralShaders[i] = trap_R_RegisterShader( va("ratRailSpiralLightning%i", i) );
+				}
 				break;
 		}
 		break;

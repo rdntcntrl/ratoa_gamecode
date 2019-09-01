@@ -297,6 +297,8 @@ typedef enum {
 	LE_MOVE_SCALE_FADE,
 	LE_FALL_SCALE_FADE,
 	LE_FADE_RGB,
+	LE_FADE_RGB_SIN,
+	LE_RAILTUBE,
 	LE_SCALE_FADE,
 	LE_SCOREPLUM,
 	LE_KAMIKAZE,
@@ -310,7 +312,9 @@ typedef enum {
 	LEF_PUFF_DONT_SCALE  = 0x0001,			// do not scale size over time
 	LEF_TUMBLE			 = 0x0002,			// tumble over time, used for ejecting shells
 	LEF_SOUND1			 = 0x0004,			// sound 1 for kamikaze
-	LEF_SOUND2			 = 0x0008			// sound 2 for kamikaze
+	LEF_SOUND2			 = 0x0008,			// sound 2 for kamikaze
+	LEF_FADE_RGB			 = 0x0010,			// fade all channels, not just alpha
+	LEF_MOVE_OLDORIGIN		 = 0x0020			// move oldorigin as well 
 } leFlag_t;
 
 typedef enum {
@@ -338,6 +342,7 @@ typedef struct localEntity_s {
 	float			lifeRate;			// 1.0 / (endTime - startTime)
 
 	trajectory_t	pos;
+	trajectory_t	pos2; // for oldorigin
 	trajectory_t	angles;
 
 	float			bounceFactor;		// 0.0 = no bounce, 1.0 = perfect
@@ -566,6 +571,8 @@ typedef struct {
 #define MAX_REWARDROW		10
 #define MAX_REWARDSOUNDBUFFER	10
 
+
+#define NUM_RAILSPIRALSHADERS	10
 
 
 
@@ -973,7 +980,11 @@ typedef struct {
 	qhandle_t	railRingsShader;
 	qhandle_t	railCoreShader;
 	qhandle_t	ratRailCoreShader;
+	qhandle_t	ratRailSpiralShaders[NUM_RAILSPIRALSHADERS];
 	qhandle_t	ratRailCoreShaderOverlay;
+	qhandle_t	ratRailSpiralModel;
+	qhandle_t	ratRailTubeShader100;
+	qhandle_t	ratRailTubeShader50;
 
 	qhandle_t	lightningShader;
 
@@ -1640,6 +1651,7 @@ extern vmCvar_t			cg_ratRocketTrailRadius;
 extern vmCvar_t			cg_ratRocketTrailStep;
 extern vmCvar_t			cg_ratRocketTrailTime;
 extern vmCvar_t			cg_ratRail;
+extern vmCvar_t			cg_ratRailBeefy;
 extern vmCvar_t			cg_ratRailRadius;
 extern vmCvar_t			cg_ratLg;
 extern vmCvar_t			cg_ratLgImpact;
