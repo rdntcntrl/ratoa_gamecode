@@ -878,13 +878,13 @@ static void CG_ParseAttackingTeam( void ) {
 
 static void CG_ParseTeamPlayerCounts( void ) {
 	int livingRed, livingBlue, totalRed, totalBlue;
-	int team;
-	qboolean dead;
+	int team = TEAM_SPECTATOR;
+	qboolean dead = qfalse;
 
-	if (cg.snap->ps.pm_flags & PMF_FOLLOW) {
+	if (cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR && cg.snap->ps.pm_flags & PMF_FOLLOW) {
 		team = cg.snap->ps.persistant[PERS_TEAM];
 		dead = (cg.snap->ps.pm_type == PM_DEAD);
-	} else {
+	} else if (cg.snap->ps.persistant[PERS_TEAM] != TEAM_SPECTATOR) {
 		team = cg.predictedPlayerState.persistant[PERS_TEAM];
 		dead = (cg.predictedPlayerState.pm_type == PM_DEAD);
 	}
