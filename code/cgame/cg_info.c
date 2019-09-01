@@ -178,14 +178,9 @@ void CG_DrawInformation( void ) {
 	color[3] = 0.6;
 	CG_FillRect( 0, 450, 640, 30, color);
 			
-	//UI_DrawProportionalString( 20, 440, "RATmod",
-	//		UI_LEFT|UI_SMALLFONT, colorYellow );
-
-	//UI_DrawProportionalString( 620, 440, "By a rat. For the rats.",
-	//		UI_RIGHT|UI_SMALLFONT, colorYellow );
 	CG_DrawScoreString(10, 465-SCORECHAR_HEIGHT/2, S_COLOR_YELLOW "RAT" S_COLOR_BLACK "mod"
 			"   ---<(((" S_COLOR_YELLOW ":" S_COLOR_BLACK ">", 1.0, 0);
-	s = S_COLOR_YELLOW "By a rat. For the rats.";
+	s = S_COLOR_YELLOW "By the rats. For the rats.";
 	CG_DrawScoreString(630-CG_DrawStrlen(s)*SCORECHAR_WIDTH, 465-SCORECHAR_HEIGHT/2, s, 1.0, 0);
 
 	// the first 150 rows are reserved for the client connection
