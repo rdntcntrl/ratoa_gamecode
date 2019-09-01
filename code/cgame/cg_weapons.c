@@ -349,7 +349,7 @@ void CG_RailSpiral2(clientInfo_t *ci, vec3_t start, vec3_t end) {
 
 			le->leType = LE_FADE_RGB;
 			le->startTime = cg.time;
-			le->endTime = cg.time + 1000;
+			le->endTime = cg.time + 800;
 			le->lifeRate = 1.0 / (le->endTime - le->startTime);
 
 			re->shaderTime = cg.time / 1000.0f;
@@ -454,7 +454,7 @@ void CG_RailSpiral3(clientInfo_t *ci, vec3_t start, vec3_t end) {
 
 		le->leType = LE_RAILTUBE;
 		le->startTime = cg.time;
-		le->endTime = cg.time + 1000;
+		le->endTime = cg.time + 800;
 		le->lifeRate = 1.0 / (le->endTime - le->startTime);
 
 		re->shaderTime = cg.time / 1000.0f;
