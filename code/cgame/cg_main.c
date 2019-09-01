@@ -205,8 +205,6 @@ vmCvar_t 	cg_predictTeleport;
 vmCvar_t 	cg_predictWeapons;
 vmCvar_t 	cg_predictExplosions;
 vmCvar_t 	cg_predictPlayerExplosions;
-vmCvar_t 	cg_ratPredictMissilesPing;
-vmCvar_t 	cg_ratPredictMissilesPingFactor;
 vmCvar_t 	cg_ratPredictMissiles;
 vmCvar_t 	cg_delagProjectileTrail;
 vmCvar_t 	cg_ratScoreboard;
@@ -613,8 +611,6 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_predictExplosions, "cg_predictExplosions", "1", 0},
 	{ &cg_predictPlayerExplosions, "cg_predictPlayerExplosions", "0", 0},
 
-	{ &cg_ratPredictMissilesPing, "cg_ratPredictMissilesPing", "0", 0},
-	{ &cg_ratPredictMissilesPingFactor, "cg_ratPredictMissilesPingFactor", "2.0", 0},
 	{ &cg_ratPredictMissiles, "cg_ratPredictMissiles", "1", CVAR_ARCHIVE},
 	{ &cg_delagProjectileTrail, "cg_delagProjectileTrail", "1", 0},
 	{ &cg_ratScoreboard, "cg_ratScoreboard", "1", CVAR_ARCHIVE},
@@ -889,7 +885,7 @@ void CG_RatRemapShaders(void) {
 }
 
 
-#define LATEST_RATINITIALIZED 22
+#define LATEST_RATINITIALIZED 23
 
 int CG_MigrateOldCrosshair(int old) {
 	switch (old) {
@@ -1275,6 +1271,12 @@ void CG_RatOldCfgUpdate(void) {
 		CG_Cvar_SetAndUpdate( "cg_ratInitialized", "22" );
 	}
 
+	if (cg_ratInitialized.integer < 23) {
+		trap_SendConsoleCommand("unset cg_ratPredictMissilesPing;"
+				        "unset cg_ratPredictMissilesPingFactor\n"
+				);
+		CG_Cvar_SetAndUpdate( "cg_ratInitialized", "23" );
+	}
 }
 
 /*

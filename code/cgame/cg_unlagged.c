@@ -43,6 +43,10 @@ predictedMissile_t	cg_predictedMissiles[MAX_PREDICTED_MISSILES];
 predictedMissile_t	cg_activePMissiles;		// double linked list
 predictedMissile_t	*cg_freePMissiles;		// single linked list
 
+// how much longer than the player's roundtrip time  a predicted missile will
+// stay alive awaiting confirmation from the server
+#define PMISSILE_WINDOWTIME 30
+
 /*
 ===================
 CG_InitPMissilles
@@ -143,6 +147,7 @@ void CG_RecoverMissile(centity_t *missile) {
 	}
 }
 
+
 void CG_RemovePredictedMissile( centity_t *missile) {
 	predictedMissile_t	*pm, *next;
 
@@ -169,8 +174,8 @@ void CG_RemovePredictedMissile( centity_t *missile) {
 			continue;
 		}
 
-		if (missile->currentState.pos.trTime - 30 > pm->pos.trTime
-				|| missile->currentState.pos.trTime + 30 < pm->pos.trTime) {
+		if (missile->currentState.pos.trTime - PMISSILE_WINDOWTIME > pm->pos.trTime
+				|| missile->currentState.pos.trTime + PMISSILE_WINDOWTIME < pm->pos.trTime) {
 			continue;
 		}
 
@@ -737,12 +742,8 @@ void CG_PredictWeaponEffects( centity_t *cent ) {
 predictedMissile_t *CG_BasePredictMissile( entityState_t *ent,  vec3_t muzzlePoint ) {
 	predictedMissile_t	*pm;
 	refEntity_t	*bolt;
-	int lifetime = (cg_ratPredictMissilesPing.integer > 0 ?
-			      	cg_ratPredictMissilesPing.integer : CG_ReliablePing())
-		       	* cg_ratPredictMissilesPingFactor.value;
-	if (lifetime < 50 * cg_ratPredictMissilesPingFactor.value) {
-		lifetime = 50 * cg_ratPredictMissilesPingFactor.value;
-	}
+	int lifetime = CG_ReliablePing() + PMISSILE_WINDOWTIME;
+
 	pm = CG_AllocPMissile();
 	pm->removeTime = cg.time + lifetime;
 	pm->weapon = ent->weapon;
