@@ -263,12 +263,10 @@ void CG_AddMarks( void ) {
 				if ( fade < 0 ) {
 					fade = 0;
 				}
-				if ( mp->verts[0].modulate[0] != 0 ) {
-					for ( j = 0 ; j < mp->poly.numVerts ; j++ ) {
-						mp->verts[j].modulate[0] = mp->color[0] * fade;
-						mp->verts[j].modulate[1] = mp->color[1] * fade;
-						mp->verts[j].modulate[2] = mp->color[2] * fade;
-					}
+				for ( j = 0 ; j < mp->poly.numVerts ; j++ ) {
+					mp->verts[j].modulate[0] = mp->color[0] * fade;
+					mp->verts[j].modulate[1] = mp->color[1] * fade;
+					mp->verts[j].modulate[2] = mp->color[2] * fade;
 				}
 			}
 		}
