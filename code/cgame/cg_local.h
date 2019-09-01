@@ -1012,6 +1012,9 @@ typedef struct {
 	qhandle_t	backTileShader;
 	qhandle_t	noammoShader;
 
+	qhandle_t	zoomScopeMGShader;
+	qhandle_t	zoomScopeRGShader;
+
 	qhandle_t	smokePuffShader;
 	qhandle_t	smokePuffRageProShader;
 	qhandle_t	plasmaTrailShader;
@@ -1548,6 +1551,10 @@ extern	vmCvar_t		cg_drawSnapshot;
 extern	vmCvar_t		cg_draw3dIcons;
 extern	vmCvar_t		cg_drawIcons;
 extern	vmCvar_t		cg_drawAmmoWarning;
+extern	vmCvar_t		cg_drawZoomScope;
+extern	vmCvar_t		cg_zoomScopeSize;
+extern	vmCvar_t		cg_zoomScopeRGColor;
+extern	vmCvar_t		cg_zoomScopeMGColor;
 extern	vmCvar_t		cg_drawCrosshair;
 extern	vmCvar_t		cg_drawCrosshairNames;
 extern	vmCvar_t		cg_drawRewards;

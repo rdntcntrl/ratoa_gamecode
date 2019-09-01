@@ -5459,6 +5459,50 @@ static void CG_ScanForCrosshairEntity( void ) {
 	cg.crosshairClientTime = cg.time;
 }
 
+static void CG_DrawZoomScope( void ) {
+	int weapon = cg.predictedPlayerState.weapon;
+	qhandle_t shader;
+	float h,w;
+	float color[4] = { 0.0, 0.0, 0.0, 1.0 };
+	float hue, sat, val;
+
+	if (!cg_drawZoomScope.integer || !cg.zoomed) {
+		return;
+	}
+
+	switch (weapon) {
+		case WP_MACHINEGUN:
+			shader = cgs.media.zoomScopeMGShader;
+			CG_PlayerColorFromString(cg_zoomScopeMGColor.string, &hue, &sat, &val);
+			CG_HSV2RGB(hue,sat,val, color);
+			break;
+		case WP_RAILGUN:
+			shader = cgs.media.zoomScopeRGShader;
+			CG_PlayerColorFromString(cg_zoomScopeRGColor.string, &hue, &sat, &val);
+			CG_HSV2RGB(hue,sat,val, color);
+			break;
+		default:
+			return;
+	}
+	color[3] = 1.0;
+
+	h = SCREEN_HEIGHT * cg_zoomScopeSize.value;
+	w = CG_HeightToWidth(h);
+	trap_R_SetColor(color);
+	CG_DrawPic((SCREEN_WIDTH - w)/2.0, (SCREEN_HEIGHT-h)/2.0, w, h, shader);
+	color[0] = color[1] = color[2] = 0.0;
+	color[3] = 0.6;
+	if (h < SCREEN_HEIGHT) {
+		CG_FillRect((SCREEN_WIDTH - w)/2.0, 0, w, (SCREEN_HEIGHT-h)/2.0, color);
+		CG_FillRect((SCREEN_WIDTH - w)/2.0, SCREEN_HEIGHT-(SCREEN_HEIGHT-h)/2.0, w, (SCREEN_HEIGHT-h)/2.0, color);
+	}
+	if (w < SCREEN_WIDTH) {
+		CG_FillRect(0, 0, (SCREEN_WIDTH-w)/2.0, SCREEN_HEIGHT, color);
+		CG_FillRect((SCREEN_WIDTH + w)/2.0, 0, (SCREEN_WIDTH-w)/2.0, SCREEN_HEIGHT, color);
+	}
+	trap_R_SetColor(NULL);
+}
+
 
 static void CG_DrawEmptyIndicator( void ) {
 	int ammo, ammoSaved;
@@ -6323,6 +6367,7 @@ static void CG_Draw2D(stereoFrame_t stereoFrame)
 	} else {
 		// don't draw any status if dead or the scoreboard is being explicitly shown
 		if ( !cg.showScores && cg.snap->ps.stats[STAT_HEALTH] > 0 ) {
+			CG_DrawZoomScope();
 			if (cg_ratStatusbar.integer == 4 && cgs.gametype != GT_HARVESTER && cgs.gametype != GT_TREASURE_HUNTER) {
 				CG_DrawRatStatusBar4Bg();
 			}

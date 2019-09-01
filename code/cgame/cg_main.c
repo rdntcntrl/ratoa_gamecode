@@ -116,6 +116,10 @@ vmCvar_t	cg_drawSnapshot;
 vmCvar_t	cg_draw3dIcons;
 vmCvar_t	cg_drawIcons;
 vmCvar_t	cg_drawAmmoWarning;
+vmCvar_t	cg_drawZoomScope;
+vmCvar_t	cg_zoomScopeSize;
+vmCvar_t	cg_zoomScopeRGColor;
+vmCvar_t	cg_zoomScopeMGColor;
 vmCvar_t	cg_drawCrosshair;
 vmCvar_t	cg_drawCrosshairNames;
 vmCvar_t	cg_drawRewards;
@@ -485,6 +489,10 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_drawPickup, "cg_drawPickup", "1", CVAR_ARCHIVE  },
 	{ &cg_drawSpeed, "cg_drawSpeed", "1", CVAR_ARCHIVE  },
 	{ &cg_drawSpeed3D, "cg_drawSpeed3D", "0", 0  },
+	{ &cg_drawZoomScope, "cg_drawZoomScope", "0", CVAR_ARCHIVE | CVAR_LATCH },
+	{ &cg_zoomScopeSize, "cg_zoomScopeSize", "1.0", CVAR_ARCHIVE },
+	{ &cg_zoomScopeRGColor, "cg_zoomScopeRGColor", "H120 1.0 0.5", CVAR_ARCHIVE },
+	{ &cg_zoomScopeMGColor, "cg_zoomScopeMGColor", "H60 1.0 0.5", CVAR_ARCHIVE },
 	{ &cg_drawCrosshair, "cg_drawCrosshair", "19", CVAR_ARCHIVE },
 	{ &cg_drawCrosshairNames, "cg_drawCrosshairNames", "1", CVAR_ARCHIVE },
 	{ &cg_drawRewards, "cg_drawRewards", "1", CVAR_ARCHIVE|CVAR_LATCH },
@@ -2318,6 +2326,11 @@ static void CG_RegisterGraphics( void ) {
 	cgs.media.damageIndicatorTop = trap_R_RegisterShaderNoMip("damageIndicatorTop");
 	cgs.media.damageIndicatorRight = trap_R_RegisterShaderNoMip("damageIndicatorRight");
 	cgs.media.damageIndicatorLeft = trap_R_RegisterShaderNoMip("damageIndicatorLeft");
+
+	if (cg_drawZoomScope.integer) {
+		cgs.media.zoomScopeMGShader = trap_R_RegisterShader("zoomScopeMG");
+		cgs.media.zoomScopeRGShader = trap_R_RegisterShader("zoomScopeRG");
+	}
 
 	// LEILEI SHADERS
 	cgs.media.lsmkShader1 = trap_R_RegisterShader("leismoke1" );
