@@ -1631,6 +1631,20 @@ static void CG_RegisterItemSounds( int itemNum ) {
 	}
 }
 
+qboolean CG_SupportsOggVorbis(void) {
+	static int supports_ogg = -1;
+
+	if (supports_ogg == -1) {
+		qhandle_t ogg = trap_S_RegisterSound("sound/testoggvorbis.ogg", qtrue);
+		if (ogg) {
+			supports_ogg = 1;
+		} else {
+			supports_ogg = 0;
+		}
+	}
+
+	return (qboolean)supports_ogg;
+}
 
 void CG_GetAnnouncer(const char *announcerCfg, char *outAnnouncer, int announcersz, char *outformat, int formatsz) {
 	const char *p;
@@ -1677,7 +1691,15 @@ void CG_GetAnnouncer(const char *announcerCfg, char *outAnnouncer, int announcer
 		return;
 	}
 
-	if (Q_stricmp(buf, "ogg") != 0 && Q_stricmp(buf, "wav") != 0) {
+	if (Q_stricmp(buf, "ogg") == 0) {
+		if (!CG_SupportsOggVorbis()) {
+			// use default announcer if there is ogg support
+			CG_Printf(S_COLOR_RED "ERROR: Unable to load announcer \"%s\"" S_COLOR_RED ": engine lacks Ogg Vorbis support!\n",
+					announcerCfg);
+			return;
+		}
+	} else if (Q_stricmp(buf, "wav") != 0) {
+		// if it's something other than ogg or wav, use the default announcer
 		return;
 	}
 
