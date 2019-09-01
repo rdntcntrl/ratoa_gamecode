@@ -6270,6 +6270,26 @@ void CG_DrawTimedMenus( void ) {
 	}
 }
 #endif
+
+void CG_DrawEngineSupport(void) {
+	if (!CG_SupportsOggVorbis()) {
+		const char *s = "WARNING: Unsupported engine, please upgrade!";
+		float char_h = 12;
+		float char_w = CG_HeightToWidth(6);
+		float color[4] = { 1.0, 1.0, 0.0, 1.0 };
+		CG_DrawStringExt( SCREEN_WIDTH * 2.0/3.0 - (CG_DrawStrlen(s) * char_w)/2.0,
+			       	1,
+			       	s,
+			       	color,
+			       	qtrue,
+			       	qfalse,
+			       	char_w,
+				char_h,
+				0);
+	}
+}
+
+
 /*
 =================
 CG_Draw2D
@@ -6290,6 +6310,8 @@ static void CG_Draw2D(stereoFrame_t stereoFrame)
 	if ( cg_draw2D.integer == 0 ) {
 		return;
 	}
+
+	CG_DrawEngineSupport();
 
 	if (cg_newConsole.integer) {
 		float consoleSizeY = CG_ConsoleAdjustSizeY(cg_consoleSizeY.value);
