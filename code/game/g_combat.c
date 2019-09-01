@@ -587,10 +587,10 @@ void G_CheckAmbushAward(gentity_t *victim, gentity_t *inflictor, gentity_t *atta
 		return;
 	}
 	// also makes sure the client wasn't moved back through the portal due to unlag
-	if ((((victim->client->timeshiftTime == 0 || victim->client->timeshiftTime > victim->client->lastTeleportTime) && 
+	if ((((victim->client->timeshiftTime == 0 || victim->client->timeshiftTime > victim->client->lastTeleportTime + sv_fps.integer/1000) && 
 					(victim->client->lastTeleportTime + 800 >= level.time && attacker->client->lastTeleportTime + 1500 < level.time))
 				|| 
-				(victim->client->respawnTime + 800 >= level.time)
+				(victim->client->respawnTime + 1800 >= level.time)
 			) && (!inflictor || !inflictor->missileTeleported)
 			&& meansOfDeath != MOD_TELEFRAG) {
 		AwardMessage(attacker, EAWARD_AMBUSH, ++(attacker->client->pers.awardCounts[EAWARD_AMBUSH]));
