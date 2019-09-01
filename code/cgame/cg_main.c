@@ -888,7 +888,7 @@ void CG_RatRemapShaders(void) {
 	}
 }
 
-#define LATEST_RATINITIALIZED 20
+#define LATEST_RATINITIALIZED 21
 
 /*
  *
@@ -1190,6 +1190,13 @@ void CG_RatOldCfgUpdate(void) {
 		CG_Cvar_ResetToDefault( "cg_railTrailTime" );
 
 		CG_Cvar_SetAndUpdate( "cg_ratInitialized", "20" );
+	}
+
+	if (cg_ratInitialized.integer < 21) {
+		CG_Cvar_ResetToDefault( "cg_zoomScopeRGColor" );
+		CG_Cvar_ResetToDefault( "cg_zoomScopeMGColor" );
+
+		CG_Cvar_SetAndUpdate( "cg_ratInitialized", "21" );
 	}
 
 }
