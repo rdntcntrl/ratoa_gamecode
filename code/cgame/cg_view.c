@@ -902,28 +902,34 @@ void CG_SpecZooming(void) {
 	qboolean enabled = (cg_specShowZoom.integer && cgs.ratFlags & RAT_SPECSHOWZOOM);
 	qboolean oldzoomed;
 
-	if ((!enabled || cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR) && cg.specZoomed) {
-		// reset zoom if we are a free spectator;
-		cg.zoomed = qfalse;
-		cg.specZoomed = qfalse;
-		cg.zoomTime = cg.time;
+	if (cg.specZoomed) {
+		if (!enabled || cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR 
+				|| !(cg.snap->ps.pm_flags & PMF_FOLLOW) ) {
+			// reset spectator zoom if we are in free spec / not following anyone
+			cg.zoomed = qfalse;
+			cg.specZoomed = qfalse;
+			cg.zoomTime = cg.time;
+			return;
+		}
+
+		if (!(cg.snap->ps.stats[STAT_EXTFLAGS] & EXTFL_ZOOMING)) {
+			cg.zoomed = qfalse;
+			cg.specZoomed = qfalse;
+			cg.zoomTime = cg.time;
+		}
+	}  
+
+	if (!enabled || !(cg.snap->ps.pm_flags & PMF_FOLLOW)) {
 		return;
 	}
 
-	if (!enabled) {
-		return;
+	if ((cg.snap->ps.stats[STAT_EXTFLAGS] & EXTFL_ZOOMING)) {
+		if (!cg.zoomed) {
+			cg.specZoomed = qtrue;
+			cg.zoomTime = cg.time;
+		}
+		cg.zoomed = qtrue;
 	}
-
-	if (!(cg.snap->ps.pm_flags & PMF_FOLLOW)) {
-		return;
-	}
-	oldzoomed = cg.zoomed;
-	cg.zoomed = (cg.snap->ps.stats[STAT_EXTFLAGS] & EXTFL_ZOOMING);
-	cg.specZoomed = cg.zoomed;
-	if (oldzoomed != cg.zoomed) {
-		cg.zoomTime = cg.time;
-	}
-
 }
 
 
