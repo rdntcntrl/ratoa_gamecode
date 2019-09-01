@@ -136,7 +136,9 @@ void CG_RecoverMissile(centity_t *missile) {
 		return;
 	}
 
-	if (pms->explosionTime + 1000/sv_fps.integer + CG_ProjectileNudgeTimeshift(missile) < cg.time) {
+	//if (pms->explosionTime + 1000/sv_fps.integer + CG_ProjectileNudgeTimeshift(missile) < cg.time) {
+	// only actually recover if there really was an explosion drawn
+	if (pms->explosionTime && pms->explosionTime + 1000/sv_fps.integer + CG_ProjectileNudgeTimeshift(missile) < cg.time) {
 		// missile is still around at a time when we should have the
 		// confirmation from the server that it exploded. Prediction was
 		// wrong, recover the missile
