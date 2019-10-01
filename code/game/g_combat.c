@@ -727,7 +727,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 			killerName = attacker->client->pers.netname;
 			if (self != attacker) {
 				if (g_gametype.integer == GT_ELIMINATION || g_gametype.integer == GT_CTF_ELIMINATION || g_gametype.integer == GT_LMS) {
-					attacker->client->elimRoundKills += 1;
+					attacker->client->pers.elimRoundKills += 1;
 					if (level.roundNumber == level.roundNumberStarted) {
 						attacker->client->pers.kills += 1;
 					}
@@ -1050,7 +1050,21 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 		if(level.time<=level.roundStartTime && level.time>level.roundStartTime-1000*g_elimination_activewarmup.integer)
 			self->client->respawnTime = level.time + rand()%800;
 
-        RespawnTimeMessage(self,self->client->respawnTime);
+	if (g_gametype.integer == GT_ELIMINATION && g_elimination_respawn.integer
+			&& level.roundNumber == level.roundNumberStarted) {
+		self->client->elimRespawnTime = level.time + g_elimination_respawn.integer * 1000;
+		if ( self->client->sess.sessionTeam == TEAM_BLUE ) {
+			self->client->elimRespawnTime += level.elimBlueRespawnDelay;
+			level.elimBlueRespawnDelay += 5000;
+		} else {
+			self->client->elimRespawnTime += level.elimRedRespawnDelay;
+			level.elimRedRespawnDelay += 5000;
+		}
+		RespawnTimeMessage(self,self->client->elimRespawnTime);
+	} else {
+		RespawnTimeMessage(self,self->client->respawnTime);
+	}
+
 		
 
 	// remove powerups
@@ -1878,7 +1892,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		}
 		if (targ->client) {
 			if (g_gametype.integer == GT_ELIMINATION || g_gametype.integer == GT_CTF_ELIMINATION || g_gametype.integer == GT_LMS) {
-				targ->client->elimRoundDmgTaken += dmgTaken;
+				targ->client->pers.elimRoundDmgTaken += dmgTaken;
 				if (level.roundNumber == level.roundNumberStarted) {
 					targ->client->pers.dmgTaken += dmgTaken;
 				}
@@ -1894,7 +1908,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 			if (attacker && attacker->client && !OnSameTeam(targ, attacker) ) {
 				int weapon = G_WeaponForMOD(mod);
 				if (g_gametype.integer == GT_ELIMINATION || g_gametype.integer == GT_CTF_ELIMINATION || g_gametype.integer == GT_LMS) {
-					attacker->client->elimRoundDmgDone += dmgTaken;
+					attacker->client->pers.elimRoundDmgDone += dmgTaken;
 					if (level.roundNumber == level.roundNumberStarted) {
 						attacker->client->pers.dmgGiven += dmgTaken;
 						if (weapon != -1) {

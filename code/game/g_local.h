@@ -399,6 +399,10 @@ typedef struct {
     int		topweapons[WP_NUM_WEAPONS][2];
     int		handicapforced;		
 
+    int		elimRoundDmgDone;
+    int		elimRoundDmgTaken;
+    int		elimRoundKills;
+
     // quad whore detection
     int quadTime;
     int quadNum;
@@ -501,6 +505,8 @@ struct gclient_s {
 	qboolean	inactivityWarning;	// qtrue if the five seoond warning has been given
 	int			rewardTime;			// clear the EF_AWARD_IMPRESSIVE, etc when time > this
 
+	int			elimRespawnTime;		// will respawn at this time in GT_ELIMINATION
+
 	int			airOutTime;
 	int			lavaDmgTime;
 
@@ -524,9 +530,6 @@ struct gclient_s {
 	char		*areabits;
 
 	qboolean	isEliminated;			//Has been killed in this round
-	int		elimRoundDmgDone;
-	int		elimRoundDmgTaken;
-	int		elimRoundKills;
 
         //New vote system. The votes are saved in the client info, so we know who voted on what and can cancel votes on leave.
         //0=not voted, 1=voted yes, -1=voted no
@@ -700,6 +703,8 @@ typedef struct {
 	int roundBluePlayers;			//used to find winners in a draw.
 	qboolean roundRespawned;		//We have respawned for this round!
 	int eliminationSides;			//Random, change red/blue bases
+	int elimBlueRespawnDelay;		
+	int elimRedRespawnDelay;		
 
 	//Added for Double Domination
 	//Points get status: TEAM_FREE for not taking, TEAM_RED/TEAM_BLUE for taken and TEAM_NONE for not spawned yet
@@ -1000,6 +1005,7 @@ team_t TeamLivingCount( int ignoreClientNum, int team ); //Elimination
 team_t TeamHealthCount( int ignoreClientNum, int team ); //Elimination
 void RespawnAll(void); //For round elimination
 void RespawnDead(void);
+int RespawnElimZombies(void);
 void EnableWeapons(void);
 void DisableWeapons(void);
 void EndEliminationRound(void);
@@ -1334,6 +1340,7 @@ extern	vmCvar_t	g_music;
 extern  vmCvar_t        g_spawnprotect;
 
 //elimination:
+extern	vmCvar_t	g_elimination_respawn;
 extern	vmCvar_t	g_elimination_selfdamage;
 extern	vmCvar_t	g_elimination_startHealth;
 extern	vmCvar_t	g_elimination_startArmor;

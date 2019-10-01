@@ -887,6 +887,49 @@ team_t TeamHealthCount(int ignoreClientNum, int team ) {
 	return count;
 }
 
+/*
+================
+RespawnElimZombies
+
+Forces eliminated clients to respawn after client->elimRespawnTime
+================
+*/
+int RespawnElimZombies(void)
+{
+	int respawned = 0;
+	int i;
+	gentity_t	*client;
+	for(i=0;i<level.maxclients;i++)
+	{
+		if ( level.clients[i].pers.connected == CON_DISCONNECTED ) {
+			continue;
+		}
+
+                if ( level.clients[i].pers.connected == CON_CONNECTING) {
+                        continue;
+                }
+
+		if ( level.clients[i].sess.sessionTeam == TEAM_SPECTATOR ) {
+			continue;
+		}
+		if ( level.clients[i].isEliminated == qfalse ){
+			continue;
+		}
+		client = g_entities + i;
+		if (client->client->elimRespawnTime <= 0 || client->client->elimRespawnTime > level.time) {
+			continue;
+		}
+		client->client->elimRespawnTime = 0;
+		client->client->ps.pm_type = PM_NORMAL;
+		client->client->sess.spectatorState = SPECTATOR_NOT;
+		client->client->isEliminated = qfalse;
+		respawnRound(client);
+		client->client->ps.pm_flags &= ~PMF_ELIMWARMUP;
+		respawned++;
+	}
+	return respawned;
+}
+
 
 /*
 ================
@@ -2151,6 +2194,10 @@ void ClientBegin( int clientNum ) {
 
 	//Elimination:
 	client->pers.roundReached = 0; //We will spawn in next round
+	if(g_gametype.integer == GT_ELIMINATION && g_elimination_respawn.integer) {
+		// make sure we don't spawn in this round even if elimination respawn is on
+		client->elimRespawnTime = -1;
+	}
 	if(g_gametype.integer == GT_LMS) {
 		client->isEliminated = qtrue; //So player does not give a point in gamemode 2 and 3
 		//trap_SendServerCommand( -1, va("print \"%s" S_COLOR_WHITE " will start dead\n\"", client->pers.netname) );
@@ -2346,7 +2393,7 @@ void ClientSpawn(gentity_t *ent) {
 	if( 
 	( 
 		( 
-			g_gametype.integer == GT_ELIMINATION ||
+			(g_gametype.integer == GT_ELIMINATION && (!g_elimination_respawn.integer || client->elimRespawnTime)) ||
 			g_gametype.integer == GT_CTF_ELIMINATION || (g_gametype.integer == GT_LMS && client->isEliminated)) &&
 			(!level.intermissiontime || level.warmupTime != 0)
 		) &&
@@ -2779,7 +2826,12 @@ else
         if(g_spawnprotect.integer)
             client->spawnprotected = qtrue;
 
-        RespawnTimeMessage(ent,0);
+	if (g_gametype.integer == GT_ELIMINATION && g_elimination_respawn.integer && client->ps.pm_type != PM_SPECTATOR
+			&& level.roundNumber == level.roundNumberStarted) {
+		//
+	} else {
+		RespawnTimeMessage(ent,0);
+	}
 }
 
 

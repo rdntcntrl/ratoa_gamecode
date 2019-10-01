@@ -1902,28 +1902,116 @@ static int QDECL SortClients( const void *a, const void *b ) {
 	return *(int *)a - *(int *)b;
 }
 
+static int G_EliminationNextRespawn(int team) {
+	int i;
+	int nextrespawntime = 0;
+	if (g_gametype.integer != GT_ELIMINATION || !g_elimination_respawn.integer
+			|| level.roundNumber != level.roundNumberStarted) {
+		return 0;
+	}
+	for (i = 0; i < level.maxclients; i++) {
+		gclient_t	*client;
+
+		client = &level.clients[i];
+
+		if ( client->pers.connected != CON_CONNECTED ) {
+			continue;
+		}
+
+		if (client->sess.sessionTeam != team) {
+			continue;
+		}
+
+		if (client->elimRespawnTime > 0 && (nextrespawntime == 0 || client->elimRespawnTime < nextrespawntime)) {
+			nextrespawntime = client->elimRespawnTime;
+		}
+	}
+
+	return nextrespawntime;
+
+}
+
 void G_SendTeamPlayerCounts(void) {
 	char buf[256];
+	int i;
+	int teamLivingCountRed;
+	int teamLivingCountBlue;
+	int teamCountRed;
+	int teamCountBlue;
+	int nextRespawnRed;
+	int nextRespawnBlue;
 
 	if (!g_usesRatVM.integer) {
 		return;
 	}
 
+	teamCountRed = TeamCount(-1, TEAM_RED, qtrue);
+	teamCountBlue = TeamCount(-1, TEAM_BLUE, qtrue);
 	if (level.roundRespawned) {
-		Com_sprintf(buf, sizeof(buf), "%i %i %i %i",
-			       	TeamLivingCount(-1, TEAM_RED),
-			       	TeamLivingCount(-1, TEAM_BLUE),
-			       	TeamCount(-1, TEAM_RED, qtrue),
-			       	TeamCount(-1, TEAM_BLUE, qtrue));
+		teamLivingCountRed = TeamLivingCount(-1, TEAM_RED);
+		teamLivingCountBlue = TeamLivingCount(-1, TEAM_BLUE);
 	} else {
-		Com_sprintf(buf, sizeof(buf), "%i %i %i %i",
-			       	TeamCount(-1, TEAM_RED, qtrue),
-			       	TeamCount(-1, TEAM_BLUE, qtrue),
-			       	TeamCount(-1, TEAM_RED, qtrue),
-			       	TeamCount(-1, TEAM_BLUE, qtrue));
+		teamLivingCountRed = teamCountRed;
+		teamLivingCountBlue = teamCountBlue;
 	}
-	
-	trap_SendServerCommand(-1, va("tplayerCounts %s", buf));
+
+	nextRespawnRed = G_EliminationNextRespawn(TEAM_RED);
+	nextRespawnBlue = G_EliminationNextRespawn(TEAM_BLUE);
+
+	for (i = 0; i < level.maxclients; i++) {
+		gclient_t	*client;
+		int team = TEAM_NONE;
+		int nextrespawn = 0;
+
+		client = &level.clients[i];
+
+		if ( client->pers.connected != CON_CONNECTED ) {
+			continue;
+		}
+
+		if (client->sess.sessionTeam == TEAM_SPECTATOR && client->sess.spectatorState == SPECTATOR_FOLLOW ) {
+			if (client->ps.clientNum >= 0 && client->ps.clientNum < MAX_CLIENTS) {
+				gclient_t	*specClient = &level.clients[ client->ps.clientNum ];
+				team = specClient->sess.sessionTeam;
+			}
+		} else {
+			team = client->sess.sessionTeam;
+		}
+
+		if (team == TEAM_RED) {
+			nextrespawn = nextRespawnRed;
+		} else if (team == TEAM_BLUE) {
+			nextrespawn = nextRespawnBlue;
+		}
+
+		Com_sprintf(buf, sizeof(buf), "%i %i %i %i %i",
+				teamLivingCountRed,
+				teamLivingCountBlue,
+				teamCountRed,
+				teamCountBlue,
+				nextrespawn
+			   );
+		trap_SendServerCommand(i, va("tplayerCounts %s", buf));
+	}
+
+
+	//if (level.roundRespawned) {
+	//	Com_sprintf(buf, sizeof(buf), "%i %i %i %i",
+	//		       	TeamLivingCount(-1, TEAM_RED),
+	//		       	TeamLivingCount(-1, TEAM_BLUE),
+	//		       	TeamCount(-1, TEAM_RED, qtrue),
+	//		       	TeamCount(-1, TEAM_BLUE, qtrue),
+	//			);
+	//} else {
+	//	Com_sprintf(buf, sizeof(buf), "%i %i %i %i",
+	//		       	TeamCount(-1, TEAM_RED, qtrue),
+	//		       	TeamCount(-1, TEAM_BLUE, qtrue),
+	//		       	TeamCount(-1, TEAM_RED, qtrue),
+	//		       	TeamCount(-1, TEAM_BLUE, qtrue),
+	//			);
+	//}
+	//
+	//trap_SendServerCommand(-1, va("tplayerCounts %s", buf));
 }
 
 
@@ -1984,11 +2072,27 @@ void TeamplayInfoMessage( gentity_t *ent ) {
 			if (h < 0) h = 0;
 			if (a < 0) a = 0;
 
-			Com_sprintf (entry, sizeof(entry),
-				" %i %i %i %i %i %i", 
-//				level.sortedClients[i], player->client->pers.teamState.location, h, a, 
-				i, player->client->pers.teamState.location, h, a, 
-				w, player->s.powerups);
+
+			if (g_usesRatVM.integer > 0 || G_MixedClientHasRatVM(ent->client)) {
+				int respawnTime = 0;
+				if (g_gametype.integer == GT_ELIMINATION && g_elimination_respawn.integer && player->client->elimRespawnTime > 0) {
+					respawnTime = player->client->elimRespawnTime;
+					
+				}
+				Com_sprintf (entry, sizeof(entry),
+						" %i %i %i %i %i %i %i", 
+						//				level.sortedClients[i], player->client->pers.teamState.location, h, a, 
+						i, player->client->pers.teamState.location, h, a, 
+						w, player->s.powerups,
+						respawnTime
+					    );
+			} else {
+				Com_sprintf (entry, sizeof(entry),
+						" %i %i %i %i %i %i", 
+						//				level.sortedClients[i], player->client->pers.teamState.location, h, a, 
+						i, player->client->pers.teamState.location, h, a, 
+						w, player->s.powerups);
+			}
 			j = strlen(entry);
 			if (stringlength + j > sizeof(string))
 				break;

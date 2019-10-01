@@ -126,6 +126,7 @@ vmCvar_t	g_proxMineTimeout;
 vmCvar_t	g_music;
 vmCvar_t        g_spawnprotect;
 //Following for elimination:
+vmCvar_t	g_elimination_respawn;
 vmCvar_t	g_elimination_selfdamage;
 vmCvar_t	g_elimination_startHealth;
 vmCvar_t	g_elimination_startArmor;
@@ -631,6 +632,7 @@ static cvarTable_t		gameCvarTable[] = {
         { &g_music, "g_music", "", 0, 0, qfalse},
         { &g_spawnprotect, "g_spawnprotect", "500", CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue},
 	//Now for elimination stuff:
+	{ &g_elimination_respawn, "elimination_respawn", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_elimination_selfdamage, "elimination_selfdamage", "0", 0, 0, qtrue },
 	{ &g_elimination_startHealth, "elimination_startHealth", "200", CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue },
 	{ &g_elimination_startArmor, "elimination_startArmor", "150", CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue },
@@ -3156,19 +3158,19 @@ void PrintElimRoundStats(void) {
 			continue;
 		}
 
-		if (client->elimRoundKills > maxKills 
-				|| (client->elimRoundKills == maxKills && maxKillsClient != -1 && client->elimRoundDmgDone > level.clients[maxKillsClient].elimRoundDmgDone)) {
-			maxKills = client->elimRoundKills;
+		if (client->pers.elimRoundKills > maxKills 
+				|| (client->pers.elimRoundKills == maxKills && maxKillsClient != -1 && client->pers.elimRoundDmgDone > level.clients[maxKillsClient].pers.elimRoundDmgDone)) {
+			maxKills = client->pers.elimRoundKills;
 			maxKillsClient = i;
 		}
 
-		if (client->elimRoundDmgDone > maxDG) {
-			maxDG = client->elimRoundDmgDone;
+		if (client->pers.elimRoundDmgDone > maxDG) {
+			maxDG = client->pers.elimRoundDmgDone;
 			maxDGClient = i;
 		}
 
-		if (client->elimRoundDmgTaken < minDT) {
-			minDT = client->elimRoundDmgTaken;
+		if (client->pers.elimRoundDmgTaken < minDT) {
+			minDT = client->pers.elimRoundDmgTaken;
 			minDTClient = i;
 		}
 
@@ -3217,6 +3219,8 @@ void StartEliminationRound(void) {
 		Team_ReturnFlag( TEAM_RED );
 		Team_ReturnFlag( TEAM_BLUE );
 	}
+	level.elimBlueRespawnDelay = 0;
+	level.elimRedRespawnDelay = 0;
         if(g_gametype.integer == GT_ELIMINATION) {
             G_LogPrintf( "ELIMINATION: %i %i %i: Round %i has started!\n", level.roundNumber, -1, 0, level.roundNumber );
         } else if(g_gametype.integer == GT_CTF_ELIMINATION) {
@@ -3230,9 +3234,9 @@ void StartEliminationRound(void) {
 
 	for ( i = 0 ; i < level.maxclients ; i++ ) {
 		gclient_t *client = &level.clients[i];
-		client->elimRoundDmgDone = 0;
-		client->elimRoundDmgTaken = 0;
-		client->elimRoundKills = 0;
+		client->pers.elimRoundDmgDone = 0;
+		client->pers.elimRoundDmgTaken = 0;
+		client->pers.elimRoundKills = 0;
 		client->pers.lastKilledByStrongMan = -1;
 	}
 }
@@ -3577,6 +3581,15 @@ void CheckElimination(void) {
                             G_LogPrintf( "CTF_ELIMINATION: %i %i %i %i: Round %i ended in a draw!\n", level.roundNumber, -1, -1, 9, level.roundNumber );
                         }
 			EndEliminationRound();
+		}
+
+		if (g_elimination_respawn.integer && 
+				(level.roundNumber==level.roundNumberStarted) 
+				&& (((g_elimination_roundtime.integer) && (level.time < level.roundStartTime+1000*g_elimination_roundtime.integer)) || !g_elimination_roundtime.integer)) {
+
+			if (RespawnElimZombies()) {
+				G_SendTeamPlayerCounts();
+			}
 		}
 
 		//This might be better placed another place:
