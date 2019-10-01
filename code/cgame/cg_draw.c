@@ -772,7 +772,7 @@ static float *CG_GetWeaponColor(int weapon) {
 //#define PULSEDELEMENT_PULSETIME		200
 #define PULSEDELEMENT_PULSETIME		250
 #define PULSEDELEMENT_CONTINUOUS_PERIOD	400
-#define PULSEDELEMENT_OVERLAY_ALPHA	0.25
+#define PULSEDELEMENT_OVERLAY_ALPHA	0.5
 
 float CG_PulseFactor(int lastfilledtime) {
 	float f;

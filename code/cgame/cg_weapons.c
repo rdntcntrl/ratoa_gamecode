@@ -3848,7 +3848,7 @@ void CG_DrawWeaponBar15(int count, int bits, float *color){
 		if ( i == weaponSelect) {
 			trap_R_SetColor(bg);
 			CG_DrawPic( x - circleWidth/2.0, y - circleSz/2.0, circleWidth, circleSz, cgs.media.weaponSelectShaderCircleGlow);
-			bg[3] = 0.25;
+			bg[3] = 0.5;
 			trap_R_SetColor(bg);
 			CG_DrawPic( x - circleWidth/2.0, y - circleSz/2.0, circleWidth, circleSz, cgs.media.weaponSelectShaderCircle);
 			trap_R_SetColor(NULL);
