@@ -683,7 +683,7 @@ void Cmd_Rules_f( gentity_t *ent ) {
 				" -Fast weapons:          %s" S_COLOR_WHITE "\n"
 				" -Smooth/additive jump:  %s" S_COLOR_WHITE "\n"
 				" -Ramp jump:             %s" S_COLOR_WHITE "\n"
-				" -Forced models:  	  %s" S_COLOR_WHITE "\n"
+				" -Forced models:         %s" S_COLOR_WHITE "\n"
 				" -Bright shells:         %s" S_COLOR_WHITE "\n"
 				" -Item pickup height:    %s" S_COLOR_WHITE "\n"
 				" -Powerup glows:         %s" S_COLOR_WHITE "\n"
