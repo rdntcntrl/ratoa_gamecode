@@ -71,7 +71,7 @@ sfxHandle_t	CG_CustomSound( int clientNum, const char *soundName ) {
 
 	for ( i = 0 ; i < MAX_CUSTOM_SOUNDS && cg_customSoundNames[i] ; i++ ) {
 		if ( !strcmp( soundName, cg_customSoundNames[i] ) ) {
-			if ((cgs.ratFlags & RAT_ALLOWBRIGHTSKINS)) {
+			if ((cgs.ratFlags & RAT_ALLOWFORCEDMODELS)) {
 				if (ci == myself && cgs.mySounds[i]) {
 					return cgs.mySounds[i];
 				} else if ((myteam != TEAM_FREE && ci->team == myteam) && cgs.teamSounds[i]) {
@@ -1053,7 +1053,7 @@ void CG_NewClientInfo( int clientNum ) {
 		}
 	}
 
-	if (cgs.ratFlags & RAT_ALLOWBRIGHTSKINS && 
+	if (cgs.ratFlags & RAT_ALLOWFORCEDMODELS && 
 			(  (!enemy && cg_teamModel.string[0]) ||
 			   ( enemy && cg_enemyModel.string[0])
 			)) {
@@ -1077,6 +1077,12 @@ void CG_NewClientInfo( int clientNum ) {
 		if (strcmp(newInfo.skinName, "pm") == 0) {
 			Q_strncpyz( newInfo.skinName, "bright", sizeof( newInfo.skinName ) );
 		}
+
+		if (!(cgs.ratFlags & RAT_BRIGHTMODEL) && Q_stristr(newInfo.skinName, "bright") != NULL) {
+			// use default skin (or red/blue) if bright skin is not available
+			Q_strncpyz( newInfo.skinName, "default", sizeof( newInfo.skinName ) );
+		}
+
 		newInfo.forcedBrightModel = (strcmp(newInfo.skinName, "bright") == 0);
 		newInfo.forcedModel = qtrue;
 	} else if ( cg_forceModel.integer ) {
@@ -1090,7 +1096,7 @@ void CG_NewClientInfo( int clientNum ) {
 			Q_strncpyz( newInfo.skinName, "default", sizeof( newInfo.skinName ) );
 		} else {
 			trap_Cvar_VariableStringBuffer( "model", modelStr, sizeof( modelStr ) );
-			if (!(cgs.ratFlags & RAT_ALLOWBRIGHTSKINS) && Q_stristr(modelStr, "bright") != NULL) {
+			if (!(cgs.ratFlags & RAT_BRIGHTMODEL && cgs.ratFlags & RAT_ALLOWFORCEDMODELS) && Q_stristr(modelStr, "bright") != NULL) {
 				Q_strncpyz(modelStr, "smarine/orange", sizeof(modelStr));
 			}
 			if ( ( skin = strchr( modelStr, '/' ) ) == NULL) {
@@ -1127,7 +1133,7 @@ void CG_NewClientInfo( int clientNum ) {
 
 	// head model
 	v = Info_ValueForKey( configstring, "hmodel" );
-	if (cgs.ratFlags & RAT_ALLOWBRIGHTSKINS && 
+	if (cgs.ratFlags & RAT_ALLOWFORCEDMODELS && 
 			(  (!enemy && cg_teamModel.string[0]) ||
 			   ( enemy && cg_enemyModel.string[0])
 			)) {
@@ -1151,6 +1157,12 @@ void CG_NewClientInfo( int clientNum ) {
 		if (strcmp(newInfo.headSkinName, "pm") == 0) {
 			Q_strncpyz( newInfo.headSkinName, "bright", sizeof( newInfo.headSkinName ) );
 		}
+
+		if (!(cgs.ratFlags & RAT_BRIGHTMODEL) && Q_stristr(newInfo.headSkinName, "bright") != NULL) {
+			// use default skin (or red/blue) if bright skin is not available
+			Q_strncpyz( newInfo.headSkinName, "default", sizeof( newInfo.headSkinName ) );
+		}
+
 		newInfo.forcedBrightModel = (strcmp(newInfo.skinName, "bright") == 0);
 		newInfo.forcedModel = qtrue;
 	} else if ( cg_forceModel.integer ) {
@@ -1164,7 +1176,7 @@ void CG_NewClientInfo( int clientNum ) {
 			Q_strncpyz( newInfo.headSkinName, "default", sizeof( newInfo.headSkinName ) );
 		} else {
 			trap_Cvar_VariableStringBuffer( "headmodel", modelStr, sizeof( modelStr ) );
-			if (!(cgs.ratFlags & RAT_ALLOWBRIGHTSKINS) && Q_stristr(modelStr, "bright") != NULL) {
+			if (!(cgs.ratFlags & RAT_BRIGHTMODEL && cgs.ratFlags & RAT_ALLOWFORCEDMODELS) && Q_stristr(modelStr, "bright") != NULL) {
 				Q_strncpyz(modelStr, "smarine/orange", sizeof(modelStr));
 			}
 			if ( ( skin = strchr( modelStr, '/' ) ) == NULL) {
@@ -2520,6 +2532,10 @@ byte CG_GetBrightShellAlpha(void) {
 	return (byte)0xff * MAX(MIN(cg_brightShellAlpha.value, 0.8), 0.1);
 }
 
+byte CG_GetBrightOutlineAlpha(void) {
+	return 0xff;
+}
+
 
 /*
 ===============
@@ -2549,14 +2565,18 @@ void CG_AddRefEntityWithPowerups( refEntity_t *ent, entityState_t *state, int te
 			trap_R_AddRefEntityToScene( ent );
 		//}
 		
-		if(!isMissile && 
-				((cgs.ratFlags & RAT_BRIGHTSHELL && cg_brightShells.integer) && 
-				 (ci && !ci->forcedBrightModel ))) {
+		if(!isMissile && ( ci && !ci->forcedBrightModel )) {
 			byte alpha_save = ent->shaderRGBA[3];
 			       	//&& !(state->eFlags & EF_DEAD)  ) {
-			ent->shaderRGBA[3] = CG_GetBrightShellAlpha();
-			ent->customShader = cgs.media.brightShell;
-			trap_R_AddRefEntityToScene( ent );
+			if ((cgs.ratFlags & RAT_BRIGHTSHELL) && cg_brightShells.integer) {
+				ent->shaderRGBA[3] = CG_GetBrightShellAlpha();
+				ent->customShader = cgs.media.brightShell;
+				trap_R_AddRefEntityToScene( ent );
+			} else if ((cgs.ratFlags & RAT_BRIGHTOUTLINE) && cg_brightOutline.integer) {
+				ent->shaderRGBA[3] = CG_GetBrightOutlineAlpha();
+				ent->customShader = cgs.media.brightOutline;
+				trap_R_AddRefEntityToScene( ent );
+			}
 			ent->shaderRGBA[3] = alpha_save;
 		}
 		
@@ -2945,7 +2965,9 @@ void CG_PlayerGetColors(clientInfo_t *ci, qboolean isDead, int bodyPart, byte *o
 		CG_Error( "CG_PlayerGetColors: Invalid body part!\n");
 	}
 
-	if (!((cgs.ratFlags & RAT_BRIGHTSHELL && cg_brightShells.integer)) && (!ci->forcedBrightModel)) {
+	if (!(cgs.ratFlags & RAT_BRIGHTSHELL && cg_brightShells.integer) 
+			&& !(cgs.ratFlags & RAT_BRIGHTOUTLINE && cg_brightOutline.integer) 
+			&& (!ci->forcedBrightModel)) {
 		float color[4];
 		color[0] = color[1] = color[2] = color[3] = 1.0;
 		CG_FloatColorToRGBA(color, outColor);
@@ -2953,8 +2975,8 @@ void CG_PlayerGetColors(clientInfo_t *ci, qboolean isDead, int bodyPart, byte *o
 	}
 
 	if ((!(ci->forcedBrightModel)
-			&& (cg_brightShells.integer && cgs.ratFlags & RAT_BRIGHTSHELL)
-		       ) && (cgs.gametype == GT_FFA && !(cgs.ratFlags & RAT_ALLOWBRIGHTSKINS))) {
+			&& ((cg_brightShells.integer || cg_brightOutline.integer ) && cgs.ratFlags & (RAT_BRIGHTSHELL | RAT_BRIGHTOUTLINE))
+		       ) && (cgs.gametype == GT_FFA && !(cgs.ratFlags & RAT_ALLOWFORCEDMODELS))) {
 		float color[4];
 		color[0] = ci->color2[0];
 		color[1] = ci->color2[1];
@@ -3234,7 +3256,9 @@ void CG_Player( centity_t *cent ) {
 
 	CG_PlayerGetColors(ci, cent->currentState.eFlags & EF_DEAD ? qtrue : qfalse, MCIDX_TORSO, torso.shaderRGBA);
 	CG_PlayerGetColors(ci, cent->currentState.eFlags & EF_DEAD ? qtrue : qfalse, MCIDX_LEGS, legs.shaderRGBA);
-	if ((ci->forcedBrightModel || (cgs.ratFlags & RAT_BRIGHTSHELL && cg_brightShells.integer && (cgs.gametype != GT_FFA || cgs.ratFlags & RAT_ALLOWBRIGHTSKINS)))
+	if ((ci->forcedBrightModel || (cgs.ratFlags & (RAT_BRIGHTSHELL | RAT_BRIGHTOUTLINE) 
+					&& (cg_brightShells.integer || cg_brightOutline.integer) 
+					&& (cgs.gametype != GT_FFA || cgs.ratFlags & RAT_ALLOWFORCEDMODELS)))
 			&& ci->team != TEAM_SPECTATOR &&
 			( (cg_teamHeadColorAuto.integer && ci->team == cg.snap->ps.persistant[PERS_TEAM])
 			  || (cg_enemyHeadColorAuto.integer && ci->team != cg.snap->ps.persistant[PERS_TEAM])

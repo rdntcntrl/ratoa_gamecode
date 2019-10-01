@@ -347,7 +347,9 @@ void CG_Draw3DHead( float x, float y, float w, float h, qhandle_t model, qhandle
 	ent.customSkin = skin;
 	ent.renderfx = RF_NOSHADOW;		// no stencil shadows
 
-	if ((ci->forcedBrightModel || (cgs.ratFlags & RAT_BRIGHTSHELL && cg_brightShells.integer && (cgs.gametype != GT_FFA || cgs.ratFlags & RAT_ALLOWBRIGHTSKINS)))
+	if ((ci->forcedBrightModel || (cgs.ratFlags & (RAT_BRIGHTSHELL | RAT_BRIGHTOUTLINE) 
+					&& (cg_brightShells.integer || cg_brightOutline.integer) 
+					&& (cgs.gametype != GT_FFA || cgs.ratFlags & RAT_ALLOWFORCEDMODELS)))
 			&& ci->team != TEAM_SPECTATOR &&
 			( (cg_teamHeadColorAuto.integer && ci->team == cg.snap->ps.persistant[PERS_TEAM])
 			  || (cg_enemyHeadColorAuto.integer && ci->team != cg.snap->ps.persistant[PERS_TEAM])
@@ -373,10 +375,16 @@ void CG_Draw3DHead( float x, float y, float w, float h, qhandle_t model, qhandle
 
 	trap_R_ClearScene();
 	trap_R_AddRefEntityToScene( &ent );
-	if (cgs.ratFlags & RAT_BRIGHTSHELL && cg_brightShells.integer && !ci->forcedBrightModel) {
-		ent.shaderRGBA[3] = CG_GetBrightShellAlpha();
-		ent.customShader = cgs.media.brightShell;
-		trap_R_AddRefEntityToScene( &ent );
+	if (!ci->forcedBrightModel) {
+		if (cgs.ratFlags & RAT_BRIGHTSHELL && cg_brightShells.integer) {
+			ent.shaderRGBA[3] = CG_GetBrightShellAlpha();
+			ent.customShader = cgs.media.brightShell;
+			trap_R_AddRefEntityToScene( &ent );
+		} else if (cgs.ratFlags & RAT_BRIGHTOUTLINE && cg_brightOutline.integer) {
+			ent.shaderRGBA[3] = CG_GetBrightOutlineAlpha();
+			ent.customShader = cgs.media.brightOutline;
+			trap_R_AddRefEntityToScene( &ent );
+		}
 	}
 	trap_R_RenderScene( &refdef );
 }

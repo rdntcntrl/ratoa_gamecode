@@ -798,7 +798,7 @@ qboolean	BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const play
 #define RAT_FASTWEAPONS 	(1 << 5)
 #define RAT_RATPHYSICS 		(1 << 6)
 #define RAT_RAMPJUMP 		(1 << 7)
-#define RAT_ALLOWBRIGHTSKINS 	(1 << 8)
+#define RAT_ALLOWFORCEDMODELS 	(1 << 8)
 #define RAT_FRIENDSWALLHACK 	(1 << 9)
 #define RAT_SPECSHOWZOOM 	(1 << 10)
 #define RAT_BRIGHTSHELL 	(1 << 11)
@@ -810,7 +810,10 @@ qboolean	BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const play
 #define RAT_NOINVISWALLS 	(1 << 17)
 #define RAT_NOBOBUP 		(1 << 18)
 #define RAT_FASTSWIM 		(1 << 19)
-#define RAT_SWINGGRAPPLE 	(1 << 20)
+#define RAT_SWINGGRAPPLE	(1 << 20)
+#define RAT_BRIGHTOUTLINE	(1 << 21)
+#define RAT_BRIGHTMODEL		(1 << 22)
+
 
 #define MAX_RAT_SAY_TEXT 256
 

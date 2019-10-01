@@ -295,6 +295,7 @@ vmCvar_t	cg_enemyFootsteps;
 
 vmCvar_t	cg_brightShells;
 vmCvar_t	cg_brightShellAlpha;
+vmCvar_t	cg_brightOutline;
 
 vmCvar_t	cg_enemyModel;
 vmCvar_t	cg_teamModel;
@@ -712,6 +713,7 @@ static cvarTable_t cvarTable[] = { // bk001129
 
 	{ &cg_brightShells ,     "cg_brightShells", "1", CVAR_ARCHIVE},
 	{ &cg_brightShellAlpha , "cg_brightShellAlpha", "1.0", CVAR_ARCHIVE},
+	{ &cg_brightOutline ,     "cg_brightOutline", "1", CVAR_ARCHIVE},
 
 	{ &cg_enemyModel ,     "cg_enemyModel", "smarine/bright", CVAR_ARCHIVE},
 	{ &cg_teamModel ,      "cg_teamModel", "sarge/bright", CVAR_ARCHIVE},
@@ -2218,7 +2220,16 @@ static void CG_RegisterGraphics( void ) {
                 cgs.media.neutralOverlay = trap_R_RegisterShader( "playeroverlays/playerSuit1_Neutral");
         }
 
-	cgs.media.brightShell = trap_R_RegisterShader( "playerBrightShell");
+	if (cg_brightShells.integer == 2) {
+		cgs.media.brightShell = trap_R_RegisterShader( "playerBrightShellFlat");
+	} else {
+		cgs.media.brightShell = trap_R_RegisterShader( "playerBrightShell");
+	}
+	if (cg_brightOutline.integer == 2) {
+		cgs.media.brightOutline = trap_R_RegisterShader( "playerBrightOutline05");
+	} else {
+		cgs.media.brightOutline = trap_R_RegisterShader( "playerBrightOutline10");
+	}
 
 //For Double Domination:
 	if ( cgs.gametype == GT_DOUBLE_D ) {

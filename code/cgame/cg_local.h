@@ -1094,6 +1094,7 @@ typedef struct {
 
 	// bright shell overlay
         qhandle_t       brightShell;
+        qhandle_t       brightOutline;
 
 	// weapon effect models
 	qhandle_t	bulletFlashModel;
@@ -1734,6 +1735,7 @@ extern vmCvar_t			cg_enemyFootsteps;
 
 extern vmCvar_t			cg_brightShells;
 extern vmCvar_t			cg_brightShellAlpha;
+extern vmCvar_t			cg_brightOutline;
 
 
 extern vmCvar_t			cg_enemyModel;
@@ -2079,6 +2081,7 @@ void CG_PlayerAutoHeadColor(clientInfo_t *ci, byte *outColor);
 void CG_FloatColorToRGBA(float *color, byte *out);
 void CG_ParseForcedColors( void );
 byte CG_GetBrightShellAlpha(void);
+byte CG_GetBrightOutlineAlpha(void);
 qboolean CG_THPlayerVisible(centity_t *cent);
 void CG_PlayerColorFromString(char *str, float *h, float *s, float *v);
 
