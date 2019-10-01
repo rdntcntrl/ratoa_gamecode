@@ -3029,7 +3029,16 @@ static float CG_DrawTeamOverlay( float y, qboolean right, qboolean upper ) {
 
 			CG_GetColorForHealth( ci->health, ci->armor, hcolor );
 
-			Com_sprintf (st, sizeof(st), "%3i %i", ci->health,	ci->armor);
+			if (cgs.gametype != GT_ELIMINATION || ci->health > 0) {
+				Com_sprintf (st, sizeof(st), "%3i %i", ci->health,	ci->armor);
+			} else if (ci->respawnTime > 0 ) {
+				hcolor[0] = hcolor[1] = 1.0;
+				hcolor[2] = 0.0;
+				hcolor[3] = 1.0;
+				Com_sprintf (st, sizeof(st), "re: %i", MAX(0,(int)ceil(((float)(ci->respawnTime - cg.time)/1000.0))));
+			} else {
+				st[0] = '\0';
+			}
 
 			xx = x + CG_HeightToWidth(char_width * (pwidth + 2 + 1));
 
@@ -3043,7 +3052,7 @@ static float CG_DrawTeamOverlay( float y, qboolean right, qboolean upper ) {
 			if ( cg_weapons[ci->curWeapon].weaponIcon ) {
 				CG_DrawPic( xx, y, CG_HeightToWidth(char_width), char_height, 
 					cg_weapons[ci->curWeapon].weaponIcon );
-			} else {
+			} else if (cgs.gametype != GT_ELIMINATION) {
 				CG_DrawPic( xx, y, CG_HeightToWidth(char_width), char_height, 
 					cgs.media.deferShader );
 			}
@@ -3201,8 +3210,10 @@ float CG_DrawScoreBox(float x, float y, int team, const char *s, qboolean select
 
 void CG_DrawEliminationStatus(void) {
 	const char	*s;
-	int y;
-	float		x, w;
+	int y = 240;
+	float x = 640;
+	float xx;
+	float	w;
 	float color[4] = { 1.0, 1.0, 1.0, 1.0 };
 
 	if (cgs.gametype != GT_ELIMINATION && cgs.gametype != GT_CTF_ELIMINATION) {
@@ -3215,16 +3226,25 @@ void CG_DrawEliminationStatus(void) {
 		s = "You are the chosen one!";
 		c = CG_FadeColor( cg.elimLastPlayerTime, 3000);
 		w = CG_HeightToWidth(BIGCHAR_WIDTH * CG_DrawStrlen(s));
-		x = ( SCREEN_WIDTH - w) / 2.0;
-		CG_DrawStringExt( x, 70 , s, c,
+		xx = ( SCREEN_WIDTH - w) / 2.0;
+		CG_DrawStringExt( xx, 70 , s, c,
 				qfalse, qtrue, CG_HeightToWidth(BIGCHAR_WIDTH), BIGCHAR_WIDTH * 1.5, 0 );
 	}
+
+	xx = x;
+	s = va( "%i", cgs.blueLivingCount );
+	w = CG_DrawScoreBox(xx, y, TEAM_BLUE, s, cg.snap->ps.persistant[PERS_TEAM] == TEAM_BLUE);
+	xx -= w;
+
+	s = va( "%i", cgs.redLivingCount );
+	w = CG_DrawScoreBox(xx, y, TEAM_RED, s, cg.snap->ps.persistant[PERS_TEAM] == TEAM_RED);
+	xx -= w;
 
 	if (cg_drawTeamOverlay.integer) {
 		int i;
 		int totalhp = 0;
-		y = 240 - SCOREBOX_CHAR_HEIGHT-4;
-		x = 640;
+		y -= SCOREBOX_CHAR_HEIGHT+4;
+		xx = x;
 		for (i = 0; i < MAX_CLIENTS; ++i) {
 			clientInfo_t *ci = &cgs.clientinfo[i];
 			if (!ci->infoValid) {
@@ -3237,25 +3257,34 @@ void CG_DrawEliminationStatus(void) {
 		}
 		s = va( "%4i", totalhp );
 		w = CG_HeightToWidth(CG_DrawStrlen( s ) * SCOREBOX_CHAR_WIDTH + 8);
-		x -= w;
+		xx -= w;
 		color[0] = color[1] = color[2] = color[3] = 1.0;
 		CG_DrawStringExtFloat(
-				x + CG_HeightToWidth(4),
+				xx + CG_HeightToWidth(4),
 				y,
 				s, color, qfalse, qfalse,
 				CG_HeightToWidth(SCOREBOX_CHAR_WIDTH), SCOREBOX_CHAR_HEIGHT,
 				0 );
 	}
+	if (cgs.elimNextRespawnTime > 0 ) {
+		int nextRespawnTime = MAX(0,ceil(((float)cgs.elimNextRespawnTime-cg.time)/1000.0));
+		if (nextRespawnTime > 0) {
+			y -= SCOREBOX_CHAR_HEIGHT+4;
+			xx = x;
+			s = va( "%i", nextRespawnTime);
+			w = CG_HeightToWidth(CG_DrawStrlen( s ) * SCOREBOX_CHAR_WIDTH + 8);
+			xx -= w;
+			color[0] = color[1] = color[3] = 1.0;
+			color[2] = 0;
+			CG_DrawStringExtFloat(
+					xx + CG_HeightToWidth(4),
+					y,
+					s, color, qfalse, qfalse,
+					CG_HeightToWidth(SCOREBOX_CHAR_WIDTH), SCOREBOX_CHAR_HEIGHT,
+					0 );
+		}
+	}
 
-	y = 240;
-	x = 640;
-	s = va( "%i", cgs.blueLivingCount );
-	w = CG_DrawScoreBox(x, y, TEAM_BLUE, s, cg.snap->ps.persistant[PERS_TEAM] == TEAM_BLUE);
-	x -= w;
-
-	s = va( "%i", cgs.redLivingCount );
-	w = CG_DrawScoreBox(x, y, TEAM_RED, s, cg.snap->ps.persistant[PERS_TEAM] == TEAM_RED);
-	x -= w;
 }
 
 void CG_DrawTreasureHunterStatus(void) {
@@ -5907,16 +5936,22 @@ static qboolean CG_DrawScoreboard( void ) {
 #else
         char        *s;
         int w;
-        if(cg.respawnTime && cg.snap->ps.persistant[PERS_TEAM] != TEAM_SPECTATOR && (cgs.gametype < GT_ELIMINATION || cgs.gametype > GT_LMS) ) {
-            if(cg.respawnTime>cg.time) {
-                s = va("Respawn in: %2.2f",((double)cg.respawnTime-(double)cg.time)/1000.0);
-                w = CG_DrawStrlen( s ) * SMALLCHAR_WIDTH;
-                CG_DrawSmallStringColor(320-w/2,400, s, colorYellow);
-            } else {
-                s = va("Click FIRE to respawn");
-                w = CG_DrawStrlen( s ) * SMALLCHAR_WIDTH;
-                CG_DrawSmallStringColor(320-w/2,400, "Click FIRE to respawn", colorGreen);
-            }
+        if (cg.respawnTime && cg.snap->ps.persistant[PERS_TEAM] != TEAM_SPECTATOR && (cgs.gametype < GT_CTF_ELIMINATION || cgs.gametype > GT_LMS) ) {
+		if (cgs.gametype == GT_ELIMINATION) {
+			if (cg.respawnTime > 0 && cg.respawnTime > cg.time) {
+				s = va("Respawn in: %2.2f",((double)cg.respawnTime-(double)cg.time)/1000.0);
+				w = CG_DrawStrlen( s ) * SMALLCHAR_WIDTH;
+				CG_DrawSmallStringColor(320-w/2,350, s, colorYellow);
+			}
+		} else if (cg.respawnTime>cg.time) {
+			s = va("Respawn in: %2.2f",((double)cg.respawnTime-(double)cg.time)/1000.0);
+			w = CG_DrawStrlen( s ) * SMALLCHAR_WIDTH;
+			CG_DrawSmallStringColor(320-w/2,400, s, colorYellow);
+		} else {
+			s = va("Click FIRE to respawn");
+			w = CG_DrawStrlen( s ) * SMALLCHAR_WIDTH;
+			CG_DrawSmallStringColor(320-w/2,400, "Click FIRE to respawn", colorGreen);
+		}
         }
 	if (cg_ratScoreboard.integer) {
 		return CG_DrawRatScoreboard();

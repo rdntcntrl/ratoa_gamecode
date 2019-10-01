@@ -444,6 +444,7 @@ typedef struct {
 	int				health;			// you only get this info about your teammates
 	int				armor;
 	int				curWeapon;
+	int				respawnTime;
 
 	int				handicap;
 	int				wins, losses;	// in tourney mode
@@ -1454,6 +1455,8 @@ typedef struct {
 	// for elimination modes
 	int redLivingCount;
 	int blueLivingCount;
+
+	int elimNextRespawnTime;
 
 	qboolean  newHud;
 

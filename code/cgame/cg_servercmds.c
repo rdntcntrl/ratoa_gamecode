@@ -904,6 +904,8 @@ static void CG_ParseTeamPlayerCounts( void ) {
 	totalRed = atoi ( CG_Argv ( 3 ) );
 	totalBlue = atoi ( CG_Argv ( 4 ) );
 
+	cgs.elimNextRespawnTime = MAX(0,atoi ( CG_Argv ( 5 ) ));
+
 
 	if ( totalRed != 1 && livingRed == 1 && livingRed != cgs.redLivingCount && team == TEAM_RED && !dead ) {
 		cg.elimLastPlayerTime = cg.time;
@@ -916,6 +918,7 @@ static void CG_ParseTeamPlayerCounts( void ) {
 
 	cgs.redLivingCount = livingRed;
 	cgs.blueLivingCount = livingBlue;
+
 
 }
 
@@ -938,7 +941,7 @@ static void CG_ParseTeamInfo( void ) {
 	}
 
 	for ( i = 0 ; i < numSortedTeamPlayers ; i++ ) {
-		client = atoi( CG_Argv( i * 6 + 2 ) );
+		client = atoi( CG_Argv( i * 7 + 2 ) );
                 if( client < 0 || client >= MAX_CLIENTS )
 		{
 		  CG_Error( "CG_ParseTeamInfo: bad client number: %d", client );
@@ -948,11 +951,12 @@ static void CG_ParseTeamInfo( void ) {
 
 		sortedTeamPlayers[i] = client;
 
-		cgs.clientinfo[ client ].location = atoi( CG_Argv( i * 6 + 3 ) );
-		cgs.clientinfo[ client ].health = atoi( CG_Argv( i * 6 + 4 ) );
-		cgs.clientinfo[ client ].armor = atoi( CG_Argv( i * 6 + 5 ) );
-		cgs.clientinfo[ client ].curWeapon = atoi( CG_Argv( i * 6 + 6 ) );
-		cgs.clientinfo[ client ].powerups = atoi( CG_Argv( i * 6 + 7 ) );
+		cgs.clientinfo[ client ].location = atoi( CG_Argv( i * 7 + 3 ) );
+		cgs.clientinfo[ client ].health = atoi( CG_Argv( i * 7 + 4 ) );
+		cgs.clientinfo[ client ].armor = atoi( CG_Argv( i * 7 + 5 ) );
+		cgs.clientinfo[ client ].curWeapon = atoi( CG_Argv( i * 7 + 6 ) );
+		cgs.clientinfo[ client ].powerups = atoi( CG_Argv( i * 7 + 7 ) );
+		cgs.clientinfo[ client ].respawnTime = atoi( CG_Argv( i * 7 + 8 ) );
 	}
 }
 
