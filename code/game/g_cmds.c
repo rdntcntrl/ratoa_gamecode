@@ -683,7 +683,7 @@ void Cmd_Rules_f( gentity_t *ent ) {
 				" -Fast weapons:          %s" S_COLOR_WHITE "\n"
 				" -Smooth/additive jump:  %s" S_COLOR_WHITE "\n"
 				" -Ramp jump:             %s" S_COLOR_WHITE "\n"
-				" -Forced bright models:  %s" S_COLOR_WHITE "\n"
+				" -Forced models:  	  %s" S_COLOR_WHITE "\n"
 				" -Bright shells:         %s" S_COLOR_WHITE "\n"
 				" -Item pickup height:    %s" S_COLOR_WHITE "\n"
 				" -Powerup glows:         %s" S_COLOR_WHITE "\n"
@@ -696,7 +696,7 @@ void Cmd_Rules_f( gentity_t *ent ) {
 				g_fastWeapons.integer ? S_COLOR_GREEN "ON" : S_COLOR_RED "OFF",
 				g_additiveJump.integer ? S_COLOR_GREEN "ON" : S_COLOR_RED "OFF",
 				g_rampJump.integer ? S_COLOR_GREEN "ON" : S_COLOR_RED "OFF",
-				g_allowBrightModels.integer ? S_COLOR_GREEN "ON" : S_COLOR_RED "OFF",
+				g_allowForcedModels.integer ? S_COLOR_GREEN "ON" : S_COLOR_RED "OFF",
 				g_brightPlayerShells.integer ? S_COLOR_GREEN "ON" : S_COLOR_RED "OFF",
 				g_itemPickup.integer ? "high" : "low",
 				g_powerupGlows.integer ? S_COLOR_GREEN "ON" : S_COLOR_RED "OFF",

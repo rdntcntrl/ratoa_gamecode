@@ -275,8 +275,10 @@ vmCvar_t        g_autoStartTime;
 vmCvar_t        g_countDownHealthArmor;
 vmCvar_t        g_powerupGlows;
 vmCvar_t        g_screenShake;
-vmCvar_t        g_allowBrightModels;
+vmCvar_t        g_allowForcedModels;
+vmCvar_t        g_brightModels;
 vmCvar_t        g_brightPlayerShells;
+vmCvar_t        g_brightPlayerOutlines;
 vmCvar_t        g_friendsWallHack;
 vmCvar_t        g_friendsFlagIndicator;
 vmCvar_t        g_specShowZoom;
@@ -578,8 +580,10 @@ static cvarTable_t		gameCvarTable[] = {
         { &g_powerupGlows, "g_powerupGlows", "1", CVAR_ARCHIVE, 0, qfalse },
         { &g_screenShake, "g_screenShake", "1", CVAR_ARCHIVE, 0, qfalse },
 	{ &g_bobup,  "g_bobup", "0", CVAR_ARCHIVE, 0, qfalse },
-        { &g_allowBrightModels, "g_allowBrightModels", "1", CVAR_ARCHIVE, 0, qfalse },
+        { &g_allowForcedModels, "g_allowForcedModels", "1", CVAR_ARCHIVE, 0, qfalse },
+        { &g_brightModels, "g_brightModels", "1", CVAR_ARCHIVE, 0, qfalse },
         { &g_brightPlayerShells, "g_brightPlayerShells", "1", CVAR_ARCHIVE, 0, qfalse },
+        { &g_brightPlayerOutlines, "g_brightPlayerOutlines", "1", CVAR_ARCHIVE, 0, qfalse },
         { &g_friendsWallHack, "g_friendsWallHack", "0", CVAR_ARCHIVE, 0, qfalse },
         { &g_friendsFlagIndicator, "g_friendsFlagIndicator", "0", CVAR_ARCHIVE, 0, qfalse },
         { &g_specShowZoom, "g_specShowZoom", "1", CVAR_ARCHIVE, 0, qfalse },
@@ -1410,8 +1414,8 @@ void G_UpdateRatFlags( void ) {
 	}
 
 
-	if (g_allowBrightModels.integer) {
-		rflags |= RAT_ALLOWBRIGHTSKINS;
+	if (g_allowForcedModels.integer) {
+		rflags |= RAT_ALLOWFORCEDMODELS;
 	}
 
 	if (g_friendsWallHack.integer) {
@@ -1424,6 +1428,14 @@ void G_UpdateRatFlags( void ) {
 
 	if (g_brightPlayerShells.integer) {
 		rflags |= RAT_BRIGHTSHELL;
+	}
+
+	if (g_brightPlayerOutlines.integer) {
+		rflags |= RAT_BRIGHTOUTLINE;
+	}
+
+	if (g_brightModels.integer) {
+		rflags |= RAT_BRIGHTMODEL;
 	}
 
 	if (g_newShotgun.integer) {
@@ -1546,10 +1558,12 @@ void G_UpdateCvars( void ) {
 						|| cv->vmCvar == &g_fastWeapons
 						|| cv->vmCvar == &g_ratPhysics
 						|| cv->vmCvar == &g_rampJump
-						|| cv->vmCvar == &g_allowBrightModels
+						|| cv->vmCvar == &g_allowForcedModels
 						|| cv->vmCvar == &g_friendsWallHack
 						|| cv->vmCvar == &g_specShowZoom
 						|| cv->vmCvar == &g_brightPlayerShells
+						|| cv->vmCvar == &g_brightPlayerOutlines
+						|| cv->vmCvar == &g_brightModels
 						|| cv->vmCvar == &g_newShotgun
 						|| cv->vmCvar == &g_additiveJump
 						|| cv->vmCvar == &g_friendsFlagIndicator

@@ -1611,7 +1611,7 @@ void ClientUserinfoChanged( int clientNum ) {
 		Q_strncpyz( headModel, Info_ValueForKey (userinfo, "headmodel"), sizeof( headModel ) );
 	}
 
-	if (!g_allowBrightModels.integer) {
+	if (!g_brightModels.integer || !g_allowForcedModels.integer) {
 		// prevent people from manually bright models when they're not supposed to
 		if (Q_stristr(model, "bright") != NULL || Q_stristr(headModel, "bright") != NULL) {
 			if( g_gametype.integer >= GT_TEAM && g_ffa_gt==0) {
