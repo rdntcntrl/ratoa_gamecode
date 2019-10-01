@@ -2073,7 +2073,6 @@ void CG_ResetPlayerEntity( centity_t *cent );
 void CG_AddRefEntityWithPowerups( refEntity_t *ent, entityState_t *state, int team, qboolean isMissile , clientInfo_t *ci, int orderIndicator);
 void CG_NewClientInfo( int clientNum );
 sfxHandle_t	CG_CustomSound( int clientNum, const char *soundName );
-void CG_HSV2RGB(float h, float s, float v, float *out);
 void CG_LoadForcedSounds(void);
 int CG_CountPlayers(team_t team);
 int CG_GetTotalHitPoints(int health, int armor);

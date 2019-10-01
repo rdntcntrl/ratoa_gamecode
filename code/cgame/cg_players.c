@@ -650,7 +650,7 @@ static void CG_ColorFromString( const char *v, vec3_t color ) {
 		if (val < 0 || val >= 360) {
 			val = 0;
 		} 
-		CG_HSV2RGB((float)val, 1.0, 1.0, hcolor);
+		Q_HSV2RGB((float)val, 1.0, 1.0, hcolor);
 		color[0] = hcolor[0];
 		color[1] = hcolor[1];
 		color[2] = hcolor[2];
@@ -2625,7 +2625,7 @@ void CG_AddRefEntityWithPowerups( refEntity_t *ent, entityState_t *state, int te
 					hue = (cg.time / 3) % 360;
 				}
 				
-				CG_HSV2RGB(hue,1.0,1.0, color);
+				Q_HSV2RGB(hue,1.0,1.0, color);
 				CG_FloatColorToRGBA(color, ent->shaderRGBA);
 				ent->shaderRGBA[3] = (byte)0xff * MAX(MIN(cg_quadAlpha.value, 1.0), 0.0);
 			} else {
@@ -2637,7 +2637,7 @@ void CG_AddRefEntityWithPowerups( refEntity_t *ent, entityState_t *state, int te
 
 				hue = cg_quadHue.integer;
 				
-				CG_HSV2RGB(hue,1.0,1.0, color);
+				Q_HSV2RGB(hue,1.0,1.0, color);
 				CG_FloatColorToRGBA(color, ent->shaderRGBA);
 				ent->shaderRGBA[3] = (byte)0xff * MAX(MIN(cg_quadAlpha.value, 1.0), 0.0);
 			}
@@ -2766,120 +2766,6 @@ int CG_LightVerts( vec3_t normal, int numVerts, polyVert_t *verts )
 	return qtrue;
 }
 
-void CG_RGB2HSV(float *in, float *h, float *s, float *v) {
-	float min, max, delta;
-
-	min = in[0] < in[1] ? in[0] : in[1];
-	min = min   < in[2] ? min   : in[2];
-
-	max = in[0] > in[1] ? in[0] : in[1];
-	max = max   > in[2] ? max   : in[2];
-
-	*v = max;
-	delta = max - min;
-
-	if (delta < 0.00001) {
-		*s = 0.0;
-		*h = 0.0;
-		return;
-	}
-
-	if (max > 0.0 ) {
-		*s = delta/max;
-	} else {
-		*s = 0.0;
-		*h = 0.0;
-		return;
-	}
-	if ( in[0] >= max ) {
-		*h = (in[1] - in[2])/delta;
-	} else if ( in[1] >= max ) {
-		*h = 2.0 + (in[2] - in[0])/delta;
-	} else {
-		*h = 4.0 + (in[0] - in[1])/delta;
-	}
-
-	*h *= 60.0;
-
-	if (*h < 0.0) {
-		*h += 360.0;
-	}
-
-}
-
-void CG_HSV2RGB(float h, float s, float v, float *out) {
-	float	hh, p, q, t, ff;
-	int     i;
-
-	if (h > 360.0) {
-		h = 360.0;
-	} else if (h < 0.0) {
-		h = 0.0;
-	}
-	if (s > 1.0) {
-		s = 1.0;
-	} else if (s < 0.0) {
-		s = 0.0;
-	}
-	if (v > 1.0) {
-		v = 1.0;
-	} else if (v < 0.0) {
-		v = 0.0;
-	}
-
-	if(s <= 0.0) {
-		out[0] = v;
-		out[1] = v;
-		out[2] = v;
-		return;
-	}
-	hh = h;
-	if (hh >= 360.0) {
-	       	hh = 0.0;
-	}
-	hh /= 60.0;
-	i = (int)hh;
-	ff = hh - i;
-	p = v * (1.0 - s);
-	q = v * (1.0 - (s * ff));
-	t = v * (1.0 - (s * (1.0 - ff)));
-
-	switch (i) {
-		case 0:
-			out[0] = v;
-			out[1] = t;
-			out[2] = p;
-			break;
-		case 1:
-			out[0] = q;
-			out[1] = v;
-			out[2] = p;
-			break;
-		case 2:
-			out[0] = p;
-			out[1] = v;
-			out[2] = t;
-			break;
-
-		case 3:
-			out[0] = p;
-			out[1] = q;
-			out[2] = v;
-			break;
-		case 4:
-			out[0] = t;
-			out[1] = p;
-			out[2] = v;
-			break;
-		case 5:
-		default:
-			out[0] = v;
-			out[1] = p;
-			out[2] = q;
-			break;
-	}
-}
-
 void CG_FloatColorToRGBA(float *color, byte *out) {
 	out[0] = color[0]*0xff;
 	out[1] = color[1]*0xff;
@@ -2950,7 +2836,7 @@ void CG_PlayerColorFromString(char *str, float *h, float *s, float *v) {
 		cs[2] = '\0';
 		p = cs;
 		if (Q_IsColorString(p)) {
-			CG_RGB2HSV(g_color_table[ColorIndex(*(p+1))], h, s, v);
+			Q_RGB2HSV(g_color_table[ColorIndex(*(p+1))], h, s, v);
 		}
 	}
 
@@ -3056,7 +2942,7 @@ void CG_ParseForcedColors( void ) {
 
 	for (bodyPart = MCIDX_HEAD; bodyPart < MCIDX_NUM; ++bodyPart) {
 		h = cg_teamHueDefault.value;
-		CG_HSV2RGB(h,s,v, color);
+		Q_HSV2RGB(h,s,v, color);
 		CG_FloatColorToRGBA(color, cgs.modelRGBA[bodyPart][MODELCOLOR_DEFAULT]);
 		if (cg_enemyCorpseSaturation.string[0]) {
 			s = cg_enemyCorpseSaturation.value;
@@ -3064,7 +2950,7 @@ void CG_ParseForcedColors( void ) {
 		if (cg_enemyCorpseValue.string[0]) {
 			v = cg_enemyCorpseValue.value;
 		}
-		CG_HSV2RGB(h,s,v, color);
+		Q_HSV2RGB(h,s,v, color);
 		CG_FloatColorToRGBA(color, cgs.corpseRGBA[bodyPart][MODELCOLOR_DEFAULT]);
 	}
 
@@ -3076,7 +2962,7 @@ void CG_ParseForcedColors( void ) {
 			s = v = 1.0;
 
 			h = cg_teamHueBlue.value;
-			CG_HSV2RGB(h,s,v, color);
+			Q_HSV2RGB(h,s,v, color);
 			CG_FloatColorToRGBA(color, cgs.modelRGBA[bodyPart][MODELCOLOR_BLUE]);
 			if (cg_enemyCorpseSaturation.string[0]) {
 				s = cg_enemyCorpseSaturation.value;
@@ -3084,13 +2970,13 @@ void CG_ParseForcedColors( void ) {
 			if (cg_enemyCorpseValue.string[0]) {
 				v = cg_enemyCorpseValue.value;
 			}
-			CG_HSV2RGB(h,s,v, color);
+			Q_HSV2RGB(h,s,v, color);
 			CG_FloatColorToRGBA(color, cgs.corpseRGBA[bodyPart][MODELCOLOR_BLUE]);
 
 			s = v = 1.0;
 
 			h = cg_teamHueRed.value;
-			CG_HSV2RGB(h,s,v, color);
+			Q_HSV2RGB(h,s,v, color);
 			CG_FloatColorToRGBA(color, cgs.modelRGBA[bodyPart][MODELCOLOR_RED]);
 			if (cg_enemyCorpseSaturation.string[0]) {
 				s = cg_enemyCorpseSaturation.value;
@@ -3098,7 +2984,7 @@ void CG_ParseForcedColors( void ) {
 			if (cg_enemyCorpseValue.string[0]) {
 				v = cg_enemyCorpseValue.value;
 			}
-			CG_HSV2RGB(h,s,v, color);
+			Q_HSV2RGB(h,s,v, color);
 			CG_FloatColorToRGBA(color, cgs.corpseRGBA[bodyPart][MODELCOLOR_RED]);
 		}
 
@@ -3123,7 +3009,7 @@ void CG_ParseForcedColors( void ) {
 		} else {
 			h = cg_teamHueDefault.value;
 		}
-		CG_HSV2RGB(h,s,v, color);
+		Q_HSV2RGB(h,s,v, color);
 		CG_FloatColorToRGBA(color, cgs.modelRGBA[bodyPart][MODELCOLOR_TEAM]);
 		if (cg_teamCorpseSaturation.string[0]) {
 			s = cg_teamCorpseSaturation.value;
@@ -3131,7 +3017,7 @@ void CG_ParseForcedColors( void ) {
 		if (cg_teamCorpseValue.string[0]) {
 			v = cg_teamCorpseValue.value;
 		}
-		CG_HSV2RGB(h,s,v, color);
+		Q_HSV2RGB(h,s,v, color);
 		CG_FloatColorToRGBA(color, cgs.corpseRGBA[bodyPart][MODELCOLOR_TEAM]);
 
 		s = v = 1.0;
@@ -3151,7 +3037,7 @@ void CG_ParseForcedColors( void ) {
 		} else {
 			h = cg_teamHueDefault.value;
 		}
-		CG_HSV2RGB(h,s,v, color);
+		Q_HSV2RGB(h,s,v, color);
 		CG_FloatColorToRGBA(color, cgs.modelRGBA[bodyPart][MODELCOLOR_ENEMY]);
 		if (cg_enemyCorpseSaturation.string[0]) {
 			s = cg_enemyCorpseSaturation.value;
@@ -3159,7 +3045,7 @@ void CG_ParseForcedColors( void ) {
 		if (cg_enemyCorpseValue.string[0]) {
 			v = cg_enemyCorpseValue.value;
 		}
-		CG_HSV2RGB(h,s,v, color);
+		Q_HSV2RGB(h,s,v, color);
 		CG_FloatColorToRGBA(color, cgs.corpseRGBA[bodyPart][MODELCOLOR_ENEMY]);
 	}
 
@@ -3191,7 +3077,7 @@ void CG_PlayerAutoHeadColor(clientInfo_t *ci, byte *outColor) {
 	}
 	s = v = 1.0;
 	h = team_idx * 360.0/team_count;
-	CG_HSV2RGB(h,s,v, color);
+	Q_HSV2RGB(h,s,v, color);
 	color[3] = 1.0;
 	CG_FloatColorToRGBA(color, outColor);
 }

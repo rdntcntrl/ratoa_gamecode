@@ -1314,3 +1314,118 @@ int Q_isnan( float x )
 
 	return (int)( (unsigned int)t.i >> 31 );
 }
+
+void Q_RGB2HSV(float *in, float *h, float *s, float *v) {
+	float min, max, delta;
+
+	min = in[0] < in[1] ? in[0] : in[1];
+	min = min   < in[2] ? min   : in[2];
+
+	max = in[0] > in[1] ? in[0] : in[1];
+	max = max   > in[2] ? max   : in[2];
+
+	*v = max;
+	delta = max - min;
+
+	if (delta < 0.00001) {
+		*s = 0.0;
+		*h = 0.0;
+		return;
+	}
+
+	if (max > 0.0 ) {
+		*s = delta/max;
+	} else {
+		*s = 0.0;
+		*h = 0.0;
+		return;
+	}
+	if ( in[0] >= max ) {
+		*h = (in[1] - in[2])/delta;
+	} else if ( in[1] >= max ) {
+		*h = 2.0 + (in[2] - in[0])/delta;
+	} else {
+		*h = 4.0 + (in[0] - in[1])/delta;
+	}
+
+	*h *= 60.0;
+
+	if (*h < 0.0) {
+		*h += 360.0;
+	}
+
+}
+
+void Q_HSV2RGB(float h, float s, float v, float *out) {
+	float	hh, p, q, t, ff;
+	int     i;
+
+	if (h > 360.0) {
+		h = 360.0;
+	} else if (h < 0.0) {
+		h = 0.0;
+	}
+	if (s > 1.0) {
+		s = 1.0;
+	} else if (s < 0.0) {
+		s = 0.0;
+	}
+	if (v > 1.0) {
+		v = 1.0;
+	} else if (v < 0.0) {
+		v = 0.0;
+	}
+
+	if(s <= 0.0) {
+		out[0] = v;
+		out[1] = v;
+		out[2] = v;
+		return;
+	}
+	hh = h;
+	if (hh >= 360.0) {
+	       	hh = 0.0;
+	}
+	hh /= 60.0;
+	i = (int)hh;
+	ff = hh - i;
+	p = v * (1.0 - s);
+	q = v * (1.0 - (s * ff));
+	t = v * (1.0 - (s * (1.0 - ff)));
+
+	switch (i) {
+		case 0:
+			out[0] = v;
+			out[1] = t;
+			out[2] = p;
+			break;
+		case 1:
+			out[0] = q;
+			out[1] = v;
+			out[2] = p;
+			break;
+		case 2:
+			out[0] = p;
+			out[1] = v;
+			out[2] = t;
+			break;
+
+		case 3:
+			out[0] = p;
+			out[1] = q;
+			out[2] = v;
+			break;
+		case 4:
+			out[0] = t;
+			out[1] = p;
+			out[2] = v;
+			break;
+		case 5:
+		default:
+			out[0] = v;
+			out[1] = p;
+			out[2] = q;
+			break;
+	}
+}
+

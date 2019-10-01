@@ -5241,7 +5241,7 @@ static void CG_DrawCrosshair(void)
 				h += 360;
 			}
 		}
-		CG_HSV2RGB(h,s,v, fcolor);
+		Q_HSV2RGB(h,s,v, fcolor);
 		fcolor[3] = 1.0f;
 		// fade color over time
 		if (cg_crosshairHitTime.integer - (cg.time - cg.lastHitTime) <= fadeTime) {
@@ -5522,12 +5522,12 @@ static void CG_DrawZoomScope( void ) {
 		case WP_MACHINEGUN:
 			shader = cgs.media.zoomScopeMGShader;
 			CG_PlayerColorFromString(cg_zoomScopeMGColor.string, &hue, &sat, &val);
-			CG_HSV2RGB(hue,sat,val, color);
+			Q_HSV2RGB(hue,sat,val, color);
 			break;
 		case WP_RAILGUN:
 			shader = cgs.media.zoomScopeRGShader;
 			CG_PlayerColorFromString(cg_zoomScopeRGColor.string, &hue, &sat, &val);
-			CG_HSV2RGB(hue,sat,val, color);
+			Q_HSV2RGB(hue,sat,val, color);
 			break;
 		default:
 			return;

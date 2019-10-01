@@ -636,6 +636,9 @@ void AngleVectors( const vec3_t angles, vec3_t forward, vec3_t right, vec3_t up)
 void PerpendicularVector( vec3_t dst, const vec3_t src );
 int Q_isnan( float x );
 
+void Q_HSV2RGB(float h, float s, float v, float *out);
+void Q_RGB2HSV(float *in, float *h, float *s, float *v);
+
 
 //=============================================
 
