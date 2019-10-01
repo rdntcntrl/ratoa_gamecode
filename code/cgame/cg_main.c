@@ -2220,16 +2220,13 @@ static void CG_RegisterGraphics( void ) {
                 cgs.media.neutralOverlay = trap_R_RegisterShader( "playeroverlays/playerSuit1_Neutral");
         }
 
-	if (cg_brightShells.integer == 2) {
-		cgs.media.brightShell = trap_R_RegisterShader( "playerBrightShellFlat");
-	} else {
-		cgs.media.brightShell = trap_R_RegisterShader( "playerBrightShell");
-	}
-	if (cg_brightOutline.integer == 2) {
-		cgs.media.brightOutline = trap_R_RegisterShader( "playerBrightOutline05");
-	} else {
-		cgs.media.brightOutline = trap_R_RegisterShader( "playerBrightOutline10");
-	}
+	cgs.media.brightShell = trap_R_RegisterShader( "playerBrightShell");
+	cgs.media.brightShellFlat = trap_R_RegisterShader( "playerBrightShellFlat");
+
+	//cgs.media.brightOutline = trap_R_RegisterShader( "playerBrightOutline10");
+	cgs.media.brightOutline = trap_R_RegisterShader( "playerBrightOutline08");
+	cgs.media.brightOutlineSmall = trap_R_RegisterShader( "playerBrightOutline05");
+	cgs.media.brightOutlineOpaque = trap_R_RegisterShader( "playerBrightOutlineOp10");
 
 //For Double Domination:
 	if ( cgs.gametype == GT_DOUBLE_D ) {

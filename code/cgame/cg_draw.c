@@ -378,11 +378,15 @@ void CG_Draw3DHead( float x, float y, float w, float h, qhandle_t model, qhandle
 	if (!ci->forcedBrightModel) {
 		if (cgs.ratFlags & RAT_BRIGHTSHELL && cg_brightShells.integer) {
 			ent.shaderRGBA[3] = CG_GetBrightShellAlpha();
-			ent.customShader = cgs.media.brightShell;
+			if (cg_brightShells.integer == 2) {
+				ent.customShader = cgs.media.brightShellFlat;
+			} else {
+				ent.customShader = cgs.media.brightShell;
+			}
 			trap_R_AddRefEntityToScene( &ent );
 		} else if (cgs.ratFlags & RAT_BRIGHTOUTLINE && cg_brightOutline.integer) {
 			ent.shaderRGBA[3] = CG_GetBrightOutlineAlpha();
-			ent.customShader = cgs.media.brightOutline;
+			ent.customShader = cgs.media.brightOutlineSmall;
 			trap_R_AddRefEntityToScene( &ent );
 		}
 	}
