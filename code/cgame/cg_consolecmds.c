@@ -86,6 +86,10 @@ static char *ConcatArgs( int start ) {
 	return line;
 }
 
+void CG_CGConfig_f( void ) {
+	CG_Cvar_PrintUserChanges();
+}
+
 void CG_Echo_f( void ) {
 	CG_Printf("%s\n", ConcatArgs(1));
 
@@ -690,6 +694,7 @@ static consoleCommand_t	commands[] = {
 	{ "doc", CG_Doc_f },
 	{ "cecho", CG_Echo_f },
 	{ "randomcolors", CG_Randomcolors_f },
+	{ "cgconfig", CG_CGConfig_f },
 	{ "mv", CG_Mapvote_f },
 	{ "taunt", CG_Taunt_f },
 #ifdef MISSIONPACK

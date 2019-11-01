@@ -1313,6 +1313,28 @@ void CG_ForceModelChange( void ) {
 	CG_LoadDeferredPlayers();
 }
 
+void CG_Cvar_PrintUserChanges( void ) {
+	int i;
+	cvarTable_t *cv;
+
+	for ( i = 0, cv = cvarTable ; i < cvarTableSize ; i++, cv++ ) {
+		if ( cv->cvarFlags & (CVAR_ROM 
+					| CVAR_USER_CREATED 
+					| CVAR_SERVER_CREATED 
+					| CVAR_SERVERINFO 
+					| CVAR_SYSTEMINFO 
+					| CVAR_TEMP)
+				) {
+			continue;
+		}
+		trap_Cvar_Update( cv->vmCvar );
+		if (strcmp(cv->defaultString, cv->vmCvar->string) == 0) {
+			continue;
+		}
+		Com_Printf("seta %s \"%s\"\n", cv->cvarName, cv->vmCvar->string);
+	}
+}
+
 void CG_Cvar_Update( const char *var_name ) {
 	int i;
 	cvarTable_t *cv;
