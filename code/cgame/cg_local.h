@@ -1299,6 +1299,9 @@ typedef struct {
 	sfxHandle_t yourBaseIsUnderAttackSound;
 	sfxHandle_t holyShitSound;
 
+	// Elimination / CA / Extermination
+	sfxHandle_t oneLeftSound;
+
 	// tournament sounds
 	sfxHandle_t	count3Sound;
 	sfxHandle_t	count2Sound;

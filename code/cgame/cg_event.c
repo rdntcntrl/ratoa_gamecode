@@ -1358,6 +1358,10 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 				case GTS_KAMIKAZE:
 					trap_S_StartLocalSound(cgs.media.kamikazeFarSound, CHAN_ANNOUNCER);
 					break;
+				case GTS_ONE_PLAYER_LEFT_RED:
+				case GTS_ONE_PLAYER_LEFT_BLUE:
+					trap_S_StartLocalSound(cgs.media.oneLeftSound, CHAN_ANNOUNCER);
+					break;
 				default:
 					break;
 			}
