@@ -583,7 +583,7 @@ void G_CheckStrongmanAward(gentity_t *attacker, gentity_t *victim) {
 }
 
 void G_CheckAmbushAward(gentity_t *victim, gentity_t *inflictor, gentity_t *attacker, int meansOfDeath) {
-	if (!attacker || !attacker->client || attacker == victim) {
+	if (!attacker || !attacker->client || attacker == victim || OnSameTeam(attacker, victim)) {
 		return;
 	}
 	// also makes sure the client wasn't moved back through the portal due to unlag
@@ -598,7 +598,7 @@ void G_CheckAmbushAward(gentity_t *victim, gentity_t *inflictor, gentity_t *atta
 }
 
 void G_CheckDeathEAwards(gentity_t *victim, gentity_t *inflictor, gentity_t *attacker, int meansOfDeath) {
-	if (!attacker || !attacker->client || attacker == victim) {
+	if (!attacker || !attacker->client || attacker == victim || OnSameTeam(attacker, victim)) {
 		return;
 	}
 
