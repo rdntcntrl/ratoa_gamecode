@@ -831,7 +831,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 				if (attacker->client->ps.powerups[PW_INVIS]) {
 					AwardMessage(attacker, EAWARD_AMBUSH, ++(attacker->client->pers.awardCounts[EAWARD_AMBUSH]));
 				}
-				if ((++(attacker->client->gauntSpree)) % 5 == 0 ) {
+				if ((++(attacker->client->gauntSpree)) % 3 == 0 ) {
 					AwardMessage(attacker, EAWARD_BERSERKER, ++(attacker->client->pers.awardCounts[EAWARD_BERSERKER]));
 				}
 			} else {
