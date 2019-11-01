@@ -1359,8 +1359,22 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 					trap_S_StartLocalSound(cgs.media.kamikazeFarSound, CHAN_ANNOUNCER);
 					break;
 				case GTS_ONE_PLAYER_LEFT_RED:
+					if (cgs.clientinfo[cg.clientNum].team == TEAM_RED) {
+						CG_AddBufferedSound( cgs.media.oneFriendLeftSound );
+					} else if (cgs.clientinfo[cg.clientNum].team == TEAM_BLUE) {
+						CG_AddBufferedSound( cgs.media.oneEnemyLeftSound );
+					} else {
+						CG_AddBufferedSound( cgs.media.oneLeftSound );
+					}
+					break;
 				case GTS_ONE_PLAYER_LEFT_BLUE:
-					trap_S_StartLocalSound(cgs.media.oneLeftSound, CHAN_ANNOUNCER);
+					if (cgs.clientinfo[cg.clientNum].team == TEAM_BLUE) {
+						CG_AddBufferedSound( cgs.media.oneFriendLeftSound );
+					} else if (cgs.clientinfo[cg.clientNum].team == TEAM_RED) {
+						CG_AddBufferedSound( cgs.media.oneEnemyLeftSound );
+					} else {
+						CG_AddBufferedSound( cgs.media.oneLeftSound );
+					}
 					break;
 				default:
 					break;

@@ -1301,6 +1301,8 @@ typedef struct {
 
 	// Elimination / CA / Extermination
 	sfxHandle_t oneLeftSound;
+	sfxHandle_t oneFriendLeftSound;
+	sfxHandle_t oneEnemyLeftSound;
 
 	// tournament sounds
 	sfxHandle_t	count3Sound;
