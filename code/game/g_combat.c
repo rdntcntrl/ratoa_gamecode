@@ -678,6 +678,7 @@ void G_CheckOnePlayerLeft( gentity_t *justdied ) {
 		te = G_TempEntity( justdied->s.pos.trBase, EV_GLOBAL_TEAM_SOUND);
 		te->s.eventParm = justdied->client->sess.sessionTeam == TEAM_BLUE ? 
 			GTS_ONE_PLAYER_LEFT_BLUE : GTS_ONE_PLAYER_LEFT_RED;
+		te->r.svFlags |= SVF_BROADCAST;
 	}
 }
 

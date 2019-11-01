@@ -930,6 +930,7 @@ int RespawnElimZombies(void)
 		te = G_TempEntity( client->s.pos.trBase, EV_GLOBAL_TEAM_SOUND);
 		te->s.eventParm = client->client->sess.sessionTeam == TEAM_BLUE ? 
 			GTS_PLAYER_RESPAWNED_BLUE : GTS_PLAYER_RESPAWNED_RED;
+		te->r.svFlags |= SVF_BROADCAST;
 	}
 	return respawned;
 }
