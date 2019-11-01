@@ -950,15 +950,15 @@ void G_CheckAccuracyAward( gentity_t *ent, int old_accuracy_hits) {
 			ent->client->consecutive_hits++;
 			break;
 		case WP_MACHINEGUN:
-			requiredhits = 10;
+			requiredhits = 15;
 			ent->client->consecutive_hits++;
 			break;
 		case WP_RAILGUN:
-			requiredhits = 7;
+			requiredhits = 10;
 			ent->client->consecutive_hits++;
 			break;
 		case WP_CHAINGUN:
-			requiredhits = 10;
+			requiredhits = 20;
 			ent->client->consecutive_hits++;
 			break;
 		case WP_SHOTGUN:
