@@ -640,7 +640,8 @@ void G_CheckDeathEAwards(gentity_t *victim, gentity_t *inflictor, gentity_t *att
 		case MOD_BFG_SPLASH:
 			if (attacker->client->ps.pm_type == PM_DEAD 
 					&& attacker->client->pers.lastKilledBy >= 0 && attacker->client->pers.lastKilledBy < MAX_CLIENTS
-					&& attacker->client->pers.lastKilledBy != attacker->s.number) {
+					&& attacker->client->pers.lastKilledBy != attacker->s.number
+					&& attacker->client->pers.lastKilledBy == victim->s.number) {
 				AwardMessage(attacker, EAWARD_DEADHAND, ++(attacker->client->pers.awardCounts[EAWARD_DEADHAND]));
 			}
 			if (!inflictor || !inflictor->missileTeleported) {
@@ -651,10 +652,12 @@ void G_CheckDeathEAwards(gentity_t *victim, gentity_t *inflictor, gentity_t *att
 	}
 
 	if (attacker->client->pers.lastDeathTime > 0 
-			&& attacker->client->pers.lastDeathTime + 10 * 1000 > level.time
 			&& attacker->client->pers.lastKilledBy == victim->s.number
-			// revenge kill has to be the first kill after respawn or a dead hand kill
-			&& (attacker->client->lastkilled_client == -1 || attacker->client->ps.pm_type == PM_DEAD)
+			&& attacker->client->respawnTime > attacker->client->pers.lastDeathTime
+			&& attacker->client->respawnTime < level.time
+			&& attacker->client->respawnTime + 5 * 1000 > level.time
+			// revenge kill has to be the first kill after respawn 
+			&& attacker->client->lastkilled_client == -1
 			&& !attacker->client->pers.gotRevenge
 			) {
 		attacker->client->pers.gotRevenge = qtrue;
