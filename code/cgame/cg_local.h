@@ -1304,6 +1304,8 @@ typedef struct {
 	sfxHandle_t oneFriendLeftSound;
 	sfxHandle_t oneEnemyLeftSound;
 
+	sfxHandle_t elimPlayerRespawnSound;
+
 	// tournament sounds
 	sfxHandle_t	count3Sound;
 	sfxHandle_t	count2Sound;

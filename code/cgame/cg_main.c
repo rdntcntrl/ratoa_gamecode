@@ -1784,6 +1784,7 @@ static void CG_RegisterSounds( void ) {
 			cgs.media.oneLeftSound = trap_S_RegisterSound( "sound/treb/ratmod/extermination/rat_race.ogg", qtrue );
 			cgs.media.oneFriendLeftSound = trap_S_RegisterSound( "sound/treb/ratmod/extermination/last_man.ogg", qtrue );
 			cgs.media.oneEnemyLeftSound = trap_S_RegisterSound( "sound/treb/ratmod/extermination/the_chase_is_on.ogg", qtrue );
+			cgs.media.elimPlayerRespawnSound = trap_S_RegisterSound( "sound/treb/ratmod/extermination/spawn.ogg", qtrue );
 		}
 
 		if ( cgs.gametype == GT_1FCTF || cg_buildScript.integer ) {

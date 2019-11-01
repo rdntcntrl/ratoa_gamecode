@@ -1376,6 +1376,10 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 						CG_AddBufferedSound( cgs.media.oneLeftSound );
 					}
 					break;
+				case GTS_PLAYER_RESPAWNED_BLUE:
+				case GTS_PLAYER_RESPAWNED_RED:
+					trap_S_StartLocalSound(cgs.media.elimPlayerRespawnSound, CHAN_ANNOUNCER);
+					break;
 				default:
 					break;
 			}
