@@ -1264,41 +1264,129 @@ static void ClientCleanName(const char *in, char *out, int outSize, int clientNu
 }
 
 
-
 typedef struct {
-	char *tag;
-	char *tag2;
-	char *tag3;
-	char *tag4;
-	char *tag5;
-	char *displayname;
-	char *name;
+	qboolean valid;
+	char tag[16];
+	char displayName[16];
+	char id[16];
 } clan_t;
 
-static clan_t clans[] = {
-	{ "{T-L}", NULL, NULL, NULL, NULL, "TopLevel", "toplevel" },
-	{ "/N/", "/n/", "dots", "/u/", "/NiN/", "NiN", "nin" },
-	{ "*SoS*", NULL, NULL, NULL, NULL, "SoS", "sos" },
-	{ "SeXy-", NULL, NULL, NULL, NULL, "SeXy", "sexy" },
-	{ "Guild", NULL, NULL, NULL, NULL, "Guild", "guilda" },
-	{ "raGe|", NULL, NULL, NULL, NULL, "raGe", "rage" },
-	{ "vihmu/", NULL, NULL, NULL, NULL, "vihmu", "vihmu" },
-	{ "{Barry}", NULL, NULL, NULL, NULL, "Barry", "barry" },
-};
+#define MAX_CLANS 32
+static clan_t clans[MAX_CLANS];
+static qboolean clans_initialized = qfalse;
 
-#define MAX_CLAN (sizeof(clans)/sizeof(clan_t)) 
+void G_LoadClans(void) {
+	int i;
+	char		keyname[MAX_TOKEN_CHARS];
+	char *token = NULL;
+	fileHandle_t	file;
+	char buffer[16*1024];
+	char *pbuf = buffer;
+	int len;
+
+	clans_initialized = qfalse;
+	memset(clans, 0, sizeof(clans));
+
+	memset(buffer,0,sizeof(buffer));
+
+	len = trap_FS_FOpenFile("clans.cfg",&file,FS_READ);
+
+	if(!file) {
+		return;;
+	}
+
+	if (len == 0) {
+		trap_FS_FCloseFile(file);
+		return;
+	}
+	 
+	if (len >= sizeof(buffer)) {
+		Com_Printf("G_LoadClans: Warning: file clans.cfg too large\n");
+		return;
+	}
+
+	trap_FS_Read(buffer,sizeof(buffer)-1,file);
+	trap_FS_FCloseFile(file);
+	buffer[len-1] = '\0';
+
+	// parse contents:
+	
+	i = 0;
+	do {
+		token = COM_Parse(&pbuf);
+		if (!token[0]) {
+			break;
+		}
+
+		if ( token[0] != '{' ) {
+			Com_Printf( "G_LoadClans: found %s when expecting {", token );
+			return;
+		}
+
+		// go through all the key / value pairs
+		while ( 1 ) {	
+			// parse key
+			token = COM_ParseExt(&pbuf, qtrue);
+			if (!token[0]) {
+				Com_Printf("G_LoadClans: EOF without closing brace\n");
+				return;
+			}
+
+			if ( token[0] == '}' ) {
+				break;
+			}
+			Q_strncpyz( keyname, token, sizeof( keyname ) );
+
+			// parse value	
+			token = COM_ParseExt( &pbuf, qfalse );
+			if (!token[0]) {
+				Com_Printf("G_LoadClans: EOF without closing brace\n");
+				return;
+			}
+
+			if ( token[0] == '}' ) {
+				Com_Printf("G_LoadClans: closing brace without data\n");
+				return;
+			}
+
+			if (Q_stricmp("id", keyname) == 0) {
+				Q_strncpyz(clans[i].id, token, sizeof(clans[i].id));
+			} else if (Q_stricmp("displayname", keyname) == 0) {
+				Q_strncpyz(clans[i].displayName, token, sizeof(clans[i].displayName));
+			} else if (Q_stricmp("tag", keyname) == 0) {
+				Q_strncpyz(clans[i].tag, token, sizeof(clans[i].tag));
+			} else {
+				Com_Printf("G_LoadClans: invalid key %s\n", keyname);
+				return;
+			}
+		}
+
+		if (!(clans[i].id[0] && clans[i].displayName[0] && clans[i].tag[0])) {
+			Com_Printf("G_LoadClans: clan missing either \"id\", \"displayname\" or \"tag\" key\n");
+			return;
+		}
+		clans[i].valid = qtrue;
+	} while (++i < MAX_CLANS);
+
+	clans_initialized = qtrue;
+	Com_Printf("G_LoadClans: Loaded %i clans\n", i);
+}
 
 int G_ClanForClient( gclient_t *client) {
 	int j;
 	char name[MAX_NETNAME];
+
+	if (!clans_initialized) {
+		return -1;
+	}
+
 	Q_strncpyz(name, client->pers.netname, sizeof(name));
 	Q_CleanStr(name);
-	for (j = 0; j < MAX_CLAN; ++j) {
-		if (strstr(name, clans[j].tag) 
-				|| (clans[j].tag2 && strstr(name, clans[j].tag2))
-				|| (clans[j].tag3 && strstr(name, clans[j].tag3))
-				|| (clans[j].tag4 && strstr(name, clans[j].tag4))
-				|| (clans[j].tag5 && strstr(name, clans[j].tag5))) {
+	for (j = 0; j < MAX_CLANS; ++j) {
+		if (!clans[j].valid) {
+			break;
+		}
+		if (strstr(name, clans[j].tag)) {
 			return j;
 		}
 	}
@@ -1310,7 +1398,7 @@ void G_CheckClan( team_t team) {
 	int detected_clan = -1;
 	char *teamcvar = NULL;
 
-	if (!g_autoClans.integer) {
+	if (!g_autoClans.integer || !clans_initialized) {
 		return;
 	}
 
@@ -1342,11 +1430,11 @@ void G_CheckClan( team_t team) {
 
 	teamcvar = team == TEAM_BLUE ? "g_blueclan" : "g_redclan";
 	if (detected_clan != -1) {
-		char prevclanname[MAX_NETNAME];
-		trap_Cvar_VariableStringBuffer( teamcvar, prevclanname, sizeof( prevclanname ) );
-		if (Q_strncmp(prevclanname, clans[detected_clan].name, sizeof(prevclanname)) != 0) {
-			trap_Cvar_Set(teamcvar, va("%s", clans[detected_clan].name));
-			trap_SendServerCommand( -1, va("print \"" S_COLOR_CYAN "Detected clan %s playing as team %s!\n\"", clans[detected_clan].displayname, team == TEAM_BLUE ? "blue" : "red") );
+		char prevclanId[MAX_NETNAME];
+		trap_Cvar_VariableStringBuffer( teamcvar, prevclanId, sizeof( prevclanId ) );
+		if (Q_strncmp(prevclanId, clans[detected_clan].id, sizeof(prevclanId)) != 0) {
+			trap_Cvar_Set(teamcvar, va("%s", clans[detected_clan].id));
+			trap_SendServerCommand( -1, va("print \"" S_COLOR_CYAN "Detected clan %s playing as team %s!\n\"", clans[detected_clan].displayName, team == TEAM_BLUE ? "blue" : "red") );
 		}
 
 	} else {

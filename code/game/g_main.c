@@ -1825,6 +1825,10 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 		}
 		trap_Cvar_Set("g_ra3nextForceArena", "-1");
 	}
+
+	if (g_autoClans.integer) {
+		G_LoadClans();
+	}
 }
 
 

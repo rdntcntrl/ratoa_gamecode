@@ -1033,6 +1033,7 @@ void G_UpdateTopWeapons(gclient_t *client);
 qboolean G_MixedClientHasRatVM(gclient_t *client);
 void G_UnnamedPlayerRename(gentity_t *ent);
 qboolean G_RA3ArenaAllowed(int arenaNum);
+void G_LoadClans(void);
 
 //
 // g_svcmds.c
