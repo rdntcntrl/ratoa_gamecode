@@ -664,6 +664,20 @@ void G_CheckDeathEAwards(gentity_t *victim, gentity_t *inflictor, gentity_t *att
 
 }
 
+void G_CheckOnePlayerLeft( gentity_t *justdied ) {
+	int teamCount = 0;
+	if (level.roundNumber != level.roundNumberStarted) {
+		return;
+	}
+	teamCount = TeamLivingCount(-1, justdied->client->sess.sessionTeam);
+	if (teamCount == 1) {
+		gentity_t *te;
+		te = G_TempEntity( justdied->s.pos.trBase, EV_GLOBAL_TEAM_SOUND);
+		te->s.eventParm = justdied->client->sess.sessionTeam == TEAM_BLUE ? 
+			GTS_ONE_PLAYER_LEFT_BLUE : GTS_ONE_PLAYER_LEFT_RED;
+	}
+}
+
 
 /*
 ==================
@@ -1121,6 +1135,10 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 
 	if (g_gametype.integer == GT_ELIMINATION || g_gametype.integer == GT_CTF_ELIMINATION) {
 		G_SendTeamPlayerCounts();
+	}
+
+	if (g_gametype.integer == GT_ELIMINATION && g_elimination_respawn.integer > 0) {
+		G_CheckOnePlayerLeft(self);
 	}
 
 }
