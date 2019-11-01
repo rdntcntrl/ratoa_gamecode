@@ -1142,6 +1142,7 @@ void G_SendTeamPlayerCounts(void);
 void Token_die(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod);
 void Team_TH_TokenDestroyed( gentity_t *ent );
 void SetPlayerTokens(int num, qboolean updateOnly);
+void Token_Think( gentity_t *token );
 
 //KK-OAX Removed these in Code in favor of bg_alloc.c from Tremulous
 // g_mem.c

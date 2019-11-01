@@ -2577,6 +2577,39 @@ void ShuffleTeams(void) {
 
 }
 
+void Token_Think( gentity_t *token ) {
+	vec3_t	mins, maxs;
+	vec3_t	end;
+	trace_t tr;
+	float touchradius = ITEM_RADIUS + 1;
+
+	if (token->s.pos.trType != TR_STATIONARY) {
+		token->think = NULL;
+		token->nextthink = 0; 
+		return;
+	}
+	VectorSet (mins, -touchradius, -touchradius, 0);
+	VectorSet (maxs, touchradius, touchradius, 0);
+
+	// Compute a bit of falling so we can get an endpoint for the trace
+	token->s.pos.trType = TR_GRAVITY;
+	token->s.pos.trTime = level.time;
+	BG_EvaluateTrajectory(&token->s.pos, level.time+10, end);
+
+	trap_Trace( &tr, token->s.pos.trBase, mins, maxs, end, token->s.number, MASK_SOLID);
+	if (tr.fraction >= 1.0) {
+		// we didn't stick to a wall, let the token fall
+		token->s.pos.trType = TR_GRAVITY;
+		token->s.pos.trTime = level.time;
+		token->think = NULL;
+		token->nextthink = 0; 
+	} else {
+		// we're sticking to a wall
+		// test again during next think in case we're sticking to some moving object
+		token->nextthink = level.time + 1000/sv_fps.integer; 
+		token->s.pos.trType = TR_STATIONARY;
+	}
+}
 
 void Token_die(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod) {
 	if (level.th_phase == TH_HIDE) {

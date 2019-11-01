@@ -2059,8 +2059,11 @@ void Cmd_PlaceToken_f( gentity_t *ent ) {
 	item = ent->client->sess.sessionTeam == TEAM_RED ? BG_FindItem("Red Cube") : BG_FindItem("Blue Cube");
 
 	token = LaunchItem(item, ent->s.pos.trBase, velocity);
-	token->think = NULL;
-	token->nextthink = 0;
+
+	// the first think will switch this to TR_GRAVITY unless it sticks to a wall
+	token->s.pos.trType = TR_STATIONARY;
+	token->think = Token_Think;
+	token->nextthink = level.time + 10;
 
 	token->health = 50;
 	token->die = Token_die;
