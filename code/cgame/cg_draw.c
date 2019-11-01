@@ -3254,7 +3254,9 @@ void CG_DrawEliminationStatus(void) {
 
 	if (cg_drawTeamOverlay.integer) {
 		int i;
+		int numPlayers = 0;
 		int totalhp = 0;
+		int maxTeamHp;
 		y -= SCOREBOX_CHAR_HEIGHT+4;
 		xx = x;
 		for (i = 0; i < MAX_CLIENTS; ++i) {
@@ -3266,17 +3268,21 @@ void CG_DrawEliminationStatus(void) {
 				continue;
 			}
 			totalhp += CG_GetTotalHitPoints(ci->health, ci->armor);
+			numPlayers++;
 		}
-		s = va( "%4i", totalhp );
-		w = CG_HeightToWidth(CG_DrawStrlen( s ) * SCOREBOX_CHAR_WIDTH + 8);
-		xx -= w;
-		color[0] = color[1] = color[2] = color[3] = 1.0;
-		CG_DrawStringExtFloat(
-				xx + CG_HeightToWidth(4),
-				y,
-				s, color, qfalse, qfalse,
-				CG_HeightToWidth(SCOREBOX_CHAR_WIDTH), SCOREBOX_CHAR_HEIGHT,
-				0 );
+		maxTeamHp = numPlayers * CG_GetTotalHitPoints(cgs.elimStartHealth, cgs.elimStartArmor);
+		if (maxTeamHp > 0 && maxTeamHp >= totalhp) {
+			s = va( "%i%%", (totalhp*100)/maxTeamHp );
+			w = CG_HeightToWidth(CG_DrawStrlen( s ) * SCOREBOX_CHAR_WIDTH + 8);
+			xx -= w;
+			color[0] = color[1] = color[2] = color[3] = 1.0;
+			CG_DrawStringExtFloat(
+					xx + CG_HeightToWidth(4),
+					y,
+					s, color, qfalse, qfalse,
+					CG_HeightToWidth(SCOREBOX_CHAR_WIDTH), SCOREBOX_CHAR_HEIGHT,
+					0 );
+		}
 	}
 	if (cgs.elimNextRespawnTime > 0 ) {
 		int nextRespawnTime = MAX(0,ceil(((float)cgs.elimNextRespawnTime-cg.time)/1000.0));

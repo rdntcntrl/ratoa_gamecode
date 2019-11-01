@@ -1461,6 +1461,8 @@ typedef struct {
 	int blueLivingCount;
 
 	int elimNextRespawnTime;
+	int elimStartHealth;	// Player's start health
+	int elimStartArmor;	// Player's start armor
 
 	qboolean  newHud;
 
