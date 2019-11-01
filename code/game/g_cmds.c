@@ -1681,6 +1681,9 @@ void G_TimeoutModTimes(int delta) {
 			if (tent->client->respawnTime) {
 				tent->client->respawnTime += delta;
 			}
+			if (tent->client->elimRespawnTime > 0) {
+				tent->client->elimRespawnTime += delta;
+			}
 			if (tent->client->airOutTime) {
 				tent->client->airOutTime += delta;
 			}
@@ -1798,6 +1801,9 @@ void G_TimeinCommand(gentity_t *caller) {
 
 	if (g_gametype.integer == GT_ELIMINATION || g_gametype.integer == GT_CTF_ELIMINATION || g_gametype.integer == GT_LMS) {
 		SendEliminationMessageToAllClients();
+		if (g_gametype.integer != GT_LMS) {
+			G_SendTeamPlayerCounts();
+		}
 	}
 	// leave overtime 
 	//level.timeoutOvertime += delta;
