@@ -1962,7 +1962,7 @@ void CG_CvarResetDefaults( void );
 void CG_Cvar_SetAndUpdate( const char *var_name, const char *value );
 void CG_Cvar_ResetToDefault( const char *var_name );
 void CG_Cvar_Update( const char *var_name );
-void CG_Cvar_PrintUserChanges( void );
+void CG_Cvar_PrintUserChanges( qboolean all );
 qboolean CG_SupportsOggVorbis(void);
 
 //

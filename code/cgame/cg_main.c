@@ -1313,7 +1313,7 @@ void CG_ForceModelChange( void ) {
 	CG_LoadDeferredPlayers();
 }
 
-void CG_Cvar_PrintUserChanges( void ) {
+void CG_Cvar_PrintUserChanges( qboolean all ) {
 	int i;
 	cvarTable_t *cv;
 
@@ -1327,11 +1327,23 @@ void CG_Cvar_PrintUserChanges( void ) {
 				) {
 			continue;
 		}
+		if (!all) {
+			if (Q_stricmpn(cv->cvarName, "cg_", 3) != 0) {
+				// exclude non-cg cvars that might be in the table
+				continue;
+			}
+			if (Q_stricmp(cv->cvarName, "cg_ratInitialized") == 0) {
+				// exclude cg_ratInitialized because users should never
+				// write that into their manual config files
+				continue;
+			}
+		}
 		trap_Cvar_Update( cv->vmCvar );
 		if (strcmp(cv->defaultString, cv->vmCvar->string) == 0) {
 			continue;
 		}
-		Com_Printf("seta %s \"%s\"\n", cv->cvarName, cv->vmCvar->string);
+		Com_Printf(S_COLOR_YELLOW "seta " S_COLOR_WHITE "%s " S_COLOR_MAGENTA "\"%s\"\n",
+			       	cv->cvarName, cv->vmCvar->string);
 	}
 }
 

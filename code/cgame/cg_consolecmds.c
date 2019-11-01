@@ -87,7 +87,13 @@ static char *ConcatArgs( int start ) {
 }
 
 void CG_CGConfig_f( void ) {
-	CG_Cvar_PrintUserChanges();
+	int n = trap_Argc();
+	qboolean all = qfalse;
+	if (n > 1 && strcmp("-a", CG_Argv(1)) == 0) {
+		all = qtrue;
+	}
+	Com_Printf(S_COLOR_CYAN "// user-modified cgame cvars:\n");
+	CG_Cvar_PrintUserChanges(all);
 }
 
 void CG_Echo_f( void ) {
