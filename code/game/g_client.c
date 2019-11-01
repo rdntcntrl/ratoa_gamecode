@@ -899,6 +899,7 @@ int RespawnElimZombies(void)
 	int respawned = 0;
 	int i;
 	gentity_t	*client;
+	gentity_t *te;
 	for(i=0;i<level.maxclients;i++)
 	{
 		if ( level.clients[i].pers.connected == CON_DISCONNECTED ) {
@@ -926,6 +927,9 @@ int RespawnElimZombies(void)
 		respawnRound(client);
 		client->client->ps.pm_flags &= ~PMF_ELIMWARMUP;
 		respawned++;
+		te = G_TempEntity( client->s.pos.trBase, EV_GLOBAL_TEAM_SOUND);
+		te->s.eventParm = client->client->sess.sessionTeam == TEAM_BLUE ? 
+			GTS_PLAYER_RESPAWNED_BLUE : GTS_PLAYER_RESPAWNED_RED;
 	}
 	return respawned;
 }
