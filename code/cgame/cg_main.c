@@ -705,7 +705,7 @@ static cvarTable_t cvarTable[] = { // bk001129
 
 	{ &cg_mySound ,     "cg_mySound", "", CVAR_ARCHIVE},
 	{ &cg_teamSound ,   "cg_teamSound", "", CVAR_ARCHIVE},
-	{ &cg_enemySound ,  "cg_enemySound", "", CVAR_ARCHIVE},
+	{ &cg_enemySound ,  "cg_enemySound", "penguin", CVAR_ARCHIVE},
 
 	{ &cg_myFootsteps ,     "cg_myFootsteps", "-1", CVAR_ARCHIVE},
 	{ &cg_teamFootsteps ,   "cg_teamFootsteps", "-1", CVAR_ARCHIVE},
@@ -887,7 +887,7 @@ void CG_RatRemapShaders(void) {
 }
 
 
-#define LATEST_RATINITIALIZED 23
+#define LATEST_RATINITIALIZED 24
 
 int CG_MigrateOldCrosshair(int old) {
 	switch (old) {
@@ -1278,6 +1278,14 @@ void CG_RatOldCfgUpdate(void) {
 				        "unset cg_ratPredictMissilesPingFactor\n"
 				);
 		CG_Cvar_SetAndUpdate( "cg_ratInitialized", "23" );
+	}
+
+	if (cg_ratInitialized.integer < 24) {
+		if (strlen(cg_enemySound.string) == 0) {
+			CG_Cvar_ResetToDefault( "cg_enemySound" );
+		}
+
+		CG_Cvar_SetAndUpdate( "cg_ratInitialized", "24" );
 	}
 }
 
