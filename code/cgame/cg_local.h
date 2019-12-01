@@ -935,7 +935,9 @@ typedef struct {
 	qhandle_t	bardot_additiveglow;
 	qhandle_t	bardot_transparentglow;
 
-	// for Ratstatusbar 4
+	// for Ratstatusbar 4/5
+	// 4 for Ratstatusbar 4 shaders, 5 for Ratstatusbar 5 (vertically flipped)
+	int		rsb4_shadersLoaded;
 	// glowing elements:
 	qhandle_t	rsb4_health_shaders[RSB4_NUM_HA_BAR_ELEMENTS];
 	qhandle_t	rsb4_health_glowShaders[RSB4_NUM_HA_BAR_ELEMENTS];

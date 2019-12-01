@@ -938,6 +938,8 @@ void CG_ResetStatusbar(void) {
 }
 
 #define	RSB4_BIGCHAR_HEIGHT		28
+#define	RSB5_BIGCHAR_HEIGHT		20
+
 #define	RSB4_BIGICON_HEIGHT		27
 
 #define	RSB4_WEAPICON_HEIGHT		16
@@ -950,6 +952,8 @@ void CG_ResetStatusbar(void) {
 #define	RSB4_CENTER_SPACING		5
 #define RSB4_NUMBER_XOFFSET		12
 #define RSB4_NUMBER_YOFFSET		1
+
+#define RSB5_NUMBER_YOFFSET		14
 
 #define RSB4_UNLIT_ALPHA		0.2
 #define RSB4_DECOR_ALPHA		0.5
@@ -1131,7 +1135,11 @@ float CG_HABarElementScaleX(int elem_width) {
 	return (float)elem_width/(float)RSB4_HABAR_ORIGHEIGHT * RSB4_HABAR_BASE_SCALE;
 }
 // how much higher up to draw the image so that the edge is aligned with the desired Y coordinate
-float CG_HABarOffsetY(int elem_yoffset, float statusbarHeight) {
+float CG_HABarOffsetY(int elem_yoffset, int elemHeight, float statusbarHeight, qboolean vflipped) {
+	if (vflipped) {
+		// for Ratstatusbar 5
+		return (float)(-35 + elemHeight+elem_yoffset)/(float)RSB4_HABAR_ORIGHEIGHT * statusbarHeight * RSB4_HABAR_BASE_SCALE;
+	}
 	return (float)(RSB4_HABAR_BASE_YOFFSET - elem_yoffset)/(float)RSB4_HABAR_ORIGHEIGHT * statusbarHeight * RSB4_HABAR_BASE_SCALE;
 }
 // how much more to the right to draw the image so that the edge is aligned
@@ -1151,7 +1159,7 @@ float CG_WABarOffsetX(int elem_xoffset, float statusbarHeight) {
 	return (float)(dist_from_left)/(float)RSB4_HABAR_ORIGHEIGHT * statusbarHeight * RSB4_HABAR_BASE_SCALE;
 }
 
-static void CG_DrawHABarDecor(float x, float y, float barheight, qboolean isArmor) {
+static void CG_DrawHABarDecor(float x, float y, float barheight, qboolean isArmor, qboolean vflipped) {
 	float w;
 	float h;
 	float xx;
@@ -1173,7 +1181,7 @@ static void CG_DrawHABarDecor(float x, float y, float barheight, qboolean isArmo
 		h = barheight * CG_HABarElementScaleY(habar_decor_heights[i]);
 		w = CG_HeightToWidth(barheight * CG_HABarElementScaleX(habar_decor_widths[i]));
 
-		yy = y - CG_HABarOffsetY(habar_decor_yoffsets[i], barheight);
+		yy = y - CG_HABarOffsetY(habar_decor_yoffsets[i], habar_decor_heights[i], barheight, vflipped);
 
 		if (isArmor) {
 			xx = x + CG_HeightToWidth(CG_HABarOffsetX(habar_decor_xoffsets[i], habar_decor_widths[i], barheight, isArmor));
@@ -1185,7 +1193,7 @@ static void CG_DrawHABarDecor(float x, float y, float barheight, qboolean isArmo
 	trap_R_SetColor(NULL);
 }
 
-static void CG_DrawHABar(float x, float y, dotbar_t *dotbar, float barheight, int value, qboolean isArmor) {
+static void CG_DrawHABar(float x, float y, dotbar_t *dotbar, float barheight, int value, qboolean isArmor, qboolean vflipped) {
 	static float healthbarcolors[4][4] = { 
 		{ 1.0f, 1.0f, 1.0f, 1.0f },      // white
 		//{ 1.0f, 0.0f, 0.0f, 1.0f },     // red
@@ -1222,7 +1230,7 @@ static void CG_DrawHABar(float x, float y, dotbar_t *dotbar, float barheight, in
 		h = barheight * CG_HABarElementScaleY(habar_heights[i]);
 		w = CG_HeightToWidth(barheight * CG_HABarElementScaleX(habar_widths[i]));
 
-		yy = y - CG_HABarOffsetY(habar_yoffsets[i], barheight);
+		yy = y - CG_HABarOffsetY(habar_yoffsets[i], habar_heights[i], barheight, vflipped);
 
 		if (isArmor) {
 			xx = x + CG_HeightToWidth(CG_HABarOffsetX(habar_xoffsets[i], habar_widths[i], barheight, isArmor));
@@ -1375,6 +1383,10 @@ static void CG_DrawWeaponAmmoBar(float x, float y, dotbar_t *dotbar, float barhe
 
 void CG_Ratstatusbar4RegisterShaders(void) {
 	int i;
+	int rsbtype = cg_ratStatusbar.integer;
+	if (rsbtype < 4 || rsbtype > 5) {
+		rsbtype = 4;
+	}
 	for (i = 0; i < RSB4_NUM_HA_BAR_ELEMENTS; ++i) {
 		if (i > 0 && i <= 2) {
 			// some of these elements are identical, so just use the same shader
@@ -1386,19 +1398,19 @@ void CG_Ratstatusbar4RegisterShaders(void) {
 			cgs.media.rsb4_armor_glowShaders[i] = cgs.media.rsb4_armor_glowShaders[i-1];
 			cgs.media.rsb4_armor_additiveGlowShaders[i] = cgs.media.rsb4_armor_additiveGlowShaders[i-1];
 		} else {
-			cgs.media.rsb4_health_shaders[i] = trap_R_RegisterShader(va("rsb_health_e%i", i+1));
-			cgs.media.rsb4_health_glowShaders[i] = trap_R_RegisterShader(va("rsb_health_e%i_glow", i+1));
-			cgs.media.rsb4_health_additiveGlowShaders[i] = trap_R_RegisterShader(va("rsb_health_e%i_glow_additive", i+1));
+			cgs.media.rsb4_health_shaders[i] = trap_R_RegisterShader(va("rsb%i_health_e%i", rsbtype, i+1));
+			cgs.media.rsb4_health_glowShaders[i] = trap_R_RegisterShader(va("rsb%i_health_e%i_glow", rsbtype, i+1));
+			cgs.media.rsb4_health_additiveGlowShaders[i] = trap_R_RegisterShader(va("rsb%i_health_e%i_glow_additive", rsbtype, i+1));
 
-			cgs.media.rsb4_armor_shaders[i] = trap_R_RegisterShader(va("rsb_armor_e%i", i+1));
-			cgs.media.rsb4_armor_glowShaders[i] = trap_R_RegisterShader(va("rsb_armor_e%i_glow", i+1));
-			cgs.media.rsb4_armor_additiveGlowShaders[i] = trap_R_RegisterShader(va("rsb_armor_e%i_glow_additive", i+1));
+			cgs.media.rsb4_armor_shaders[i] = trap_R_RegisterShader(va("rsb%i_armor_e%i", rsbtype, i+1));
+			cgs.media.rsb4_armor_glowShaders[i] = trap_R_RegisterShader(va("rsb%i_armor_e%i_glow", rsbtype, i+1));
+			cgs.media.rsb4_armor_additiveGlowShaders[i] = trap_R_RegisterShader(va("rsb%i_armor_e%i_glow_additive", rsbtype, i+1));
 		}
 	}
 
 	for (i = 0; i < RSB4_NUM_HA_BAR_DECOR_ELEMENTS; ++i) {
-		cgs.media.rsb4_health_decorShaders[i] = trap_R_RegisterShader(va("rsb_health_decor%i", i+1));
-		cgs.media.rsb4_armor_decorShaders[i] = trap_R_RegisterShader(va("rsb_armor_decor%i", i+1));
+		cgs.media.rsb4_health_decorShaders[i] = trap_R_RegisterShader(va("rsb%i_health_decor%i", rsbtype, i+1));
+		cgs.media.rsb4_armor_decorShaders[i] = trap_R_RegisterShader(va("rsb%i_armor_decor%i", rsbtype, i+1));
 	}
 
 	for (i = 0; i < RSB4_NUM_W_BAR_ELEMENTS; ++i) {
@@ -1434,12 +1446,15 @@ static void CG_DrawRatStatusBar4( void ) {
 	qhandle_t	icon_a;
 	qhandle_t	icon_h;
 	int team = TEAM_FREE;
-	float bigchar_width = CG_HeightToWidth(RSB4_BIGCHAR_HEIGHT);
+	float bigchar_width;
+	float bigchar_height;
 	float weaponchar_width = CG_HeightToWidth(RSB4_WEAPCHAR_HEIGHT);
 	int flagteam = TEAM_NUM_TEAMS;
 	int weaponSelect = (cg.snap->ps.pm_flags & PMF_FOLLOW) ? 
 		cg.predictedPlayerState.weapon : cg.weaponSelect;
 	float flag_x = RSB4_BAR_MARGIN;
+	qboolean vflipped = (cg_ratStatusbar.integer == 5);
+	int number_yoffset = vflipped ? RSB5_NUMBER_YOFFSET : RSB4_NUMBER_YOFFSET;
 
 	static float colors[2][4] = { 
 		{ 1.0f, 1.0f, 1.0f, 1.0f },    // normal
@@ -1450,7 +1465,14 @@ static void CG_DrawRatStatusBar4( void ) {
 		return;
 	}
 
-	if (!cgs.media.rsb4_health_shaders[0]) {
+	if (vflipped) {
+		bigchar_height = CG_HeightToWidth(RSB5_BIGCHAR_HEIGHT);
+	} else { 
+		bigchar_height = CG_HeightToWidth(RSB4_BIGCHAR_HEIGHT);
+	}
+	bigchar_width = CG_HeightToWidth(bigchar_height);
+
+	if (cgs.media.rsb4_shadersLoaded != cg_ratStatusbar.integer) {
 		CG_Ratstatusbar4RegisterShaders();
 	}
 
@@ -1556,37 +1578,40 @@ static void CG_DrawRatStatusBar4( void ) {
 	x = SCREEN_WIDTH/2.0 - CG_HeightToWidth(RSB4_CENTER_SPACING);
 	y = SCREEN_HEIGHT - RSB4_BAR_MARGIN;
 	CG_DrawPic( x - CG_HeightToWidth(CG_HABarOffsetX(RSB4_HABAR_ICON_XOFFSET, 0, RSB4_HABAR_HEIGHT, qfalse) + RSB4_BIGICON_HEIGHT/2.0),
-			y - CG_HABarOffsetY(RSB4_HABAR_ICON_YOFFSET, RSB4_HABAR_HEIGHT) - RSB4_BIGICON_HEIGHT/2.0,
+			y - CG_HABarOffsetY(RSB4_HABAR_ICON_YOFFSET, 0, RSB4_HABAR_HEIGHT, vflipped) - RSB4_BIGICON_HEIGHT/2.0,
 			CG_HeightToWidth(RSB4_BIGICON_HEIGHT),
 			RSB4_BIGICON_HEIGHT,
 		       	icon_h );
 
-	 if (value > 30) {
+	if (value > 30) {
 		trap_R_SetColor( colors[0] );
 	} else {
 		trap_R_SetColor( colors[1] );
 	}
 
+
 	CG_DrawFieldFloat(x - CG_HeightToWidth(RSB4_NUMBER_XOFFSET) - bigchar_width * 3,
-		       	SCREEN_HEIGHT - RSB4_BOTTOM_MARGIN - RSB4_NUMBER_YOFFSET - RSB4_BIGCHAR_HEIGHT,
+		       	SCREEN_HEIGHT - RSB4_BOTTOM_MARGIN - number_yoffset - bigchar_height,
 		       	3,
 		       	value,
 		       	qfalse,
 		       	bigchar_width,
-		       	RSB4_BIGCHAR_HEIGHT);
+		       	bigchar_height);
 	trap_R_SetColor( NULL );
 
 	
 	CG_DrawHABarDecor(x,
 			y,
 			RSB4_HABAR_HEIGHT, 
-			qfalse);
+			qfalse,
+			vflipped);
 	CG_DrawHABar(x,
 			y,
 			&cg.healthbar,
 			RSB4_HABAR_HEIGHT, 
 			value,
-			qfalse);
+			qfalse,
+			vflipped);
 
 	//
 	// armor
@@ -1596,7 +1621,7 @@ static void CG_DrawRatStatusBar4( void ) {
 	x = SCREEN_WIDTH/2.0 + CG_HeightToWidth(RSB4_CENTER_SPACING);
 	y = SCREEN_HEIGHT - RSB4_BAR_MARGIN;
 	CG_DrawPic( x + CG_HeightToWidth(CG_HABarOffsetX(RSB4_HABAR_ICON_XOFFSET, 0, RSB4_HABAR_HEIGHT, qtrue) - RSB4_BIGICON_HEIGHT/2.0),
-			y - CG_HABarOffsetY(RSB4_HABAR_ICON_YOFFSET, RSB4_HABAR_HEIGHT) - RSB4_BIGICON_HEIGHT/2.0,
+			y - CG_HABarOffsetY(RSB4_HABAR_ICON_YOFFSET, 0, RSB4_HABAR_HEIGHT, vflipped) - RSB4_BIGICON_HEIGHT/2.0,
 			CG_HeightToWidth(RSB4_BIGICON_HEIGHT),
 			RSB4_BIGICON_HEIGHT,
 		       	icon_a );
@@ -1612,25 +1637,27 @@ static void CG_DrawRatStatusBar4( void ) {
 			numDigits++;
 		}
 		CG_DrawFieldFloat (x + CG_HeightToWidth(RSB4_NUMBER_XOFFSET),
-			       	SCREEN_HEIGHT - RSB4_BOTTOM_MARGIN - RSB4_NUMBER_YOFFSET - RSB4_BIGCHAR_HEIGHT,
+			       	SCREEN_HEIGHT - RSB4_BOTTOM_MARGIN - number_yoffset - bigchar_height,
 			       	numDigits,
 			       	value,
 			       	qfalse,
 			       	bigchar_width,
-			       	RSB4_BIGCHAR_HEIGHT);
+			       	bigchar_height);
 		trap_R_SetColor( NULL );
 	}
 
 	CG_DrawHABarDecor(x,
 			y,
 			RSB4_HABAR_HEIGHT, 
-			qtrue);
+			qtrue,
+			vflipped);
 	CG_DrawHABar(x,
 			y,
 			&cg.armorbar,
 			RSB4_HABAR_HEIGHT, 
 			value,
-			qtrue);
+			qtrue,
+			vflipped);
 
 
 	trap_R_SetColor( NULL );
@@ -3795,7 +3822,7 @@ static float CG_DrawPowerups( float y ) {
 		return y;
 	}
 
-	if (cg_ratStatusbar.integer == 4) {
+	if (cg_ratStatusbar.integer >= 4 && cg_ratStatusbar.integer <= 5) {
 		char_height = DPW_CHAR_SIZE;
 		char_width = CG_HeightToWidth(char_height);
 		icon_sz = DPW_ICON_SIZE;
@@ -3852,7 +3879,7 @@ static float CG_DrawPowerups( float y ) {
 
 			y -= powerup_height;
 
-			if (cg_ratStatusbar.integer == 4) {
+			if (cg_ratStatusbar.integer >= 4 && cg_ratStatusbar.integer <= 5) {
 				int numDigits, v;
 
 				CG_DrawPic( decor_x,
@@ -3898,7 +3925,7 @@ static float CG_DrawPowerups( float y ) {
 				size = icon_sz;
 			}
 			
-			if (cg_ratStatusbar.integer == 4) {
+			if (cg_ratStatusbar.integer >= 4 && cg_ratStatusbar.integer <= 5) {
 				CG_DrawPic( decor_x + CG_HeightToWidth(DPW_ICON_XOFFSET - size/2.0),
 					       	y + DPW_ICON_YOFFSET - size/2.0,
 						CG_HeightToWidth(size), size, trap_R_RegisterShader( item->icon ) );
@@ -6462,7 +6489,7 @@ static void CG_Draw2D(stereoFrame_t stereoFrame)
 		// don't draw any status if dead or the scoreboard is being explicitly shown
 		if ( !cg.showScores && cg.snap->ps.stats[STAT_HEALTH] > 0 ) {
 			CG_DrawZoomScope();
-			if (cg_ratStatusbar.integer == 4 && cgs.gametype != GT_HARVESTER && cgs.gametype != GT_TREASURE_HUNTER) {
+			if ((cg_ratStatusbar.integer >= 4 && cg_ratStatusbar.integer <= 5) && cgs.gametype != GT_HARVESTER && cgs.gametype != GT_TREASURE_HUNTER) {
 				CG_DrawRatStatusBar4Bg();
 			}
 			CG_DrawHudDamageIndicator();
@@ -6483,6 +6510,7 @@ static void CG_Draw2D(stereoFrame_t stereoFrame)
 						CG_DrawRatStatusBar3();
 						break;
 					case 4:
+					case 5:
 						CG_DrawRatStatusBar4();
 						break;
 					default:
