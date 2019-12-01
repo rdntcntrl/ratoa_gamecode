@@ -2043,6 +2043,47 @@ qboolean CanDamage (gentity_t *targ, vec3_t origin) {
 	return qfalse;
 }
 
+#define RAILJUMP_TIME 800
+qboolean G_RailJump( vec3_t origin, gentity_t *attacker) {
+	float		points, dist;
+	float damage = 100;
+	float radius = 120;
+	vec3_t		v;
+	vec3_t		dir;
+	int i;
+
+	// find the distance from the edge of the bounding box
+	for ( i = 0 ; i < 3 ; i++ ) {
+		if ( origin[i] < attacker->r.absmin[i] ) {
+			v[i] = attacker->r.absmin[i] - origin[i];
+		} else if ( origin[i] > attacker->r.absmax[i] ) {
+			v[i] = origin[i] - attacker->r.absmax[i];
+		} else {
+			v[i] = 0;
+		}
+	}
+
+	dist = VectorLength( v );
+	if ( dist >= radius ) {
+		return qfalse;
+	}
+
+	points = damage * ( 1.0 - dist / radius );
+
+	if( CanDamage (attacker, origin) || g_damageThroughWalls.integer ) {
+		VectorSubtract (attacker->r.currentOrigin, origin, dir);
+		// push the center of mass higher than the origin so players
+		// get knocked into the air more
+		dir[2] += 24;
+		G_Damage (attacker, attacker, attacker, dir, origin, (int)points, DAMAGE_RADIUS, MOD_RAILGUN);
+		if (attacker->client && attacker->client->ps.weaponTime > RAILJUMP_TIME) {
+			attacker->client->ps.weaponTime = RAILJUMP_TIME;
+		}
+		return qtrue;
+	}
+	return qfalse;
+}
+
 
 /*
 ============

@@ -307,6 +307,8 @@ vmCvar_t        g_mgTeamDamage;
 vmCvar_t        g_railgunDamage;
 vmCvar_t        g_lgDamage;
 
+vmCvar_t        g_railJump;
+
 vmCvar_t        g_teamslocked;
 vmCvar_t        g_autoTeamsUnlock;
 vmCvar_t        g_autoTeamsLock;
@@ -611,6 +613,8 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_mgTeamDamage,		"g_mgTeamDamage", "5", 0, 0, qtrue },
 	{ &g_railgunDamage,		"g_railgunDamage", "80", 0, 0, qtrue },
 	{ &g_lgDamage, 			"g_lgDamage", "7", 0, 0, qtrue },
+
+	{ &g_railJump, 			"g_railJump", "0", CVAR_ARCHIVE, 0, qtrue },
 
 	{ &g_teamslocked, 		"g_teamslocked", "0", 0, 0, qfalse },
 	{ &g_autoTeamsUnlock, 		"g_autoTeamsUnlock", "0", CVAR_ARCHIVE, 0, qfalse },
