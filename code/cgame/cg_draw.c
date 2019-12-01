@@ -2962,13 +2962,21 @@ static float CG_DrawTeamOverlay( float y, qboolean right, qboolean upper ) {
 	int ret_y, count;
 	float char_width = 8 * cg_teamOverlayScale.value;
 	float char_height = 12 * cg_teamOverlayScale.value;
+	int team = TEAM_SPECTATOR;
 
 	if ( !cg_drawTeamOverlay.integer ) {
 		return y;
 	}
-	if ( cg.snap->ps.pm_flags & PMF_FOLLOW || 
-			( cg.snap->ps.persistant[PERS_TEAM] != TEAM_RED 
-			  && cg.snap->ps.persistant[PERS_TEAM] != TEAM_BLUE )) {
+	if ( cg.snap->ps.pm_flags & PMF_FOLLOW ) {
+		if (!cgs.clientinfo[ cg.snap->ps.clientNum ].infoValid) {
+			return y;
+		}
+		team = cgs.clientinfo[ cg.snap->ps.clientNum ].team;
+	} else {
+		team = cg.snap->ps.persistant[PERS_TEAM];
+	}
+
+	if (team != TEAM_BLUE && team != TEAM_RED) { 
 		return y; // Not on any team
 	}
 
