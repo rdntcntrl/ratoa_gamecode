@@ -309,6 +309,7 @@ vmCvar_t        g_lgDamage;
 
 vmCvar_t        g_teamslocked;
 vmCvar_t        g_autoTeamsUnlock;
+vmCvar_t        g_autoTeamsLock;
 vmCvar_t        g_tourneylocked;
 vmCvar_t        g_specMuted;
 vmCvar_t        g_tournamentMuteSpec;
@@ -613,6 +614,7 @@ static cvarTable_t		gameCvarTable[] = {
 
 	{ &g_teamslocked, 		"g_teamslocked", "0", 0, 0, qfalse },
 	{ &g_autoTeamsUnlock, 		"g_autoTeamsUnlock", "0", CVAR_ARCHIVE, 0, qfalse },
+	{ &g_autoTeamsLock, 		"g_autoTeamsLock", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_tourneylocked, 		"g_tourneylocked", "0", 0, 0, qfalse },
 	{ &g_specMuted, 		"g_specMuted", "0", 0, 0, qfalse },
 	{ &g_tournamentMuteSpec,        "g_tournamentMuteSpec", "0", CVAR_ARCHIVE, 0, qtrue },
@@ -4225,6 +4227,20 @@ void CheckTournament( void ) {
 			// fudge by -1 to account for extra delays
 			level.warmupTime = level.time + ( g_warmup.integer - 1 ) * 1000;
 			trap_SetConfigstring( CS_WARMUP, va("%i", level.warmupTime) );
+
+			if (g_autoTeamsLock.integer 
+					&& g_autoTeamsUnlock.integer
+					&& g_startWhenReady.integer
+					&& g_warmup.integer
+					&& (g_gametype.integer >= GT_TEAM && g_ffa_gt != 1)
+					&& G_CountHumanPlayers(TEAM_RED) > 0 
+					&& G_CountHumanPlayers(TEAM_BLUE) > 0) {
+				
+				trap_SendServerCommand( -1, va("print \"^5Server: Automatically locking teams!\n"));
+				G_LockTeams();
+				level.autoLocked = qtrue;
+			}
+
 			return;
 		}
 
@@ -4727,6 +4743,7 @@ void G_UnlockTeams(void) {
 	level.FFALocked = qfalse;
 	trap_Cvar_Set("g_teamslocked", "0");
 	trap_SendServerCommand( -1, va("print \"^5Server: teams unlocked!\n"));
+	level.autoLocked = qfalse;
 }
 
 void G_CheckUnlockTeams(void) {
@@ -4736,13 +4753,20 @@ void G_CheckUnlockTeams(void) {
 		return;
 	}
 
-	if (level.time - level.startTime < 15000) {
+	if (level.warmupTime == 0 && level.time - level.startTime < 15000) {
 		return;
 	}
 
 	if (!(level.RedTeamLocked || level.BlueTeamLocked || level.FFALocked)) {
 		return;
 	}
+
+	if (level.autoLocked && level.warmupTime < 0) {
+		// teams were automatically locked, but warmup re-started for some reason, so unlock
+		G_UnlockTeams();
+		return;
+	} 
+
 	if (g_gametype.integer >= GT_TEAM && g_ffa_gt != 1) {
 		if (G_CountHumanPlayers(TEAM_RED) == 0 
 				|| G_CountHumanPlayers(TEAM_BLUE) == 0) {

@@ -755,6 +755,8 @@ typedef struct {
     qboolean    RedTeamLocked;
     qboolean    BlueTeamLocked;
     qboolean    FFALocked;
+
+    qboolean 	autoLocked;
     
     //Obelisk tell
     int healthRedObelisk; //health in percent
@@ -1529,6 +1531,7 @@ extern vmCvar_t        g_lgDamage;
 
 extern vmCvar_t	       g_teamslocked;
 extern vmCvar_t	       g_autoTeamsUnlock;
+extern vmCvar_t	       g_autoTeamsLock;
 extern vmCvar_t	       g_tourneylocked;
 extern vmCvar_t	       g_specMuted;
 extern vmCvar_t	       g_tournamentMuteSpec;
