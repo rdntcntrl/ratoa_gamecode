@@ -887,7 +887,23 @@ void CG_RatRemapShaders(void) {
 }
 
 
-#define LATEST_RATINITIALIZED 24
+/*
+ * Set good defaults for a number of important engine cvars
+ */
+void CG_SetEngineCvars( void ) {
+ 	if ((int)CG_Cvar_Get("snaps") < 40) {
+		trap_Cvar_Set( "snaps", "40" );
+	}
+ 	if ((int)CG_Cvar_Get("cl_maxpackets") < 125) {
+		trap_Cvar_Set( "cl_maxpackets", "125" );
+	}
+ 	if ((int)CG_Cvar_Get("rate") < 25000) {
+		trap_Cvar_Set( "rate", "25000" );
+	}
+}
+
+
+#define LATEST_RATINITIALIZED 25
 
 int CG_MigrateOldCrosshair(int old) {
 	switch (old) {
@@ -1287,6 +1303,11 @@ void CG_RatOldCfgUpdate(void) {
 
 		CG_Cvar_SetAndUpdate( "cg_ratInitialized", "24" );
 	}
+	if (cg_ratInitialized.integer < 25) {
+		CG_SetEngineCvars();
+
+		CG_Cvar_SetAndUpdate( "cg_ratInitialized", "25" );
+	}
 }
 
 /*
@@ -1294,6 +1315,7 @@ void CG_RatOldCfgUpdate(void) {
  */
 void CG_RatInitDefaults(void)  {
 	if (cg_ratInitialized.integer == 0) {
+		CG_SetEngineCvars();
 		CG_CvarResetDefaults();
 		CG_Cvar_SetAndUpdate( "cg_ratInitialized", va("%i", LATEST_RATINITIALIZED) );
 	} else if (cg_ratInitialized.integer < LATEST_RATINITIALIZED) {
