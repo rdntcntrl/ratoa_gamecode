@@ -3306,7 +3306,7 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 	trap_SendServerCommand( -1, va("print \"%s%s called a vote: %s\n\"", ent->client->pers.netname, S_COLOR_WHITE, level.voteDisplayString ) );
 
 	// start the voting, the caller autoamtically votes yes
-	level.voteTime = level.time;
+	level.voteTime = level.realtime;
 	level.voteYes = 1;
 	level.voteNo = 0;
 

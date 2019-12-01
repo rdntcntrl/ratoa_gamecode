@@ -4464,6 +4464,7 @@ void G_RunFrame( int levelTime ) {
 
 	if (level.timeout) {
 		G_TimeinWarning(levelTime);
+		CheckVote();
 		return;
 	}
 

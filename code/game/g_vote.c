@@ -470,12 +470,12 @@ void G_SendVoteResult(qboolean passed) {
 }
 
 void G_SetVoteExecTime(void) {
-	level.voteExecuteTime = level.time + 3000;
+	level.voteExecuteTime = level.realtime + 3000;
 	// make sure vote gets executed if it passed just at the end of a warmup
 	if (level.warmupTime > 0 && level.warmupTime <= level.voteExecuteTime) {
 		level.voteExecuteTime = level.warmupTime - 3*1000.0/sv_fps.integer;
-		if (level.voteExecuteTime <= level.time + 1000/sv_fps.integer) {
-			level.voteExecuteTime = level.time;
+		if (level.voteExecuteTime <= level.realtime + 1000/sv_fps.integer) {
+			level.voteExecuteTime = level.realtime;
 		}
 	}
 }
@@ -486,14 +486,14 @@ CheckVote
 ==================
 */
 void CheckVote( void ) {
-	if ( level.voteExecuteTime && level.voteExecuteTime < level.time ) {
+	if ( level.voteExecuteTime && level.voteExecuteTime < level.realtime ) {
 		level.voteExecuteTime = 0;
 		trap_SendConsoleCommand( EXEC_APPEND, va("%s\n", level.voteString ) );
 	}
 	if ( !level.voteTime ) {
 		return;
 	}
-	if ( level.time - level.voteTime >= VOTE_TIME ) {
+	if ( level.realtime - level.voteTime >= VOTE_TIME ) {
             if(g_dmflags.integer & DF_LIGHT_VOTING && level.voteLightAllowed) {
                 //Let pass if there was at least twice as many for as against
                 if ( level.voteYes > level.voteNo*2 ) {
