@@ -1055,18 +1055,28 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 
 	// don't allow respawn until the death anim is done
 	// g_forcerespawn may force spawning at some later time
-	self->client->respawnTime = level.time + 1700 +i;
-        if(g_respawntime.integer>0) {
-            for(i=0; self->client->respawnTime > i*g_respawntime.integer*1000;i++);
-
-            self->client->respawnTime = i*g_respawntime.integer*1000;
+	
+	self->client->respawnTime = level.time + 1700;
+        if(g_respawntime.integer > 0 && level.time + g_respawntime.integer * 1000 > self->client->respawnTime) {
+		self->client->respawnTime = level.time + g_respawntime.integer * 1000;
         }
+	
+	// This old code does not make any sense to me. What the hell is the +i doing there? 
+	//self->client->respawnTime = level.time + 1700 +i;
+        //if(g_respawntime.integer>0) {
+        //    for(i=0; self->client->respawnTime > i*g_respawntime.integer*1000;i++);
+
+        //    self->client->respawnTime = i*g_respawntime.integer*1000;
+        //}
+	
         //For testing:
         //G_Printf("Respawntime: %i\n",self->client->respawnTime);
 	//However during warm up, we should respawn quicker!
 	if(g_gametype.integer == GT_ELIMINATION || g_gametype.integer == GT_CTF_ELIMINATION || g_gametype.integer == GT_LMS)
-		if(level.time<=level.roundStartTime && level.time>level.roundStartTime-1000*g_elimination_activewarmup.integer)
-			self->client->respawnTime = level.time + rand()%800;
+		if(level.time<=level.roundStartTime && level.time>level.roundStartTime-1000*g_elimination_activewarmup.integer) {
+			//self->client->respawnTime = level.time + rand()%800;
+			self->client->respawnTime = level.time + 400;
+		}
 
 	if (g_gametype.integer == GT_ELIMINATION && g_elimination_respawn.integer
 			&& level.roundNumber == level.roundNumberStarted) {
