@@ -926,6 +926,7 @@ typedef struct {
 	qhandle_t	bottomFPSShaderDecor;
 	qhandle_t	bottomFPSShaderColor;
 
+	qhandle_t	damageIndicatorCenter;
 	qhandle_t	damageIndicatorBottom;
 	qhandle_t	damageIndicatorTop;
 	qhandle_t	damageIndicatorRight;
@@ -1710,7 +1711,6 @@ extern vmCvar_t			cg_powerupBlink;
 extern vmCvar_t			cg_quadStyle;
 extern vmCvar_t			cg_quadAlpha;
 extern vmCvar_t			cg_quadHue;
-extern vmCvar_t			cg_bloodOnHit;
 extern vmCvar_t			cg_drawSpawnpoints;
 extern vmCvar_t			cg_teamOverlayScale;
 extern vmCvar_t			cg_teamOverlayAutoColor;

@@ -2123,7 +2123,7 @@ static void CG_DrawHudDamageIndicator(void) {
 	float offsetFactor = MAX(0.0, MIN(1.0,cg_hudDamageIndicatorOffset.value));
 
 
-	if (!cg_hudDamageIndicator.integer) {
+	if (cg_hudDamageIndicator.integer != 1) {
 		return;
 	}
 

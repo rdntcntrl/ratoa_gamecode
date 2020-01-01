@@ -610,11 +610,11 @@ static void CG_DamageBlendBlob( void ) {
 	int			maxTime;
 	refEntity_t		ent;
 
-	if ( !cg.damageValue ) {
+	if (cg_hudDamageIndicator.integer < 2 || cg_hudDamageIndicator.integer > 3) {
 		return;
 	}
 
-	if (cg_bloodOnHit.integer == 0) {
+	if ( !cg.damageValue ) {
 		return;
 	}
 
@@ -639,15 +639,34 @@ static void CG_DamageBlendBlob( void ) {
 	ent.renderfx = RF_FIRST_PERSON;
 
 	VectorMA( cg.refdef.vieworg, 8, cg.refdef.viewaxis[0], ent.origin );
-	VectorMA( ent.origin, cg.damageX * -8, cg.refdef.viewaxis[1], ent.origin );
-	VectorMA( ent.origin, cg.damageY * 8, cg.refdef.viewaxis[2], ent.origin );
+	if (cg_hudDamageIndicator.integer == 3) {
+		VectorMA( ent.origin, cg.damageX * -8, cg.refdef.viewaxis[1], ent.origin );
+		VectorMA( ent.origin, cg.damageY * 8, cg.refdef.viewaxis[2], ent.origin );
+	}
 
-	ent.radius = cg.damageValue * 3;
-	ent.customShader = cgs.media.viewBloodShader;
-	ent.shaderRGBA[0] = 255;
-	ent.shaderRGBA[1] = 255;
-	ent.shaderRGBA[2] = 255;
-	ent.shaderRGBA[3] = 200 * ( 1.0 - ((float)t / maxTime) );
+	if (cg_hudDamageIndicator.integer == 2) {
+		float phi = atan2(cg.damageY, cg.damageX); 
+		phi = phi/M_PI * 180;
+		if (phi < 0) {
+			phi += 360;
+		}
+		ent.rotation = phi;
+		// make sure it stays the same size regardless of fov
+		ent.radius = tan(cg.refdef.fov_x * M_PI/360.0);
+		ent.radius *= 3.5 * cg_hudDamageIndicatorScale.value;
+		ent.customShader = cgs.media.damageIndicatorCenter;
+		ent.shaderRGBA[0] = 255;
+		ent.shaderRGBA[1] = 0;
+		ent.shaderRGBA[2] = 0;
+		ent.shaderRGBA[3] = 255.0 * MAX(0.0, MIN(1.0, cg_hudDamageIndicatorAlpha.value)) * ( 1.0 - ((float)t / maxTime) );
+	} else {
+		ent.radius = cg.damageValue * 3;
+		ent.customShader = cgs.media.viewBloodShader;
+		ent.shaderRGBA[0] = 255;
+		ent.shaderRGBA[1] = 255;
+		ent.shaderRGBA[2] = 255;
+		ent.shaderRGBA[3] = 200 * ( 1.0 - ((float)t / maxTime) );
+	}
 	trap_R_AddRefEntityToScene( &ent );
 }
 

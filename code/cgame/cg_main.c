@@ -254,7 +254,6 @@ vmCvar_t	cg_powerupBlink;
 vmCvar_t	cg_quadStyle;
 vmCvar_t	cg_quadAlpha;
 vmCvar_t	cg_quadHue;
-vmCvar_t	cg_bloodOnHit;
 vmCvar_t	cg_drawSpawnpoints;
 vmCvar_t	cg_newFont;
 vmCvar_t	cg_newConsole;
@@ -641,9 +640,9 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_zoomAnim, "cg_zoomAnim", "1", CVAR_ARCHIVE},
 	{ &cg_zoomAnimScale, "cg_zoomAnimScale", "2", CVAR_ARCHIVE},
 	{ &cg_drawHabarBackground, "cg_drawHabarBackground", "0", CVAR_ARCHIVE},
-	{ &cg_hudDamageIndicator, "cg_hudDamageIndicator", "1", CVAR_ARCHIVE},
-	{ &cg_hudDamageIndicatorScale, "cg_hudDamageIndicatorScale", "0.8", CVAR_ARCHIVE},
-	{ &cg_hudDamageIndicatorOffset, "cg_hudDamageIndicatorOffset", "0.1", CVAR_ARCHIVE},
+	{ &cg_hudDamageIndicator, "cg_hudDamageIndicator", "1", CVAR_ARCHIVE|CVAR_LATCH},
+	{ &cg_hudDamageIndicatorScale, "cg_hudDamageIndicatorScale", "1.0", CVAR_ARCHIVE},
+	{ &cg_hudDamageIndicatorOffset, "cg_hudDamageIndicatorOffset", "0.0", CVAR_ARCHIVE},
 	{ &cg_hudDamageIndicatorAlpha, "cg_hudDamageIndicatorAlpha", "1.0", CVAR_ARCHIVE},
 	{ &cg_emptyIndicator, "cg_emptyIndicator", "1", CVAR_ARCHIVE},
 	{ &cg_reloadIndicator, "cg_reloadIndicator", "0", CVAR_ARCHIVE},
@@ -663,7 +662,6 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_quadStyle, "cg_quadStyle", "0", CVAR_ARCHIVE},
 	{ &cg_quadAlpha, "cg_quadAlpha", "1.0", CVAR_ARCHIVE},
 	{ &cg_quadHue, "cg_quadHue", "250", CVAR_ARCHIVE},
-	{ &cg_bloodOnHit, "cg_bloodOnHit", "0", CVAR_ARCHIVE},
 	{ &cg_drawSpawnpoints, "cg_drawSpawnpoints", "1", CVAR_ARCHIVE},
 	{ &cg_teamOverlayScale, "cg_teamOverlayScale", "0.7", CVAR_ARCHIVE},
 	{ &cg_teamOverlayAutoColor, "cg_teamOverlayAutoColor", "1", CVAR_ARCHIVE},
@@ -903,7 +901,7 @@ void CG_SetEngineCvars( void ) {
 }
 
 
-#define LATEST_RATINITIALIZED 25
+#define LATEST_RATINITIALIZED 26
 
 int CG_MigrateOldCrosshair(int old) {
 	switch (old) {
@@ -1307,6 +1305,13 @@ void CG_RatOldCfgUpdate(void) {
 		CG_SetEngineCvars();
 
 		CG_Cvar_SetAndUpdate( "cg_ratInitialized", "25" );
+	}
+
+	if (cg_ratInitialized.integer < 26) {
+		CG_Cvar_ResetToDefault( "cg_hudDamageIndicatorScale" );
+		CG_Cvar_ResetToDefault( "cg_hudDamageIndicatorOffset" );
+
+		CG_Cvar_SetAndUpdate( "cg_ratInitialized", "26" );
 	}
 }
 
@@ -2216,8 +2221,6 @@ static void CG_RegisterGraphics( void ) {
 
 	cgs.media.ratSmallIcon = trap_R_RegisterShaderNoMip( "gfx/2d/rat_icon.tga" );
 
-	cgs.media.viewBloodShader = trap_R_RegisterShader( "viewBloodBlend" );
-
 	cgs.media.deferShader = trap_R_RegisterShaderNoMip( "gfx/2d/defer.tga" );
 
 	cgs.media.scoreboardName = trap_R_RegisterShaderNoMip( "menu/tab/name.tga" );
@@ -2506,11 +2509,22 @@ static void CG_RegisterGraphics( void ) {
 	cgs.media.bottomFPSShaderDecor = trap_R_RegisterShader("bottomFPSDecorDecor");
 	cgs.media.bottomFPSShaderColor = trap_R_RegisterShader("bottomFPSDecorColor");
 
-	cgs.media.damageIndicatorBottom = trap_R_RegisterShaderNoMip("damageIndicatorBottom");
-	cgs.media.damageIndicatorTop = trap_R_RegisterShaderNoMip("damageIndicatorTop");
-	cgs.media.damageIndicatorTop = trap_R_RegisterShaderNoMip("damageIndicatorTop");
-	cgs.media.damageIndicatorRight = trap_R_RegisterShaderNoMip("damageIndicatorRight");
-	cgs.media.damageIndicatorLeft = trap_R_RegisterShaderNoMip("damageIndicatorLeft");
+	switch (cg_hudDamageIndicator.integer) {
+		case 0:
+			break;
+		case 2:
+			cgs.media.damageIndicatorCenter = trap_R_RegisterShaderNoMip("damageIndicator2");
+			break;
+		case 3:
+			cgs.media.viewBloodShader = trap_R_RegisterShader( "viewBloodBlend" );
+		default:
+			cgs.media.damageIndicatorBottom = trap_R_RegisterShaderNoMip("damageIndicatorBottom");
+			cgs.media.damageIndicatorTop = trap_R_RegisterShaderNoMip("damageIndicatorTop");
+			cgs.media.damageIndicatorTop = trap_R_RegisterShaderNoMip("damageIndicatorTop");
+			cgs.media.damageIndicatorRight = trap_R_RegisterShaderNoMip("damageIndicatorRight");
+			cgs.media.damageIndicatorLeft = trap_R_RegisterShaderNoMip("damageIndicatorLeft");
+			break;
+	}
 
 	if (cg_drawZoomScope.integer) {
 		cgs.media.zoomScopeMGShader = trap_R_RegisterShader("zoomScopeMG");
