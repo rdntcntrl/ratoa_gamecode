@@ -47,8 +47,6 @@ typedef struct {
 	menubitmap_s	mappics[NMV_MAX_MAPSPERPAGE];
 	menubitmap_s	mapbuttons[NMV_MAX_MAPSPERPAGE];
 
-	qboolean voted;
-
 } votemenu_nextmap_t;
 
 static votemenu_nextmap_t	s_votemenu_nextmap;
@@ -209,9 +207,6 @@ static void VoteNextMapMenu_LevelshotDraw( void *self ) {
 static void VoteNextMapMenu_MapEvent( void* ptr, int event ) {
 	int mapNo = 0;
 	int i;
-	if (s_votemenu_nextmap.voted) {
-		return;
-	}
 	if( event != QM_ACTIVATED) {
 		return;
 	}
@@ -223,11 +218,10 @@ static void VoteNextMapMenu_MapEvent( void* ptr, int event ) {
 		}
 		//trap_Cmd_ExecuteText( EXEC_APPEND,va("cmd nextmapvote %i\n", mapNo));
 		UI_SendClientCommand( va("nextmapvote %i\n", mapNo));
-		s_votemenu_nextmap.voted = qtrue;
-		s_votemenu_nextmap.mappics[mapNo].generic.flags    |= QMF_HIGHLIGHT;
 		for (i=0; i<NMV_MAX_MAPSPERPAGE; i++) {
-			s_votemenu_nextmap.mapbuttons[i].generic.flags    &= ~(QMF_HIGHLIGHT|QMF_PULSEIFFOCUS);
+			s_votemenu_nextmap.mappics[i].generic.flags &= ~QMF_HIGHLIGHT;
 		}
+		s_votemenu_nextmap.mappics[mapNo].generic.flags |= QMF_HIGHLIGHT;
 	}
 
 }
