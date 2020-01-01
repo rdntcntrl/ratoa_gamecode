@@ -650,6 +650,12 @@ typedef enum {
 	TEAM_NUM_TEAMS
 } team_t;
 
+typedef enum {
+	SPECTATORGROUP_SPEC,
+	SPECTATORGROUP_QUEUED,
+	SPECTATORGROUP_AFK
+} spectatorGroup_t;
+
 // This is a fair assumption for Double Domination:
 #define TEAM_NONE TEAM_SPECTATOR
 
@@ -817,7 +823,6 @@ qboolean	BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const play
 #define RAT_SWINGGRAPPLE	(1 << 20)
 #define RAT_BRIGHTOUTLINE	(1 << 21)
 #define RAT_BRIGHTMODEL		(1 << 22)
-
 
 #define MAX_RAT_SAY_TEXT 256
 

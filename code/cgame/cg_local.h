@@ -383,12 +383,6 @@ typedef struct predictedMissile_s {
 
 //======================================================================
 
-typedef enum {
-	SPECTATORGROUP_QUEUED,
-	SPECTATORGROUP_NOTREADY,
-	SPECTATORGROUP_AFK
-} spectatorGroup_t;
-
 typedef struct {
 	int				client;
 	int				score;

@@ -484,8 +484,8 @@ static void CG_RatDrawClientScore(int y, score_t *score, float *color, float fad
 		const char *team_s = NULL;
 		tcolor[0] = tcolor[1] = tcolor[2] = 1.0;
 		switch (score->spectatorGroup) {
-			case SPECTATORGROUP_NOTREADY:
-				team_s = "NOTREADY";
+			case SPECTATORGROUP_QUEUED:
+				team_s = "QUEUED";
 				break;
 			case SPECTATORGROUP_AFK:
 				team_s = "AFK";
