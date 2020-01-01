@@ -773,6 +773,8 @@ typedef struct {
     int		nextMapVoteClients;
     int		nextmapVotes[NEXTMAPVOTE_NUM_MAPS];
     char	nextmapVoteMaps[NEXTMAPVOTE_NUM_MAPS][MAX_MAPNAME];
+
+    qboolean arenasLoaded;
      
 } level_locals_t;
 
@@ -815,6 +817,7 @@ qboolean G_TournamentSpecMuted(void);
 void AccMessage( gentity_t *ent );
 void AwardMessage(gentity_t *ent, extAward_t award, int count);
 qboolean SendNextmapVoteCommand( void );
+int G_GametypeBitsCurrent( void );
 
 
 // KK-OAX Added these in a seperate file to keep g_cmds.c familiar. 
@@ -1216,6 +1219,7 @@ typedef struct {
 extern char custom_vote_info[2048];
 
 extern t_mappage getMappage(int page, qboolean largepage, qboolean recommendedonly);
+extern t_mappage getGTMappage(int page, qboolean largepage);
 void getCompleteMaplist(qboolean recommenedonly, int gametypebits_filter, struct maplist_s *out);
 extern int allowedMap(char *mapname);
 extern int allowedGametype(char *gametypeStr);

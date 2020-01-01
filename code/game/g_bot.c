@@ -271,6 +271,10 @@ void G_LoadArenas( void ) {
 	int			i, n;
 	int			dirlen;
 
+	if (level.arenasLoaded) {
+		return;
+	}
+
 	g_numArenas = 0;
 
 	trap_Cvar_Register( &arenasFile, "g_arenasFile", "", CVAR_INIT|CVAR_ROM );
@@ -295,6 +299,8 @@ void G_LoadArenas( void ) {
 	for( n = 0; n < g_numArenas; n++ ) {
 		Info_SetValueForKey( g_arenaInfos[n], "num", va( "%i", n ) );
 	}
+
+	level.arenasLoaded = qtrue;
 }
 
 
