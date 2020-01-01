@@ -81,18 +81,21 @@ typedef struct {
 static votemenu_map_t	s_votemenu_map;
 static char pagebuffer[64];
 
-#define MAPPAGE_TYPE_ALL 0
-#define MAPPAGE_TYPE_RECOMMENDED 1
-#define MAPPAGE_TYPE_NUM 2
+#define MAPPAGE_TYPE_RECOMMENDED 0
+#define MAPPAGE_TYPE_GAMETYPE 1
+#define MAPPAGE_TYPE_ALL 2
+#define MAPPAGE_TYPE_NUM 3
 static const char *mappage_type_items[] = {
-	"All",
 	"Recommended",
+	"Gametype",
+	"All",
 	NULL
 };
 
 static const char *getmappage_all_cmd = "getmappage";
 static const char *getmappage_recommened_cmd = "getrecmappage";
-static const char *getmappage_cmd = "getmappage";
+static const char *getmappage_gametype_cmd = "getgtmappage";
+static const char *getmappage_cmd = "getrecmappage";
 
 static int ignore_next_cmd = 0;
 static int mappage_in_flight = 0;
@@ -289,6 +292,9 @@ static void VoteMapMenu_TypeEvent( void* ptr, int event ) {
 	if (s_votemenu_map.type.curvalue == MAPPAGE_TYPE_RECOMMENDED) {
 		getmappage_cmd = getmappage_recommened_cmd;
 		current_list = &maplists[MAPPAGE_TYPE_RECOMMENDED];
+	} else if (s_votemenu_map.type.curvalue == MAPPAGE_TYPE_GAMETYPE) {
+		getmappage_cmd = getmappage_gametype_cmd;
+		current_list = &maplists[MAPPAGE_TYPE_GAMETYPE];
 	} else {
 		getmappage_cmd = getmappage_all_cmd;
 		current_list = &maplists[MAPPAGE_TYPE_ALL];
@@ -608,6 +614,43 @@ void UI_VoteMapMenuInternal( void )
 }
 
 
+// TODO: move this to bg_*
+const char *UI_GetGametypeName(int gametype) {
+	switch ( gametype ) {
+	case GT_FFA:
+		return "FFA";
+	case GT_SINGLE_PLAYER:
+		return "Single Player";
+	case GT_TOURNAMENT:
+		return "Duel";
+	case GT_TEAM:
+		return "TDM";
+	case GT_CTF:
+		return "CTF";
+	case GT_1FCTF:
+		return "1FCTF";
+	case GT_OBELISK:
+		return "Overload";
+	case GT_HARVESTER:
+		return "Harvester";
+	case GT_ELIMINATION:
+		return "Elimination";
+	case GT_CTF_ELIMINATION:
+		return "CTF Elim";
+	case GT_LMS:
+		return "TDM";
+	case GT_DOUBLE_D:
+		return "DD";
+        case GT_DOMINATION:
+		return "Domination";
+        case GT_TREASURE_HUNTER:
+		return "TH";
+	default:
+		break;
+	}
+	return "Unknown Gametype";
+}
+
 /*
 =================
 UI_VoteMapMenu
@@ -784,14 +827,15 @@ void UI_VoteMapMenu( void ) {
     Menu_AddItem( &s_votemenu_map.menu, (void*) &s_votemenu_map.sort );
 
     s_votemenu_map.sort.curvalue = trap_Cvar_VariableValue( "ui_mapvote_sort") ? 1 : 0;
+    mappage_type_items[MAPPAGE_TYPE_GAMETYPE] = UI_GetGametypeName(trap_Cvar_VariableValue( "g_gametype"));
 
     trap_Cvar_VariableStringBuffer( "ui_mapvote_filter", 
 		    s_votemenu_map.filter.field.buffer,
 		    sizeof(s_votemenu_map.filter.field.buffer));
 
-    getmappage_cmd = getmappage_all_cmd;
+    getmappage_cmd = getmappage_recommened_cmd;
 
-    current_list = &maplists[MAPPAGE_TYPE_ALL];
+    current_list = &maplists[MAPPAGE_TYPE_RECOMMENDED];
     ResetMaplist();
     if (!current_list->loaded_all) {
 	    Maplist_RequestNextPage(current_list);
