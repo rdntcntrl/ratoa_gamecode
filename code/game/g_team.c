@@ -145,7 +145,7 @@ team_t G_TeamFromString( char *str )
 {
   switch( tolower( *str ) )
   {
-	  case 's': case 'n': case 'a': return TEAM_NONE;
+	  case 's': case 'q': case 'a': return TEAM_NONE;
 	  case 'f': return TEAM_FREE;
 	  case 'r': return TEAM_RED;
 	  case 'b': return TEAM_BLUE;

@@ -1944,7 +1944,7 @@ void AddTournamentPlayer( void ) {
 		}
 
 		if ( client->sess.spectatorGroup == SPECTATORGROUP_AFK ||
-				client->sess.spectatorGroup == SPECTATORGROUP_NOTREADY) {
+				client->sess.spectatorGroup == SPECTATORGROUP_SPEC) {
 			continue;
 		}
 
@@ -2007,8 +2007,8 @@ void RemoveTournamentLoser( void ) {
 		return;
 	}
 
-	// make them a spectator
-	SetTeam( &g_entities[ clientNum ], "s" );
+	// make them a queued spectator
+	SetTeam( &g_entities[ clientNum ], "q" );
 }
 
 /*
@@ -2029,8 +2029,8 @@ void RemoveTournamentWinner( void ) {
 		return;
 	}
 
-	// make them a spectator
-	SetTeam( &g_entities[ clientNum ], "s" );
+	// make them a queued spectator
+	SetTeam( &g_entities[ clientNum ], "q" );
 }
 
 /*
@@ -2090,15 +2090,6 @@ int QDECL SortRanks( const void *a, const void *b ) {
 	if ( cb->sess.spectatorGroup == SPECTATORGROUP_AFK ) {
 		return -1;
 	}
-
-	//// notready spectators
-	//if ( ca->sess.spectatorGroup == SPECTATORGROUP_NOTREADY ) {
-	//	return 1;
-	//}
-	//if ( cb->sess.spectatorGroup == SPECTATORGROUP_NOTREADY ) {
-	//	return -1;
-	//}
-
 
 	// then spectators
 	if ( ca->sess.sessionTeam == TEAM_SPECTATOR && cb->sess.sessionTeam == TEAM_SPECTATOR ) {

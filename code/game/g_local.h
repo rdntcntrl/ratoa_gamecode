@@ -237,12 +237,6 @@ typedef enum {
 } spectatorState_t;
 
 typedef enum {
-	SPECTATORGROUP_QUEUED,
-	SPECTATORGROUP_NOTREADY,
-	SPECTATORGROUP_AFK
-} spectatorGroup_t;
-
-typedef enum {
 	TEAM_BEGIN,		// Beginning a team game, spawn at base
 	TEAM_ACTIVE		// Now actively playing
 } playerTeamStateState_t;

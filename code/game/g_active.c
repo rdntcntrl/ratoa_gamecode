@@ -420,9 +420,9 @@ qboolean ClientInactivityTimer( gclient_t *client ) {
 			//trap_DropClient( client - level.clients, "Dropped due to inactivity" );
 			SetTeam( &g_entities[ client->ps.clientNum ], "afk" );
 			trap_SendServerCommand( client - level.clients, "cp \""    S_COLOR_CYAN "Moved to team AFK due to inactivity.\n"
-										   S_COLOR_CYAN "Run 'team spectator' to queue again.\n\"" );
+										   S_COLOR_CYAN "Run 'team queue' to queue again.\n\"" );
 			trap_SendServerCommand( client - level.clients, "print \"" S_COLOR_CYAN "Moved to team AFK due to inactivity.\n"
-										   S_COLOR_CYAN "Run 'team spectator' to queue again.\n\"" );
+										   S_COLOR_CYAN "Run 'team queue' to queue again.\n\"" );
 			return qfalse;
 		}
 		if ( level.time > client->inactivityTime - 10000 && !client->inactivityWarning ) {

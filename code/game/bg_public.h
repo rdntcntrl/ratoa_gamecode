@@ -650,6 +650,12 @@ typedef enum {
 	TEAM_NUM_TEAMS
 } team_t;
 
+typedef enum {
+	SPECTATORGROUP_SPEC,
+	SPECTATORGROUP_QUEUED,
+	SPECTATORGROUP_AFK
+} spectatorGroup_t;
+
 // This is a fair assumption for Double Domination:
 #define TEAM_NONE TEAM_SPECTATOR
 

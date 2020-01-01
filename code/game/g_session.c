@@ -121,7 +121,12 @@ void G_InitSessionData( gclient_t *client, char *userinfo, qboolean firstTime,
 
 	sess = &client->sess;
 
-	sess->spectatorGroup = SPECTATORGROUP_QUEUED;
+
+	if (g_gametype.integer == GT_TOURNAMENT) {
+		sess->spectatorGroup = SPECTATORGROUP_QUEUED;
+	} else {
+		sess->spectatorGroup = SPECTATORGROUP_SPEC;
+	}
 	sess->muted = qfalse;
 	sess->unnamedPlayerState = UNNAMEDSTATE_CLEAN;
 	if (!firstTime && levelNewSession) {
@@ -143,7 +148,7 @@ void G_InitSessionData( gclient_t *client, char *userinfo, qboolean firstTime,
 			// a willing spectator, not a waiting-in-line
 			sess->sessionTeam = TEAM_SPECTATOR;
 			if (g_gametype.integer == GT_TOURNAMENT) {
-				sess->spectatorGroup = SPECTATORGROUP_AFK;
+				sess->spectatorGroup = SPECTATORGROUP_SPEC;
 			}
 		} else {
 			switch ( g_gametype.integer ) {
@@ -154,7 +159,7 @@ void G_InitSessionData( gclient_t *client, char *userinfo, qboolean firstTime,
 				if (levelNewSession && !firstTime) {
 					// GT changed, make sure previous lurkers don't join
 					sess->sessionTeam = TEAM_SPECTATOR;
-					sess->spectatorGroup = SPECTATORGROUP_AFK;
+					sess->spectatorGroup = SPECTATORGROUP_SPEC;
 				} else if ( ( g_maxGameClients.integer > 0 && level.numNonSpectatorClients >= g_maxGameClients.integer )
 						|| level.FFALocked) {
 					sess->sessionTeam = TEAM_SPECTATOR;
@@ -172,7 +177,7 @@ void G_InitSessionData( gclient_t *client, char *userinfo, qboolean firstTime,
 				if (levelNewSession && !firstTime) {
 					// GT changed, make sure previous lurkers don't block duel
 					sess->sessionTeam = TEAM_SPECTATOR;
-					sess->spectatorGroup = SPECTATORGROUP_AFK;
+					sess->spectatorGroup = SPECTATORGROUP_SPEC;
 				}
 				break;
 			}

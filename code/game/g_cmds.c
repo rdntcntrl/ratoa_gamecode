@@ -1231,7 +1231,7 @@ void SetTeam_Force( gentity_t *ent, char *s, gentity_t *by, qboolean tryforce ) 
         trap_GetUserinfo( clientNum, userinfo, sizeof( userinfo ) );
 	specClient = 0;
 	specState = SPECTATOR_NOT;
-	specGroup = SPECTATORGROUP_QUEUED;
+	specGroup = SPECTATORGROUP_SPEC;
 	if ( Q_strequal( s, "scoreboard" ) || Q_strequal( s, "score" )  ) {
 		team = TEAM_SPECTATOR;
 		specState = SPECTATOR_SCOREBOARD;
@@ -1250,10 +1250,10 @@ void SetTeam_Force( gentity_t *ent, char *s, gentity_t *by, qboolean tryforce ) 
 	} else if ( Q_strequal( s, "spectator" ) || Q_strequal( s, "s" ) ) {
 		team = TEAM_SPECTATOR;
 		specState = SPECTATOR_FREE;
-	} else if ( Q_strequal( s, "notready" ) || Q_strequal(s, "n") ) {
+	} else if ( Q_strequal( s, "queue" ) || Q_strequal(s, "q") ) {
 		team = TEAM_SPECTATOR;
 		specState = SPECTATOR_FREE;
-		specGroup = SPECTATORGROUP_NOTREADY;
+		specGroup = SPECTATORGROUP_QUEUED;
 	} else if ( Q_strequal( s, "afk" ) || Q_strequal(s, "a") ) {
 		team = TEAM_SPECTATOR;
 		specState = SPECTATOR_FREE;
@@ -1304,6 +1304,9 @@ void SetTeam_Force( gentity_t *ent, char *s, gentity_t *by, qboolean tryforce ) 
 	// override decision if limiting the players
 	if ( (g_gametype.integer == GT_TOURNAMENT)
 			&& level.numNonSpectatorClients >= 2 ) {
+		if (team == TEAM_FREE) {
+			specGroup = SPECTATORGROUP_QUEUED;
+		}
 		team = TEAM_SPECTATOR;
 	}
 
@@ -1454,12 +1457,12 @@ void Cmd_Team_f( gentity_t *ent ) {
 				case SPECTATORGROUP_AFK:
 					trap_SendServerCommand( ent-g_entities, "print \"Spectator team (AFK)\n\"" );
 					break;
-				case SPECTATORGROUP_NOTREADY:
-					trap_SendServerCommand( ent-g_entities, "print \"Spectator team (NOTREADY)\n\"" );
+				case SPECTATORGROUP_SPEC:
+					trap_SendServerCommand( ent-g_entities, "print \"Spectator team\n\"" );
 					break;
 				case SPECTATORGROUP_QUEUED:
 				default:
-					trap_SendServerCommand( ent-g_entities, "print \"Spectator team\n\"" );
+					trap_SendServerCommand( ent-g_entities, "print \"Spectator team (Queued)\n\"" );
 					break;
 			}
 			break;
