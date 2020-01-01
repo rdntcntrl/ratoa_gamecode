@@ -2882,15 +2882,10 @@ void Cmd_NextmapVote_f( gentity_t *ent ) {
 		return;
 	}
 
-	if (ent->client->pers.nextmapVoteFlags & NEXTMAPVOTE_VOTED) {
-		trap_SendServerCommand( ent-g_entities, "print \"Already voted.\n\"" );
-		return;
-	} else if (!(ent->client->pers.nextmapVoteFlags & NEXTMAPVOTE_CANVOTE)) {
+	if (!(ent->client->pers.nextmapVoteFlags & NEXTMAPVOTE_CANVOTE)) {
 		trap_SendServerCommand( ent-g_entities, "print \"Not allowed to vote.\n\"" );
 		return;
-	} else {
-		ent->client->pers.nextmapVoteFlags |= NEXTMAPVOTE_VOTED;
-	}
+	} 
 
 	trap_Argv( 1, msg, sizeof( msg ) );
 	mapNo = atoi(msg);
@@ -2899,7 +2894,19 @@ void Cmd_NextmapVote_f( gentity_t *ent ) {
 		trap_SendServerCommand( ent-g_entities, "print \"Invalid map number.\n\"" );
 		return;
 	}
+	if (ent->client->pers.nextmapVoteFlags & NEXTMAPVOTE_VOTED
+			&& ent->client->pers.nextmapVote < NEXTMAPVOTE_NUM_MAPS
+			&& ent->client->pers.nextmapVote >= 0
+			&& level.nextmapVotes[ent->client->pers.nextmapVote] > 0) {
+		if (ent->client->pers.nextmapVote == mapNo) {
+			// voted for same map again
+			return;
+		}
+		level.nextmapVotes[ent->client->pers.nextmapVote] -= 1;
+	}
+	ent->client->pers.nextmapVoteFlags |= NEXTMAPVOTE_VOTED;
 	level.nextmapVotes[mapNo] += 1;
+	ent->client->pers.nextmapVote = mapNo;
 	trap_SendServerCommand( -1, va("nextmapvotes %i %i %i %i %i %i", 
 				level.nextmapVotes[0],
 				level.nextmapVotes[1],

@@ -414,6 +414,7 @@ typedef struct {
     int awardCounts[EAWARD_NUM_AWARDS];
 
     int nextmapVoteFlags;
+    int nextmapVote;
 
     int th_tokens;
 
