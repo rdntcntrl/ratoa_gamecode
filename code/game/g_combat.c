@@ -1374,18 +1374,22 @@ void G_CheckAirrocket(gentity_t *victim, gentity_t *inflictor, gentity_t *attack
 	AwardMessage(attacker, award, ++(attacker->client->pers.awardCounts[award]));
 }
 
-void G_CheckRailtwo(gentity_t *victim, gentity_t *attacker, int meansOfDeath, int lastDmgGivenTime, int lastDmgGivenMOD) {
+void G_CheckRailtwo(gentity_t *victim, gentity_t *attacker, int meansOfDeath, int lastDmgGivenTime, int lastDmgGivenMOD, int lastDmgGivenEntityNum) {
 	if (meansOfDeath != MOD_RAILGUN
 			|| !victim 
 			|| !victim->client 
 			|| victim->client->ps.pm_type == PM_DEAD
 			|| !attacker 
 			|| !attacker->client 
+			|| attacker == victim // to exclude railjump
 			|| OnSameTeam(attacker, victim)) {
 		return;
 	}
 
-	if (lastDmgGivenMOD != MOD_RAILGUN || lastDmgGivenTime != level.time) {
+	if (lastDmgGivenMOD != MOD_RAILGUN 
+			|| lastDmgGivenTime != level.time
+			|| lastDmgGivenEntityNum == attacker->s.number // to exclude railjump
+			) {
 		return;
 	}
 
@@ -1912,7 +1916,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 
 		G_CheckRocketSniper(targ, inflictor, attacker, mod);
 		G_CheckAirrocket(targ, inflictor, attacker, mod);
-		G_CheckRailtwo(targ, attacker, mod, lastDmgGivenTime, lastDmgGivenMOD);
+		G_CheckRailtwo(targ, attacker, mod, lastDmgGivenTime, lastDmgGivenMOD, lastDmgGivenEntityNum);
 		G_CheckTwitchRail(attacker, targ, mod);
 
 		// stats
