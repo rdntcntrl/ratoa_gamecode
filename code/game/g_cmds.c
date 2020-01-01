@@ -3726,7 +3726,7 @@ commands_t cmds[ ] =
   { "gc", 0, Cmd_GameCommand_f },
   { "motd", 0, Cmd_Motd_f },
   { "help", 0, Cmd_Motd_f },
-  { "nextmapvote", CMD_INTERMISSION, Cmd_NextmapVote_f },
+  { "nextmapvote", CMD_INTERMISSION|CMD_FLOODLIMITED, Cmd_NextmapVote_f },
   { "arena", 0, Cmd_Arena_f }
 };
 
@@ -3780,6 +3780,11 @@ void ClientCommand( int clientNum )
     if( cmds[ i ].cmdFlags & CMD_MESSAGE && 
         ( ent->client->sess.muted || G_FloodLimited( ent ) ) )
         return;
+
+    // additional flood-limited commands
+    if ( cmds[i].cmdFlags & CMD_FLOODLIMITED && G_FloodLimited( ent )) {
+	    return;
+    }
     
     //KK-OAX Do I need to change this for FFA gametype?
     if( cmds[ i ].cmdFlags & CMD_TEAM &&

@@ -1803,6 +1803,7 @@ int	trap_RAT_EQPing_GetDelay( int clientnum );
 #define CMD_BLUE            0x0040 // must be on the blue team (useless right now)
 #define CMD_LIVING          0x0080
 #define CMD_INTERMISSION    0x0100 // valid during intermission
+#define CMD_FLOODLIMITED    0x0200 // flood limit this command
 
 
 typedef struct
