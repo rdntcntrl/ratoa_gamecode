@@ -150,6 +150,11 @@ g_admin_cmd_t g_admin_cmds[ ] =
       "[^3name|slot#^7]"
     },
 
+    {"shadowmute", "", G_admin_mute, ADMF_SHADOWMUTE,
+      "shadow-mute a player",
+      "[^3name|slot#^7]"
+    },
+
     {"mutespec", "ms", G_admin_mutespec, ADMF_MUTESPEC,
       "mute the spectators",
       ""
@@ -2512,18 +2517,24 @@ qboolean G_admin_mute( gentity_t *ent, int skiparg )
     return qfalse;
   }
   vic = &g_entities[ pids[ 0 ] ];
-  if( vic->client->sess.muted == qtrue )
+  if( vic->client->sess.muted )
   {
-    if( !Q_stricmp( cmd, "mute" ) )
+    int oldmuted = vic->client->sess.muted;
+    if( !Q_stricmp( cmd, "mute" ) || !Q_stricmp( cmd, "shadowmute" ))
     {
       ADMP( "^3!mute: ^7player is already muted\n" );
       return qtrue;
     }
-    vic->client->sess.muted = qfalse;
-    CPx( pids[ 0 ], "cp \"^1You have been unmuted\"" );
-    AP( va( "print \"^3!unmute: ^7%s^7 has been unmuted by %s\n\"",
-            vic->client->pers.netname,
-            ( ent ) ? ent->client->pers.netname : "console" ) );
+    vic->client->sess.muted = 0;
+    if (oldmuted & CLMUTE_MUTED) {
+	    CPx( pids[ 0 ], "cp \"^1You have been unmuted\"" );
+	    AP( va( "print \"^3!unmute: ^7%s^7 has been unmuted by %s\n\"",
+				    vic->client->pers.netname,
+				    ( ent ) ? ent->client->pers.netname : "console" ) );
+    } else if (oldmuted & CLMUTE_SHADOWMUTED) {
+	    ADMP( va( "^3!unmute: ^7%s^7 has been unmuted\n",
+				    vic->client->pers.netname) );
+    }
   }
   else
   {
@@ -2532,11 +2543,17 @@ qboolean G_admin_mute( gentity_t *ent, int skiparg )
       ADMP( "^3!unmute: ^7player is not currently muted\n" );
       return qtrue;
     }
-    vic->client->sess.muted = qtrue;
-    CPx( pids[ 0 ], "cp \"^1You've been muted\"" );
-    AP( va( "print \"^3!mute: ^7%s^7 has been muted by ^7%s\n\"",
-            vic->client->pers.netname,
-            ( ent ) ? ent->client->pers.netname : "console" ) );
+    if ( !Q_stricmp( cmd, "mute" ) ) {
+	    vic->client->sess.muted = CLMUTE_MUTED;
+	    CPx( pids[ 0 ], "cp \"^1You've been muted\"" );
+	    AP( va( "print \"^3!mute: ^7%s^7 has been muted by ^7%s\n\"",
+				    vic->client->pers.netname,
+				    ( ent ) ? ent->client->pers.netname : "console" ) );
+    } else if ( !Q_stricmp( cmd, "shadowmute") ) {
+	    vic->client->sess.muted = CLMUTE_SHADOWMUTED;
+	    ADMP( va( "^3!mute: ^7%s^7 has been shadow-muted\n",
+				    vic->client->pers.netname ));
+    }
   }
   return qtrue;
 }

@@ -1766,7 +1766,7 @@ void ClientUserinfoChanged( int clientNum ) {
                 g_maxNameChanges.integer ) );
             revertName = qtrue;
         }
-        else if( client->sess.muted 
+        else if( client->sess.muted & CLMUTE_MUTED
 			&& client->pers.connected == CON_CONNECTED
 			&& !client->pers.forceRename)
         {

@@ -2245,7 +2245,7 @@ G_Say
 */
 
 static void G_SayTo( gentity_t *ent, gentity_t *other, int mode, int color, const char *name, const char *message ) {
-	if (ent->client->sess.muted){
+	if (ent->client->sess.muted & CLMUTE_MUTED){
 		return;
 	}
 	if (!other) {
@@ -2255,6 +2255,10 @@ static void G_SayTo( gentity_t *ent, gentity_t *other, int mode, int color, cons
 		return;
 	}
 	if (!other->client) {
+		return;
+	}
+	if (ent->client->sess.muted & CLMUTE_SHADOWMUTED
+			&& other != ent) {
 		return;
 	}
 	if ( other->client->pers.connected != CON_CONNECTED ) {
@@ -2859,7 +2863,7 @@ static void Cmd_Taunt_f( gentity_t *ent ){
 		return;
 	}
 
-	if (ent->client->sess.muted 
+	if (ent->client->sess.muted & CLMUTE_MUTED
 			|| ent->client->pers.tauntTime > level.time) {
 		return;
 	}
@@ -4019,7 +4023,7 @@ void ClientCommand( int clientNum )
     }
     //KK-OAX When the corresponding code is integrated, I will activate these. 
     if( cmds[ i ].cmdFlags & CMD_MESSAGE && 
-        ( ent->client->sess.muted || G_FloodLimited( ent ) ) )
+        ( ent->client->sess.muted & CLMUTE_MUTED || G_FloodLimited( ent ) ) )
         return;
 
     // additional flood-limited commands

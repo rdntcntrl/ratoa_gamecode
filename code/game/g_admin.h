@@ -116,6 +116,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define ADMF_NEXTMAP         'n'
 #define ADMF_VOTENEXTMAP     ADMF_NEXTMAP
 #define ADMF_RENAME          'N'
+#define ADMF_SHADOWMUTE      'O'
 #define ADMF_PUTTEAM         'p'
 #define ADMF_SWAP            ADMF_PUTTEAM
 #define ADMF_SPEC999         'P'

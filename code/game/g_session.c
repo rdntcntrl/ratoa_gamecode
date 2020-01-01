@@ -108,9 +108,9 @@ void G_ReadSessionData( gclient_t *client ) {
 	client->sess.spectatorState = (spectatorState_t)spectatorState;
 	client->sess.spectatorGroup = (spectatorGroup_t)spectatorGroup;
 	client->sess.teamLeader = (qboolean)teamLeader;
-	client->sess.muted = (qboolean)muted;
 	client->sess.mutemask1 = (int)mutemask1;
 	client->sess.mutemask2 = (int)mutemask2;
+	client->sess.muted = muted;
 	client->sess.unnamedPlayerState = (unnamedRenameState_t)unnamedPlayerState;
 }
 
@@ -129,15 +129,14 @@ void G_InitSessionData( gclient_t *client, char *userinfo, qboolean firstTime,
 
 	sess = &client->sess;
 
-
 	if (g_gametype.integer == GT_TOURNAMENT) {
 		sess->spectatorGroup = SPECTATORGROUP_QUEUED;
 	} else {
 		sess->spectatorGroup = SPECTATORGROUP_SPEC;
 	}
-	sess->muted = qfalse;
 	sess->mutemask1 = 0;
 	sess->mutemask2 = 0;
+	sess->muted = 0;
 	sess->unnamedPlayerState = UNNAMEDSTATE_CLEAN;
 	if (!firstTime && levelNewSession) {
 		sess->unnamedPlayerState = unnamedPlayerState;
