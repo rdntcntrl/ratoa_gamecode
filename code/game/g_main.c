@@ -5483,7 +5483,7 @@ void G_MtrnRePairup(void) {
 		if (numUnpaired < 2) {
 			break;
 		}
-		SetTeam( &g_entities[level.multiTrnGames[unPairedGameId].clients[0]], "s");
+		SetTeam( &g_entities[level.multiTrnGames[unPairedGameId].clients[0]], "q");
 		G_UpdateMultiTrnGames();
 	}
 	level.shuffling_teams = qfalse;
