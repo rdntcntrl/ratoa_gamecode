@@ -1169,6 +1169,10 @@ static void CG_DrawHABarDecor(float x, float y, float barheight, qboolean isArmo
 	qhandle_t *shaders;
 	float color[4] = { 1.0f, 1.0, 1.0f, RSB4_DECOR_ALPHA };
 
+	if (!cg_drawHabarDecor.integer) {
+		return;
+	}
+
 	trap_R_SetColor(color);
 
 	if (isArmor) {
@@ -1299,6 +1303,10 @@ static float CG_DrawWABarDecor(float x, float y, float barheight) {
 	float max_x = 0.0;
 	float color[4] = { 1.0f, 1.0, 1.0f, RSB4_DECOR_ALPHA };
 
+	if (!cg_drawHabarDecor.integer) {
+		return;
+	}
+
 	trap_R_SetColor(color);
 
 	xx = x;
@@ -1409,9 +1417,11 @@ void CG_Ratstatusbar4RegisterShaders(void) {
 		}
 	}
 
-	for (i = 0; i < RSB4_NUM_HA_BAR_DECOR_ELEMENTS; ++i) {
-		cgs.media.rsb4_health_decorShaders[i] = trap_R_RegisterShader(va("rsb%i_health_decor%i", rsbtype, i+1));
-		cgs.media.rsb4_armor_decorShaders[i] = trap_R_RegisterShader(va("rsb%i_armor_decor%i", rsbtype, i+1));
+	if (cg_drawHabarDecor.integer) {
+		for (i = 0; i < RSB4_NUM_HA_BAR_DECOR_ELEMENTS; ++i) {
+			cgs.media.rsb4_health_decorShaders[i] = trap_R_RegisterShader(va("rsb%i_health_decor%i", rsbtype, i+1));
+			cgs.media.rsb4_armor_decorShaders[i] = trap_R_RegisterShader(va("rsb%i_armor_decor%i", rsbtype, i+1));
+		}
 	}
 
 	for (i = 0; i < RSB4_NUM_W_BAR_ELEMENTS; ++i) {
@@ -1427,14 +1437,18 @@ void CG_Ratstatusbar4RegisterShaders(void) {
 		}
 	}
 
-	for (i = 0; i < RSB4_NUM_W_BAR_DECOR_ELEMENTS; ++i) {
-		cgs.media.rsb4_weapon_decorShaders[i] = trap_R_RegisterShader(va("rsb_weapon_decor%i", i+1));
+	if (cg_drawHabarDecor.integer) {
+		for (i = 0; i < RSB4_NUM_W_BAR_DECOR_ELEMENTS; ++i) {
+			cgs.media.rsb4_weapon_decorShaders[i] = trap_R_RegisterShader(va("rsb_weapon_decor%i", i+1));
+		}
 	}
 
-	cgs.media.rsb4_health_bg = trap_R_RegisterShader("rsb4_health_bg");
-	cgs.media.rsb4_health_bg_border = trap_R_RegisterShader("rsb4_health_bg_border");
-	cgs.media.rsb4_armor_bg = trap_R_RegisterShader("rsb4_armor_bg");
-	cgs.media.rsb4_armor_bg_border = trap_R_RegisterShader("rsb4_armor_bg_border");
+	if (cg_drawHabarBackground.integer) {
+		cgs.media.rsb4_health_bg = trap_R_RegisterShader("rsb4_health_bg");
+		cgs.media.rsb4_health_bg_border = trap_R_RegisterShader("rsb4_health_bg_border");
+		cgs.media.rsb4_armor_bg = trap_R_RegisterShader("rsb4_armor_bg");
+		cgs.media.rsb4_armor_bg_border = trap_R_RegisterShader("rsb4_armor_bg_border");
+	}
 }
 
 static void CG_DrawRatStatusBar4( void ) {
@@ -6509,16 +6523,16 @@ static void CG_Draw2D(stereoFrame_t stereoFrame)
 #else
 			if (cg_ratStatusbar.integer && cgs.gametype != GT_HARVESTER && cgs.gametype != GT_TREASURE_HUNTER) {
 				switch (cg_ratStatusbar.integer) {
+					case 4:
+					case 5:
+						CG_DrawRatStatusBar4();
+						break;
 					case 1:
 					case 2:
 						CG_DrawRatStatusBar();
 						break;
 					case 3:
 						CG_DrawRatStatusBar3();
-						break;
-					case 4:
-					case 5:
-						CG_DrawRatStatusBar4();
 						break;
 					default:
 						CG_DrawRatStatusBar();
