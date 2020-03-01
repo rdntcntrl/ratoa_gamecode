@@ -1297,7 +1297,7 @@ typedef struct {
 	sfxHandle_t holyShitSound;
 
 	// Elimination / CA / Extermination
-	sfxHandle_t oneLeftSound;
+	//sfxHandle_t oneLeftSound;
 	sfxHandle_t oneFriendLeftSound;
 	sfxHandle_t oneEnemyLeftSound;
 

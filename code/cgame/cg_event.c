@@ -1363,18 +1363,20 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 						CG_AddBufferedSound( cgs.media.oneFriendLeftSound );
 					} else if (cgs.clientinfo[cg.clientNum].team == TEAM_BLUE) {
 						CG_AddBufferedSound( cgs.media.oneEnemyLeftSound );
-					} else {
-						CG_AddBufferedSound( cgs.media.oneLeftSound );
-					}
+					} 
+					//else {
+					//	CG_AddBufferedSound( cgs.media.oneLeftSound );
+					//}
 					break;
 				case GTS_ONE_PLAYER_LEFT_BLUE:
 					if (cgs.clientinfo[cg.clientNum].team == TEAM_BLUE) {
 						CG_AddBufferedSound( cgs.media.oneFriendLeftSound );
 					} else if (cgs.clientinfo[cg.clientNum].team == TEAM_RED) {
 						CG_AddBufferedSound( cgs.media.oneEnemyLeftSound );
-					} else {
-						CG_AddBufferedSound( cgs.media.oneLeftSound );
-					}
+					} 
+					//else {
+					//	CG_AddBufferedSound( cgs.media.oneLeftSound );
+					//}
 					break;
 				case GTS_PLAYER_RESPAWNED_BLUE:
 				case GTS_PLAYER_RESPAWNED_RED:
