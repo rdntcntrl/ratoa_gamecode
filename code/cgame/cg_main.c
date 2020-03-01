@@ -644,7 +644,7 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_zoomAnim, "cg_zoomAnim", "1", CVAR_ARCHIVE},
 	{ &cg_zoomAnimScale, "cg_zoomAnimScale", "2", CVAR_ARCHIVE},
 	{ &cg_drawHabarBackground, "cg_drawHabarBackground", "0", CVAR_ARCHIVE},
-	{ &cg_hudDamageIndicator, "cg_hudDamageIndicator", "1", CVAR_ARCHIVE|CVAR_LATCH},
+	{ &cg_hudDamageIndicator, "cg_hudDamageIndicator", "2", CVAR_ARCHIVE|CVAR_LATCH},
 	{ &cg_hudDamageIndicatorScale, "cg_hudDamageIndicatorScale", "1.0", CVAR_ARCHIVE},
 	{ &cg_hudDamageIndicatorOffset, "cg_hudDamageIndicatorOffset", "0.0", CVAR_ARCHIVE},
 	{ &cg_hudDamageIndicatorAlpha, "cg_hudDamageIndicatorAlpha", "1.0", CVAR_ARCHIVE},
@@ -905,7 +905,7 @@ void CG_SetEngineCvars( void ) {
 }
 
 
-#define LATEST_RATINITIALIZED 27
+#define LATEST_RATINITIALIZED 28
 
 int CG_MigrateOldCrosshair(int old) {
 	switch (old) {
@@ -1322,6 +1322,16 @@ void CG_RatOldCfgUpdate(void) {
 		trap_SendConsoleCommand("unset cg_picmipBackup\n");
 
 		CG_Cvar_SetAndUpdate( "cg_ratInitialized", "27" );
+	}
+
+	if (cg_ratInitialized.integer < 28) {
+		if (cg_hudDamageIndicator.integer != 2) {
+			CG_Cvar_ResetToDefault( "cg_hudDamageIndicatorScale" );
+			CG_Cvar_ResetToDefault( "cg_hudDamageIndicatorOffset" );
+			CG_Cvar_ResetToDefault( "cg_hudDamageIndicator" );
+		}
+
+		CG_Cvar_SetAndUpdate( "cg_ratInitialized", "28" );
 	}
 }
 
