@@ -3621,7 +3621,7 @@ void CheckElimination(void) {
 		if(level.roundNumber!=level.roundNumberStarted && level.time>level.roundStartTime-1000*g_elimination_activewarmup.integer && !level.roundRespawned)
 		{
 			level.roundRespawned = qtrue;
-			RespawnAll();
+			RespawnAllElim();
 			SendEliminationMessageToAllClients();
 		}
 

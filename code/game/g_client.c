@@ -342,6 +342,103 @@ gentity_t *SelectTournamentSpawnPoint ( gclient_t *client, vec3_t origin, vec3_t
 	//return furthestSpot;
 }
 
+typedef struct {
+	gentity_t *spot;
+	float distance;
+} spawnPointDistance_t;
+
+int QDECL SortSpawnPoints( const void *a, const void *b ) {
+	const spawnPointDistance_t *sa, *sb;
+
+	sa = (const spawnPointDistance_t *)a;
+	sb = (const spawnPointDistance_t *)b;
+
+	if (sa->distance > sb->distance) {
+		return 1;
+	} else if (sa->distance < sb->distance) {
+		return -1;
+	}
+
+	return 0;
+}
+
+// spawn far from all enemies, or close to your teammates if there are no enemies, for elimination
+gentity_t *SelectFarFromEnemyTeamSpawnpointArena ( int arenaNum, team_t myteam, vec3_t origin, vec3_t angles) {
+	gentity_t	*spot;
+	int			count;
+	int			selection;
+	spawnPointDistance_t spots[MAX_SPAWN_POINTS];
+	int i,j;
+	vec3_t distV;
+	float dist;
+	gentity_t *ent;
+	int areaDivisor;
+	int n;
+
+	for (i = 0; i < 2; ++i) {
+		count = 0;
+		spot = NULL;
+
+		while ((spot = G_Find (spot, FOFS(classname), "info_player_deathmatch")) != NULL
+				&& count < MAX_SPAWN_POINTS) {
+			if (g_ra3compat.integer && arenaNum != -1 && spot->arenaNum != arenaNum) {
+				continue;
+			}
+			if ( i == 0 && SpotWouldTelefrag( spot ) ) {
+				continue;
+			}
+			spots[ count ].spot = spot;
+			spots[ count ].distance = -1;
+			for( j=0;j < level.numPlayingClients; j++ ) {
+				ent = &g_entities[level.sortedClients[j]];
+
+				if (!ent->inuse 
+						|| ent->client->sess.sessionTeam == TEAM_SPECTATOR 
+						|| ent->client->ps.pm_type == PM_DEAD
+						|| ent->client->isEliminated
+						|| !ent->r.linked
+						|| ent->client->sess.sessionTeam == myteam
+						) {
+					continue;
+				}
+
+				VectorSubtract(spot->s.origin, ent->client->ps.origin, distV);
+				dist = VectorLengthSquared(distV);
+				if (spots[count].distance > dist || spots[count].distance < 0) {
+					spots[count].distance = dist;
+				}
+			}
+			count++;
+		}
+
+		if (count == 0) {
+			continue;
+		}
+
+		qsort(spots, count, sizeof(spots[0]), SortSpawnPoints);
+
+		// divide map into arenas that have at least 3 spawns if possible
+		areaDivisor = count/3;
+		if (areaDivisor < 2 && count > 1) {
+			// at least make 2 areas
+			areaDivisor = 2;
+		}
+		if (areaDivisor > 0) {
+			n = count/areaDivisor;
+		} else {
+			n = count;
+		}
+		selection = count-1 - (rand() % n);
+		return spots[ selection ].spot;
+	}
+
+	return NULL;
+}
+
+gentity_t *SelectFarFromEnemyTeamSpawnpoint ( team_t myteam, vec3_t origin, vec3_t angles) {
+	return SelectFarFromEnemyTeamSpawnpointArena(-1, myteam, origin, angles);
+}
+
 /*
 ===========
 SelectSpawnPoint
@@ -954,19 +1051,72 @@ void RespawnAll(void)
 			continue;
 		}
 
-                if ( level.clients[i].pers.connected == CON_CONNECTING) {
-                        continue;
-                }
+		if ( level.clients[i].pers.connected == CON_CONNECTING) {
+			continue;
+		}
 
 		if ( level.clients[i].sess.sessionTeam == TEAM_SPECTATOR ) {
 			continue;
 		}
+
 		client = g_entities + i;
 		client->client->ps.pm_type = PM_NORMAL;
 		client->client->pers.livesLeft = g_lms_lives.integer;
 		respawnRound(client);
 	}
 	return;
+}
+
+/*
+================
+RespawnAllElim
+
+Forces all clients to respawn, alternating between red and blue teams
+================
+*/
+
+void RespawnAllElim(void)
+{
+	int i, ib,ir;
+	gentity_t	*client;
+	gentity_t *redClients[MAX_CLIENTS];
+	gentity_t *blueClients[MAX_CLIENTS];
+	int blueCount = 0;
+	int redCount = 0;
+
+	for(i=0;i<level.maxclients;i++)
+	{
+		if ( level.clients[i].pers.connected == CON_DISCONNECTED
+				|| level.clients[i].pers.connected == CON_CONNECTING
+				|| level.clients[i].sess.sessionTeam == TEAM_SPECTATOR ) {
+			continue;
+		}
+		client = g_entities + i;
+		if (client->client->sess.sessionTeam == TEAM_BLUE) {
+			blueClients[blueCount++] = client;
+		} else {
+			redClients[redCount++] = client;
+		}
+		// make sure all entities are unlinked before we respawn them
+		trap_UnlinkEntity(client);
+	}
+	ib = 0;
+	ir = 0;
+	for(i = 0; i < blueCount + redCount; ++i) {
+		if ((level.roundNumber+level.eliminationSides + i)%2 == 1 && ib < blueCount) {
+			client = blueClients[ib];
+			client->client->ps.pm_type = PM_NORMAL;
+			client->client->pers.livesLeft = g_lms_lives.integer;
+			respawnRound(client);
+			++ib;
+		} else if (ir < redCount) {
+			client = redClients[ir];
+			client->client->ps.pm_type = PM_NORMAL;
+			client->client->pers.livesLeft = g_lms_lives.integer;
+			respawnRound(client);
+			++ir;
+		}
+	}
 }
 
 /*
@@ -2567,18 +2717,33 @@ void ClientSpawn(gentity_t *ent) {
 		//Double Domination uses special spawn points:
 		spawnPoint = SelectDoubleDominationSpawnPoint (client->sess.sessionTeam, spawn_origin, spawn_angles);
 	} else if (g_gametype.integer >= GT_CTF && g_ffa_gt==0 && g_gametype.integer!= GT_DOMINATION) {
-		// all base oriented team games use the CTF spawn points
-		if (g_ra3compat.integer && client->pers.arenaNum >= 0) {
-			spawnPoint = SelectCTFSpawnPointArena ( 
-					client->sess.sessionTeam, 
-					client->pers.teamState.state, 
-					client->pers.arenaNum,
-					spawn_origin, spawn_angles);
+		if (g_gametype.integer == GT_ELIMINATION) {
+			if (g_ra3compat.integer && client->pers.arenaNum >= 0) {
+				spawnPoint = SelectElimSpawnPointArena ( 
+						client->sess.sessionTeam, 
+						client->pers.teamState.state, 
+						client->pers.arenaNum,
+						spawn_origin, spawn_angles);
+			} else {
+				spawnPoint = SelectElimSpawnPoint ( 
+						client->sess.sessionTeam, 
+						client->pers.teamState.state, 
+						spawn_origin, spawn_angles);
+			}
 		} else {
-			spawnPoint = SelectCTFSpawnPoint ( 
-					client->sess.sessionTeam, 
-					client->pers.teamState.state, 
-					spawn_origin, spawn_angles);
+			// all base oriented team games use the CTF spawn points
+			if (g_ra3compat.integer && client->pers.arenaNum >= 0) {
+				spawnPoint = SelectCTFSpawnPointArena ( 
+						client->sess.sessionTeam, 
+						client->pers.teamState.state, 
+						client->pers.arenaNum,
+						spawn_origin, spawn_angles);
+			} else {
+				spawnPoint = SelectCTFSpawnPoint ( 
+						client->sess.sessionTeam, 
+						client->pers.teamState.state, 
+						spawn_origin, spawn_angles);
+			}
 		}
 	} else {
 		do {

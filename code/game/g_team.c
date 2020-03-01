@@ -1856,11 +1856,47 @@ gentity_t *SelectCTFSpawnPointArena ( team_t team, int teamstate, int arenaNum, 
 	spot = SelectRandomTeamSpawnPointArena ( teamstate, team, arenaNum );
 
 	if (!spot) {
-		spot = SelectSpawnPointArena( arenaNum, vec3_origin, origin, angles );
+		return SelectSpawnPointArena( arenaNum, vec3_origin, origin, angles );
+	}
+
+	VectorCopy (spot->s.origin, origin);
+	origin[2] += 9;
+	VectorCopy (spot->s.angles, angles);
+
+	return spot;
+}
+
+gentity_t *SelectElimSpawnPoint ( team_t team, int teamstate, vec3_t origin, vec3_t angles ) {
+	gentity_t	*spot;
+
+	spot = SelectRandomTeamSpawnPoint ( teamstate, team );
+
+	if (!spot) {
+		spot = SelectFarFromEnemyTeamSpawnpoint( team, origin, angles );
 	}
 
 	if (!spot) {
-		return SelectCTFSpawnPoint( team, teamstate, origin, angles);
+		return SelectSpawnPoint( vec3_origin, origin, angles );
+	}
+
+	VectorCopy (spot->s.origin, origin);
+	origin[2] += 9;
+	VectorCopy (spot->s.angles, angles);
+
+	return spot;
+}
+
+gentity_t *SelectElimSpawnPointArena ( team_t team, int teamstate, int arenaNum, vec3_t origin, vec3_t angles ) {
+	gentity_t	*spot;
+
+	spot = SelectRandomTeamSpawnPointArena ( teamstate, team, arenaNum );
+
+	if (!spot) {
+		spot = SelectFarFromEnemyTeamSpawnpointArena( arenaNum, team, origin, angles );
+	}
+
+	if (!spot) {
+		return SelectSpawnPointArena( arenaNum, vec3_origin, origin, angles );
 	}
 
 	VectorCopy (spot->s.origin, origin);

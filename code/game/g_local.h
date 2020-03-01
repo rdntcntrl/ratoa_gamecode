@@ -1019,7 +1019,8 @@ void G_PredictPlayerMove( gentity_t *ent, float frametime );
 team_t TeamCount( int ignoreClientNum, int team, qboolean countBots);
 team_t TeamLivingCount( int ignoreClientNum, int team ); //Elimination
 team_t TeamHealthCount( int ignoreClientNum, int team ); //Elimination
-void RespawnAll(void); //For round elimination
+void RespawnAll(void); //For LMS
+void RespawnAllElim(void); //For round elimination
 void RespawnDead(void);
 int RespawnElimZombies(void);
 void EnableWeapons(void);
@@ -1033,6 +1034,8 @@ void SetClientViewAngle( gentity_t *ent, vec3_t angle );
 gentity_t *SelectSpawnPoint ( vec3_t avoidPoint, vec3_t origin, vec3_t angles );
 gentity_t *SelectSpawnPointArena ( int arenaNum,  vec3_t avoidPoint, vec3_t origin, vec3_t angles );
 gentity_t *SelectRandomDeathmatchSpawnPointArena( int arenaNum );
+gentity_t *SelectFarFromEnemyTeamSpawnpoint ( team_t myteam, vec3_t origin, vec3_t angles);
+gentity_t *SelectFarFromEnemyTeamSpawnpointArena ( int arenaNum, team_t myteam, vec3_t origin, vec3_t angles);
 void CopyToBodyQue( gentity_t *ent );
 void ClientRespawn(gentity_t *ent);
 void BeginIntermission (void);
@@ -1159,6 +1162,8 @@ void Token_die(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int d
 void Team_TH_TokenDestroyed( gentity_t *ent );
 void SetPlayerTokens(int num, qboolean updateOnly);
 void Token_Think( gentity_t *token );
+gentity_t *SelectElimSpawnPointArena ( team_t team, int teamstate, int arenaNum, vec3_t origin, vec3_t angles );
+gentity_t *SelectElimSpawnPoint ( team_t team, int teamstate, vec3_t origin, vec3_t angles );
 
 //KK-OAX Removed these in Code in favor of bg_alloc.c from Tremulous
 // g_mem.c
