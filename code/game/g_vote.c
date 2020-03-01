@@ -548,6 +548,10 @@ void CheckVote( void ) {
 		    	G_SendVoteResult(qfalse);
 		    }
                 }
+	    } else if (level.votePassRatio > 0) {
+                trap_SendServerCommand( -1, va("print \"Vote failed (requires %i percent of the votes to pass).\n\"", (int)(level.votePassRatio*100)));
+		G_SendVoteResult(qfalse);
+		G_SendVoteResult(qfalse);
             } else {
                 trap_SendServerCommand( -1, "print \"Vote failed.\n\"" );
 		G_SendVoteResult(qfalse);
@@ -559,7 +563,7 @@ void CheckVote( void ) {
 			G_SetVoteExecTime();
 		} else if ((float)level.voteNo/level.numVotingClients >= 1.0-level.votePassRatio) {
 			// same behavior as a timeout
-			trap_SendServerCommand( -1, "print \"Vote failed.\n\"" );
+			trap_SendServerCommand( -1, va("print \"Vote failed (requires %i percent of the votes to pass).\n\"", (int)(level.votePassRatio*100)));
 		    	G_SendVoteResult(qfalse);
 		} else {
 			// still waiting for a majority
