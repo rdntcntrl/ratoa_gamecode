@@ -410,7 +410,9 @@ vmCvar_t        cg_vote_custom_commands;
 
 vmCvar_t                cg_autovertex;
 
-vmCvar_t                cg_picmipBackup;
+vmCvar_t                cg_backupPicmip;
+vmCvar_t                cg_backupDrawflat;
+vmCvar_t                cg_backupLightmap;
 
 vmCvar_t	cg_fragmsgsize;
 
@@ -570,7 +572,9 @@ static cvarTable_t cvarTable[] = { // bk001129
 
         { &cg_autovertex, "cg_autovertex", "0", CVAR_ARCHIVE },
 
-        { &cg_picmipBackup, "cg_picmipBackup", "-1", CVAR_ARCHIVE },
+        { &cg_backupPicmip, "cg_backupPicmip", "-1", CVAR_ARCHIVE },
+        { &cg_backupDrawflat, "cg_backupDrawflat", "-1", CVAR_ARCHIVE },
+        { &cg_backupLightmap, "cg_backupLightmap", "-1", CVAR_ARCHIVE },
 #ifdef MISSIONPACK
 	{ &cg_redTeamName, "g_redteam", DEFAULT_REDTEAM_NAME, CVAR_ARCHIVE | CVAR_SERVERINFO | CVAR_USERINFO },
 	{ &cg_blueTeamName, "g_blueteam", DEFAULT_BLUETEAM_NAME, CVAR_ARCHIVE | CVAR_SERVERINFO | CVAR_USERINFO },
@@ -901,7 +905,7 @@ void CG_SetEngineCvars( void ) {
 }
 
 
-#define LATEST_RATINITIALIZED 26
+#define LATEST_RATINITIALIZED 27
 
 int CG_MigrateOldCrosshair(int old) {
 	switch (old) {
@@ -1312,6 +1316,12 @@ void CG_RatOldCfgUpdate(void) {
 		CG_Cvar_ResetToDefault( "cg_hudDamageIndicatorOffset" );
 
 		CG_Cvar_SetAndUpdate( "cg_ratInitialized", "26" );
+	}
+
+	if (cg_ratInitialized.integer < 27) {
+		trap_SendConsoleCommand("unset cg_picmipBackup\n");
+
+		CG_Cvar_SetAndUpdate( "cg_ratInitialized", "27" );
 	}
 }
 
@@ -3674,20 +3684,53 @@ void CG_FairCvars() {
     }
 
     if(cgs.videoflags & VF_LOCK_PICMIP) {
-	    int picmip = 0;
+	    int value = 0;
+
 	    trap_Cvar_VariableStringBuffer("r_picmip",rendererinfos,sizeof(rendererinfos) );
-	    picmip = atoi(rendererinfos);
-	    if(picmip != 0) {
+	    value = atoi(rendererinfos);
+	    if(value != 0) {
 		    trap_Cvar_Set("r_picmip","0");
 		    // store picmip value
-		    trap_Cvar_Set("cg_picmipBackup",va("%i", picmip));
+		    trap_Cvar_Set("cg_backupPicmip",va("%i", value));
 		    vid_restart_required = qtrue;
 	    }
-    } else if (cg_picmipBackup.integer > 0) {
-	    // restore old value the user set for r_picmip before lock was enabled
-            trap_Cvar_Set("r_picmip",va("%i", cg_picmipBackup.integer));
-            trap_Cvar_Set("cg_picmipBackup","-1");
-            vid_restart_required = qtrue;
+
+	    trap_Cvar_VariableStringBuffer("r_drawFlat",rendererinfos,sizeof(rendererinfos) );
+	    value = atoi(rendererinfos);
+	    if(value != 0) {
+		    trap_Cvar_Set("r_drawFlat","0");
+		    // store picmip value
+		    trap_Cvar_Set("cg_backupDrawflat",va("%i", value));
+		    vid_restart_required = qtrue;
+	    }
+
+	    trap_Cvar_VariableStringBuffer("r_lightmap",rendererinfos,sizeof(rendererinfos) );
+	    value = atoi(rendererinfos);
+	    if(value != 0) {
+		    trap_Cvar_Set("r_lightmap","0");
+		    // store picmip value
+		    trap_Cvar_Set("cg_backupLightmap",va("%i", value));
+		    vid_restart_required = qtrue;
+	    }
+    } else {
+	    if (cg_backupPicmip.integer > 0) {
+		    // restore old value the user set for r_picmip before lock was enabled
+		    trap_Cvar_Set("r_picmip",va("%i", cg_backupPicmip.integer));
+		    trap_Cvar_Set("cg_backupPicmip","-1");
+		    vid_restart_required = qtrue;
+	    }
+	    if (cg_backupDrawflat.integer > 0) {
+		    // restore old value the user set for r_picmip before lock was enabled
+		    trap_Cvar_Set("r_drawFlat",va("%i", cg_backupDrawflat.integer));
+		    trap_Cvar_Set("cg_backupDrawflat","-1");
+		    vid_restart_required = qtrue;
+	    }
+	    if (cg_backupLightmap.integer > 0) {
+		    // restore old value the user set for r_picmip before lock was enabled
+		    trap_Cvar_Set("r_lightmap",va("%i", cg_backupLightmap.integer));
+		    trap_Cvar_Set("cg_backupLightmap","-1");
+		    vid_restart_required = qtrue;
+	    }
     }
 
     if(vid_restart_required && do_vid_restart)
