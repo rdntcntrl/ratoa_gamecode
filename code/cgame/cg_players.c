@@ -2570,12 +2570,20 @@ void CG_AddRefEntityWithPowerups( refEntity_t *ent, entityState_t *state, int te
 			       	//&& !(state->eFlags & EF_DEAD)  ) {
 			if ((cgs.ratFlags & RAT_BRIGHTSHELL) && cg_brightShells.integer) {
 				ent->shaderRGBA[3] = CG_GetBrightShellAlpha();
-				if (cg_brightShells.integer == 2) {
-					ent->customShader = cgs.media.brightShellFlat;
-				} else {
+
+				if (cg_brightShells.integer == 1) {
 					ent->customShader = cgs.media.brightShell;
+					trap_R_AddRefEntityToScene( ent );
+				} else if (cg_brightShells.integer == 2) {
+					ent->customShader = cgs.media.brightShellFlat;
+					trap_R_AddRefEntityToScene( ent );
+				} else {
+					ent->customShader = cgs.media.brightShellFlat;
+					trap_R_AddRefEntityToScene( ent );
+					ent->shaderRGBA[3] = 0xff;
+					ent->customShader = cgs.media.brightOutline;
+					trap_R_AddRefEntityToScene( ent );
 				}
-				trap_R_AddRefEntityToScene( ent );
 			} else if ((cgs.ratFlags & RAT_BRIGHTOUTLINE) && cg_brightOutline.integer) {
 				if (cg_brightOutline.integer == 1) {
 					ent->customShader = cgs.media.brightShellFlat;
