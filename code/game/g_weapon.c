@@ -351,6 +351,7 @@ qboolean ShotgunPellet( vec3_t start, vec3_t end, gentity_t *ent ) {
 	gentity_t	*traceEnt;
 	vec3_t		impactpoint, bouncedir;
 	vec3_t		tr_start, tr_end;
+	qboolean logaccuracyhit = qfalse;
 
 	passent = ent->s.number;
 	VectorCopy( start, tr_start );
@@ -380,9 +381,12 @@ qboolean ShotgunPellet( vec3_t start, vec3_t end, gentity_t *ent ) {
 				continue;
 			}
 			else {
+				if( LogAccuracyHit( traceEnt, ent ) ) {
+					logaccuracyhit = qtrue;
+				}
 				G_Damage( traceEnt, ent, ent, forward, tr.endpos,
 					damage, 0, MOD_SHOTGUN);
-				if( LogAccuracyHit( traceEnt, ent ) ) {
+				if (logaccuracyhit) {
 					return qtrue;
 				}
 			}
@@ -829,6 +833,10 @@ void Weapon_LightningFire( gentity_t *ent ) {
 				continue;
 			}
 			else {
+				if( LogAccuracyHit( traceEnt, ent ) ) {
+					ent->client->accuracy_hits++;
+					ent->client->accuracy[WP_LIGHTNING][1]++;
+				}
 				G_Damage( traceEnt, ent, ent, forward, tr.endpos,
 					damage, 0, MOD_LIGHTNING);
 			}
@@ -839,10 +847,6 @@ void Weapon_LightningFire( gentity_t *ent ) {
 			tent->s.otherEntityNum = traceEnt->s.number;
 			tent->s.eventParm = DirToByte( tr.plane.normal );
 			tent->s.weapon = ent->s.weapon;
-			if( LogAccuracyHit( traceEnt, ent ) ) {
-				ent->client->accuracy_hits++;
-                                ent->client->accuracy[WP_LIGHTNING][1]++;
-			}
 		} else if ( !( tr.surfaceFlags & SURF_NOIMPACT ) ) {
 			tent = G_TempEntity( tr.endpos, EV_MISSILE_MISS );
 			tent->s.eventParm = DirToByte( tr.plane.normal );
@@ -918,30 +922,14 @@ LogAccuracyHit
 ===============
 */
 qboolean LogAccuracyHit( gentity_t *target, gentity_t *attacker ) {
-	if( !target->takedamage ) {
+	if ( !target->takedamage 
+			|| target == attacker
+			|| !target->client
+			|| !attacker->client
+			|| target->client->ps.stats[STAT_HEALTH] <= 0
+			|| OnSameTeam( target, attacker )) {
 		return qfalse;
 	}
-
-	if ( target == attacker ) {
-		return qfalse;
-	}
-
-	if( !target->client ) {
-		return qfalse;
-	}
-
-	if( !attacker->client ) {
-		return qfalse;
-	}
-
-	if( target->client->ps.stats[STAT_HEALTH] <= 0 ) {
-		return qfalse;
-	}
-
-	if ( OnSameTeam( target, attacker ) ) {
-		return qfalse;
-	}
-
 	return qtrue;
 }
 
