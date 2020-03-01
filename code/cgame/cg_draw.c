@@ -1450,8 +1450,7 @@ static void CG_DrawRatStatusBar4( void ) {
 	float bigchar_height;
 	float weaponchar_width = CG_HeightToWidth(RSB4_WEAPCHAR_HEIGHT);
 	int flagteam = TEAM_NUM_TEAMS;
-	int weaponSelect = (cg.snap->ps.pm_flags & PMF_FOLLOW) ? 
-		cg.predictedPlayerState.weapon : cg.weaponSelect;
+	int weaponSelect = CG_GetWeaponSelect();
 	float flag_x = RSB4_BAR_MARGIN;
 	qboolean vflipped = (cg_ratStatusbar.integer == 5);
 	int number_yoffset = vflipped ? RSB5_NUMBER_YOFFSET : RSB4_NUMBER_YOFFSET;
@@ -1751,8 +1750,7 @@ static void CG_DrawRatStatusBar3( void ) {
 	float bigchar_width = CG_HeightToWidth((float)RSB3_BIGCHAR_HEIGHT*2.0/3.0);
 	float weaponchar_width = CG_HeightToWidth((float)RSB3_WEAPCHAR_HEIGHT*2.0/3.0);
 	int flagteam = TEAM_NUM_TEAMS;
-	int weaponSelect = (cg.snap->ps.pm_flags & PMF_FOLLOW) ? 
-		cg.predictedPlayerState.weapon : cg.weaponSelect;
+	int weaponSelect = CG_GetWeaponSelect();
 
 	static float colors[4][4] = { 
 		{ 1.0f, 0.69f, 0.0f, 1.0f },    // normal

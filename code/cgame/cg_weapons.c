@@ -2190,6 +2190,11 @@ WEAPON SELECTION
 ==============================================================================
 */
 
+int CG_GetWeaponSelect( void ) {
+	return ((cg.snap->ps.pm_flags & PMF_FOLLOW) || cg.demoPlayback) ? 
+		cg.predictedPlayerState.weapon : cg.weaponSelect;
+}
+
 /*
 ===================
 CG_DrawWeaponSelect
@@ -2343,8 +2348,7 @@ void CG_DrawWeaponBar0(int count, int bits){
 	int y = 380;
 	int x = 320 - count * 20;
 	int i;
-	int weaponSelect = (cg.snap->ps.pm_flags & PMF_FOLLOW) ? 
-		cg.predictedPlayerState.weapon : cg.weaponSelect;
+	int weaponSelect = CG_GetWeaponSelect();
 	
 	for ( i = 0 ; i < MAX_WEAPONS ; i++ ) {
                 //Sago: Do mad change of grapple placement:
@@ -2403,8 +2407,7 @@ void CG_DrawWeaponBar1(int count, int bits){
 	float red[4];
 	float yellow[4];
 	float green[4];
-	int weaponSelect = (cg.snap->ps.pm_flags & PMF_FOLLOW) ? 
-		cg.predictedPlayerState.weapon : cg.weaponSelect;
+	int weaponSelect = CG_GetWeaponSelect();
 	
 	red[0] = 1.0f;
 	red[1] = 0;
@@ -2495,8 +2498,7 @@ void CG_DrawWeaponBar2(int count, int bits, float *color){
 	float red[4];
 	float yellow[4];
 	float blue[4];
-	int weaponSelect = (cg.snap->ps.pm_flags & PMF_FOLLOW) ? 
-		cg.predictedPlayerState.weapon : cg.weaponSelect;
+	int weaponSelect = CG_GetWeaponSelect();
 	
 	red[0] = 1.0f;
 	red[1] = 0;
@@ -2589,8 +2591,7 @@ void CG_DrawWeaponBar3(int count, int bits, float *color){
 	float yellow[4];
 	float green[4];
 	float blue[4];
-	int weaponSelect = (cg.snap->ps.pm_flags & PMF_FOLLOW) ? 
-		cg.predictedPlayerState.weapon : cg.weaponSelect;
+	int weaponSelect = CG_GetWeaponSelect();
 	
 	red[0] = 1.0f;
 	red[1] = 0;
@@ -2702,8 +2703,7 @@ void CG_DrawWeaponBar4(int count, int bits, float *color){
 	char *s;
 	float boxColor[4];
 	float yellow[4];
-	int weaponSelect = (cg.snap->ps.pm_flags & PMF_FOLLOW) ? 
-		cg.predictedPlayerState.weapon : cg.weaponSelect;
+	int weaponSelect = CG_GetWeaponSelect();
 	
 	boxColor[1]=0;
 	boxColor[3]=0.4f;
@@ -2784,8 +2784,7 @@ void CG_DrawWeaponBar5(int count, int bits, float *color){
 	float red[4];
 	float yellow[4];
 	float blue[4];
-	int weaponSelect = (cg.snap->ps.pm_flags & PMF_FOLLOW) ? 
-		cg.predictedPlayerState.weapon : cg.weaponSelect;
+	int weaponSelect = CG_GetWeaponSelect();
 	
 	red[0] = 1.0f;
 	red[1] = 0;
@@ -2874,8 +2873,7 @@ void CG_DrawWeaponBar6(int count, int bits, float *color){
 	float yellow[4];
 	float green[4];
 	float blue[4];
-	int weaponSelect = (cg.snap->ps.pm_flags & PMF_FOLLOW) ? 
-		cg.predictedPlayerState.weapon : cg.weaponSelect;
+	int weaponSelect = CG_GetWeaponSelect();
 	
 	red[0] = 1.0f;
 	red[1] = 0;
@@ -2986,8 +2984,7 @@ void CG_DrawWeaponBar7(int count, int bits, float *color){
 	char *s;
 	float yellow[4];
 	float boxColor[4];
-	int weaponSelect = (cg.snap->ps.pm_flags & PMF_FOLLOW) ? 
-		cg.predictedPlayerState.weapon : cg.weaponSelect;
+	int weaponSelect = CG_GetWeaponSelect();
 	
 	boxColor[1]=0;
 	boxColor[3]=0.4f;
@@ -3071,8 +3068,7 @@ void CG_DrawWeaponBar8(int count, int bits, float *color){
 	float grey[4];
 	float green[4];
 	float blue[4];
-	int weaponSelect = (cg.snap->ps.pm_flags & PMF_FOLLOW) ? 
-		cg.predictedPlayerState.weapon : cg.weaponSelect;
+	int weaponSelect = CG_GetWeaponSelect();
 	
 	red[0] = 1.0f;
 	red[1] = 0;
@@ -3182,8 +3178,7 @@ void CG_DrawWeaponBar9(int count, int bits, float *color){
 	float grey[4];
 	float green[4];
 	float blue[4];
-	int weaponSelect = (cg.snap->ps.pm_flags & PMF_FOLLOW) ? 
-		cg.predictedPlayerState.weapon : cg.weaponSelect;
+	int weaponSelect = CG_GetWeaponSelect();
 	
 	red[0] = 1.0f;
 	red[1] = 0;
@@ -3295,8 +3290,7 @@ void CG_DrawWeaponBar10(int count, int bits, float *color){
 	float yellow[4];
 	float green[4];
 	float bg[4];
-	int weaponSelect = (cg.snap->ps.pm_flags & PMF_FOLLOW) ? 
-		cg.predictedPlayerState.weapon : cg.weaponSelect;
+	int weaponSelect = CG_GetWeaponSelect();
 	float boxwidth = CG_HeightToWidth(28.0);
 	float barwidth = CG_HeightToWidth(24.0);
 
@@ -3418,8 +3412,7 @@ void CG_DrawWeaponBar12(int count, int bits, float *color){
 	float yellow[4];
 	float green[4];
 	float bg[4];
-	int weaponSelect = (cg.snap->ps.pm_flags & PMF_FOLLOW) ? 
-		cg.predictedPlayerState.weapon : cg.weaponSelect;
+	int weaponSelect = CG_GetWeaponSelect();
 	
 	red[0] = 1.0f;
 	red[1] = 0;
@@ -3524,8 +3517,7 @@ void CG_DrawWeaponBar13(int count, int bits, float *color){
 	float yellow[4];
 	float green[4];
 	float bg[4];
-	int weaponSelect = (cg.snap->ps.pm_flags & PMF_FOLLOW) ? 
-		cg.predictedPlayerState.weapon : cg.weaponSelect;
+	int weaponSelect = CG_GetWeaponSelect();
 	float boxheight = 41.0;
 	float boxwidthreal = boxheight*0.8;
 	float boxwidth = CG_HeightToWidth(boxwidthreal);
@@ -3646,8 +3638,7 @@ void CG_DrawWeaponBar14(int count, int bits, float *color){
 	float yellow[4];
 	float cyan[4];
 	float bg[4];
-	int weaponSelect = (cg.snap->ps.pm_flags & PMF_FOLLOW) ? 
-		cg.predictedPlayerState.weapon : cg.weaponSelect;
+	int weaponSelect = CG_GetWeaponSelect();
 	float boxheight = 41.0;
 	float boxwidthreal = boxheight*0.8;
 	float boxwidth = CG_HeightToWidth(boxwidthreal);
@@ -3765,8 +3756,7 @@ void CG_DrawWeaponBar15(int count, int bits, float *color){
 	float yellow[4];
 	float cyan[4];
 	float bg[4];
-	int weaponSelect = (cg.snap->ps.pm_flags & PMF_FOLLOW) ? 
-		cg.predictedPlayerState.weapon : cg.weaponSelect;
+	int weaponSelect = CG_GetWeaponSelect();
 	//float circleSz = 42;
 	float circleSz = 43;
 	float circleWidth = CG_HeightToWidth(circleSz);
