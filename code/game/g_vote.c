@@ -517,6 +517,30 @@ void G_SetVoteExecTime(void) {
 	}
 }
 
+#define VOTE_REJECTED_REPEAT_TIME (120*1000)
+qboolean G_CheckRejectedVote(void) {
+	return (level.lastFailedVoteTime > 0 
+			&& level.time - level.lastFailedVoteTime < VOTE_REJECTED_REPEAT_TIME
+			&& Q_strncmp (level.voteString, level.lastFailedVote, sizeof(level.voteString)) == 0);
+}
+
+void G_ResetRejectedVote(void) {
+	level.lastFailedVoteTime = 0;
+	level.lastFailedVote[0] = '\0';
+}
+
+void G_SaveRejectedVote(void) {
+	if (!g_voteRepeatLimit.integer) {
+		return;
+	}
+	if (!G_CheckRejectedVote()) {
+		level.lastFailedVoteCount = 0;
+	}
+	level.lastFailedVoteTime = level.time;
+	Q_strncpyz(level.lastFailedVote, level.voteString, sizeof(level.lastFailedVote));
+	level.lastFailedVoteCount++;
+}
+
 /*
 ==================
 CheckVote
@@ -565,6 +589,9 @@ void CheckVote( void ) {
 			// same behavior as a timeout
 			trap_SendServerCommand( -1, va("print \"Vote failed (requires %i percent of the votes to pass).\n\"", (int)(level.votePassRatio*100)));
 		    	G_SendVoteResult(qfalse);
+
+			// vote was actively rejected, prevent same client from calling it again immediately
+			G_SaveRejectedVote();
 		} else {
 			// still waiting for a majority
 			return;
@@ -580,6 +607,9 @@ void CheckVote( void ) {
 			// same behavior as a timeout
 			trap_SendServerCommand( -1, "print \"Vote failed.\n\"" );
 		    	G_SendVoteResult(qfalse);
+
+			// vote was actively rejected, prevent same client from calling it again immediately
+			G_SaveRejectedVote();
 		} else {
 			// still waiting for a majority
 			return;

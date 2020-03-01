@@ -660,6 +660,9 @@ typedef struct {
         int             voteKickType;                           // if 1 = ban (execute ban)
         qboolean        voteLightAllowed;       // set if this vote can be passed by light voting (DF_LIGHT_VOTING)
         float        votePassRatio;       // required yes/no ratio to pass the vote (if > 0)
+	char		lastFailedVote[MAX_STRING_CHARS]; // old votestring to detect repeated votes
+	int		lastFailedVoteTime; 		 
+	int		lastFailedVoteCount; 		 
 
 	// team voting state
 	char		teamVoteString[2][MAX_STRING_CHARS];
@@ -1219,6 +1222,8 @@ void CheckVote( void );
 void CountVotes( void );
 void ClientLeaving(int clientNumber);
 void G_SendVoteResult(qboolean passed);
+void G_ResetRejectedVote(void);
+qboolean G_CheckRejectedVote(void);
 
 
 typedef struct {
@@ -1422,6 +1427,7 @@ extern vmCvar_t        g_voteMaxFraglimit;
 extern vmCvar_t        g_voteMinBots;
 extern vmCvar_t        g_voteMaxBots;
 extern vmCvar_t        g_maxvotes;
+extern vmCvar_t        g_voteRepeatLimit;
 
 extern vmCvar_t        g_humanplayers;
 

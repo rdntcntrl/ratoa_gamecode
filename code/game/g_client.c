@@ -2447,6 +2447,9 @@ void ClientBegin( int clientNum ) {
 	}
 
 	client->pers.lastKilledByStrongMan = -1;
+
+	// allow previously rejected votes again because teams may have changed
+	G_ResetRejectedVote();
 }
 
 /*

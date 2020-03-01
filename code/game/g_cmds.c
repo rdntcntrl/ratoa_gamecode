@@ -3316,6 +3316,14 @@ void Cmd_CallVote_f( gentity_t *ent ) {
                 return;
 	}
 
+	if (g_voteRepeatLimit.integer > 0 && G_CheckRejectedVote() && level.lastFailedVoteCount >= g_voteRepeatLimit.integer) {
+		// prevent players from repeatedly calling the same vote if it was actively rejected by the people before
+		level.voteString[0] = '\0';
+		level.voteDisplayString[0] = '\0';
+		trap_SendServerCommand( ent-g_entities, "print \"The people voted no.\n\"" );
+		return;
+	}
+
         ent->client->pers.voteCount++;
 	trap_SendServerCommand( -1, va("print \"%s%s called a vote: %s\n\"", ent->client->pers.netname, S_COLOR_WHITE, level.voteDisplayString ) );
 
