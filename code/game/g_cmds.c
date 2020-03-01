@@ -2000,7 +2000,9 @@ gentity_t *DropWeapon( gentity_t *ent ) {
 
 void Cmd_Drop_f( gentity_t *ent ) {
 	gentity_t *item = NULL;
-	if (ent->client->sess.sessionTeam == TEAM_SPECTATOR || ent->client->isEliminated) {
+	if (level.timeout 
+			|| ent->client->sess.sessionTeam == TEAM_SPECTATOR 
+			|| ent->client->isEliminated) {
 		return;
 	}
 	if (g_itemDrop.integer & ITEMDROP_FLAG && 
