@@ -293,6 +293,7 @@ vmCvar_t        g_statsboard;
 vmCvar_t        g_ratVmPredictMissiles;
 vmCvar_t        g_ratVmMissileNudge;
 vmCvar_t        g_ratFlags;
+vmCvar_t        g_maxBrightShellAlpha;
 vmCvar_t        sv_allowDuplicateGuid;
 
 vmCvar_t        g_botshandicapped;
@@ -600,6 +601,7 @@ static cvarTable_t		gameCvarTable[] = {
         { &g_useExtendedScores, "g_useExtendedScores", "0", CVAR_ARCHIVE, 0, qfalse },
         { &g_statsboard, "g_statsboard", "1", CVAR_ARCHIVE, 0, qfalse },
         { &g_ratFlags, "g_ratFlags", "0", CVAR_SERVERINFO, 0, qfalse },
+        { &g_maxBrightShellAlpha, "g_maxBrightShellAlpha", "0.5", CVAR_SERVERINFO, 0, qfalse },
         { &sv_allowDuplicateGuid, "sv_allowDuplicateGuid", "0", 0, 0, qfalse },
 
         { &g_botshandicapped, "g_botshandicapped", "1", CVAR_ARCHIVE, 0, qfalse },
