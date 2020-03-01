@@ -451,6 +451,7 @@ t_customvote getCustomVote(char* votecommand) {
         memset(&result,0,sizeof(result));
 
 	result.lightvote = qtrue;
+	result.passRatio = -1;
 
         while ( 1 ) {
             token = COM_ParseExt( &pointer, qtrue );
@@ -475,6 +476,13 @@ t_customvote getCustomVote(char* votecommand) {
                 Q_strncpyz(result.command,token,sizeof(result.command));
             } else if(!Q_stricmp(key,"lightvote")) {
 		result.lightvote = atoi(token) > 0 ? qtrue : qfalse;
+            } else if(!Q_stricmp(key,"passratio")) {
+		result.passRatio = atof(token);
+		if (result.passRatio <= 0) {
+			result.passRatio = -1;
+		} else if (result.passRatio > 1.0) {
+			result.passRatio = 1.0;
+		}
             } else {
                 Com_Printf("Unknown key in customvote.cfg: %s\n",key);
             }
@@ -544,6 +552,19 @@ void CheckVote( void ) {
                 trap_SendServerCommand( -1, "print \"Vote failed.\n\"" );
 		G_SendVoteResult(qfalse);
             }
+	} else if (level.votePassRatio > 0) {
+		if ((float)level.voteYes/level.numVotingClients > level.votePassRatio) {
+			trap_SendServerCommand( -1, "print \"Vote passed.\n\"" );
+		    	G_SendVoteResult(qtrue);
+			G_SetVoteExecTime();
+		} else if ((float)level.voteNo/level.numVotingClients >= 1.0-level.votePassRatio) {
+			// same behavior as a timeout
+			trap_SendServerCommand( -1, "print \"Vote failed.\n\"" );
+		    	G_SendVoteResult(qfalse);
+		} else {
+			// still waiting for a majority
+			return;
+		}
 	} else {
 		// ATVI Q3 1.32 Patch #9, WNF
 		if ( level.voteYes > (level.numVotingClients)/2 ) {

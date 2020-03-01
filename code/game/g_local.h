@@ -659,6 +659,7 @@ typedef struct {
         int             voteKickClient;                         // if non-negative the current vote is about this client.
         int             voteKickType;                           // if 1 = ban (execute ban)
         qboolean        voteLightAllowed;       // set if this vote can be passed by light voting (DF_LIGHT_VOTING)
+        float        votePassRatio;       // required yes/no ratio to pass the vote (if > 0)
 
 	// team voting state
 	char		teamVoteString[2][MAX_STRING_CHARS];
@@ -1225,6 +1226,7 @@ typedef struct {
     char    displayname[MAX_CUSTOMDISPLAYNAME]; //Displayed during voting
     char    command[MAX_CUSTOMCOMMAND]; //The command executed
     qboolean lightvote; // set when light vote (non-majority vote) is allowed for this command
+    float passRatio; // yes/no ratio required to pass this vote (or <= 0)
 } t_customvote;
 
 extern char custom_vote_info[2048];

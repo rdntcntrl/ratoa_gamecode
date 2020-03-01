@@ -3070,6 +3070,7 @@ void Cmd_CallVote_f( gentity_t *ent ) {
         level.voteKickType = 0; //not a ban
 
 	level.voteLightAllowed = qtrue;
+	level.votePassRatio = -1;
 
 	// special case for g_gametype, check for bad values
 	if ( !Q_stricmp( arg1, "g_gametype" ) ) {
@@ -3307,6 +3308,7 @@ void Cmd_CallVote_f( gentity_t *ent ) {
                     Com_sprintf( level.voteDisplayString, sizeof( level.voteDisplayString ), "%s", customvote.command );
 
 		level.voteLightAllowed = customvote.lightvote;
+		level.votePassRatio = customvote.passRatio;
 	} else {
 		//Com_sprintf( level.voteString, sizeof( level.voteString ), "%s \"%s\"", arg1, arg2 );
 		//Com_sprintf( level.voteDisplayString, sizeof( level.voteDisplayString ), "%s", level.voteString );
