@@ -157,6 +157,7 @@ vmCvar_t	cg_autoswitch;
 vmCvar_t	cg_ignore;
 vmCvar_t	cg_simpleItems;
 vmCvar_t	cg_fov;
+vmCvar_t	cg_horplus;
 vmCvar_t	cg_zoomFov;
 vmCvar_t	cg_zoomFovTmp;
 vmCvar_t	cg_thirdPerson;
@@ -483,6 +484,7 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_zoomFov, "cg_zoomfov", "30", CVAR_ARCHIVE },
 	{ &cg_zoomFovTmp, "cg_zoomfovTmp", "0", 0 },
 	{ &cg_fov, "cg_fov", "100", CVAR_ARCHIVE },
+	{ &cg_horplus, "cg_horplus", "0", CVAR_ARCHIVE },
 	{ &cg_viewsize, "cg_viewsize", "100", CVAR_ARCHIVE },
 	{ &cg_shadows, "cg_shadows", "1", CVAR_ARCHIVE  },
 	{ &cg_gibs, "cg_gibs", "1", CVAR_ARCHIVE  },

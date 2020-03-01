@@ -498,14 +498,15 @@ Fixed fov at intermissions, otherwise account for fov variable and zooms.
 */
 #define	WAVE_AMPLITUDE	1
 #define	WAVE_FREQUENCY	0.4
+#define MAX_FOV_X 145
+#define MAX_BASICLOCK_FOV 140
 
-static int CG_CalcFov( void ) {
+static int CG_CalcFovImpl( float fov, float zoomFov ) {
 	float	x;
 	float	phase;
 	float	v;
 	int		contents;
 	float	fov_x, fov_y;
-	float	zoomFov;
 	float	f;
 	int		inwater;
 
@@ -518,14 +519,15 @@ static int CG_CalcFov( void ) {
 			// dmflag to prevent wide fov for all clients
 			fov_x = 90;
 		} else {
-			fov_x = cg_fov.value;
+			fov_x = fov;
 			if ( fov_x < 1 ) {
 				fov_x = 1;
-			} else if ( fov_x > 145 ) {
-				fov_x = 145;
+			} else if ( fov_x > MAX_FOV_X ) {
+				Com_Printf("limiting fov to 145!\n");
+				fov_x = MAX_FOV_X;
 			}
-                        if( (cgs.videoflags & VF_LOCK_CVARS_BASIC) && fov_x>140 )
-                            fov_x = 140;
+                        if( (cgs.videoflags & VF_LOCK_CVARS_BASIC) && fov_x>MAX_BASICLOCK_FOV )
+                            fov_x = MAX_BASICLOCK_FOV;
 
 		}
 
@@ -534,19 +536,14 @@ static int CG_CalcFov( void ) {
 			zoomFov = 22.5;
 		} else {
                         // account for zooms
-			if (cg_zoomFovTmp.value > 0) {
-				zoomFov = cg_zoomFovTmp.value;
-			} else {
-				zoomFov = cg_zoomFov.value;
-			}
                         if ( zoomFov < 1 ) {
                                 zoomFov = 1;
-                        } else if ( zoomFov > 145 ) {
-                                zoomFov = 145;
+                        } else if ( zoomFov > MAX_FOV_X ) {
+                                zoomFov = MAX_FOV_X;
                         }
 
-                        if( (cgs.videoflags & VF_LOCK_CVARS_BASIC) && zoomFov>140 )
-                                zoomFov = 140;
+                        if( (cgs.videoflags & VF_LOCK_CVARS_BASIC) && zoomFov>MAX_BASICLOCK_FOV )
+                                zoomFov = MAX_BASICLOCK_FOV;
                 }
 
 		if ( cg.zoomed ) {
@@ -595,6 +592,27 @@ static int CG_CalcFov( void ) {
 	}
 
 	return inwater;
+}
+
+float CG_HorPlusFovX(float fov_y) {
+	float y;
+	y = cg.refdef.height / tan ( fov_y / 360 * M_PI );
+	return atan2(cg.refdef.width, y) * 360 / M_PI;
+}
+
+static int CG_CalcFov( void ) {
+	float fov = cg_fov.value;
+	float zoomFov = cg_zoomFovTmp.value > 0 ? cg_zoomFovTmp.value : cg_zoomFov.value;
+
+	if (cg_horplus.integer) {
+		// when using HOR+ FOV, cg_fov / cg_zoomFov refer to the
+		// vertical FOV and the horizontal FOV is scaled based on the
+		// screen's aspect ratio: 
+		fov = CG_HorPlusFovX(fov);
+		zoomFov = CG_HorPlusFovX(zoomFov);
+	}
+
+	return CG_CalcFovImpl(fov, zoomFov);
 }
 
 
@@ -919,7 +937,6 @@ void CG_AddSpawnpoints( void ){
 
 void CG_SpecZooming(void) {
 	qboolean enabled = (cg_specShowZoom.integer && cgs.ratFlags & RAT_SPECSHOWZOOM);
-	qboolean oldzoomed;
 
 	if (cg.specZoomed) {
 		if (!enabled || cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR 
