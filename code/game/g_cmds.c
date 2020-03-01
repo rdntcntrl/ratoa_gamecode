@@ -3118,6 +3118,10 @@ int G_GametypeBitsCurrent( void ) {
 		case GT_FFA:
 			bits |= (1 << GT_TOURNAMENT);
 			break;
+
+		case GT_MULTITOURNAMENT:
+			bits |= (1 << GT_TOURNAMENT);
+			break;
 	}
 
 	return bits;
