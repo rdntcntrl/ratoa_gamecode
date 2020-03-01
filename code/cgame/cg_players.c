@@ -2579,7 +2579,7 @@ void CG_AddRefEntityWithPowerups( refEntity_t *ent, entityState_t *state, int te
 			} else if ((cgs.ratFlags & RAT_BRIGHTOUTLINE) && cg_brightOutline.integer) {
 				if (cg_brightOutline.integer == 1) {
 					ent->customShader = cgs.media.brightShellFlat;
-					ent->shaderRGBA[3] = 0xff * 0.075;
+					ent->shaderRGBA[3] = 0xff * 0.125;
 					trap_R_AddRefEntityToScene( ent );
 
 					ent->customShader = cgs.media.brightOutline;
