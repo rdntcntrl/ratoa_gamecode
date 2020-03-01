@@ -821,11 +821,12 @@ void CG_DrawPulsedElementOverlay(float x, float y, float w, float h,
 	color[3] = 1.0;
 	trap_R_SetColor(color);
 	CG_DrawPic( x, y, w, h, additiveglowshader);
-	if (shader) {
-		color[3] = PULSEDELEMENT_OVERLAY_ALPHA;
-		trap_R_SetColor(color);
-		CG_DrawPic( x, y, w, h, shader);
-	}
+	// This is done by the additive glow shader itself now
+	//if (shader) {
+	//	color[3] = PULSEDELEMENT_OVERLAY_ALPHA;
+	//	trap_R_SetColor(color);
+	//	CG_DrawPic( x, y, w, h, shader);
+	//}
 }
 
 static float CG_DrawDottedBar(float x, float y, dotbar_t *dotbar, int num_elements, float dotheight, float xspace, float yspace, int weapon, int value, int maxvalue) {
