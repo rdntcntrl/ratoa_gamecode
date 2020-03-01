@@ -1078,44 +1078,48 @@ Forces all clients to respawn, alternating between red and blue teams
 void RespawnAllElim(void)
 {
 	int i, ib,ir;
-	gentity_t	*client;
+	gentity_t	*ent;
 	gentity_t *redClients[MAX_CLIENTS];
 	gentity_t *blueClients[MAX_CLIENTS];
 	int blueCount = 0;
 	int redCount = 0;
 
-	for(i=0;i<level.maxclients;i++)
-	{
-		if ( level.clients[i].pers.connected == CON_DISCONNECTED
-				|| level.clients[i].pers.connected == CON_CONNECTING
-				|| level.clients[i].sess.sessionTeam == TEAM_SPECTATOR ) {
+	CalculateRanks();
+
+	for( i=0;i < level.numPlayingClients; i++ ) {
+		ent = &g_entities[level.sortedClients[i]];
+
+		if ( ent->client->pers.connected == CON_DISCONNECTED
+				|| ent->client->pers.connected == CON_CONNECTING
+				|| ent->client->sess.sessionTeam == TEAM_SPECTATOR ) {
 			continue;
 		}
-		client = g_entities + i;
-		if (client->client->sess.sessionTeam == TEAM_BLUE) {
-			blueClients[blueCount++] = client;
+		if (ent->client->sess.sessionTeam == TEAM_BLUE) {
+			blueClients[blueCount++] = ent;
 		} else {
-			redClients[redCount++] = client;
+			redClients[redCount++] = ent;
 		}
 		// make sure all entities are unlinked before we respawn them
-		trap_UnlinkEntity(client);
+		trap_UnlinkEntity(ent);
 	}
-	ib = 0;
-	ir = 0;
+	// spawn the less highly ranked players in the better spots
+	ib = blueCount-1;
+	ir = redCount-1;
 	for(i = 0; i < blueCount + redCount; ++i) {
-		if ((level.roundNumber+level.eliminationSides + i)%2 == 1 && ib < blueCount) {
-			client = blueClients[ib];
-			client->client->ps.pm_type = PM_NORMAL;
-			client->client->pers.livesLeft = g_lms_lives.integer;
-			respawnRound(client);
-			++ib;
-		} else if (ir < redCount) {
-			client = redClients[ir];
-			client->client->ps.pm_type = PM_NORMAL;
-			client->client->pers.livesLeft = g_lms_lives.integer;
-			respawnRound(client);
-			++ir;
+		ent = NULL;
+		if (((level.roundNumber+level.eliminationSides + i)%2 == 1 || ir < 0 ) && ib >= 0) {
+			ent = blueClients[ib];
+			--ib;
+		} else if (ir >= 0) {
+			ent = redClients[ir];
+			--ir;
 		}
+		if (!ent) {
+			continue;
+		}
+		ent->client->ps.pm_type = PM_NORMAL;
+		ent->client->pers.livesLeft = g_lms_lives.integer;
+		respawnRound(ent);
 	}
 }
 
