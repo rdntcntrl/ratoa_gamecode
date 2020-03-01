@@ -573,7 +573,7 @@ void G_CheckStrongmanAward(gentity_t *attacker, gentity_t *victim) {
 		if (reset) {
 			break;
 		}
-		if (numKilled == numEnemies && numEnemies >= 4) {
+		if (numKilled == numEnemies && numEnemies >= 3) {
 			AwardMessage(attacker, EAWARD_STRONGMAN, ++(attacker->client->pers.awardCounts[EAWARD_STRONGMAN]));
 			reset = qtrue;
 		}  else {
