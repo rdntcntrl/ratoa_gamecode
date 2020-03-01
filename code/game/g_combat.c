@@ -1405,15 +1405,11 @@ void G_CheckComboAwards(gentity_t *victim, gentity_t *attacker, int mod, int las
 			|| lastDmgGivenTime == 0
 			|| !victim 
 			|| !victim->client 
+			|| victim->client->ps.pm_type == PM_DEAD
 			|| !attacker 
 			|| !attacker->client 
 			|| OnSameTeam(attacker, victim)
 			|| victim->s.number != lastDmgGivenEntityNum) {
-		return;
-	}
-
-	if ( victim->client->ps.pm_type == PM_DEAD ) {
-		// we just railed a dead body
 		return;
 	}
 
@@ -1926,7 +1922,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 				dmgTaken = 0;
 			}
 		}
-		if (targ->client) {
+		if (targ->client && targ->client->ps.pm_type != PM_DEAD) {
 			if (g_gametype.integer == GT_ELIMINATION || g_gametype.integer == GT_CTF_ELIMINATION || g_gametype.integer == GT_LMS) {
 				targ->client->pers.elimRoundDmgTaken += dmgTaken;
 				if (level.roundNumber == level.roundNumberStarted) {
@@ -1941,7 +1937,8 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 			}
 		}
 		if (targ != attacker) {
-			if (attacker && attacker->client && !OnSameTeam(targ, attacker) ) {
+			if (attacker && attacker->client && targ->client 
+					&& targ->client->ps.pm_type != PM_DEAD && !OnSameTeam(targ, attacker) ) {
 				int weapon = G_WeaponForMOD(mod);
 				if (g_gametype.integer == GT_ELIMINATION || g_gametype.integer == GT_CTF_ELIMINATION || g_gametype.integer == GT_LMS) {
 					attacker->client->pers.elimRoundDmgDone += dmgTaken;
@@ -1980,7 +1977,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 			targ->pain (targ, attacker, take);
 		}
 
-		if (targ->client && dmgTaken)  {
+		if (targ->client && targ->client->ps.pm_type != PM_DEAD && dmgTaken)  {
 			// player took damage but survived, check for immortality award
 			G_CheckImmortality(targ);
 		}
