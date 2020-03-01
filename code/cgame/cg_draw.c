@@ -1303,10 +1303,6 @@ static float CG_DrawWABarDecor(float x, float y, float barheight) {
 	float max_x = 0.0;
 	float color[4] = { 1.0f, 1.0, 1.0f, RSB4_DECOR_ALPHA };
 
-	if (!cg_drawHabarDecor.integer) {
-		return;
-	}
-
 	trap_R_SetColor(color);
 
 	xx = x;
@@ -1317,7 +1313,9 @@ static float CG_DrawWABarDecor(float x, float y, float barheight) {
 		yy = y - CG_WABarOffsetY(wabar_decor_yoffsets[i], barheight);
 
 		xx = x + CG_HeightToWidth(CG_WABarOffsetX(wabar_decor_xoffsets[i], barheight));
-		CG_DrawPic( xx, yy, w, h, cgs.media.rsb4_weapon_decorShaders[i]);
+		if (cg_drawHabarDecor.integer) {
+			CG_DrawPic( xx, yy, w, h, cgs.media.rsb4_weapon_decorShaders[i]);
+		}
 
 		if (xx + w > max_x) {
 			max_x = xx + w;
