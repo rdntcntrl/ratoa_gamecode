@@ -717,8 +717,8 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_brightShellAlpha , "cg_brightShellAlpha", "1.0", CVAR_ARCHIVE},
 	{ &cg_brightOutline ,     "cg_brightOutline", "1", CVAR_ARCHIVE},
 
-	{ &cg_enemyModel ,     "cg_enemyModel", "smarine/bright", CVAR_ARCHIVE},
-	{ &cg_teamModel ,      "cg_teamModel", "sarge/bright", CVAR_ARCHIVE},
+	{ &cg_enemyModel ,     "cg_enemyModel", "smarine/gray", CVAR_ARCHIVE},
+	{ &cg_teamModel ,      "cg_teamModel", "sarge/gray", CVAR_ARCHIVE},
 
 	{ &cg_teamHueBlue ,     "cg_teamHueBlue", "210", CVAR_ARCHIVE},
 	{ &cg_teamHueDefault ,  "cg_teamHueDefault", "125", CVAR_ARCHIVE},
@@ -905,7 +905,7 @@ void CG_SetEngineCvars( void ) {
 }
 
 
-#define LATEST_RATINITIALIZED 28
+#define LATEST_RATINITIALIZED 29
 
 int CG_MigrateOldCrosshair(int old) {
 	switch (old) {
@@ -1332,6 +1332,23 @@ void CG_RatOldCfgUpdate(void) {
 		}
 
 		CG_Cvar_SetAndUpdate( "cg_ratInitialized", "28" );
+	}
+
+	if (cg_ratInitialized.integer < 29) {
+		CG_Cvar_ResetToDefault("cg_brightShells");
+		CG_Cvar_ResetToDefault("cg_brightShellAlpha");
+		if (!Q_stricmp(cg_enemyModel.string, "smarine/bright")) {
+			CG_Cvar_ResetToDefault("cg_enemyModel");
+		} else if (!Q_stricmp(cg_enemyModel.string, "sarge/bright")) {
+			CG_Cvar_SetAndUpdate("cg_enemyModel", "sarge/gray");
+		}
+		if (!Q_stricmp(cg_teamModel.string, "sarge/bright")) {
+			CG_Cvar_ResetToDefault("cg_teamModel");
+		} else if (!Q_stricmp(cg_teamModel.string, "smarine/bright")) {
+			CG_Cvar_SetAndUpdate("cg_teamModel", "smarine/gray");
+		}
+
+		CG_Cvar_SetAndUpdate( "cg_ratInitialized", "29" );
 	}
 }
 
