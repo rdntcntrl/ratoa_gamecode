@@ -387,7 +387,7 @@ void SpectatorThink( gentity_t *ent, usercmd_t *ucmd ) {
 }
 
 void ClientInactivityHeartBeat(gclient_t *client) {
-	int time = level.timeout ? level.timeoutRealLevelTime : level.time;
+	int time = level.timeout ? level.realtime : level.time;
 	client->inactivityTime = time + (g_inactivity.integer ? g_inactivity.integer : 60) * 1000;
 	client->inactivityWarning = qfalse;
 }

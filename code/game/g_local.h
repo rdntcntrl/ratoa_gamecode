@@ -682,7 +682,6 @@ typedef struct {
 	int		timeoutEnd;
 	int		timeoutOvertime;
 	int		timeoutTotalPausedTime;
-	int		timeoutRealLevelTime;
 	qboolean	timein;
 
 	qboolean	locationLinked;			// target_locations get linked

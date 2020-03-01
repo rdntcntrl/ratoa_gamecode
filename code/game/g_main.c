@@ -4437,7 +4437,7 @@ void G_RunFrame( int levelTime ) {
 
 	level.framenum++;
 	level.previousTime = level.time;
-	level.timeoutRealLevelTime = levelTime;
+	level.realtime = levelTime;
 	
 
 	if (level.timeout && levelTime >= level.timeoutEnd) {
