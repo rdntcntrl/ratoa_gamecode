@@ -2528,8 +2528,7 @@ static void CG_PlayerSplash( centity_t *cent ) {
 }
 
 byte CG_GetBrightShellAlpha(void) {
-	// 0.8 is the maximum allowed alpha
-	return (byte)0xff * MAX(MIN(cg_brightShellAlpha.value, 0.8), 0.1);
+	return (byte)0xff * MAX(MIN(cg_brightShellAlpha.value, cgs.maxBrightshellAlpha), 0.1);
 }
 
 byte CG_GetBrightOutlineAlpha(void) {

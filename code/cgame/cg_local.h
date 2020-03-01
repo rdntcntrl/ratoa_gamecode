@@ -1535,6 +1535,7 @@ typedef struct {
     int		unlagMissileMaxLatency;
     int		predictedMissileNudge;
     int		ratFlags;
+    float	maxBrightshellAlpha;
     int		timeoutEnd;
     int		timeoutOvertime;
     char	sv_hostname[MAX_QPATH];
