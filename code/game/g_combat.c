@@ -597,6 +597,48 @@ void G_CheckAmbushAward(gentity_t *victim, gentity_t *inflictor, gentity_t *atta
 	}
 }
 
+void G_CheckVaporizedAward(gentity_t *attacker, gentity_t *victim) {
+	gclient_t *client = attacker->client;
+	int i = client->damage_history_head % DAMAGE_HISTORY;
+	damageRecord_t *dr;
+	int totalPlasmaDamage = 0;
+	int awardDamage = 100;
+	int awardTime = 800;
+
+	// make it harder if the attacker has haste or quad
+	if (attacker->client->ps.powerups[PW_HASTE]) {
+		awardTime /= 1.3;
+	}
+	if (attacker->client->ps.powerups[PW_QUAD] && g_quadfactor.value > 1.0) {
+		awardDamage *= g_quadfactor.value;
+	}
+
+	do {
+		dr = &client->damage_history[i];
+		if (dr->damage <= 0) {
+			break;
+		}
+
+		if (victim != dr->target
+				|| (dr->mod != MOD_PLASMA && dr->mod != MOD_PLASMA_SPLASH)
+				|| (dr->died && i != (client->damage_history_head % DAMAGE_HISTORY)) // opponent died in between
+				) {
+			break;
+		}
+		totalPlasmaDamage += dr->damage;
+		if (level.time - dr->time > awardTime) {
+			break;
+		}
+		if (totalPlasmaDamage > awardDamage) {
+			// did more than 100 plasma damage to the target within the last 800ms
+			// (this was more effective than two perfect consecutive hits with RL)
+			AwardMessage(attacker, EAWARD_VAPORIZED, ++(attacker->client->pers.awardCounts[EAWARD_VAPORIZED]));
+			break;
+		} 
+		i = (i + DAMAGE_HISTORY - 1 ) % DAMAGE_HISTORY;
+	} while (i != client->damage_history_head);
+}
+
 void G_CheckDeathEAwards(gentity_t *victim, gentity_t *inflictor, gentity_t *attacker, int meansOfDeath) {
 	if (!attacker || !attacker->client || attacker == victim || OnSameTeam(attacker, victim)) {
 		return;
@@ -613,16 +655,8 @@ void G_CheckDeathEAwards(gentity_t *victim, gentity_t *inflictor, gentity_t *att
 	}
 
 
-	
-	// The damage required for VAPORIZED should be high enough that no other gun
-	// (apart from TA weapons) could have done the same amount of damage in the same amount of time
-	// This is true for a value of 140dmg, which takes 700ms to do with plasma, but would
-	// require 2 rockets which takes at least 800ms
-	// It's also true for 120dmg, which takes 600ms with plasma gun, but again at least 800ms with rockets
-	if (meansOfDeath == MOD_PLASMA 
-			&& attacker->client->lastDmgGivenEntityNum == victim->s.number 
-			&& attacker->client->totalPlasmaDmgOnTarget >= 120) {
-		AwardMessage(attacker, EAWARD_VAPORIZED, ++(attacker->client->pers.awardCounts[EAWARD_VAPORIZED]));
+	if (meansOfDeath == MOD_PLASMA || meansOfDeath == MOD_PLASMA_SPLASH) {
+		G_CheckVaporizedAward(attacker, victim);
 	}
 
 	switch (meansOfDeath) {
@@ -1503,29 +1537,6 @@ void G_CheckImmortality(gentity_t *ent) {
 	AwardMessage(ent, EAWARD_IMMORTALITY, ++(ent->client->pers.awardCounts[EAWARD_IMMORTALITY]));
 }
 
-void G_UpdateVaporizedData(gentity_t *attacker, gentity_t *targ, gentity_t *inflictor, int mod, int dmg) {
-	if (!targ || !targ->client || !attacker || !attacker->client) {
-		return;
-	}
-	if ( mod != MOD_PLASMA
-			|| !inflictor
-			|| targ->client->ps.pm_type == PM_DEAD
-			|| OnSameTeam(attacker, targ)) {
-		attacker->client->totalPlasmaDmgOnTarget = 0;
-		attacker->client->lastPlasmaHitLaunchTime = 0;
-		return;
-	}
-	if (attacker->client->totalPlasmaDmgOnTarget == 0 
-			|| (attacker->client->lastDmgGivenEntityNum == targ->s.number
-				&& attacker->client->lastPlasmaHitLaunchTime + 100 == inflictor->nextthink - PLASMA_THINKTIME)) {
-		attacker->client->totalPlasmaDmgOnTarget += dmg;
-		attacker->client->lastPlasmaHitLaunchTime = inflictor->nextthink - PLASMA_THINKTIME;
-	} else {
-		attacker->client->totalPlasmaDmgOnTarget = 0;
-		attacker->client->lastPlasmaHitLaunchTime = 0;
-	}
-}
-
 int G_WeaponForMOD(int mod) {
 	// XXX: not necessarily complete
 	switch (mod) {
@@ -1559,6 +1570,29 @@ int G_WeaponForMOD(int mod) {
 			return WP_PROX_LAUNCHER;
 	}
 	return -1;
+}
+
+void G_RecordDamageGivenHistory(gentity_t *attacker, int mod, int damage, gentity_t *target) {
+	gclient_t *client;
+	damageRecord_t *dr;
+	if (!target
+			|| !target->client 
+			|| target->client->ps.pm_type == PM_DEAD
+			|| !attacker 
+			|| !attacker->client 
+			|| OnSameTeam(attacker, target)
+			|| damage <= 0) {
+		return;
+	}
+
+	client = attacker->client;
+	client->damage_history_head = (client->damage_history_head + 1 ) % DAMAGE_HISTORY;
+	dr = &client->damage_history[client->damage_history_head];
+	dr->target = target;
+	dr->mod = mod;
+	dr->damage = damage;
+	dr->died = (target->health <= 0);
+	dr->time = level.time;
 }
 
 /*
@@ -1947,14 +1981,15 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 						if (weapon != -1) {
 							attacker->client->pers.damage[weapon] += dmgTaken;
 						}
+						G_RecordDamageGivenHistory(attacker, mod, damage, targ);
 					}
 				} else {
 					attacker->client->pers.dmgGiven += dmgTaken;
 					if (weapon != -1) {
 						attacker->client->pers.damage[weapon] += dmgTaken;
 					}
+					G_RecordDamageGivenHistory(attacker, mod, damage, targ);
 				}
-				G_UpdateVaporizedData(attacker, targ, inflictor, mod, dmgTaken);
 				attacker->client->lastDmgGivenEntityNum = targ->s.number;
 				attacker->client->lastDmgGivenTime = level.time;
 				attacker->client->lastDmgGivenMOD = mod;

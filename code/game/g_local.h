@@ -433,6 +433,15 @@ typedef struct {
 // might need to be increased if a server uses sv_fps > 40
 #define VIEWVECTOR_HISTORY 10
 
+#define DAMAGE_HISTORY 16
+typedef struct {
+	gentity_t *target;
+	int mod;
+	int damage;
+	qboolean died;
+	int time;
+} damageRecord_t;
+
 //unlagged - backward reconciliation #1
 // the size of history we'll keep
 #define NUM_CLIENT_HISTORY 17
@@ -546,10 +555,6 @@ struct gclient_s {
 	// for berserker award
 	int gauntSpree;
 
-	// for vaporized award
-	int lastPlasmaHitLaunchTime;
-	int totalPlasmaDmgOnTarget;
-
 	// for twitchrail award
 	vec3_t viewvector_history[VIEWVECTOR_HISTORY];
 	int    viewvector_head;
@@ -581,6 +586,9 @@ struct gclient_s {
         qboolean        spawnprotected;
 
         int			accuracy[WP_NUM_WEAPONS][2];
+
+	int damage_history_head;
+	damageRecord_t damage_history[DAMAGE_HISTORY];
 
 	int		timeouts; // number of timeouts called;
 };
