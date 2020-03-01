@@ -593,8 +593,9 @@ void CountVotes( void ) {
     level.numVotingClients=0;
 
     for ( i = 0 ; i < level.maxclients ; i++ ) {
-            if ( level.clients[ i ].pers.connected != CON_CONNECTED )
-                continue; //Client was not connected
+            if ( level.clients[ i ].pers.connected != CON_CONNECTED 
+			    && (level.clients[ i ].pers.connected != CON_CONNECTING || level.clients[ i ].pers.clientFlags & CLF_FIRSTCONNECT))  
+                continue; // client not connected and isn't being carried over from last level
 
             if (level.clients[i].sess.sessionTeam == TEAM_SPECTATOR)
 		continue; //Don't count spectators
@@ -604,6 +605,9 @@ void CountVotes( void ) {
 
             //The client can vote
             level.numVotingClients++;
+
+            if ( level.clients[ i ].pers.connected != CON_CONNECTED )
+                continue; //Client was not fully connected, and can't vote (yet)
 
             //Did the client vote yes?
             if(level.clients[i].vote>0)

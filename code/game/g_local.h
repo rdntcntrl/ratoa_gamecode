@@ -322,10 +322,14 @@ struct maplist_s {
 #define NUM_PING_SAMPLES 64
 //unlagged - true ping
 
+// client flags
+#define CLF_FIRSTCONNECT 1 // client was not carried over from previous level
+
 // client data that stays across multiple respawns, but is cleared
 // on each level change or team change at ClientBegin()
 typedef struct {
 	clientConnected_t	connected;	
+	int clientFlags;	
 	usercmd_t	cmd;				// we would lose angles if not persistant
 	qboolean	localClient;		// true if "ip" info key is "localhost"
 	qboolean	initialSpawn;		// the first spawn should be at a cool location

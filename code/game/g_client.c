@@ -1972,6 +1972,7 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 	// don't do the "xxx connected" messages if they were caried over from previous level
 	if ( firstTime ) {
 		trap_SendServerCommand( -1, va("print \"%s" S_COLOR_WHITE " connected\n\"", client->pers.netname) );
+		client->pers.clientFlags |= CLF_FIRSTCONNECT;
 	}
 
 	if ( g_gametype.integer >= GT_TEAM &&
