@@ -1209,10 +1209,11 @@ void SetTeam_Force( gentity_t *ent, char *s, gentity_t *by, qboolean tryforce ) 
 	spectatorState_t	specState;
 	spectatorGroup_t	specGroup;
 	spectatorGroup_t	oldGroup;
+	qboolean autojoin = qfalse;
 	int					specClient;
 	int					teamLeader;
-    char	            userinfo[MAX_INFO_STRING];
-    qboolean            force = qfalse;
+	char	            userinfo[MAX_INFO_STRING];
+	qboolean            force = qfalse;
 
     	if (tryforce) {
 		if (by == NULL) {
@@ -1250,7 +1251,8 @@ void SetTeam_Force( gentity_t *ent, char *s, gentity_t *by, qboolean tryforce ) 
 	} else if ( Q_strequal( s, "spectator" ) || Q_strequal( s, "s" ) ) {
 		team = TEAM_SPECTATOR;
 		specState = SPECTATOR_FREE;
-	} else if ( Q_strequal( s, "queue" ) || Q_strequal(s, "q") ) {
+	} else if ((g_gametype.integer < GT_TEAM || g_ffa_gt == 1) 
+			&& (Q_strequal( s, "queue" ) || Q_strequal(s, "q")) ) {
 		team = TEAM_SPECTATOR;
 		specState = SPECTATOR_FREE;
 		specGroup = SPECTATORGROUP_QUEUED;
@@ -1268,13 +1270,38 @@ void SetTeam_Force( gentity_t *ent, char *s, gentity_t *by, qboolean tryforce ) 
 		} else {
 			// pick the team with the least number of players
 			team = PickTeam( clientNum );
+			autojoin = qtrue;
 		}
 		if ( !force ) {
-			if ( g_teamForceBalance.integer  ) {
-				int		counts[TEAM_NUM_TEAMS];
+			int		counts[TEAM_NUM_TEAMS];
 
-				counts[TEAM_BLUE] = TeamCount( ent - g_entities, TEAM_BLUE, qfalse);
-				counts[TEAM_RED] = TeamCount( ent - g_entities, TEAM_RED, qfalse);
+			counts[TEAM_BLUE] = TeamCount( ent - g_entities, TEAM_BLUE, qfalse);
+			counts[TEAM_RED] = TeamCount( ent - g_entities, TEAM_RED, qfalse);
+
+			if (g_teamForceQueue.integer && counts[TEAM_RED] + counts[TEAM_BLUE] > 0) {
+				if (team == TEAM_RED && counts[TEAM_RED] - counts[TEAM_BLUE] >= 0) {
+					team = TEAM_SPECTATOR;
+					specState = SPECTATOR_FREE;
+					specGroup = autojoin ? SPECTATORGROUP_QUEUED : SPECTATORGROUP_QUEUED_RED;
+					trap_SendServerCommand( ent - g_entities, va("print \"You have been queued%s\n\"", 
+								specGroup == SPECTATORGROUP_QUEUED ? "" : " (team red)"
+								));
+				} else if (team == TEAM_BLUE && counts[TEAM_BLUE] - counts[TEAM_RED] >= 0) {
+					team = TEAM_SPECTATOR;
+					specState = SPECTATOR_FREE;
+					specGroup = autojoin ? SPECTATORGROUP_QUEUED : SPECTATORGROUP_QUEUED_BLUE;
+					trap_SendServerCommand( ent - g_entities, va("print \"You have been queued%s\n\"", 
+								specGroup == SPECTATORGROUP_QUEUED ? "" : " (team blue)"
+								));
+				} else if (autojoin && team == TEAM_NONE){
+					team = TEAM_SPECTATOR;
+					specState = SPECTATOR_FREE;
+					specGroup = SPECTATORGROUP_QUEUED;
+					trap_SendServerCommand( ent - g_entities, "cp \"You have been queued\n\"");
+					trap_SendServerCommand( ent - g_entities, "print \"You have been queued\n\"");
+				}
+				
+			} else if ( g_teamForceBalance.integer  ) {
 
 				// We allow a spread of two
 				if ( team == TEAM_RED && counts[TEAM_RED] - counts[TEAM_BLUE] > 1 ) {
@@ -1367,7 +1394,16 @@ void SetTeam_Force( gentity_t *ent, char *s, gentity_t *by, qboolean tryforce ) 
 	// they go to the end of the line for tournements
 	oldGroup = client->sess.spectatorGroup;
         if(team == TEAM_SPECTATOR) {
-		if (oldTeam != team
+		if (g_gametype.integer >= GT_TEAM && g_ffa_gt != 1 
+				&& g_teamForceQueue.integer
+				&& oldTeam != TEAM_SPECTATOR
+				&& (specGroup == SPECTATORGROUP_QUEUED
+					|| specGroup == SPECTATORGROUP_QUEUED_RED
+					|| specGroup == SPECTATORGROUP_QUEUED_BLUE)) {
+			// player left the (unbalanced) game to re-queue, so
+			// put him in front of the queue for fairness
+			AddTournamentQueueFront(client);
+		} else if (oldTeam != team
 			       	|| specGroup == SPECTATORGROUP_AFK 
 				|| oldGroup == SPECTATORGROUP_AFK) {
 			AddTournamentQueue(client);

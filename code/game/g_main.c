@@ -90,6 +90,7 @@ vmCvar_t	g_podiumDrop;
 vmCvar_t	g_allowVote;
 vmCvar_t	g_teamAutoJoin;
 vmCvar_t	g_teamForceBalance;
+vmCvar_t	g_teamForceQueue;
 vmCvar_t	g_banIPs;
 vmCvar_t	g_filterBan;
 vmCvar_t	g_smoothClients;
@@ -399,6 +400,7 @@ static cvarTable_t		gameCvarTable[] = {
 
 	{ &g_teamAutoJoin, "g_teamAutoJoin", "0", CVAR_ARCHIVE  },
 	{ &g_teamForceBalance, "g_teamForceBalance", "0", CVAR_ARCHIVE  },
+	{ &g_teamForceQueue, "g_teamForceQueue", "0", CVAR_ARCHIVE, 0, qtrue  },
 
 	{ &g_warmup, "g_warmup", "20", CVAR_ARCHIVE, 0, qtrue  },
 	{ &g_doWarmup, "g_doWarmup", "0", CVAR_SERVERINFO | CVAR_ARCHIVE, 0, qtrue  },
@@ -1908,6 +1910,161 @@ PLAYER COUNTING / SCORE SORTING
 ========================================================================
 */
 
+/*
+=============
+AddQueuedPlayers
+
+Add a queued players in team games
+=============
+*/
+void AddQueuedPlayers( void ) {
+	int			i;
+	gclient_t	*client;
+	gclient_t	*nextInLine[2];
+	gclient_t	*nextInLineBlue;
+	gclient_t	*nextInLineRed;
+	int		counts[TEAM_NUM_TEAMS];
+
+	if (g_gametype.integer < GT_TEAM || g_ffa_gt == 1) {
+		return;
+	}
+
+	if (!g_teamForceQueue.integer) {
+		return;
+	}
+
+	if (level.BlueTeamLocked && level.RedTeamLocked) {
+		return;
+	}
+
+	if ( g_maxGameClients.integer > 0 && 
+			level.numNonSpectatorClients >= g_maxGameClients.integer ) {
+		return;
+	}
+
+	// never change during intermission
+	if ( level.intermissiontime ) {
+		return;
+	}
+
+	nextInLine[0] = NULL;
+	nextInLine[1] = NULL;
+	nextInLineBlue = NULL;
+	nextInLineRed = NULL;
+
+	for ( i = 0 ; i < level.maxclients ; i++ ) {
+		client = &level.clients[i];
+		if ( client->pers.connected != CON_CONNECTED ) {
+			continue;
+		}
+		if ( client->sess.sessionTeam != TEAM_SPECTATOR ) {
+			continue;
+		}
+		// never select the dedicated follow or scoreboard clients
+		if ( client->sess.spectatorState == SPECTATOR_SCOREBOARD || 
+			client->sess.spectatorClient < 0  ) {
+			continue;
+		}
+
+		if ( client->sess.spectatorGroup == SPECTATORGROUP_AFK ||
+				client->sess.spectatorGroup == SPECTATORGROUP_SPEC) {
+			continue;
+		}
+
+		if (client->sess.spectatorGroup == SPECTATORGROUP_QUEUED) {
+			if (!nextInLine[0]) {
+				nextInLine[0] = client;
+			} else if (!nextInLine[1]) {
+				nextInLine[1] = client;
+				if (nextInLine[0]->sess.spectatorNum > nextInLine[1]->sess.spectatorNum) {
+					// make sure nextInLine[0] is the one who is queued longer
+					gclient_t *cl = nextInLine[0]; 
+					nextInLine[0] = nextInLine[1];
+					nextInLine[1] = cl;
+				}
+			} else if (nextInLine[0]->sess.spectatorNum < client->sess.spectatorNum) {
+				nextInLine[1] = nextInLine[0];
+				nextInLine[0] = client;
+			} else if (nextInLine[1]->sess.spectatorNum < client->sess.spectatorNum) {
+				nextInLine[1] = client;
+			}
+		} else if (client->sess.spectatorGroup == SPECTATORGROUP_QUEUED_BLUE
+				&& (!nextInLineBlue || nextInLineBlue->sess.spectatorNum < client->sess.spectatorNum)) {
+			nextInLineBlue = client;
+		} else if (client->sess.spectatorGroup == SPECTATORGROUP_QUEUED_RED
+				&& (!nextInLineRed || nextInLineRed->sess.spectatorNum < client->sess.spectatorNum)) {
+			nextInLineRed = client;
+		}
+	}
+
+	counts[TEAM_BLUE] = TeamCount( -1, TEAM_BLUE, qfalse);
+	counts[TEAM_RED] = TeamCount( -1, TEAM_RED, qfalse);
+	if (counts[TEAM_BLUE] < counts[TEAM_RED] && !level.BlueTeamLocked) {
+		// one to blue
+		if (nextInLine[0] && nextInLineBlue) {
+			if (nextInLine[0]->sess.spectatorNum > nextInLineBlue->sess.spectatorNum) {
+				SetTeam_Force( &g_entities[ nextInLine[0] - level.clients ], "b", NULL, qtrue );
+			} else {
+				SetTeam_Force( &g_entities[ nextInLineBlue - level.clients ], "b", NULL, qtrue );
+			}
+		} else if (nextInLine[0]) {
+			SetTeam_Force( &g_entities[ nextInLine[0] - level.clients ], "b", NULL, qtrue );
+		} else if (nextInLineBlue) {
+			SetTeam_Force( &g_entities[ nextInLineBlue - level.clients ], "b", NULL, qtrue );
+		}
+	} else if (counts[TEAM_RED] < counts[TEAM_BLUE] && !level.RedTeamLocked) {
+		// one to red
+		if (nextInLine[0] && nextInLineRed) {
+			if (nextInLine[0]->sess.spectatorNum > nextInLineRed->sess.spectatorNum) {
+				SetTeam_Force( &g_entities[ nextInLine[0] - level.clients ], "r", NULL, qtrue );
+			} else {
+				SetTeam_Force( &g_entities[ nextInLineRed - level.clients ], "r", NULL, qtrue );
+			}
+		} else if (nextInLine[0]) {
+			SetTeam_Force( &g_entities[ nextInLine[0] - level.clients ], "r", NULL, qtrue );
+		} else if (nextInLineRed) {
+			SetTeam_Force( &g_entities[ nextInLineRed - level.clients ], "r", NULL, qtrue );
+		}
+	} else {
+		// join a pair
+		int freecount = 0;
+		for (i = 0; i < 2; ++i) {
+			if (nextInLine[i]) {
+				++freecount;
+			} else {
+				break;
+			}
+		}
+		if (!nextInLineBlue && freecount) {
+			nextInLineBlue = nextInLine[0];
+			freecount--;
+			nextInLine[0] = nextInLine[1];
+		}
+		if (!nextInLineRed && freecount) {
+			nextInLineRed = nextInLine[0];
+			freecount--;
+			nextInLine[0] = nextInLine[1];
+		}
+		if (!(nextInLineBlue && nextInLineRed)) {
+			return;
+		}
+		for (i = 0; i < freecount; ++i) {
+			if (nextInLineBlue->sess.spectatorNum < nextInLineRed->sess.spectatorNum) {
+				if (nextInLine[i]->sess.spectatorNum > nextInLineBlue->sess.spectatorNum) {
+					nextInLineBlue = nextInLine[i];
+				}
+			} else {
+				if (nextInLine[i]->sess.spectatorNum > nextInLineRed->sess.spectatorNum) {
+					nextInLineRed = nextInLine[i];
+				}
+			}
+		}
+		SetTeam_Force( &g_entities[ nextInLineBlue - level.clients ], "b", NULL, qtrue );
+		SetTeam_Force( &g_entities[ nextInLineRed - level.clients ], "r", NULL, qtrue );
+	}
+
+}
+
 
 /*
 =============
@@ -1993,6 +2150,33 @@ void AddTournamentQueue(gclient_t *client)
 		    curclient->sess.spectatorNum++;
         }
     }
+}
+
+/*
+=======================
+AddTournamentQueueFront
+	  	 
+Add client to front of tournament queue
+=======================
+*/
+void AddTournamentQueueFront(gclient_t *client)
+{
+    int index;
+    gclient_t *curclient;
+    int maxSpectatorNum = 0;
+    for(index = 0; index < level.maxclients; index++)
+    {
+        curclient = &level.clients[index];
+        if(curclient->pers.connected != CON_DISCONNECTED)
+        {
+            if(curclient != client 
+			    && curclient->sess.sessionTeam == TEAM_SPECTATOR
+			    && curclient->sess.spectatorNum > maxSpectatorNum) {
+		    maxSpectatorNum = curclient->sess.spectatorNum;
+	    }
+	}
+    }
+    client->sess.spectatorNum = maxSpectatorNum + 1;
 }
 
 /*
@@ -4671,6 +4855,8 @@ void G_RunFrame( int levelTime ) {
 		Team_Dom_SpawnPoints();
 
 	CheckTreasureHunter();
+
+	AddQueuedPlayers();
 
 	// see if it is time to end the level
 	CheckExitRules();
