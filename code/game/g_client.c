@@ -2571,6 +2571,7 @@ void ClientBegin( int clientNum ) {
             SendCustomVoteCommands(clientNum);
 
 	SendReadymask( ent-g_entities );
+	SendSpectatorGroup( ent );
 
 	if (level.timeout)
 		G_TimeoutReminder(ent);

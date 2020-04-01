@@ -1283,22 +1283,14 @@ void SetTeam_Force( gentity_t *ent, char *s, gentity_t *by, qboolean tryforce ) 
 					team = TEAM_SPECTATOR;
 					specState = SPECTATOR_FREE;
 					specGroup = autojoin ? SPECTATORGROUP_QUEUED : SPECTATORGROUP_QUEUED_RED;
-					trap_SendServerCommand( ent - g_entities, va("print \"You have been queued%s\n\"", 
-								specGroup == SPECTATORGROUP_QUEUED ? "" : " (team red)"
-								));
 				} else if (team == TEAM_BLUE && counts[TEAM_BLUE] - counts[TEAM_RED] >= 0) {
 					team = TEAM_SPECTATOR;
 					specState = SPECTATOR_FREE;
 					specGroup = autojoin ? SPECTATORGROUP_QUEUED : SPECTATORGROUP_QUEUED_BLUE;
-					trap_SendServerCommand( ent - g_entities, va("print \"You have been queued%s\n\"", 
-								specGroup == SPECTATORGROUP_QUEUED ? "" : " (team blue)"
-								));
 				} else if (autojoin && team == TEAM_NONE){
 					team = TEAM_SPECTATOR;
 					specState = SPECTATOR_FREE;
 					specGroup = SPECTATORGROUP_QUEUED;
-					trap_SendServerCommand( ent - g_entities, "cp \"You have been queued\n\"");
-					trap_SendServerCommand( ent - g_entities, "print \"You have been queued\n\"");
 				}
 				
 			} else if ( g_teamForceBalance.integer  ) {
@@ -2130,6 +2122,17 @@ void Cmd_PlaceToken_f( gentity_t *ent ) {
 	token->r.svFlags |= SVF_CLIENTMASK;
 	token->r.svFlags |= SVF_BROADCAST;
 	token->r.singleClient = ent->client->sess.sessionTeam == TEAM_BLUE ? level.th_blueClientMask : level.th_redClientMask;
+}
+
+
+void SendSpectatorGroup( gentity_t *ent ) {
+	if (!g_teamForceQueue.integer) {
+		return;
+	}
+	if (ent->client->sess.sessionTeam != TEAM_SPECTATOR) {
+		return;
+	}
+	trap_SendServerCommand( ent - g_entities, va("specgroup %i", ent->client->sess.spectatorGroup));
 }
 
 /*

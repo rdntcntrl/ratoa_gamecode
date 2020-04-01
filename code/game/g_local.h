@@ -828,6 +828,7 @@ void G_TimeinWarning(int levelTime);
 void G_Timeout(gentity_t *caller);
 void G_TimeinCommand(gentity_t *caller);
 void G_TimeoutReminder(gentity_t *ent);
+void SendSpectatorGroup( gentity_t *ent );
 void SendReadymask(int clientnum);
 void G_SendSpawnpoints(gentity_t *ent);
 qboolean G_TournamentSpecMuted(void);
