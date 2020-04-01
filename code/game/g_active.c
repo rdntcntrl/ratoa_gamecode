@@ -739,6 +739,25 @@ static int StuckInOtherClient(gentity_t *ent) {
 
 void BotTestSolid(vec3_t origin);
 
+void G_CheckPingLocation(gentity_t *ent, usercmd_t *ucmd) {
+	if (!g_pingLocationAllowed.integer) {
+		return;
+	}
+	if (g_gametype.integer < GT_TEAM || (g_ffa_gt != 0)) {
+		return;
+	}
+	if (ucmd->buttons & BUTTON_PING || ucmd->buttons & BUTTON_PINGWARN) {
+		if (!ent->client->pingHeld) {
+			ent->client->pingHeld = qtrue;
+			if (!G_FloodLimited( ent ) && !ent->client->sess.muted ) {
+				G_PingLocation(ent, (ucmd->buttons & BUTTON_PINGWARN) ? LOCPING_WARN : LOCPING_PING);
+			}
+		}
+	} else {
+		ent->client->pingHeld = qfalse;
+	}
+}
+
 /*
 ==============
 SendPendingPredictableEvents
@@ -1153,6 +1172,8 @@ void ClientThink_real( gentity_t *ent ) {
 
 	// execute client events
 	ClientEvents( ent, oldEventSequence );
+
+	G_CheckPingLocation(ent, ucmd);
 
 	// link entity now, after any personal teleporters have been used
 	trap_LinkEntity (ent);

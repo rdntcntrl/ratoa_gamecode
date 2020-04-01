@@ -1357,3 +1357,235 @@ void G_StartKamikaze( gentity_t *ent ) {
 	te->r.svFlags |= SVF_BROADCAST;
 	te->s.eventParm = GTS_KAMIKAZE;
 }
+
+/*
+ * Similar to CanDamage(), but more accurately checks visibility
+ */
+qboolean G_IsVisible (gentity_t *targ, vec3_t origin) {
+	vec3_t	dest;
+	trace_t	tr;
+	vec3_t	midpoint;
+	float xd, yd, zd;
+
+	xd = (targ->r.absmax[0] - targ->r.absmin[0])/2.0;
+	yd = (targ->r.absmax[1] - targ->r.absmin[1])/2.0;
+	zd = (targ->r.absmax[2] - targ->r.absmin[2])/2.0;
+
+	// use the midpoint of the bounds instead of the origin, because
+	// bmodels may have their origin is 0,0,0
+	VectorAdd (targ->r.absmin, targ->r.absmax, midpoint);
+	VectorScale (midpoint, 0.5, midpoint);
+
+	VectorCopy (midpoint, dest);
+	trap_Trace ( &tr, origin, vec3_origin, vec3_origin, dest, ENTITYNUM_NONE, MASK_SOLID);
+	if (tr.fraction == 1.0 || tr.entityNum == targ->s.number)
+		return qtrue;
+
+	VectorCopy (midpoint, dest);
+	dest[0] += xd;
+	dest[1] += yd;
+	dest[2] += zd;
+	trap_Trace ( &tr, origin, vec3_origin, vec3_origin, dest, ENTITYNUM_NONE, MASK_SOLID);
+	if (tr.fraction == 1.0 || tr.entityNum == targ->s.number)
+		return qtrue;
+
+	VectorCopy (midpoint, dest);
+	dest[0] -= xd;
+	dest[1] += yd;
+	dest[2] += zd;
+	trap_Trace ( &tr, origin, vec3_origin, vec3_origin, dest, ENTITYNUM_NONE, MASK_SOLID);
+	if (tr.fraction == 1.0 || tr.entityNum == targ->s.number)
+		return qtrue;
+
+	VectorCopy (midpoint, dest);
+	dest[0] += xd;
+	dest[1] -= yd;
+	dest[2] += zd;
+	trap_Trace ( &tr, origin, vec3_origin, vec3_origin, dest, ENTITYNUM_NONE, MASK_SOLID);
+	if (tr.fraction == 1.0 || tr.entityNum == targ->s.number)
+		return qtrue;
+
+	VectorCopy (midpoint, dest);
+	dest[0] -= xd;
+	dest[1] -= yd;
+	dest[2] += zd;
+	trap_Trace ( &tr, origin, vec3_origin, vec3_origin, dest, ENTITYNUM_NONE, MASK_SOLID);
+	if (tr.fraction == 1.0 || tr.entityNum == targ->s.number)
+		return qtrue;
+
+	VectorCopy (midpoint, dest);
+	dest[0] += xd;
+	dest[1] += yd;
+	dest[2] -= zd;
+	trap_Trace ( &tr, origin, vec3_origin, vec3_origin, dest, ENTITYNUM_NONE, MASK_SOLID);
+	if (tr.fraction == 1.0 || tr.entityNum == targ->s.number)
+		return qtrue;
+
+	VectorCopy (midpoint, dest);
+	dest[0] -= xd;
+	dest[1] += yd;
+	dest[2] -= zd;
+	trap_Trace ( &tr, origin, vec3_origin, vec3_origin, dest, ENTITYNUM_NONE, MASK_SOLID);
+	if (tr.fraction == 1.0 || tr.entityNum == targ->s.number)
+		return qtrue;
+
+	VectorCopy (midpoint, dest);
+	dest[0] += xd;
+	dest[1] -= yd;
+	dest[2] -= zd;
+	trap_Trace ( &tr, origin, vec3_origin, vec3_origin, dest, ENTITYNUM_NONE, MASK_SOLID);
+	if (tr.fraction == 1.0 || tr.entityNum == targ->s.number)
+		return qtrue;
+
+	VectorCopy (midpoint, dest);
+	dest[0] -= xd;
+	dest[1] -= yd;
+	dest[2] -= zd;
+	trap_Trace ( &tr, origin, vec3_origin, vec3_origin, dest, ENTITYNUM_NONE, MASK_SOLID);
+	if (tr.fraction == 1.0 || tr.entityNum == targ->s.number)
+		return qtrue;
+
+
+	return qfalse;
+}
+
+
+locationping_t G_PingFindEnemies( gentity_t *pingPlayer, vec3_t muzzle, vec3_t origin, float radius ) {
+	float		dist;
+	gentity_t	*ent;
+	int		entityList[MAX_GENTITIES];
+	int		numListedEntities;
+	vec3_t		mins, maxs;
+	vec3_t		v;
+	int		i, e;
+	powerup_t powerup = PW_NONE;
+	qboolean foundEnemy = qfalse;
+
+	for ( i = 0 ; i < 3 ; i++ ) {
+		mins[i] = origin[i] - radius;
+		maxs[i] = origin[i] + radius;
+	}
+
+	G_DoTimeShiftFor( pingPlayer );
+
+	numListedEntities = trap_EntitiesInBox( mins, maxs, entityList, MAX_GENTITIES );
+
+	for ( e = 0 ; e < numListedEntities ; e++ ) {
+		ent = &g_entities[entityList[ e ]];
+		powerup = PW_NONE;
+
+		if (ent->s.eType == ET_ITEM
+				&& ent->item
+				&& ent->item->giType == IT_TEAM
+				&& !(ent->s.eFlags & EF_NODRAW)
+				&& ((g_gametype.integer == GT_CTF && (ent->item->giTag == PW_REDFLAG || ent->item->giTag == PW_BLUEFLAG))
+				    || (g_gametype.integer == GT_1FCTF && ent->item->giTag == PW_NEUTRALFLAG)
+				    )) {
+			powerup = ent->item->giTag;
+		} else if (ent->client 
+			&& ent->client->sess.sessionTeam != pingPlayer->client->sess.sessionTeam
+			&& ent->client->ps.pm_type != PM_DEAD
+		   )  {
+			if (g_gametype.integer == GT_CTF) {
+				if (ent->client->ps.powerups[PW_REDFLAG]) {
+					powerup = PW_REDFLAG;
+				} else if (ent->client->ps.powerups[PW_BLUEFLAG]) {
+					powerup = PW_BLUEFLAG;
+				}
+			} else if (g_gametype.integer == GT_1FCTF) {
+				if (ent->client->ps.powerups[PW_NEUTRALFLAG]) {
+					powerup = PW_NEUTRALFLAG;
+				}
+			}
+		} else {
+			continue;
+		}
+
+		// find the distance from the edge of the bounding box
+		for ( i = 0 ; i < 3 ; i++ ) {
+			if ( origin[i] < ent->r.absmin[i] ) {
+				v[i] = ent->r.absmin[i] - origin[i];
+			} else if ( origin[i] > ent->r.absmax[i] ) {
+				v[i] = origin[i] - ent->r.absmax[i];
+			} else {
+				v[i] = 0;
+			}
+		}
+
+		dist = VectorLength( v );
+		if ( dist >= radius ) {
+			continue;
+		}
+
+		if( G_IsVisible (ent, muzzle)) {
+			foundEnemy = qtrue;
+			if ((g_gametype.integer != GT_CTF && g_gametype.integer != GT_1FCTF) || powerup != PW_NONE) {
+				break;
+			}
+			// make sure we continue in CTF modes so we are sure to find the flag(s)
+		}
+	}
+
+	G_UndoTimeShiftFor( pingPlayer );
+
+	if (foundEnemy) {
+		switch (powerup) {
+			case PW_REDFLAG:
+				return LOCPING_REDFLAG;
+			case PW_BLUEFLAG:
+				return LOCPING_BLUEFLAG;
+			case PW_NEUTRALFLAG:
+				return LOCPING_NEUTRALFLAG;
+			default:
+				return LOCPING_ENEMY;
+		}
+	}
+	return LOCPING_PING;
+}
+
+void G_PingLocation( gentity_t *ent, locationping_t pingtype ) {
+	vec3_t forward, right, up, muzzle, end;
+	trace_t trace;
+	gentity_t *ping;
+
+	if (ent->client->ps.pm_type == PM_DEAD ) {
+		pingtype = G_PingFindEnemies(ent, ent->r.currentOrigin, ent->r.currentOrigin, 150);
+		switch (pingtype) {
+			case LOCPING_REDFLAG:
+			case LOCPING_BLUEFLAG:
+			case LOCPING_NEUTRALFLAG:
+				break;
+			default:
+				pingtype = LOCPING_WARN;
+		}
+		ping = G_TempEntity(ent->r.currentOrigin, EV_PING_LOCATION);
+	} else {
+		AngleVectors (ent->client->ps.viewangles, forward, right, up);
+		CalcMuzzlePointOrigin ( ent, ent->client->oldOrigin, forward, right, up, muzzle );
+
+		VectorMA(muzzle, 16258, forward, end);
+		trap_Trace(&trace, muzzle, NULL, NULL, end, ent->s.number, MASK_SHOT);
+		if (trace.entityNum == ENTITYNUM_NONE || trace.entityNum > ENTITYNUM_MAX_NORMAL) {
+			return;
+		}
+		ping = G_TempEntity(trace.endpos, EV_PING_LOCATION);
+	}
+
+
+	// tell clients who pinged
+	ping->s.otherEntityNum = ent->s.number;
+
+	if (pingtype == LOCPING_PING) {
+		ping->s.generic1 = G_PingFindEnemies(ent, muzzle, trace.endpos, 150);
+	} else {
+		ping->s.generic1 = pingtype;
+	}
+
+	ping->r.svFlags |= (SVF_CLIENTMASK | SVF_BROADCAST);
+	ping->r.singleClient = G_TeamClientMask(ent->client->sess.sessionTeam);
+
+	Com_Printf("Ping by client %i, type = %i\n", ent->s.number, ping->s.generic1);
+
+	trap_LinkEntity( ping );
+}
+

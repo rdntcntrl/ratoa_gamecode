@@ -2684,3 +2684,24 @@ void SetPlayerTokens(int num, qboolean updateOnly) {
 			+ ((ent->client->sess.sessionTeam == TEAM_RED) ? level.th_teamTokensRed : level.th_teamTokensBlue);
 	}
 }
+
+int G_TeamClientMask(int team) {
+	int mask = 0;
+	int i;
+	for( i=0;i < level.numPlayingClients; i++ ) {
+		int cNum = level.sortedClients[i];
+		gentity_t *ent = &g_entities[cNum];
+		if (!ent->inuse) {
+			continue;
+		}
+
+		if (cNum >= 32) {
+			continue;
+		}
+
+		if (ent->client->sess.sessionTeam == team) {
+			mask |= (1 << cNum);
+		}
+	}
+	return mask;
+}

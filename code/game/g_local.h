@@ -595,6 +595,8 @@ struct gclient_s {
 	damageRecord_t damage_history[DAMAGE_HISTORY];
 
 	int		timeouts; // number of timeouts called;
+
+	qboolean pingHeld;
 };
 
 
@@ -1001,6 +1003,8 @@ qboolean CheckGauntletAttack( gentity_t *ent );
 void Weapon_HookFree (gentity_t *ent);
 void Weapon_HookThink (gentity_t *ent);
 
+void G_PingLocation( gentity_t *ent, locationping_t pingtype );
+
 //unlagged - g_unlagged.c
 void G_ResetHistory( gentity_t *ent );
 void G_StoreHistory( gentity_t *ent );
@@ -1164,6 +1168,7 @@ void SetPlayerTokens(int num, qboolean updateOnly);
 void Token_Think( gentity_t *token );
 gentity_t *SelectElimSpawnPointArena ( team_t team, int teamstate, int arenaNum, vec3_t origin, vec3_t angles );
 gentity_t *SelectElimSpawnPoint ( team_t team, int teamstate, vec3_t origin, vec3_t angles );
+int G_TeamClientMask(int team);
 
 //KK-OAX Removed these in Code in favor of bg_alloc.c from Tremulous
 // g_mem.c
@@ -1538,6 +1543,8 @@ extern  vmCvar_t        sv_allowDuplicateGuid;
 
 extern  vmCvar_t        g_botshandicapped;
 extern  vmCvar_t        g_bots_randomcolors;
+
+extern  vmCvar_t        g_pingLocationAllowed;
 
 extern  vmCvar_t        g_tauntAllowed;
 extern  vmCvar_t        g_tauntTime;
