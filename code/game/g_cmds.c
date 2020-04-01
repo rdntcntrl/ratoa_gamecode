@@ -2011,7 +2011,12 @@ void Cmd_Drop_f( gentity_t *ent ) {
 				 || ent->client->ps.powerups[PW_NEUTRALFLAG]
 				)) {
 		item = DropFlag(ent);
-	} else if (g_itemDrop.integer & ITEMDROP_WEAPON) {
+	} else if (g_itemDrop.integer & ITEMDROP_WEAPON
+			&& !(g_instantgib.integer 
+				|| g_rockets.integer 
+				|| g_gametype.integer == GT_CTF_ELIMINATION 
+				|| g_elimination_allgametypes.integer)
+		  ) {
 		item = DropWeapon(ent);
 	}
 	
