@@ -829,6 +829,7 @@ typedef struct {
         int redObeliskHealth;
         int blueObeliskHealth;
 
+	spectatorGroup_t spectatorGroup;
 	int readyMask;
 	int numSpawnpoints;
 	spawnpoint_t spawnpoints[MAX_SPAWNPOINTS];

@@ -4706,6 +4706,42 @@ static void CG_DrawReady ( void ) {
 	CG_DrawSmallString(320 - w / 2, 90, s, 1.0F);
 }
 
+/*
+===================
+CG_DrawQueue
+===================
+*/
+static void CG_DrawQueue ( void ) {
+	char *s;
+	int w;
+
+	if (cgs.gametype < GT_TEAM || cgs.ffa_gt == 1) {
+		return;
+	}
+
+	if (!cgs.clientinfo[ cg.clientNum ].infoValid ||
+		       	cgs.clientinfo[ cg.clientNum ].team != TEAM_SPECTATOR) {
+		return;
+	}
+
+	switch (cg.spectatorGroup) {
+		case SPECTATORGROUP_QUEUED:
+			s = "Waiting to auto-join";
+			break;
+		case SPECTATORGROUP_QUEUED_BLUE:
+			s = S_COLOR_BLUE "Waiting to join blue";
+			break;
+		case SPECTATORGROUP_QUEUED_RED:
+			s = S_COLOR_RED "Waiting to join red";
+			break;
+		default:
+			return;
+	}
+
+	w = CG_DrawStrlen( s ) * SMALLCHAR_WIDTH;
+	CG_DrawSmallString(320 - w / 2, 90, s, 1.0F);
+}
+
 
 /*
 ===============================================================================
@@ -6627,6 +6663,8 @@ static void CG_Draw2D(stereoFrame_t stereoFrame)
 
 		if ( cgs.clientinfo[cg.clientNum].team != TEAM_SPECTATOR )
 			CG_DrawReady();
+
+		CG_DrawQueue();
 	}
 
         cg.accBoardShowing = CG_DrawAccboard();

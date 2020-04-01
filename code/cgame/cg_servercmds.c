@@ -785,6 +785,10 @@ static void CG_ParseObeliskHealth( void ) {
 }
 
 
+static void CG_ParseSpecGroup ( void ) {
+     cg.spectatorGroup = (spectatorGroup_t) atoi ( CG_Argv ( 1 ) );
+}
+
 static void CG_ParseReadyMask ( void ) {
     int readyMask, i;
     readyMask = atoi ( CG_Argv ( 1 ) );
@@ -2251,6 +2255,12 @@ static void CG_ServerCommand( void ) {
 		CG_ParseVoteResult();
 		return;
 	}
+
+        if ( !strcmp( cmd, "specgroup" ) ) {
+		CG_ParseSpecGroup();
+		return;
+	}
+
 
         if ( !strcmp( cmd, "customvotes" ) ) {
 		CG_ParseCustomVotes();
