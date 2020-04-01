@@ -1461,6 +1461,11 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 		es->loopSound = 0;
 		break;
 
+	case EV_PING_LOCATION:
+		DEBUGNAME("EV_PING_LOCATION");
+		CG_PingLocation(cent);
+		break;
+
 	case EV_DEBUG_LINE:
 		DEBUGNAME("EV_DEBUG_LINE");
 		CG_Beam( cent );

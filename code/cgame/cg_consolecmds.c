@@ -611,6 +611,20 @@ static void CG_EditHud_f( void ) {
 
 #endif
 
+void CG_PingLocationDown_f( void ) { 
+	trap_SendConsoleCommand("+button12\n");
+}
+void CG_PingLocationUp_f( void ) { 
+	trap_SendConsoleCommand("-button12\n");
+}
+
+void CG_PingLocationWarnDown_f( void ) { 
+	trap_SendConsoleCommand("+button13\n");
+}
+void CG_PingLocationWarnUp_f( void ) { 
+	trap_SendConsoleCommand("-button13\n");
+}
+
 /*
  * Sends a client command to the server
  * This is used by the UI since it doesn't have the necessary interface to send
@@ -686,6 +700,10 @@ static consoleCommand_t	commands[] = {
 	{ "-scores", CG_ScoresUp_f },
 	{ "+zoom", CG_ZoomDown_f },
 	{ "-zoom", CG_ZoomUp_f },
+	{ "+ping", CG_PingLocationDown_f },
+	{ "-ping", CG_PingLocationUp_f },
+	{ "+pingWarn", CG_PingLocationWarnDown_f },
+	{ "-pingWarn", CG_PingLocationWarnUp_f },
 	{ "sizeup", CG_SizeUp_f },
 	{ "sizedown", CG_SizeDown_f },
 	{ "weapnext", CG_NextWeapon_f },

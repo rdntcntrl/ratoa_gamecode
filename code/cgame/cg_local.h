@@ -300,6 +300,7 @@ typedef enum {
 	LE_FADE_RGB_SIN,
 	LE_RAILTUBE,
 	LE_SCALE_FADE,
+	LE_LOCATIONPING,
 	LE_SCOREPLUM,
 	LE_KAMIKAZE,
 	LE_INVULIMPACT,
@@ -314,7 +315,8 @@ typedef enum {
 	LEF_SOUND1			 = 0x0004,			// sound 1 for kamikaze
 	LEF_SOUND2			 = 0x0008,			// sound 2 for kamikaze
 	LEF_FADE_RGB			 = 0x0010,			// fade all channels, not just alpha
-	LEF_MOVE_OLDORIGIN		 = 0x0020			// move oldorigin as well 
+	LEF_MOVE_OLDORIGIN		 = 0x0020,			// move oldorigin as well 
+	LEF_PINGLOC_HUD			 = 0x0040			// draw a HUD direction marker for this location ping
 } leFlag_t;
 
 typedef enum {
@@ -350,6 +352,7 @@ typedef struct localEntity_s {
 	float			color[4];
 
 	float			radius;
+	float			radius2;
 
 	float			light;
 	vec3_t			lightColor;
@@ -358,6 +361,9 @@ typedef struct localEntity_s {
 	leBounceSoundType_t	leBounceSoundType;
 
 	refEntity_t		refEntity;		
+
+	// for entitytype-specific flags
+	int generic;
 
 	// to remove wrongfully predicted explosions
 	// id = 0 for free/unused entities
@@ -492,6 +498,8 @@ typedef struct {
 	sfxHandle_t		sounds[MAX_CUSTOM_SOUNDS];
 
 	int		isDead;
+
+	int 		lastPinglocationTime;
 
 } clientInfo_t;
 
@@ -999,6 +1007,24 @@ typedef struct {
 	qhandle_t	radarShader;
 	qhandle_t	radarDotShader;
 
+	qhandle_t	pingLocation;
+	qhandle_t	pingLocationHudMarker;
+	qhandle_t	pingLocationEnemyHudMarker;
+	qhandle_t	pingLocationBg;
+	qhandle_t	pingLocationFg;
+	qhandle_t	pingLocationWarn;
+	qhandle_t	pingLocationEnemyFg;
+	qhandle_t	pingLocationEnemyBg;
+	qhandle_t	pingLocationBlueFlagBg;
+	qhandle_t	pingLocationBlueFlagFg;
+	qhandle_t	pingLocationBlueFlagHudMarker;
+	qhandle_t	pingLocationRedFlagBg;
+	qhandle_t	pingLocationRedFlagFg;
+	qhandle_t	pingLocationRedFlagHudMarker;
+	qhandle_t	pingLocationNeutralFlagBg;
+	qhandle_t	pingLocationNeutralFlagFg;
+	qhandle_t	pingLocationNeutralFlagHudMarker;
+
 	qhandle_t	balloonShader;
 	qhandle_t	connectionShader;
 
@@ -1203,6 +1229,11 @@ typedef struct {
 	sfxHandle_t landSound;
 	sfxHandle_t fallSound;
 	sfxHandle_t jumpPadSound;
+
+	sfxHandle_t pingLocationSound;
+	//sfxHandle_t pingLocationLowSound;
+	sfxHandle_t pingLocationWarnSound;
+	sfxHandle_t pingLocationWarnLowSound;
 
 // LEILEI
 	sfxHandle_t	lspl1Sound;
@@ -1778,6 +1809,16 @@ extern vmCvar_t			cg_teamCorpseValue;
 extern vmCvar_t			cg_itemFade;
 extern vmCvar_t			cg_itemFadeTime;
 
+extern vmCvar_t			cg_pingLocation;
+extern vmCvar_t			cg_pingEnemyStyle;
+extern vmCvar_t			cg_pingLocationHud;
+extern vmCvar_t			cg_pingLocationHudSize;
+extern vmCvar_t			cg_pingLocationTime;
+extern vmCvar_t			cg_pingLocationTime2;
+extern vmCvar_t			cg_pingLocationSize;
+extern vmCvar_t			cg_pingLocationSize2;
+extern vmCvar_t			cg_pingLocationBeep;
+
 extern vmCvar_t			cg_bobGun;
 
 extern vmCvar_t			cg_thTokenIndicator;
@@ -2233,6 +2274,8 @@ localEntity_t *CG_MakeExplosion( vec3_t origin, vec3_t dir,
 								qboolean isSprite );
 
 void CG_SpurtBlood( vec3_t origin, vec3_t velocity, int hard );
+void CG_PingLocation( centity_t *cent );
+void CG_PingHudMarker ( vec3_t pingOrigin, float alpha, qhandle_t shader );
 
 //
 // cg_snapshot.c

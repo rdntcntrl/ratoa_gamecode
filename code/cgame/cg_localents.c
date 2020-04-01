@@ -725,6 +725,52 @@ static void CG_AddScaleFade( localEntity_t *le ) {
 	trap_R_AddRefEntityToScene( re );
 }
 
+static void CG_AddLocationPing( localEntity_t *le ) {
+	refEntity_t	*re;
+	float		c;
+	vec3_t		delta;
+	float		len;
+	float finalRadius;
+
+	re = &le->refEntity;
+
+	// fade / grow time
+	c = ( le->endTime - cg.time ) * le->lifeRate;
+
+	re->shaderRGBA[3] = 0xff * c * le->color[3];
+	if (!(le->leFlags & LEF_PUFF_DONT_SCALE)) {
+		re->radius = le->radius + (le->radius2-le->radius) * ( 1.0 - c );
+		finalRadius = le->radius2;
+	}  else {
+		finalRadius = re->radius;
+	}
+
+	if (cg_pingLocationHud.integer && (le->leFlags & LEF_PINGLOC_HUD)) {
+		qhandle_t hudShader = cgs.media.pingLocationHudMarker;
+		if (le->generic == LOCPING_ENEMY) {
+			hudShader = cgs.media.pingLocationEnemyHudMarker;
+		} else if (le->generic == LOCPING_REDFLAG) {
+			hudShader = cgs.media.pingLocationRedFlagHudMarker;
+		} else if (le->generic == LOCPING_BLUEFLAG) {
+			hudShader = cgs.media.pingLocationBlueFlagHudMarker;
+		} else if (le->generic == LOCPING_NEUTRALFLAG) {
+			hudShader = cgs.media.pingLocationNeutralFlagHudMarker;
+		}
+		CG_PingHudMarker ( re->origin, c * le->color[3], hudShader );
+	}
+
+
+	// if the view would be "inside" the sprite, kill the sprite
+	// so it doesn't add too much overdraw
+	VectorSubtract( re->origin, cg.refdef.vieworg, delta );
+	len = VectorLength( delta );
+	if ( len < finalRadius ) {
+		CG_FreeLocalEntity( le );
+		return;
+	}
+	trap_R_AddRefEntityToScene( re );
+}
+
 
 /*
 =================
@@ -1169,6 +1215,10 @@ void CG_AddLocalEntities( void ) {
 
 		case LE_SCALE_FADE:		// rocket trails
 			CG_AddScaleFade( le );
+			break;
+
+		case LE_LOCATIONPING:		// location pings
+			CG_AddLocationPing( le );
 			break;
 
 		case LE_SCOREPLUM:

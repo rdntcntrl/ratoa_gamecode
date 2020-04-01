@@ -324,6 +324,16 @@ vmCvar_t	cg_teamCorpseValue;
 vmCvar_t	cg_itemFade;
 vmCvar_t	cg_itemFadeTime;
 
+vmCvar_t	cg_pingLocation;
+vmCvar_t	cg_pingEnemyStyle;
+vmCvar_t	cg_pingLocationHud;
+vmCvar_t	cg_pingLocationHudSize;
+vmCvar_t	cg_pingLocationTime;
+vmCvar_t	cg_pingLocationTime2;
+vmCvar_t	cg_pingLocationSize;
+vmCvar_t	cg_pingLocationSize2;
+vmCvar_t	cg_pingLocationBeep;
+
 vmCvar_t	cg_bobGun;
 
 vmCvar_t	cg_thTokenIndicator;
@@ -747,6 +757,16 @@ static cvarTable_t cvarTable[] = { // bk001129
 
 	{ &cg_itemFade ,           "cg_itemFade", "1", CVAR_ARCHIVE},
 	{ &cg_itemFadeTime ,           "cg_itemFadeTime", "3000", CVAR_CHEAT},
+
+	{ &cg_pingLocationTime,          "cg_pingLocationTime", "1000", CVAR_ARCHIVE},
+	{ &cg_pingLocationTime2,         "cg_pingLocationTime2", "2000", CVAR_ARCHIVE},
+	{ &cg_pingLocationSize,          "cg_pingLocationSize", "70", CVAR_ARCHIVE},
+	{ &cg_pingLocationSize2,         "cg_pingLocationSize2", "30", CVAR_ARCHIVE},
+	{ &cg_pingLocation,           	 "cg_pingLocation", "3", CVAR_LATCH | CVAR_ARCHIVE},
+	{ &cg_pingEnemyStyle,           "cg_pingEnemyStyle", "4", CVAR_LATCH | CVAR_ARCHIVE},
+	{ &cg_pingLocationHud,           "cg_pingLocationHud", "1", CVAR_ARCHIVE},
+	{ &cg_pingLocationHudSize,       "cg_pingLocationHudSize", "1.0", CVAR_ARCHIVE},
+	{ &cg_pingLocationBeep,          "cg_pingLocationBeep", "1", CVAR_ARCHIVE},
 
 	{ &cg_bobGun ,           "cg_bobGun", "0", CVAR_ARCHIVE},
 
@@ -1881,6 +1901,11 @@ static void CG_RegisterSounds( void ) {
 
 		cgs.media.flagDroppedSound = trap_S_RegisterSound( "sound/teamplay/flag_dropped.wav", qtrue );
 
+		cgs.media.pingLocationSound = trap_S_RegisterSound( "sound/teamplay/ping-info.ogg", qfalse );
+		//cgs.media.pingLocationLowSound = trap_S_RegisterSound( "sound/teamplay/ping-info-5.ogg", qfalse );
+		cgs.media.pingLocationWarnSound = trap_S_RegisterSound( "sound/teamplay/ping-xbuzz.ogg", qfalse );
+		cgs.media.pingLocationWarnLowSound = trap_S_RegisterSound( "sound/teamplay/ping-xbuzz-10.ogg", qfalse );
+
 		if ( cgs.gametype == GT_CTF || cgs.gametype == GT_CTF_ELIMINATION|| cg_buildScript.integer ) {
 			cgs.media.redFlagReturnedSound = trap_S_RegisterSound( va("sound/%steamplay/voc_red_returned.%s", announcer, format), qtrue );
 			cgs.media.blueFlagReturnedSound = trap_S_RegisterSound( va("sound/%steamplay/voc_blue_returned.%s", announcer, format), qtrue );
@@ -2428,6 +2453,47 @@ static void CG_RegisterGraphics( void ) {
 
 		cgs.media.radarShader = trap_R_RegisterShader("radar");
 		cgs.media.radarDotShader = trap_R_RegisterShader("radardot");
+
+		if (cg_pingLocation.integer) {
+			cgs.media.pingLocation = trap_R_RegisterShaderNoMip("gfx/2d/pings/ping1.tga");
+			cgs.media.pingLocationWarn = trap_R_RegisterShaderNoMip("gfx/2d/pings/pingX.tga");
+			cgs.media.pingLocationHudMarker = trap_R_RegisterShaderNoMip("gfx/2d/pings/pingHudMarker2.tga");
+			if (cg_pingEnemyStyle.integer > 0 && cg_pingEnemyStyle.integer <= 3) {
+				cgs.media.pingLocationEnemyFg = trap_R_RegisterShaderNoMip(va("gfx/2d/pings/pingEnemyFg%i.tga", cg_pingEnemyStyle.integer));
+				cgs.media.pingLocationEnemyBg = trap_R_RegisterShaderNoMip(va("gfx/2d/pings/pingEnemyBg%i.tga", cg_pingEnemyStyle.integer));
+				cgs.media.pingLocationEnemyHudMarker = trap_R_RegisterShaderNoMip(va("gfx/2d/pings/pingEnemyHudMarker%i.tga", cg_pingEnemyStyle.integer));
+			} else { 
+				cgs.media.pingLocationEnemyFg = trap_R_RegisterShaderNoMip("gfx/2d/pings/pingEnemyFg4.tga");
+				cgs.media.pingLocationEnemyBg = trap_R_RegisterShaderNoMip("gfx/2d/pings/pingEnemyBg4.tga");
+				cgs.media.pingLocationEnemyHudMarker = trap_R_RegisterShaderNoMip("gfx/2d/pings/pingEnemyHudMarker4.tga");
+			}
+			switch (cg_pingLocation.integer) {
+				case 2:
+					cgs.media.pingLocationBg = trap_R_RegisterShaderNoMip("gfx/2d/pings/ping2bg.tga");
+					cgs.media.pingLocationFg = trap_R_RegisterShaderNoMip("gfx/2d/pings/ping2fg.tga");
+					break;
+				case 3:
+					cgs.media.pingLocationBg = trap_R_RegisterShaderNoMip("gfx/2d/pings/ping2bg.tga");
+					cgs.media.pingLocationFg = trap_R_RegisterShaderNoMip("gfx/2d/pings/ping1fg.tga");
+					break;
+				default:
+					cgs.media.pingLocationBg = trap_R_RegisterShaderNoMip("gfx/2d/pings/ping1bg.tga");
+					cgs.media.pingLocationFg = trap_R_RegisterShaderNoMip("gfx/2d/pings/ping1fg.tga");
+			}
+			if (cgs.gametype == GT_CTF) {
+				cgs.media.pingLocationBlueFlagBg = trap_R_RegisterShaderNoMip("gfx/2d/pings/pingFlagBlueBg.tga");
+				cgs.media.pingLocationBlueFlagFg = trap_R_RegisterShaderNoMip("gfx/2d/pings/pingFlagBlueFg.tga");
+				cgs.media.pingLocationBlueFlagHudMarker = trap_R_RegisterShaderNoMip("gfx/2d/pings/pingFlagBlueHudMarker.tga");
+				cgs.media.pingLocationRedFlagBg = trap_R_RegisterShaderNoMip("gfx/2d/pings/pingFlagRedBg.tga");
+				cgs.media.pingLocationRedFlagFg = trap_R_RegisterShaderNoMip("gfx/2d/pings/pingFlagRedFg.tga");
+				cgs.media.pingLocationRedFlagHudMarker = trap_R_RegisterShaderNoMip("gfx/2d/pings/pingFlagRedHudMarker.tga");
+			} else if (cgs.gametype == GT_1FCTF) {
+				cgs.media.pingLocationNeutralFlagBg = trap_R_RegisterShaderNoMip("gfx/2d/pings/pingFlagNeutralBg.tga");
+				cgs.media.pingLocationNeutralFlagFg = trap_R_RegisterShaderNoMip("gfx/2d/pings/pingFlagNeutralFg.tga");
+				cgs.media.pingLocationNeutralFlagHudMarker = trap_R_RegisterShaderNoMip("gfx/2d/pings/pingFlagNeutralHudMarker.tga");
+			}
+
+		}
 
 		cgs.media.redQuadShader = trap_R_RegisterShader("powerups/blueflag" );
 		//cgs.media.teamStatusBar = trap_R_RegisterShader( "gfx/2d/colorbar.tga" ); - moved outside, used by accuracy

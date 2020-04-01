@@ -414,6 +414,15 @@ typedef enum {
 	HARVESTER_REDCUBE
 } harvester_t;
 
+typedef enum {
+	LOCPING_PING,
+	LOCPING_WARN,
+	LOCPING_ENEMY,
+	LOCPING_REDFLAG,
+	LOCPING_BLUEFLAG,
+	LOCPING_NEUTRALFLAG
+} locationping_t;
+
 
 // reward sounds (stored in ps->persistant[PERS_PLAYEREVENTS])
 #define	PLAYEREVENT_DENIEDREWARD		0x0001
@@ -538,7 +547,8 @@ typedef enum {
 	EV_TAUNT_GUARDBASE,
 	EV_TAUNT_PATROL,
 
-	EV_MISSILE_TELEPORT
+	EV_MISSILE_TELEPORT,
+	EV_PING_LOCATION
 
 } entity_event_t;
 

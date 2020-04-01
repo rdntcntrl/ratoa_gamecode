@@ -3161,6 +3161,15 @@ static float CG_DrawTeamOverlay( float y, qboolean right, qboolean upper ) {
 					}
 				}
 			}
+			// Draw pinglocation marker
+			if (ci->lastPinglocationTime > 0 && cg.time - ci->lastPinglocationTime < cg_pingLocationTime.integer) {
+				CG_DrawPic( xx, y, CG_HeightToWidth(char_width), char_height, cgs.media.pingLocation);
+				//if (right) {
+				//	xx -= CG_HeightToWidth(char_width);
+				//} else {
+				//	xx += CG_HeightToWidth(char_width);
+				//}
+			}
 
 			y += char_height;
 		}
