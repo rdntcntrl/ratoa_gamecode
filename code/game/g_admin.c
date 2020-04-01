@@ -1441,27 +1441,6 @@ qboolean G_admin_readconfig( gentity_t *ent, int skiparg )
   return qtrue;
 }
 
-int G_FindPlayerLastJoined(int team) {
-	int i;
-	int lastEnterTime = -1;
-	int lastEnterClient = 0;
-	int enterTime;
-	for ( i = 0 ; i < level.maxclients ; i++ ) {
-		if ( level.clients[i].pers.connected != CON_CONNECTED ) {
-			continue;
-		}
-		if ( level.clients[i].sess.sessionTeam != team ) {
-			continue;
-		}
-
-		enterTime = level.clients[i].pers.enterTime;
-		if ( enterTime > lastEnterTime) {
-			lastEnterTime = enterTime;
-			lastEnterClient = i;
-		}
-	}
-	return lastEnterClient;
-}
 
 qboolean G_admin_teams( gentity_t *ent, int skiparg )
 {
@@ -1484,7 +1463,10 @@ qboolean G_admin_teams( gentity_t *ent, int skiparg )
 		}
 		while (diff >= 2) {
 			// move a player to smaller team
-			gentity_t *player = g_entities + G_FindPlayerLastJoined(largeTeam);
+			gentity_t *player = G_FindPlayerLastJoined(largeTeam);
+			if (!player) {
+				return qfalse;
+			}
 			SetTeam_Force(player, smallTeam == TEAM_RED ? "r" : "b", ent, qtrue);
 			moved += 1;
 			diff -= 2;
@@ -1493,7 +1475,10 @@ qboolean G_admin_teams( gentity_t *ent, int skiparg )
 		// if diff remains 1, only balance if losing team is smaller
 		if (diff == 1 && level.teamScores[smallTeam] < level.teamScores[largeTeam]) {
 			// move a player to smaller team
-			gentity_t *player = g_entities + G_FindPlayerLastJoined(largeTeam);
+			gentity_t *player =  G_FindPlayerLastJoined(largeTeam);
+			if (!player) {
+				return qfalse;
+			}
 			SetTeam_Force(player, smallTeam == TEAM_RED ? "r" : "b", ent, qtrue);
 			moved += 1;
 		}

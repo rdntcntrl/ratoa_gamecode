@@ -91,6 +91,8 @@ vmCvar_t	g_allowVote;
 vmCvar_t	g_teamAutoJoin;
 vmCvar_t	g_teamForceBalance;
 vmCvar_t	g_teamForceQueue;
+vmCvar_t	g_teamBalance;
+vmCvar_t	g_teamBalanceDelay;
 vmCvar_t	g_banIPs;
 vmCvar_t	g_filterBan;
 vmCvar_t	g_smoothClients;
@@ -401,6 +403,8 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_teamAutoJoin, "g_teamAutoJoin", "0", CVAR_ARCHIVE  },
 	{ &g_teamForceBalance, "g_teamForceBalance", "0", CVAR_ARCHIVE  },
 	{ &g_teamForceQueue, "g_teamForceQueue", "0", CVAR_ARCHIVE, 0, qtrue  },
+	{ &g_teamBalance, "g_teamBalance", "1", CVAR_ARCHIVE, 0, qfalse  },
+	{ &g_teamBalanceDelay, "g_teamBalanceDelay", "30", CVAR_ARCHIVE, 0, qfalse  },
 
 	{ &g_warmup, "g_warmup", "20", CVAR_ARCHIVE, 0, qtrue  },
 	{ &g_doWarmup, "g_doWarmup", "0", CVAR_SERVERINFO | CVAR_ARCHIVE, 0, qtrue  },
@@ -1917,7 +1921,7 @@ AddQueuedPlayers
 Add a queued players in team games
 =============
 */
-void AddQueuedPlayers( void ) {
+qboolean AddQueuedPlayers( void ) {
 	int			i;
 	gclient_t	*client;
 	gclient_t	*nextInLine[2];
@@ -1926,25 +1930,25 @@ void AddQueuedPlayers( void ) {
 	int		counts[TEAM_NUM_TEAMS];
 
 	if (g_gametype.integer < GT_TEAM || g_ffa_gt == 1) {
-		return;
+		return qfalse;
 	}
 
 	if (!g_teamForceQueue.integer) {
-		return;
+		return qfalse;
 	}
 
 	if (level.BlueTeamLocked && level.RedTeamLocked) {
-		return;
+		return qfalse;
 	}
 
 	if ( g_maxGameClients.integer > 0 && 
 			level.numNonSpectatorClients >= g_maxGameClients.integer ) {
-		return;
+		return qfalse;
 	}
 
 	// never change during intermission
 	if ( level.intermissiontime ) {
-		return;
+		return qfalse;
 	}
 
 	nextInLine[0] = NULL;
@@ -2004,26 +2008,34 @@ void AddQueuedPlayers( void ) {
 		if (nextInLine[0] && nextInLineBlue) {
 			if (nextInLine[0]->sess.spectatorNum > nextInLineBlue->sess.spectatorNum) {
 				SetTeam_Force( &g_entities[ nextInLine[0] - level.clients ], "b", NULL, qtrue );
+				return qtrue;
 			} else {
 				SetTeam_Force( &g_entities[ nextInLineBlue - level.clients ], "b", NULL, qtrue );
+				return qtrue;
 			}
 		} else if (nextInLine[0]) {
 			SetTeam_Force( &g_entities[ nextInLine[0] - level.clients ], "b", NULL, qtrue );
+			return qtrue;
 		} else if (nextInLineBlue) {
 			SetTeam_Force( &g_entities[ nextInLineBlue - level.clients ], "b", NULL, qtrue );
+			return qtrue;
 		}
 	} else if (counts[TEAM_RED] < counts[TEAM_BLUE] && !level.RedTeamLocked) {
 		// one to red
 		if (nextInLine[0] && nextInLineRed) {
 			if (nextInLine[0]->sess.spectatorNum > nextInLineRed->sess.spectatorNum) {
 				SetTeam_Force( &g_entities[ nextInLine[0] - level.clients ], "r", NULL, qtrue );
+				return qtrue;
 			} else {
 				SetTeam_Force( &g_entities[ nextInLineRed - level.clients ], "r", NULL, qtrue );
+				return qtrue;
 			}
 		} else if (nextInLine[0]) {
 			SetTeam_Force( &g_entities[ nextInLine[0] - level.clients ], "r", NULL, qtrue );
+			return qtrue;
 		} else if (nextInLineRed) {
 			SetTeam_Force( &g_entities[ nextInLineRed - level.clients ], "r", NULL, qtrue );
+			return qtrue;
 		}
 	} else {
 		// join a pair
@@ -2046,7 +2058,7 @@ void AddQueuedPlayers( void ) {
 			nextInLine[0] = nextInLine[1];
 		}
 		if (!(nextInLineBlue && nextInLineRed)) {
-			return;
+			return qfalse;
 		}
 		for (i = 0; i < freecount; ++i) {
 			if (nextInLineBlue->sess.spectatorNum < nextInLineRed->sess.spectatorNum) {
@@ -2061,8 +2073,145 @@ void AddQueuedPlayers( void ) {
 		}
 		SetTeam_Force( &g_entities[ nextInLineBlue - level.clients ], "b", NULL, qtrue );
 		SetTeam_Force( &g_entities[ nextInLineRed - level.clients ], "r", NULL, qtrue );
+		return qtrue;
+	}
+	return qfalse;
+
+}
+
+gentity_t *G_FindPlayerLastJoined(int team) {
+	int i;
+	int lastEnterTime = -1;
+	gentity_t *lastEnterClient = NULL;
+	gentity_t *lastClient = NULL;
+	int enterTime;
+	for( i = 0; i < level.numPlayingClients; i++ ){
+		gclient_t *cl = &level.clients[ level.sortedClients[i] ];
+		if ( cl->pers.connected != CON_CONNECTED ) {
+			continue;
+		}
+		if ( cl->sess.sessionTeam != team ) {
+			continue;
+		}
+
+		enterTime = cl->pers.enterTime;
+		if ( enterTime > lastEnterTime) {
+			lastEnterTime = enterTime;
+			lastEnterClient = &g_entities[level.sortedClients[i]];
+		}
+		lastClient = &g_entities[level.sortedClients[i]];
+	}
+	if (lastEnterTime - level.startTime < 2000) {
+		// every client entered when the game started (within 2s), so
+		// it does not make much sense to pick the last client to join
+		// instead, pick the client with the lowest score
+		return lastClient;
+	}
+	return lastEnterClient;
+}
+
+void CheckTeamBalance( void ) {
+	int		counts[TEAM_NUM_TEAMS];
+	int balance;
+	int largeTeam;
+
+	if (g_gametype.integer < GT_TEAM || g_ffa_gt == 1) {
+		return;
 	}
 
+	if (!g_teamForceQueue.integer) {
+		return;
+	}
+
+	// Make sure the queue is emptied before trying to balance
+	if (AddQueuedPlayers()) {
+		return;
+	}
+
+	if (!g_teamBalance.integer) {
+		// only use queues to join, without re-balancing
+		return;
+	}
+
+	if (level.BlueTeamLocked || level.RedTeamLocked) {
+		return ;
+	}
+
+	if ( level.intermissiontime ) {
+		return;
+	}
+
+	counts[TEAM_BLUE] = TeamCount( -1, TEAM_BLUE, qfalse);
+	counts[TEAM_RED] = TeamCount( -1, TEAM_RED, qfalse);
+	balance = counts[TEAM_BLUE] - counts[TEAM_RED];
+	if (abs(balance) == 1 && !(counts[TEAM_BLUE] && counts[TEAM_RED])) {
+		// don't try to balance 1 v bot games
+		level.teamBalanceTime = 0;
+		return;
+	}
+
+	if (balance == 0) {
+		// is balanced, do nothing
+		if (level.teamBalanceTime) {
+			trap_SendServerCommand( -1, 
+					va("print \"" S_COLOR_CYAN "Server: Teams fixed!\n"));
+		}
+		level.teamBalanceTime = 0;
+		return;
+	} 
+	largeTeam = balance < 0 ? TEAM_RED : TEAM_BLUE;
+	if (level.teamBalanceTime == 0) {
+		if (g_gametype.integer == GT_ELIMINATION || g_gametype.integer == GT_CTF_ELIMINATION) {
+			if (level.roundNumber > level.roundNumberStarted) {
+				trap_SendServerCommand( -1, 
+						va("cp \"%s" S_COLOR_YELLOW" has more players, balancing now!\n",
+							largeTeam == TEAM_RED ? S_COLOR_RED "Red" : S_COLOR_BLUE "Blue"));
+				level.teamBalanceTime = level.roundStartTime - 2000;
+				if (level.teamBalanceTime - level.time > 4000) {
+					level.teamBalanceTime = level.time + 4000;
+				}
+			} else {
+				return;
+			}
+		} else {
+			level.teamBalanceTime = level.time + g_teamBalanceDelay.integer * 1000;
+			trap_SendServerCommand( -1, 
+					va("cp \"%s" S_COLOR_YELLOW" has more players, balancing in "
+						S_COLOR_RED "%is" S_COLOR_YELLOW"!\n",
+						largeTeam == TEAM_RED ? S_COLOR_RED "Red" : S_COLOR_BLUE "Blue",
+						g_teamBalanceDelay.integer
+					  ));
+			return;
+		}
+	} 
+	if (g_gametype.integer != GT_ELIMINATION && g_gametype.integer != GT_CTF_ELIMINATION 
+			&&level.teamBalanceTime - level.time == 5000 && g_teamBalanceDelay.integer >= 15) {
+		trap_SendServerCommand( -1, 
+				va("cp \"" S_COLOR_YELLOW "Balancing in " S_COLOR_RED "5s" S_COLOR_YELLOW"!\n"));
+	}
+	if (level.teamBalanceTime > level.time) {
+		return;
+	}
+
+	trap_SendServerCommand( -1, 
+			va("print \"" S_COLOR_CYAN "Server: Balancing teams!\n"));
+
+	// only balance one player per frame to try and avoid command overflows
+	gentity_t *player = G_FindPlayerLastJoined(largeTeam);
+	if (!player) {
+		level.teamBalanceTime = 0;
+		return;
+	}
+	// suppress excess messages
+	level.shuffling_teams = qtrue;
+	if (abs(balance) > 1) {
+		SetTeam(player, largeTeam == TEAM_BLUE ? "r" : "b");
+	} else {
+		// if the imbalance is only 1, the player will be queued so we
+		// put him in his own team's queue instead of the other team's
+		SetTeam(player, largeTeam == TEAM_BLUE ? "b" : "r");
+	}
+	level.shuffling_teams = qfalse;
 }
 
 
@@ -4856,7 +5005,7 @@ void G_RunFrame( int levelTime ) {
 
 	CheckTreasureHunter();
 
-	AddQueuedPlayers();
+	CheckTeamBalance();
 
 	// see if it is time to end the level
 	CheckExitRules();

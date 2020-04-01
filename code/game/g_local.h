@@ -792,6 +792,8 @@ typedef struct {
     char	nextmapVoteMaps[NEXTMAPVOTE_NUM_MAPS][MAX_MAPNAME];
 
     qboolean arenasLoaded;
+
+    int teamBalanceTime;
      
 } level_locals_t;
 
@@ -1115,7 +1117,8 @@ void CheckTeamLeader( int team );
 void G_RunThink (gentity_t *ent);
 void AddTournamentQueue(gclient_t *client);
 void AddTournamentQueueFront(gclient_t *client);
-void AddQueuedPlayers( void );
+gentity_t *G_FindPlayerLastJoined(int team);
+void CheckTeamBalance( void );
 void ExitLevel( void );
 void QDECL G_LogPrintf( const char *fmt, ... );
 void SendScoreboardMessageToAllClients( void );
@@ -1340,6 +1343,8 @@ extern	vmCvar_t	g_allowVote;
 extern	vmCvar_t	g_teamAutoJoin;
 extern	vmCvar_t	g_teamForceBalance;
 extern	vmCvar_t	g_teamForceQueue;
+extern	vmCvar_t	g_teamBalance;
+extern	vmCvar_t	g_teamBalanceDelay;
 extern	vmCvar_t	g_banIPs;
 extern	vmCvar_t	g_filterBan;
 extern	vmCvar_t	g_obeliskHealth;
