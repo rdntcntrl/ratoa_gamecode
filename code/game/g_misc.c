@@ -114,10 +114,6 @@ void TeleportPlayer( gentity_t *player, vec3_t origin, vec3_t angles ) {
 	// reset rampjump
 	player->client->ps.stats[STAT_JUMPTIME] = 0;
 
-//unlagged - backward reconciliation #3
-	// we don't want players being backward-reconciled back through teleporters
-	G_ResetHistory( player );
-//unlagged - backward reconciliation #3
 
 	// kill anything at the destination
 	if ( player->client->sess.sessionTeam != TEAM_SPECTATOR && player->client->ps.pm_type != PM_SPECTATOR ) {
@@ -129,6 +125,13 @@ void TeleportPlayer( gentity_t *player, vec3_t origin, vec3_t angles ) {
 
 	// use the precise origin for linking
 	VectorCopy( player->client->ps.origin, player->r.currentOrigin );
+
+//unlagged - backward reconciliation #3
+	if (!g_delagAllowHitsAfterTele.integer) {
+		// we don't want players being backward-reconciled back through teleporters
+		G_ResetHistory( player );
+	}
+//unlagged - backward reconciliation #3
 
 	if ( player->client->sess.sessionTeam != TEAM_SPECTATOR && player->client->ps.pm_type != PM_SPECTATOR ) {
 		trap_LinkEntity (player);

@@ -1467,6 +1467,7 @@ extern vmCvar_t         g_blueTeamClientNumbers;
 //unlagged - server options
 // some new server-side variables
 extern	vmCvar_t	g_delagHitscan;
+extern	vmCvar_t	g_delagAllowHitsAfterTele;
 extern	vmCvar_t	g_truePing;
 // this is for convenience - using "sv_fps.integer" is nice :)
 extern	vmCvar_t	sv_fps;

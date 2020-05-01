@@ -208,6 +208,7 @@ vmCvar_t         g_blueTeamClientNumbers;
 
 //unlagged - server options
 vmCvar_t	g_delagHitscan;
+vmCvar_t	g_delagAllowHitsAfterTele;
 vmCvar_t	g_truePing;
 vmCvar_t	sv_fps;
 vmCvar_t        g_lagLightning; //Adds a little lag to the lightninggun to make it less powerfull
@@ -513,6 +514,7 @@ static cvarTable_t		gameCvarTable[] = {
 
 //unlagged - server options
 	{ &g_delagHitscan, "g_delagHitscan", "1", CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qtrue },
+	{ &g_delagAllowHitsAfterTele, "g_delagAllowHitsAfterTele", "1", CVAR_ARCHIVE , 0, qfalse },
 	{ &g_truePing, "g_truePing", "0", CVAR_ARCHIVE, 0, qtrue },
 	// it's CVAR_SYSTEMINFO so the client's sv_fps will be automagically set to its value
 	{ &sv_fps, "sv_fps", "20", CVAR_SYSTEMINFO | CVAR_ARCHIVE, 0, qfalse },
