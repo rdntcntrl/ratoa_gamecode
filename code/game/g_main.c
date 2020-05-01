@@ -2162,7 +2162,8 @@ void CheckTeamBalance( void ) {
 	largeTeam = balance < 0 ? TEAM_RED : TEAM_BLUE;
 	if (level.teamBalanceTime == 0) {
 		if (g_gametype.integer == GT_ELIMINATION || g_gametype.integer == GT_CTF_ELIMINATION) {
-			if (level.roundNumber > level.roundNumberStarted) {
+			// as soon as we're in active warmup
+			if(level.roundNumber > level.roundNumberStarted && level.time > level.roundStartTime - 1000 * g_elimination_activewarmup.integer) {
 				trap_SendServerCommand( -1, 
 						va("cp \"%s" S_COLOR_YELLOW" has more players, balancing now!\n",
 							largeTeam == TEAM_RED ? S_COLOR_RED "Red" : S_COLOR_BLUE "Blue"));
