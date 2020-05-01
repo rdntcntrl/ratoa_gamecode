@@ -1163,8 +1163,10 @@ Let everyone know about a team change
 */
 void BroadcastTeamChange( gclient_t *client, int oldTeam )
 {
-	if (level.time < level.startTime + 2000) {
-		// don't print anything if the game just started to avoid a command overflow / annoying players
+	if (level.time < level.startTime + 2000
+			|| level.shuffling_teams) {
+		// don't print anything if the game just started or we are moving many players around 
+		// to avoid a command overflow / annoying players
 		return;
 	}
 	if ( client->sess.sessionTeam == TEAM_RED && oldTeam != TEAM_RED) {

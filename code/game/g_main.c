@@ -2085,6 +2085,7 @@ gentity_t *G_FindPlayerLastJoined(int team) {
 	gentity_t *lastEnterClient = NULL;
 	gentity_t *lastClient = NULL;
 	int enterTime;
+
 	for( i = 0; i < level.numPlayingClients; i++ ){
 		gclient_t *cl = &level.clients[ level.sortedClients[i] ];
 		if ( cl->pers.connected != CON_CONNECTED ) {
@@ -2114,6 +2115,7 @@ void CheckTeamBalance( void ) {
 	int		counts[TEAM_NUM_TEAMS];
 	int balance;
 	int largeTeam;
+	gentity_t *player;
 
 	if (g_gametype.integer < GT_TEAM || g_ffa_gt == 1) {
 		return;
@@ -2137,7 +2139,8 @@ void CheckTeamBalance( void ) {
 		return ;
 	}
 
-	if ( level.intermissiontime ) {
+	if ( level.intermissiontime 
+			|| level.time < level.startTime + 3000) {
 		return;
 	}
 
@@ -2154,7 +2157,7 @@ void CheckTeamBalance( void ) {
 		// is balanced, do nothing
 		if (level.teamBalanceTime) {
 			trap_SendServerCommand( -1, 
-					va("print \"" S_COLOR_CYAN "Server: Teams fixed!\n"));
+					va("print \"" S_COLOR_CYAN "Server: " S_COLOR_GREEN "Teams fixed!\n"));
 		}
 		level.teamBalanceTime = 0;
 		return;
@@ -2176,6 +2179,16 @@ void CheckTeamBalance( void ) {
 			}
 		} else {
 			level.teamBalanceTime = level.time + g_teamBalanceDelay.integer * 1000;
+			if (abs(balance) <= 2 && (player = G_FindPlayerLastJoined(largeTeam)) != NULL) {
+				// if the imbalance is only 1 or two, announce who is going to be queued/switched
+				trap_SendServerCommand( -1, 
+						va("print \"" S_COLOR_CYAN "Server: " S_COLOR_WHITE "%s"
+							S_COLOR_WHITE " will be %s for balance!\n",
+							player->client->pers.netname,
+							abs(balance) == 2 ? "switched" : "queued"
+							)
+						  );
+			} 
 			trap_SendServerCommand( -1, 
 					va("cp \"%s" S_COLOR_YELLOW" has more players, balancing in "
 						S_COLOR_RED "%is" S_COLOR_YELLOW"!\n",
@@ -2192,13 +2205,16 @@ void CheckTeamBalance( void ) {
 	}
 	if (level.teamBalanceTime > level.time) {
 		return;
+	} else if (level.teamBalanceTime > INT_MIN) {
+		trap_SendServerCommand( -1, 
+				va("print \"" S_COLOR_CYAN "Server: " S_COLOR_RED "Balancing teams!\n"));
+		// make sure we only print this message once:
+		level.teamBalanceTime = INT_MIN;
 	}
 
-	trap_SendServerCommand( -1, 
-			va("print \"" S_COLOR_CYAN "Server: Balancing teams!\n"));
 
 	// only balance one player per frame to try and avoid command overflows
-	gentity_t *player = G_FindPlayerLastJoined(largeTeam);
+	player = G_FindPlayerLastJoined(largeTeam);
 	if (!player) {
 		level.teamBalanceTime = 0;
 		return;
@@ -2211,6 +2227,12 @@ void CheckTeamBalance( void ) {
 		// if the imbalance is only 1, the player will be queued so we
 		// put him in his own team's queue instead of the other team's
 		SetTeam(player, largeTeam == TEAM_BLUE ? "b" : "r");
+		if (player->client->sess.sessionTeam == TEAM_SPECTATOR
+				&& (player->client->sess.spectatorGroup == SPECTATORGROUP_QUEUED_BLUE
+				    || player->client->sess.spectatorGroup == SPECTATORGROUP_QUEUED_RED)) {
+			trap_SendServerCommand( -1, va("cp \"%s" S_COLOR_WHITE " was queued for balance.\n\"",
+						player->client->pers.netname));
+		}
 	}
 	level.shuffling_teams = qfalse;
 }
