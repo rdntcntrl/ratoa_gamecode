@@ -524,7 +524,7 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_railTrailTime, "cg_railTrailTime", "800", CVAR_ARCHIVE  },
 	{ &cg_gun_x, "cg_gunX", "0", CVAR_CHEAT },
 	{ &cg_gun_y, "cg_gunY", "0", CVAR_CHEAT },
-	{ &cg_gun_z, "cg_gunZ", "0", CVAR_CHEAT },
+	{ &cg_gun_z, "cg_gunZ", "0", CVAR_ARCHIVE },
 	{ &cg_centertime, "cg_centertime", "3", CVAR_CHEAT },
 	{ &cg_runpitch, "cg_runpitch", "0.000", CVAR_ARCHIVE},
 	{ &cg_runroll, "cg_runroll", "0.000", CVAR_ARCHIVE },
@@ -1542,6 +1542,9 @@ void CG_UpdateCvars( void ) {
 				Com_sprintf( cv->vmCvar->string, MAX_CVAR_VALUE_STRING, "1");
 				trap_Cvar_Set( cv->cvarName, cv->vmCvar->string );
 			}
+		}
+                else if ( cv->vmCvar == &cg_gun_z ) {
+			CG_Cvar_ClampInt( cv->cvarName, cv->vmCvar, -8, 0 );
 		}
                 else if ( cv->vmCvar == &con_notifytime ) {
 			if (cg_newConsole.integer ) {
