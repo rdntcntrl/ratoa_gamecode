@@ -2612,6 +2612,32 @@ void ClientBegin( int clientNum ) {
 	G_ResetRejectedVote();
 }
 
+
+static void G_PlayQueueJoinSound(gentity_t *ent) {
+	int soundIndex;
+	soundIndex = G_SoundIndex("sound/teamplay/qjoin.ogg");
+	if (soundIndex) {
+		gentity_t *te;
+		te = G_TempEntity( ent->r.currentOrigin, EV_GLOBAL_SOUND );
+		te->s.eventParm = soundIndex;
+		te->r.svFlags |= SVF_SINGLECLIENT;
+		te->r.singleClient = ent->s.number;
+	}
+}
+
+/* 
+ * Called when a player spawns for the first time after being joined via a team queue
+ */
+static void G_SpawnFromQueue(gentity_t *ent) {
+	ent->client->pers.joinedByTeamQueue = 0;
+	if (g_inactivity.integer > 15) {
+		// set a quick inactivity time in case the player is afk
+		ent->client->inactivityTime = level.time + 1000 * 15;
+		ent->client->inactivityWarning = qfalse;
+	}
+	G_PlayQueueJoinSound(ent);
+}
+
 /*
 ===========
 ClientSpawn
@@ -2688,6 +2714,10 @@ void ClientSpawn(gentity_t *ent) {
                 CalculateRanks();
             }
         }
+	
+	if (client->pers.joinedByTeamQueue && client->ps.pm_type == PM_NORMAL) {
+		G_SpawnFromQueue(ent);
+	}
 
 	if(g_gametype.integer == GT_LMS && client->sess.sessionTeam != TEAM_SPECTATOR && (!level.intermissiontime || level.warmupTime != 0))
 	{

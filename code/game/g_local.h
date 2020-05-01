@@ -431,6 +431,8 @@ typedef struct {
     qboolean gotRevenge;
 
     int gauntCorpseGibCount;
+
+    int		joinedByTeamQueue;
 } clientPersistant_t;
 
 // for twitchrail award

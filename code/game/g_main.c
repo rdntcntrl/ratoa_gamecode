@@ -1918,22 +1918,10 @@ PLAYER COUNTING / SCORE SORTING
 ========================================================================
 */
 
+
 static void QueueJoinPlayer(gentity_t *ent, char *team) {
-	int soundIndex;
+	ent->client->pers.joinedByTeamQueue = level.time;
 	SetTeam_Force( ent, team, NULL, qtrue );
-	if (g_inactivity.integer > 15) {
-		// set a quick inactivity time in case the player is afk
-		ent->client->inactivityTime = level.time + 1000 * 15;
-		ent->client->inactivityWarning = qfalse;
-	}
-	soundIndex = G_SoundIndex("sound/teamplay/qjoin.ogg");
-	if (soundIndex) {
-		gentity_t *te;
-		te = G_TempEntity( ent->r.currentOrigin, EV_GLOBAL_SOUND );
-		te->s.eventParm = soundIndex;
-		te->r.svFlags |= SVF_SINGLECLIENT;
-		te->r.singleClient = ent->s.number;
-	}
 }
 
 /*
