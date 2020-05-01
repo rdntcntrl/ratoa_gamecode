@@ -1982,7 +1982,12 @@ Sago: I am not happy with this exception
 	trap_SetConfigstring( CS_PLAYERS+clientNum, s );
 
 	// this is not the userinfo, more like the configstring actually
-	G_LogPrintf( "ClientUserinfoChanged: %i %s\\id\\%s\n", clientNum, s, Info_ValueForKey(userinfo, "cl_guid") );
+	G_LogPrintf( "ClientUserinfoChanged: %i %s\\id\\%s", clientNum, s, Info_ValueForKey(userinfo, "cl_guid") );
+	if (g_logIPs.integer && !(ent->r.svFlags & SVF_BOT)) {
+		G_LogPrintf("\\ip\\%s\n", Info_ValueForKey(userinfo, "ip"));
+	} else {
+		G_LogPrintf("\n");
+	}
 
 	G_CheckClan(TEAM_RED);
 	G_CheckClan(TEAM_BLUE);
@@ -2166,7 +2171,7 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 
 
 //unlagged - backward reconciliation #5
-    G_admin_namelog_update( client, qfalse );
+	G_admin_namelog_update( client, qfalse );
 
 	G_CheckClan(client->sess.sessionTeam);
 	G_EQPingClientReset(client);

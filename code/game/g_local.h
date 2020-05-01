@@ -1338,6 +1338,7 @@ extern  vmCvar_t        g_nextmapVoteNumGametype;
 extern  vmCvar_t        g_nextmapVoteTime;
 extern	vmCvar_t	g_warmup;
 extern	vmCvar_t	g_doWarmup;
+extern	vmCvar_t	g_logIPs;
 extern	vmCvar_t	g_blood;
 extern	vmCvar_t	g_allowVote;
 extern	vmCvar_t	g_teamAutoJoin;
