@@ -2482,7 +2482,7 @@ static void CG_RegisterGraphics( void ) {
 					cgs.media.pingLocationBg = trap_R_RegisterShaderNoMip("gfx/2d/pings/ping1bg.tga");
 					cgs.media.pingLocationFg = trap_R_RegisterShaderNoMip("gfx/2d/pings/ping1fg.tga");
 			}
-			if (cgs.gametype == GT_CTF) {
+			if (cgs.gametype == GT_CTF || cgs.gametype == GT_CTF_ELIMINATION) {
 				cgs.media.pingLocationBlueFlagBg = trap_R_RegisterShaderNoMip("gfx/2d/pings/pingFlagBlueBg.tga");
 				cgs.media.pingLocationBlueFlagFg = trap_R_RegisterShaderNoMip("gfx/2d/pings/pingFlagBlueFg.tga");
 				cgs.media.pingLocationBlueFlagHudMarker = trap_R_RegisterShaderNoMip("gfx/2d/pings/pingFlagBlueHudMarker.tga");

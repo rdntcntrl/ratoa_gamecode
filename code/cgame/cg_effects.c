@@ -1031,9 +1031,9 @@ void CG_PingLocation( centity_t *cent ) {
 	locping = (locationping_t)cent->currentState.generic1;
 	if (locping == LOCPING_ENEMY) {
 		re->customShader = cgs.media.pingLocationEnemyFg;
-	} else if (locping == LOCPING_REDFLAG && cgs.gametype == GT_CTF) {
+	} else if (locping == LOCPING_REDFLAG && (cgs.gametype == GT_CTF || cgs.gametype == GT_CTF_ELIMINATION)) {
 		re->customShader = cgs.media.pingLocationRedFlagFg;
-	} else if (locping == LOCPING_BLUEFLAG && cgs.gametype == GT_CTF) {
+	} else if (locping == LOCPING_BLUEFLAG && (cgs.gametype == GT_CTF || cgs.gametype == GT_CTF_ELIMINATION)) {
 		re->customShader = cgs.media.pingLocationBlueFlagFg;
 	} else if (locping == LOCPING_NEUTRALFLAG && cgs.gametype == GT_1FCTF) {
 		re->customShader = cgs.media.pingLocationNeutralFlagFg;
