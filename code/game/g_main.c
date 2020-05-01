@@ -4381,6 +4381,22 @@ void CheckTreasureHunter(void) {
 			// update generic1 only:
 			SetPlayerTokens(0, qtrue);
 		}
+		
+		if (level.th_teamTokensRed > 0 && level.th_teamTokensBlue > 0) {
+			// if both teams have team tokens, take any excess
+			// tokens away to prevent continously inflating the
+			// team token numbers as players join/leave
+			if (level.th_teamTokensRed > level.th_teamTokensBlue) { 
+				level.th_teamTokensRed -= level.th_teamTokensBlue;
+				level.th_teamTokensBlue = 0;
+			} else {
+				level.th_teamTokensBlue -= level.th_teamTokensRed;
+				level.th_teamTokensRed = 0;
+			}
+			// update generic1 only:
+			SetPlayerTokens(0, qtrue);
+		}
+
 		leftover_tokens_red += level.th_teamTokensRed;
 		leftover_tokens_blue += level.th_teamTokensBlue;
 
