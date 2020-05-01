@@ -1918,6 +1918,15 @@ PLAYER COUNTING / SCORE SORTING
 ========================================================================
 */
 
+static void QueueJoinPlayer(gentity_t *ent, char *team) {
+	SetTeam_Force( ent, team, NULL, qtrue );
+	if (g_inactivity.integer > 15) {
+		// set a quick inactivity time in case the player is afk
+		ent->client->inactivityTime = level.time + 1000 * 15;
+		ent->client->inactivityWarning = qfalse;
+	}
+}
+
 /*
 =============
 AddQueuedPlayers
@@ -2011,34 +2020,34 @@ qboolean AddQueuedPlayers( void ) {
 		// one to blue
 		if (nextInLine[0] && nextInLineBlue) {
 			if (nextInLine[0]->sess.spectatorNum > nextInLineBlue->sess.spectatorNum) {
-				SetTeam_Force( &g_entities[ nextInLine[0] - level.clients ], "b", NULL, qtrue );
+				QueueJoinPlayer( &g_entities[ nextInLine[0] - level.clients ], "b");
 				return qtrue;
 			} else {
-				SetTeam_Force( &g_entities[ nextInLineBlue - level.clients ], "b", NULL, qtrue );
+				QueueJoinPlayer( &g_entities[ nextInLineBlue - level.clients ], "b");
 				return qtrue;
 			}
 		} else if (nextInLine[0]) {
-			SetTeam_Force( &g_entities[ nextInLine[0] - level.clients ], "b", NULL, qtrue );
+			QueueJoinPlayer( &g_entities[ nextInLine[0] - level.clients ], "b");
 			return qtrue;
 		} else if (nextInLineBlue) {
-			SetTeam_Force( &g_entities[ nextInLineBlue - level.clients ], "b", NULL, qtrue );
+			QueueJoinPlayer( &g_entities[ nextInLineBlue - level.clients ], "b");
 			return qtrue;
 		}
 	} else if (counts[TEAM_RED] < counts[TEAM_BLUE] && !level.RedTeamLocked) {
 		// one to red
 		if (nextInLine[0] && nextInLineRed) {
 			if (nextInLine[0]->sess.spectatorNum > nextInLineRed->sess.spectatorNum) {
-				SetTeam_Force( &g_entities[ nextInLine[0] - level.clients ], "r", NULL, qtrue );
+				QueueJoinPlayer( &g_entities[ nextInLine[0] - level.clients ], "r");
 				return qtrue;
 			} else {
-				SetTeam_Force( &g_entities[ nextInLineRed - level.clients ], "r", NULL, qtrue );
+				QueueJoinPlayer( &g_entities[ nextInLineRed - level.clients ], "r");
 				return qtrue;
 			}
 		} else if (nextInLine[0]) {
-			SetTeam_Force( &g_entities[ nextInLine[0] - level.clients ], "r", NULL, qtrue );
+			QueueJoinPlayer( &g_entities[ nextInLine[0] - level.clients ], "r");
 			return qtrue;
 		} else if (nextInLineRed) {
-			SetTeam_Force( &g_entities[ nextInLineRed - level.clients ], "r", NULL, qtrue );
+			QueueJoinPlayer( &g_entities[ nextInLineRed - level.clients ], "r");
 			return qtrue;
 		}
 	} else {
@@ -2075,8 +2084,8 @@ qboolean AddQueuedPlayers( void ) {
 				}
 			}
 		}
-		SetTeam_Force( &g_entities[ nextInLineBlue - level.clients ], "b", NULL, qtrue );
-		SetTeam_Force( &g_entities[ nextInLineRed - level.clients ], "r", NULL, qtrue );
+		QueueJoinPlayer( &g_entities[ nextInLineBlue - level.clients ], "b");
+		QueueJoinPlayer( &g_entities[ nextInLineRed - level.clients ], "r");
 		return qtrue;
 	}
 	return qfalse;
