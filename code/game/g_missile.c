@@ -1119,6 +1119,15 @@ gentity_t *fire_grenade (gentity_t *self, vec3_t start, vec3_t dir) {
 	// we'll need this for nudging projectiles later
 	bolt->s.otherEntityNum = self->s.number;
 //unlagged - projectile nudge
+
+	if (self && self->client) {
+		//FIXME: we prolly wanna abuse another field
+		bolt->s.generic1 = self->client->sess.sessionTeam;
+	} else {
+		// in case this gets launched from a shooter_grenade
+		bolt->s.generic1 = TEAM_FREE;
+	}
+
 	bolt->parent = self;
 	bolt->damage = 100;
 	bolt->splashDamage = 100;
