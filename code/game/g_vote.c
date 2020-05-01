@@ -28,7 +28,7 @@ allowedVote
  *Note: Keep this in sync with allowedVote in ui_votemenu.c (except for cg_voteNames and g_voteNames)
 ==================
  */
-#define MAX_VOTENAME_LENGTH 14 //currently the longest string is "/map_restart/\0" (14 chars)
+#define MAX_VOTENAME_LENGTH 15 //currently the longest string is "/capturelimit/\0" (15 chars)
 int allowedVote(char *commandStr) {
     char tempStr[MAX_VOTENAME_LENGTH];
     int length;
@@ -304,6 +304,7 @@ int allowedGametype(char *gametypeStr) {
 // these are a bit arbitrary, but do prevent some integer overruns
 #define MAX_TIMELIMIT (60*24)
 #define MAX_FRAGLIMIT (1 << 16)
+#define MAX_CAPTURELIMIT (1 << 16)
 /*
 ==================
 allowedTimelimit
@@ -351,6 +352,23 @@ int allowedFraglimit(int limit) {
     min = g_voteMinFraglimit.integer;
     max = g_voteMaxFraglimit.integer;
     if (limit > MAX_FRAGLIMIT) {
+	    // hard limit
+	    return qfalse;
+    }
+    if(limit<min && limit != 0)
+        return qfalse;
+    if(max != 0 && limit>max)
+        return qfalse;
+    if(limit==0 && max > 0)
+        return qfalse;
+    return qtrue;
+}
+
+int allowedCapturelimit(int limit) {
+    int min, max;
+    min = g_voteMinCapturelimit.integer;
+    max = g_voteMaxCapturelimit.integer;
+    if (limit > MAX_CAPTURELIMIT) {
 	    // hard limit
 	    return qfalse;
     }

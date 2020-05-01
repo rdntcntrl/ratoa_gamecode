@@ -3013,6 +3013,8 @@ void G_PrintVoteCommands(gentity_t *ent) {
 		strcat(buffer, " timelimit <time>\n");
 	if(allowedVote("fraglimit"))
 		strcat(buffer, " fraglimit <frags>\n");
+	if(allowedVote("capturelimit"))
+		strcat(buffer, " capturelimit <n>\n");
 	if(allowedVote("shuffle"))
 		strcat(buffer, " shuffle\n");
 	if(allowedVote("bots"))
@@ -3090,6 +3092,7 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 	} else if ( !Q_stricmp( arg1, "g_doWarmup" ) ) {
 	} else if ( !Q_stricmp( arg1, "timelimit" ) ) {
 	} else if ( !Q_stricmp( arg1, "fraglimit" ) ) {
+	} else if ( !Q_stricmp( arg1, "capturelimit" ) ) {
         } else if ( !Q_stricmp( arg1, "custom" ) ) {
         } else if ( !Q_stricmp( arg1, "shuffle" ) ) {
         } else if ( !Q_stricmp( arg1, "bots" ) ) {
@@ -3208,6 +3211,18 @@ void Cmd_CallVote_f( gentity_t *ent ) {
                     Com_sprintf( level.voteDisplayString, sizeof( level.voteDisplayString ), "Change fraglimit to: %d", i );
                 else
                     Com_sprintf( level.voteDisplayString, sizeof( level.voteDisplayString ), "Remove fraglimit?");
+        } else if ( !Q_stricmp( arg1, "capturelimit" ) ) {
+                i = atoi(arg2);
+                if(!allowedCapturelimit(i)) {
+                    trap_SendServerCommand( ent-g_entities, "print \"Cannot set capturelimit.\n\"" );
+                    return;
+                }
+            
+                Com_sprintf( level.voteString, sizeof( level.voteString ), "%s \"%d\"", arg1, i );
+                if(i)
+                    Com_sprintf( level.voteDisplayString, sizeof( level.voteDisplayString ), "Change capturelimit to: %d", i );
+                else
+                    Com_sprintf( level.voteDisplayString, sizeof( level.voteDisplayString ), "Remove capturelimit?");
         } else if ( !Q_stricmp( arg1, "timelimit" ) ) {
                 i = atoi(arg2);
                 if(!allowedTimelimit(i)) {
