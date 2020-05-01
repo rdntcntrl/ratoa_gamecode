@@ -801,6 +801,12 @@ qboolean CG_DrawRatScoreboard(void) {
 		x = (SCREEN_WIDTH - w) / 2;
 		y = RATSB_HEADER - 18 + SCORETINYCHAR_HEIGHT + 1;
 		CG_DrawTinyScoreString(x, y, s, 0.6);
+	} else if (cg.teamQueueSystem) {
+		s = "Team queues enabled";
+		w = CG_DrawStrlen(s) * SCORETINYCHAR_WIDTH;
+		x = (SCREEN_WIDTH - w) / 2;
+		y = RATSB_HEADER - 18 + SCORETINYCHAR_HEIGHT + 1;
+		CG_DrawTinyScoreString(x, y, s, 0.6);
 	}
 
 	// draw server name

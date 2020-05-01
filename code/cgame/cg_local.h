@@ -690,6 +690,7 @@ typedef struct {
 	int			scoreFadeTime;
 
 	qboolean teamsLocked;
+	qboolean teamQueueSystem;
 
         int		accuracys[WP_NUM_WEAPONS][2];
 	int		accRequestTime;
