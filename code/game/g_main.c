@@ -2111,7 +2111,35 @@ gentity_t *G_FindPlayerLastJoined(int team) {
 	return lastEnterClient;
 }
 
+void G_UnqueuePlayers( void ) {
+	int i;
+	gclient_t *client;
+
+	for ( i = 0 ; i < level.maxclients ; i++ ) {
+		client = &level.clients[i];
+		if ( client->pers.connected != CON_CONNECTED ) {
+			continue;
+		}
+		if ( client->sess.sessionTeam != TEAM_SPECTATOR ) {
+			continue;
+		}
+
+		switch ( client->sess.spectatorGroup ) {
+			case SPECTATORGROUP_QUEUED_BLUE:
+			case SPECTATORGROUP_QUEUED_RED:
+			case SPECTATORGROUP_QUEUED:
+				client->sess.spectatorGroup = SPECTATORGROUP_SPEC;
+				SendSpectatorGroup(&g_entities[i]);
+				break;
+			default:
+				break;
+		}
+	}
+
+}
+
 void CheckTeamBalance( void ) {
+	static qboolean queuesClean = qfalse;
 	int		counts[TEAM_NUM_TEAMS];
 	int balance;
 	int largeTeam;
@@ -2122,7 +2150,15 @@ void CheckTeamBalance( void ) {
 	}
 
 	if (!g_teamForceQueue.integer) {
+		if (!queuesClean) {
+			// make sure that players don't stay in the queues when
+			// the queues aren't active
+			G_UnqueuePlayers();
+			queuesClean = qtrue;
+		}
 		return;
+	} else {
+		queuesClean = qfalse;
 	}
 
 	// Make sure the queue is emptied before trying to balance

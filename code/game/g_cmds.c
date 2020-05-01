@@ -2128,9 +2128,9 @@ void Cmd_PlaceToken_f( gentity_t *ent ) {
 
 
 void SendSpectatorGroup( gentity_t *ent ) {
-	if (!g_teamForceQueue.integer) {
-		return;
-	}
+	//if (!g_teamForceQueue.integer) {
+	//	return;
+	//}
 	if (ent->client->sess.sessionTeam != TEAM_SPECTATOR) {
 		return;
 	}
