@@ -582,16 +582,51 @@ void G_CheckStrongmanAward(gentity_t *attacker, gentity_t *victim) {
 	}
 }
 
+static int G_AmbushCalculateTimeshiftTime(int meansOfDeath, gentity_t *attacker, gentity_t *victim) {
+	if (victim->client->timeshiftTime) {
+		return victim->client->timeshiftTime;
+	}
+
+	if (!g_delagHitscan.integer) {
+		return level.time;
+	}
+
+	// XXX: this is a bit of a hack. Some weapons only timeshift the client
+	// during the hit trace and un-shift them before they actually apply
+	// the damage, so timeshiftTime might not be set anymore
+	// Nevertheless, rewriting tons of damage-related code in order to save
+	// that time just for this one award seems excessive
+	
+	// check if it was a hitscan weapon:
+	if (meansOfDeath == MOD_GAUNTLET 
+			|| meansOfDeath == MOD_MACHINEGUN
+			|| meansOfDeath == MOD_SHOTGUN
+			|| meansOfDeath == MOD_LIGHTNING
+			|| meansOfDeath == MOD_RAILGUN
+			|| meansOfDeath == MOD_CHAINGUN) {
+		int timeshiftTime;
+		G_DoTimeShiftFor(attacker);
+		timeshiftTime = victim->client->timeshiftTime;
+		G_UndoTimeShiftFor( attacker );
+		return timeshiftTime;
+	}
+	return level.time;
+}
+
 void G_CheckAmbushAward(gentity_t *victim, gentity_t *inflictor, gentity_t *attacker, int meansOfDeath) {
 	if (!attacker || !attacker->client || attacker == victim || OnSameTeam(attacker, victim)) {
 		return;
 	}
 	// also makes sure the client wasn't moved back through the portal due to unlag
-	if ((((victim->client->timeshiftTime == 0 || victim->client->timeshiftTime > victim->client->lastTeleportTime) && 
-					(victim->client->lastTeleportTime + 800 >= level.time && attacker->client->lastTeleportTime + 1500 < level.time))
+	if (((victim->client->lastTeleportTime 
+					 && victim->client->lastTeleportTime + 800 >= level.time 
+					 && attacker->client->lastTeleportTime + 1500 < level.time 
+					 && G_AmbushCalculateTimeshiftTime(meansOfDeath, attacker, victim) >= victim->client->lastTeleportTime
+				)
 				|| 
 				(victim->client->respawnTime + 1800 >= level.time)
-			) && (!inflictor || !inflictor->missileTeleported)
+			)
+		       	&& (!inflictor || !inflictor->missileTeleported)
 			&& meansOfDeath != MOD_TELEFRAG) {
 		AwardMessage(attacker, EAWARD_AMBUSH, ++(attacker->client->pers.awardCounts[EAWARD_AMBUSH]));
 	}
