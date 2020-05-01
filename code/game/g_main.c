@@ -354,6 +354,7 @@ vmCvar_t        g_spreeDiv;
 //Command/Chat spamming/flooding
 vmCvar_t        g_floodMaxDemerits;
 vmCvar_t        g_floodMinTime;
+vmCvar_t        g_floodLimitUserinfo;
 
 //Admin
 vmCvar_t        g_admin;
@@ -751,6 +752,7 @@ static cvarTable_t		gameCvarTable[] = {
         //Used for command/chat flooding
         { &g_floodMaxDemerits, "g_floodMaxDemerits", "5000", CVAR_ARCHIVE, 0, qfalse  },
         { &g_floodMinTime, "g_floodMinTime", "2000", CVAR_ARCHIVE, 0, qfalse  },
+        { &g_floodLimitUserinfo, "g_floodLimitUserinfo", "0", CVAR_ARCHIVE, 0, qfalse  },
         
         //Admin
         { &g_admin, "g_admin", "admin.dat", CVAR_ARCHIVE, 0, qfalse  },
@@ -811,7 +813,7 @@ intptr_t vmMain( int command, int arg0, int arg1, int arg2, int arg3, int arg4, 
 		ClientThink( arg0 );
 		return 0;
 	case GAME_CLIENT_USERINFO_CHANGED:
-		ClientUserinfoChanged( arg0 );
+		ClientUserinfoChangedLimited( arg0 );
 		return 0;
 	case GAME_CLIENT_DISCONNECT:
 		ClientDisconnect( arg0 );

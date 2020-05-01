@@ -2008,6 +2008,16 @@ Sago: I am not happy with this exception
 	G_CheckClan(TEAM_BLUE);
 }
 
+void ClientUserinfoChangedLimited( int clientNum ) {
+	gentity_t *ent = g_entities + clientNum;
+	if (g_floodLimitUserinfo.integer 
+			&& ent->client->pers.connected == CON_CONNECTED 
+			&& G_FloodLimited(ent)) {
+		return;
+	}
+	ClientUserinfoChanged(clientNum);
+}
+
 
 /*
 ===========

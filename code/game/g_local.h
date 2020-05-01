@@ -1163,6 +1163,7 @@ void G_EQPingClientReset(gclient_t *client);
 //
 char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot );
 void ClientUserinfoChanged( int clientNum );
+void ClientUserinfoChangedLimited( int clientNum );
 void ClientDisconnect( int clientNum );
 void ClientBegin( int clientNum );
 void ClientCommand( int clientNum );
@@ -1631,6 +1632,7 @@ extern  vmCvar_t    g_spreeDiv; // Interval of a "streak" that form the spree tr
 //KK-OAX Command/Chat Flooding/Spamming
 extern  vmCvar_t    g_floodMaxDemerits;
 extern  vmCvar_t    g_floodMinTime;
+extern  vmCvar_t    g_floodLimitUserinfo;
 //KK-OAX Admin
 extern  vmCvar_t    g_admin;
 extern  vmCvar_t    g_adminLog;
