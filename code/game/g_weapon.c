@@ -1478,7 +1478,8 @@ locationping_t G_PingFindEnemies( gentity_t *pingPlayer, vec3_t muzzle, vec3_t o
 				&& ent->item
 				&& ent->item->giType == IT_TEAM
 				&& !(ent->s.eFlags & EF_NODRAW)
-				&& ((g_gametype.integer == GT_CTF && (ent->item->giTag == PW_REDFLAG || ent->item->giTag == PW_BLUEFLAG))
+				&& (((g_gametype.integer == GT_CTF || g_gametype.integer == GT_CTF_ELIMINATION)
+					       	&& (ent->item->giTag == PW_REDFLAG || ent->item->giTag == PW_BLUEFLAG))
 				    || (g_gametype.integer == GT_1FCTF && ent->item->giTag == PW_NEUTRALFLAG)
 				    )) {
 			powerup = ent->item->giTag;
@@ -1486,7 +1487,7 @@ locationping_t G_PingFindEnemies( gentity_t *pingPlayer, vec3_t muzzle, vec3_t o
 			&& ent->client->sess.sessionTeam != pingPlayer->client->sess.sessionTeam
 			&& ent->client->ps.pm_type != PM_DEAD
 		   )  {
-			if (g_gametype.integer == GT_CTF) {
+			if (g_gametype.integer == GT_CTF || g_gametype.integer == GT_CTF_ELIMINATION) {
 				if (ent->client->ps.powerups[PW_REDFLAG]) {
 					powerup = PW_REDFLAG;
 				} else if (ent->client->ps.powerups[PW_BLUEFLAG]) {
@@ -1519,7 +1520,7 @@ locationping_t G_PingFindEnemies( gentity_t *pingPlayer, vec3_t muzzle, vec3_t o
 
 		if( G_IsVisible (ent, muzzle)) {
 			foundEnemy = qtrue;
-			if ((g_gametype.integer != GT_CTF && g_gametype.integer != GT_1FCTF) || powerup != PW_NONE) {
+			if ((g_gametype.integer != GT_CTF && g_gametype.integer != GT_CTF_ELIMINATION && g_gametype.integer != GT_1FCTF) || powerup != PW_NONE) {
 				break;
 			}
 			// make sure we continue in CTF modes so we are sure to find the flag(s)
