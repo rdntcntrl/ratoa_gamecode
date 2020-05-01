@@ -3725,7 +3725,7 @@ commands_t cmds[ ] =
   { "unignore", 0, Cmd_Ignore_f },*/
 
   // communication commands
-  { "tell", CMD_MESSAGE, Cmd_Tell_f },
+  { "tell", CMD_MESSAGE|CMD_INTERMISSION, Cmd_Tell_f },
   { "callvote", CMD_MESSAGE, Cmd_CallVote_f },
   { "callteamvote", CMD_MESSAGE|CMD_TEAM, Cmd_CallTeamVote_f },
   { "cv", CMD_MESSAGE, Cmd_CallVote_f },
