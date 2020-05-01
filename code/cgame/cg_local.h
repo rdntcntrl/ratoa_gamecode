@@ -1129,6 +1129,8 @@ typedef struct {
 	qhandle_t	lightningExplosionModel;
 
 	qhandle_t	grenadeBrightSkinShader;
+	qhandle_t	grenadeBrightSkinShaderBlue;
+	qhandle_t	grenadeBrightSkinShaderRed;
 
 	// weapon effect shaders
 	qhandle_t	railExplosionShader;

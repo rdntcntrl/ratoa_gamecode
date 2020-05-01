@@ -720,7 +720,16 @@ void CG_PredictWeaponEffects( centity_t *cent ) {
 				VectorScale(forward, 700, pm->pos.trDelta);
 				SnapVector(pm->pos.trDelta);
 				pm->pos.trType = TR_GRAVITY;
-				bolt->customShader = cgs.media.grenadeBrightSkinShader;
+				if (cgs.gametype >= GT_TEAM && cgs.ffa_gt != 1) {
+					if (cg.snap->ps.persistant[PERS_TEAM] == TEAM_BLUE) {
+						bolt->customShader = cgs.media.grenadeBrightSkinShaderBlue;
+					} else {
+						bolt->customShader = cgs.media.grenadeBrightSkinShaderRed;
+					}
+				} else {
+					bolt->customShader = cgs.media.grenadeBrightSkinShader;
+				}
+
 				break;
 			case WP_BFG:
 				VectorScale(forward, 2000, pm->pos.trDelta);

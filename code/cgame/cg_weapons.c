@@ -1420,6 +1420,10 @@ void CG_RegisterWeapon( int weaponNum ) {
 		weaponInfo->flashSound[0] = trap_S_RegisterSound( "sound/weapons/grenade/grenlf1a.wav", qfalse );
 		cgs.media.grenadeExplosionShader = trap_R_RegisterShader( "grenadeExplosion" );
 		cgs.media.grenadeBrightSkinShader = trap_R_RegisterShader( "models/ammo/grenadeBrightSkin" );
+		if (cgs.gametype >= GT_TEAM && cgs.ffa_gt != 1) {
+			cgs.media.grenadeBrightSkinShaderBlue = trap_R_RegisterShader( "models/ammo/grenadeBrightSkinBlue" );
+			cgs.media.grenadeBrightSkinShaderRed = trap_R_RegisterShader( "models/ammo/grenadeBrightSkinRed" );
+		}
 		break;
 
 //#ifdef MISSIONPACK
