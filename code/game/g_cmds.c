@@ -1286,14 +1286,17 @@ void SetTeam_Force( gentity_t *ent, char *s, gentity_t *by, qboolean tryforce ) 
 					team = TEAM_SPECTATOR;
 					specState = SPECTATOR_FREE;
 					specGroup = autojoin ? SPECTATORGROUP_QUEUED : SPECTATORGROUP_QUEUED_RED;
+					client->pers.queueJoinTime = level.time;
 				} else if (team == TEAM_BLUE && counts[TEAM_BLUE] - counts[TEAM_RED] >= 0) {
 					team = TEAM_SPECTATOR;
 					specState = SPECTATOR_FREE;
 					specGroup = autojoin ? SPECTATORGROUP_QUEUED : SPECTATORGROUP_QUEUED_BLUE;
+					client->pers.queueJoinTime = level.time;
 				} else if (autojoin && team == TEAM_NONE){
 					team = TEAM_SPECTATOR;
 					specState = SPECTATOR_FREE;
 					specGroup = SPECTATORGROUP_QUEUED;
+					client->pers.queueJoinTime = level.time;
 				}
 				
 			} else if ( g_teamForceBalance.integer  ) {

@@ -1922,6 +1922,10 @@ PLAYER COUNTING / SCORE SORTING
 static void QueueJoinPlayer(gentity_t *ent, char *team) {
 	ent->client->pers.joinedByTeamQueue = level.time;
 	SetTeam_Force( ent, team, NULL, qtrue );
+	if (level.time - ent->client->pers.queueJoinTime > 2000) {
+		// alert player that he was pulled into the game
+		trap_SendServerCommand( ent - g_entities, va("qjoin"));
+	}
 }
 
 /*
@@ -2150,7 +2154,6 @@ void G_UnqueuePlayers( void ) {
 
 void CheckTeamBalance( void ) {
 	static qboolean queuesClean = qfalse;
-	static qboolean init = qfalse;
 	int		counts[TEAM_NUM_TEAMS];
 	int balance;
 	int largeTeam;
@@ -2170,10 +2173,6 @@ void CheckTeamBalance( void ) {
 		return;
 	} else {
 		queuesClean = qfalse;
-	}
-
-	if (!init) {
-		G_SoundIndex("sound/teamplay/qjoin.ogg");
 	}
 
 	// Make sure the queue is emptied before trying to balance

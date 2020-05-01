@@ -432,7 +432,8 @@ typedef struct {
 
     int gauntCorpseGibCount;
 
-    int		joinedByTeamQueue;
+    int	joinedByTeamQueue;
+    int	queueJoinTime; // time at which the queue was joined
 } clientPersistant_t;
 
 // for twitchrail award
