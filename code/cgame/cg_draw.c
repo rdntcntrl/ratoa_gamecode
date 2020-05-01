@@ -4692,6 +4692,8 @@ CG_DrawReady
 static void CG_DrawReady ( void ) {
 	char *s;
 	int w;
+	float char_width, char_height;
+
 	if ( !cgs.startWhenReady )
 		return;
 	if ( cg.warmup >= 0 )
@@ -4702,8 +4704,11 @@ static void CG_DrawReady ( void ) {
 	} else {
 		s = "^1Type \\ready to ready up!";
 	}
-	w = CG_DrawStrlen( s ) * SMALLCHAR_WIDTH;
-	CG_DrawSmallString(320 - w / 2, 90, s, 1.0F);
+
+	char_height = 15;
+	char_width = CG_HeightToWidth(10);
+	w = CG_DrawStrlen( s ) * char_width;
+	CG_DrawStringFloat((SCREEN_WIDTH - w)/2.0, 90, s, 1.0, char_width, char_height);
 }
 
 /*
@@ -4714,6 +4719,7 @@ CG_DrawQueue
 static void CG_DrawQueue ( void ) {
 	char *s;
 	int w;
+	float char_width, char_height;
 
 	if (cgs.gametype < GT_TEAM || cgs.ffa_gt == 1) {
 		return;
@@ -4738,8 +4744,10 @@ static void CG_DrawQueue ( void ) {
 			return;
 	}
 
-	w = CG_DrawStrlen( s ) * SMALLCHAR_WIDTH;
-	CG_DrawSmallString(320 - w / 2, 90, s, 1.0F);
+	char_height = 15;
+	char_width = CG_HeightToWidth(10);
+	w = CG_DrawStrlen( s ) * char_width;
+	CG_DrawStringFloat((SCREEN_WIDTH - w)/2.0, 90, s, 1.0, char_width, char_height);
 }
 
 

@@ -488,6 +488,14 @@ void CG_DrawSmallStringColor( int x, int y, const char *s, vec4_t color ) {
 	CG_DrawStringExt( x, y, s, color, qtrue, qfalse, SMALLCHAR_WIDTH, SMALLCHAR_HEIGHT, 0 );
 }
 
+void CG_DrawStringFloat( float x, float y, const char *string, float alpha, float charWidth, float charHeight) {
+	float	color[4];
+
+	color[0] = color[1] = color[2] = 1.0;
+	color[3] = alpha;
+	CG_DrawStringExt( x, y, string, color, qfalse, qfalse, charWidth, charHeight, 0 );
+}
+
 /*
 =================
 CG_DrawStrlen

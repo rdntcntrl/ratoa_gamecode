@@ -2050,6 +2050,8 @@ void CG_DrawBigStringAspect( int x, int y, const char *s, float alpha );
 void CG_DrawBigStringColor( int x, int y, const char *s, vec4_t color );
 void CG_DrawSmallString( int x, int y, const char *s, float alpha );
 void CG_DrawSmallStringColor( int x, int y, const char *s, vec4_t color );
+void CG_DrawStringFloat( float x, float y,
+	       	const char *string, float alpha, float charWidth, float charHeight);
 
 int CG_DrawStrlen( const char *str );
 
