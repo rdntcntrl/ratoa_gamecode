@@ -1088,7 +1088,7 @@ void Cmd_Kill_f( gentity_t *ent ) {
 		if ((g_gametype.integer == GT_ELIMINATION || g_gametype.integer == GT_CTF_ELIMINATION || g_gametype.integer == GT_LMS) 
 				&& ( 
 					  (level.roundNumber == level.roundNumberStarted && level.time < level.roundStartTime + g_killSafety.integer) 
-					|| (level.time <= level.roundStartTime && level.time > level.roundStartTime-g_killSafety.integer)
+					|| (level.time <= level.roundStartTime && level.time > level.roundStartTime - 500) // make sure there is enough time to respawn if they \kill before the round starts
 				   )) {
 			return;
 		} else if (level.time < level.startTime + g_killSafety.integer) {
