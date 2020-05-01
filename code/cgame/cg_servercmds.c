@@ -790,6 +790,26 @@ static void CG_ParseSpecGroup ( void ) {
      cg.spectatorGroup = (spectatorGroup_t) atoi ( CG_Argv ( 1 ) );
 }
 
+static void CG_ParseQueueJoin ( void ) {
+	int myteam = cgs.clientinfo[cg.clientNum].team;
+	char *s_team = "";
+	if (cgs.gametype < GT_TEAM || cgs.ffa_gt == 1) {
+		return;
+	}
+	trap_S_StartLocalSound( cgs.media.queueJoinSound, CHAN_AUTO );
+	switch (myteam) {
+		case TEAM_RED:
+			s_team = S_COLOR_RED "Red";
+			break;
+		case TEAM_BLUE:
+			s_team = S_COLOR_BLUE "Blue";
+			break;
+		default:
+			return;
+	}
+	CG_CenterPrint ( va (S_COLOR_YELLOW "Joined Team %s", s_team ), 120, BIGCHAR_WIDTH );
+}
+
 static void CG_ParseReadyMask ( void ) {
     int readyMask, i;
     readyMask = atoi ( CG_Argv ( 1 ) );
@@ -2259,6 +2279,11 @@ static void CG_ServerCommand( void ) {
 
         if ( !strcmp( cmd, "specgroup" ) ) {
 		CG_ParseSpecGroup();
+		return;
+	}
+
+        if ( !strcmp( cmd, "qjoin" ) ) {
+		CG_ParseQueueJoin();
 		return;
 	}
 

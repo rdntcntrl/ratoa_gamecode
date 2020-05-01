@@ -1239,6 +1239,8 @@ typedef struct {
 	sfxHandle_t pingLocationWarnSound;
 	sfxHandle_t pingLocationWarnLowSound;
 
+	sfxHandle_t queueJoinSound;
+
 // LEILEI
 	sfxHandle_t	lspl1Sound;
 	sfxHandle_t	lspl2Sound; // Blood Splat Noises

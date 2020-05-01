@@ -1906,6 +1906,8 @@ static void CG_RegisterSounds( void ) {
 		cgs.media.pingLocationWarnSound = trap_S_RegisterSound( "sound/teamplay/ping-xbuzz.ogg", qfalse );
 		cgs.media.pingLocationWarnLowSound = trap_S_RegisterSound( "sound/teamplay/ping-xbuzz-10.ogg", qfalse );
 
+		cgs.media.queueJoinSound = trap_S_RegisterSound( "sound/teamplay/qjoin.ogg", qtrue );
+
 		if ( cgs.gametype == GT_CTF || cgs.gametype == GT_CTF_ELIMINATION|| cg_buildScript.integer ) {
 			cgs.media.redFlagReturnedSound = trap_S_RegisterSound( va("sound/%steamplay/voc_red_returned.%s", announcer, format), qtrue );
 			cgs.media.blueFlagReturnedSound = trap_S_RegisterSound( va("sound/%steamplay/voc_blue_returned.%s", announcer, format), qtrue );
