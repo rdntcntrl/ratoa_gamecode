@@ -585,10 +585,14 @@ static int CG_CalcFovImpl( float fov, float zoomFov ) {
 	cg.refdef.fov_x = fov_x;
 	cg.refdef.fov_y = fov_y;
 
-	if ( !cg.zoomed ) {
-		cg.zoomSensitivity = 1;
+	if (cg_sensScaleWithFOV.integer) {
+		cg.zoomSensitivity = cg.refdef.fov_x / 90.0;
 	} else {
-		cg.zoomSensitivity = cg.refdef.fov_y / 75.0;
+		if ( !cg.zoomed ) {
+			cg.zoomSensitivity = 1;
+		} else {
+			cg.zoomSensitivity = cg.refdef.fov_y / 75.0;
+		}
 	}
 
 	return inwater;

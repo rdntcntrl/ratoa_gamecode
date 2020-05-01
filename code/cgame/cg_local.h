@@ -1721,6 +1721,7 @@ extern vmCvar_t			cg_specShowZoom;
 extern vmCvar_t			cg_zoomToggle;
 extern vmCvar_t			cg_zoomAnim;
 extern vmCvar_t			cg_zoomAnimScale;
+extern vmCvar_t			cg_sensScaleWithFOV;
 extern vmCvar_t			cg_drawHabarBackground;
 extern vmCvar_t			cg_drawHabarDecor;
 extern vmCvar_t			cg_hudDamageIndicator;

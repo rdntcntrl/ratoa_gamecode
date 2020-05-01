@@ -232,6 +232,7 @@ vmCvar_t	cg_specShowZoom;
 vmCvar_t	cg_zoomToggle;
 vmCvar_t	cg_zoomAnim;
 vmCvar_t	cg_zoomAnimScale;
+vmCvar_t	cg_sensScaleWithFOV;
 vmCvar_t	cg_drawHabarBackground;
 vmCvar_t	cg_drawHabarDecor;
 vmCvar_t	cg_hudDamageIndicator;
@@ -656,6 +657,7 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_zoomToggle, "cg_zoomToggle", "0", CVAR_ARCHIVE},
 	{ &cg_zoomAnim, "cg_zoomAnim", "1", CVAR_ARCHIVE},
 	{ &cg_zoomAnimScale, "cg_zoomAnimScale", "2", CVAR_ARCHIVE},
+	{ &cg_sensScaleWithFOV, "cg_sensScaleWithFOV", "0", CVAR_ARCHIVE},
 	{ &cg_drawHabarBackground, "cg_drawHabarBackground", "0", CVAR_ARCHIVE | CVAR_LATCH},
 	{ &cg_drawHabarDecor, "cg_drawHabarDecor", "1", CVAR_ARCHIVE | CVAR_LATCH},
 	{ &cg_hudDamageIndicator, "cg_hudDamageIndicator", "2", CVAR_ARCHIVE|CVAR_LATCH},
