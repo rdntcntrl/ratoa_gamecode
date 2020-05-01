@@ -187,8 +187,9 @@ void Ratscores1Message( gentity_t *ent ) {
 	} else {
 		teamsLocked = level.FFALocked ? 1 : 0;
 	}
-	trap_SendServerCommand( ent-g_entities, va("%s %i %i %i %i %i %i%s", "ratscores1", send_statsboard ? 4 : 2, i, 
+	trap_SendServerCommand( ent-g_entities, va("%s %i %i %i %i %i %i %i%s", "ratscores1", send_statsboard ? 4 : 2, i, 
 		level.teamScores[TEAM_RED], level.teamScores[TEAM_BLUE], level.roundStartTime, teamsLocked,
+		(g_teamForceQueue.integer && g_gametype.integer >= GT_TEAM && g_ffa_gt != 1)? 1 : 0,
 		string ) );
 }
 
