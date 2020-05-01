@@ -3336,14 +3336,7 @@ void Cmd_CallVote_f( gentity_t *ent ) {
                 t_customvote customvote;
                 //Sago: There must always be a test to ensure that length(arg2) is non-zero or the client might be able to execute random commands.
                 if(strlen(arg2)<1) {
-		    char  custom_vote_list[2048];
-		    char *p;
-		    Q_strncpyz(custom_vote_list, custom_vote_info, sizeof(custom_vote_list));
-		    custom_vote_list[2047] = '\0';
-		    while ((p = strchr(custom_vote_list, ' ')) != NULL) {
-			    *p = '\n';
-		    }
-                    trap_SendServerCommand( ent-g_entities, va("print \"Custom vote commands are: \n%s\n\"",custom_vote_list) );
+		    VotePrintCustomVotes(ent);
                     return;
                 }
                 customvote = getCustomVote(arg2);

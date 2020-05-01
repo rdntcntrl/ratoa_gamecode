@@ -363,54 +363,68 @@ int allowedFraglimit(int limit) {
     return qtrue;
 }
 
-#define MAX_CUSTOM_VOTES    48
 
-char            custom_vote_info[2048];
+char *parseCustomVote(char *buf, t_customvote *result) {
+	char	*token,*pointer;
+	char	key[MAX_TOKEN_CHARS];
 
-/*
-==================
-VoteParseCustomVotes
- *Reads the file votecustom.cfg. Finds all the commands that can be used with
- *"/callvote custom COMMAND" and adds the commands to custom_vote_info
-==================
- */
-int VoteParseCustomVotes( void ) {
-    fileHandle_t	file;
-    char            buffer[8*1024];
-    int             commands;
-    char	*token,*pointer;
+	pointer = buf;
 
-    trap_FS_FOpenFile(g_votecustom.string,&file,FS_READ);
-
-    if(!file)
-        return 0;
-
-    memset(&buffer,0,sizeof(buffer));
-    memset(&custom_vote_info,0,sizeof(custom_vote_info));
-
-    commands = 0;
-
-    trap_FS_Read(&buffer,sizeof(buffer)-1,file);
-    
-    pointer = buffer;
-
-    while ( commands < MAX_CUSTOM_VOTES ) {
 	token = COM_Parse( &pointer );
         if ( !token[0] ) {
-            break;
+            return NULL;
 	}
 
-        if ( !strcmp( token, "votecommand" ) ) {
-            token = COM_Parse( &pointer );
-            Q_strcat(custom_vote_info,sizeof(custom_vote_info),va("%s ",token));
-            commands++;
+        if ( strcmp( token, "{" ) ) {
+		Com_Printf( "Missing { in votecustom.cfg\n" );
+		return NULL;
 	}
-    }
 
-    trap_FS_FCloseFile(file);
+        memset(result,0,sizeof(*result));
 
-    return commands;
+	result->lightvote = qtrue;
+	result->passRatio = -1;
+
+        while ( 1 ) {
+            token = COM_ParseExt( &pointer, qtrue );
+            if ( !token[0] ) {
+                    Com_Printf( "Unexpected end of customvote.cfg\n" );
+                    return NULL;
+            }
+            if ( !strcmp( token, "}" ) ) {
+                    return pointer;
+            }
+            Q_strncpyz( key, token, sizeof( key ) );
+
+            token = COM_ParseExt( &pointer, qfalse );
+            if ( !token[0] ) {
+                Com_Printf("Invalid/missing argument to %s in customvote.cfg\n",key);
+            }
+            if(!Q_stricmp(key,"votecommand")) {
+                Q_strncpyz(result->votename,token,sizeof(result->votename));
+            } else if(!Q_stricmp(key,"displayname")) {
+                Q_strncpyz(result->displayname,token,sizeof(result->displayname));
+            } else if(!Q_stricmp(key,"command")) {
+                Q_strncpyz(result->command,token,sizeof(result->command));
+            } else if(!Q_stricmp(key,"description")) {
+                Q_strncpyz(result->description,token,sizeof(result->description));
+            } else if(!Q_stricmp(key,"lightvote")) {
+		result->lightvote = atoi(token) > 0 ? qtrue : qfalse;
+            } else if(!Q_stricmp(key,"passratio")) {
+		result->passRatio = atof(token);
+		if (result->passRatio <= 0) {
+			result->passRatio = -1;
+		} else if (result->passRatio > 1.0) {
+			result->passRatio = 1.0;
+		}
+            } else {
+                Com_Printf("Unknown key in customvote.cfg: %s\n",key);
+            }
+
+	}
+	return NULL;
 }
+
 /*
 ==================
 getCustomVote
@@ -420,9 +434,8 @@ getCustomVote
 t_customvote getCustomVote(char* votecommand) {
     t_customvote result;
     fileHandle_t	file;
-    char            buffer[8*1024];
-    char	*token,*pointer;
-    char	key[MAX_TOKEN_CHARS];
+    char *pointer;
+    char            buffer[128*1024];
 
     trap_FS_FOpenFile(g_votecustom.string,&file,FS_READ);
 
@@ -438,55 +451,8 @@ t_customvote getCustomVote(char* votecommand) {
     pointer = buffer;
 
     while ( qtrue ) {
-	token = COM_Parse( &pointer );
-        if ( !token[0] ) {
-            break;
-	}
-
-        if ( strcmp( token, "{" ) ) {
-		Com_Printf( "Missing { in votecustom.cfg\n" );
+	if (!(pointer = parseCustomVote(pointer, &result))) {
 		break;
-	}
-
-        memset(&result,0,sizeof(result));
-
-	result.lightvote = qtrue;
-	result.passRatio = -1;
-
-        while ( 1 ) {
-            token = COM_ParseExt( &pointer, qtrue );
-            if ( !token[0] ) {
-                    Com_Printf( "Unexpected end of customvote.cfg\n" );
-                    break;
-            }
-            if ( !strcmp( token, "}" ) ) {
-                    break;
-            }
-            Q_strncpyz( key, token, sizeof( key ) );
-
-            token = COM_ParseExt( &pointer, qfalse );
-            if ( !token[0] ) {
-                Com_Printf("Invalid/missing argument to %s in customvote.cfg\n",key);
-            }
-            if(!Q_stricmp(key,"votecommand")) {
-                Q_strncpyz(result.votename,token,sizeof(result.votename));
-            } else if(!Q_stricmp(key,"displayname")) {
-                Q_strncpyz(result.displayname,token,sizeof(result.displayname));
-            } else if(!Q_stricmp(key,"command")) {
-                Q_strncpyz(result.command,token,sizeof(result.command));
-            } else if(!Q_stricmp(key,"lightvote")) {
-		result.lightvote = atoi(token) > 0 ? qtrue : qfalse;
-            } else if(!Q_stricmp(key,"passratio")) {
-		result.passRatio = atof(token);
-		if (result.passRatio <= 0) {
-			result.passRatio = -1;
-		} else if (result.passRatio > 1.0) {
-			result.passRatio = 1.0;
-		}
-            } else {
-                Com_Printf("Unknown key in customvote.cfg: %s\n",key);
-            }
-
 	}
 
         if(!Q_stricmp(result.votename,votecommand)) {
@@ -498,6 +464,119 @@ t_customvote getCustomVote(char* votecommand) {
     memset(&result,0,sizeof(result));
         return result;
 }
+
+#define MAX_CUSTOM_VOTES    48
+
+char            custom_vote_info[2048];
+
+/*
+==================
+VoteParseCustomVotes
+ *Reads the file votecustom.cfg. Finds all the commands that can be used with
+ *"/callvote custom COMMAND" and adds the commands to custom_vote_info
+==================
+ */
+int VoteParseCustomVotes ( void ) {
+    t_customvote result;
+    fileHandle_t	file;
+    char            buffer[128*1024];
+    char *pointer;
+    int numCommands = 0;
+
+    memset(&custom_vote_info, 0, sizeof(custom_vote_info));
+
+    trap_FS_FOpenFile(g_votecustom.string,&file,FS_READ);
+
+    if(!file) {
+        return numCommands;
+    }
+
+    memset(&buffer,0,sizeof(buffer));
+
+    trap_FS_Read(&buffer,sizeof(buffer)-1,file);
+
+    pointer = buffer;
+
+    while ( numCommands < MAX_CUSTOM_VOTES ) {
+
+	if (!(pointer = parseCustomVote(pointer, &result))) {
+		break;
+	}
+
+	if (strlen(result.votename)) {
+		Q_strcat(custom_vote_info,sizeof(custom_vote_info),va("%s ",result.votename));
+		numCommands++;
+	}
+
+
+
+    }
+    return numCommands;
+}
+
+/*
+==================
+VotePrintCustomVotes
+==================
+ */
+int VotePrintCustomVotes (gentity_t *ent) {
+    t_customvote result;
+    fileHandle_t	file;
+    char            buffer[128*1024];
+    char *pointer;
+    char printBuf[512];
+    const char *delim = " - " S_COLOR_GREEN;
+    const char *linestart = S_COLOR_WHITE;
+    int numCommands = 0;
+
+
+    trap_FS_FOpenFile(g_votecustom.string,&file,FS_READ);
+
+    if(!file) {
+        return numCommands;
+    }
+
+    memset(&buffer,0,sizeof(buffer));
+    memset(&printBuf, 0, sizeof(printBuf));
+    Q_strncpyz(printBuf, S_COLOR_CYAN "Custom vote commands are: \n", sizeof(printBuf));
+
+    trap_FS_Read(&buffer,sizeof(buffer)-1,file);
+
+    pointer = buffer;
+
+    while ( numCommands < MAX_CUSTOM_VOTES ) {
+
+	if (!(pointer = parseCustomVote(pointer, &result))) {
+		break;
+	}
+	if (strlen(result.command) && strlen(result.votename)) {
+		if (strlen(printBuf) + 
+				strlen(linestart) +
+				strlen(result.votename) + 
+				(result.description[0] ? (strlen(delim) + strlen(result.description)) : 0)
+			 	+ 2 >= sizeof(printBuf)) {
+			trap_SendServerCommand( ent-g_entities, va("print \"%s\"", printBuf) );
+			memset(&printBuf, 0, sizeof(printBuf));
+		}
+		Q_strcat(printBuf, sizeof(printBuf), linestart);
+		Q_strcat(printBuf, sizeof(printBuf), result.votename);
+		if (result.description[0]) {
+			Q_strcat(printBuf, sizeof(printBuf), delim);
+			Q_strcat(printBuf, sizeof(printBuf), result.description);
+		}
+		Q_strcat(printBuf, sizeof(printBuf), "\n");
+		numCommands++;
+	}
+
+    }
+
+    if (printBuf[0]) {
+	    trap_SendServerCommand( ent-g_entities, va("print \"%s\"", printBuf) );
+    }
+
+    return numCommands;
+}
+
 
 void G_SendVoteResult(qboolean passed) {
 	if (!g_usesRatVM.integer) {

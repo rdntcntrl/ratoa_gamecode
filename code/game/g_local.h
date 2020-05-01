@@ -307,6 +307,7 @@ typedef struct {
 #define MAX_CUSTOMNAME  MAX_MAPNAME
 #define MAX_CUSTOMCOMMAND 100
 #define MAX_CUSTOMDISPLAYNAME 50
+#define MAX_CUSTOMDESC  256
 
 typedef struct {
 	int pagenumber;
@@ -1243,12 +1244,14 @@ void ClientLeaving(int clientNumber);
 void G_SendVoteResult(qboolean passed);
 void G_ResetRejectedVote(void);
 qboolean G_CheckRejectedVote(void);
+int VotePrintCustomVotes (gentity_t *ent);
 
 
 typedef struct {
     char    votename[MAX_CUSTOMNAME]; //Used like "/callvote custom VOTENAME"
     char    displayname[MAX_CUSTOMDISPLAYNAME]; //Displayed during voting
     char    command[MAX_CUSTOMCOMMAND]; //The command executed
+    char    description[MAX_CUSTOMDESC]; // Description / help
     qboolean lightvote; // set when light vote (non-majority vote) is allowed for this command
     float passRatio; // yes/no ratio required to pass this vote (or <= 0)
 } t_customvote;
