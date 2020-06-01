@@ -1627,6 +1627,8 @@ extern  vmCvar_t    g_warningExpire;
 extern  vmCvar_t    g_minNameChangePeriod;
 extern  vmCvar_t    g_maxNameChanges;
 
+extern  vmCvar_t    g_allowDuplicateNames;
+
 extern  vmCvar_t    g_unnamedPlayersAllowed;
 extern  vmCvar_t    g_unnamedRenameAdjlist;
 extern  vmCvar_t    g_unnamedRenameNounlist;

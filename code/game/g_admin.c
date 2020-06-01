@@ -394,21 +394,23 @@ qboolean G_admin_name_check( gentity_t *ent, char *name, char *err, int len )
   if( !Q_stricmp( name2, "UnnamedPlayer" ) )
     return qtrue;
 
-  for( i = 0; i < level.maxclients; i++ )
-  {
-    client = &level.clients[ i ];
-    if( client->pers.connected == CON_DISCONNECTED )
-      continue;
-
-    // can rename ones self to the same name using different colors
-    if( i == ( ent - g_entities ) )
-      continue;
-
-    G_SanitiseString( client->pers.netname, testName, sizeof( testName ) );
-    if( !Q_stricmp( name2, testName ) )
+  if (!g_allowDuplicateNames.integer) {
+    for( i = 0; i < level.maxclients; i++ )
     {
-      Com_sprintf( err, len, "The name '%s^7' is already in use", name );
-      return qfalse;
+      client = &level.clients[ i ];
+      if( client->pers.connected == CON_DISCONNECTED )
+        continue;
+  
+      // can rename ones self to the same name using different colors
+      if( i == ( ent - g_entities ) )
+        continue;
+  
+      G_SanitiseString( client->pers.netname, testName, sizeof( testName ) );
+      if( !Q_stricmp( name2, testName ) )
+      {
+        Com_sprintf( err, len, "The name '%s^7' is already in use", name );
+        return qfalse;
+      }
     }
   }
 

@@ -366,6 +366,8 @@ vmCvar_t        g_warningExpire;
 vmCvar_t        g_minNameChangePeriod;
 vmCvar_t        g_maxNameChanges;
 
+vmCvar_t        g_allowDuplicateNames;
+
 vmCvar_t        g_unnamedPlayersAllowed;
 vmCvar_t        g_unnamedRenameAdjlist;
 vmCvar_t        g_unnamedRenameNounlist;
@@ -752,6 +754,8 @@ static cvarTable_t		gameCvarTable[] = {
 	    
 	    { &g_minNameChangePeriod, "g_minNameChangePeriod", "10", 0, 0, qfalse},
         { &g_maxNameChanges, "g_maxNameChanges", "50", 0, 0, qfalse},
+
+        { &g_allowDuplicateNames, "g_allowDuplicateNames", "0", CVAR_ARCHIVE, 0, qfalse},
 
         { &g_unnamedPlayersAllowed, "g_unnamedPlayersAllowed", "1", CVAR_ARCHIVE, 0, qfalse},
         { &g_unnamedRenameAdjlist, "g_unnamedRenameAdjlist", "ratname-adjectives.txt", CVAR_ARCHIVE, 0, qfalse},
