@@ -281,6 +281,8 @@ vmCvar_t	g_ra3forceArena;
 vmCvar_t	g_ra3nextForceArena;
 
 vmCvar_t	g_multiTournamentGames;
+vmCvar_t	g_multiTournamentAutoRePair;
+vmCvar_t	g_multiTournamentEndgameRePair;
 
 vmCvar_t	g_enableGreenArmor;
 
@@ -601,6 +603,8 @@ static cvarTable_t		gameCvarTable[] = {
         { &g_ra3nextForceArena, "g_ra3nextForceArena", "-1", 0, 0, qfalse },
 
         { &g_multiTournamentGames, "g_multiTournamentGames", "4", CVAR_INIT, 0, qfalse },
+        { &g_multiTournamentAutoRePair, "g_multiTournamentAutoRePair", "1", CVAR_ARCHIVE, 0, qfalse },
+        { &g_multiTournamentEndgameRePair, "g_multiTournamentEndgameRePair", "1", CVAR_ARCHIVE, 0, qfalse },
 
         { &g_enableGreenArmor, "g_enableGreenArmor", "0", CVAR_ARCHIVE, 0, qfalse },
 
@@ -2560,10 +2564,12 @@ void ReorderMultiTournament( void ) {
 	gclient_t *cl;
 	int			sortedClients[MAX_CLIENTS];
 
-	if (level.multiTrnReorder) {
+	if (!g_multiTournamentEndgameRePair.integer || level.multiTrnReorder) {
 		return;
 	}
 	level.multiTrnReorder = qtrue;
+
+	trap_SendServerCommand( -1, "print \"Re-pairing players based on W/L ratios!\n\"" );
 
 	memcpy(sortedClients, level.sortedClients, sizeof(sortedClients));
 	numConnectedClients = level.numConnectedClients;
@@ -5552,7 +5558,7 @@ void CheckMultiTournament( void ) {
 		}
 	}
 
-	if (level.warmupTime != 0) {
+	if (level.warmupTime != 0 && g_multiTournamentAutoRePair.integer) {
 		// make sure players aren't alone in a game if there are others
 		// this can happen when a player leaves the game
 		G_MtrnRePairup();

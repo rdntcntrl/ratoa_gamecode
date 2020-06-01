@@ -1674,6 +1674,8 @@ extern  vmCvar_t	g_ra3forceArena;
 extern  vmCvar_t	g_ra3nextForceArena;
 
 extern  vmCvar_t	g_multiTournamentGames;
+extern  vmCvar_t	g_multiTournamentAutoRePair;
+extern  vmCvar_t	g_multiTournamentEndgameRePair;
 
 extern  vmCvar_t	g_enableGreenArmor;
 
