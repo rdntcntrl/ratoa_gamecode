@@ -2060,7 +2060,8 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 		// check for a password
 		value = Info_ValueForKey (userinfo, "password");
 		if ( g_password.string[0] && Q_stricmp( g_password.string, "none" ) &&
-			strcmp( g_password.string, value) != 0) {
+				strcmp( g_password.string, value) != 0 
+				&& (g_passwordVerifyConnected.integer || firstTime)) {
 			return "Invalid password";
 		}
 		for( i = 0; i < sizeof( client->pers.guid ) - 1 &&

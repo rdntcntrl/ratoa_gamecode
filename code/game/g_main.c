@@ -52,6 +52,7 @@ vmCvar_t	g_capturelimit;
 vmCvar_t	g_overtime;
 vmCvar_t	g_friendlyFire;
 vmCvar_t	g_password;
+vmCvar_t	g_passwordVerifyConnected;
 vmCvar_t	g_needpass;
 vmCvar_t	g_maxclients;
 vmCvar_t	g_maxGameClients;
@@ -421,6 +422,8 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_logfileSync, "g_logsync", "0", CVAR_ARCHIVE, 0, qfalse  },
 
 	{ &g_password, "g_password", "", CVAR_USERINFO, 0, qfalse  },
+	// re-verify if connected clients have the correct password upon map changes, map restarts and so on
+	{ &g_passwordVerifyConnected, "g_passwordVerifyConnected", "1", CVAR_ARCHIVE, 0, qfalse  },
 
 	{ &g_banIPs, "g_banIPs", "", CVAR_ARCHIVE, 0, qfalse  },
 	{ &g_filterBan, "g_filterBan", "1", CVAR_ARCHIVE, 0, qfalse  },
