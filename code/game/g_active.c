@@ -390,14 +390,18 @@ void ClientInactivityHeartBeat(gclient_t *client) {
 	int time = level.timeout ? level.realtime : level.time;
 	client->inactivityTime = time + (g_inactivity.integer ? g_inactivity.integer : 60) * 1000;
 	client->inactivityWarning = qfalse;
+	client->inactivityLastSuspend = 0;
 }
 
 #define CLIENTINACTIVITY_SUSPENDTIME (15 * 1000)
 void ClientInactivitySuspend(gclient_t *client) {
-	if (client->inactivityTime + CLIENTINACTIVITY_SUSPENDTIME > level.realtime) {
-		client->inactivityTime = level.realtime + CLIENTINACTIVITY_SUSPENDTIME;
-		client->inactivityWarning = qfalse;
+	if (client->inactivityLastSuspend > 0 && client->inactivityLastSuspend < level.realtime) {
+		// delay inactivity action while it's suspended (e.g. when a client is eliminated)
+		client->inactivityTime += level.realtime - client->inactivityLastSuspend;
 	}
+	client->inactivityLastSuspend = level.realtime;
+	// make sure that someone gets a warning when they are un-suspended
+	client->inactivityWarning = qfalse;
 }
 
 
