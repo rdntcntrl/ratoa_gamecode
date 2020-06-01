@@ -1184,10 +1184,10 @@ void BroadcastTeamChange( gclient_t *client, int oldTeam )
 		client->pers.netname));
 	}
 
-	if ( client->sess.sessionTeam == TEAM_SPECTATOR &&
-			client->sess.spectatorGroup == SPECTATORGROUP_AFK) {
-		trap_SendServerCommand( -1, va("print \"%s" S_COLOR_CYAN " is now afk\n\"", client->pers.netname) );
-	}
+	//if ( client->sess.sessionTeam == TEAM_SPECTATOR &&
+	//		client->sess.spectatorGroup == SPECTATORGROUP_AFK) {
+	//	trap_SendServerCommand( -1, va("print \"%s" S_COLOR_CYAN " is now afk\n\"", client->pers.netname) );
+	//}
 }
 
 /*
