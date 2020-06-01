@@ -1306,7 +1306,7 @@ void SetTeam_Force( gentity_t *ent, char *s, gentity_t *by, qboolean tryforce ) 
 		wantGameId = atoi(s);
 		if (wantGameId < 0 || wantGameId >= level.multiTrnNumGames) {
 			trap_SendServerCommand( ent - g_entities,
-					"cp \"Invalid game id!\n\"" );
+					"print \"Invalid game id!\n\"" );
 			return;
 		}
 	} else if ( g_gametype.integer >= GT_TEAM && g_ffa_gt!=1) {
@@ -1396,11 +1396,9 @@ void SetTeam_Force( gentity_t *ent, char *s, gentity_t *by, qboolean tryforce ) 
 			specGroup = SPECTATORGROUP_QUEUED;
 			team = TEAM_SPECTATOR;
 		} else if (wantGameId != -1 && !G_MultiTrnCanJoinGame(wantGameId)) {
-			specGroup = SPECTATORGROUP_SPEC;
-			team = TEAM_SPECTATOR;
 			trap_SendServerCommand( ent - g_entities,
 					va("print \"Can't join game %i!\n\"", wantGameId) );
-			wantGameId = -1;
+			return;
 		}
 	}
 
@@ -1408,7 +1406,10 @@ void SetTeam_Force( gentity_t *ent, char *s, gentity_t *by, qboolean tryforce ) 
 	// decide if we will allow the change
 	//
 	oldTeam = client->sess.sessionTeam;
-	if ( team == oldTeam && team != TEAM_SPECTATOR ) {
+	if ( team == oldTeam && team != TEAM_SPECTATOR 
+			&& (g_gametype.integer != GT_MULTITOURNAMENT 
+				|| wantGameId == -1 
+				|| wantGameId == client->sess.gameId)) {
 		return;
 	}
 
