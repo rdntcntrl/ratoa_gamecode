@@ -621,7 +621,7 @@ void G_CheckAmbushAward(gentity_t *victim, gentity_t *inflictor, gentity_t *atta
 	if (((victim->client->lastTeleportTime 
 					 && victim->client->lastTeleportTime + 800 >= level.time 
 					 && attacker->client->lastTeleportTime + 1500 < level.time 
-					 && G_AmbushCalculateTimeshiftTime(meansOfDeath, attacker, victim) >= victim->client->lastTeleportTime
+					 && G_AmbushCalculateTimeshiftTime(meansOfDeath, attacker, victim) > victim->client->lastTeleportTime
 				)
 				|| 
 				(victim->client->respawnTime + 1800 >= level.time)
