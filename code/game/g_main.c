@@ -61,6 +61,7 @@ vmCvar_t	g_speed;
 vmCvar_t	g_spectatorSpeed;
 vmCvar_t	g_gravity;
 vmCvar_t	g_gravityModifier;
+vmCvar_t	g_gravityJumppadFix;
 vmCvar_t        g_damageModifier;
 vmCvar_t	g_cheats;
 vmCvar_t	g_knockback;
@@ -436,6 +437,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_spectatorSpeed, "g_spectatorSpeed", "400", CVAR_ARCHIVE, 0, qfalse  },
 	{ &g_gravity, "g_gravity", "800", 0, 0, qtrue  },
 	{ &g_gravityModifier, "g_gravityModifier", "1", 0, 0, qtrue  },
+	{ &g_gravityJumppadFix, "g_gravityJumppadFix", "1", CVAR_ARCHIVE, 0, qfalse  },
         { &g_damageModifier, "g_damageModifier", "0", 0, 0, qtrue },
 	{ &g_knockback, "g_knockback", "1000", 0, 0, qtrue  },
 	{ &g_quadfactor, "g_quadfactor", "3", 0, 0, qtrue  },

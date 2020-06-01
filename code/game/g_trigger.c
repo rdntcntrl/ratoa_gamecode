@@ -173,8 +173,11 @@ void AimAtTarget( gentity_t *self ) {
 	}
 
 	height = ent->s.origin[2] - origin[2];
-	//gravity = g_gravity.value*g_gravityModifier.value;
-	gravity = g_gravity.value;
+	if (g_gravityJumppadFix.integer) {
+		gravity = g_gravity.value*g_gravityModifier.value;
+	} else {
+		gravity = g_gravity.value;
+	}
 	time = sqrt( height / ( .5 * gravity ) );
 	if ( !time ) {
 		G_FreeEntity( self );
