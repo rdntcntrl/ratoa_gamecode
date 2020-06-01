@@ -392,6 +392,14 @@ void ClientInactivityHeartBeat(gclient_t *client) {
 	client->inactivityWarning = qfalse;
 }
 
+#define CLIENTINACTIVITY_SUSPENDTIME (15 * 1000)
+void ClientInactivitySuspend(gclient_t *client) {
+	if (client->inactivityTime + CLIENTINACTIVITY_SUSPENDTIME > level.realtime) {
+		client->inactivityTime = level.realtime + CLIENTINACTIVITY_SUSPENDTIME;
+		client->inactivityWarning = qfalse;
+	}
+}
+
 
 
 /*
@@ -408,9 +416,9 @@ qboolean ClientInactivityTimer( gclient_t *client ) {
 		client->inactivityTime = level.time + 60 * 1000;
 		client->inactivityWarning = qfalse;
 	} else if ( client->pers.cmd.forwardmove || 
-		client->pers.cmd.rightmove || 
-		client->pers.cmd.upmove ||
-		(client->pers.cmd.buttons & BUTTON_ATTACK) ) {
+			client->pers.cmd.rightmove || 
+			client->pers.cmd.upmove ||
+			(client->pers.cmd.buttons & BUTTON_ATTACK) ) {
 		client->inactivityTime = level.time + g_inactivity.integer * 1000;
 		client->inactivityWarning = qfalse;
 	} else if ( !client->pers.localClient &&
@@ -1004,6 +1012,10 @@ void ClientThink_real( gentity_t *ent ) {
 
 	// spectators don't do much
 	if ( (client->sess.sessionTeam == TEAM_SPECTATOR) || client->isEliminated ) {
+		if (client->isEliminated) {
+			ClientInactivitySuspend(client);
+		}
+
 		if ( client->sess.spectatorState == SPECTATOR_SCOREBOARD ) {
 			return;
 		}
