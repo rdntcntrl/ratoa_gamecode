@@ -5321,7 +5321,9 @@ void AddMultiTournamentPlayer( void ) {
 	gclient_t	*nextInLine;
 
 	// never change during intermission
-	if ( level.intermissiontime ) {
+	// or when games are locked
+	if ( level.intermissiontime 
+			|| level.FFALocked ) {
 		return;
 	}
 
