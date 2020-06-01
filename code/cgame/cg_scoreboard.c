@@ -914,7 +914,7 @@ qboolean CG_DrawRatScoreboard(void) {
 		CG_DrawTinyScoreString(RATSB2_NAME_X, y, "Name", fade);
 		CG_DrawTinyScoreString(RATSB2_AWARDS_X, y, "Awards", fade);
 	} else {
-		if (cgs.gametype == GT_TOURNAMENT) {
+		if (cgs.gametype == GT_TOURNAMENT || cgs.gametype == GT_MULTITOURNAMENT) {
 			CG_DrawTinyScoreString(RATSB_WL_CENTER-1.5*SCORETINYCHAR_WIDTH, y, "W/L", fade);
 		} else if (cgs.gametype == GT_CTF) {
 			CG_DrawTinyScoreString(RATSB_WL_CENTER-1.5*SCORETINYCHAR_WIDTH, y, "C/R", fade);
@@ -987,15 +987,41 @@ qboolean CG_DrawRatScoreboard(void) {
 		}
 		n1 = 0;
 		for (gameId = 0; gameId <= maxGameId; ++gameId) {
-			int num = CG_RatTeamScoreboardGameId(y, TEAM_FREE, fade, maxClients - n1, lineHeight, qfalse, gameId);
-			y += (num * lineHeight) + SCORECHAR_HEIGHT * (num > 0 ? 1 : 0);
-			if (n1 && num ) { 
-				// if we add a gap between the games, that
-				// dcreases the space available to draw
-				// spectators;
-				num += 1;
+			int gapsAdded;
+			int num = CG_RatTeamScoreboardGameId(y, TEAM_FREE, fade, maxClients - n1, lineHeight, qtrue, gameId);
+			if (num) {
+				float   color[4];
+
+				color[0] = color[1] = color[2] = 0.0;
+				color[3] = fade * 0.33;
+				CG_FillRect( 2, y, SCREEN_WIDTH - 4, SCORETINYCHAR_HEIGHT + 2*lineHeight, color );
+				color[0] = color[1] = color[2] = 1.0;
+				color[3] = fade;
+				CG_DrawTinyScoreString(SCOREBOARD_X+3, y, va("Game %i", gameId), fade);
+				y += SCORETINYCHAR_HEIGHT;
+
+				CG_RatTeamScoreboardGameId(y, TEAM_FREE, fade, maxClients - n1, lineHeight, qfalse, gameId);
+				y += (2 * lineHeight);
+				// spacing between games
+				y += 3;
 			}
+			if (num == 1) {
+				gapsAdded = 2;
+			} else if (num > 1) {
+				gapsAdded = 1;
+			} else {
+				gapsAdded = 0;
+			}
+			// if we add a gap between the games, that
+			// dcreases the space available to draw
+			// spectators;
+			num += gapsAdded;
+
 			n1 += num;
+		}
+		if (n1) {
+			// last gap before specs
+			y += SCORECHAR_HEIGHT;
 		}
 		n2 = CG_RatTeamScoreboard(y, TEAM_SPECTATOR, fade, maxClients - n1, lineHeight, qfalse);
 		y += (n2 * lineHeight) + SCORECHAR_HEIGHT;
