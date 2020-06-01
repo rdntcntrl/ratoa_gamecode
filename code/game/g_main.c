@@ -5446,6 +5446,13 @@ qboolean G_MultiTrnGameOpen(multiTrnGame_t *game) {
 	return ((game->numPlayers < 2 && !(game->gameFlags & MTRN_GFL_RUNNING)));
 }
 
+qboolean G_MultiTrnCanJoinGame(int gameId) {
+	if (gameId < 0 || gameId >= level.multiTrnNumGames) {
+		return qfalse;
+	}
+	return G_MultiTrnGameOpen(&level.multiTrnGames[gameId]);
+}
+
 int G_FindFreeMultiTrnSlot(void) {
 	int i;
 	int openGameId = -1;

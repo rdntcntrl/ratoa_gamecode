@@ -1249,6 +1249,7 @@ void G_EQPingSet(int maxEQPing, qboolean forceMax);
 void G_EQPingClientSet(gclient_t *client);
 void G_EQPingClientReset(gclient_t *client);
 int G_FindFreeMultiTrnSlot(void);
+qboolean G_MultiTrnCanJoinGame(int gameId);
 void G_UpdateMultiTrnGames(void);
 qboolean G_MtrnIntermissionQueued(int gameId);
 qboolean G_MtrnIntermissionTimeClient(gclient_t *cl);

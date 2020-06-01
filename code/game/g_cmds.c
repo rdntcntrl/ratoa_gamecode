@@ -1254,6 +1254,7 @@ void SetTeam_Force( gentity_t *ent, char *s, gentity_t *by, qboolean tryforce ) 
 	int					teamLeader;
 	char	            userinfo[MAX_INFO_STRING];
 	qboolean            force = qfalse;
+	int wantGameId = -1;
 
     	if (tryforce) {
 		if (by == NULL) {
@@ -1300,6 +1301,14 @@ void SetTeam_Force( gentity_t *ent, char *s, gentity_t *by, qboolean tryforce ) 
 		team = TEAM_SPECTATOR;
 		specState = SPECTATOR_FREE;
 		specGroup = SPECTATORGROUP_AFK;
+	} else if ( g_gametype.integer == GT_MULTITOURNAMENT && s[0] >= '0' && s[0] <= '9' ) {
+		team = TEAM_FREE;
+		wantGameId = atoi(s);
+		if (wantGameId < 0 || wantGameId >= level.multiTrnNumGames) {
+			trap_SendServerCommand( ent - g_entities,
+					"cp \"Invalid game id!\n\"" );
+			return;
+		}
 	} else if ( g_gametype.integer >= GT_TEAM && g_ffa_gt!=1) {
 		// if running a team game, assign player to one of the teams
 		specState = SPECTATOR_NOT;
@@ -1382,12 +1391,17 @@ void SetTeam_Force( gentity_t *ent, char *s, gentity_t *by, qboolean tryforce ) 
 			specGroup = SPECTATORGROUP_QUEUED;
 		}
 		team = TEAM_SPECTATOR;
-	} else if ( g_gametype.integer == GT_MULTITOURNAMENT &&
-			G_FindFreeMultiTrnSlot() == -1) {
-		if (team == TEAM_FREE) {
+	} else if ( g_gametype.integer == GT_MULTITOURNAMENT && team == TEAM_FREE) {
+		if (wantGameId == -1 &&  G_FindFreeMultiTrnSlot() == -1) {
 			specGroup = SPECTATORGROUP_QUEUED;
+			team = TEAM_SPECTATOR;
+		} else if (wantGameId != -1 && !G_MultiTrnCanJoinGame(wantGameId)) {
+			specGroup = SPECTATORGROUP_SPEC;
+			team = TEAM_SPECTATOR;
+			trap_SendServerCommand( ent - g_entities,
+					va("print \"Can't join game %i!\n\"", wantGameId) );
+			wantGameId = -1;
 		}
-		team = TEAM_SPECTATOR;
 	}
 
 	//
@@ -1495,7 +1509,11 @@ void SetTeam_Force( gentity_t *ent, char *s, gentity_t *by, qboolean tryforce ) 
 
 	if ( g_gametype.integer == GT_MULTITOURNAMENT
 			&& client->sess.sessionTeam == TEAM_FREE) {
-		ent->client->sess.gameId = G_FindFreeMultiTrnSlot();
+		if (wantGameId != -1 && G_MultiTrnCanJoinGame(wantGameId)) {
+			ent->client->sess.gameId = wantGameId;
+		} else {
+			ent->client->sess.gameId = G_FindFreeMultiTrnSlot();
+		}
 		ent->gameId = ent->client->sess.gameId;
 		G_UpdateMultiTrnGames();
 	}
