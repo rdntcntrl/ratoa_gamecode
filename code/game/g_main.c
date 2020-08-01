@@ -543,7 +543,7 @@ static cvarTable_t		gameCvarTable[] = {
         { &g_delagMissileImmediateRun, "g_delagMissileImmediateRun", "2", CVAR_ARCHIVE, 0, qfalse },
 
         { &g_predictMissiles, "g_predictMissiles", "1", CVAR_ARCHIVE, 0, qfalse },
-        { &g_delagMissileBaseNudge, "g_delagMissileBaseNudge", "20", CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qfalse },
+        { &g_delagMissileBaseNudge, "g_delagMissileBaseNudge", "10", CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qfalse },
 
 
         { &g_teleporterPrediction, "g_teleporterPrediction", "1", 0, 0, qfalse },
