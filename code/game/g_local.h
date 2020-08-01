@@ -61,7 +61,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 // for delagged projectiles
 //#define	MISSILE_PRESTEP_MAX_LATENCY 250
-#define	UNLAG_MAX_BACKTRACK (g_unlagMissileMaxLatency.integer + 1000/sv_fps.integer * 2)
+#define	DELAG_MAX_BACKTRACK (g_delagMissileMaxLatency.integer + 1000/sv_fps.integer * 2)
 
 #define PLASMA_THINKTIME 10000
 
@@ -204,7 +204,6 @@ struct gentity_s {
 	// for delagged projectiles
 	qboolean	needsDelag;
 	int		launchTime;
-	int		launchLag;
 	int		missileRan;
 
 	int		pushed_at;
@@ -961,7 +960,7 @@ void G_StoreViewVectorHistory ( gclient_t *client );
 //
 void G_RunMissile( gentity_t *ent );
 int G_MissilePrestep( gclient_t *client);
-void G_MissileRunPrestep( gentity_t *ent, int stepmsec);
+void G_MissileRunDelag( gentity_t *ent, int stepmsec);
 void G_ImmediateRunMissiles(gentity_t *client);
 void G_ImmediateLaunchMissile(gentity_t *ent);
 void G_ImmediateRunClientMissiles(gentity_t *client);
@@ -1497,18 +1496,16 @@ extern  vmCvar_t        g_passThroughInvisWalls;
 extern  vmCvar_t        g_ambientSound;
 extern  vmCvar_t        g_rocketSpeed;
 extern  vmCvar_t        g_maxExtrapolatedFrames;
-extern  vmCvar_t        g_unlagMissileMaxLatency;
-extern  vmCvar_t        g_unlagDebug;
-extern  vmCvar_t        g_unlagMode;
-extern  vmCvar_t        g_unlagLimitVariance;
-extern  vmCvar_t        g_unlagLimitVarianceMs;
-extern  vmCvar_t        g_unlagMissileDefaultNudge;
-extern  vmCvar_t        g_unlagLaunchLagMode;
-extern  vmCvar_t        g_unlagLatencyMode;
-extern  vmCvar_t        g_unlagCorrectFrameOffset;
-extern  vmCvar_t        g_unlagPrestep;
-extern  vmCvar_t        g_unlagImmediateRun;
-extern  vmCvar_t        g_unlagFlight;
+extern  vmCvar_t        g_delagMissileMaxLatency;
+extern  vmCvar_t        g_delagMissileDebug;
+extern  vmCvar_t        g_delagMissiles;
+extern  vmCvar_t        g_delagMissileLimitVariance;
+extern  vmCvar_t        g_delagMissileLimitVarianceMs;
+extern  vmCvar_t        g_delagMissileBaseNudge;
+extern  vmCvar_t        g_delagMissileNudgeOnly;
+extern  vmCvar_t        g_delagMissileLatencyMode;
+extern  vmCvar_t        g_delagMissileCorrectFrameOffset;
+extern  vmCvar_t        g_delagMissileImmediateRun;
 
 extern  vmCvar_t        g_teleporterPrediction;
 
@@ -1563,7 +1560,7 @@ extern  vmCvar_t        g_mixedMode;
 extern  vmCvar_t        g_broadcastClients;
 extern  vmCvar_t        g_useExtendedScores;
 extern  vmCvar_t        g_statsboard;
-extern  vmCvar_t        g_ratVmPredictMissiles;
+extern  vmCvar_t        g_predictMissiles;
 extern  vmCvar_t        g_ratFlags;
 extern  vmCvar_t        sv_allowDuplicateGuid;
 

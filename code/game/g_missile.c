@@ -22,37 +22,30 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 //
 #include "g_local.h"
 
-//#define	MISSILE_PRESTEP_TIME 50
-//#define	MISSILE_PRESTEP_MAX_LATENCY 150
 #define MIN(x,y) (x < y ? x : y)
-//#define MISSILE_LAUNCHLAG(ping) (MIN(MISSILE_PRESTEP_MAX_LATENCY/2, ping/2))
-//#define MISSILE_LAUNCHLAG(ping) (MIN(g_unlagMissileMaxLatency.integer/2, ping/2))
 
-int G_UnlagLatency(gclient_t *client) {
+#define MISSILE_PRESTEP_TIME	50
+
+int G_DelagLatency(gclient_t *client) {
 	int ping = 0;
-	switch (g_unlagLatencyMode.integer) {
-		case 1:
+	switch (g_delagMissileLatencyMode.integer) {
+		case 2:
 			ping = client->ps.ping;
 			break;
-		case 2:
+		case 3:
 			ping = client->pers.realPing;
 			break;
-		case 3:
-			ping = level.previousTime + client->frameOffset - (client->attackTime + client->pers.cmdTimeNudge);
-			if (ping < 0) {
-				ping = 0;
-			}
-			break;
-		case 4:
+		case 1:
+		default:
 			ping = level.previousTime + client->frameOffset - client->attackTime;
 			if (ping < 0) {
 				ping = 0;
 			}
 			break;
 	}
-	if (g_unlagLimitVariance.integer && g_unlagLimitVarianceMs.integer > 0 && g_truePing.integer) {
-		int maxping = client->pers.realPing + g_unlagLimitVarianceMs.integer;
-		int minping = client->pers.realPing - g_unlagLimitVarianceMs.integer;
+	if (g_delagMissileLimitVariance.integer && g_delagMissileLimitVarianceMs.integer > 0 && g_truePing.integer) {
+		int maxping = client->pers.realPing + g_delagMissileLimitVarianceMs.integer;
+		int minping = client->pers.realPing - g_delagMissileLimitVarianceMs.integer;
 		qboolean limited = qfalse;
 		int oldping = ping;
 
@@ -66,31 +59,22 @@ int G_UnlagLatency(gclient_t *client) {
 			ping = minping;
 			limited = qtrue;
 		}
-		if (limited && g_unlagDebug.integer) {
+		if (limited && g_delagMissileDebug.integer) {
 			Com_Printf("Limited projectile delag ping (c %i): %i -> %i, realPing: %i\n", client->ps.clientNum, oldping, ping, client->pers.realPing);
 		}
 	}
-	return MIN(g_unlagMissileMaxLatency.integer, ping);
+	return MIN(g_delagMissileMaxLatency.integer, ping);
 }
 
-int G_LaunchLag(gclient_t *client) {
-	switch (g_unlagLaunchLagMode.integer) {
-		case 1:
-			return G_UnlagLatency(client)/2;
-			break;
-		case 2:
-			return G_UnlagLatency(client);
-			break;
-	}
-	return 0;
-}
-
-int G_MissilePrestep(gclient_t *client) {
-	int launchlag = G_LaunchLag(client);
+int G_MissileLagTime(gclient_t *client) {
 	int offset = 0;
-	if (g_unlagCorrectFrameOffset.integer) {
+
+	if (!g_delagMissiles.integer) {
+		return MISSILE_PRESTEP_TIME;
+	}
+
+	if (g_delagMissileCorrectFrameOffset.integer) {
 		offset = level.time - (level.previousTime + client->frameOffset);
-		//Com_Printf("MissilePrestep: offset = %i\n", offset);
 		if (offset < 0) {
 			offset = 0;
 		}
@@ -98,32 +82,12 @@ int G_MissilePrestep(gclient_t *client) {
 			offset = 1000/sv_fps.integer;
 		}
 	}
-	switch (g_unlagMode.integer) {
-		case 1:
-			// add default MISSILE_PRESTEP
-			// this is simulating local OA, but MISSILE_PRESTEP 50 was added by
-			// unlagged mod, so it might already be too large
-			return offset + launchlag + 50;
-			break;
-		case 2:
-			return offset + launchlag + sv_fps.integer/1000;
-			break;
-		case 3:
-			return offset + launchlag;
-			break;
-		case 4:
-			return offset + 50;
-			break;
-		case 5:
-			return offset + launchlag + g_unlagMissileDefaultNudge.integer;
-			break;
-	}
-	return 0;
+	return offset + G_DelagLatency(client) + g_delagMissileBaseNudge.integer;
 }
 
-void G_MissileRunPrestep(gentity_t *ent, int stepmsec) {
-	if (!g_unlagPrestep.integer
-			|| level.previousTime <= UNLAG_MAX_BACKTRACK
+void G_MissileRunDelag(gentity_t *ent, int stepmsec) {
+	if (g_delagMissileNudgeOnly.integer
+			|| level.previousTime <= DELAG_MAX_BACKTRACK
 			|| stepmsec <= 0) {
 		return;
 	}
@@ -140,7 +104,7 @@ void G_MissileRunPrestep(gentity_t *ent, int stepmsec) {
 
 	int prevTimeSaved = level.previousTime;
 	int lvlTimeSaved = level.time;
-	int projectileDelagTime = level.previousTime - (UNLAG_MAX_BACKTRACK/stepmsec) * stepmsec;
+	int projectileDelagTime = level.previousTime - (DELAG_MAX_BACKTRACK/stepmsec) * stepmsec;
 	while (projectileDelagTime < prevTimeSaved) {
 		if ( !ent->inuse || ent->freeAfterEvent ) {
 			// make sure we don't run missile again
@@ -149,20 +113,11 @@ void G_MissileRunPrestep(gentity_t *ent, int stepmsec) {
 		}
 		if (projectileDelagTime >= ent->launchTime) {
 			int shiftTime = projectileDelagTime;
-			if (g_unlagFlight.integer) {
-				// if the whole flight should be
-				// unlagged, shift clients even
-				// further s.t. you can aim
-				// properly locally
-				shiftTime -= ent->launchLag;
-				shiftTime = shiftTime >= 0 ? shiftTime : 0;
-			}
 			G_TimeShiftAllClients( shiftTime, ent->parent );
 			level.time = projectileDelagTime + stepmsec;
 			level.previousTime = projectileDelagTime;
 
 
-			//Com_Printf("delag prestep running missile, level.time = %d, level.previousTime = %d, launchTime = %d\n", level.time, level.previousTime, ent->launchTime);
 			G_RunMissile( ent );
 
 			level.time = lvlTimeSaved;
@@ -180,9 +135,9 @@ void G_ImmediateRunMissile(gentity_t *ent) {
 		return;
 	}
 
-	if (g_unlagPrestep.integer) {
+	if (!g_delagMissileNudgeOnly.integer) {
 		int stepmsec = level.time - level.previousTime;
-		G_MissileRunPrestep(ent, stepmsec);
+		G_MissileRunDelag(ent, stepmsec);
 
 	}
 	if ( !ent->inuse ) {
@@ -200,17 +155,17 @@ void G_ImmediateRunMissile(gentity_t *ent) {
 }
 
 void G_ImmediateLaunchMissile(gentity_t *ent) {
-	if (g_unlagImmediateRun.integer == 1) {
+	if (g_delagMissileImmediateRun.integer == 1) {
 		G_ImmediateRunMissile(ent);
-	} else if (g_unlagImmediateRun.integer >= 2) {
-		ent->missileRan = -g_unlagImmediateRun.integer+1;
+	} else if (g_delagMissileImmediateRun.integer >= 2) {
+		ent->missileRan = -g_delagMissileImmediateRun.integer+1;
 	}
 }
 
 void G_ImmediateRunClientMissiles(gentity_t *client) {
 	gentity_t *ent;
 	int i;
-	if (g_unlagImmediateRun.integer <= 1) {
+	if (g_delagMissileImmediateRun.integer <= 1) {
 		return;
 	}
 	for (i=0 ; i < level.num_entities ; ++i ) {
@@ -278,8 +233,6 @@ void G_TeleportMissile( gentity_t *ent, trace_t *trace, gentity_t *portal ) {
 	vec3_t			rotationMatrix[3];
 	vec_t			length_norm,length_neg_norm;
 	vec3_t			tmp;
-	//vec3_t			exitAngles;
-	//vec3_t			velocityAngles;
 
 	dest =  G_PickTarget( portal->target );
 	if (!dest) {
@@ -295,15 +248,6 @@ void G_TeleportMissile( gentity_t *ent, trace_t *trace, gentity_t *portal ) {
 	hitTime = level.previousTime + ( level.time - level.previousTime ) * trace->fraction;
         BG_EvaluateTrajectoryDelta( &ent->s.pos, hitTime, velocity );
 
-
-	//Com_Printf("portal->s.angles2: %f %f %f\n", portal->s.angles2[0], portal->s.angles2[1], portal->s.angles2[2]);
-	//Com_Printf("surface normal: %f %f %f\n", trace->plane.normal[0],
-	//					 trace->plane.normal[1],
-	//					 trace->plane.normal[2]);
-	//vectoangles(velocity, velocityAngles);
-	//Com_Printf("velocity angles: %f %f %f\n", velocityAngles[0],
-	//					  velocityAngles[1],
- 	//					  velocityAngles[2]);
 	// check orientation of normal vector
 	VectorAdd(trace->plane.normal, velocity, tmp);
 	length_norm = VectorLengthSquared(tmp);
@@ -312,27 +256,12 @@ void G_TeleportMissile( gentity_t *ent, trace_t *trace, gentity_t *portal ) {
 	VectorAdd(portalInVec, velocity, tmp);
 	length_neg_norm = VectorLengthSquared(tmp);
 
-	//Com_Printf("length = %f, length negated = %f\n", length1, length2);
-
-	//if (length1 > length2) {
-	//	VectorCopy(trace->plane.normal, portalInVec);
-	//}
-
 	vectoangles(portalInVec, portalInAngles);
-	//Com_Printf("surface angles: %f %f %f\n", portalInAngles[0],
-	//					 portalInAngles[1],
-	//					 portalInAngles[2]);
-	//Com_Printf("dest->s.angles: %f %f %f\n", dest->s.angles[0], dest->s.angles[1], dest->s.angles[2]);
 	if (length_norm > length_neg_norm) {
 		VectorSubtract(dest->s.angles, portalInAngles, rotationAngles);
 	} else {
 		VectorSubtract(portalInAngles, dest->s.angles, rotationAngles);
 	}
-	//Com_Printf("rotation angles: %f %f %f\n", rotationAngles[0],
-	//					  rotationAngles[1],
-	//					  rotationAngles[2]);
-
-	//
 
 	// create rotation matrix
 	AngleVectors(rotationAngles, rotationMatrix[0], rotationMatrix[1], rotationMatrix[2]);
@@ -340,10 +269,6 @@ void G_TeleportMissile( gentity_t *ent, trace_t *trace, gentity_t *portal ) {
 
 	// rotate velocity vector
 	VectorRotate(velocity, rotationMatrix, ent->s.pos.trDelta);
-	//vectoangles(ent->s.pos.trDelta, exitAngles);
-	//Com_Printf("exit angles: %f %f %f\n", exitAngles[0],
-	//					 exitAngles[1],
-	//					 exitAngles[2]);
 	SnapVector(ent->s.pos.trDelta);
 
 	// set flag to indicate missile teleport
@@ -358,8 +283,6 @@ void G_TeleportMissile( gentity_t *ent, trace_t *trace, gentity_t *portal ) {
 	ent->s.pos.trTime = level.time;
 
 	if (g_usesRatVM.integer) {
-		//G_TempEntity(ent->r.currentOrigin, EV_MISSILE_TELEPORT );
-		//G_AddEvent(ent, EV_MISSILE_TELEPORT, 0 );
 		gentity_t *tmp_ent = G_TempEntity(ent->r.currentOrigin, EV_MISSILE_TELEPORT );
 		tmp_ent->r.svFlags |= SVF_BROADCAST;
 	}
@@ -1005,12 +928,11 @@ void G_RunMissile( gentity_t *ent ) {
 	G_RunThink( ent );
 }
 
-void G_ApplyUnlag (gentity_t *self, gentity_t *bolt) {
+void G_ApplyMissileNudge (gentity_t *self, gentity_t *bolt) {
 	if (!self->client) {
 		return;
 	}
-	bolt->launchLag = G_LaunchLag(self->client);
-	bolt->s.pos.trTime -= G_MissilePrestep(self->client);
+	bolt->s.pos.trTime -= G_MissileLagTime(self->client);
 	bolt->needsDelag = qtrue;
 	bolt->launchTime = bolt->s.pos.trTime;
 	
@@ -1018,26 +940,13 @@ void G_ApplyUnlag (gentity_t *self, gentity_t *bolt) {
 			&& level.time > level.roundStartTime - 1000*g_elimination_activewarmup.integer) {
 		if (bolt->launchTime < level.roundStartTime) {
 			int prestep = 0;
-			switch (g_unlagMode.integer) {
-				case 1:
-					prestep = 50;
-					break;
-				case 2:
-					prestep = sv_fps.integer/1000;
-					break;
-				case 3:
-					prestep = 0;
-					break;
-				case 4:
-					prestep = 50;
-					break;
-				case 5:
-					prestep = g_unlagMissileDefaultNudge.integer;
-					break;
+			if (g_delagMissiles.integer) {
+				prestep = g_delagMissileBaseNudge.integer;
+			} else {
+				prestep = MISSILE_PRESTEP_TIME;
 			}
 			bolt->s.pos.trTime = level.roundStartTime-prestep;
 			bolt->launchTime = level.roundStartTime-prestep;
-			bolt->launchLag = 0;
 
 		}
 	}
@@ -1083,7 +992,7 @@ gentity_t *fire_plasma (gentity_t *self, vec3_t start, vec3_t dir) {
 	bolt->s.pos.trType = TR_LINEAR;
 	bolt->s.pos.trTime = level.time;
 	//bolt->s.pos.trTime = level.time;
-	G_ApplyUnlag(self, bolt);
+	G_ApplyMissileNudge(self, bolt);
 	VectorCopy( start, bolt->s.pos.trBase );
 	VectorScale( dir, 2000, bolt->s.pos.trDelta );
 	SnapVector( bolt->s.pos.trDelta );			// save net bandwidth
@@ -1143,7 +1052,7 @@ gentity_t *fire_grenade (gentity_t *self, vec3_t start, vec3_t dir) {
 	bolt->s.pos.trType = TR_GRAVITY;
 	bolt->s.pos.trTime = level.time;
 	//bolt->s.pos.trTime = level.time;
-	G_ApplyUnlag(self, bolt);
+	G_ApplyMissileNudge(self, bolt);
 	VectorCopy( start, bolt->s.pos.trBase );
 	VectorScale( dir, 700, bolt->s.pos.trDelta );
 	SnapVector( bolt->s.pos.trDelta );			// save net bandwidth
@@ -1193,7 +1102,7 @@ gentity_t *fire_bfg (gentity_t *self, vec3_t start, vec3_t dir) {
 	bolt->s.pos.trType = TR_LINEAR;
 	bolt->s.pos.trTime = level.time;
 	//bolt->s.pos.trTime = level.time;
-	G_ApplyUnlag(self, bolt);
+	G_ApplyMissileNudge(self, bolt);
 	VectorCopy( start, bolt->s.pos.trBase );
 	VectorScale( dir, 2000, bolt->s.pos.trDelta );
 	SnapVector( bolt->s.pos.trDelta );			// save net bandwidth
@@ -1242,7 +1151,7 @@ gentity_t *fire_rocket (gentity_t *self, vec3_t start, vec3_t dir) {
 	bolt->s.pos.trType = TR_LINEAR;
 	bolt->s.pos.trTime = level.time;
 	//bolt->s.pos.trTime = level.time;
-	G_ApplyUnlag(self, bolt);
+	G_ApplyMissileNudge(self, bolt);
 	VectorCopy( start, bolt->s.pos.trBase );
 	//VectorScale( dir, 900, bolt->s.pos.trDelta );
 	//VectorScale( dir, 1000, bolt->s.pos.trDelta );
@@ -1280,7 +1189,7 @@ gentity_t *fire_grapple (gentity_t *self, vec3_t start, vec3_t dir) {
 	hook->s.otherEntityNum = self->s.number;
 
 	hook->s.pos.trTime = level.time;
-	G_ApplyUnlag(self, hook);
+	G_ApplyMissileNudge(self, hook);
 
 //unlagged - grapple
 
@@ -1335,7 +1244,7 @@ gentity_t *fire_nail( gentity_t *self, vec3_t start, vec3_t forward, vec3_t righ
 
 	bolt->s.pos.trType = TR_LINEAR;
 	bolt->s.pos.trTime = level.time;
-	G_ApplyUnlag(self, bolt);
+	G_ApplyMissileNudge(self, bolt);
 	VectorCopy( start, bolt->s.pos.trBase );
 
 	//r = random() * M_PI * 2.0f;
@@ -1402,7 +1311,7 @@ gentity_t *fire_prox( gentity_t *self, vec3_t start, vec3_t dir ) {
 	bolt->s.pos.trType = TR_GRAVITY;
 	bolt->s.pos.trTime = level.time;
 	//bolt->s.pos.trTime = level.time;
-	G_ApplyUnlag(self, bolt);
+	G_ApplyMissileNudge(self, bolt);
 	VectorCopy( start, bolt->s.pos.trBase );
 	VectorScale( dir, 700, bolt->s.pos.trDelta );
 	SnapVector( bolt->s.pos.trDelta );			// save net bandwidth

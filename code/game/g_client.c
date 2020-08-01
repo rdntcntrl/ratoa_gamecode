@@ -2152,10 +2152,10 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 //unlagged - backward reconciliation #5
 	// announce it
 	
-	if (g_unlagMode.integer && g_unlagMissileMaxLatency.integer > 0) {
+	if (g_delagMissiles.integer && g_delagMissileMaxLatency.integer > 0) {
 		trap_SendServerCommand( clientNum, va("print \"Hitscan de-lag is %s, projectile de-lag is ON up to %ims!\n\"", 
 					g_delagHitscan.integer ? "ON" : "OFF",
-					g_unlagMissileMaxLatency.integer
+					g_delagMissileMaxLatency.integer
 					));
 	} else {
 		trap_SendServerCommand( clientNum, va("print \"Hitscan de-lag is %s, projectile de-lag is OFF!\n\"", 

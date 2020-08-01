@@ -733,9 +733,6 @@ gentity_t *Drop_ItemNonRandom( gentity_t *ent, gitem_t *item, float angle ) {
 	//velocity[2] += 250;
 	
 	item_ent = LaunchItem( item, muzzle, forward );
-	//if (item_ent && ent->client) {
-	//	item_ent->s.pos.trTime -= G_MissilePrestep(ent->client);
-	//}
 	return item_ent;
 }
 

@@ -235,18 +235,16 @@ vmCvar_t        g_passThroughInvisWalls;
 vmCvar_t        g_ambientSound; 
 vmCvar_t        g_rocketSpeed; 
 vmCvar_t        g_maxExtrapolatedFrames; 
-vmCvar_t        g_unlagMissileMaxLatency; 
-vmCvar_t        g_unlagDebug; 
-vmCvar_t        g_unlagMode; 
-vmCvar_t        g_unlagLimitVariance;
-vmCvar_t        g_unlagLimitVarianceMs;
-vmCvar_t        g_unlagMissileDefaultNudge; 
-vmCvar_t        g_unlagLaunchLagMode; 
-vmCvar_t        g_unlagLatencyMode; 
-vmCvar_t        g_unlagCorrectFrameOffset; 
-vmCvar_t        g_unlagPrestep; 
-vmCvar_t        g_unlagImmediateRun; 
-vmCvar_t        g_unlagFlight; 
+vmCvar_t        g_delagMissileMaxLatency; 
+vmCvar_t        g_delagMissileDebug; 
+vmCvar_t        g_delagMissiles; 
+vmCvar_t        g_delagMissileLimitVariance;
+vmCvar_t        g_delagMissileLimitVarianceMs;
+vmCvar_t        g_delagMissileBaseNudge; 
+vmCvar_t        g_delagMissileLatencyMode; 
+vmCvar_t        g_delagMissileCorrectFrameOffset; 
+vmCvar_t        g_delagMissileNudgeOnly; 
+vmCvar_t        g_delagMissileImmediateRun; 
 
 vmCvar_t        g_teleporterPrediction; 
 
@@ -301,8 +299,7 @@ vmCvar_t        g_mixedMode;
 vmCvar_t        g_broadcastClients;
 vmCvar_t        g_useExtendedScores;
 vmCvar_t        g_statsboard;
-vmCvar_t        g_ratVmPredictMissiles;
-vmCvar_t        g_ratVmMissileNudge;
+vmCvar_t        g_predictMissiles;
 vmCvar_t        g_ratFlags;
 vmCvar_t        g_maxBrightShellAlpha;
 vmCvar_t        sv_allowDuplicateGuid;
@@ -524,7 +521,7 @@ static cvarTable_t		gameCvarTable[] = {
 //unlagged - server options
 	{ &g_delagHitscan, "g_delagHitscan", "1", CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qtrue },
 	{ &g_delagAllowHitsAfterTele, "g_delagAllowHitsAfterTele", "1", CVAR_ARCHIVE , 0, qfalse },
-	{ &g_truePing, "g_truePing", "0", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_truePing, "g_truePing", "1", CVAR_ARCHIVE, 0, qtrue },
 	// it's CVAR_SYSTEMINFO so the client's sv_fps will be automagically set to its value
 	{ &sv_fps, "sv_fps", "20", CVAR_SYSTEMINFO | CVAR_ARCHIVE, 0, qfalse },
         { &g_lagLightning, "g_lagLightning", "0", CVAR_ARCHIVE, 0, qtrue },
@@ -533,21 +530,21 @@ static cvarTable_t		gameCvarTable[] = {
         { &g_rocketSpeed, "g_rocketSpeed", "1000", CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qtrue },
 	// TODO: CVAR_ARCHIVE
         { &g_maxExtrapolatedFrames, "g_maxExtrapolatedFrames", "2", 0 , 0, qfalse },
-        { &g_unlagMissileMaxLatency, "g_unlagMissileMaxLatency", "500", CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qfalse },
-        { &g_unlagDebug, "g_unlagDebug", "0", 0, 0, qfalse },
-        { &g_unlagMode, "g_unlagMode", "5", CVAR_ARCHIVE, 0, qfalse },
-        { &g_unlagLimitVariance, "g_unlagLimitVariance", "1", CVAR_ARCHIVE, 0, qfalse },
-        { &g_unlagLimitVarianceMs, "g_unlagLimitVarianceMs", "25", CVAR_ARCHIVE, 0, qfalse },
-        { &g_unlagLaunchLagMode, "g_unlagLaunchLagMode", "2", CVAR_ARCHIVE, 0, qfalse },
-        { &g_unlagLatencyMode, "g_unlagLatencyMode", "4", CVAR_ARCHIVE, 0, qfalse },
-        { &g_unlagCorrectFrameOffset, "g_unlagCorrectFrameOffset", "1", CVAR_ARCHIVE, 0, qfalse },
-        { &g_unlagPrestep, "g_unlagPrestep", "1", CVAR_ARCHIVE, 0, qfalse },
-        { &g_unlagImmediateRun, "g_unlagImmediateRun", "2", CVAR_ARCHIVE, 0, qfalse },
-        { &g_unlagFlight, "g_unlagFlight", "0", CVAR_ARCHIVE, 0, qfalse },
 
-        { &g_ratVmPredictMissiles, "g_ratVmPredictMissiles", "1", CVAR_ARCHIVE, 0, qfalse },
-        { &g_ratVmMissileNudge, "g_ratVmMissileNudge", "20", CVAR_SERVERINFO, 0, qfalse },
-        { &g_unlagMissileDefaultNudge, "g_unlagMissileDefaultNudge", "20", CVAR_ARCHIVE, 0, qfalse },
+	// Missile Delag
+        { &g_delagMissileMaxLatency, "g_delagMissileMaxLatency", "500", CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qfalse },
+        { &g_delagMissileDebug, "g_delagMissileDebug", "0", 0, 0, qfalse },
+        { &g_delagMissiles, "g_delagMissiles", "1", CVAR_ARCHIVE, 0, qfalse },
+        { &g_delagMissileLimitVariance, "g_delagMissileLimitVariance", "1", CVAR_ARCHIVE, 0, qfalse },
+        { &g_delagMissileLimitVarianceMs, "g_delagMissileLimitVarianceMs", "25", CVAR_ARCHIVE, 0, qfalse },
+        { &g_delagMissileLatencyMode, "g_delagMissileLatencyMode", "1", CVAR_ARCHIVE, 0, qfalse },
+        { &g_delagMissileCorrectFrameOffset, "g_delagMissileCorrectFrameOffset", "1", CVAR_ARCHIVE, 0, qfalse },
+        { &g_delagMissileNudgeOnly, "g_delagMissileNudgeOnly", "0", CVAR_ARCHIVE, 0, qfalse },
+        { &g_delagMissileImmediateRun, "g_delagMissileImmediateRun", "2", CVAR_ARCHIVE, 0, qfalse },
+
+        { &g_predictMissiles, "g_predictMissiles", "1", CVAR_ARCHIVE, 0, qfalse },
+        { &g_delagMissileBaseNudge, "g_delagMissileBaseNudge", "20", CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qfalse },
+
 
         { &g_teleporterPrediction, "g_teleporterPrediction", "1", 0, 0, qfalse },
 
@@ -1434,7 +1431,7 @@ void G_UpdateRatFlags( void ) {
 		rflags |= RAT_SCREENSHAKE;
 	}
 
-	if (g_ratVmPredictMissiles.integer) {
+	if (g_predictMissiles.integer && g_delagMissiles.integer) {
 		rflags |= RAT_PREDICTMISSILES;
 	}
 
@@ -1594,7 +1591,7 @@ void G_UpdateCvars( void ) {
 				if (cv->vmCvar == &g_itemPickup 
 						|| cv->vmCvar == &g_powerupGlows
 						|| cv->vmCvar == &g_screenShake
-						|| cv->vmCvar == &g_ratVmPredictMissiles
+						|| cv->vmCvar == &g_predictMissiles
 						|| cv->vmCvar == &g_fastSwitch
 						|| cv->vmCvar == &g_fastWeapons
 						|| cv->vmCvar == &g_ratPhysics
@@ -5005,80 +5002,32 @@ void G_RunFrame( int levelTime ) {
 
 	for (i=0 ; i < level.num_entities ; ++i ) {
 		ent = &g_entities[i];
-		G_MissileRunPrestep(ent, msec);
+		G_MissileRunDelag(ent, msec);
 	}
 
-	if (g_unlagFlight.integer) {
-		int projectileDelagTime = level.previousTime;
-		if (level.previousTime > UNLAG_MAX_BACKTRACK
-				&& msec > 0) {
-			projectileDelagTime -= (UNLAG_MAX_BACKTRACK/msec) * msec;
-		}
-		while (projectileDelagTime <= level.previousTime) {
-			int lag = level.previousTime - projectileDelagTime;
+//unlagged - backward reconciliation #2
+	// NOW run the missiles, with all players backward-reconciled
+	// to the positions they were in exactly 50ms ago, at the end
+	// of the last server frame
+	G_TimeShiftAllClients( level.previousTime, NULL );
 
-			G_TimeShiftAllClients( projectileDelagTime, NULL );
-			ent = &g_entities[0];
-			for (i=0 ; i<level.num_entities ; i++, ent++) {
-				if ( !ent->inuse ) {
-					continue;
-				}
-
-				// temporary entities don't think
-				if ( ent->freeAfterEvent ) {
-					continue;
-				}
-
-				if ( ent->s.eType == ET_MISSILE ) {
-					if (ent->launchLag < lag || ent->launchLag >= lag + msec) {
-						continue;
-					}
-					//G_TimeShiftAllClients( projectileDelagTime, ent->parent );
-					if ( ent->parent && ent->parent->client && ent->parent->inuse && ent->parent->client->sess.sessionTeam < TEAM_SPECTATOR ) {
-						G_UnTimeShiftClient( ent->parent );
-					}
-
-					//Com_Printf("delag running missile, level.time = %d, level.previousTime = %d, lag = %d\n", level.time, level.previousTime, lag);
-					G_RunMissile( ent );
-
-					if ( ent->parent && ent->parent->client && ent->parent->inuse && ent->parent->client->sess.sessionTeam < TEAM_SPECTATOR ) {
-						G_TimeShiftClient( ent->parent, projectileDelagTime, qfalse, NULL );
-					}
-					//G_UnTimeShiftAllClients( ent->parent );
-				}
-			}
-
-			G_UnTimeShiftAllClients( NULL );
-			projectileDelagTime += msec;
-			if (msec == 0) {
-				break;
-			}
-		}
-	} else {
-		//unlagged - backward reconciliation #2
-		// NOW run the missiles, with all players backward-reconciled
-		// to the positions they were in exactly 50ms ago, at the end
-		// of the last server frame
-		G_TimeShiftAllClients( level.previousTime, NULL );
-
-		ent = &g_entities[0];
-		for (i=0 ; i<level.num_entities ; i++, ent++) {
-			if ( !ent->inuse ) {
-				continue;
-			}
-
-			// temporary entities don't think
-			if ( ent->freeAfterEvent ) {
-				continue;
-			}
-
-			if ( ent->s.eType == ET_MISSILE ) {
-				G_RunMissile( ent );
-			}
+	ent = &g_entities[0];
+	for (i=0 ; i<level.num_entities ; i++, ent++) {
+		if ( !ent->inuse ) {
+			continue;
 		}
 
-		G_UnTimeShiftAllClients( NULL );
+		// temporary entities don't think
+		if ( ent->freeAfterEvent ) {
+			continue;
+		}
+
+		if ( ent->s.eType == ET_MISSILE ) {
+			G_RunMissile( ent );
+		}
 	}
+
+	G_UnTimeShiftAllClients( NULL );
 //unlagged - backward reconciliation #2
 
 //end = trap_Milliseconds();
