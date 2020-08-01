@@ -1341,7 +1341,12 @@ void SpectatorClientEndFrame( gentity_t *ent ) {
 				// drop them to free spectators unless they are dedicated camera followers
 				if ( ent->client->sess.spectatorClient >= 0 ) {
 					ent->client->sess.spectatorState = SPECTATOR_FREE;
-					ClientBegin( ent->client - level.clients );
+					if (ent->client->sess.sessionTeam == TEAM_SPECTATOR) {
+						ClientBegin( ent->client - level.clients );
+					} else if (g_gametype.integer == GT_ELIMINATION || g_gametype.integer == GT_CTF_ELIMINATION) {
+						// don't call clientbegin on players that are part of a playing team in elimination
+						Cmd_FollowCycle_f(ent);
+					}
 				}
 			}
 		}
