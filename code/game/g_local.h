@@ -1233,7 +1233,7 @@ int G_GametypeBitsForMap(const char *mapname);
 
 void PlayerStoreInit( void );
 void PlayerStore_store(char* guid, playerState_t ps);
-void PlayerStore_restore(char* guid, playerState_t *ps);
+void PlayerStore_restore(char* guid, gclient_t *client);
 
 //
 // g_vote.c

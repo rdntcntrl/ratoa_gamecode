@@ -2496,7 +2496,7 @@ void ClientBegin( int clientNum ) {
 	flags = client->ps.eFlags;
 	memset( &client->ps, 0, sizeof( client->ps ) );
         if( client->sess.sessionTeam != TEAM_SPECTATOR )
-            PlayerStore_restore(Info_ValueForKey(userinfo,"cl_guid"),&(client->ps));
+            PlayerStore_restore(Info_ValueForKey(userinfo,"cl_guid"),client);
 	client->ps.eFlags = flags;
 
 	if (g_ra3compat.integer && g_ra3maxArena.integer >= 0) {

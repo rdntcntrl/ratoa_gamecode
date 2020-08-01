@@ -50,7 +50,7 @@ void PlayerStore_store(char* guid, playerState_t ps) {
     int place2store = -1;
     int lowestAge = 32000;
     int i;
-    if(strlen(guid)<32)
+    if(strlen(guid)<GUID_SIZE)
     {
         G_LogPrintf("Playerstore: Failed to store player. Invalid guid: %s\n",guid);
         return;
@@ -81,21 +81,21 @@ void PlayerStore_store(char* guid, playerState_t ps) {
     G_LogPrintf("Playerstore: Stored player with guid: %s in %u\n", playerstore[place2store].guid,place2store);
 }
 
-void PlayerStore_restore(char* guid, playerState_t *ps)  {
+void PlayerStore_restore(char* guid, gclient_t *client)  {
     int i;
-    if(strlen(guid)<32)
+    if(strlen(guid)<GUID_SIZE)
     {
         G_LogPrintf("Playerstore: Failed to restore player. Invalid guid: %s\n",guid);
         return;
     }
     for(i=0;i<MAX_PLAYERS_STORED;i++) {
         if(!Q_stricmpn(guid,playerstore[i].guid,GUID_SIZE) && playerstore[i].age != -1) {
-            memcpy(ps->persistant,playerstore[i].persistant,sizeof(int[MAX_PERSISTANT]));
-            memcpy(level.clients[ps->clientNum].accuracy, playerstore[i].accuracy,sizeof(playerstore[0].accuracy) );
-            level.clients[ps->clientNum].pers.enterTime = level.time - playerstore[i].timePlayed;
+            memcpy(client->ps.persistant,playerstore[i].persistant,sizeof(int[MAX_PERSISTANT]));
+            memcpy(client->accuracy, playerstore[i].accuracy,sizeof(playerstore[0].accuracy) );
+            client->pers.enterTime = level.time - playerstore[i].timePlayed;
             //Never ever restore a player with negative score
-            if(ps->persistant[PERS_SCORE]<0)
-                ps->persistant[PERS_SCORE]=0;
+            if(client->ps.persistant[PERS_SCORE]<0)
+                client->ps.persistant[PERS_SCORE]=0;
             playerstore[i].age = -1;
             G_LogPrintf("Restored player with guid: %s\n",guid);
             return;
