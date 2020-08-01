@@ -2806,13 +2806,14 @@ qboolean MapInList(char *needle, int numMaps, char mapnames[NEXTMAPVOTE_NUM_MAPS
 	return qfalse;
 }
 
-void SelectNextmapVoteMapsFromList(struct maplist_s *fromlist, int take, int *numMaps, char mapnames[NEXTMAPVOTE_NUM_MAPS][MAX_MAPNAME]) {
+int SelectNextmapVoteMapsFromList(struct maplist_s *fromlist, int take, int *numMaps, char mapnames[NEXTMAPVOTE_NUM_MAPS][MAX_MAPNAME]) {
 	int maplist_remaining;
 	qboolean maplist_used_maps[MAX_MAPS];
 	int pick;
 	int i,j;
 	int desiredNumMaps = *numMaps + take;
 	char currentmap[MAX_QPATH];
+	int took = 0;
 
 	trap_Cvar_VariableStringBuffer( "mapname", currentmap, sizeof( currentmap ) );
 	
@@ -2835,6 +2836,7 @@ void SelectNextmapVoteMapsFromList(struct maplist_s *fromlist, int take, int *nu
 						&& allowedMap(fromlist->mapname[i])) {
 					Q_strncpyz(mapnames[*numMaps], fromlist->mapname[i], MAX_MAPNAME);
 					*numMaps += 1;
+					took += 1;
 				}
 				maplist_used_maps[i] = qtrue;
 				maplist_remaining--;
@@ -2843,6 +2845,7 @@ void SelectNextmapVoteMapsFromList(struct maplist_s *fromlist, int take, int *nu
 			++j;
 		}
 	}
+	return took;
 }
 
 int G_GametypeBitsCurrent( void ) {
@@ -2865,18 +2868,37 @@ int G_GametypeBitsCurrent( void ) {
 qboolean SelectNextmapVoteMaps( void ) {
 	struct maplist_s maplist;
 	int numMaps = 0;
+	int took;
+	int numPlayers = level.numPlayingClients;
+
+	if (!g_nextmapVotePlayerNumFilter.integer) {
+		numPlayers = 0;
+	}
 
 	// recommended lists
-	getCompleteMaplist(qtrue, 0, &maplist);
-	SelectNextmapVoteMapsFromList(&maplist, g_nextmapVoteNumRecommended.integer, &numMaps, level.nextmapVoteMaps);
+	getCompleteMaplist(qtrue, 0, numPlayers,  &maplist);
+	took = SelectNextmapVoteMapsFromList(&maplist, g_nextmapVoteNumRecommended.integer, &numMaps, level.nextmapVoteMaps);
+	if (numPlayers && took < g_nextmapVoteNumRecommended.integer) {
+		// try again, ignoring the player count constraints
+		getCompleteMaplist(qtrue, 0, 0,  &maplist);
+		took = SelectNextmapVoteMapsFromList(&maplist, g_nextmapVoteNumRecommended.integer - took, &numMaps, level.nextmapVoteMaps);
+	}
 
 	// all maps but filtered by gametype
-	getCompleteMaplist(qfalse, G_GametypeBitsCurrent(), &maplist);
-	SelectNextmapVoteMapsFromList(&maplist, g_nextmapVoteNumGametype.integer, &numMaps, level.nextmapVoteMaps);
+	getCompleteMaplist(qfalse, G_GametypeBitsCurrent(), numPlayers, &maplist);
+	took = SelectNextmapVoteMapsFromList(&maplist, g_nextmapVoteNumGametype.integer, &numMaps, level.nextmapVoteMaps);
+	if (numPlayers && took < g_nextmapVoteNumGametype.integer) {
+		getCompleteMaplist(qfalse, G_GametypeBitsCurrent(), 0, &maplist);
+		SelectNextmapVoteMapsFromList(&maplist, g_nextmapVoteNumGametype.integer - took, &numMaps, level.nextmapVoteMaps);
+	}
 
 	// all maps
-	getCompleteMaplist(qfalse, 0, &maplist);
+	getCompleteMaplist(qfalse, 0, numPlayers,  &maplist);
 	SelectNextmapVoteMapsFromList(&maplist, NEXTMAPVOTE_NUM_MAPS-numMaps, &numMaps, level.nextmapVoteMaps);
+	if (numPlayers && numMaps != NEXTMAPVOTE_NUM_MAPS) {
+		getCompleteMaplist(qfalse, 0, 0,  &maplist);
+		SelectNextmapVoteMapsFromList(&maplist, NEXTMAPVOTE_NUM_MAPS-numMaps, &numMaps, level.nextmapVoteMaps);
+	}
 
 	if (numMaps != NEXTMAPVOTE_NUM_MAPS) {
 		Com_Printf("could not find %i maps for nextmapvote, cancelling\n", NEXTMAPVOTE_NUM_MAPS);

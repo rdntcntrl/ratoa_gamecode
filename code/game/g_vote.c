@@ -138,7 +138,7 @@ t_mappage getGTMappage(int page, qboolean largepage) {
 
 	// FIXME: not very optimized, this gets called for every page and
 	// assembles the complete list each time
-	getCompleteMaplist(qfalse, G_GametypeBitsCurrent(), &maplist);
+	getCompleteMaplist(qfalse, G_GametypeBitsCurrent(), 0, &maplist);
 
 	memset(&result,0,sizeof(result));
 	result.pagenumber = page;
@@ -158,7 +158,21 @@ t_mappage getGTMappage(int page, qboolean largepage) {
 	return result;
 }
 
-void getCompleteMaplist(qboolean recommenedonly, int gametypebits_filter, struct maplist_s *out) {
+static qboolean MapFilter(const char *mapname, int gametypebits_filter, int numPlayers) {
+	if ((gametypebits_filter != 0 && !(gametypebits_filter & G_GametypeBitsForMap(mapname)))) {
+		return qfalse;
+	}
+	if (numPlayers > 0) {
+		int minPlayers = 0, maxPlayers = 0;
+		G_MapMinMaxPlayers(mapname, &minPlayers, &maxPlayers);
+		if ((minPlayers > 0 && numPlayers < minPlayers) || (maxPlayers > 0 && numPlayers > maxPlayers)) {
+			return qfalse;
+		}
+	}
+	return qtrue;
+}
+
+void getCompleteMaplist(qboolean recommenedonly, int gametypebits_filter, int numPlayers, struct maplist_s *out) {
 	fileHandle_t	file;
 	char *token,*pointer;
 	char buffer[MAX_MAPNAME_BUFFER];
@@ -174,7 +188,7 @@ void getCompleteMaplist(qboolean recommenedonly, int gametypebits_filter, struct
 		trap_FS_FOpenFile(g_recommendedMapsFile.string,&file,FS_READ);
 	}
 
-	if (gametypebits_filter != 0) {
+	if (gametypebits_filter != 0 || numPlayers != 0) {
 		G_LoadArenas();
 	}
 
@@ -185,7 +199,7 @@ void getCompleteMaplist(qboolean recommenedonly, int gametypebits_filter, struct
 		pointer = buffer;
 		token = COM_Parse(&pointer);
 		while (token && token[0] != 0 && out->num < MAX_MAPS) {
-			if (gametypebits_filter == 0 || (gametypebits_filter & G_GametypeBitsForMap(token))) {
+			if (MapFilter(token, gametypebits_filter, numPlayers)) {
 				Q_strncpyz(out->mapname[out->num],token,MAX_MAPNAME);
 				out->num++;
 			}
@@ -214,7 +228,7 @@ void getCompleteMaplist(qboolean recommenedonly, int gametypebits_filter, struct
 			copylen = MAX_MAPNAME;
 		}
 		Q_strncpyz(mapname, pointer, copylen);
-		if (gametypebits_filter == 0 || (gametypebits_filter & G_GametypeBitsForMap(mapname))) {
+		if (MapFilter(mapname, gametypebits_filter, numPlayers)) {
 			Q_strncpyz(out->mapname[out->num],pointer,copylen);
 			out->num++;
 		}

@@ -1224,8 +1224,10 @@ void BotInterbreedEndMatch( void );
 int G_CountHumanPlayers( int team );
 void G_LoadArenas( void );
 const char *G_GetArenaInfoByMap( const char *map );
+int G_GetArenaNumByMap( const char *map );
 int G_GametypeBits( char *string );
 int G_GametypeBitsForMap(const char *mapname);
+void G_MapMinMaxPlayers(const char *mapname, int *minPlayers, int *maxPlayers);
 
 //
 // g_playerstore.c
@@ -1261,7 +1263,7 @@ extern char custom_vote_info[2048];
 
 extern t_mappage getMappage(int page, qboolean largepage, qboolean recommendedonly);
 extern t_mappage getGTMappage(int page, qboolean largepage);
-void getCompleteMaplist(qboolean recommenedonly, int gametypebits_filter, struct maplist_s *out);
+void getCompleteMaplist(qboolean recommenedonly, int gametypebits_filter, int numPlayers, struct maplist_s *out);
 extern int allowedMap(char *mapname);
 extern int allowedGametype(char *gametypeStr);
 extern int allowedTimelimit(int limit);
@@ -1342,6 +1344,7 @@ extern  vmCvar_t        g_votemaps;
 extern  vmCvar_t        g_recommendedMapsFile;
 extern  vmCvar_t        g_votecustom;
 extern  vmCvar_t        g_nextmapVote;
+extern  vmCvar_t        g_nextmapVotePlayerNumFilter;
 extern  vmCvar_t        g_nextmapVoteCmdEnabled;
 extern  vmCvar_t        g_nextmapVoteNumRecommended;
 extern  vmCvar_t        g_nextmapVoteNumGametype;

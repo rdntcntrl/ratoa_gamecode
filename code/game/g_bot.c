@@ -127,6 +127,99 @@ int G_GametypeBitsForMap(const char *mapname) {
 	return G_GametypeBits(gameTypestr);
 }
 
+void G_ParseExtendedMapInfos( char *buf) {
+	char	*token;
+	int index;
+	char	key[MAX_TOKEN_CHARS];
+	char	info[MAX_INFO_STRING];
+	char	info2[MAX_INFO_STRING];
+	int mapNum;
+	char k[ BIG_INFO_KEY ], v[ BIG_INFO_VALUE ];
+	const char *p;
+	char mapName[MAX_TOKEN_CHARS];
+
+
+	while ( 1 ) {
+		token = COM_Parse( &buf );
+		if ( !token[0] ) {
+			break;
+		}
+		if ( strcmp( token, "{" ) ) {
+			Com_Printf( "Missing { in info file\n" );
+			break;
+		}
+
+		if ( g_numArenas == MAX_ARENAS ) {
+			Com_Printf( "Max infos exceeded\n" );
+			break;
+		}
+
+		info[0] = '\0';
+		while ( 1 ) {
+			token = COM_ParseExt( &buf, qtrue );
+			if ( !token[0] ) {
+				Com_Printf( "Unexpected end of info file\n" );
+				break;
+			}
+			if ( !strcmp( token, "}" ) ) {
+				break;
+			}
+			Q_strncpyz( key, token, sizeof( key ) );
+
+			token = COM_ParseExt( &buf, qfalse );
+			if ( !token[0] ) {
+				strcpy( token, "<NULL>" );
+			}
+			Info_SetValueForKey( info, key, token );
+		}
+		Q_strncpyz(mapName, Info_ValueForKey(info, "map"), sizeof(mapName));
+		mapNum = G_GetArenaNumByMap(mapName);
+		info2[0] = '\0';
+		if (mapNum != -1) {
+			Q_strncpyz(info2, g_arenaInfos[mapNum], sizeof(info2));
+			BG_Free(g_arenaInfos[mapNum]);
+			index = mapNum;
+		} else {
+			index = g_numArenas;
+		}
+		p = info;
+		k[0] = '\0';
+		v[0] = '\0';
+		while (*p) {
+			Info_NextPair(&p, k, v);
+			Info_SetValueForKey(info2, k, v);
+		} 
+                if(!BG_CanAlloc(strlen(info2) + strlen("\\num\\") + strlen(va("%d", MAX_ARENAS)) + 1))
+                    break; //Not enough memory. Don't even try
+		//NOTE: extra space for arena number
+		//KK-OAX Changed to Tremulous's BG_Alloc
+		g_arenaInfos[index] = BG_Alloc(strlen(info2) + strlen("\\num\\") + strlen(va("%d", MAX_ARENAS)) + 1);
+		if (g_arenaInfos[index]) {
+			strcpy(g_arenaInfos[index], info2);
+			if (mapNum == -1) {
+				// actually added a new arena, not just extended the info
+				g_numArenas++;
+			}
+		}
+	}
+}
+
+void G_MapMinMaxPlayers(const char *mapname, int *minPlayers, int *maxPlayers) {
+	const char *arenaInfo = G_GetArenaInfoByMap( mapname );
+	char *str;
+	
+	if (!arenaInfo) {
+		*minPlayers = 0;
+		*maxPlayers = 0;
+		return;
+	}
+
+	str = Info_ValueForKey( arenaInfo, "minPlayers" );
+	*minPlayers = atoi(str);
+	str = Info_ValueForKey( arenaInfo, "maxPlayers" );
+	*maxPlayers = atoi(str);
+}
+
 /*
 =================
 G_GametypeBits from arenas.txt + .arena files
@@ -231,6 +324,34 @@ int G_GametypeBits( char *string ) {
 
 /*
 ===============
+G_LoadMapDbFromFile
+===============
+*/
+static void G_LoadMapDbFromFile( char *filename ) {
+	int				len;
+	fileHandle_t	f;
+	char			buf[MAX_ARENAS_TEXT];
+
+	len = trap_FS_FOpenFile( filename, &f, FS_READ );
+	if ( !f ) {
+		trap_Printf( va( S_COLOR_RED "file not found: %s\n", filename ) );
+		return;
+	}
+	if ( len >= MAX_ARENAS_TEXT ) {
+		trap_Printf( va( S_COLOR_RED "file too large: %s is %i, max allowed is %i\n", filename, len, MAX_ARENAS_TEXT ) );
+		trap_FS_FCloseFile( f );
+		return;
+	}
+
+	trap_FS_Read( buf, len, f );
+	buf[len] = 0;
+	trap_FS_FCloseFile( f );
+
+	G_ParseExtendedMapInfos( buf );
+}
+
+/*
+===============
 G_LoadArenasFromFile
 ===============
 */
@@ -294,6 +415,16 @@ void G_LoadArenas( void ) {
 		Q_strcat(filename, sizeof(filename), dirptr);
 		G_LoadArenasFromFile(filename);
 	}
+
+	// get additional (server-provided) map info from .mapdb files
+	numdirs = trap_FS_GetFileList(".", ".mapdb", dirlist, sizeof(dirlist) );
+	dirptr  = dirlist;
+	for (i = 0; i < numdirs; i++, dirptr += dirlen+1) {
+		dirlen = strlen(dirptr);
+		strcpy(filename, "./");
+		Q_strcat(filename, sizeof(filename), dirptr);
+		G_LoadMapDbFromFile(filename);
+	}
 	trap_Printf( va( "%i arenas parsed\n", g_numArenas ) );
 	
 	for( n = 0; n < g_numArenas; n++ ) {
@@ -319,6 +450,18 @@ const char *G_GetArenaInfoByMap( const char *map ) {
 	}
 
 	return NULL;
+}
+
+int G_GetArenaNumByMap( const char *map ) {
+	int			n;
+
+	for( n = 0; n < g_numArenas; n++ ) {
+		if( Q_stricmp( Info_ValueForKey( g_arenaInfos[n], "map" ), map ) == 0 ) {
+			return n;
+		}
+	}
+
+	return -1;
 }
 
 
