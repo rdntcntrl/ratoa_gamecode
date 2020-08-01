@@ -1167,7 +1167,7 @@ static void CG_RocketTrail( centity_t *ent, const weaponInfo_t *wi ) {
 		if (cg_ratRocketTrail.integer) {
 			CG_RatRocketTrail(ent, wi);
 		} 
-		// these aren't unlagged correctly (yet)
+		// these aren't delagged correctly (yet)
 		
 #if 0
 		else if (cg_leiEnhancement.integer) {
@@ -1185,7 +1185,7 @@ static void CG_PlasmaTrail( centity_t *ent, const weaponInfo_t *wi ) {
 	if (cg_ratPlasmaTrail.integer) {
 		CG_RatPlasmaTrail(ent, wi);
 	}
-	// these aren't unlagged correctly (yet)
+	// these aren't delagged correctly (yet)
 
 #if 0
        	else if (cg_leiEnhancement.integer) {

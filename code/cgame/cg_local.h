@@ -1569,7 +1569,7 @@ typedef struct {
 
     int		startWhenReady;
     int		rocketSpeed;
-    int		unlagMissileMaxLatency;
+    int		delagMissileMaxLatency;
     int		predictedMissileNudge;
     int		ratFlags;
     float	maxBrightshellAlpha;

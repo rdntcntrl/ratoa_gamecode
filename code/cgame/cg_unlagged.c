@@ -195,7 +195,7 @@ void CG_RemovePredictedMissile( centity_t *missile) {
 }
 
 qboolean CG_ShouldPredictExplosion(void) {
-	return !(CG_ReliablePing() + 20 > cgs.unlagMissileMaxLatency);
+	return !(CG_ReliablePing() + 20 > cgs.delagMissileMaxLatency);
 }
 
 #define PMISSILE_DOUBLE_EXPLOSION_DISTANCE 128
@@ -269,7 +269,7 @@ void CG_PredictedExplosion(trace_t *tr, int weapon, predictedMissile_t *predMiss
 	if (predMissile) {
 		if (!CG_ShouldPredictExplosion()) {
 			// prediction might not be accurate because we're close
-			// to the unlag ping limit, so don't predict the
+			// to the delag ping limit, so don't predict the
 			// explosion
 			return;
 		}
@@ -674,7 +674,7 @@ void CG_PredictWeaponEffects( centity_t *cent ) {
 			return;
 		}
 
-		if (CG_ReliablePing() > cgs.unlagMissileMaxLatency) {
+		if (CG_ReliablePing() > cgs.delagMissileMaxLatency) {
 			return;
 		}
 
