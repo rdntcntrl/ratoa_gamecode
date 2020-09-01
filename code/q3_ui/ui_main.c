@@ -184,6 +184,22 @@ vmCvar_t	ui_server13;
 vmCvar_t	ui_server14;
 vmCvar_t	ui_server15;
 vmCvar_t	ui_server16;
+vmCvar_t	ui_server17;
+vmCvar_t	ui_server18;
+vmCvar_t	ui_server19;
+vmCvar_t	ui_server20;
+vmCvar_t	ui_server21;
+vmCvar_t	ui_server22;
+vmCvar_t	ui_server23;
+vmCvar_t	ui_server24;
+vmCvar_t	ui_server25;
+vmCvar_t	ui_server26;
+vmCvar_t	ui_server27;
+vmCvar_t	ui_server28;
+vmCvar_t	ui_server29;
+vmCvar_t	ui_server30;
+vmCvar_t	ui_server31;
+vmCvar_t	ui_server32;
 
 //vmCvar_t	ui_cdkeychecked;
 
@@ -299,6 +315,22 @@ static cvarTable_t		cvarTable[] = {
 	{ &ui_server14, "server14", "", CVAR_ARCHIVE },
 	{ &ui_server15, "server15", "", CVAR_ARCHIVE },
 	{ &ui_server16, "server16", "", CVAR_ARCHIVE },
+	{ &ui_server17, "server17", "", CVAR_ARCHIVE },
+	{ &ui_server18, "server18", "", CVAR_ARCHIVE },
+	{ &ui_server19, "server19", "", CVAR_ARCHIVE },
+	{ &ui_server20, "server20", "", CVAR_ARCHIVE },
+	{ &ui_server21, "server21", "", CVAR_ARCHIVE },
+	{ &ui_server22, "server22", "", CVAR_ARCHIVE },
+	{ &ui_server23, "server23", "", CVAR_ARCHIVE },
+	{ &ui_server24, "server24", "", CVAR_ARCHIVE },
+	{ &ui_server25, "server25", "", CVAR_ARCHIVE },
+	{ &ui_server26, "server26", "", CVAR_ARCHIVE },
+	{ &ui_server27, "server27", "", CVAR_ARCHIVE },
+	{ &ui_server28, "server28", "", CVAR_ARCHIVE },
+	{ &ui_server29, "server29", "", CVAR_ARCHIVE },
+	{ &ui_server30, "server30", "", CVAR_ARCHIVE },
+	{ &ui_server31, "server31", "", CVAR_ARCHIVE },
+	{ &ui_server32, "server32", "", CVAR_ARCHIVE },
 
 	//{ &ui_cdkeychecked, "ui_cdkeychecked", "0", CVAR_ROM },
         

@@ -121,6 +121,22 @@ extern vmCvar_t	ui_server13;
 extern vmCvar_t	ui_server14;
 extern vmCvar_t	ui_server15;
 extern vmCvar_t	ui_server16;
+extern vmCvar_t	ui_server17;
+extern vmCvar_t	ui_server18;
+extern vmCvar_t	ui_server19;
+extern vmCvar_t	ui_server20;
+extern vmCvar_t	ui_server21;
+extern vmCvar_t	ui_server22;
+extern vmCvar_t	ui_server23;
+extern vmCvar_t	ui_server24;
+extern vmCvar_t	ui_server25;
+extern vmCvar_t	ui_server26;
+extern vmCvar_t	ui_server27;
+extern vmCvar_t	ui_server28;
+extern vmCvar_t	ui_server29;
+extern vmCvar_t	ui_server30;
+extern vmCvar_t	ui_server31;
+extern vmCvar_t	ui_server32;
 
 extern vmCvar_t	ui_mapvote_filter;
 extern vmCvar_t	ui_mapvote_sort;
@@ -499,7 +515,7 @@ extern void SpecifyServer_Cache( void );
 //
 // ui_servers2.c
 //
-#define MAX_FAVORITESERVERS 16
+#define MAX_FAVORITESERVERS 32
 
 extern void UI_ArenaServersMenu( void );
 extern void ArenaServers_Cache( void );
