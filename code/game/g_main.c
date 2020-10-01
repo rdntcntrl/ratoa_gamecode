@@ -308,6 +308,7 @@ vmCvar_t        g_botshandicapped;
 vmCvar_t        g_bots_randomcolors;
 
 vmCvar_t        g_pingLocationAllowed;
+vmCvar_t        g_pingLocationRadius;
 
 vmCvar_t        g_tauntAllowed;
 vmCvar_t        g_tauntTime;
@@ -634,6 +635,7 @@ static cvarTable_t		gameCvarTable[] = {
         { &g_bots_randomcolors, "g_bots_randomcolors", "1", CVAR_ARCHIVE, 0, qfalse },
 
         { &g_pingLocationAllowed, "g_pingLocationAllowed", "0", CVAR_ARCHIVE, 0, qfalse },
+        { &g_pingLocationRadius, "g_pingLocationRadius", "300", CVAR_ARCHIVE, 0, qfalse },
 
         { &g_tauntAllowed, "g_tauntAllowed", "0", CVAR_ARCHIVE, 0, qfalse },
         { &g_tauntTime, "g_tauntTime", "5000", CVAR_ARCHIVE, 0, qfalse },

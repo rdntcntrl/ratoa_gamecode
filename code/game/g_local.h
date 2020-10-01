@@ -1570,6 +1570,7 @@ extern  vmCvar_t        g_botshandicapped;
 extern  vmCvar_t        g_bots_randomcolors;
 
 extern  vmCvar_t        g_pingLocationAllowed;
+extern  vmCvar_t        g_pingLocationRadius;
 
 extern  vmCvar_t        g_tauntAllowed;
 extern  vmCvar_t        g_tauntTime;

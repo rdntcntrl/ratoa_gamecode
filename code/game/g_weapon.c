@@ -1550,7 +1550,7 @@ void G_PingLocation( gentity_t *ent, locationping_t pingtype ) {
 	gentity_t *ping;
 
 	if (ent->client->ps.pm_type == PM_DEAD ) {
-		pingtype = G_PingFindEnemies(ent, ent->r.currentOrigin, ent->r.currentOrigin, 150);
+		pingtype = G_PingFindEnemies(ent, ent->r.currentOrigin, ent->r.currentOrigin, g_pingLocationRadius.integer);
 		switch (pingtype) {
 			case LOCPING_REDFLAG:
 			case LOCPING_BLUEFLAG:
@@ -1577,7 +1577,7 @@ void G_PingLocation( gentity_t *ent, locationping_t pingtype ) {
 	ping->s.otherEntityNum = ent->s.number;
 
 	if (pingtype == LOCPING_PING) {
-		ping->s.generic1 = G_PingFindEnemies(ent, muzzle, trace.endpos, 150);
+		ping->s.generic1 = G_PingFindEnemies(ent, muzzle, trace.endpos, g_pingLocationRadius.integer);
 	} else {
 		ping->s.generic1 = pingtype;
 	}
