@@ -1122,6 +1122,7 @@ void CheckTeamLeader( int team );
 void G_RunThink (gentity_t *ent);
 void AddTournamentQueue(gclient_t *client);
 void AddTournamentQueueFront(gclient_t *client);
+qboolean QueueIsConnectingPhase(void);
 gentity_t *G_FindPlayerLastJoined(int team);
 void CheckTeamBalance( void );
 void ExitLevel( void );
