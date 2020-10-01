@@ -2556,54 +2556,93 @@ ShuffleTeams
 ================
 */
 void ShuffleTeams(void) {
-    int i, j, r,k;
-    int assignedClients=1, nextTeam=TEAM_RED;
+    int i, j, r,k, tries;
+    int assignedClients, nextTeam;
+    qboolean changed, notInverted;
     int clients[MAX_CLIENTS];
+    team_t clientTeams[MAX_CLIENTS];
+    team_t newClientTeams[MAX_CLIENTS];
     qboolean takenClients[MAX_CLIENTS];
 
     if ( g_gametype.integer < GT_TEAM || g_ffa_gt==1)
         return; //Can only shuffle team games!
 
     memcpy(clients, level.sortedClients, sizeof(clients));
-    memset(takenClients, 0, sizeof(takenClients));
+
+    // make sure we can compare the new teams to the old ones
+    for (i = 0; i < MAX_CLIENTS; ++i) {
+	    clientTeams[i] = newClientTeams[i] = TEAM_NONE;
+    }
+    for( i=0;i < level.numPlayingClients; i++ ) {
+	    clientTeams[clients[i]] = newClientTeams[clients[i]] = level.clients[clients[i]].sess.sessionTeam;
+    }
 
     level.shuffling_teams = qtrue;
 
-    for( i=0;i < level.numPlayingClients; i++ ) {
-	    r = random()*(level.numPlayingClients-i);
-	    k = 0;
-	    for (j=0; j < level.numPlayingClients; ++j) {
-		    if (takenClients[j]) {
-			    continue;
+    for (tries = 0; tries < 10; ++tries) {
+	    // we try shuffling a couple of times until we actually get teams
+	    // that were different from the original ones
+	    
+	    memset(takenClients, 0, sizeof(takenClients));
+	    assignedClients=1;
+	    nextTeam=TEAM_RED;
+	    for( i=0;i < level.numPlayingClients; i++ ) {
+		    r = random()*(level.numPlayingClients-i);
+		    k = 0;
+		    for (j=0; j < level.numPlayingClients; ++j) {
+			    if (takenClients[j]) {
+				    continue;
+			    }
+			    if (k < r) {
+				    ++k;
+				    continue;
+			    } 
+			    takenClients[j] = qtrue;
+			    if( g_entities[ &level.clients[clients[j]] - level.clients].r.svFlags & SVF_BOT)
+				    continue; //Don't sort bots... they are always equal
+
+			    //For every second client we chenge team. But we do it a little of to make it slightly more fair
+			    if(assignedClients>1) {
+				    assignedClients=0;
+				    if(nextTeam == TEAM_RED)
+					    nextTeam = TEAM_BLUE;
+				    else
+					    nextTeam = TEAM_RED;
+			    }
+
+			    newClientTeams[clients[j]] = nextTeam;
+
+			    assignedClients++;
 		    }
-		    if (k < r) {
-			    ++k;
-			    continue;
-		    } 
-		    takenClients[j] = qtrue;
-		    if( g_entities[ &level.clients[clients[j]] - level.clients].r.svFlags & SVF_BOT)
-			    continue; //Don't sort bots... they are always equal
-
-		    //if(level.clients[clients[j]].sess.sessionTeam==TEAM_RED || level.clients[clients[j]].sess.sessionTeam==TEAM_BLUE ) {
-		    //For every second client we chenge team. But we do it a little of to make it slightly more fair
-		    if(assignedClients>1) {
-			    assignedClients=0;
-			    if(nextTeam == TEAM_RED)
-				    nextTeam = TEAM_BLUE;
-			    else
-				    nextTeam = TEAM_RED;
-		    }
-
-		    //Set the team
-		    //We do not run all the logic because we shall run map_restart in a moment.
-		    level.clients[clients[j]].sess.sessionTeam = nextTeam;
-
-		    ClientUserinfoChanged( clients[j] );
-		    ClientBegin( clients[j] );
-
-		    assignedClients++;
-		    //}
 	    }
+
+	    changed = qfalse;
+	    notInverted = qfalse;
+	    for (i = 0; i < MAX_CLIENTS; ++i) {
+		    if (clientTeams[i] != newClientTeams[i]) {
+			    // teams changed
+			    changed = qtrue;
+		    }
+		    if ((clientTeams[i] == TEAM_BLUE && newClientTeams[i] == TEAM_BLUE)
+				    || (clientTeams[i] == TEAM_RED && newClientTeams[i] == TEAM_RED)) {
+			    // teams did not just change colors from red to blue
+			    notInverted = qtrue;
+		    }
+		    if (changed && notInverted) {
+			    break;
+		    }
+	    }
+	    if (changed && notInverted) {
+		    break;
+	    }
+    }
+    for (i = 0; i < level.numPlayingClients; ++i) {
+	    //Set the team
+	    //We do not run all the logic because we shall run map_restart in a moment.
+	    level.clients[clients[i]].sess.sessionTeam = newClientTeams[clients[i]];
+
+	    ClientUserinfoChanged( clients[i] );
+	    ClientBegin( clients[i] );
     }
 
     level.shuffling_teams = qfalse;
