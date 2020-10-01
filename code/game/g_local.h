@@ -286,6 +286,9 @@ typedef struct {
 	int			wins, losses;		// tournament stats
 	qboolean	teamLeader;			// true when this client is a team leader
 	qboolean    muted;
+	// players that are muted
+	int    mutemask1; // clients 0-31
+	int    mutemask2; // clients 32-63
 	unnamedRenameState_t unnamedPlayerState;
 } clientSession_t;
 
@@ -852,6 +855,7 @@ void AccMessage( gentity_t *ent );
 void AwardMessage(gentity_t *ent, extAward_t award, int count);
 qboolean SendNextmapVoteCommand( void );
 int G_GametypeBitsCurrent( void );
+void G_UnmuteClientNum(int clientNum);
 
 
 // KK-OAX Added these in a seperate file to keep g_cmds.c familiar. 

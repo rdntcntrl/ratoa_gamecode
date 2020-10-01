@@ -44,7 +44,7 @@ void G_WriteClientSessionData( gclient_t *client ) {
 	const char	*s;
 	const char	*var;
 
-	s = va("%i %i %i %i %i %i %i %i %i %i", 
+	s = va("%i %i %i %i %i %i %i %i %i %i %i %i", 
 		client->sess.sessionTeam,
 		client->sess.spectatorNum,
 		client->sess.spectatorState,
@@ -54,6 +54,8 @@ void G_WriteClientSessionData( gclient_t *client ) {
 		client->sess.losses,
 		client->sess.teamLeader,
 		client->sess.muted,
+		client->sess.mutemask1,
+		client->sess.mutemask2,
 		client->sess.unnamedPlayerState
 		);
 
@@ -79,12 +81,14 @@ void G_ReadSessionData( gclient_t *client ) {
 	int spectatorGroup;
 	int sessionTeam;
 	int muted;
+	int mutemask1;
+	int mutemask2;
 	int unnamedPlayerState;
 
 	var = va( "session%i", (int)(client - level.clients) );
 	trap_Cvar_VariableStringBuffer( var, s, sizeof(s) );
 
-	sscanf( s, "%i %i %i %i %i %i %i %i %i %i",
+	sscanf( s, "%i %i %i %i %i %i %i %i %i %i %i %i",
 		&sessionTeam,                 // bk010221 - format
 		&client->sess.spectatorNum,
 		&spectatorState,              // bk010221 - format
@@ -94,6 +98,8 @@ void G_ReadSessionData( gclient_t *client ) {
 		&client->sess.losses,
 		&teamLeader,                   // bk010221 - format
 		&muted,
+		&mutemask1,
+		&mutemask2,
 		&unnamedPlayerState
 		);
 
@@ -103,6 +109,8 @@ void G_ReadSessionData( gclient_t *client ) {
 	client->sess.spectatorGroup = (spectatorGroup_t)spectatorGroup;
 	client->sess.teamLeader = (qboolean)teamLeader;
 	client->sess.muted = (qboolean)muted;
+	client->sess.mutemask1 = (int)mutemask1;
+	client->sess.mutemask2 = (int)mutemask2;
 	client->sess.unnamedPlayerState = (unnamedRenameState_t)unnamedPlayerState;
 }
 
@@ -128,6 +136,8 @@ void G_InitSessionData( gclient_t *client, char *userinfo, qboolean firstTime,
 		sess->spectatorGroup = SPECTATORGROUP_SPEC;
 	}
 	sess->muted = qfalse;
+	sess->mutemask1 = 0;
+	sess->mutemask2 = 0;
 	sess->unnamedPlayerState = UNNAMEDSTATE_CLEAN;
 	if (!firstTime && levelNewSession) {
 		sess->unnamedPlayerState = unnamedPlayerState;

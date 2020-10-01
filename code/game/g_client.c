@@ -3297,6 +3297,8 @@ void ClientDisconnect( int clientNum ) {
 	SendReadymask( -1 );
 
 	G_CheckClan(oldTeam);
+
+	G_UnmuteClientNum(clientNum);
 }
 
 int QDECL SortWPDamages( const void *a, const void *b ) {

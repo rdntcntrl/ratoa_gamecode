@@ -24,6 +24,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "../../ui/menudef.h"			// for the voice chats
 
+static qboolean G_IsIndividualMuted( gentity_t *ent, gentity_t *wantstochat );
 
 /*
 ==================
@@ -2280,6 +2281,10 @@ static void G_SayTo( gentity_t *ent, gentity_t *other, int mode, int color, cons
 		return;
 	}
 
+	if (G_IsIndividualMuted(other, ent)) {
+		return;
+	}
+
 	trap_SendServerCommand( other-g_entities, va("%s \"%s%c%c%s\"", 
 		mode == SAY_TEAM ? "tchat" : "chat",
 		name, Q_COLOR_ESCAPE, color, message));
@@ -2732,6 +2737,118 @@ static void Cmd_VoiceTaunt_f( gentity_t *ent ) {
 
 	// just say something
 	G_Voice( ent, NULL, SAY_ALL, VOICECHAT_TAUNT, qfalse );
+}
+
+static qboolean G_IsIndividualMuted( gentity_t *ent, gentity_t *wantstochat ){
+	int cnum = wantstochat - g_entities;
+
+	if (cnum >= 32) {
+		return ent->client->sess.mutemask2 & (1 << (cnum-32));
+	} 
+	return ent->client->sess.mutemask1 & (1 << cnum);
+}
+
+static void G_MuteIndividual(gentity_t *ent, qboolean mute, int clientNumToMute) {
+	gclient_t *client = ent->client;
+
+	if (!client) {
+		return;
+	}
+
+	if (clientNumToMute < 0 || clientNumToMute >= 64) {
+		return;
+	}
+	if (clientNumToMute >= 32) {
+		if (mute) {
+			client->sess.mutemask2 |= 1 << (clientNumToMute-32);
+		} else {
+			client->sess.mutemask2 &= ~(1 << (clientNumToMute-32));
+		}
+	} else {
+		if (mute) {
+			client->sess.mutemask1 |= 1 << clientNumToMute;
+		} else {
+			client->sess.mutemask1 &= ~(1 << clientNumToMute);
+		}
+	}
+}
+
+void G_UnmuteClientNum(int clientNum) {
+	gentity_t *ent;
+	int i;
+	for (i = 0; i < MAX_CLIENTS; ++i) {
+		ent = g_entities + i;
+		if (!ent->client || (ent->client->sess.mutemask1 == 0xffffffff
+					&& ent->client->sess.mutemask2 == 0xffffffff)) {
+			// don't unmute if they have muted everyone
+			continue;
+		}
+		G_MuteIndividual(g_entities + i, qfalse, clientNum);
+	}
+}
+
+static void Cmd_Mute_f( gentity_t *ent ){
+	qboolean mute = qtrue;
+	char *p;
+	int cnum;
+	int i;
+	char arg[MAX_TOKEN_CHARS];
+	gclient_t *client = ent->client;
+
+	trap_Argv( 0, arg, sizeof( arg ) );
+	if( Q_strequal( arg, "unmute" ) )
+		mute = qfalse ;
+
+	if( trap_Argc( ) < 2 ) {
+		char msg[2048] = "";
+		qboolean none = qtrue;
+		qboolean all = qtrue;
+		//for (i = 0; i < level.maxclients; ++i) {
+		//	if (level.clients[i].pers.connected != CON_DISCONNECTED) {
+		//	}
+		//}	
+		for (i = 0; i < MAX_CLIENTS; ++i) {
+			if (G_IsIndividualMuted(ent, g_entities + i)) {
+				Q_strcat(msg, sizeof(msg), va("%i\n", i));
+				none = qfalse;
+			} else {
+				all = qfalse;
+			}
+		}	
+		if (none) {
+			trap_SendServerCommand( ent-g_entities, "print \"Muted players: none\n\"" );
+
+		} else if (all) {
+			trap_SendServerCommand( ent-g_entities, "print \"Muted players: all\n\"" );
+		} else {
+			trap_SendServerCommand( ent-g_entities, va("print \"Muted players:\n%s\"", msg ) );
+		}
+		return;
+	} 
+
+	p = ConcatArgs( 1 );
+	if (Q_stricmp(p, "all") == 0) {
+		if (mute) {
+			client->sess.mutemask1 = client->sess.mutemask2 = 0xffffffff;
+		} else {
+			client->sess.mutemask1 = client->sess.mutemask2 = 0;
+		}
+	} else {
+		gentity_t *tomute;
+		cnum = atoi(p);
+		if (cnum < 0 || cnum >= MAX_CLIENTS) {
+			trap_SendServerCommand( ent-g_entities, "print \"Invalid client number\n\"" );
+			return;
+		} else {
+			tomute = g_entities + cnum;
+			if (!tomute->client || tomute->client->pers.connected == CON_DISCONNECTED) {
+				trap_SendServerCommand( ent-g_entities, "print \"Player not connected\n\"" );
+				return;
+			}
+		}
+
+		G_MuteIndividual(ent, mute, cnum);
+	}
 }
 
 static void Cmd_Taunt_f( gentity_t *ent ){
@@ -3791,6 +3908,9 @@ commands_t cmds[ ] =
   { "vosay_local", CMD_MESSAGE|CMD_INTERMISSION, Cmd_Voice_f },
   { "votell", CMD_MESSAGE|CMD_INTERMISSION, Cmd_VoiceTell_f },
   { "vtaunt", CMD_MESSAGE|CMD_INTERMISSION, Cmd_VoiceTaunt_f },
+
+  { "mute", 0, Cmd_Mute_f },
+  { "unmute", 0, Cmd_Mute_f },
 
   { "taunt", CMD_MESSAGE|CMD_TEAM, Cmd_Taunt_f },
 
