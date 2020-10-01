@@ -1028,6 +1028,7 @@ void G_PredictPlayerMove( gentity_t *ent, float frametime );
 // g_client.c
 //
 team_t TeamCount( int ignoreClientNum, int team, qboolean countBots);
+team_t TeamCountExt( int ignoreClientNum, int team, qboolean countBots, qboolean countConnecting );
 team_t TeamLivingCount( int ignoreClientNum, int team ); //Elimination
 team_t TeamHealthCount( int ignoreClientNum, int team ); //Elimination
 void RespawnAll(void); //For LMS

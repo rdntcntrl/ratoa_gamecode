@@ -884,14 +884,7 @@ void TeamCvarSet( void )
     }
 }
 
-/*
-================
-TeamCount
-
-Returns number of players on a team
-================
-*/
-team_t TeamCount( int ignoreClientNum, int team, qboolean countBots ) {
+team_t TeamCountExt( int ignoreClientNum, int team, qboolean countBots, qboolean countConnecting ) {
 	int		i;
 	int		count = 0;
 
@@ -903,7 +896,7 @@ team_t TeamCount( int ignoreClientNum, int team, qboolean countBots ) {
 			continue;
 		}
 
-                if ( level.clients[i].pers.connected == CON_CONNECTING) {
+                if ( !countConnecting && level.clients[i].pers.connected == CON_CONNECTING) {
                         continue;
                 }
 
@@ -917,6 +910,17 @@ team_t TeamCount( int ignoreClientNum, int team, qboolean countBots ) {
 	}
 
 	return count;
+}
+
+/*
+================
+TeamCount
+
+Returns number of players on a team
+================
+*/
+team_t TeamCount( int ignoreClientNum, int team, qboolean countBots) {
+	return TeamCountExt( ignoreClientNum, team, countBots, qfalse );
 }
 
 /*

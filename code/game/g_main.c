@@ -1943,6 +1943,14 @@ static void QueueJoinPlayer(gentity_t *ent, char *team) {
 }
 
 /*
+ * True when we still expect players from the last round to be connecting, and
+ * we don't want spectators / queued players to replace them
+ */
+qboolean QueueIsConnectingPhase(void) {
+	return g_teamForceQueue.integer && level.warmupTime != 0 && level.time < 20000;
+}
+
+/*
 =============
 AddQueuedPlayers
 
@@ -2029,8 +2037,8 @@ qboolean AddQueuedPlayers( void ) {
 		}
 	}
 
-	counts[TEAM_BLUE] = TeamCount( -1, TEAM_BLUE, qfalse);
-	counts[TEAM_RED] = TeamCount( -1, TEAM_RED, qfalse);
+	counts[TEAM_BLUE] = TeamCountExt( -1, TEAM_BLUE, qfalse, QueueIsConnectingPhase());
+	counts[TEAM_RED] = TeamCountExt( -1, TEAM_RED, qfalse, QueueIsConnectingPhase());
 	if (counts[TEAM_BLUE] < counts[TEAM_RED] && !level.BlueTeamLocked) {
 		// one to blue
 		if (nextInLine[0] && nextInLineBlue) {
