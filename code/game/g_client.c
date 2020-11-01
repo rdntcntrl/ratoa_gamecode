@@ -1862,21 +1862,25 @@ void ClientUserinfoChanged( int clientNum ) {
 		Q_strncpyz( headModel, Info_ValueForKey (userinfo, "headmodel"), sizeof( headModel ) );
 	}
 
-	if (!g_brightModels.integer || !g_allowForcedModels.integer) {
-		// prevent people from manually bright models when they're not supposed to
-		if (Q_stristr(model, "bright") != NULL || Q_stristr(headModel, "bright") != NULL) {
-			if( g_gametype.integer >= GT_TEAM && g_ffa_gt==0) {
-				Info_SetValueForKey( userinfo, "model", "smarine/orange" );
-				Info_SetValueForKey( userinfo, "headmodel", "smarine/orange" );
-			} else {
-				Info_SetValueForKey( userinfo, "team_model", "smarine/orange" );
-				Info_SetValueForKey( userinfo, "team_headmodel", "smarine/orange" );
-			}
+	//if (!g_brightModels.integer || !g_allowForcedModels.integer) {
+	// prevent people from setting the bright/gray model model as their model
+	// They are supposed to be used only with cg_{enemy,team}Model (if allowed)
+	if (Q_stristr(model, "bright") != NULL || Q_stristr(headModel, "bright") != NULL
+			|| Q_stristr(model, "/gray") != NULL || Q_stristr(headModel, "/gray") != NULL) {
+		if( g_gametype.integer >= GT_TEAM && g_ffa_gt==0) {
+			Info_SetValueForKey( userinfo, "team_model", "smarine" );
+			Info_SetValueForKey( userinfo, "team_headmodel", "smarine" );
+			Q_strncpyz( model, "smarine", sizeof( model ) );
+			Q_strncpyz( headModel, "smarine", sizeof( headModel ) );
+		} else {
+			Info_SetValueForKey( userinfo, "model", "smarine/orange" );
+			Info_SetValueForKey( userinfo, "headmodel", "smarine/orange" );
 			Q_strncpyz( model, "smarine/orange", sizeof( model ) );
-			Q_strncpyz( headModel, "smarine/orange", sizeof( model ) );
-			trap_SetUserinfo( clientNum, userinfo );
+			Q_strncpyz( headModel, "smarine/orange", sizeof( headModel ) );
 		}
+		trap_SetUserinfo( clientNum, userinfo );
 	}
+	//}
 
 	// bots set their team a few frames later
 	if (g_gametype.integer >= GT_TEAM && g_ffa_gt==0 && g_entities[clientNum].r.svFlags & SVF_BOT) {
