@@ -3431,7 +3431,7 @@ void CG_Player( centity_t *cent ) {
 		VectorCopy(cent->lerpOrigin, powerup.origin);
 		powerup.origin[2] += -24 + (float) t * 80 / 500;
 		if ( t > 400 ) {
-			c = (float) (t - 1000) * 0xff / 100;
+			c = (float) (t - 400) * 0xff / 100.0;
 			powerup.shaderRGBA[0] = 0xff - c;
 			powerup.shaderRGBA[1] = 0xff - c;
 			powerup.shaderRGBA[2] = 0xff - c;
