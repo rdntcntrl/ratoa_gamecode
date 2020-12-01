@@ -2736,6 +2736,12 @@ static void Cmd_Taunt_f( gentity_t *ent ){
 		return;
 	}
 
+	if (g_tauntAfterDeathTime.integer >= 0  // -1 for no limit
+			&& (ent->client->ps.pm_type == PM_DEAD || ent->client->isEliminated)
+			&& ent->client->pers.lastDeathTime + g_tauntAfterDeathTime.integer < level.time) {
+		return;
+	}
+
 	ent->client->pers.tauntTime = level.time + g_tauntTime.integer;
 
 	if( trap_Argc( ) < 2 )

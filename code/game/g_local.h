@@ -1574,6 +1574,7 @@ extern  vmCvar_t        g_pingLocationRadius;
 
 extern  vmCvar_t        g_tauntAllowed;
 extern  vmCvar_t        g_tauntTime;
+extern  vmCvar_t        g_tauntAfterDeathTime;
 
 // weapon config
 extern vmCvar_t        g_weaponChangeTime_Dropping;
