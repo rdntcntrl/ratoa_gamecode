@@ -1613,8 +1613,8 @@ int G_WeaponForMOD(int mod) {
 void G_CheckDamageScore(gentity_t *attacker, gentity_t *victim, int giveDmg) {
 	int diff;
 
-	// makes no sense for GT_TEAM, hence > instead of >=
-	if (g_gametype.integer > GT_TEAM && g_ffa_gt != 1) {
+	// makes no sense for GT_TEAM, hence <= instead of <
+	if (g_gametype.integer <= GT_TEAM || g_ffa_gt == 1) {
 		return;
 	}
 	
