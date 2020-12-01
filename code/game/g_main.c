@@ -3589,6 +3589,8 @@ void StartLMSRound(void) {
         
 	SendEliminationMessageToAllClients();
 	EnableWeapons();
+
+	ResetElimRoundStats();
 }
 
 void PrintElimRoundStats(void) {
@@ -3650,6 +3652,17 @@ void PrintElimRoundStats(void) {
 	}
 }
 
+void ResetElimRoundStats(void) {
+	int i;
+	for ( i = 0 ; i < level.maxclients ; i++ ) {
+		gclient_t *client = &level.clients[i];
+		client->pers.elimRoundDmgDone = 0;
+		client->pers.elimRoundDmgTaken = 0;
+		client->pers.elimRoundKills = 0;
+		client->pers.lastKilledByStrongMan = -1;
+	}
+}
+
 //the elimination start function
 void StartEliminationRound(void) {
 	int i;
@@ -3689,13 +3702,7 @@ void StartEliminationRound(void) {
 	EnableWeapons();
 	G_SendTeamPlayerCounts();
 
-	for ( i = 0 ; i < level.maxclients ; i++ ) {
-		gclient_t *client = &level.clients[i];
-		client->pers.elimRoundDmgDone = 0;
-		client->pers.elimRoundDmgTaken = 0;
-		client->pers.elimRoundKills = 0;
-		client->pers.lastKilledByStrongMan = -1;
-	}
+	ResetElimRoundStats();
 }
 
 //things to do at end of round:
