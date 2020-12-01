@@ -257,7 +257,15 @@ void G_TimeShiftAllClients( int time, gentity_t *skip ) {
 	// for every client
 	ent = &g_entities[0];
 	for ( i = 0; i < MAX_CLIENTS; i++, ent++ ) {
-		if ( ent->client && ent->inuse && ent->client->sess.sessionTeam < TEAM_SPECTATOR && ent != skip ) {
+		if ( ent->client
+				&& ent->inuse
+				&& ent->client->sess.sessionTeam < TEAM_SPECTATOR
+				&& ent != skip
+				// do not timeshift eliminated clients, as
+				// G_TimeShiftClient() will re-link them when
+				// they're supposed to stay unlinked
+				&& !ent->client->isEliminated
+				) {
 			G_TimeShiftClient( ent, time, debug, skip );
 		}
 	}
