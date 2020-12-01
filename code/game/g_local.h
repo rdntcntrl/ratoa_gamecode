@@ -784,6 +784,10 @@ typedef struct {
     qboolean	tournamentForfeited;
 
     qboolean	shuffling_teams;
+    // restart the game at this time. Separate from warmupTime because this
+    // should never be modified by /ready logic and such. It only exists to
+    // delay a map_restart after shuffling to avoid a command overflow
+    int		restartAt; 
 
     int		eqPing; // ping to which all pings are equalized
     int		eqPingAdjustTime; // time of last EQPing update

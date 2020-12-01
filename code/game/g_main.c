@@ -4898,6 +4898,12 @@ void G_RunFrame( int levelTime ) {
 
 	// if we are waiting for the level to restart, do nothing
 	if ( level.restarted ) {
+
+		// this is used to delay a map_restart after shuffling, to prevent a command overflow
+		if (level.restartAt && level.restartAt <= levelTime) {
+			trap_SendConsoleCommand( EXEC_APPEND, "map_restart 0\n" );
+		}
+
 		return;
 	}
 

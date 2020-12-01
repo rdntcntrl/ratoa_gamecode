@@ -2648,7 +2648,12 @@ void ShuffleTeams(void) {
     level.shuffling_teams = qfalse;
 
     //Restart!
-    trap_SendConsoleCommand( EXEC_APPEND, "map_restart 0\n" );
+    // delay the map_restart so we don't cause a command overflow
+    // we can't use map_restart <delay> directly because that only delays the
+    // restart if g_doWarmup is 0
+    level.restartAt = level.realtime + 2000;
+    level.restarted = qtrue;
+    //trap_SendConsoleCommand( EXEC_APPEND, "map_restart 0\n" );
 
 }
 
