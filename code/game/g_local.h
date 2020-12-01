@@ -1324,6 +1324,7 @@ extern	vmCvar_t	g_needpass;
 extern	vmCvar_t	g_gravity;
 extern	vmCvar_t	g_gravityModifier;
 extern	vmCvar_t	g_gravityJumppadFix;
+extern  vmCvar_t        g_damageScore;
 extern  vmCvar_t        g_damageModifier;
 extern	vmCvar_t	g_speed;
 extern	vmCvar_t	g_spectatorSpeed;

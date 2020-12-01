@@ -1607,6 +1607,31 @@ int G_WeaponForMOD(int mod) {
 	return -1;
 }
 
+/*
+ * Award score points for damage
+ */
+void G_CheckDamageScore(gentity_t *attacker, gentity_t *victim, int giveDmg) {
+	int diff;
+
+	// makes no sense for GT_TEAM, hence > instead of >=
+	if (g_gametype.integer > GT_TEAM && g_ffa_gt != 1) {
+		return;
+	}
+	
+	if (g_damageScore.integer <= 0) {
+		return;
+	}
+
+	// Award 1 point for each g_damageScore.integer damage
+	diff = (attacker->client->pers.dmgGiven + giveDmg)/(g_damageScore.integer) 
+		- attacker->client->pers.dmgGiven/(g_damageScore.integer);
+	if (!diff) {
+		return;
+	}
+	AddScore( attacker, victim->r.currentOrigin, diff );
+
+}
+
 void G_RecordDamageGivenHistory(gentity_t *attacker, int mod, int damage, gentity_t *target) {
 	gclient_t *client;
 	damageRecord_t *dr;
@@ -2012,6 +2037,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 				if (g_gametype.integer == GT_ELIMINATION || g_gametype.integer == GT_CTF_ELIMINATION || g_gametype.integer == GT_LMS) {
 					attacker->client->pers.elimRoundDmgDone += dmgTaken;
 					if (level.roundNumber == level.roundNumberStarted) {
+						G_CheckDamageScore(attacker, targ, dmgTaken);
 						attacker->client->pers.dmgGiven += dmgTaken;
 						if (weapon != -1) {
 							attacker->client->pers.damage[weapon] += dmgTaken;
@@ -2019,6 +2045,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 						G_RecordDamageGivenHistory(attacker, mod, damage, targ);
 					}
 				} else {
+					G_CheckDamageScore(attacker, targ, dmgTaken);
 					attacker->client->pers.dmgGiven += dmgTaken;
 					if (weapon != -1) {
 						attacker->client->pers.damage[weapon] += dmgTaken;
