@@ -3759,7 +3759,7 @@ commands_t cmds[ ] =
 {
   // normal commands
   { "team", 0, Cmd_Team_f },
-  { "vote", 0, Cmd_Vote_f },
+  { "vote", CMD_FLOODLIMITED, Cmd_Vote_f },
   /*{ "ignore", 0, Cmd_Ignore_f },
   { "unignore", 0, Cmd_Ignore_f },*/
 
