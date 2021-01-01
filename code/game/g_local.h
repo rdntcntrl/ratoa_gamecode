@@ -1569,7 +1569,7 @@ extern  vmCvar_t        g_useExtendedScores;
 extern  vmCvar_t        g_statsboard;
 extern  vmCvar_t        g_predictMissiles;
 extern  vmCvar_t        g_ratFlags;
-extern  vmCvar_t        sv_allowDuplicateGuid;
+extern  vmCvar_t        g_allowDuplicateGuid;
 
 extern  vmCvar_t        g_botshandicapped;
 extern  vmCvar_t        g_bots_randomcolors;

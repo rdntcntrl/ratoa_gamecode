@@ -2082,7 +2082,7 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 		    if( level.clients[ i ].pers.connected == CON_DISCONNECTED )
 		        continue;
 		        
-		    if (!sv_allowDuplicateGuid.integer) {
+		    if (!g_allowDuplicateGuid.integer) {
 			    if( !Q_stricmp( client->pers.guid, level.clients[ i ].pers.guid ) ) {
 				    if( !G_ClientIsLagging( level.clients + i ) ) {
 					    trap_SendServerCommand( i, "cp \"Your GUID is not secure\"" );
