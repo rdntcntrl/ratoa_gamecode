@@ -2217,7 +2217,10 @@ void motd_chat (gentity_t *ent)
 		strcpy (chatCmd, "print \"^5>^7 ");
 		cmdLen = strlen(chatCmd);
 		line = motd;
-		while (*line != '\0' && (p = strchrnul(line, '\n'))) {
+		while (*line != '\0' && (p = strchr(line, '\n'))) {
+			if (p == NULL) {
+				p = line + strlen(line);
+			}
 			copyLen = p-line;
 			if (cmdLen + copyLen > sizeof(chatCmd) - 3) {
 				copyLen = sizeof(chatCmd) - 3 - cmdLen;
@@ -2227,7 +2230,7 @@ void motd_chat (gentity_t *ent)
 			chatCmd[cmdLen + copyLen+1] = '"';
 			chatCmd[cmdLen + copyLen+2] = '\0';
 			trap_SendServerCommand(ent - g_entities, chatCmd);
-			if (p == '\0')
+			if (*p == '\0')
 				break;
 			line = p+1;
 		}
