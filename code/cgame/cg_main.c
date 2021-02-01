@@ -2587,6 +2587,7 @@ static void CG_RegisterGraphics( void ) {
 	cgs.media.eaward_medals[EAWARD_RAILTWO] = trap_R_RegisterShaderNoMip( "medal_railtwo" );
 	cgs.media.eaward_medals[EAWARD_DEADHAND] = trap_R_RegisterShaderNoMip( "medal_grave" );
 	cgs.media.eaward_medals[EAWARD_TWITCHRAIL] = trap_R_RegisterShaderNoMip( "medal_twitchrail" );
+	cgs.media.eaward_medals[EAWARD_RAT] = trap_R_RegisterShaderNoMip( "medal_rat" );
 	cgs.media.eaward_medals[EAWARD_SHOWSTOPPER] = trap_R_RegisterShaderNoMip( "medal_showstopper" );
 	cgs.media.eaward_medals[EAWARD_AMBUSH] = trap_R_RegisterShaderNoMip( "medal_ambush" );
 	cgs.media.eaward_medals[EAWARD_KAMIKAZE] = trap_R_RegisterShaderNoMip( "medal_kamikaze" );

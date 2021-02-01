@@ -357,6 +357,8 @@ static void CG_RatDrawClientStats(int y, score_t *score, float *color, float fad
 	x = CG_RatDrawClientAward(y, x, score->eaward_counts[EAWARD_IMMORTALITY], cgs.media.eaward_medals[EAWARD_IMMORTALITY]);
 	x = CG_RatDrawClientAward(y, x, score->eaward_counts[EAWARD_FRAGS], cgs.media.eaward_medals[EAWARD_FRAGS]);
 
+	x = CG_RatDrawClientAward(y, x, score->eaward_counts[EAWARD_RAT], cgs.media.eaward_medals[EAWARD_RAT]);
+
 	x = CG_RatDrawClientAward(y, x, score->eaward_counts[EAWARD_GRIMREAPER], cgs.media.eaward_medals[EAWARD_GRIMREAPER]);
 	x = CG_RatDrawClientAward(y, x, score->eaward_counts[EAWARD_UNSTOPPABLE], cgs.media.eaward_medals[EAWARD_UNSTOPPABLE]);
 	x = CG_RatDrawClientAward(y, x, score->eaward_counts[EAWARD_MASSACRE], cgs.media.eaward_medals[EAWARD_MASSACRE]);

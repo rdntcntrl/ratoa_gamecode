@@ -375,7 +375,7 @@ static void CG_ParseRatScores4( void ) {
 	}
 	//memset( cg.scores, 0, sizeof( cg.scores ) );
 
-#define NUM_RAT4_DATA 12
+#define NUM_RAT4_DATA 13
 #define FIRST_RAT4_DATA 1
 
 	for ( i = 0 ; i < numScores ; i++ ) {
@@ -392,6 +392,7 @@ static void CG_ParseRatScores4( void ) {
 		cg.scores_buf[i].eaward_counts[EAWARD_BERSERKER]= atoi(CG_Argv(i * NUM_RAT4_DATA + FIRST_RAT4_DATA + 10));
 		cg.scores_buf[i].eaward_counts[EAWARD_VAPORIZED]= atoi(CG_Argv(i * NUM_RAT4_DATA + FIRST_RAT4_DATA + 11));
 		cg.scores_buf[i].eaward_counts[EAWARD_TWITCHRAIL]= atoi(CG_Argv(i * NUM_RAT4_DATA + FIRST_RAT4_DATA + 12));
+		cg.scores_buf[i].eaward_counts[EAWARD_RAT]= atoi(CG_Argv(i * NUM_RAT4_DATA + FIRST_RAT4_DATA + 13));
 	}
 
 	CG_CheckScoreUpdate();
