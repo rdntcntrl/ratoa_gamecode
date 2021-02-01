@@ -186,6 +186,11 @@ vmCvar_t	cg_drawFollowPosition;
 vmCvar_t	cg_drawTeamOverlay;
 vmCvar_t	cg_teamOverlayUserinfo;
 vmCvar_t	cg_drawFriend;
+vmCvar_t	cg_friendHudMarker;
+vmCvar_t	cg_friendHudMarkerMaxDist;
+vmCvar_t	cg_friendHudMarkerSize;
+vmCvar_t	cg_friendHudMarkerMaxScale;
+vmCvar_t	cg_friendHudMarkerMinScale;
 vmCvar_t	cg_teamChatsOnly;
 vmCvar_t	cg_noVoiceChats;
 vmCvar_t	cg_noVoiceText;
@@ -568,6 +573,11 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_teamOverlayUserinfo, "teamoverlay", "0", CVAR_ROM | CVAR_USERINFO },
 	{ &cg_stats, "cg_stats", "0", 0 },
 	{ &cg_drawFriend, "cg_drawFriend", "1", CVAR_ARCHIVE },
+	{ &cg_friendHudMarker, "cg_friendHudMarker", "0", 0 },
+	{ &cg_friendHudMarkerMaxDist, "cg_friendHudMarkerMaxDist", "0", 0 },
+	{ &cg_friendHudMarkerSize, "cg_friendHudMarkerSize", "1.0", 0 },
+	{ &cg_friendHudMarkerMaxScale, "cg_friendHudMarkerMaxScale", "1.0", 0 },
+	{ &cg_friendHudMarkerMinScale, "cg_friendHudMarkerMinScale", "0.0", 0 },
 	{ &cg_teamChatsOnly, "cg_teamChatsOnly", "0", CVAR_ARCHIVE },
 	{ &cg_noVoiceChats, "cg_noVoiceChats", "0", CVAR_ARCHIVE },
 	{ &cg_noVoiceText, "cg_noVoiceText", "0", CVAR_ARCHIVE },

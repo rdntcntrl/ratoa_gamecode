@@ -2284,6 +2284,40 @@ static void CG_FriendFlagIndicator(centity_t *cent) {
 
 }
 
+static void CG_FriendHudMarker( centity_t *cent ) {
+	int team;
+	float distance;
+	float maxDist;
+	float hfov_x;
+	float size;
+
+	team = cgs.clientinfo[ cent->currentState.clientNum ].team;
+	if ( cgs.gametype < GT_TEAM 
+		       || cgs.ffa_gt == 1
+		       || !cg_friendHudMarker.integer
+		       || !(cgs.ratFlags & RAT_FRIENDSWALLHACK)
+		       || cg.snap->ps.persistant[PERS_TEAM] != team 
+		       || (cent->currentState.eFlags & EF_DEAD)
+		       || cent->currentState.number == cg.snap->ps.clientNum
+		       || cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR ) {
+		return;
+	}
+	distance = Distance( cent->lerpOrigin, cg.predictedPlayerState.origin);
+	if (cg_friendHudMarkerMaxDist.integer > 0 && distance > cg_friendHudMarkerMaxDist.value) {
+		return;
+	}
+	distance = MAX(distance, 1.0);
+ 	hfov_x = cg.refdef.fov_x * M_PI/360;
+	size = 1.0/tan(hfov_x) * 150/distance;
+	size = MIN(cg_friendHudMarkerMaxScale.value, size);
+	size = MAX(cg_friendHudMarkerMinScale.value, size);
+	CG_HudBorderMarker ( cent->lerpOrigin,
+		       	1.0,
+			cg_friendHudMarkerSize.value * size,
+			CG_GetPlayerSpriteShader(cent),
+			270);
+}
+
 /*
 ===============
 CG_PlayerSprites
@@ -3182,6 +3216,9 @@ void CG_Player( centity_t *cent ) {
 
 	// add the talk baloon or disconnect icon
 	CG_PlayerSprites( cent );
+
+	// draw hud markers for friendly players
+	CG_FriendHudMarker( cent );
 
 	// add the shadow
 	shadow = CG_PlayerShadow( cent, &shadowPlane );

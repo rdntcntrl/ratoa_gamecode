@@ -1676,6 +1676,11 @@ extern	vmCvar_t		cg_predictItems;
 extern	vmCvar_t		cg_predictItemsNearPlayers;
 extern	vmCvar_t		cg_deferPlayers;
 extern	vmCvar_t		cg_drawFriend;
+extern  vmCvar_t		cg_friendHudMarker;
+extern  vmCvar_t		cg_friendHudMarkerMaxDist;
+extern  vmCvar_t		cg_friendHudMarkerSize;
+extern  vmCvar_t		cg_friendHudMarkerMaxScale;
+extern  vmCvar_t		cg_friendHudMarkerMinScale;
 extern	vmCvar_t		cg_teamChatsOnly;
 extern	vmCvar_t		cg_noVoiceChats;
 extern	vmCvar_t		cg_noVoiceText;
@@ -2286,6 +2291,7 @@ localEntity_t *CG_MakeExplosion( vec3_t origin, vec3_t dir,
 void CG_SpurtBlood( vec3_t origin, vec3_t velocity, int hard );
 void CG_PingLocation( centity_t *cent );
 void CG_PingHudMarker ( vec3_t pingOrigin, float alpha, qhandle_t shader );
+void CG_HudBorderMarker ( vec3_t origin, float alpha, float radius, qhandle_t shader, int baseAngle );
 
 //
 // cg_snapshot.c

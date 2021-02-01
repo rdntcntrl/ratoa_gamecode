@@ -821,8 +821,11 @@ void CG_BigExplosion( vec3_t playerOrigin ) {
 	CG_LaunchExplode( origin, velocity, cgs.media.smoke2 );
 }
 
-void CG_PingHudMarker ( vec3_t pingOrigin, float alpha, qhandle_t shader ) {
-	vec3_t pingDir;
+/*
+ * Draw an indicator at the screen border
+ */
+void CG_HudBorderMarker ( vec3_t origin, float alpha, float radius, qhandle_t shader, int baseAngle ) {
+	vec3_t dir;
 	float front, left, up;
 	vec3_t flu;
 	float r, inc, az;
@@ -830,11 +833,11 @@ void CG_PingHudMarker ( vec3_t pingOrigin, float alpha, qhandle_t shader ) {
 	float hfov_y = cg.refdef.fov_y * M_PI/360;
 	float hfov_x = cg.refdef.fov_x * M_PI/360;
 
-	VectorSubtract(pingOrigin, cg.refdef.vieworg, pingDir);
+	VectorSubtract(origin, cg.refdef.vieworg, dir);
 
-	front = DotProduct (pingDir, cg.refdef.viewaxis[0] );
-	left = DotProduct (pingDir, cg.refdef.viewaxis[1] );
-	up = DotProduct (pingDir, cg.refdef.viewaxis[2] );
+	front = DotProduct (dir, cg.refdef.viewaxis[0] );
+	left = DotProduct (dir, cg.refdef.viewaxis[1] );
+	up = DotProduct (dir, cg.refdef.viewaxis[2] );
 
 	flu[0] = front;
 	flu[1] = left;
@@ -866,10 +869,10 @@ void CG_PingHudMarker ( vec3_t pingOrigin, float alpha, qhandle_t shader ) {
 
 		phi = atan2(-flu[2], flu[1]);
 		ent.rotation = phi/M_PI*180;
-		ent.rotation += 180;
+		ent.rotation += baseAngle;
 
 		// make sure it stays the same size regardless of fov
-		ent.radius =  0.8 * MIN(cg_pingLocationHudSize.value,2.0) * sin(hfov_x);
+		ent.radius =  0.5 * radius * tan(hfov_x);
 		ent.customShader = shader;
 		ent.shaderRGBA[0] = 255;
 		ent.shaderRGBA[1] = 255;
@@ -905,6 +908,10 @@ void CG_PingHudMarker ( vec3_t pingOrigin, float alpha, qhandle_t shader ) {
 		VectorAdd(cg.refdef.vieworg, ent.origin, ent.origin);
 		trap_R_AddRefEntityToScene( &ent );
 	}
+}
+
+void CG_PingHudMarker ( vec3_t pingOrigin, float alpha, qhandle_t shader ) {
+	CG_HudBorderMarker ( pingOrigin, alpha, MIN(cg_pingLocationHudSize.value,2.0), shader, 180);
 }
 
 void CG_PingLocation( centity_t *cent ) {
