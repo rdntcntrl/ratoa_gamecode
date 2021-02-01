@@ -734,6 +734,15 @@ void G_CheckDeathEAwards(gentity_t *victim, gentity_t *inflictor, gentity_t *att
 
 	}
 
+	if (attacker->client->ps.stats[STAT_HEALTH] <= 5) {
+		if (++attacker->client->ratFragCounter >= 3) {
+			attacker->client->ratFragCounter = 0;
+			AwardMessage(attacker, EAWARD_RAT, ++(attacker->client->pers.awardCounts[EAWARD_RAT]));
+		}
+	} else {
+		attacker->client->ratFragCounter = 0;
+	}
+
 }
 
 void G_CheckOnePlayerLeft( gentity_t *justdied ) {

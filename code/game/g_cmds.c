@@ -298,7 +298,7 @@ void Ratscores4Message( gentity_t *ent ) {
 		cl = &level.clients[level.sortedClients[i]];
 
 		Com_sprintf (entry, sizeof(entry),
-				" %i %i %i %i %i %i %i %i %i %i %i %i",
+				" %i %i %i %i %i %i %i %i %i %i %i %i %i",
 				cl->pers.awardCounts[EAWARD_STRONGMAN],
 				cl->pers.awardCounts[EAWARD_HERO],
 				cl->pers.awardCounts[EAWARD_BUTCHER],
@@ -310,7 +310,8 @@ void Ratscores4Message( gentity_t *ent ) {
 				cl->pers.awardCounts[EAWARD_REVENGE],
 				cl->pers.awardCounts[EAWARD_BERSERKER],
 				cl->pers.awardCounts[EAWARD_VAPORIZED],
-				cl->pers.awardCounts[EAWARD_TWITCHRAIL]
+				cl->pers.awardCounts[EAWARD_TWITCHRAIL],
+				cl->pers.awardCounts[EAWARD_RAT]
 			    );
 
 		j = strlen(entry);

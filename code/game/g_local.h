@@ -497,6 +497,9 @@ struct gclient_s {
 	// damage taken for EAWARD_IMMORTALITY. Cleared each time the award is issue
 	int		dmgTakenImmortality;
 
+	// for EAWARD_RAT, number of consecutive frags with <= 5 HP
+	int	ratFragCounter;
+
 	int			accurateCount;		// for "impressive" reward sound
 
 	int			accuracy_shots;		// total number of shots
