@@ -696,7 +696,10 @@ void G_CheckDeathEAwards(gentity_t *victim, gentity_t *inflictor, gentity_t *att
 
 	switch (meansOfDeath) {
 		case MOD_TELEFRAG:
-			AwardMessage(attacker, EAWARD_TELEFRAG, ++(attacker->client->pers.awardCounts[EAWARD_TELEFRAG]));
+			if ((g_gametype.integer != GT_ELIMINATION && g_gametype.integer != GT_CTF_ELIMINATION) 
+					|| level.roundNumber == level.roundNumberStarted) {
+				AwardMessage(attacker, EAWARD_TELEFRAG, ++(attacker->client->pers.awardCounts[EAWARD_TELEFRAG]));
+			}
 			break;
 		case MOD_ROCKET:
 		case MOD_ROCKET_SPLASH:
