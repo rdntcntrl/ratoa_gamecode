@@ -1549,15 +1549,17 @@ void G_PingLocation( gentity_t *ent, locationping_t pingtype ) {
 	trace_t trace;
 	gentity_t *ping;
 
-	if (ent->client->ps.pm_type == PM_DEAD ) {
-		pingtype = G_PingFindEnemies(ent, ent->r.currentOrigin, ent->r.currentOrigin, g_pingLocationRadius.integer);
-		switch (pingtype) {
-			case LOCPING_REDFLAG:
-			case LOCPING_BLUEFLAG:
-			case LOCPING_NEUTRALFLAG:
-				break;
-			default:
-				pingtype = LOCPING_WARN;
+	if (ent->client->ps.pm_type == PM_DEAD) {
+		if (pingtype == LOCPING_PING) {
+			pingtype = G_PingFindEnemies(ent, ent->r.currentOrigin, ent->r.currentOrigin, g_pingLocationRadius.integer);
+			switch (pingtype) {
+				case LOCPING_REDFLAG:
+				case LOCPING_BLUEFLAG:
+				case LOCPING_NEUTRALFLAG:
+					break;
+				default:
+					pingtype = LOCPING_DEAD;
+			}
 		}
 		ping = G_TempEntity(ent->r.currentOrigin, EV_PING_LOCATION);
 	} else {
