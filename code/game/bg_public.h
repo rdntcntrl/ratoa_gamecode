@@ -214,6 +214,8 @@ typedef struct {
         
         //Flags effecting movement (see dmflags)
         int                     pmove_flags;
+        //more flags affecting movement (see g_ratFlags)
+        int                     pmove_ratflags;
 
 	// callbacks to test the world
 	// these will be different functions during game and cgame

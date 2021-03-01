@@ -52,7 +52,7 @@ float	pm_spectatorfriction = 5.0f;
 
 int		c_pmove = 0;
 
-static float PM_GetSwimscale(void);
+static float PM_GetSwimscale(pmove_t *pm);
 
 /*
 ===============
@@ -396,8 +396,8 @@ static qboolean PM_CheckJump( void ) {
 
 	pm->ps->groundEntityNum = ENTITYNUM_NONE;
 
-	if ( (g_rampJump.integer || g_additiveJump.integer) && (pm->ps->velocity[2] >= 0) ) {
-		if (pm->ps->stats[STAT_JUMPTIME] > 0 && (g_rampJump.integer)) {
+	if ( (pm->pmove_ratflags & (RAT_RAMPJUMP | RAT_ADDITIVEJUMP)) && (pm->ps->velocity[2] >= 0) ) {
+		if (pm->ps->stats[STAT_JUMPTIME] > 0 && (pm->pmove_ratflags & RAT_RAMPJUMP)) {
 			//float speed = sqrt(pml.forward[0]*pml.forward[0] + pml.forward[1]*pml.forward[1]);
 			//pm->ps->velocity[0] += (pml.forward[0]/speed)*80;
 			//pm->ps->velocity[1] += (pml.forward[1]/speed)*80;
@@ -546,8 +546,8 @@ static void PM_WaterMove( void ) {
 	VectorCopy (wishvel, wishdir);
 	wishspeed = VectorNormalize(wishdir);
 
-	if ( wishspeed > pm->ps->speed * PM_GetSwimscale() ) {
-		wishspeed = pm->ps->speed * PM_GetSwimscale();
+	if ( wishspeed > pm->ps->speed * PM_GetSwimscale(pm) ) {
+		wishspeed = pm->ps->speed * PM_GetSwimscale(pm);
 	}
 
 	PM_Accelerate (wishdir, wishspeed, pm_wateraccelerate);
@@ -621,27 +621,23 @@ static void PM_FlyMove( void ) {
 	PM_StepSlideMove( qfalse );
 }
 
-static float PM_GetSwimscale(void) {
-	switch (g_fastSwim.integer) {
-		case 1:
-			return pm_swimScaleFast;
+static float PM_GetSwimscale(pmove_t *pm) {
+	if (pm->pmove_ratflags & RAT_FASTSWIM) {
+		return pm_swimScaleFast;
 	}
 	return pm_swimScale;
 }
 
-static float PM_GetAccelerate(void) {
-	switch (g_ratPhysics.integer) {
-		case 1:
-			return pm_rat_accelerate;
-			break;
+static float PM_GetAccelerate(pmove_t *pm) {
+	if (pm->pmove_ratflags & RAT_RATPHYSICS) {
+		return pm_rat_accelerate;
 	}
 	return pm_accelerate;
 }
 
-static float PM_GetAirAccelerate(void) {
-	switch (g_ratPhysics.integer) {
-		case 1:
-			return pm_rat_airaccelerate;
+static float PM_GetAirAccelerate(pmove_t *pm) {
+	if (pm->pmove_ratflags & RAT_RATPHYSICS) {
+		return pm_rat_airaccelerate;
 	}
 	return pm_airaccelerate;
 }
@@ -661,7 +657,7 @@ static void PM_AirMove( void ) {
 	float		wishspeed;
 	float		scale;
 	usercmd_t	cmd;
-	float		accel = PM_GetAirAccelerate();
+	float		accel = PM_GetAirAccelerate(pm);
 
 	PM_Friction();
 
@@ -689,46 +685,17 @@ static void PM_AirMove( void ) {
 	wishspeed = VectorNormalize(wishdir);
 	wishspeed *= scale;
 
-	if (g_ratPhysics.integer == 1) {
+	if (pm->pmove_ratflags & RAT_RATPHYSICS) {
 		if (fmove == 0 && smove != 0) {
 			if (wishspeed > 42.0) {
 				wishspeed = 42.0;
 			}
 			accel = 40.0f;
 		}
-	} else if (g_ratPhysics.integer == 2) {
-		if (fmove == 0 && smove != 0) {
-			if (wishspeed > 30.0) {
-				wishspeed = 30.0;
-			}
-			accel = 60.0f;
-		}
-	}
+	} 
 
 	// not on ground, so little effect on velocity
 	PM_Accelerate (wishdir, wishspeed, accel);
-	if (g_ratPhysics.integer == 2) {
-		if (smove == 0 && wishspeed != 0) {
-			vec3_t vel;
-			float speed;
-			float dot;
-			float turn;
-			VectorCopy(pm->ps->velocity, vel);
-			vel[2] = 0.0;
-			speed = VectorLength(vel);
-			VectorNormalize(vel);
-
-			dot = DotProduct(vel, wishdir);
-			turn = 4000.0 * dot * dot * pml.frametime;
-
-			vel[0] = vel[0] * speed + wishdir[0] * turn;
-			vel[1] = vel[1] * speed + wishdir[1] * turn;
-			VectorNormalize(vel);
-			VectorScale(vel, speed, vel);
-			pm->ps->velocity[0] = vel[0];
-			pm->ps->velocity[1] = vel[1];
-		}
-	}
 
 	// we may have a ground plane that is very steep, even
 	// though we don't have a groundentity
@@ -881,9 +848,9 @@ static void PM_WalkMove( void ) {
 	if ( pm->waterlevel ) {
 		float	waterScale;
 
-		if (g_ratPhysics.integer != 1 || pm->waterlevel != 1) {
+		if (!(pm->pmove_ratflags & RAT_RATPHYSICS) || pm->waterlevel != 1) {
 			waterScale = pm->waterlevel / 3.0;
-			waterScale = 1.0 - ( 1.0 - PM_GetSwimscale() ) * waterScale;
+			waterScale = 1.0 - ( 1.0 - PM_GetSwimscale(pm) ) * waterScale;
 			if ( wishspeed > pm->ps->speed * waterScale ) {
 				wishspeed = pm->ps->speed * waterScale;
 			}
@@ -893,9 +860,9 @@ static void PM_WalkMove( void ) {
 	// when a player gets hit, they temporarily lose
 	// full control, which allows them to be moved a bit
 	if ( ( pml.groundTrace.surfaceFlags & SURF_SLICK ) || pm->ps->pm_flags & PMF_TIME_KNOCKBACK ) {
-		accelerate = PM_GetAirAccelerate();
+		accelerate = PM_GetAirAccelerate(pm);
 	} else {
-		accelerate = PM_GetAccelerate();
+		accelerate = PM_GetAccelerate(pm);
 	}
 
 	PM_Accelerate (wishdir, wishspeed, accelerate);
@@ -1011,7 +978,7 @@ static void PM_NoclipMove( void ) {
 	wishspeed = VectorNormalize(wishdir);
 	wishspeed *= scale;
 
-	PM_Accelerate( wishdir, wishspeed, PM_GetAccelerate() );
+	PM_Accelerate( wishdir, wishspeed, PM_GetAccelerate(pm) );
 
 	// move
 	VectorMA (pm->ps->origin, pml.frametime, pm->ps->velocity, pm->ps->origin);
@@ -1528,7 +1495,7 @@ static void PM_Footsteps( void ) {
 	old = pm->ps->bobCycle;
 	//pm->ps->bobCycle = (int)( old + bobmove * pml.msec ) & 255;
 	
-	if (g_regularFootsteps.integer) {
+	if (pm->pmove_ratflags & RAT_REGULARFOOTSTEPS) {
 		// make sure that players with high FPS do make enough footsteps
 		// this solution is not ideal, but is far simpler than switching
 		// everything to floating-point arithmetic
@@ -1634,9 +1601,7 @@ static void PM_BeginWeaponChange( int weapon ) {
         {
             //PM_AddEvent( EV_CHANGE_WEAPON );
             pm->ps->weaponstate = WEAPON_DROPPING;
-            //pm->ps->weaponTime += 100;
-            //pm->ps->weaponTime += g_weaponChangeTime_Dropping.integer;
-	    if (g_fastSwitch.integer) {
+	    if (pm->pmove_ratflags & RAT_FASTSWITCH) {
 		    pm->ps->weaponTime += 100;
 	    } else {
 		    pm->ps->weaponTime += 200;
@@ -1667,9 +1632,7 @@ static void PM_FinishWeaponChange( void ) {
 	pm->ps->weaponstate = WEAPON_RAISING;
         if(! (pm->pmove_flags & DF_INSTANT_WEAPON_CHANGE))
         {
-                //pm->ps->weaponTime += 200;
-                //pm->ps->weaponTime += g_weaponChangeTime_Raising.integer;
-		if (g_fastSwitch.integer) {
+		if (pm->pmove_ratflags & RAT_FASTSWITCH) {
 			pm->ps->weaponTime += 200;
 		} else {
 			pm->ps->weaponTime += 250;
@@ -1825,17 +1788,10 @@ static void PM_Weapon( void ) {
 		addTime = 400;
 		break;
 	case WP_LIGHTNING:
-		//addTime = g_weaponReloadTime_Lg.integer;
 		addTime = 50;
 		break;
 	case WP_SHOTGUN:
-		//addTime = 950;
-		//addTime = g_weaponReloadTime_Shotgun.integer;
-		if (g_fastWeapons.integer) {
-			addTime = 950;
-		} else {
-			addTime = 1000;
-		}
+		addTime = 1000;
 		break;
 	case WP_MACHINEGUN:
 		addTime = 100;
@@ -1850,9 +1806,7 @@ static void PM_Weapon( void ) {
 		addTime = 100;
 		break;
 	case WP_RAILGUN:
-		//addTime = 1250;
-		//addTime = g_weaponReloadTime_Railgun.integer;
-		if (g_fastWeapons.integer) {
+		if (pm->pmove_ratflags & RAT_FASTWEAPONS) {
 			addTime = 1250;
 		} else {
 			addTime = 1500;
@@ -2162,7 +2116,7 @@ void PmoveSingle (pmove_t *pmove) {
 		// flight powerup doesn't allow jump and has different friction
 		PM_FlyMove();
 	} else if (pm->ps->pm_flags & PMF_GRAPPLE_PULL) {
-		if (g_swingGrapple.integer) {
+		if (pm->pmove_ratflags & RAT_SWINGGRAPPLE) {
 			PM_SwingGrappleMove();
 		} else {
 			PM_GrappleMove();

@@ -1521,6 +1521,7 @@ void G_UpdateRatFlags( void ) {
 	// XXX --> also update code where this is called!
 
 	trap_Cvar_Set("g_ratFlags",va("%i",rflags));
+	trap_Cvar_Update( &g_ratFlags );
 }
 
 /*
