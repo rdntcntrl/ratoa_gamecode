@@ -59,6 +59,11 @@ void AddScore( gentity_t *ent, vec3_t origin, int score ) {
 	if ( level.warmupTime ) {
 		return;
 	}
+	// no scoring in elimination warmup
+	if ((g_gametype.integer == GT_ELIMINATION || g_gametype.integer == GT_CTF_ELIMINATION || g_gametype.integer == GT_LMS)
+			&& level.roundNumber != level.roundNumberStarted) {
+		return;
+	}
 
         //No scoring during intermission
         if ( level.intermissiontime ) {
