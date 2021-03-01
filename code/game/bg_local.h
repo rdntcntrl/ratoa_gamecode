@@ -80,12 +80,3 @@ void PM_AddEvent( int newEvent );
 qboolean	PM_SlideMove( qboolean gravity );
 void		PM_StepSlideMove( qboolean gravity );
 
-
-extern vmCvar_t        g_ratPhysics;
-extern vmCvar_t        g_rampJump;
-extern vmCvar_t        g_additiveJump;
-extern vmCvar_t        g_fastSwitch;
-extern vmCvar_t        g_fastWeapons;
-extern vmCvar_t        g_regularFootsteps;
-extern vmCvar_t        g_fastSwim;
-extern vmCvar_t        g_swingGrapple;
