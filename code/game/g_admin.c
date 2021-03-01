@@ -636,7 +636,7 @@ static void admin_level2_flags(char *flags, int size) {
 static void admin_level3_flags(char *flags, int size) {
 	admin_level2_flags(flags, size);
 	Q_strcat(flags, size,
-			va("%c%c%c%c%c%c%c%c%c%c%c%c%c",
+			va("%c%c%c%c%c%c%c%c%c%c%c%c%c%c",
 				ADMF_RESTART,
 				ADMF_KICK,
 				ADMF_MUTE,
@@ -649,7 +649,8 @@ static void admin_level3_flags(char *flags, int size) {
 				ADMF_ADMINCHAT,
 				ADMF_TEAMS,
 				ADMF_ALLREADY,
-				ADMF_TIMEOUT
+				ADMF_TIMEOUT,
+				ADMF_WARN
 			  )
 		);
 }
