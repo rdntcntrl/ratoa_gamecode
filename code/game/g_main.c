@@ -3669,7 +3669,6 @@ void PrintElimRoundStats(void) {
 
 //the elimination start function
 void StartEliminationRound(void) {
-	int i;
 	int		countsLiving[TEAM_NUM_TEAMS];
 	countsLiving[TEAM_BLUE] = TeamLivingCount( -1, TEAM_BLUE );
 	countsLiving[TEAM_RED] = TeamLivingCount( -1, TEAM_RED );
