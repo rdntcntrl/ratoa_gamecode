@@ -1040,7 +1040,8 @@ team_t TeamLivingCount( int ignoreClientNum, int team ); //Elimination
 team_t TeamHealthCount( int ignoreClientNum, int team ); //Elimination
 void RespawnAll(void); //For LMS
 void RespawnAllElim(void); //For round elimination
-void RespawnDead(void);
+void RespawnDead(qboolean force);
+void EliminationRespawnClient(gentity_t *ent);
 int RespawnElimZombies(void);
 void EnableWeapons(void);
 void DisableWeapons(void);

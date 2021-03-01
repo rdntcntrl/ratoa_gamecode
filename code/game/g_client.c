@@ -1135,7 +1135,7 @@ Forces all *DEAD* clients to respawn.
 ================
 */
 
-void RespawnDead(void)
+void RespawnDead(qboolean force)
 {
 	int i;
 	gentity_t	*client;
@@ -1150,9 +1150,16 @@ void RespawnDead(void)
                 }
                 client = g_entities + i;
                 client->client->pers.livesLeft = g_lms_lives.integer-1;
-		if ( level.clients[i].isEliminated == qfalse ){
-			continue;
+
+		if (level.clients[i].isEliminated == qfalse) {
+			// clients only get "eliminated" after they "respawn",
+			// so ignore this when force is set (right before the
+			// round starts)
+			if ( !force || level.clients[i].ps.stats[STAT_HEALTH] >= 0) {
+				continue;
+			}
 		}
+
 		if ( level.clients[i].sess.sessionTeam == TEAM_SPECTATOR ) {
 			continue;
 		}

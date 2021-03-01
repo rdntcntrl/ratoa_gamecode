@@ -3884,7 +3884,7 @@ void CheckLMS(void) {
 
 		if(level.time<=level.roundStartTime && level.time>level.roundStartTime-1000*g_elimination_activewarmup.integer)
 		{
-			RespawnDead();
+			RespawnDead(qfalse);
 			//DisableWeapons();
 		}
 
@@ -3893,12 +3893,14 @@ void CheckLMS(void) {
 			EnableWeapons();
 		}
 
-		if((level.roundNumber>level.roundNumberStarted)&&(level.time>=level.roundStartTime))
+		if((level.roundNumber>level.roundNumberStarted)&&(level.time>=level.roundStartTime)) {
+			RespawnDead(qtrue);
 			StartLMSRound();
+		}
 	
 		if(level.time+1000*g_elimination_warmup.integer-500>level.roundStartTime && level.numPlayingClients < 2)
 		{
-			RespawnDead(); //Allow player to run around anyway
+			RespawnDead(qfalse); //Allow player to run around anyway
 			WarmupEliminationRound(); //Start over
 			return;
 		}
@@ -3906,7 +3908,7 @@ void CheckLMS(void) {
 		if(level.warmupTime != 0) {
 			if(level.time+1000*g_elimination_warmup.integer-500>level.roundStartTime)
 			{
-				RespawnDead();
+				RespawnDead(qfalse);
 				WarmupEliminationRound();
 			}
 		}
@@ -4084,17 +4086,19 @@ void CheckElimination(void) {
 
 		if(level.time<=level.roundStartTime && level.time>level.roundStartTime-1000*g_elimination_activewarmup.integer)
 		{
-			RespawnDead();
+			RespawnDead(qfalse);
 		}
 			
 
-		if((level.roundNumber>level.roundNumberStarted)&&(level.time>=level.roundStartTime))
+		if((level.roundNumber>level.roundNumberStarted)&&(level.time>=level.roundStartTime)) {
+			RespawnDead(qtrue);
 			StartEliminationRound();
+		}
 	
 		if(level.time+1000*g_elimination_warmup.integer-500>level.roundStartTime)
 		if(counts[TEAM_BLUE]<1 || counts[TEAM_RED]<1)
 		{
-			RespawnDead(); //Allow players to run around anyway
+			RespawnDead(qfalse); //Allow players to run around anyway
 			WarmupEliminationRound(); //Start over
 			return;
 		}
@@ -4102,7 +4106,7 @@ void CheckElimination(void) {
 		if(level.warmupTime != 0) {
 			if(level.time+1000*g_elimination_warmup.integer-500>level.roundStartTime)
 			{
-				RespawnDead();
+				RespawnDead(qfalse);
 				WarmupEliminationRound();
 			}
 		}
