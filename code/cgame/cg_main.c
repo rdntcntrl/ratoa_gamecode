@@ -2309,6 +2309,7 @@ static void CG_RegisterGraphics( void ) {
 	cgs.media.botSkillShaders[4] = trap_R_RegisterShader( "menu/art/skill5.tga" );
 
 	cgs.media.ratSmallIcon = trap_R_RegisterShaderNoMip( "gfx/2d/rat_icon.tga" );
+	cgs.media.ratSmallIconAdmin = trap_R_RegisterShaderNoMip( "gfx/2d/rat_icon_yellow.tga" );
 
 	cgs.media.deferShader = trap_R_RegisterShaderNoMip( "gfx/2d/defer.tga" );
 

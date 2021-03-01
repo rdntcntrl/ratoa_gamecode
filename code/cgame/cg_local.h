@@ -1091,6 +1091,7 @@ typedef struct {
 	qhandle_t	botSkillShaders[5];
 
 	qhandle_t	ratSmallIcon;
+	qhandle_t	ratSmallIconAdmin;
 
 	// wall mark shaders
 	qhandle_t	wakeMarkShader;

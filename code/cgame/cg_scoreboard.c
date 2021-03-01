@@ -554,13 +554,17 @@ static void CG_RatDrawClientScore(int y, score_t *score, float *color, float fad
 	Com_sprintf(string, sizeof (string), "%2i:%02i", score->time/60, score->time - (score->time/60)*60);
 	CG_DrawTinyScoreStringColor(RATSB_TIME_X, ytiny, string, tcolor);
 
-	if (score->ratclient) {
+	if (score->ratclient & SCORE_RATINDICATOR_HASRAT) {
 		tcolor[0] = 1.0;
 		tcolor[1] = 1.0;
 		tcolor[2] = 1.0;
 		tcolor[3] = 0.4;
 		trap_R_SetColor(tcolor);
-		CG_DrawPic(RATSB_CNUM_X, y, RATSB_CNUM_WIDTH, SCORECHAR_HEIGHT, cgs.media.ratSmallIcon);
+		if (score->ratclient & SCORE_RATINDICATOR_ISREGISTERED) {
+			CG_DrawPic(RATSB_CNUM_X, y, RATSB_CNUM_WIDTH, SCORECHAR_HEIGHT, cgs.media.ratSmallIconAdmin);
+		} else {
+			CG_DrawPic(RATSB_CNUM_X, y, RATSB_CNUM_WIDTH, SCORECHAR_HEIGHT, cgs.media.ratSmallIcon);
+		}
 		trap_R_SetColor(NULL);
 	}
 	tcolor[0] = 0;
