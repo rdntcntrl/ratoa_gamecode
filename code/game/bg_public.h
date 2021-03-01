@@ -840,6 +840,7 @@ qboolean	BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const play
 #define RAT_SWINGGRAPPLE	(1 << 20)
 #define RAT_BRIGHTOUTLINE	(1 << 21)
 #define RAT_BRIGHTMODEL		(1 << 22)
+#define RAT_SMOOTHSTAIRS	(1 << 23)
 
 #define MAX_RAT_SAY_TEXT 256
 
