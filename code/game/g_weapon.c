@@ -1449,6 +1449,170 @@ qboolean G_IsVisible (gentity_t *targ, vec3_t origin) {
 	return qfalse;
 }
 
+float G_PingCheckFOVEntity( gentity_t *ent, vec3_t muzzle, vec3_t normDir ) {
+	vec3_t targetDir;
+
+	VectorSubtract(ent->r.currentOrigin, muzzle, targetDir);
+	VectorNormalize(targetDir);
+	return DotProduct(targetDir, normDir);
+}
+
+powerup_t G_PingEntityPowerup( gentity_t *pingPlayer, gentity_t *ent ) {
+	if (ent->client 
+			&& ent->client->sess.sessionTeam != pingPlayer->client->sess.sessionTeam
+			&& ent->client->ps.pm_type != PM_DEAD
+		  )  {
+		if (g_gametype.integer == GT_CTF || g_gametype.integer == GT_CTF_ELIMINATION) {
+			if (ent->client->ps.powerups[PW_REDFLAG]) {
+				return PW_REDFLAG;
+			} else if (ent->client->ps.powerups[PW_BLUEFLAG]) {
+				return PW_BLUEFLAG;
+			}
+		} else if (g_gametype.integer == GT_1FCTF) {
+			if (ent->client->ps.powerups[PW_NEUTRALFLAG]) {
+				return PW_NEUTRALFLAG;
+			}
+		}
+	} else if (ent->s.eType == ET_ITEM
+			&& ent->item
+			&& ent->item->giType == IT_TEAM
+			&& !(ent->s.eFlags & EF_NODRAW)
+			&& (((g_gametype.integer == GT_CTF || g_gametype.integer == GT_CTF_ELIMINATION)
+					&& (ent->item->giTag == PW_REDFLAG || ent->item->giTag == PW_BLUEFLAG))
+				|| (g_gametype.integer == GT_1FCTF && ent->item->giTag == PW_NEUTRALFLAG)
+			   )) {
+		return ent->item->giTag;
+	}  
+
+	return PW_NONE;
+}
+
+locationping_t G_PingFindEnemiesInFOV( gentity_t *pingPlayer, vec3_t muzzle, vec3_t normDir, vec3_t out ) {
+	float minDotVal;
+	float maxDotVal;
+	float dv;
+	float blueFlagDv = 0;
+	float redFlagDv = 0;
+	gentity_t *target = NULL;
+	gentity_t *blueFlagTarget = NULL;
+	gentity_t *redFlagTarget = NULL;
+	gentity_t *neutralFlagTarget = NULL;
+	int i;
+	gentity_t *ent;
+	locationping_t pingType = LOCPING_PING;
+
+	if (g_pingLocationFov.value <= 0) {
+		return pingType;
+	}
+
+	minDotVal = cos(g_pingLocationFov.value/2.0 * M_PI/180.0);
+	maxDotVal = minDotVal;
+
+	G_DoTimeShiftFor( pingPlayer );
+
+	for ( i = 0; i < level.numPlayingClients; ++i) {
+		ent = g_entities + level.sortedClients[i];
+		if (ent->client->sess.sessionTeam == pingPlayer->client->sess.sessionTeam
+					|| ent->client->ps.pm_type == PM_DEAD
+					|| ent->client->isEliminated
+					) {
+			continue;
+		}
+		dv = G_PingCheckFOVEntity(ent, muzzle, normDir);
+		if (dv <= minDotVal || !G_IsVisible(ent, muzzle)) {
+			continue;
+		}
+		switch (G_PingEntityPowerup(pingPlayer, ent)) {
+			case PW_REDFLAG:
+				redFlagTarget = ent;
+				redFlagDv = dv;
+				break;
+			case PW_BLUEFLAG:
+				blueFlagTarget = ent;
+				blueFlagDv = dv;
+				break;
+			case PW_NEUTRALFLAG:
+				neutralFlagTarget = ent;
+				break;
+			default:
+				break;
+		}
+		if (dv <= maxDotVal) {
+			continue;
+		}
+		target = ent;
+		maxDotVal = dv;
+	}
+
+
+	if (((g_gametype.integer == GT_CTF || g_gametype.integer == GT_CTF_ELIMINATION) 
+				&& (Team_GetFlagStatus(TEAM_RED) == FLAG_DROPPED || Team_GetFlagStatus(TEAM_BLUE) == FLAG_DROPPED))
+			|| (g_gametype.integer == GT_1FCTF && Team_GetFlagStatus(TEAM_FREE) == FLAG_DROPPED)) {
+		// check for dropped flags
+		powerup_t powerup;
+
+		for ( i = MAX_CLIENTS; i < level.num_entities; ++i) {
+			ent = g_entities + i;
+			if (!ent->inuse ) {
+				continue;
+			}
+			powerup = G_PingEntityPowerup(pingPlayer, ent);
+			if (powerup == PW_NONE) {
+				continue;
+			}
+			dv = G_PingCheckFOVEntity(ent, muzzle, normDir);
+			if (dv <= minDotVal || !G_IsVisible(ent, muzzle)) {
+				continue;
+			}
+			switch (powerup) {
+				case PW_REDFLAG:
+					redFlagTarget = ent;
+					redFlagDv = dv;
+					break;
+				case PW_BLUEFLAG:
+					blueFlagTarget = ent;
+					blueFlagDv = dv;
+					break;
+				case PW_NEUTRALFLAG:
+					neutralFlagTarget = ent;
+					break;
+				default:
+					break;
+			}
+		}
+	}
+
+	
+	if (neutralFlagTarget) {
+		target = neutralFlagTarget;
+		pingType = LOCPING_NEUTRALFLAG;
+	} else if (blueFlagTarget && redFlagTarget) {
+		if (blueFlagDv > redFlagDv) {
+			target = blueFlagTarget;
+			pingType = LOCPING_BLUEFLAG;
+		} else {
+			target = redFlagTarget;
+			pingType = LOCPING_REDFLAG;
+		}
+	} else if (blueFlagTarget) {
+		target = blueFlagTarget;
+		pingType = LOCPING_BLUEFLAG;
+	} else if (redFlagTarget) {
+		target = redFlagTarget;
+		pingType = LOCPING_REDFLAG;
+	} else if (target) {
+		pingType = LOCPING_ENEMY;
+	}
+
+	if (target != NULL) {
+		VectorCopy(target->r.currentOrigin, out);
+		out[2] += target->r.mins[2];
+	}
+
+	G_UndoTimeShiftFor( pingPlayer );
+
+	return pingType;
+}
 
 locationping_t G_PingFindEnemies( gentity_t *pingPlayer, vec3_t muzzle, vec3_t origin, float radius ) {
 	float		dist;
@@ -1472,35 +1636,15 @@ locationping_t G_PingFindEnemies( gentity_t *pingPlayer, vec3_t muzzle, vec3_t o
 
 	for ( e = 0 ; e < numListedEntities ; e++ ) {
 		ent = &g_entities[entityList[ e ]];
-		powerup = PW_NONE;
+		powerup = G_PingEntityPowerup(pingPlayer, ent);
 
-		if (ent->s.eType == ET_ITEM
-				&& ent->item
-				&& ent->item->giType == IT_TEAM
-				&& !(ent->s.eFlags & EF_NODRAW)
-				&& (((g_gametype.integer == GT_CTF || g_gametype.integer == GT_CTF_ELIMINATION)
-					       	&& (ent->item->giTag == PW_REDFLAG || ent->item->giTag == PW_BLUEFLAG))
-				    || (g_gametype.integer == GT_1FCTF && ent->item->giTag == PW_NEUTRALFLAG)
-				    )) {
-			powerup = ent->item->giTag;
-		} else if (ent->client 
-			&& ent->client->sess.sessionTeam != pingPlayer->client->sess.sessionTeam
-			&& ent->client->ps.pm_type != PM_DEAD
-		   )  {
-			if (g_gametype.integer == GT_CTF || g_gametype.integer == GT_CTF_ELIMINATION) {
-				if (ent->client->ps.powerups[PW_REDFLAG]) {
-					powerup = PW_REDFLAG;
-				} else if (ent->client->ps.powerups[PW_BLUEFLAG]) {
-					powerup = PW_BLUEFLAG;
-				}
-			} else if (g_gametype.integer == GT_1FCTF) {
-				if (ent->client->ps.powerups[PW_NEUTRALFLAG]) {
-					powerup = PW_NEUTRALFLAG;
-				}
-			}
-		} else {
+		if (powerup == PW_NONE 
+				&& (!ent->client
+					|| ent->client->sess.sessionTeam == pingPlayer->client->sess.sessionTeam
+					|| ent->client->ps.pm_type == PM_DEAD)) {
 			continue;
 		}
+
 
 		// find the distance from the edge of the bounding box
 		for ( i = 0 ; i < 3 ; i++ ) {
@@ -1563,15 +1707,27 @@ void G_PingLocation( gentity_t *ent, locationping_t pingtype ) {
 		}
 		ping = G_TempEntity(ent->r.currentOrigin, EV_PING_LOCATION);
 	} else {
+		vec3_t pingOrigin = { 0, 0, 0 };
 		AngleVectors (ent->client->ps.viewangles, forward, right, up);
 		CalcMuzzlePointOrigin ( ent, ent->client->oldOrigin, forward, right, up, muzzle );
 
-		VectorMA(muzzle, 16258, forward, end);
-		trap_Trace(&trace, muzzle, NULL, NULL, end, ent->s.number, MASK_SHOT);
-		if (trace.entityNum == ENTITYNUM_NONE || trace.entityNum > ENTITYNUM_MAX_NORMAL) {
-			return;
+		if (pingtype == LOCPING_PING) {
+			pingtype = G_PingFindEnemiesInFOV(ent, muzzle, forward, pingOrigin);
 		}
-		ping = G_TempEntity(trace.endpos, EV_PING_LOCATION);
+
+		if (pingtype != LOCPING_PING && pingtype != LOCPING_WARN) {
+			// found enemy / flag within FOV, ping that
+			ping = G_TempEntity(pingOrigin, EV_PING_LOCATION);
+		} else {
+			// trace until we hit something, ping that
+			VectorMA(muzzle, 16258, forward, end);
+			trap_Trace(&trace, muzzle, NULL, NULL, end, ent->s.number, MASK_SHOT);
+			if (trace.entityNum == ENTITYNUM_NONE || trace.entityNum > ENTITYNUM_MAX_NORMAL) {
+				return;
+			}
+			ping = G_TempEntity(trace.endpos, EV_PING_LOCATION);
+		}
+
 	}
 
 

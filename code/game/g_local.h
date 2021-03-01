@@ -1193,6 +1193,7 @@ void Token_Think( gentity_t *token );
 gentity_t *SelectElimSpawnPointArena ( team_t team, int teamstate, int arenaNum, vec3_t origin, vec3_t angles );
 gentity_t *SelectElimSpawnPoint ( team_t team, int teamstate, vec3_t origin, vec3_t angles );
 int G_TeamClientMask(int team);
+flagStatus_t Team_GetFlagStatus( int team );
 
 //KK-OAX Removed these in Code in favor of bg_alloc.c from Tremulous
 // g_mem.c
@@ -1586,6 +1587,7 @@ extern  vmCvar_t        g_bots_randomcolors;
 
 extern  vmCvar_t        g_pingLocationAllowed;
 extern  vmCvar_t        g_pingLocationRadius;
+extern  vmCvar_t        g_pingLocationFov;
 
 extern  vmCvar_t        g_tauntAllowed;
 extern  vmCvar_t        g_tauntTime;
