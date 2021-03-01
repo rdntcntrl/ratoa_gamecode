@@ -280,6 +280,7 @@ vmCvar_t        g_quadWhore;
 vmCvar_t        g_killDropsFlag;
 
 vmCvar_t        g_killSafety;
+vmCvar_t        g_killDisable;
 
 vmCvar_t        g_startWhenReady;
 vmCvar_t        g_autoStartTime;
@@ -606,6 +607,7 @@ static cvarTable_t		gameCvarTable[] = {
         { &g_killDropsFlag, "g_killDropsFlag", "1", CVAR_ARCHIVE , 0, qtrue },
 
         { &g_killSafety, "g_killSafety", "500", CVAR_ARCHIVE , 0, qfalse },
+        { &g_killDisable, "g_killDisable", "0", CVAR_ARCHIVE , 0, qfalse },
 
         { &g_startWhenReady, "g_startWhenReady", "0", CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qfalse },
         { &g_autoStartTime, "g_autoStartTime", "0", CVAR_ARCHIVE, 0, qfalse },

@@ -76,6 +76,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define ITEMDROP_FLAG 1
 #define ITEMDROP_WEAPON 2
 
+#define KILLCMD_GAME	1
+#define KILLCMD_WARMUP	2
+
 // movers are things like doors, plats, buttons, etc
 typedef enum {
 	MOVER_POS1,
@@ -1549,6 +1552,7 @@ extern  vmCvar_t        g_quadWhore;
 extern  vmCvar_t        g_killDropsFlag;
 
 extern  vmCvar_t        g_killSafety;
+extern  vmCvar_t        g_killDisable;
 
 extern  vmCvar_t        g_startWhenReady;
 extern  vmCvar_t        g_autoStartTime;

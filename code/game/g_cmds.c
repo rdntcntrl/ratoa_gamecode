@@ -1084,6 +1084,17 @@ void Cmd_Kill_f( gentity_t *ent ) {
 	if (ent->health <= 0) {
 		return;
 	}
+	if (level.warmupTime ||
+		       	((g_gametype.integer == GT_ELIMINATION || g_gametype.integer == GT_CTF_ELIMINATION || g_gametype.integer == GT_LMS) 
+			 && (level.roundNumber != level.roundNumberStarted))) {
+		if (g_killDisable.integer & KILLCMD_WARMUP) {
+			trap_SendServerCommand( ent - g_entities, "print \"\\kill disabled during warmup.\n\"" );
+			return;
+		}
+	} else if (g_killDisable.integer & KILLCMD_GAME) {
+		trap_SendServerCommand( ent - g_entities, "print \"\\kill disabled during game.\n\"" );
+		return;
+	}
 
 	if ( g_killSafety.integer && !level.warmupTime) {
 		if ((g_gametype.integer == GT_ELIMINATION || g_gametype.integer == GT_CTF_ELIMINATION || g_gametype.integer == GT_LMS) 
