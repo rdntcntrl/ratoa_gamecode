@@ -983,6 +983,13 @@ void CG_PingLocation( centity_t *cent ) {
 			trap_S_StartLocalSound( cgs.media.pingLocationWarnLowSound, CHAN_LOCAL_SOUND );
 			// was a warning ping, no foreground to draw
 			return;
+		case LOCPING_DEAD:
+			re->customShader = cgs.media.pingLocationDead;
+
+			trap_S_StartSound (cent->lerpOrigin, ENTITYNUM_NONE, CHAN_AUTO, cgs.media.pingLocationWarnSound );
+			trap_S_StartLocalSound( cgs.media.pingLocationWarnLowSound, CHAN_LOCAL_SOUND );
+			// was a "dead" ping, no foreground to draw
+			return;
 		case LOCPING_ENEMY:
 			re->customShader = cgs.media.pingLocationEnemyBg;
 

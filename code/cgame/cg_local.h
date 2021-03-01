@@ -1015,6 +1015,7 @@ typedef struct {
 	qhandle_t	pingLocationBg;
 	qhandle_t	pingLocationFg;
 	qhandle_t	pingLocationWarn;
+	qhandle_t	pingLocationDead;
 	qhandle_t	pingLocationEnemyFg;
 	qhandle_t	pingLocationEnemyBg;
 	qhandle_t	pingLocationBlueFlagBg;

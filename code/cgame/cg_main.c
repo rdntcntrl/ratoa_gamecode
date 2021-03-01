@@ -2476,6 +2476,7 @@ static void CG_RegisterGraphics( void ) {
 		if (cg_pingLocation.integer) {
 			cgs.media.pingLocation = trap_R_RegisterShaderNoMip("gfx/2d/pings/ping1.tga");
 			cgs.media.pingLocationWarn = trap_R_RegisterShaderNoMip("gfx/2d/pings/pingX.tga");
+			cgs.media.pingLocationDead = trap_R_RegisterShaderNoMip("gfx/2d/pings/pingDead.tga");
 			cgs.media.pingLocationHudMarker = trap_R_RegisterShaderNoMip("gfx/2d/pings/pingHudMarker2.tga");
 			if (cg_pingEnemyStyle.integer > 0 && cg_pingEnemyStyle.integer <= 3) {
 				cgs.media.pingLocationEnemyFg = trap_R_RegisterShaderNoMip(va("gfx/2d/pings/pingEnemyFg%i.tga", cg_pingEnemyStyle.integer));
