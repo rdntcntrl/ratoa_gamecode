@@ -48,7 +48,7 @@ static char g_bfb[ 32000 ];
 // note: list ordered alphabetically
 g_admin_cmd_t g_admin_cmds[ ] =
   {
-    {"adjustban", "", G_admin_adjustban, "b",
+    {"adjustban", "", G_admin_adjustban, ADMF_ADJUSTBAN,
       "change the duration or reason of a ban.  duration is specified as "
       "numbers followed by units 'w' (weeks), 'd' (days), 'h' (hours) or "
       "'m' (minutes), or seconds if no units are specified.  if the duration is"
@@ -57,17 +57,17 @@ g_admin_cmd_t g_admin_cmds[ ] =
       "[^3ban#^7] (^5duration^7) (^5reason^7)"
     },
 
-    {"admintest", "", G_admin_admintest, "a",
+    {"admintest", "", G_admin_admintest, ADMF_ADMINTEST,
       "display your current admin level",
       ""
     },
 
-    {"allready", "ar", G_admin_allready, "y",
+    {"allready", "ar", G_admin_allready, ADMF_ALLREADY,
       "makes everyone ready in intermission",
       ""
     },
 
-    {"ban", "", G_admin_ban, "b",
+    {"ban", "", G_admin_ban, ADMF_BAN,
       "ban a player by IP and GUID with an optional expiration time and reason."
       " duration is specified as numbers followed by units 'w' (weeks), 'd' "
       "(days), 'h' (hours) or 'm' (minutes), or seconds if no units are "
@@ -75,32 +75,32 @@ g_admin_cmd_t g_admin_cmds[ ] =
       "[^3name|slot#|IP^7] (^5duration^7) (^5reason^7)"
     },
 
-    {"cancelvote", "cv", G_admin_cancelvote, "c",
+    {"cancelvote", "cv", G_admin_cancelvote, ADMF_CANCELVOTE,
       "cancel a vote taking place",
       ""
     },
 
-    {"coin", "", G_admin_coin, "q",
+    {"coin", "", G_admin_coin, ADMF_COIN,
       "toss a coin",
       ""
     },
     //KK-OAX
-    {"disorient", "", G_admin_disorient,	"d",
+    {"disorient", "", G_admin_disorient,	ADMF_DISORIENT,
 		"disorient a player by flipping player's view and controls",
 		"[^3name|slot#^7] (^hreason^7)"
 	},
 
-    {"eqping", "", G_admin_eqping,	"E",
+    {"eqping", "", G_admin_eqping,	ADMF_EQPING,
 		"Toggle ping equalizer",
 		""
 	},
 
-    {"setping", "", G_admin_setping,	"E",
+    {"setping", "", G_admin_setping,	ADMF_SETPING,
 		"Set a specific EQping ping",
 		""
 	},
 
-    {"handicap", "", G_admin_handicap, "S",
+    {"handicap", "", G_admin_handicap, ADMF_HANDICAP,
         "sets a handicap for a player",
         "[^3name|slot#] [handicap]"
     },
@@ -109,188 +109,188 @@ g_admin_cmd_t g_admin_cmds[ ] =
     //  "[^3name|slot#^7]"
     //},
     
-    {"help", "h", G_admin_help, "h",
+    {"help", "h", G_admin_help, ADMF_HELP,
       "display commands available to you or help on a specific command",
       "(^5command^7)"
     },
 
-    {"kick", "k", G_admin_kick, "k",
+    {"kick", "k", G_admin_kick, ADMF_KICK,
       "kick a player with an optional reason",
       "[^3name|slot#^7] (^5reason^7)"
     },
     
-    {"listadmins", "", G_admin_listadmins, "D",
+    {"listadmins", "", G_admin_listadmins, ADMF_LISTADMINS,
       "display a list of all server admins and their levels",
       "(^5name|start admin#^7)"
     },
 
-    {"listplayers", "lp", G_admin_listplayers, "i",
+    {"listplayers", "lp", G_admin_listplayers, ADMF_LISTPLAYERS,
       "display a list of players, their client numbers and their levels",
       ""
     },
 
-    {"lock", "l", G_admin_lock, "K",
+    {"lock", "l", G_admin_lock, ADMF_LOCK,
       "lock a team to prevent anyone from joining it",
       "[^3a|h^7]"
     },
 
-    {"lockall", "la", G_admin_lockall, "K",
+    {"lockall", "la", G_admin_lockall, ADMF_LOCKALL,
       "lock all teams to prevent anyone from joining them",
       ""
     },
 
     //KK-OAX
-    {"map", "m", G_admin_map, "M",
+    {"map", "m", G_admin_map, ADMF_MAP,
       "load a map",
       "[^3mapname^7]"
     },
 
-    {"mute", "", G_admin_mute, "m",
+    {"mute", "", G_admin_mute, ADMF_MUTE,
       "mute a player",
       "[^3name|slot#^7]"
     },
 
-    {"mutespec", "ms", G_admin_mutespec, "m",
+    {"mutespec", "ms", G_admin_mutespec, ADMF_MUTESPEC,
       "mute the spectators",
       ""
     },
 
-    {"namelog", "nl", G_admin_namelog, "e",
+    {"namelog", "nl", G_admin_namelog, ADMF_NAMELOG,
       "display a list of names used by recently connected players",
       "(^5name^7)"
     },
 
-    {"nextmap", "n", G_admin_nextmap, "n",
+    {"nextmap", "n", G_admin_nextmap, ADMF_NEXTMAP,
       "go to the next map in the cycle",
       ""
     },
 
-    {"votenextmap", "vn", G_admin_votenextmap, "n",
+    {"votenextmap", "vn", G_admin_votenextmap, ADMF_VOTENEXTMAP,
       "start a vote for the next map from a selection of random maps",
       ""
     },
     //KK-OAX
-    {"orient", "", G_admin_orient,	"d",
+    {"orient", "", G_admin_orient,	ADMF_ORIENT,
 		"orient a player after a !disorient", "[^3name|slot#^7]"
 	},
 	
-    {"passvote", "pv",  G_admin_passvote, "V",
+    {"passvote", "pv",  G_admin_passvote, ADMF_PASSVOTE,
       "pass a vote currently taking place",
       ""
     },
 
-    {"putteam", "p", G_admin_putteam, "p",
+    {"putteam", "p", G_admin_putteam, ADMF_PUTTEAM,
       "move a player to a specified team",
       "[^3name|slot#^7] [^3h|a|s^7]"
     },
 
-    {"record", "", G_admin_record, "R",
+    {"record", "", G_admin_record, ADMF_RECORD,
       "record a server-side demo",
       ""
     },
 
-    {"readconfig", "", G_admin_readconfig, "G",
+    {"readconfig", "", G_admin_readconfig, ADMF_READCONFIG,
       "reloads the admin config file and refreshes permission flags",
       ""
     },
 
-    {"rename", "", G_admin_rename, "N",
+    {"rename", "", G_admin_rename, ADMF_RENAME,
       "rename a player",
       "[^3name|slot#^7] [^3new name^7]"
     },
 
-    {"restart", "r", G_admin_restart, "r",
+    {"restart", "r", G_admin_restart, ADMF_RESTART,
       "restart the current map (optionally using named layout)",
       ""
     },
 
-    {"setlevel", "", G_admin_setlevel, "s",
+    {"setlevel", "", G_admin_setlevel, ADMF_SETLEVEL,
       "sets the admin level of a player",
       "[^3name|slot#|admin#^7] [^3level^7]"
     },
 
-    {"showbans", "sb", G_admin_showbans, "B",
+    {"showbans", "sb", G_admin_showbans, ADMF_SHOWBANS,
       "display a (partial) list of active bans",
       "(^5start at ban#^7) (^5name|IP^7)"
     },
     //KK-OAX
-    {"shuffle", "", G_admin_shuffle, "f",
+    {"shuffle", "", G_admin_shuffle, ADMF_SHUFFLE,
         "Shuffles the teams and restart"
         ""
     },
     
-    {"slap", "", G_admin_slap, "S",
+    {"slap", "", G_admin_slap, ADMF_SLAP,
         "Reduces the health of the selected player by the damage specified",
         "[^3name|slot#] [damage] [reason]"
     },
 
-    {"spec999", "", G_admin_spec999, "P",
+    {"spec999", "", G_admin_spec999, ADMF_SPEC999,
       "move 999 pingers to the spectator team",
       ""},
 
-    {"stoprecord", "", G_admin_stoprecord, "R",
+    {"stoprecord", "", G_admin_stoprecord, ADMF_STOPRECORD,
       "stop recording server-side demo",
       ""
     },
 
-    {"swap", "s", G_admin_swap, "p",
+    {"swap", "s", G_admin_swap, ADMF_SWAP,
       "swap two players",
       "[^3name|slot#^7] [^3name|slot#^7]"
     },
 
-    {"teams", "t", G_admin_teams, "T",
+    {"teams", "t", G_admin_teams, ADMF_TEAMS,
       "fix team sizes",
       ""},
 
-    {"time", "", G_admin_time, "C",
+    {"time", "", G_admin_time, ADMF_TIME,
       "show the current local server time",
       ""},
 
-    {"timein", "ti", G_admin_timein, "t",
+    {"timein", "ti", G_admin_timein, ADMF_TIMEIN,
       "end a timeout",
       ""},
 
-    {"timeout", "to", G_admin_timeout, "t",
+    {"timeout", "to", G_admin_timeout, ADMF_TIMEOUT,
       "call a timeout",
       ""},
 
-    {"tourneylock", "tl", G_admin_tourneylock, "L",
+    {"tourneylock", "tl", G_admin_tourneylock, ADMF_TOURNEYLOCK,
       "prevent anyone except admins with this permission from joining the server",
       ""
     },
 
-    {"tourneyunlock", "tul", G_admin_tourneyunlock, "L",
+    {"tourneyunlock", "tul", G_admin_tourneyunlock, ADMF_TOURNEYUNLOCK,
       "unlock the server",
       ""
     },
 
-    {"unban", "", G_admin_unban, "b",
+    {"unban", "", G_admin_unban, ADMF_UNBAN,
       "unbans a player specified by the slot as seen in showbans",
       "[^3ban#^7]"
     },
 
-    {"unlock", "u", G_admin_unlock, "K",
+    {"unlock", "u", G_admin_unlock, ADMF_UNLOCK,
       "unlock a locked team",
       "[^3a|h^7]"
     },
 
-    {"unlockall", "ula", G_admin_unlockall, "K",
+    {"unlockall", "ula", G_admin_unlockall, ADMF_UNLOCKALL,
       "unlock all teams",
       ""
     },
 
-    {"unmute", "", G_admin_mute, "m",
+    {"unmute", "", G_admin_mute, ADMF_MUTE,
       "unmute a muted player",
       "[^3name|slot#^7]"
     },
 
-    {"unmutespec", "ums", G_admin_unmutespec, "m",
+    {"unmutespec", "ums", G_admin_unmutespec, ADMF_UNMUTESPEC,
       "unmute the spectators",
       ""
     },
 
 //KK-OAX   
-    {"warn", "", G_admin_warn, "w",
+    {"warn", "", G_admin_warn, ADMF_WARN,
       "warn a player",
       "[^3name|slot#^7] [reason]"
     }
@@ -598,6 +598,72 @@ static void admin_writeconfig( void )
   trap_FS_FCloseFile( f );
 }
 
+static void admin_level0_flags(char *flags, int size) {
+	Q_strncpyz(flags,
+		       va("%c%c%c%c",
+			  ADMF_COIN,
+			  ADMF_ADMINTEST,
+			  ADMF_HELP,
+			  ADMF_TIME
+			  ),
+		       size);
+}
+
+static void admin_level1_flags(char *flags, int size) {
+	admin_level0_flags(flags, size);
+}
+static void admin_level2_flags(char *flags, int size) {
+	admin_level1_flags(flags, size);
+	Q_strcat(flags, size,
+			va("%c%c%c",
+				ADMF_LISTPLAYERS,
+				ADMF_PUTTEAM,
+				ADMF_SPEC999
+			  )
+		);
+}
+
+static void admin_level3_flags(char *flags, int size) {
+	admin_level2_flags(flags, size);
+	Q_strcat(flags, size,
+			va("%c%c%c%c%c%c%c%c%c%c%c%c%c",
+				ADMF_RESTART,
+				ADMF_KICK,
+				ADMF_MUTE,
+				ADMF_SHUFFLE,
+				ADMF_LOCK,
+				ADMF_NEXTMAP,
+				ADMF_CANCELVOTE,
+				ADMF_PASSVOTE,
+				ADMF_RENAME,
+				ADMF_ADMINCHAT,
+				ADMF_TEAMS,
+				ADMF_ALLREADY,
+				ADMF_TIMEOUT
+			  )
+		);
+}
+
+static void admin_level4_flags(char *flags, int size) {
+	admin_level3_flags(flags, size);
+	Q_strcat(flags, size,
+			va("%c%c%c%c%c%c%c%c%c",
+				ADMF_MAP,
+				ADMF_PASSVOTE,
+				ADMF_DISORIENT,
+				ADMF_SHOWBANS,
+				ADMF_BAN,
+				ADMF_LISTADMINS,
+				ADMF_SLAP,
+				ADMF_FORCETEAMCHANGE,
+				ADMF_IMMUNITY
+			  )
+		);
+}
+static void admin_level5_flags(char *flags, int size) {
+	Q_strncpyz(flags, "*", size);
+}
+
 
 // if we can't parse any levels from readconfig, set up default
 // ones to make new installs easier for admins
@@ -622,27 +688,27 @@ static void admin_default_levels( void )
   }
   Q_strncpyz( g_admin_levels[ 0 ]->name, "^4Unknown Player",
     sizeof( l->name ) );
-  Q_strncpyz( g_admin_levels[ 0 ]->flags, "qahC", sizeof( l->flags ) );
+  admin_level0_flags( g_admin_levels[ 0 ]->flags, sizeof( l->flags ) );
 
   Q_strncpyz( g_admin_levels[ 1 ]->name, "^5Server Regular",
     sizeof( l->name ) );
-  Q_strncpyz( g_admin_levels[ 1 ]->flags, "qiahC", sizeof( l->flags ) );
+  admin_level1_flags( g_admin_levels[ 1 ]->flags, sizeof( l->flags ) );
 
   Q_strncpyz( g_admin_levels[ 2 ]->name, "^6Team Manager",
     sizeof( l->name ) );
-  Q_strncpyz( g_admin_levels[ 2 ]->flags, "qiahCpPwr", sizeof( l->flags ) );
+  admin_level2_flags( g_admin_levels[ 2 ]->flags, sizeof( l->flags ) );
 
   Q_strncpyz( g_admin_levels[ 3 ]->name, "^2Junior Admin",
     sizeof( l->name ) );
-  Q_strncpyz( g_admin_levels[ 3 ]->flags, "qiahCpPwrkmfKncN?Tyt", sizeof( l->flags ) );
+  admin_level3_flags( g_admin_levels[ 3 ]->flags, sizeof( l->flags ) );
 
   Q_strncpyz( g_admin_levels[ 4 ]->name, "^3Senior Admin",
     sizeof( l->name ) );
-  Q_strncpyz( g_admin_levels[ 4 ]->flags, "qiahCpPwrkmfKncN?MVdBbDS51tTy", sizeof( l->flags ) );
+  admin_level4_flags( g_admin_levels[ 4 ]->flags, sizeof( l->flags ) );
 
   Q_strncpyz( g_admin_levels[ 5 ]->name, "^1Server Operator",
     sizeof( l->name ) );
-  Q_strncpyz( g_admin_levels[ 5 ]->flags, "*", sizeof( l->flags ) );
+  admin_level5_flags( g_admin_levels[ 5 ]->flags, sizeof( l->flags ) );
   admin_level_maxname = 15;
 }
 
@@ -799,6 +865,9 @@ static int admin_listadmins( gentity_t *ent, int start, char *search )
   gentity_t *vic;
   int l = 0;
   qboolean dup = qfalse;
+  qboolean show_guid;
+
+  show_guid = G_admin_permission( ent, ADMF_SHOW_GUIDSTUB );
 
   ADMBP_begin();
 
@@ -840,7 +909,7 @@ static int admin_listadmins( gentity_t *ent, int start, char *search )
       i,
       l,
       lname,
-      guid_stub,
+      show_guid ? guid_stub : "XXXXXXXX" ,
       vic->client->pers.netname ) );
     drawn++;
   }
@@ -897,7 +966,7 @@ static int admin_listadmins( gentity_t *ent, int start, char *search )
       ( i + MAX_CLIENTS ),
       g_admin_admins[ i ]->level,
       lname,
-      guid_stub,
+      show_guid ? guid_stub : "XXXXXXX",
       g_admin_admins[ i ]->name ) );
     drawn++;
   }
@@ -1042,7 +1111,7 @@ qboolean G_admin_cmd_check( gentity_t *ent, qboolean say )
 	    }
     }
 
-    if( G_admin_permission( ent, g_admin_cmds[ i ].flag[ 0 ] ) )
+    if( G_admin_permission( ent, g_admin_cmds[ i ].flag ) )
     {
       // flooding say will have already been accounted for in ClientCommand
       if( !say && G_FloodLimited( ent ) )
@@ -1907,6 +1976,9 @@ qboolean G_admin_ban( gentity_t *ent, int skiparg )
   char n2[ MAX_NAME_LENGTH ];
   char s2[ MAX_NAME_LENGTH ];
   char guid_stub[ 9 ];
+  qboolean show_guid = qfalse;
+  qboolean show_ip = qfalse;
+
 
   if( G_admin_permission( ent, ADMF_CAN_PERM_BAN ) &&
        G_admin_permission( ent, ADMF_UNACCOUNTABLE ) )
@@ -2012,6 +2084,9 @@ qboolean G_admin_ban( gentity_t *ent, int skiparg )
     }
   }
 
+  show_guid = G_admin_permission( ent, ADMF_SHOW_GUIDSTUB );
+  show_ip = G_admin_permission( ent, ADMF_SHOW_IP );
+  
   if( !logmatches )
   {
     ADMP( "^3!ban: ^7no player found by that name, IP, or slot number\n" );
@@ -2037,8 +2112,8 @@ qboolean G_admin_ban( gentity_t *ent, int skiparg )
           ADMBP( va( "%-2s (*%s) %15s ^7'%s^7'\n",
            ( g_admin_namelog[ i ]->slot > -1 ) ?
              va( "%d", g_admin_namelog[ i ]->slot ) : "-",
-           guid_stub,
-           g_admin_namelog[ i ]->ip,
+           show_guid ? guid_stub : "XXXXXXXX",
+           show_ip ? g_admin_namelog[ i ]->ip : "xxx.xxx.xxx.xxx",
            g_admin_namelog[ i ]->name[ j ] ) );
         }
       }
@@ -2558,6 +2633,11 @@ qboolean G_admin_listplayers( gentity_t *ent, int skiparg )
   char guid_stub[ 9 ];
   char muted[ 2 ];
   int l;
+  qboolean show_guid;
+  qboolean show_muted;
+
+  show_guid = G_admin_permission( ent, ADMF_SHOW_GUIDSTUB );
+  show_muted = G_admin_permission( ent, ADMF_MUTE );
 
   ADMBP_begin();
   ADMBP( va( "^3!listplayers: ^7%d players connected:\n",
@@ -2603,7 +2683,7 @@ qboolean G_admin_listplayers( gentity_t *ent, int skiparg )
     guid_stub[ j ] = '\0';
 
     muted[ 0 ] = '\0';
-    if( p->sess.muted )
+    if( show_muted && p->sess.muted )
     {
       Q_strncpyz( muted, "M", sizeof( muted ) );
     }
@@ -2653,7 +2733,7 @@ qboolean G_admin_listplayers( gentity_t *ent, int skiparg )
               t,
               l,
               lname,
-              guid_stub,
+              show_guid ? guid_stub : "XXXXXXXX",
               muted,
               p->pers.netname,
               ( *n ) ? "(a.k.a. " : "",
@@ -2684,6 +2764,9 @@ qboolean G_admin_showbans( gentity_t *ent, int skiparg )
   char *ip_match = NULL;
   int ip_match_len = 0;
   char name_match[ MAX_NAME_LENGTH ] = {""};
+  qboolean show_ip;
+
+  show_ip = G_admin_permission( ent, ADMF_SHOW_IP );
 
   t = trap_RealTime( NULL );
 
@@ -2834,7 +2917,7 @@ qboolean G_admin_showbans( gentity_t *ent, int skiparg )
     ADMBP( va( "%4i %s^7 %-15s %-8s %s^7 %-10s\n     \\__ %s\n",
              ( i + 1 ),
              n1,
-             g_admin_bans[ i ]->ip,
+             show_ip ? g_admin_bans[ i ]->ip : "xxx.xxx.xxx.xxx" ,
              date,
              n2,
              duration,
@@ -2923,7 +3006,7 @@ qboolean G_admin_help( gentity_t *ent, int skiparg )
     ADMBP_begin();
     for( i = 0; i < adminNumCmds; i++ )
     {
-      if( G_admin_permission( ent, g_admin_cmds[ i ].flag[ 0 ] ) )
+      if( G_admin_permission( ent, g_admin_cmds[ i ].flag ) )
       {
         ADMBP( va( "^3!%-12s", g_admin_cmds[ i ].keyword ) );
         j++;
@@ -2971,7 +3054,7 @@ qboolean G_admin_help( gentity_t *ent, int skiparg )
     {
       if( !Q_stricmp( cmd, g_admin_cmds[ i ].keyword ) )
       {
-        if( !G_admin_permission( ent, g_admin_cmds[ i ].flag[ 0 ] ) )
+        if( !G_admin_permission( ent, g_admin_cmds[ i ].flag ) )
         {
           ADMBP( va( "^3!help: ^7you do not have permission to use '%s'\n",
                    g_admin_cmds[ i ].keyword ) );
@@ -2987,7 +3070,7 @@ qboolean G_admin_help( gentity_t *ent, int skiparg )
 		ADMBP( va( " ^3Syntax: ^7!%s %s\n", g_admin_cmds[ i ].alias,
 			 g_admin_cmds[ i ].syntax ) );
 	}
-        ADMBP( va( " ^3Flag: ^7'%c'\n", g_admin_cmds[ i ].flag[ 0 ] ) );
+        ADMBP( va( " ^3Flag: ^7'%c'\n", g_admin_cmds[ i ].flag ) );
         ADMBP_end();
         return qtrue;
       }
@@ -3288,6 +3371,11 @@ qboolean G_admin_namelog( gentity_t *ent, int skiparg )
   char guid_stub[ 9 ];
   qboolean found = qfalse;
   int printed = 0;
+  qboolean show_guid;
+  qboolean show_ip;
+
+  show_guid = G_admin_permission( ent, ADMF_SHOW_GUIDSTUB );
+  show_ip = G_admin_permission( ent, ADMF_SHOW_IP );
 
   if( G_SayArgc() > 1 + skiparg )
   {
@@ -3322,7 +3410,9 @@ qboolean G_admin_namelog( gentity_t *ent, int skiparg )
     ADMBP( va( "%-2s (*%s) %15s^7",
       ( g_admin_namelog[ i ]->slot > -1 ) ?
         va( "%d", g_admin_namelog[ i ]->slot ) : "-",
-      guid_stub, g_admin_namelog[ i ]->ip ) );
+      show_guid ? guid_stub : "XXXXXXXX",
+      show_ip ? g_admin_namelog[ i ]->ip : "xxx.xxx.xxx.xxx"
+      ));
     for( j = 0; j < MAX_ADMIN_NAMELOG_NAMES &&
       g_admin_namelog[ i ]->name[ j ][ 0 ]; j++ )
     {
@@ -3808,9 +3898,9 @@ qboolean G_admin_warn( gentity_t *ent, int skiparg )
     //KK, Use The Check Warnings Deal Here
     totalWarnings = G_admin_warn_check( vic );
     
-    // Play the whistle
-    soundIndex = G_SoundIndex("sound/admin/whistle.wav");
-    G_GlobalSound( soundIndex );
+    //// Play the whistle
+    //soundIndex = G_SoundIndex("sound/admin/whistle.wav");
+    //G_GlobalSound( soundIndex );
     
     //First Check to make sure g_maxWarnings isn't a Null Value
     if( g_maxWarnings.integer )

@@ -78,6 +78,60 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define ADMF_IMMUTABLE '!'
 #define ADMF_INCOGNITO '@'
 #define ADMF_ADMINCHAT '?'
+#define ADMF_SHOW_IP '/'
+#define ADMF_SHOW_GUIDSTUB '/'
+// XXX: reserved values:
+// '*' - matches everything
+// '-'
+// '+'
+
+#define ADMF_ADMINTEST       'a'
+#define ADMF_BAN             'b'
+#define ADMF_UNBAN           ADMF_BAN
+#define ADMF_ADJUSTBAN       ADMF_BAN
+#define ADMF_SHOWBANS        'B'
+#define ADMF_CANCELVOTE      'c'
+#define ADMF_TIME            'C'
+#define ADMF_DISORIENT       'd'
+#define ADMF_ORIENT          ADMF_DISORIENT
+#define ADMF_LISTADMINS      'D'
+#define ADMF_NAMELOG         'e'
+#define ADMF_SETPING         'E'
+#define ADMF_EQPING          ADMF_SETPING
+#define ADMF_SHUFFLE         'f'
+#define ADMF_READCONFIG      'G'
+#define ADMF_HELP            'h'
+#define ADMF_LISTPLAYERS     'i'
+#define ADMF_KICK            'k'
+#define ADMF_LOCK            'K'
+#define ADMF_UNLOCK          ADMF_LOCK
+#define ADMF_LOCKALL         ADMF_LOCK
+#define ADMF_UNLOCKALL       ADMF_LOCKALL
+#define ADMF_TOURNEYLOCK     'L'
+#define ADMF_TOURNEYUNLOCK   ADMF_TOURNEYLOCK
+#define ADMF_MUTE            'm'
+#define ADMF_MUTESPEC        ADMF_MUTE
+#define ADMF_UNMUTESPEC      ADMF_MUTESPEC
+#define ADMF_MAP             'M'
+#define ADMF_NEXTMAP         'n'
+#define ADMF_VOTENEXTMAP     ADMF_NEXTMAP
+#define ADMF_RENAME          'N'
+#define ADMF_PUTTEAM         'p'
+#define ADMF_SWAP            ADMF_PUTTEAM
+#define ADMF_SPEC999         'P'
+#define ADMF_COIN            'q'
+#define ADMF_RESTART         'r'
+#define ADMF_RECORD          'R'
+#define ADMF_STOPRECORD      ADMF_RECORD
+#define ADMF_SETLEVEL        's'
+#define ADMF_SLAP            'S'
+#define ADMF_HANDICAP        ADMF_SLAP
+#define ADMF_TIMEOUT         't'
+#define ADMF_TIMEIN          ADMF_TIMEOUT
+#define ADMF_TEAMS           'T'
+#define ADMF_PASSVOTE        'V'
+#define ADMF_WARN            'w'
+#define ADMF_ALLREADY        'y'
 
 #define MAX_ADMIN_LISTITEMS 20
 #define MAX_ADMIN_SHOWBANS 10
@@ -89,7 +143,7 @@ typedef struct
   char *keyword;
   char *alias;
   qboolean ( * handler ) ( gentity_t *ent, int skiparg );
-  char *flag;
+  char flag;
   char *function;  // used for !help
   char *syntax;  // used for !help
 }
