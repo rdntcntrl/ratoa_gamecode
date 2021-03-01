@@ -1018,6 +1018,10 @@ void ClientThink_real( gentity_t *ent ) {
 		return;
 	}
 
+	if ( client->ps.stats[STAT_HEALTH] <= 0 && client->respawnTime > level.time) {
+		ClientInactivitySuspend(client);
+	}
+
 	// spectators don't do much
 	if ( (client->sess.sessionTeam == TEAM_SPECTATOR) || client->isEliminated ) {
 		if (client->isEliminated) {
