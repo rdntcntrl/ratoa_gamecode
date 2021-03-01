@@ -444,6 +444,8 @@ typedef struct {
 
     int	joinedByTeamQueue;
     int	queueJoinTime; // time at which the queue was joined
+
+    qboolean registeredName;
 } clientPersistant_t;
 
 // for twitchrail award

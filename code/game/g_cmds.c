@@ -26,6 +26,17 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 static qboolean G_IsIndividualMuted( gentity_t *ent, gentity_t *wantstochat );
 
+static int G_RatScoreboardIndicator( gclient_t *cl ) {
+	int ind = 0;
+	if (g_usesRatVM.integer > 0 || G_MixedClientHasRatVM(cl)) {
+		ind |= SCORE_RATINDICATOR_HASRAT;
+	}
+	if (cl->pers.registeredName) {
+		ind |= SCORE_RATINDICATOR_ISREGISTERED;
+	}
+	return ind;
+}
+
 /*
 ==================
 DeathmatchScoreboardMessage
@@ -219,7 +230,7 @@ void Ratscores2Message( gentity_t *ent ) {
 				cl->pers.topweapons[0][1] > 0 ? cl->pers.topweapons[0][0] : WP_NONE,
 				cl->pers.topweapons[1][1] > 0 ? cl->pers.topweapons[1][0] : WP_NONE,
 				cl->pers.topweapons[2][1] > 0 ? cl->pers.topweapons[2][0] : WP_NONE,
-				((g_usesRatVM.integer > 0 || G_MixedClientHasRatVM(cl)) ? 1 : 0)
+				G_RatScoreboardIndicator(cl)
 			    );
 
 		j = strlen(entry);

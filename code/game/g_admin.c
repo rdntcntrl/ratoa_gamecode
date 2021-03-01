@@ -397,6 +397,30 @@ qboolean G_admin_permission( gentity_t *ent, char flag )
   return qfalse;
 }
 
+/*
+ * returns qtrue if the player is using his registered admin name
+ */
+qboolean G_admin_uses_registeredname( gentity_t *ent ) {
+	int i;
+	char testName[ MAX_NAME_LENGTH ] = {""};
+	char name[ MAX_NAME_LENGTH ] = {""};
+
+	G_SanitiseString( ent->client->pers.netname, name, sizeof( name ) );
+
+	for( i = 0; i < MAX_ADMIN_ADMINS && g_admin_admins[ i ]; i++ )
+	{
+		if( g_admin_admins[ i ]->level < 1 )
+			continue;
+		G_SanitiseString( g_admin_admins[ i ]->name, testName, sizeof( testName ) );
+		if( !Q_stricmp( name, testName ) &&
+				!Q_stricmp( ent->client->pers.guid, g_admin_admins[ i ]->guid ) )
+		{
+			return qtrue;
+		}
+	}
+	return qfalse;
+}
+
 qboolean G_admin_name_check( gentity_t *ent, char *name, char *err, int len )
 {
   int i;

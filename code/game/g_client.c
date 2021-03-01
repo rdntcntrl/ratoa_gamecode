@@ -1872,6 +1872,7 @@ void ClientUserinfoChanged( int clientNum ) {
                 client->pers.nameChangeTime = level.time;
                 client->pers.nameChanges++;
             }
+	    client->pers.registeredName = G_admin_uses_registeredname(ent);
         }
     }
 

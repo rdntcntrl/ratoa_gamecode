@@ -844,6 +844,9 @@ qboolean	BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const play
 
 #define MAX_RAT_SAY_TEXT 256
 
+#define SCORE_RATINDICATOR_HASRAT  	1
+#define SCORE_RATINDICATOR_ISREGISTERED 2
+
 // for treasure hunter
 typedef enum {
 	TH_INIT,

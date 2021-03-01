@@ -215,6 +215,7 @@ qboolean G_admin_record( gentity_t *ent, int skiparg );
 qboolean G_admin_stoprecord( gentity_t *ent, int skiparg );
 qboolean G_admin_readconfig( gentity_t *ent, int skiparg );
 qboolean G_admin_permission( gentity_t *ent, char flag );
+qboolean G_admin_uses_registeredname( gentity_t *ent );
 qboolean G_admin_name_check( gentity_t *ent, char *name, char *err, int len );
 void G_admin_namelog_update( gclient_t *ent, qboolean disconnect );
 int G_admin_level( gentity_t *ent );
