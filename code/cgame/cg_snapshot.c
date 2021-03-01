@@ -66,6 +66,7 @@ void CG_UpdateQuiet ( centity_t *cent ) {
 			cent->quiet = qfalse;
 		}
 	}
+	cent->quiet = qfalse;
 }
 
 
