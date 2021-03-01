@@ -134,6 +134,7 @@ vmCvar_t	g_music;
 vmCvar_t        g_spawnprotect;
 //Following for elimination:
 vmCvar_t	g_elimination_respawn;
+vmCvar_t	g_elimination_respawn_increment;
 vmCvar_t	g_elimination_selfdamage;
 vmCvar_t	g_elimination_startHealth;
 vmCvar_t	g_elimination_startArmor;
@@ -679,6 +680,7 @@ static cvarTable_t		gameCvarTable[] = {
         { &g_spawnprotect, "g_spawnprotect", "500", CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue},
 	//Now for elimination stuff:
 	{ &g_elimination_respawn, "elimination_respawn", "0", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_elimination_respawn_increment, "elimination_respawn_increment", "5", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_elimination_selfdamage, "elimination_selfdamage", "0", 0, 0, qtrue },
 	{ &g_elimination_startHealth, "elimination_startHealth", "200", CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue },
 	{ &g_elimination_startArmor, "elimination_startArmor", "150", CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue },

@@ -1164,10 +1164,10 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 		self->client->elimRespawnTime = level.time + g_elimination_respawn.integer * 1000;
 		if ( self->client->sess.sessionTeam == TEAM_BLUE ) {
 			self->client->elimRespawnTime += level.elimBlueRespawnDelay;
-			level.elimBlueRespawnDelay += 5000;
+			level.elimBlueRespawnDelay += g_elimination_respawn_increment.integer * 1000;
 		} else {
 			self->client->elimRespawnTime += level.elimRedRespawnDelay;
-			level.elimRedRespawnDelay += 5000;
+			level.elimRedRespawnDelay += g_elimination_respawn_increment.integer * 1000;
 		}
 		RespawnTimeMessage(self,self->client->elimRespawnTime);
 	} else {
