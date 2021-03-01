@@ -184,6 +184,11 @@ g_admin_cmd_t g_admin_cmds[ ] =
       ""
     },
 
+    {"playsound", "",  G_admin_playsound, ADMF_PLAYSOUND,
+      "play a sound",
+      "soundfile [player]"
+    },
+
     {"putteam", "p", G_admin_putteam, ADMF_PUTTEAM,
       "move a player to a specified team",
       "[^3name|slot#^7] [^3h|a|s^7]"
@@ -2335,6 +2340,64 @@ qboolean G_admin_adjustban( gentity_t *ent, int skiparg )
     admin_writeconfig();
   return qtrue;
 }
+
+
+qboolean G_admin_playsound( gentity_t *ent, int skiparg )
+{
+  int pids[ MAX_CLIENTS ], found;
+  char name[ MAX_NAME_LENGTH ], err[ MAX_STRING_CHARS ];
+  char sound[ MAX_STRING_CHARS ];
+  int soundIndex;
+  gentity_t  *soundEnt;    
+  gentity_t *vic = NULL;
+
+  if( G_SayArgc() < 2 + skiparg )
+  {
+    ADMP( "^3!playsound: ^7usage: !playsound soundfile [player]\n" );
+    return qfalse;
+  }
+  
+  G_SayArgv( 1 + skiparg, sound, sizeof( sound ) );
+  if( G_SayArgc() > 2 + skiparg ) {
+         G_SayArgv( 2 + skiparg, name, sizeof( name ) );
+
+
+         if( ( found = G_ClientNumbersFromString( name, pids, MAX_CLIENTS ) ) != 1 )
+         {
+                 G_MatchOnePlayer( pids, found, err, sizeof( err ) );
+                 ADMP( va( "^3!playsound: ^7%s\n", err ) );
+                 return qfalse;
+         }
+         if( !admin_higher( ent, &g_entities[ pids[ 0 ] ] ) )
+         {
+                 ADMP( "^3!playsound: ^7sorry, but your intended victim has a higher "
+                                 " admin level than you\n" );
+                 return qfalse;
+         }
+         vic = &g_entities[ pids[ 0 ] ];
+  }
+
+  soundIndex = G_SoundIndex(sound);
+
+  if( ( soundIndex <= 0 ) ||  soundIndex >= MAX_SOUNDS ) {
+         //Display this message when debugging
+         ADMP( "^3!playsound: invalid soundfile\n" );  
+         return qfalse;
+  }    
+  soundEnt = G_TempEntity( level.intermission_origin, EV_GLOBAL_SOUND );
+  soundEnt->s.eventParm = soundIndex;
+  soundEnt->r.svFlags |= SVF_BROADCAST;
+  if (vic) {
+         soundEnt->r.svFlags |= SVF_SINGLECLIENT;
+         soundEnt->r.singleClient = vic->s.number;
+  }
+
+  ADMP( va( "^3!playsound: played sound\n" ) );
+
+  return qtrue;
+}
+
+
 
 qboolean G_admin_putteam( gentity_t *ent, int skiparg )
 {

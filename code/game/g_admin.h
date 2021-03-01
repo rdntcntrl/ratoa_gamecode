@@ -102,6 +102,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define ADMF_READCONFIG      'G'
 #define ADMF_HELP            'h'
 #define ADMF_LISTPLAYERS     'i'
+#define ADMF_PLAYSOUND       'j'
 #define ADMF_KICK            'k'
 #define ADMF_LOCK            'K'
 #define ADMF_UNLOCK          ADMF_LOCK
@@ -231,6 +232,7 @@ qboolean G_admin_kick( gentity_t *ent, int skiparg );
 qboolean G_admin_adjustban( gentity_t *ent, int skiparg );
 qboolean G_admin_ban( gentity_t *ent, int skiparg );
 qboolean G_admin_unban( gentity_t *ent, int skiparg );
+qboolean G_admin_playsound( gentity_t *ent, int skiparg );
 qboolean G_admin_putteam( gentity_t *ent, int skiparg );
 qboolean G_admin_swap( gentity_t *ent, int skiparg );
 qboolean G_admin_listadmins( gentity_t *ent, int skiparg );
