@@ -426,6 +426,8 @@ typedef enum {
 	LOCPING_DEAD,
 } locationping_t;
 
+// max ammo capacity when pickiup up weapons / ammo
+#define AMMO_CAPACITY 200
 
 // reward sounds (stored in ps->persistant[PERS_PLAYEREVENTS])
 #define	PLAYEREVENT_DENIEDREWARD		0x0001
