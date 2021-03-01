@@ -778,7 +778,7 @@ static void PM_GrappleMove( void ) {
 }
 
 #define GRAPPLE_PULLSPEED 350
-#define GRAPPLE_ACCEL 1000
+#define GRAPPLE_ACCEL 1500
 static void PM_SwingGrappleMove( void ) {
 	vec3_t vel, v;
 	vec3_t grappleTargetVel;
