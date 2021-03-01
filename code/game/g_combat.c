@@ -763,6 +763,36 @@ void G_CheckOnePlayerLeft( gentity_t *justdied ) {
 	}
 }
 
+void G_SetRespawntime( gentity_t *self, int notBefore ) {
+	self->client->respawnTime = notBefore;
+	if(g_respawntime.integer > 0 && level.time + g_respawntime.integer * 1000 > self->client->respawnTime) {
+		self->client->respawnTime = level.time + g_respawntime.integer * 1000;
+	}
+
+	//For testing:
+	//G_Printf("Respawntime: %i\n",self->client->respawnTime);
+	//However during warm up, we should respawn quicker!
+	if(g_gametype.integer == GT_ELIMINATION || g_gametype.integer == GT_CTF_ELIMINATION || g_gametype.integer == GT_LMS)
+		if(level.time<=level.roundStartTime && level.time>level.roundStartTime-1000*g_elimination_activewarmup.integer) {
+			//self->client->respawnTime = level.time + rand()%800;
+			self->client->respawnTime = level.time + 400;
+		}
+
+	if (g_gametype.integer == GT_ELIMINATION && g_elimination_respawn.integer
+			&& level.roundNumber == level.roundNumberStarted) {
+		self->client->elimRespawnTime = level.time + g_elimination_respawn.integer * 1000;
+		if ( self->client->sess.sessionTeam == TEAM_BLUE ) {
+			self->client->elimRespawnTime += level.elimBlueRespawnDelay;
+			level.elimBlueRespawnDelay += g_elimination_respawn_increment.integer * 1000;
+		} else {
+			self->client->elimRespawnTime += level.elimRedRespawnDelay;
+			level.elimRedRespawnDelay += g_elimination_respawn_increment.integer * 1000;
+		}
+		RespawnTimeMessage(self,self->client->elimRespawnTime);
+	} else {
+		RespawnTimeMessage(self,self->client->respawnTime);
+	}
+}
 
 /*
 ==================
@@ -1136,46 +1166,8 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 
 	// don't allow respawn until the death anim is done
 	// g_forcerespawn may force spawning at some later time
+	G_SetRespawntime(self, level.time + 1700);
 	
-	self->client->respawnTime = level.time + 1700;
-        if(g_respawntime.integer > 0 && level.time + g_respawntime.integer * 1000 > self->client->respawnTime) {
-		self->client->respawnTime = level.time + g_respawntime.integer * 1000;
-        }
-	
-	// This old code does not make any sense to me. What the hell is the +i doing there? 
-	//self->client->respawnTime = level.time + 1700 +i;
-        //if(g_respawntime.integer>0) {
-        //    for(i=0; self->client->respawnTime > i*g_respawntime.integer*1000;i++);
-
-        //    self->client->respawnTime = i*g_respawntime.integer*1000;
-        //}
-	
-        //For testing:
-        //G_Printf("Respawntime: %i\n",self->client->respawnTime);
-	//However during warm up, we should respawn quicker!
-	if(g_gametype.integer == GT_ELIMINATION || g_gametype.integer == GT_CTF_ELIMINATION || g_gametype.integer == GT_LMS)
-		if(level.time<=level.roundStartTime && level.time>level.roundStartTime-1000*g_elimination_activewarmup.integer) {
-			//self->client->respawnTime = level.time + rand()%800;
-			self->client->respawnTime = level.time + 400;
-		}
-
-	if (g_gametype.integer == GT_ELIMINATION && g_elimination_respawn.integer
-			&& level.roundNumber == level.roundNumberStarted) {
-		self->client->elimRespawnTime = level.time + g_elimination_respawn.integer * 1000;
-		if ( self->client->sess.sessionTeam == TEAM_BLUE ) {
-			self->client->elimRespawnTime += level.elimBlueRespawnDelay;
-			level.elimBlueRespawnDelay += g_elimination_respawn_increment.integer * 1000;
-		} else {
-			self->client->elimRespawnTime += level.elimRedRespawnDelay;
-			level.elimRedRespawnDelay += g_elimination_respawn_increment.integer * 1000;
-		}
-		RespawnTimeMessage(self,self->client->elimRespawnTime);
-	} else {
-		RespawnTimeMessage(self,self->client->respawnTime);
-	}
-
-		
-
 	// remove powerups
 	memset( self->client->ps.powerups, 0, sizeof(self->client->ps.powerups) );
 
