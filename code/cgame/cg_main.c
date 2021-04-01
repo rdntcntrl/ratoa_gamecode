@@ -2379,7 +2379,7 @@ static void CG_RegisterGraphics( void ) {
 
 	cgs.media.brightShell = trap_R_RegisterShader( "playerBrightShell");
 	cgs.media.brightShellBlend = trap_R_RegisterShader( "playerBrightShellBlend");
-	cgs.media.brightShellFlat = trap_R_RegisterShader( "playerBrightShellFlat");
+	cgs.media.brightShellFlat = trap_R_RegisterShader( "playerBrightShellFlatBlend");
 
 	//cgs.media.brightOutline = trap_R_RegisterShader( "playerBrightOutline10");
 	cgs.media.brightOutline = trap_R_RegisterShader( "playerBrightOutline08");
