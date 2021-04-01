@@ -2347,6 +2347,25 @@ void G_PickRandomName(char *buffer, char *name, int namesize) {
 
 }
 
+static const char *G_PickPlayerNameColor(void) {
+	switch (rand() % 7) {
+		case 0:
+			return S_COLOR_RED;
+		case 1:
+			return S_COLOR_GREEN;
+		case 2:
+			return S_COLOR_YELLOW;
+		case 3:
+			return S_COLOR_BLUE;
+		case 4:
+			return S_COLOR_CYAN;
+		case 5:
+			return S_COLOR_MAGENTA;
+		default:
+			return S_COLOR_WHITE;
+	}
+}
+
 #define UNNAMEDRENAME_FILESIZE (64*1024)
 #define UNNAMEDRENAME_MAX_TRIES 3
 
@@ -2376,7 +2395,7 @@ void G_UnnamedPlayerRename(gentity_t *ent) {
 			addedChars = 0;
 			if (G_ReadNameFile(g_unnamedRenameAdjlist.string, buffer, sizeof(buffer))) {
 				char name[MAX_NAME_LENGTH];
-				Q_strcat(newname, sizeof(newname), S_COLOR_MAGENTA);
+				Q_strcat(newname, sizeof(newname), G_PickPlayerNameColor());
 				G_PickRandomName(buffer, name, sizeof(name));
 				Q_strcat(newname, sizeof(newname), name);
 				addedChars += strlen(name);
@@ -2386,7 +2405,8 @@ void G_UnnamedPlayerRename(gentity_t *ent) {
 			if (G_ReadNameFile(g_unnamedRenameNounlist.string, buffer, sizeof(buffer))) {
 				char name[MAX_NAME_LENGTH];
 				G_PickRandomName(buffer, name, sizeof(name));
-				Q_strcat(newname, sizeof(newname), " " S_COLOR_CYAN);
+				Q_strcat(newname, sizeof(newname), " ");
+				Q_strcat(newname, sizeof(newname), G_PickPlayerNameColor());
 				Q_strcat(newname, sizeof(newname), name);
 				addedChars += strlen(name);
 
