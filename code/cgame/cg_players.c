@@ -23,6 +23,42 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // cg_players.c -- handle the media and animation for player entities
 #include "cg_local.h"
 
+#define MAX_AUTOHEADCOLORS 32
+static byte head_auto_colors[MAX_AUTOHEADCOLORS][3] = {
+	{ 0xFF, 0x00, 0x00 },
+	{ 0x00, 0x00, 0xFF },
+	{ 0xFF, 0xFF, 0x00 },
+	{ 0x00, 0xFF, 0xFF },
+	{ 0xFF, 0x00, 0xFF },
+	{ 0x7F, 0xFF, 0x00 },
+	{ 0x8B, 0x45, 0x13 },
+	{ 0xFF, 0xF8, 0xDC },
+	{ 0x00, 0x00, 0x00 },
+	{ 0x22, 0x8B, 0x22 },
+	{ 0x69, 0x69, 0x69 },
+	{ 0xFF, 0xA5, 0x00 },
+	{ 0x48, 0x3D, 0x8B },
+	{ 0x1E, 0x90, 0xFF },
+	{ 0x8A, 0x2B, 0xE2 },
+	{ 0x80, 0x80, 0x00 },
+	{ 0xD8, 0xBF, 0xD8 },
+	{ 0x00, 0x8B, 0x8B },
+	{ 0xDC, 0x14, 0x3C },
+	{ 0x00, 0x00, 0x80 },
+	{ 0x9A, 0xCD, 0x32 },
+	{ 0x46, 0x82, 0xB4 },
+	{ 0x8F, 0xBC, 0x8F },
+	{ 0x80, 0x00, 0x80 },
+	{ 0x00, 0xFF, 0x7F },
+	{ 0xFF, 0x7F, 0x50 },
+	{ 0xDB, 0x70, 0x93 },
+	{ 0xF0, 0xE6, 0x8C },
+	{ 0x90, 0xEE, 0x90 },
+	{ 0xFF, 0x14, 0x93 },
+	{ 0x7B, 0x68, 0xEE },
+	{ 0xEE, 0x82, 0xEE }
+};
+
 char	*cg_customSoundNames[MAX_CUSTOM_SOUNDS] = {
 	"*death1.wav",
 	"*death2.wav",
@@ -1002,6 +1038,10 @@ void CG_NewClientInfo( int clientNum ) {
 
 	v = Info_ValueForKey( configstring, "c2" );
 	CG_ColorFromString( v, newInfo.color2 );
+
+	v = Info_ValueForKey( configstring, "pc" );
+	newInfo.playerColorIndex = abs(atoi( v )) % MAX_AUTOHEADCOLORS;
+	
 
 	// bot skill
 	v = Info_ValueForKey( configstring, "skill" );
@@ -2578,7 +2618,8 @@ Adds a piece with modifications or duplications for powerups
 Also called by CG_Missile for quad rockets, but nobody can tell...
 ===============
 */
-void CG_AddRefEntityWithPowerups( refEntity_t *ent, entityState_t *state, int team, qboolean isMissile, clientInfo_t *ci, int orderIndicator ) {
+void CG_AddRefEntityWithPowerups( refEntity_t *ent, entityState_t *state, int team, qboolean isMissile,
+	       	clientInfo_t *ci, int orderIndicator, qboolean useBlendBrightshell ) {
 
 	if ( state->powerups & ( 1 << PW_INVIS ) ) {
             if( (cgs.dmflags & DF_INVIS) == 0) {
@@ -2605,25 +2646,34 @@ void CG_AddRefEntityWithPowerups( refEntity_t *ent, entityState_t *state, int te
 				ent->shaderRGBA[3] = CG_GetBrightShellAlpha();
 
 				if (cg_brightShells.integer == 1) {
-					ent->customShader = cgs.media.brightShell;
+					// useBlendBrightshell is usually true
+					// for head models, to make darker auto
+					// head colors work
+					ent->customShader = useBlendBrightshell ?
+					       	cgs.media.brightShellBlend : cgs.media.brightShell;
 					trap_R_AddRefEntityToScene( ent );
 				} else if (cg_brightShells.integer == 2) {
 					ent->customShader = cgs.media.brightShellFlat;
+					trap_R_AddRefEntityToScene( ent );
+				} else if (cg_brightShells.integer == 3) {
+					ent->customShader = cgs.media.brightShellBlend;
 					trap_R_AddRefEntityToScene( ent );
 				} else {
 					ent->customShader = cgs.media.brightShellFlat;
 					trap_R_AddRefEntityToScene( ent );
 					ent->shaderRGBA[3] = 0xff;
-					ent->customShader = cgs.media.brightOutline;
+					ent->customShader = useBlendBrightshell ?
+					       	cgs.media.brightOutlineBlend : cgs.media.brightOutline;
 					trap_R_AddRefEntityToScene( ent );
 				}
 			} else if ((cgs.ratFlags & RAT_BRIGHTOUTLINE) && cg_brightOutline.integer) {
-				if (cg_brightOutline.integer == 1) {
+				if (cg_brightOutline.integer == 1 || cg_brightOutline.integer == 2) {
 					ent->customShader = cgs.media.brightShellFlat;
 					ent->shaderRGBA[3] = 0xff * 0.125;
 					trap_R_AddRefEntityToScene( ent );
 
-					ent->customShader = cgs.media.brightOutline;
+					ent->customShader = (useBlendBrightshell || cg_brightOutline.integer == 2) ?
+					       	cgs.media.brightOutlineBlend : cgs.media.brightOutline;
 				} else {
 					ent->customShader = cgs.media.brightOutlineOpaque;
 				}
@@ -3104,6 +3154,16 @@ void CG_ParseForcedColors( void ) {
 
 }
 
+
+void CG_PlayerAutoHeadColor(clientInfo_t *ci, byte *outColor) {
+	int idx = abs(ci->playerColorIndex) % MAX_AUTOHEADCOLORS;
+	outColor[0] = head_auto_colors[idx][0];
+	outColor[1] = head_auto_colors[idx][1];
+	outColor[2] = head_auto_colors[idx][2];
+	outColor[3] = 0xff;
+}
+
+/*
 void CG_PlayerAutoHeadColor(clientInfo_t *ci, byte *outColor) {
 	float h,s,v;
 	float color[4];
@@ -3134,6 +3194,7 @@ void CG_PlayerAutoHeadColor(clientInfo_t *ci, byte *outColor) {
 	color[3] = 1.0;
 	CG_FloatColorToRGBA(color, outColor);
 }
+*/
 
 /*
 ===============
@@ -3155,6 +3216,7 @@ void CG_Player( centity_t *cent ) {
 	float			c;
 	float			angle;
 	vec3_t			dir, angles;
+	qboolean autoHeadColors = qfalse;
 
 	// the client number is stored in clientNum.  It can't be derived
 	// from the entity number, because a single client may have
@@ -3203,6 +3265,7 @@ void CG_Player( centity_t *cent ) {
 			  || (cg_enemyHeadColorAuto.integer && ci->team != cg.snap->ps.persistant[PERS_TEAM])
 			)) {
 		CG_PlayerAutoHeadColor(ci, head.shaderRGBA);
+		autoHeadColors = qtrue;
 	} else {
 		CG_PlayerGetColors(ci, cent->currentState.eFlags & EF_DEAD ? qtrue : qfalse, MCIDX_HEAD, head.shaderRGBA);
 	}
@@ -3246,7 +3309,7 @@ void CG_Player( centity_t *cent ) {
 	legs.renderfx = renderfx;
 	VectorCopy (legs.origin, legs.oldorigin);	// don't positionally lerp at all
 
-	CG_AddRefEntityWithPowerups( &legs, &cent->currentState, ci->team, qfalse, ci, 3 );
+	CG_AddRefEntityWithPowerups( &legs, &cent->currentState, ci->team, qfalse, ci, 3, qfalse );
 
 	// if the model failed, allow the default nullmodel to be displayed
 	if (!legs.hModel) {
@@ -3270,7 +3333,7 @@ void CG_Player( centity_t *cent ) {
 	torso.shadowPlane = shadowPlane;
 	torso.renderfx = renderfx;
 
-	CG_AddRefEntityWithPowerups( &torso, &cent->currentState, ci->team, qfalse, ci, 2 );
+	CG_AddRefEntityWithPowerups( &torso, &cent->currentState, ci->team, qfalse, ci, 2, qfalse );
 
 	if ( cent->currentState.eFlags & EF_KAMIKAZE ) {
 
@@ -3499,7 +3562,7 @@ void CG_Player( centity_t *cent ) {
 	head.shadowPlane = shadowPlane;
 	head.renderfx = renderfx;
 
-	CG_AddRefEntityWithPowerups( &head, &cent->currentState, ci->team, qfalse, ci, 1 );
+	CG_AddRefEntityWithPowerups( &head, &cent->currentState, ci->team, qfalse, ci, 1, autoHeadColors );
 
 	CG_BreathPuffs(cent, &head);
 

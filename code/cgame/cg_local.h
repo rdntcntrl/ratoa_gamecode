@@ -439,6 +439,8 @@ typedef struct {
 	vec3_t			color2;
 	vec3_t			color3;
 
+	int			playerColorIndex;
+
 	int				score;			// updated by score servercmds
 	int				location;		// location index for team mode
 	int				health;			// you only get this info about your teammates
@@ -1120,10 +1122,13 @@ typedef struct {
 
 	// bright shell overlay
         qhandle_t       brightShell;
+        qhandle_t       brightShellBlend;
         qhandle_t       brightShellFlat;
         qhandle_t       brightOutline;
+        qhandle_t       brightOutlineBlend;
         qhandle_t       brightOutlineOpaque;
         qhandle_t       brightOutlineSmall;
+        qhandle_t       brightOutlineSmallBlend;
 
 	// weapon effect models
 	qhandle_t	bulletFlashModel;
@@ -2138,7 +2143,8 @@ void CG_Ratstatusbar3RegisterShaders(void);
 void CG_Player( centity_t *cent );
 void CG_PlayerGetColors(clientInfo_t *ci, qboolean isDead, int bodyPart, byte *outColor);
 void CG_ResetPlayerEntity( centity_t *cent );
-void CG_AddRefEntityWithPowerups( refEntity_t *ent, entityState_t *state, int team, qboolean isMissile , clientInfo_t *ci, int orderIndicator);
+void CG_AddRefEntityWithPowerups( refEntity_t *ent, entityState_t *state, int team, qboolean isMissile,
+	       	clientInfo_t *ci, int orderIndicator, qboolean useBlendBrightshell );
 void CG_NewClientInfo( int clientNum );
 sfxHandle_t	CG_CustomSound( int clientNum, const char *soundName );
 void CG_LoadForcedSounds(void);

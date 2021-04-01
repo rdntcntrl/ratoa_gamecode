@@ -2378,11 +2378,14 @@ static void CG_RegisterGraphics( void ) {
         }
 
 	cgs.media.brightShell = trap_R_RegisterShader( "playerBrightShell");
+	cgs.media.brightShellBlend = trap_R_RegisterShader( "playerBrightShellBlend");
 	cgs.media.brightShellFlat = trap_R_RegisterShader( "playerBrightShellFlat");
 
 	//cgs.media.brightOutline = trap_R_RegisterShader( "playerBrightOutline10");
 	cgs.media.brightOutline = trap_R_RegisterShader( "playerBrightOutline08");
+	cgs.media.brightOutlineBlend = trap_R_RegisterShader( "playerBrightOutline08Blend");
 	cgs.media.brightOutlineSmall = trap_R_RegisterShader( "playerBrightOutline05");
+	cgs.media.brightOutlineSmallBlend = trap_R_RegisterShader( "playerBrightOutline05Blend");
 	cgs.media.brightOutlineOpaque = trap_R_RegisterShader( "playerBrightOutlineOp10");
 
 //For Double Domination:

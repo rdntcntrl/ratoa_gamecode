@@ -331,6 +331,7 @@ CG_Draw3DHead
 void CG_Draw3DHead( float x, float y, float w, float h, qhandle_t model, qhandle_t skin, vec3_t origin, vec3_t angles, clientInfo_t *ci) {
 	refdef_t		refdef;
 	refEntity_t		ent;
+	qboolean autoHeadColors = qfalse;
 
 	if ( !cg_draw3dIcons.integer || !cg_drawIcons.integer ) {
 		return;
@@ -355,6 +356,7 @@ void CG_Draw3DHead( float x, float y, float w, float h, qhandle_t model, qhandle
 			  || (cg_enemyHeadColorAuto.integer && ci->team != cg.snap->ps.persistant[PERS_TEAM])
 			)) {
 		CG_PlayerAutoHeadColor(ci, ent.shaderRGBA);
+		autoHeadColors = qtrue;
 	} else {
 		CG_PlayerGetColors(ci, qfalse, MCIDX_HEAD, ent.shaderRGBA);
 	}
@@ -381,12 +383,14 @@ void CG_Draw3DHead( float x, float y, float w, float h, qhandle_t model, qhandle
 			if (cg_brightShells.integer == 2) {
 				ent.customShader = cgs.media.brightShellFlat;
 			} else {
-				ent.customShader = cgs.media.brightShell;
+				ent.customShader = (autoHeadColors || cg_brightShells.integer == 3) ? 
+					cgs.media.brightShellBlend : cgs.media.brightShell;
 			}
 			trap_R_AddRefEntityToScene( &ent );
 		} else if (cgs.ratFlags & RAT_BRIGHTOUTLINE && cg_brightOutline.integer) {
 			ent.shaderRGBA[3] = CG_GetBrightOutlineAlpha();
-			ent.customShader = cgs.media.brightOutlineSmall;
+			ent.customShader = (autoHeadColors || cg_brightOutline.integer == 2) ? 
+				cgs.media.brightOutlineSmallBlend : cgs.media.brightOutlineSmall;
 			trap_R_AddRefEntityToScene( &ent );
 		}
 	}
