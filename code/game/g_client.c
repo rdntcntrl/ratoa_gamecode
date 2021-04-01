@@ -1635,6 +1635,64 @@ qboolean G_IsUnnamedName(char *name) {
 	return qtrue;
 }
 
+static qboolean G_HasUniquePlayerColor( gclient_t *cl ) {
+	gclient_t *other;
+	int color = cl->sess.playerColorIdx;
+	int i;
+	if (color < 0) {
+		return qfalse;
+	}
+	for( i=0; i < level.numPlayingClients; i++ ) {
+		other = &level.clients[level.sortedClients[i]];
+
+		if (other->sess.sessionTeam == cl->sess.sessionTeam
+				&& other != cl
+				&& other->sess.playerColorIdx == color) {
+			return qfalse;
+		}
+	}
+	return qtrue;
+}
+int QDECL SortClientsByColor( const void *a, const void *b ) {
+	gclient_t	*ca, *cb;
+
+	ca = &level.clients[*(int *)a];
+	cb = &level.clients[*(int *)b];
+
+	return ca->sess.playerColorIdx - cb->sess.playerColorIdx;
+}
+
+/*
+ * selects the lowest playerColorIdx that isn't already taken by someone else in the same team
+ */
+static qboolean G_AssignUniquePlayerColor( gclient_t *cl  ) {
+	int clients_by_color[MAX_CLIENTS];
+	gclient_t *other;
+	int i;
+	int oldColorIdx = cl->sess.playerColorIdx;
+
+	cl->sess.playerColorIdx = 0;
+
+	memcpy(clients_by_color, level.sortedClients, sizeof(clients_by_color));
+	qsort(clients_by_color, MAX_CLIENTS, sizeof(clients_by_color[0]), SortClientsByColor);
+
+	for (i = 0; i < MAX_CLIENTS; ++i) {
+		other = &level.clients[clients_by_color[i]];
+
+		if (other->pers.connected == CON_DISCONNECTED
+				|| other->sess.sessionTeam != cl->sess.sessionTeam
+				|| other == cl) {
+			continue;
+		}
+
+		if (other->sess.playerColorIdx == cl->sess.playerColorIdx) {
+			cl->sess.playerColorIdx++;
+		}
+	}
+
+	return oldColorIdx != cl->sess.playerColorIdx;
+}
+
 
 /*
 ===========
@@ -1978,20 +2036,28 @@ Sago: I am not happy with this exception
             Q_strncpyz(c2, Info_ValueForKey( userinfo, "color2" ), sizeof(c2));
         }
 
+	if (!G_HasUniquePlayerColor(client)) {
+		G_AssignUniquePlayerColor(client);
+	}
+
 	Q_strncpyz(redTeam, Info_ValueForKey( userinfo, "g_redteam" ), sizeof(redTeam));
 	Q_strncpyz(blueTeam, Info_ValueForKey( userinfo, "g_blueteam" ), sizeof(blueTeam));
 
 	// send over a subset of the userinfo keys so other clients can
 	// print scoreboards, display models, and play custom sounds
 	if ( ent->r.svFlags & SVF_BOT ) {
-		s = va("n\\%s\\t\\%i\\model\\%s\\hmodel\\%s\\c1\\%s\\c2\\%s\\hc\\%i\\w\\%i\\l\\%i\\skill\\%s\\tt\\%d\\tl\\%d",
+		s = va("n\\%s\\t\\%i\\model\\%s\\hmodel\\%s\\c1\\%s\\c2\\%s\\hc\\%i\\w\\%i\\l\\%i\\skill\\%s\\tt\\%d\\tl\\%d\\pc\\%d",
 			client->pers.netname, team, model, headModel, c1, c2, 
 			client->pers.maxHealth, client->sess.wins, client->sess.losses,
-			Info_ValueForKey( userinfo, "skill" ), teamTask, teamLeader );
+			Info_ValueForKey( userinfo, "skill" ), teamTask, teamLeader,
+			client->sess.playerColorIdx
+		      );
 	} else {
-		s = va("n\\%s\\t\\%i\\model\\%s\\hmodel\\%s\\g_redteam\\%s\\g_blueteam\\%s\\c1\\%s\\c2\\%s\\hc\\%i\\w\\%i\\l\\%i\\tt\\%d\\tl\\%d",
+		s = va("n\\%s\\t\\%i\\model\\%s\\hmodel\\%s\\g_redteam\\%s\\g_blueteam\\%s\\c1\\%s\\c2\\%s\\hc\\%i\\w\\%i\\l\\%i\\tt\\%d\\tl\\%d\\pc\\%d",
 			client->pers.netname, client->sess.sessionTeam, model, headModel, redTeam, blueTeam, c1, c2, 
-			client->pers.maxHealth, client->sess.wins, client->sess.losses, teamTask, teamLeader);
+			client->pers.maxHealth, client->sess.wins, client->sess.losses, teamTask, teamLeader,
+			client->sess.playerColorIdx
+			);
 	}
 
 	trap_SetConfigstring( CS_PLAYERS+clientNum, s );

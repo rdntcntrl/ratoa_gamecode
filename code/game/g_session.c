@@ -44,7 +44,7 @@ void G_WriteClientSessionData( gclient_t *client ) {
 	const char	*s;
 	const char	*var;
 
-	s = va("%i %i %i %i %i %i %i %i %i %i %i %i", 
+	s = va("%i %i %i %i %i %i %i %i %i %i %i %i %i", 
 		client->sess.sessionTeam,
 		client->sess.spectatorNum,
 		client->sess.spectatorState,
@@ -56,7 +56,8 @@ void G_WriteClientSessionData( gclient_t *client ) {
 		client->sess.muted,
 		client->sess.mutemask1,
 		client->sess.mutemask2,
-		client->sess.unnamedPlayerState
+		client->sess.unnamedPlayerState,
+		client->sess.playerColorIdx
 		);
 
 	var = va( "session%i", (int)(client - level.clients) );
@@ -84,11 +85,12 @@ void G_ReadSessionData( gclient_t *client ) {
 	int mutemask1;
 	int mutemask2;
 	int unnamedPlayerState;
+	int playerColorIdx;
 
 	var = va( "session%i", (int)(client - level.clients) );
 	trap_Cvar_VariableStringBuffer( var, s, sizeof(s) );
 
-	sscanf( s, "%i %i %i %i %i %i %i %i %i %i %i %i",
+	sscanf( s, "%i %i %i %i %i %i %i %i %i %i %i %i %i",
 		&sessionTeam,                 // bk010221 - format
 		&client->sess.spectatorNum,
 		&spectatorState,              // bk010221 - format
@@ -100,7 +102,8 @@ void G_ReadSessionData( gclient_t *client ) {
 		&muted,
 		&mutemask1,
 		&mutemask2,
-		&unnamedPlayerState
+		&unnamedPlayerState,
+		&playerColorIdx
 		);
 
 	// bk001205 - format issues
@@ -112,6 +115,7 @@ void G_ReadSessionData( gclient_t *client ) {
 	client->sess.mutemask2 = (int)mutemask2;
 	client->sess.muted = muted;
 	client->sess.unnamedPlayerState = (unnamedRenameState_t)unnamedPlayerState;
+	client->sess.playerColorIdx = playerColorIdx;
 }
 
 
@@ -138,6 +142,7 @@ void G_InitSessionData( gclient_t *client, char *userinfo, qboolean firstTime,
 	sess->mutemask2 = 0;
 	sess->muted = 0;
 	sess->unnamedPlayerState = UNNAMEDSTATE_CLEAN;
+	sess->playerColorIdx = -1;
 	if (!firstTime && levelNewSession) {
 		sess->unnamedPlayerState = unnamedPlayerState;
 	}

@@ -293,6 +293,7 @@ typedef struct {
 	int    mutemask1; // clients 0-31
 	int    mutemask2; // clients 32-63
 	unnamedRenameState_t unnamedPlayerState;
+	int    playerColorIdx; // for auto head colors
 } clientSession_t;
 
 

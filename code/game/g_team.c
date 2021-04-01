@@ -2641,6 +2641,9 @@ void ShuffleTeams(void) {
 	    //We do not run all the logic because we shall run map_restart in a moment.
 	    level.clients[clients[i]].sess.sessionTeam = newClientTeams[clients[i]];
 
+	    // make sure they get new colors
+	    level.clients[clients[i]].sess.playerColorIdx = -1;
+
 	    ClientUserinfoChanged( clients[i] );
 	    ClientBegin( clients[i] );
     }
