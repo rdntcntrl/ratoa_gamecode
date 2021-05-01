@@ -1522,7 +1522,7 @@ void CG_UpdateCvars( void ) {
 				//	Com_sprintf( cv->vmCvar->string, MAX_CVAR_VALUE_STRING, "0");
 				//	trap_Cvar_Set( cv->cvarName, cv->vmCvar->string );
 				//}
-				if (cv->vmCvar->integer > 0) {
+				if (cv->vmCvar->integer < 0) {
 					Com_sprintf( cv->vmCvar->string, MAX_CVAR_VALUE_STRING, "0");
 					trap_Cvar_Set( cv->cvarName, cv->vmCvar->string );
 				}
