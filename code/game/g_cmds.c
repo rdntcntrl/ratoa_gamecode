@@ -3188,6 +3188,8 @@ void G_PrintVoteCommands(gentity_t *ent) {
 		strcat(buffer, " capturelimit <n>\n");
 	if(allowedVote("shuffle"))
 		strcat(buffer, " shuffle\n");
+	if(allowedVote("balance"))
+		strcat(buffer, " balance\n");
 	if(allowedVote("bots"))
 		strcat(buffer, " bots <n>\n");
 	if(allowedVote("botskill"))
@@ -3266,6 +3268,7 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 	} else if ( !Q_stricmp( arg1, "capturelimit" ) ) {
         } else if ( !Q_stricmp( arg1, "custom" ) ) {
         } else if ( !Q_stricmp( arg1, "shuffle" ) ) {
+        } else if ( !Q_stricmp( arg1, "balance" ) ) {
         } else if ( !Q_stricmp( arg1, "bots" ) ) {
         } else if ( !Q_stricmp( arg1, "botskill" ) ) {
         } else if ( !Q_stricmp( arg1, "lock" ) ) {
@@ -3479,6 +3482,28 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 
                 Com_sprintf( level.voteString, sizeof( level.voteString ), "shuffle" );
 		Com_sprintf( level.voteDisplayString, sizeof( level.voteDisplayString ), "Shuffle teams and restart?" );
+        } else if ( !Q_stricmp( arg1, "balance" ) ) {
+                if(g_gametype.integer<GT_TEAM || g_ffa_gt==1) { //Not a team game
+                    trap_SendServerCommand( ent-g_entities, "print \"Can only be used in team games.\n\"" );
+                    return;
+                }
+
+		if (!CanBalance()) {
+                    trap_SendServerCommand( ent-g_entities, "print \"Not enough data to balance. Try again later.\n\"" );
+                    return;
+		}
+
+		if (fabs(TeamSkillDiff()) < g_balanceSkillThres.value) {
+                    trap_SendServerCommand( ent-g_entities, "print \"Teams are already quite balanced.\n\"" );
+                    return;
+		}
+		if (!BalanceTeams(qtrue)) {
+                    trap_SendServerCommand( ent-g_entities, "print \"Can't do any better. Sorry.\n\"" );
+                    return;
+		}
+
+                Com_sprintf( level.voteString, sizeof( level.voteString ), "balance" );
+		Com_sprintf( level.voteDisplayString, sizeof( level.voteDisplayString ), "Balance teams and restart?" );
         } else if ( !Q_stricmp( arg1, "kick" ) ) {
                 i = 0;
  		while( !(g_entities+i) || !((g_entities+i)->client) || Q_stricmp(arg2,(g_entities+i)->client->pers.netname)) {

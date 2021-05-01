@@ -264,3 +264,8 @@ void Svcmd_MessageWrapper( void )
     G_Say( NULL, NULL, SAY_ALL, ConcatArgs( 1 ) );
 }
 
+void Svcmd_BalanceTeams_f( void )
+{
+	Com_Printf("Balanced: %s\n", BalanceTeams(qfalse) ? "true" : "false");
+}
+

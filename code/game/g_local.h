@@ -1194,6 +1194,10 @@ qboolean OnSameTeam( gentity_t *ent1, gentity_t *ent2 );
 void Team_CheckDroppedItem( gentity_t *dropped );
 qboolean CheckObeliskAttack( gentity_t *obelisk, gentity_t *attacker );
 void ShuffleTeams(void);
+double G_ClientSkill(gclient_t *cl);
+qboolean CanBalance(void);
+double TeamSkillDiff(void);
+qboolean BalanceTeams(qboolean dryrun);
 //KK-OAX Added for Command Handling Changes (r24)
 team_t G_TeamFromString( char *str );
 void G_SendTeamPlayerCounts(void);
@@ -1382,6 +1386,8 @@ extern	vmCvar_t	g_doWarmup;
 extern	vmCvar_t	g_logIPs;
 extern	vmCvar_t	g_blood;
 extern	vmCvar_t	g_allowVote;
+extern	vmCvar_t	g_balanceSkillThres;
+extern	vmCvar_t	g_balancePlaytime;
 extern	vmCvar_t	g_teamAutoJoin;
 extern	vmCvar_t	g_teamForceBalance;
 extern	vmCvar_t	g_teamForceQueue;
@@ -1916,6 +1922,7 @@ void Svcmd_Chat_f( void );
 void Svcmd_Ruleset_f( void );
 void Svcmd_ListIP_f( void );
 void Svcmd_MessageWrapper( void );
+void Svcmd_BalanceTeams_f( void );
 
 #include "g_killspree.h"
 #include "g_admin.h"

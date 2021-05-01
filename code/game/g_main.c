@@ -94,6 +94,8 @@ vmCvar_t	g_blood;
 vmCvar_t	g_podiumDist;
 vmCvar_t	g_podiumDrop;
 vmCvar_t	g_allowVote;
+vmCvar_t	g_balanceSkillThres;
+vmCvar_t	g_balancePlaytime;
 vmCvar_t	g_teamAutoJoin;
 vmCvar_t	g_teamForceBalance;
 vmCvar_t	g_teamForceQueue;
@@ -418,6 +420,8 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_friendlyFireReflect, "g_friendlyFireReflect", "0", CVAR_ARCHIVE, 0, qtrue  },
 	{ &g_friendlyFireReflectFactor, "g_friendlyFireReflectFactor", "1", CVAR_ARCHIVE, 0, qfalse  },
 
+	{ &g_balanceSkillThres, "g_balanceSkillThres", "0.1", CVAR_ARCHIVE  },
+	{ &g_balancePlaytime, "g_balancePlaytime", "120", CVAR_ARCHIVE  },
 	{ &g_teamAutoJoin, "g_teamAutoJoin", "0", CVAR_ARCHIVE  },
 	{ &g_teamForceBalance, "g_teamForceBalance", "0", CVAR_ARCHIVE  },
 	{ &g_teamForceQueue, "g_teamForceQueue", "0", CVAR_ARCHIVE, 0, qtrue  },

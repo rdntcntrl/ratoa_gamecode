@@ -2660,6 +2660,199 @@ void ShuffleTeams(void) {
 
 }
 
+int G_ClientPlaytime(gclient_t *cl) {
+	// this is incorrect if the player left in between
+	return (level.time - cl->pers.enterTime);
+}
+
+double G_ClientSkill(gclient_t *cl) {
+	double playtime = G_ClientPlaytime(cl);
+	if (playtime <= 0) {
+		return 0.0f;
+	}
+	return (double)cl->ps.persistant[PERS_SCORE]/playtime;
+}
+
+int QDECL SortBySkill( const void *a, const void *b ) {
+	gclient_t	*ca, *cb;
+	double sa, sb;
+
+	ca = &level.clients[*(int *)a];
+	cb = &level.clients[*(int *)b];
+
+	sa = G_ClientSkill(ca);
+	sb = G_ClientSkill(cb);
+
+	// sort by skill first
+	if (sa > sb) {
+		return -1;
+	} else if (sb > sa) {
+		return 1;
+	}
+
+	// then score
+	if ( ca->ps.persistant[PERS_SCORE]
+		> cb->ps.persistant[PERS_SCORE] ) {
+		return -1;
+	}
+	if ( ca->ps.persistant[PERS_SCORE]
+		< cb->ps.persistant[PERS_SCORE] ) {
+		return 1;
+	}
+	return 0;
+}
+
+qboolean CanBalance(void) {
+	int i;
+	int nabove = 0;
+	int nbelow = 0;
+
+	if (level.warmupTime != 0) {
+		return qfalse;
+	}
+
+	for (i = 0; i < level.numPlayingClients; ++i) {
+		gentity_t *ent = &g_entities[level.sortedClients[i]];
+		if (ent->r.svFlags & SVF_BOT) {
+			continue;
+		}
+		if (G_ClientPlaytime(ent->client) < g_balancePlaytime.integer*1000) {
+			nbelow++;
+		} else {
+			nabove++;
+		}
+	}
+	return nabove > nbelow && nabove + nbelow >= 4;
+}
+
+double TeamSkillDiff(void) {
+	int i;
+	double max_skill = 0;
+	double skill_red = 0;
+	double skill_blue = 0;
+	int nred =  TeamCount( -1, TEAM_RED, qfalse);
+	int nblue =  TeamCount( -1, TEAM_BLUE, qfalse);
+
+	for (i = 0; i < level.numPlayingClients; ++i) {
+		gentity_t *ent = &g_entities[level.sortedClients[i]];
+		if (ent->r.svFlags & SVF_BOT) {
+			continue;
+		}
+		if (ent->client->sess.sessionTeam == TEAM_BLUE) {
+			skill_blue += G_ClientSkill(ent->client);
+		} else if (ent->client->sess.sessionTeam == TEAM_RED) {
+			skill_red += G_ClientSkill(ent->client);
+		}
+	}
+	if (nred == 0 || nblue == 0) {
+		return 0;
+	}
+	skill_blue /= nblue;
+	skill_red /= nred;
+
+	max_skill = skill_blue > skill_red ? skill_blue : skill_red;
+	if (max_skill <= 0) {
+		return 0;
+	}
+	return skill_blue/max_skill - skill_red/max_skill;
+}
+
+qboolean BalanceTeams(qboolean dryrun) {
+    qboolean changed, notInverted;
+    int clients[MAX_CLIENTS];
+    team_t clientTeams[MAX_CLIENTS];
+    team_t newClientTeams[MAX_CLIENTS];
+    team_t nextTeam;
+    int i, j;
+
+    if ( g_gametype.integer < GT_TEAM || g_ffa_gt==1)
+        return qfalse; //Can only balance team games!
+
+    memcpy(clients, level.sortedClients, sizeof(clients));
+
+    // make sure we can compare the new teams to the old ones
+    for (i = 0; i < MAX_CLIENTS; ++i) {
+	    clientTeams[i] = newClientTeams[i] = TEAM_NONE;
+    }
+    for( i=0;i < level.numPlayingClients; i++ ) {
+	    clientTeams[clients[i]] = newClientTeams[clients[i]] = level.clients[clients[i]].sess.sessionTeam;
+    }
+
+
+    qsort( clients, MAX_CLIENTS, sizeof(clients[0]), SortBySkill );
+
+    for (i = 0, j = 0, nextTeam = TEAM_BLUE; i < MAX_CLIENTS; ++i) {
+	    gentity_t *ent = &g_entities[ &level.clients[clients[i]] - level.clients];
+
+	    if (ent->r.svFlags & SVF_BOT) {
+		    continue;
+	    }
+
+	    if (ent->client->sess.sessionTeam != TEAM_RED && ent->client->sess.sessionTeam != TEAM_BLUE) {
+		    continue;
+	    }
+
+	    newClientTeams[clients[i]] = nextTeam;
+	    if (j % 2 == 0) {
+		    nextTeam = nextTeam == TEAM_BLUE  ? TEAM_RED : TEAM_BLUE;
+	    }
+	    ++j;
+    }
+
+
+    changed = qfalse;
+    notInverted = qfalse;
+    for (i = 0; i < MAX_CLIENTS; ++i) {
+	    if (clientTeams[i] != newClientTeams[i]) {
+		    // teams changed
+		    changed = qtrue;
+	    }
+	    if ((clientTeams[i] == TEAM_BLUE && newClientTeams[i] == TEAM_BLUE)
+			    || (clientTeams[i] == TEAM_RED && newClientTeams[i] == TEAM_RED)) {
+		    // teams did not just change colors from red to blue
+		    notInverted = qtrue;
+	    }
+	    if (changed && notInverted) {
+		    break;
+	    }
+    }
+
+    if (dryrun || !(changed && notInverted)) {
+	    return (changed && notInverted);
+    }
+
+    level.shuffling_teams = qtrue;
+    for (i = 0; i < MAX_CLIENTS; ++i) {
+	    int cnum = clients[i];
+	    if (level.clients[cnum].sess.sessionTeam != TEAM_BLUE &&
+			    level.clients[cnum].sess.sessionTeam != TEAM_RED) {
+		    continue;
+	    }
+	    //Set the team
+	    //We do not run all the logic because we shall run map_restart in a moment.
+	    level.clients[cnum].sess.sessionTeam = newClientTeams[cnum];
+
+	    // make sure they get new colors
+	    level.clients[clients[i]].sess.playerColorIdx = -1;
+
+	    ClientUserinfoChanged( cnum );
+	    ClientBegin( cnum );
+    }
+
+    level.shuffling_teams = qfalse;
+
+    //Restart!
+    // delay the map_restart so we don't cause a command overflow
+    // we can't use map_restart <delay> directly because that only delays the
+    // restart if g_doWarmup is 0
+    level.restartAt = level.realtime + 2000;
+    level.restarted = qtrue;
+    //trap_SendConsoleCommand( EXEC_APPEND, "map_restart 0\n" );
+
+    return qtrue;
+
+}
+
 void Token_Think( gentity_t *token ) {
 	vec3_t	mins, maxs;
 	vec3_t	end;

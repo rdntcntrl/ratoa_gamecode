@@ -67,6 +67,11 @@ g_admin_cmd_t g_admin_cmds[ ] =
       ""
     },
 
+    {"balance", "", G_admin_balance, ADMF_SHUFFLE,
+        "Balance the teams and restart"
+        "[force]"
+    },
+
     {"ban", "", G_admin_ban, ADMF_BAN,
       "ban a player by IP and GUID with an optional expiration time and reason."
       " duration is specified as numbers followed by units 'w' (weeks), 'd' "
@@ -222,6 +227,11 @@ g_admin_cmd_t g_admin_cmds[ ] =
     {"setlevel", "", G_admin_setlevel, ADMF_SETLEVEL,
       "sets the admin level of a player",
       "[^3name|slot#|admin#^7] [^3level^7]"
+    },
+
+    {"showbalance", "sbal", G_admin_showbalance, ADMF_SHUFFLE,
+        "Show balance metric [0:1]",
+        ""
     },
 
     {"showbans", "sb", G_admin_showbans, ADMF_SHOWBANS,
@@ -1774,11 +1784,26 @@ qboolean G_admin_time( gentity_t *ent, int skiparg )
   return qtrue;
 }
 
+qboolean G_admin_showbalance( gentity_t *ent, int skiparg )
+{
+	double skilldiff;
+	if (g_gametype.integer < GT_TEAM || g_ffa_gt == 1) {
+		ADMP("^3!showbalance:^7 not a team game\n");
+		return qfalse;
+	}
+	skilldiff = TeamSkillDiff();
+	ADMP( va( "^3!showbalance: %f favoring %s\n",
+			fabs(skilldiff), skilldiff > 0 ? "^4BLUE" : "^1RED"
+		));
+	return qtrue;
+}
+
 qboolean G_admin_timein( gentity_t *ent, int skiparg )
 {
 	G_TimeinCommand(ent);
 	return qtrue;
 }
+
 
 qboolean G_admin_timeout( gentity_t *ent, int skiparg )
 {
@@ -3090,11 +3115,12 @@ qboolean G_admin_listplayers( gentity_t *ent, int skiparg )
       }
     }
 
-    ADMBP( va( "%2i %s%s^7 %-2i %s^7 (*%s) ^1%1s^7 %s^7 %s%s^7%s\n",
+    ADMBP( va( "%2i %s%s^7 %-2i %3.2f %s^7 (*%s) ^1%1s^7 %s^7 %s%s^7%s\n",
               i,
               c,
               t,
               l,
+	      G_ClientSkill(p)*100000,
               lname,
               show_guid ? guid_stub : "XXXXXXXX",
               muted,
@@ -4488,6 +4514,42 @@ qboolean G_admin_shuffle( gentity_t *ent, int skipargs )
   AP( va( "print \"^3!shuffle: ^7teams shuffled by %s \n\"",
           ( ent ) ? ent->client->pers.netname : "console" ) );
   return qtrue;
+}
+
+qboolean G_admin_balance( gentity_t *ent, int skiparg )
+{
+
+	qboolean force = qfalse;
+	double skilldiff;
+	if (g_gametype.integer < GT_TEAM || g_ffa_gt == 1) {
+		ADMP("^3!balance:^7 not a team game\n");
+		return qfalse;
+	}
+	if( G_SayArgc( ) >= 2 + skiparg )
+	{
+		force = qtrue;
+	}
+	if (!force && !CanBalance()) {
+		ADMP( "^3!balance:^7 Not enough data to balance. Try again later, or use !balance force.\n" );
+		return qfalse;
+	}
+
+	skilldiff = TeamSkillDiff();
+	if (!force && fabs(skilldiff) < g_balanceSkillThres.value) {
+		ADMP( va("^3!balance:^7 Teams are already quite balanced (skill diff = %f).\n", skilldiff) );
+		return qfalse;
+	}
+	if (!BalanceTeams(qtrue)) {
+		ADMP( "^3!balance:^7 Can't do any better. Sorry.\n" );
+		return qfalse;
+	}
+
+	BalanceTeams(qfalse);
+
+	AP( va( "print \"^3!balance: ^7teams balanced by %s \n\"",
+				( ent ) ? ent->client->pers.netname : "console" ) );
+
+	return qtrue;
 }
 
 //KK-OAX End Additions         
