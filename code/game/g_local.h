@@ -294,6 +294,10 @@ typedef struct {
 	int    mutemask2; // clients 32-63
 	unnamedRenameState_t unnamedPlayerState;
 	int    playerColorIdx; // for auto head colors
+
+	// to compute "skill" metric for balancing
+	int    skillPlaytime; // play time, over multiple games
+	float  skillScore; // score, over multiple games
 } clientSession_t;
 
 
@@ -1194,6 +1198,7 @@ qboolean OnSameTeam( gentity_t *ent1, gentity_t *ent2 );
 void Team_CheckDroppedItem( gentity_t *dropped );
 qboolean CheckObeliskAttack( gentity_t *obelisk, gentity_t *attacker );
 void ShuffleTeams(void);
+void G_ClientReduceSkilldata(gclient_t *cl);
 double G_ClientSkill(gclient_t *cl);
 qboolean CanBalance(void);
 double TeamSkillDiff(void);

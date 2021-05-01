@@ -2202,6 +2202,9 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 	}
 	G_ReadSessionData( client );
 
+	// this affects session data
+	G_ClientReduceSkilldata(client);
+
 	if( isBot ) {
 		ent->r.svFlags |= SVF_BOT;
 		ent->inuse = qtrue;

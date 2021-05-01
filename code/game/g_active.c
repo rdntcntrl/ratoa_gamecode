@@ -1498,6 +1498,12 @@ void ClientEndFrame( gentity_t *ent ) {
 	G_UnnamedPlayerRename(ent);
 
 	G_StoreViewVectorHistory(ent->client);
+
+	if (!level.warmupTime && !level.timeout &&
+			((g_gametype.integer != GT_ELIMINATION && g_gametype.integer != GT_CTF_ELIMINATION
+			 && g_gametype.integer != GT_LMS) || level.roundNumber == level.roundNumberStarted)) {
+		ent->client->sess.skillPlaytime += level.time - level.previousTime;
+	}
 }
 
 

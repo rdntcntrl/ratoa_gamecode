@@ -44,7 +44,7 @@ void G_WriteClientSessionData( gclient_t *client ) {
 	const char	*s;
 	const char	*var;
 
-	s = va("%i %i %i %i %i %i %i %i %i %i %i %i %i", 
+	s = va("%i %i %i %i %i %i %i %i %i %i %i %i %i %i %f",
 		client->sess.sessionTeam,
 		client->sess.spectatorNum,
 		client->sess.spectatorState,
@@ -57,7 +57,9 @@ void G_WriteClientSessionData( gclient_t *client ) {
 		client->sess.mutemask1,
 		client->sess.mutemask2,
 		client->sess.unnamedPlayerState,
-		client->sess.playerColorIdx
+		client->sess.playerColorIdx,
+		client->sess.skillPlaytime,
+		client->sess.skillScore
 		);
 
 	var = va( "session%i", (int)(client - level.clients) );
@@ -86,11 +88,13 @@ void G_ReadSessionData( gclient_t *client ) {
 	int mutemask2;
 	int unnamedPlayerState;
 	int playerColorIdx;
+	float skillScore;
+	int skillPlaytime;
 
 	var = va( "session%i", (int)(client - level.clients) );
 	trap_Cvar_VariableStringBuffer( var, s, sizeof(s) );
 
-	sscanf( s, "%i %i %i %i %i %i %i %i %i %i %i %i %i",
+	sscanf( s, "%i %i %i %i %i %i %i %i %i %i %i %i %i %i %f",
 		&sessionTeam,                 // bk010221 - format
 		&client->sess.spectatorNum,
 		&spectatorState,              // bk010221 - format
@@ -103,7 +107,9 @@ void G_ReadSessionData( gclient_t *client ) {
 		&mutemask1,
 		&mutemask2,
 		&unnamedPlayerState,
-		&playerColorIdx
+		&playerColorIdx,
+		&skillPlaytime,
+		&skillScore
 		);
 
 	// bk001205 - format issues
@@ -116,6 +122,8 @@ void G_ReadSessionData( gclient_t *client ) {
 	client->sess.muted = muted;
 	client->sess.unnamedPlayerState = (unnamedRenameState_t)unnamedPlayerState;
 	client->sess.playerColorIdx = playerColorIdx;
+	client->sess.skillPlaytime = skillPlaytime;
+	client->sess.skillScore = skillScore;
 }
 
 
@@ -143,6 +151,8 @@ void G_InitSessionData( gclient_t *client, char *userinfo, qboolean firstTime,
 	sess->muted = 0;
 	sess->unnamedPlayerState = UNNAMEDSTATE_CLEAN;
 	sess->playerColorIdx = -1;
+	sess->skillPlaytime = 0;
+	sess->skillScore = 0;
 	if (!firstTime && levelNewSession) {
 		sess->unnamedPlayerState = unnamedPlayerState;
 	}

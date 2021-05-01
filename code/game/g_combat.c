@@ -82,6 +82,7 @@ void AddScore( gentity_t *ent, vec3_t origin, int score ) {
                     continue; //Don't award dead one
 
                 level.clients[i].ps.persistant[PERS_SCORE] -= score;
+                level.clients[i].sess.skillScore -= score;
                 ScorePlum(ent, origin, -score);
             }
         }
@@ -89,6 +90,7 @@ void AddScore( gentity_t *ent, vec3_t origin, int score ) {
             ScorePlum(ent, origin, score);
             //
             ent->client->ps.persistant[PERS_SCORE] += score;
+            ent->client->sess.skillScore += score;
             if ( g_gametype.integer == GT_TEAM ) {
                 int team = ent->client->ps.persistant[PERS_TEAM];
 		AddTeamScore(ent->s.pos.trBase, team, score);

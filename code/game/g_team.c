@@ -2665,12 +2665,23 @@ int G_ClientPlaytime(gclient_t *cl) {
 	return (level.time - cl->pers.enterTime);
 }
 
+
+/*
+ * Reduces the influence the skill data from previous games has
+ * This causes changes in skill to be reflected sooner
+ */
+#define PLAYERSKILL_REDUCTION 0.5
+void G_ClientReduceSkilldata(gclient_t *cl) {
+	cl->sess.skillScore *= PLAYERSKILL_REDUCTION;
+	cl->sess.skillPlaytime *= PLAYERSKILL_REDUCTION;
+}
+
 double G_ClientSkill(gclient_t *cl) {
-	double playtime = G_ClientPlaytime(cl);
+	double playtime = cl->sess.skillPlaytime;
 	if (playtime <= 0) {
 		return 0.0f;
 	}
-	return (double)cl->ps.persistant[PERS_SCORE]/playtime;
+	return (double)cl->sess.skillScore/playtime;
 }
 
 int QDECL SortBySkill( const void *a, const void *b ) {
@@ -2716,7 +2727,7 @@ qboolean CanBalance(void) {
 		if (ent->r.svFlags & SVF_BOT) {
 			continue;
 		}
-		if (G_ClientPlaytime(ent->client) < g_balancePlaytime.integer*1000) {
+		if (ent->client->sess.skillPlaytime < g_balancePlaytime.integer*1000) {
 			nbelow++;
 		} else {
 			nabove++;
