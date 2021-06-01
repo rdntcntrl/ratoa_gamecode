@@ -235,6 +235,7 @@ qboolean G_admin_unban( gentity_t *ent, int skiparg );
 qboolean G_admin_playsound( gentity_t *ent, int skiparg );
 qboolean G_admin_putteam( gentity_t *ent, int skiparg );
 qboolean G_admin_swap( gentity_t *ent, int skiparg );
+qboolean G_admin_swaprecent( gentity_t *ent, int skiparg );
 qboolean G_admin_listadmins( gentity_t *ent, int skiparg );
 qboolean G_admin_listplayers( gentity_t *ent, int skiparg );
 qboolean G_admin_map( gentity_t *ent, int skiparg );

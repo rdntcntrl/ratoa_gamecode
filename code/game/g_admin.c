@@ -248,6 +248,11 @@ g_admin_cmd_t g_admin_cmds[ ] =
       "[^3name|slot#^7] [^3name|slot#^7]"
     },
 
+    {"swaprecent", "sr", G_admin_swaprecent, ADMF_SWAP,
+      "swap the two most recent joins",
+      ""
+    },
+
     {"teams", "t", G_admin_teams, ADMF_TEAMS,
       "fix team sizes",
       ""},
@@ -2518,6 +2523,50 @@ qboolean G_admin_swap( gentity_t *ent, int skiparg )
   SetTeam_Force( victims[1], teams[0], ent, qtrue );
 
   AP( va( "print \"^3!swap: ^7%s^7 swapped %s^7 with %s\n\"",
+          ( ent ) ? ent->client->pers.netname : "console",
+          victims[0]->client->pers.netname, 
+	  victims[1]->client->pers.netname) );
+  return qtrue;
+}
+
+qboolean G_admin_swaprecent( gentity_t *ent, int skiparg )
+{
+  gentity_t *victims[2];
+  team_t teams[2];
+  char *teamstrings[2];
+  int i;
+
+  if (g_gametype.integer < GT_TEAM || g_ffa_gt == 1) {
+	  ADMP( "^3!swaprecent: ^7only works in team gametypes\n" );
+	  return qfalse;
+  }
+
+  teams[0] = TEAM_BLUE;
+  teams[1] = TEAM_RED;
+  teamstrings[0] = "b";
+  teamstrings[1] = "r";
+  victims[0] = G_FindPlayerLastJoined(teams[0]);
+  victims[1] = G_FindPlayerLastJoined(teams[1]);
+
+  if (victims[0] == NULL || victims[1] == NULL) {
+	  ADMP( "^3!swaprecent: ^7couldn't find two players to swap\n" );
+	  return qfalse;
+  }
+  if ((victims[0]->r.svFlags & SVF_BOT) || victims[1]->r.svFlags & SVF_BOT) {
+	  ADMP( "^3!swaprecent: ^7cannot swap bots\n" );
+	  return qfalse;
+  }
+
+  if( !admin_higher(ent, victims[0]) || !admin_higher(ent, victims[1]) )
+  {
+	  ADMP( "^3!swaprecent: ^7sorry, but your intended victim has a higher admin level than you\n" );
+	  return qfalse;
+  }
+
+  SetTeam_Force( victims[0], teamstrings[1], ent, qtrue);
+  SetTeam_Force( victims[1], teamstrings[0], ent, qtrue );
+
+  AP( va( "print \"^3!swaprecent: ^7%s^7 swapped %s^7 with %s\n\"",
           ( ent ) ? ent->client->pers.netname : "console",
           victims[0]->client->pers.netname, 
 	  victims[1]->client->pers.netname) );
