@@ -68,7 +68,7 @@ g_admin_cmd_t g_admin_cmds[ ] =
     },
 
     {"balance", "", G_admin_balance, ADMF_SHUFFLE,
-        "Balance the teams and restart"
+        "Balance the teams and restart",
         "[force]"
     },
 
@@ -1792,8 +1792,9 @@ qboolean G_admin_showbalance( gentity_t *ent, int skiparg )
 		return qfalse;
 	}
 	skilldiff = TeamSkillDiff();
-	ADMP( va( "^3!showbalance: %f favoring %s\n",
-			fabs(skilldiff), skilldiff > 0 ? "^4BLUE" : "^1RED"
+	ADMP( va( "^3!showbalance: %.4f favoring %s%s\n",
+			fabs(skilldiff), skilldiff > 0 ? "^4BLUE" : "^1RED",
+			(CanBalance() && BalanceTeams(qtrue)) ? " (can be balanced)" : ""
 		));
 	return qtrue;
 }
