@@ -304,7 +304,7 @@ void GibEntity( gentity_t *self, int killer ) {
 	self->r.contents = 0;
 }
 
-#define BUTCHER_GIBCOUNT 10
+#define BUTCHER_GIBCOUNT 1
 
 /*
 ==================
