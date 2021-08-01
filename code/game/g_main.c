@@ -2558,14 +2558,14 @@ void AddTournamentQueue(gclient_t *client)
     }
 }
 
-void ReorderMultiTournament( void ) {
+qboolean ReorderMultiTournament( void ) {
 	int i;
 	int numConnectedClients;
 	gclient_t *cl;
 	int			sortedClients[MAX_CLIENTS];
 
 	if (!g_multiTournamentEndgameRePair.integer || level.multiTrnReorder) {
-		return;
+		return qfalse;
 	}
 	level.multiTrnReorder = qtrue;
 
@@ -2594,6 +2594,11 @@ void ReorderMultiTournament( void ) {
 	}
 	G_UpdateMultiTrnGames();
 	level.shuffling_teams = qfalse;
+
+	level.restartAt = level.realtime + 2000;
+	level.restarted = qtrue;
+
+	return qtrue;
 }
 
 /*
@@ -3416,8 +3421,9 @@ void ExitLevel (void) {
 		return;	
 	} else if ( g_gametype.integer == GT_MULTITOURNAMENT  ) {
 		if ( !level.restarted ) {
-			ReorderMultiTournament();
-			trap_SendConsoleCommand( EXEC_APPEND, "map_restart 0\n" );
+			if (!ReorderMultiTournament()) {
+				trap_SendConsoleCommand( EXEC_APPEND, "map_restart 0\n" );
+			}
 			level.restarted = qtrue;
 			level.changemap = NULL;
 			level.intermissiontime = 0;
