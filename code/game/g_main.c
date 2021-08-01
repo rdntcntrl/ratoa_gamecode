@@ -3276,7 +3276,7 @@ void LogExit( const char *string ) {
 	}
 #endif
 
-	G_WriteStatsJSON();
+	G_WriteStatsJSON(string);
 
 }
 
@@ -3584,7 +3584,7 @@ void CheckExitRules( void ) {
 	}
 
 	if (g_gametype.integer == GT_TOURNAMENT && level.tournamentForfeited) {
-		LogExit("Match ended due to forfeit!\n");
+		LogExit("Match ended due to forfeit!");
 		return;
 	}
 

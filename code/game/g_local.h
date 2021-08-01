@@ -1996,7 +1996,7 @@ void Svcmd_MessageWrapper( void );
 void Svcmd_BalanceTeams_f( void );
 
 // g_stats.c
-void G_WriteStatsJSON(void);
+void G_WriteStatsJSON(const char *exitreason);
 
 #include "g_killspree.h"
 #include "g_admin.h"

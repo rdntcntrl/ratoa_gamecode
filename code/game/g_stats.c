@@ -173,7 +173,7 @@ void G_JSONExportPlayer(fileHandle_t f, gclient_t *cl) {
 	xfprintf(f, "}");
 }
 
-void G_JSONExport(fileHandle_t f) {
+void G_JSONExport(fileHandle_t f, const char *exitreason) {
 	char mapname[MAX_QPATH];
 	char svname[MAX_INFO_VALUE];
 	int i;
@@ -201,6 +201,11 @@ void G_JSONExport(fileHandle_t f) {
 	json_writeint(f, "fraglimit", g_fraglimit.integer);
 	xfprintf(f, ",");
 	json_writeint(f, "capturelimit", g_capturelimit.integer);
+	xfprintf(f, ",");
+	json_writeint(f, "timelimit", g_timelimit.integer);
+
+	xfprintf(f, ",");
+	json_writestring(f, "exit_reason", exitreason);
 
 	xfprintf(f, ",");
 	trap_Cvar_VariableStringBuffer( "mapname", mapname, sizeof( mapname ) );
@@ -232,7 +237,7 @@ void G_JSONExport(fileHandle_t f) {
 	xfprintf(f, "}");
 }
 
-void G_WriteStatsJSON(void) {
+void G_WriteStatsJSON(const char *exitreason) {
 	char fname[MAX_OSPATH];
 	qtime_t now;
 	fileHandle_t f;
@@ -272,7 +277,7 @@ void G_WriteStatsJSON(void) {
 		return;
 	}
 
-	G_JSONExport(f);
+	G_JSONExport(f, exitreason);
 
 	trap_FS_FCloseFile(f);
 	len = trap_FS_FOpenFile( va("stats/%s.done", fname), &f, FS_WRITE );
