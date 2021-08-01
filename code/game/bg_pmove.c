@@ -752,9 +752,9 @@ static void PM_AirMove( void ) {
 	// zspeed and pm->ps->veloicty[2] are both negative in a fall.
 	// If they are both positive, the result shouldn't matter.
 	if ( zspeed < pm->ps->velocity[2] ) {
-		pm->ps->stats[STAT_OVERBOUNCE] = 1;
-	} else {
 		pm->ps->stats[STAT_OVERBOUNCE] = 0;
+	} else {
+		pm->ps->stats[STAT_OVERBOUNCE] = 1;
 	}
 }
 
