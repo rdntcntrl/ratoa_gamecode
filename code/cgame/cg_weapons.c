@@ -1421,8 +1421,12 @@ void CG_RegisterWeapon( int weaponNum ) {
 		cgs.media.grenadeExplosionShader = trap_R_RegisterShader( "grenadeExplosion" );
 		cgs.media.grenadeBrightSkinShader = trap_R_RegisterShader( "models/ammo/grenadeBrightSkin" );
 		if (cgs.gametype >= GT_TEAM && cgs.ffa_gt != 1) {
-			cgs.media.grenadeBrightSkinShaderBlue = trap_R_RegisterShader( "models/ammo/grenadeBrightSkinBlue" );
-			cgs.media.grenadeBrightSkinShaderRed = trap_R_RegisterShader( "models/ammo/grenadeBrightSkinRed" );
+			if (CG_AllowColoredProjectiles()) {
+				cgs.media.grenadeBrightSkinShaderWhite = trap_R_RegisterShader( "models/ammo/grenadeBrightSkinWhite" );
+			} else {
+				cgs.media.grenadeBrightSkinShaderBlue = trap_R_RegisterShader( "models/ammo/grenadeBrightSkinBlue" );
+				cgs.media.grenadeBrightSkinShaderRed = trap_R_RegisterShader( "models/ammo/grenadeBrightSkinRed" );
+			}
 		}
 		break;
 

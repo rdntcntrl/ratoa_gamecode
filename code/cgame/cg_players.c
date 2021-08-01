@@ -3034,6 +3034,35 @@ void CG_PlayerGetColors(clientInfo_t *ci, qboolean isDead, int bodyPart, byte *o
 
 }
 
+
+qboolean CG_AllowColoredProjectiles(void) {
+	return (cgs.ratFlags & RAT_ALLOWFORCEDMODELS && cgs.ratFlags & (RAT_BRIGHTSHELL | RAT_BRIGHTOUTLINE));
+}
+
+void CG_ProjectileColor(team_t team, byte *outColor) {
+	clientInfo_t *player = &cgs.clientinfo[cg.clientNum];
+	int myteam = player->team;
+	int bodyPart = MCIDX_TORSO;
+	int coloridx = MODELCOLOR_DEFAULT;
+
+	if (myteam == TEAM_SPECTATOR) {
+		switch (team) {
+			case TEAM_BLUE:
+				coloridx = MODELCOLOR_BLUE;
+				break;
+			case TEAM_RED:
+				coloridx = MODELCOLOR_RED;
+				break;
+		}
+	} else if (team == myteam) {
+		coloridx = MODELCOLOR_TEAM;
+	} else {
+		coloridx = MODELCOLOR_ENEMY;
+	}
+
+	memcpy(outColor, cgs.modelRGBA[bodyPart][coloridx], RGBA_SIZE);
+}
+
 int CG_CountPlayers(team_t team) {
 	int i;
 	int count = 0;

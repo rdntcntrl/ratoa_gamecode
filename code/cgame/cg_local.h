@@ -1146,6 +1146,7 @@ typedef struct {
 	qhandle_t	grenadeBrightSkinShader;
 	qhandle_t	grenadeBrightSkinShaderBlue;
 	qhandle_t	grenadeBrightSkinShaderRed;
+	qhandle_t	grenadeBrightSkinShaderWhite;
 
 	// weapon effect shaders
 	qhandle_t	railExplosionShader;
@@ -2164,6 +2165,8 @@ sfxHandle_t	CG_CustomSound( int clientNum, const char *soundName );
 void CG_LoadForcedSounds(void);
 int CG_CountPlayers(team_t team);
 int CG_GetTotalHitPoints(int health, int armor);
+qboolean CG_AllowColoredProjectiles(void);
+void CG_ProjectileColor(team_t team, byte *outColor);
 void CG_PlayerAutoHeadColor(clientInfo_t *ci, byte *outColor);
 void CG_FloatColorToRGBA(float *color, byte *out);
 void CG_ParseForcedColors( void );

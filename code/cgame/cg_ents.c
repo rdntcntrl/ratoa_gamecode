@@ -641,7 +641,10 @@ static void CG_Missile( centity_t *cent ) {
 	if (cent->currentState.weapon == WP_GRENADE_LAUNCHER) {
 		ent.customShader = cgs.media.grenadeBrightSkinShader;
 		if (cgs.gametype >= GT_TEAM && cgs.ffa_gt != 1) {
-			if (s1->generic1 == TEAM_BLUE) {
+			if ((s1->generic1 == TEAM_BLUE || s1->generic1 == TEAM_RED) && CG_AllowColoredProjectiles())  {
+				ent.customShader = cgs.media.grenadeBrightSkinShaderWhite;
+				CG_ProjectileColor(s1->generic1, ent.shaderRGBA);
+			} else if (s1->generic1 == TEAM_BLUE) {
 				ent.customShader = cgs.media.grenadeBrightSkinShaderBlue;
 			} else if (s1->generic1 == TEAM_RED) {
 				ent.customShader = cgs.media.grenadeBrightSkinShaderRed;
