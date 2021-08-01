@@ -1395,6 +1395,8 @@ typedef struct {
 	sfxHandle_t	announceRegen;
 	sfxHandle_t	announceFlight;
 
+	sfxHandle_t	coinbounceSound;
+
 } cgMedia_t;
 
 #define CONSOLE_MAXHEIGHT 16

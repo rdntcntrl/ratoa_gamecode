@@ -2212,6 +2212,8 @@ static void CG_RegisterSounds( void ) {
 	cgs.media.announceRegen = trap_S_RegisterSound("sound/treb/ratmod/powerups/regeneration.ogg", qtrue);
 	cgs.media.announceFlight = trap_S_RegisterSound("sound/treb/ratmod/powerups/flight.ogg", qtrue);
 
+	cgs.media.coinbounceSound = trap_S_RegisterSound("sound/ratoa/coin/coin-hit-b.ogg", qfalse);
+
 #ifdef MISSIONPACK
 	trap_S_RegisterSound("sound/player/sergei/death1.wav", qfalse );
 	trap_S_RegisterSound("sound/player/sergei/death2.wav", qfalse );

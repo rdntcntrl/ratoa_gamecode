@@ -1466,6 +1466,11 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 		CG_PingLocation(cent);
 		break;
 
+	case EV_COIN_BOUNCE:
+		DEBUGNAME("EV_COIN_BOUNCE");
+		trap_S_StartSound (NULL, es->number, CHAN_AUTO, cgs.media.coinbounceSound );
+		break;
+
 	case EV_DEBUG_LINE:
 		DEBUGNAME("EV_DEBUG_LINE");
 		CG_Beam( cent );
