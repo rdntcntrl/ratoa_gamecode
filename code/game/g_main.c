@@ -4184,12 +4184,29 @@ void CheckElimination(void) {
 	}
 }
 
+qboolean G_IsWithinFrameAt(int time) {
+	return level.time >= time && level.time < time + 1000/sv_fps.integer;
+}
+
 void G_CheckBalanceAuto(void) {
 	if (!g_balanceAutoGameStart.integer) {
 		return;
 	}
 
-	if (level.warmupTime == 0 || level.time < g_balanceAutoGameStartTime.integer * 1000) {
+	if (level.warmupTime == 0 ) {
+		return;
+	}
+
+	if ( g_gametype.integer < GT_TEAM || g_ffa_gt == 1) {
+		return;
+	}
+
+	if (g_balanceNextgameNeedsBalance.integer 
+			&& G_IsWithinFrameAt(g_balanceAutoGameStartTime.integer * 1000 - 5000)) {
+		trap_SendServerCommand ( -1, "cp \"^5Balancing teams in 5s!\nJoin spec now if you don't want to play!\"");
+	}
+
+	if (level.time < g_balanceAutoGameStartTime.integer * 1000) {
 		return;
 	}
 

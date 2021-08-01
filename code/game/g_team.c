@@ -2671,6 +2671,7 @@ void G_BalanceAutoGameStart(void) {
 	if (!g_balanceAutoGameStart.integer) {
 		return;
 	}
+
 	if ( g_gametype.integer < GT_TEAM || g_ffa_gt == 1) {
 		return;
 	}
@@ -2678,13 +2679,17 @@ void G_BalanceAutoGameStart(void) {
 	needsbalance = g_balanceNextgameNeedsBalance.integer;
 	G_SetNeedsBalance(qfalse);
 
-	if (!needsbalance || !CanBalance() 
-			|| fabs(TeamSkillDiff()) < g_balanceSkillThres.value
-			|| !BalanceTeams(qtrue)) {
+	if (!needsbalance) {
 		return;
 	}
 
-	trap_SendServerCommand ( -1, "print \"^5Automatically Balancing Teams\n\"");
+	if (!CanBalance() || fabs(TeamSkillDiff()) < g_balanceSkillThres.value
+			|| !BalanceTeams(qtrue)) {
+		trap_SendServerCommand ( -1, "cp \"^5Unable to balance teams!\"");
+		return;
+	}
+
+	trap_SendServerCommand ( -1, "print \"^5Automatically balancing teams\n\"");
 
 	BalanceTeams(qfalse);
 
@@ -2692,7 +2697,6 @@ void G_BalanceAutoGameStart(void) {
 
 void G_SetBalanceNextGame(void) {
 	int highScore, lowScore;
-	qboolean needsBalance = qfalse;
 
 	if (!g_balanceAutoGameStart.integer) {
 		return;
