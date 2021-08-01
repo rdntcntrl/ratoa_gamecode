@@ -973,7 +973,12 @@ void ClearRegisteredItems( void ) {
 	}
 
 	if (g_coins.integer > 0) {
-		RegisterItem( BG_FindItem( "Rat Coin" ) );
+		if (g_gametype.integer >= GT_TEAM && !g_ffa_gt) {
+			RegisterItem( BG_FindItem( "Red Coin" ) );
+			RegisterItem( BG_FindItem( "Blue Coin" ) );
+		} else {
+			RegisterItem( BG_FindItem( "Gold Coin" ) );
+		}
 	}
 	
 }

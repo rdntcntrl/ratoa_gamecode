@@ -426,6 +426,14 @@ typedef enum {
 	LOCPING_DEAD,
 } locationping_t;
 
+typedef enum {
+	COIN_GOLD,
+	COIN_SILVER,
+	COIN_BRONZE,
+	COIN_BLUE,
+	COIN_RED,
+} coin_t;
+
 // max ammo capacity when pickiup up weapons / ammo
 #define AMMO_CAPACITY 200
 

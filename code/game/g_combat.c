@@ -185,7 +185,16 @@ void TossClientCoins( gentity_t *self ) {
 		return;
 	}
 
-	item = BG_FindItem( "Rat Coin" );
+	if (g_gametype.integer >= GT_TEAM && !g_ffa_gt) { 
+		if (self->client->sess.sessionTeam == TEAM_RED) {
+			item = BG_FindItem( "Red Coin" );
+		} else {
+			item = BG_FindItem( "Blue Coin" );
+		}
+	} else {
+		item = BG_FindItem( "Gold Coin" );
+	}
+
 
 	numCoins = g_coinsDefault.integer
 		+ g_coinsFrag.integer * self->client->pers.killstreak;

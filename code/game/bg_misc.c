@@ -1091,15 +1091,67 @@ Only in Domination games
 
 /* For Coin{FFA,..} */
 	{
-		"item_coin", 
+		"item_coingold", 
 		"sound/ratoa/coin/coin-collect-b.ogg",
         { "models/rat/ratcoin.md3",
 		NULL, NULL, NULL},
-/* icon */		"icons/iconc_coin",
-/* pickup */	"Rat Coin",
+/* icon */		"icons/iconc_coingold",
+/* pickup */	"Gold Coin",
 		0,
 		IT_COIN,
+		COIN_GOLD,
+/* precache */ "",
+/* sounds */ "sound/ratoa/coin/coin-hit-b.ogg"
+	},
+	{
+		"item_coinsilver", 
+		"sound/ratoa/coin/coin-collect-b.ogg",
+        { "models/rat/ratcoin.md3",
+		NULL, NULL, NULL},
+/* icon */		"icons/iconc_coinsilver",
+/* pickup */	"Silver Coin",
 		0,
+		IT_COIN,
+		COIN_SILVER,
+/* precache */ "",
+/* sounds */ "sound/ratoa/coin/coin-hit-b.ogg"
+	},
+	{
+		"item_coinbronze", 
+		"sound/ratoa/coin/coin-collect-b.ogg",
+        { "models/rat/ratcoin.md3",
+		NULL, NULL, NULL},
+/* icon */		"icons/iconc_coinbronze",
+/* pickup */	"Bronze Coin",
+		0,
+		IT_COIN,
+		COIN_BRONZE,
+/* precache */ "",
+/* sounds */ "sound/ratoa/coin/coin-hit-b.ogg"
+	},
+	{
+		"item_coinb", 
+		"sound/ratoa/coin/coin-collect-b.ogg",
+        { "models/rat/ratcoin.md3",
+		NULL, NULL, NULL},
+/* icon */		"icons/iconc_coinb",
+/* pickup */	"Blue Coin",
+		0,
+		IT_COIN,
+		COIN_BLUE,
+/* precache */ "",
+/* sounds */ "sound/ratoa/coin/coin-hit-b.ogg"
+	},
+	{
+		"item_coinr", 
+		"sound/ratoa/coin/coin-collect-b.ogg",
+        { "models/rat/ratcoin.md3",
+		NULL, NULL, NULL},
+/* icon */		"icons/iconc_coinr",
+/* pickup */	"Red Coin",
+		0,
+		IT_COIN,
+		COIN_RED,
 /* precache */ "",
 /* sounds */ "sound/ratoa/coin/coin-hit-b.ogg"
 	},
@@ -1399,6 +1451,17 @@ qboolean BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const play
 		return qtrue;
 
 	case IT_COIN:
+		if (item->giTag == COIN_BLUE) {
+			if (ps->persistant[PERS_TEAM] == TEAM_RED) {
+				return qtrue;
+			}
+			return qfalse;
+		} else if (item->giTag == COIN_RED) {
+			if (ps->persistant[PERS_TEAM] == TEAM_BLUE) {
+				return qtrue;
+			}
+			return qfalse;
+		} 
 		return qtrue;
 
 
