@@ -1089,6 +1089,21 @@ Only in Domination games
 /* sounds */ ""
 	},
 
+/* For Coin{FFA,..} */
+	{
+		"item_coin", 
+		"sound/ratoa/coin/coin-collect-b.ogg",
+        { "models/rat/ratcoin.md3",
+		NULL, NULL, NULL},
+/* icon */		"icons/iconc_coin",
+/* pickup */	"Rat Coin",
+		0,
+		IT_COIN,
+		0,
+/* precache */ "",
+/* sounds */ "sound/ratoa/coin/coin-hit-b.ogg"
+	},
+
 	// end of list marker
 	{NULL}
 };
@@ -1383,6 +1398,10 @@ qboolean BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const play
 		}
 		return qtrue;
 
+	case IT_COIN:
+		return qtrue;
+
+
         case IT_BAD:
             Com_Error( ERR_DROP, "BG_CanItemBeGrabbed: IT_BAD" );
         default:
@@ -1591,7 +1610,9 @@ char *eventnames[] = {
 	"EV_TAUNT_GUARDBASE",
 	"EV_TAUNT_PATROL",
 
-	"EV_MISSILE_TELEPORT"
+	"EV_MISSILE_TELEPORT",
+	"EV_PING_LOCATION",
+	"EV_COIN_BOUNCE"
 
 };
 

@@ -968,6 +968,7 @@ int G_InvulnerabilityEffect( gentity_t *targ, vec3_t dir, vec3_t point, vec3_t i
 void body_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int meansOfDeath );
 void TossClientItems( gentity_t *self );
 void TossClientPersistantPowerups( gentity_t *self );
+void TossClientCoins( gentity_t *self );
 void TossClientCubes( gentity_t *self );
 void G_CheckKamikazeAward(gentity_t *attacker, int killsBefore, int deathsBefore);
 void G_StoreViewVectorHistory ( gclient_t *client );
@@ -1470,6 +1471,8 @@ extern vmCvar_t		g_grapple;
 extern vmCvar_t		g_swingGrapple;
 
 extern vmCvar_t		g_rockets;
+
+extern vmCvar_t		g_coins;
 
 //new in elimination Beta2
 extern vmCvar_t		g_instantgib;

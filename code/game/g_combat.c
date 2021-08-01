@@ -172,6 +172,42 @@ void TossClientItems( gentity_t *self ) {
 	}
 }
 
+void TossClientCoins( gentity_t *self ) {
+	gitem_t		*item;
+	gentity_t	*drop;
+	vec3_t		velocity;
+	vec3_t		angles;
+	int i;
+
+	if (g_coins.integer <= 0) {
+		return;
+	}
+
+	item = BG_FindItem( "Rat Coin" );
+
+	Com_Printf("KILLSTREAK %d\n", self->client->pers.killstreak);
+	for (i = 0; i < g_coins.integer + self->client->pers.killstreak; ++i) {
+		if (!G_EntitiesFree()) {
+			return;
+		}
+
+		angles[YAW] = (float)(crandom() * 360.0);
+		angles[PITCH] = (float)(crandom() * 30.0 + 60.0);
+		angles[ROLL] = 0;
+
+		AngleVectors( angles, velocity, NULL, NULL );
+		VectorScale( velocity, (float)(crandom() * 50.0) + 80.0, velocity );
+		velocity[2] += 200 + crandom() * 300;
+
+		drop =  LaunchItem( item, self->s.pos.trBase, velocity );
+		drop->physicsBounce = 0.6;
+
+	}
+
+
+}
+
+
 /*
 =================
 TossClientCubes
@@ -839,8 +875,12 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 	// make sure the body shows up in the client's current position
 	G_UnTimeShiftClient( self );
 //unlagged - backward reconciliation #2
-    //KK-OAX Here is where we run the streak logic. 
-    G_RunStreakLogic( attacker, self );
+
+	// has to run before streak logic
+	TossClientCoins( self );
+
+	//KK-OAX Here is where we run the streak logic. 
+	G_RunStreakLogic( attacker, self );
 	
 	// check for an almost capture
 	CheckAlmostCapture( self, attacker );

@@ -177,6 +177,8 @@ vmCvar_t	g_vampireMaxHealth;
 
 vmCvar_t	g_midAir;
 
+vmCvar_t	g_coins;
+
 //Regen
 vmCvar_t	g_regen;
 int	g_ffa_gt; //Are this a FFA gametype even if gametype is high?
@@ -751,6 +753,8 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_vampireMaxHealth, "g_vampire_max_health", "500", CVAR_NORESTART, 0, qtrue },
 	{ &g_lms_lives, "g_lms_lives", "1", CVAR_NORESTART, 0, qtrue },
 	{ &g_lms_mode, "g_lms_mode", "0", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue },
+
+	{ &g_coins, "g_coins", "0", CVAR_ARCHIVE, 0, qtrue },
 
         { &g_catchup, "g_catchup", "0", CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue},
 

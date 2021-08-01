@@ -380,6 +380,11 @@ int Pickup_Armor( gentity_t *ent, gentity_t *other ) {
 	return RESPAWN_ARMOR;
 }
 
+int Pickup_Coin( gentity_t *ent, gentity_t *other ) {
+	AddScore( other, other->r.currentOrigin, 1 );
+	return -1;
+}
+
 //======================================================================
 
 /*
@@ -542,6 +547,9 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 		break;
 	case IT_HOLDABLE:
 		respawn = Pickup_Holdable(ent, other);
+		break;
+	case IT_COIN:
+		respawn = Pickup_Coin(ent, other);
 		break;
 	default:
 		return;
@@ -963,6 +971,10 @@ void ClearRegisteredItems( void ) {
 		RegisterItem( BG_FindItem( "Red domination point" ) );
 		RegisterItem( BG_FindItem( "Blue domination point" ) );
 	}
+
+	if (g_coins.integer > 0) {
+		RegisterItem( BG_FindItem( "Rat Coin" ) );
+	}
 	
 }
 
@@ -1123,6 +1135,10 @@ void G_BounceItem( gentity_t *ent, trace_t *trace ) {
 	VectorAdd( ent->r.currentOrigin, trace->plane.normal, ent->r.currentOrigin);
 	VectorCopy( ent->r.currentOrigin, ent->s.pos.trBase );
 	ent->s.pos.trTime = level.time;
+
+	if (ent->item && ent->item->giType == IT_COIN) {
+		G_AddEvent( ent, EV_COIN_BOUNCE, 0 );
+	}
 }
 
 
