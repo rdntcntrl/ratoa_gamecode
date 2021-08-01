@@ -1898,10 +1898,11 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 
 	// add to the attacker's hit counter (if the target isn't a general entity like a prox mine)
 	if ( attacker->client && client
-			&& targ != attacker && targ->health > 0
+			&& (targ != attacker || (dflags & DAMAGE_NO_SELF_PROTECTION))
+			&& targ->health > 0
 			&& targ->s.eType != ET_MISSILE
 			&& targ->s.eType != ET_GENERAL) {
-		if ( OnSameTeam( targ, attacker ) ) {
+		if ( OnSameTeam( targ, attacker ) || targ == attacker ) {
 			attacker->client->ps.persistant[PERS_HITS]--;
 		} else {
 			attacker->client->ps.persistant[PERS_HITS]++;
