@@ -2774,10 +2774,6 @@ qboolean CanBalance(void) {
 	int nabove = 0;
 	int nbelow = 0;
 
-	if (level.warmupTime != 0) {
-		return qfalse;
-	}
-
 	for (i = 0; i < level.numPlayingClients; ++i) {
 		gentity_t *ent = &g_entities[level.sortedClients[i]];
 		if (ent->r.svFlags & SVF_BOT) {
