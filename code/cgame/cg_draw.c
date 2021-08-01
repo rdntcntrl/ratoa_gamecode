@@ -5565,6 +5565,7 @@ static void CG_ScanForCrosshairEntity( void ) {
 	int			content;
 	qboolean throughwall = (cgs.ratFlags & RAT_FRIENDSWALLHACK && cg.snap->ps.persistant[PERS_TEAM] != TEAM_SPECTATOR);
 	qboolean lookedThroughWall = qfalse;
+	int clientNum;
 
 	VectorCopy( cg.refdef.vieworg, start );
 	VectorMA( start, 131072, cg.refdef.viewaxis[0], end );
@@ -5573,18 +5574,29 @@ static void CG_ScanForCrosshairEntity( void ) {
 	CG_Trace( &trace, start, vec3_origin, vec3_origin, end, 
 		cg.snap->ps.clientNum, 
 		CONTENTS_SOLID |CONTENTS_BODY );
-	if ( trace.entityNum >= MAX_CLIENTS ) {
+	if ( trace.entityNum >= MAX_CLIENTS 
+			&& !CG_IsFrozenPlayer(&cg_entities[trace.entityNum])) {
 		if (throughwall) {
 			CG_Trace( &trace, start, vec3_origin, vec3_origin, end, 
 					cg.snap->ps.clientNum, 
 					CONTENTS_BODY );
-			if ( trace.entityNum >= MAX_CLIENTS ) {
+			if ( trace.entityNum >= MAX_CLIENTS 
+					&& !CG_IsFrozenPlayer(&cg_entities[trace.entityNum])) {
 				return;
 			}
 			lookedThroughWall = qtrue;
 		}  else {
 			return;
 		}
+	}
+
+	if (trace.entityNum >= MAX_CLIENTS) {
+		clientNum = cg_entities[trace.entityNum].currentState.clientNum;
+		if (clientNum < 0 || clientNum >= MAX_CLIENTS) {
+			return;
+		}
+	} else {
+		clientNum = trace.entityNum;
 	}
 
 	// if the player is in fog, don't show it
@@ -5599,7 +5611,9 @@ static void CG_ScanForCrosshairEntity( void ) {
 	}
 
 	// hide enemies during Treasure Hunter Hiding phase
-	if (cgs.gametype == GT_TREASURE_HUNTER && !CG_THPlayerVisible(&cg_entities[ trace.entityNum ])) {
+	if (cgs.gametype == GT_TREASURE_HUNTER 
+			&& trace.entityNum < MAX_CLIENTS
+			&& !CG_THPlayerVisible(&cg_entities[ trace.entityNum ])) {
 		return;
 	}
 
@@ -5607,7 +5621,7 @@ static void CG_ScanForCrosshairEntity( void ) {
 		// XXX: technically, this could give an enemy's position away
 		// when he obscures the position of a friend
 		clientInfo_t	*ci;
-		ci = &cgs.clientinfo[trace.entityNum];
+		ci = &cgs.clientinfo[clientNum];
 	       	if (!ci->infoValid) {
 			return;
 		}
@@ -5617,7 +5631,7 @@ static void CG_ScanForCrosshairEntity( void ) {
 	}
 
 	// update the fade timer
-	cg.crosshairClientNum = trace.entityNum;
+	cg.crosshairClientNum = clientNum;
 	cg.crosshairClientTime = cg.time;
 }
 
@@ -5990,6 +6004,44 @@ static void CG_DrawTeamVote(void) {
 	CG_DrawSmallString( 0, 90, s, 1.0F );
 }
 
+static qboolean CG_DrawThawing(void) {
+        char *s;
+        int w;
+	unsigned int frozenState = cg.snap->ps.stats[STAT_FROZENSTATE];
+	float thawFrac;
+	float color[4];
+	float width, height, x, y;
+
+	if (!(frozenState & FROZENSTATE_FROZEN)) {
+		return qfalse;
+	}
+
+	thawFrac = (float)(frozenState >> 2)/0xff;
+	s = va("Thawing: %i%%", (int)(thawFrac * 100));
+	w = CG_DrawStrlen( s ) * SMALLCHAR_WIDTH;
+	CG_DrawSmallStringColor(320-w/2,350, s, colorYellow);
+
+	color[3] = 1.0;
+	if (frozenState & FROZENSTATE_THAWING) {
+		color[0] = 0.0;
+		color[1] = 1.0;
+		color[2] = 0.0;
+	} else {
+		color[0] = 0.0;
+		color[1] = 0.31;
+		color[2] = 1.0;
+	}
+
+	height = 10;
+	width = 180;
+	x = 320 - width/2;
+	y = 335;
+	CG_FillRect(x,y, thawFrac*width, height, color);
+	CG_DrawRect(x,y, width, height, 1, color);
+
+	return qtrue;
+}
+
 
 static qboolean CG_DrawScoreboard( void ) {
 #ifdef MISSIONPACK
@@ -6058,7 +6110,8 @@ static qboolean CG_DrawScoreboard( void ) {
 #else
         char        *s;
         int w;
-        if (cg.respawnTime && cg.snap->ps.persistant[PERS_TEAM] != TEAM_SPECTATOR && (cgs.gametype < GT_CTF_ELIMINATION || cgs.gametype > GT_LMS) ) {
+	if (!CG_DrawThawing() && cg.respawnTime && cg.snap->ps.persistant[PERS_TEAM] != TEAM_SPECTATOR 
+			&& (cgs.gametype < GT_CTF_ELIMINATION || cgs.gametype > GT_LMS) ) {
 		if (cgs.gametype == GT_ELIMINATION) {
 			if (cg.respawnTime > 0 && cg.respawnTime > cg.time) {
 				s = va("Respawn in: %2.2f",((double)cg.respawnTime-(double)cg.time)/1000.0);
@@ -6597,7 +6650,8 @@ static void CG_Draw2D(stereoFrame_t stereoFrame)
 				CG_DrawStatusBar();
 			}
 #endif
-      
+     			CG_DrawThawing(); 
+
 			CG_DrawAmmoWarning();
 
 			CG_DrawProxWarning();

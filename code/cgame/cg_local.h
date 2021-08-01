@@ -1008,6 +1008,8 @@ typedef struct {
 	qhandle_t	friendFlagShaderNeutral;
 	qhandle_t	friendFlagShaderBlue;
 	qhandle_t	friendFlagShaderRed;
+	
+	qhandle_t	friendFrozenShader;
 
 	qhandle_t	radarShader;
 	qhandle_t	radarDotShader;
@@ -1114,6 +1116,9 @@ typedef struct {
 	qhandle_t	hastePuffShader;
 	//qhandle_t	redKamikazeShader;
 	//qhandle_t	blueKamikazeShader;
+
+	qhandle_t	frozenShader;
+	qhandle_t	thawingShader;
 
 	qhandle_t	spawnPointShader;
         
@@ -1398,6 +1403,7 @@ typedef struct {
 	sfxHandle_t	announceFlight;
 
 	sfxHandle_t	coinbounceSound;
+	sfxHandle_t	freezeSound;
 
 } cgMedia_t;
 
@@ -2165,6 +2171,8 @@ byte CG_GetBrightShellAlpha(void);
 byte CG_GetBrightOutlineAlpha(void);
 qboolean CG_THPlayerVisible(centity_t *cent);
 void CG_PlayerColorFromString(char *str, float *h, float *s, float *v);
+qboolean CG_IsFrozenPlayer( centity_t *cent );
+qboolean CG_IsFrozenPlayerState( entityState_t *state );
 
 //
 // cg_predict.c

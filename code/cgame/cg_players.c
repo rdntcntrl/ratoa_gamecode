@@ -2229,6 +2229,9 @@ static qhandle_t CG_GetPlayerSpriteShader(centity_t *cent) {
 	qhandle_t *shaderarr = cgs.media.friendColorShaders;
 	int totalhp;
 
+	if (CG_IsFrozenPlayer(cent)) {
+		return cgs.media.friendFrozenShader;
+	}
 
 	if (cgs.ratFlags & RAT_FRIENDSWALLHACK) {
 		shaderarr = cgs.media.friendThroughWallColorShaders;
@@ -2337,7 +2340,8 @@ static void CG_FriendHudMarker( centity_t *cent ) {
 		       || !cg_friendHudMarker.integer
 		       || !(cgs.ratFlags & RAT_FRIENDSWALLHACK)
 		       || cg.snap->ps.persistant[PERS_TEAM] != team 
-		       || (cent->currentState.eFlags & EF_DEAD)
+		       || (cent->currentState.eFlags & EF_DEAD 
+			       && !CG_IsFrozenPlayer(cent))
 		       || cent->currentState.number == cg.snap->ps.clientNum
 		       || cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR ) {
 		return;
@@ -2372,10 +2376,16 @@ static void CG_PlayerSprites( centity_t *cent ) {
 	team = cgs.clientinfo[ cent->currentState.clientNum ].team;
 	if ( cgs.gametype >= GT_TEAM && cgs.ffa_gt!=1 &&
 		cg.snap->ps.persistant[PERS_TEAM] == team &&
-		!(cent->currentState.eFlags & EF_DEAD) && 
+		(!(cent->currentState.eFlags & EF_DEAD) 
+		 || CG_IsFrozenPlayer(cent)) && 
 		cg_drawFriend.integer) {
 
 		drawFriendInfo = qtrue;
+
+		if (CG_IsFrozenPlayer(cent)) {
+			CG_PlayerFloatSprite( cent, CG_GetPlayerSpriteShader(cent));
+			return;
+		}
 
 		if (cgs.ratFlags & (RAT_FRIENDSWALLHACK | RAT_FLAGINDICATOR)) {
 				if (!CG_FriendVisible(cent)) { 
@@ -2682,6 +2692,22 @@ void CG_AddRefEntityWithPowerups( refEntity_t *ent, entityState_t *state, int te
 			}
 			ent->shaderRGBA[3] = alpha_save;
 		}
+
+		if (CG_IsFrozenPlayerState(state)) {
+			byte alpha_save = ent->shaderRGBA[3];
+			float thawfrac = 1.0 - (float)(state->generic1 >> 1)/0x7f;
+			if (state->generic1 & 1) {
+				ent->customShader = cgs.media.thawingShader;
+			} else {
+				ent->customShader = cgs.media.frozenShader;
+			}
+			// never make the ice shell entirely transparent
+			ent->shaderRGBA[3] = (byte)85 + 170*thawfrac;
+			//ent->shaderRGBA[3] = (byte)0xff*1.0;
+			trap_R_AddRefEntityToScene( ent );
+			ent->shaderRGBA[3] = alpha_save;
+		}
+
 		
 		if(!isMissile && (cgs.dmflags & DF_PLAYER_OVERLAY) && !(state->eFlags & EF_DEAD)  ) {
 		    switch(team) {
@@ -3217,6 +3243,7 @@ void CG_Player( centity_t *cent ) {
 	float			angle;
 	vec3_t			dir, angles;
 	qboolean autoHeadColors = qfalse;
+	qboolean useDeadColors;
 
 	// the client number is stored in clientNum.  It can't be derived
 	// from the entity number, because a single client may have
@@ -3255,8 +3282,9 @@ void CG_Player( centity_t *cent ) {
 	memset( &torso, 0, sizeof(torso) );
 	memset( &head, 0, sizeof(head) );
 
-	CG_PlayerGetColors(ci, cent->currentState.eFlags & EF_DEAD ? qtrue : qfalse, MCIDX_TORSO, torso.shaderRGBA);
-	CG_PlayerGetColors(ci, cent->currentState.eFlags & EF_DEAD ? qtrue : qfalse, MCIDX_LEGS, legs.shaderRGBA);
+	useDeadColors = (cent->currentState.eFlags & EF_DEAD && !CG_IsFrozenPlayer(cent)) ? qtrue : qfalse;
+	CG_PlayerGetColors(ci, useDeadColors, MCIDX_TORSO, torso.shaderRGBA);
+	CG_PlayerGetColors(ci, useDeadColors, MCIDX_LEGS, legs.shaderRGBA);
 	if ((ci->forcedBrightModel || (cgs.ratFlags & (RAT_BRIGHTSHELL | RAT_BRIGHTOUTLINE) 
 					&& (cg_brightShells.integer || cg_brightOutline.integer) 
 					&& (cgs.gametype != GT_FFA || cgs.ratFlags & RAT_ALLOWFORCEDMODELS)))
@@ -3267,7 +3295,7 @@ void CG_Player( centity_t *cent ) {
 		CG_PlayerAutoHeadColor(ci, head.shaderRGBA);
 		autoHeadColors = qtrue;
 	} else {
-		CG_PlayerGetColors(ci, cent->currentState.eFlags & EF_DEAD ? qtrue : qfalse, MCIDX_HEAD, head.shaderRGBA);
+		CG_PlayerGetColors(ci, useDeadColors, MCIDX_HEAD, head.shaderRGBA);
 	}
 
 	// get the rotation information
@@ -3617,6 +3645,13 @@ void CG_ResetPlayerEntity( centity_t *cent ) {
 	}
 }
 
+qboolean CG_IsFrozenPlayerState( entityState_t *state ) {
+	return ((cgs.ratFlags & RAT_FREEZETAG) && (state->eFlags & EF_DEAD));
+}
+
+qboolean CG_IsFrozenPlayer( centity_t *cent ) {
+	return CG_IsFrozenPlayerState(&cent->currentState);
+}
 
 /*
 ===============

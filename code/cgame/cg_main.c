@@ -2123,6 +2123,7 @@ static void CG_RegisterSounds( void ) {
 		cgs.media.eaward_sounds[EAWARD_REVENGE] = cgs.media.perfectSound;
 		cgs.media.eaward_sounds[EAWARD_VAPORIZED] = cgs.media.perfectSound;
 	}
+	cgs.media.eaward_sounds[EAWARD_THAWBUDDY] = cgs.media.assistSound;
 
 	cgs.media.watrInSound = trap_S_RegisterSound( "sound/player/watr_in.wav", qfalse);
 	cgs.media.watrOutSound = trap_S_RegisterSound( "sound/player/watr_out.wav", qfalse);
@@ -2217,6 +2218,7 @@ static void CG_RegisterSounds( void ) {
 	cgs.media.announceFlight = trap_S_RegisterSound("sound/treb/ratmod/powerups/flight.ogg", qtrue);
 
 	cgs.media.coinbounceSound = trap_S_RegisterSound("sound/ratoa/coin/coin-hit-b.ogg", qfalse);
+	cgs.media.freezeSound = trap_S_RegisterSound("sound/player/freeze.ogg", qfalse);
 
 #ifdef MISSIONPACK
 	trap_S_RegisterSound("sound/player/sergei/death1.wav", qfalse );
@@ -2355,6 +2357,9 @@ static void CG_RegisterGraphics( void ) {
 	cgs.media.regenShader = trap_R_RegisterShader("powerups/ratRegen" );
 	cgs.media.hastePuffShader = trap_R_RegisterShader("hasteSmokePuff" );
 
+	cgs.media.frozenShader = trap_R_RegisterShader("playerIceShell" );
+	cgs.media.thawingShader = trap_R_RegisterShader("playerThawingShell" );
+
 	cgs.media.spawnPointShader = trap_R_RegisterShader("spawnPoint" );
 
 	if ( cgs.gametype == GT_CTF || cgs.gametype == GT_CTF_ELIMINATION|| cgs.gametype == GT_1FCTF || cgs.gametype == GT_HARVESTER || cgs.gametype == GT_TREASURE_HUNTER || cg_buildScript.integer ) {
@@ -2479,6 +2484,8 @@ static void CG_RegisterGraphics( void ) {
 		cgs.media.friendFlagShaderNeutral = trap_R_RegisterShaderNoMip("sprites/flagINeutral.tga");
 		cgs.media.friendFlagShaderRed = trap_R_RegisterShaderNoMip("sprites/flagIRed.tga");
 		cgs.media.friendFlagShaderBlue = trap_R_RegisterShaderNoMip("sprites/flagIBlue.tga");
+
+		cgs.media.friendFrozenShader = trap_R_RegisterShaderNoMip("sprites/friendFrozen.tga");
 
 		cgs.media.radarShader = trap_R_RegisterShader("radar");
 		cgs.media.radarDotShader = trap_R_RegisterShader("radardot");
@@ -2623,6 +2630,7 @@ static void CG_RegisterGraphics( void ) {
 	cgs.media.eaward_medals[EAWARD_REVENGE] = trap_R_RegisterShaderNoMip( "medal_revenge" );
 	cgs.media.eaward_medals[EAWARD_BERSERKER] = trap_R_RegisterShaderNoMip( "medal_berserker" );
 	cgs.media.eaward_medals[EAWARD_VAPORIZED] = trap_R_RegisterShaderNoMip( "medal_vaporized" );
+	cgs.media.eaward_medals[EAWARD_THAWBUDDY] = trap_R_RegisterShaderNoMip( "medal_thawbuddy" );
 
 	switch (cg_ratStatusbar.integer) {
 		case 3:

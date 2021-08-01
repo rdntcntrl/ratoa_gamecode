@@ -180,6 +180,10 @@ typedef enum {
 
 #define	PMF_ALL_TIMES	(PMF_TIME_WATERJUMP|PMF_TIME_LAND|PMF_TIME_KNOCKBACK)
 
+// ps->stats[STAT_FROZENSTATE]
+#define FROZENSTATE_FROZEN	1
+#define FROZENSTATE_THAWING	2
+
 #define	MAXTOUCH	32
 typedef struct {
 	// state (in / out)
@@ -244,7 +248,8 @@ typedef enum {
 	STAT_JUMPTIME,					// rampjump
 	STAT_EXTFLAGS,					// extended playerstate flags
 	STAT_BOBCYCLEREM,				// used to store fractions of bobCycle for consistent, FPS-independent footsteps
-	STAT_OVERBOUNCE					// Overbounce flag (only 1 bit, this could be integrated into another bitflag field if more STAT_ fields are required)
+	STAT_OVERBOUNCE,					// Overbounce flag (only 1 bit, this could be integrated into another bitflag field if more STAT_ fields are required)
+	STAT_FROZENSTATE				// used to store frozen/thawing state if g_freeze = 1
 } statIndex_t;
 
 
@@ -298,6 +303,7 @@ typedef enum {
 #define	EF_AWARD_ASSIST		0x00020000		// draw a assist sprite
 #define EF_AWARD_DENIED		0x00040000		// denied
 #define EF_TEAMVOTED		0x00080000		// already cast a team vote
+#define EF_FROZEN		0x00100000
 
 // Additional awards (not visible to other players)
 typedef enum {
@@ -330,6 +336,7 @@ typedef enum {
 	EAWARD_REVENGE,
 	EAWARD_BERSERKER,
 	EAWARD_VAPORIZED,
+	EAWARD_THAWBUDDY,
 
 	EAWARD_NUM_AWARDS
 } extAward_t;
@@ -563,8 +570,8 @@ typedef enum {
 
 	EV_MISSILE_TELEPORT,
 	EV_PING_LOCATION,
-	EV_COIN_BOUNCE
-
+	EV_COIN_BOUNCE,
+	EV_FREEZE
 } entity_event_t;
 
 
@@ -853,6 +860,7 @@ qboolean	BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const play
 #define RAT_BRIGHTMODEL		(1 << 22)
 #define RAT_SMOOTHSTAIRS	(1 << 23)
 #define RAT_NOOVERBOUNCE	(1 << 24)
+#define RAT_FREEZETAG		(1 << 25)
 
 #define MAX_RAT_SAY_TEXT 256
 
