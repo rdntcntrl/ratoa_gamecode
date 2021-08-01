@@ -326,6 +326,7 @@ vmCvar_t        g_mixedMode;
 vmCvar_t        g_broadcastClients;
 vmCvar_t        g_useExtendedScores;
 vmCvar_t        g_statsboard;
+vmCvar_t        g_exportStats;
 vmCvar_t        g_predictMissiles;
 vmCvar_t        g_ratFlags;
 vmCvar_t        g_maxBrightShellAlpha;
@@ -668,6 +669,7 @@ static cvarTable_t		gameCvarTable[] = {
         { &g_broadcastClients, "g_broadcastClients", "0", 0, 0, qfalse },
         { &g_useExtendedScores, "g_useExtendedScores", "0", CVAR_ARCHIVE, 0, qfalse },
         { &g_statsboard, "g_statsboard", "1", CVAR_ARCHIVE, 0, qfalse },
+        { &g_exportStats, "g_exportStats", "0", CVAR_ARCHIVE, 0, qfalse },
         { &g_ratFlags, "g_ratFlags", "0", CVAR_SERVERINFO, 0, qfalse },
         { &g_maxBrightShellAlpha, "g_maxBrightShellAlpha", "0.5", CVAR_SERVERINFO, 0, qfalse },
         { &g_allowDuplicateGuid, "g_allowDuplicateGuid", "0", 0, 0, qfalse },
@@ -3274,6 +3276,7 @@ void LogExit( const char *string ) {
 	}
 #endif
 
+	G_WriteStatsJSON();
 
 }
 

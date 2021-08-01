@@ -1668,6 +1668,7 @@ extern  vmCvar_t        g_mixedMode;
 extern  vmCvar_t        g_broadcastClients;
 extern  vmCvar_t        g_useExtendedScores;
 extern  vmCvar_t        g_statsboard;
+extern  vmCvar_t        g_exportStats;
 extern  vmCvar_t        g_predictMissiles;
 extern  vmCvar_t        g_ratFlags;
 extern  vmCvar_t        g_allowDuplicateGuid;
@@ -1993,6 +1994,9 @@ void Svcmd_Ruleset_f( void );
 void Svcmd_ListIP_f( void );
 void Svcmd_MessageWrapper( void );
 void Svcmd_BalanceTeams_f( void );
+
+// g_stats.c
+void G_WriteStatsJSON(void);
 
 #include "g_killspree.h"
 #include "g_admin.h"

@@ -1755,6 +1755,7 @@ Q3GOBJ_ = \
   $(B)/baseq3/game/g_unlagged.o \
   $(B)/baseq3/game/g_utils.o \
   $(B)/baseq3/game/g_vote.o \
+  $(B)/baseq3/game/g_stats.o \
   $(B)/baseq3/game/g_weapon.o \
   \
   $(B)/baseq3/qcommon/q_math.o \
@@ -1814,6 +1815,7 @@ MPGOBJ_ = \
   $(B)/missionpack/game/g_unlagged.o \
   $(B)/missionpack/game/g_utils.o \
   $(B)/missionpack/game/g_vote.o \
+  $(B)/missionpack/game/g_stats.o \
   $(B)/missionpack/game/g_weapon.o \
   \
   $(B)/missionpack/qcommon/q_math.o \
