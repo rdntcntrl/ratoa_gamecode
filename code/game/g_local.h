@@ -1545,6 +1545,7 @@ extern  vmCvar_t        g_fastSwitch;
 extern  vmCvar_t        g_fastWeapons;
 extern  vmCvar_t        g_regularFootsteps;
 extern  vmCvar_t        g_smoothStairs;
+extern  vmCvar_t        g_overbounce;
 extern  vmCvar_t        g_passThroughInvisWalls;
 extern  vmCvar_t        g_ambientSound;
 extern  vmCvar_t        g_rocketSpeed;
