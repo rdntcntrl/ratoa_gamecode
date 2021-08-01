@@ -178,6 +178,7 @@ void TossClientCoins( gentity_t *self ) {
 	vec3_t		velocity;
 	vec3_t		angles;
 	int i;
+	int numCoins;
 
 	if (g_coins.integer <= 0) {
 		return;
@@ -185,8 +186,9 @@ void TossClientCoins( gentity_t *self ) {
 
 	item = BG_FindItem( "Rat Coin" );
 
-	Com_Printf("KILLSTREAK %d\n", self->client->pers.killstreak);
-	for (i = 0; i < g_coins.integer + self->client->pers.killstreak; ++i) {
+	numCoins = g_coinsDefault.integer
+		+ g_coinsFrag.integer * self->client->pers.killstreak;
+	for (i = 0; i < numCoins; ++i) {
 		if (!G_EntitiesFree()) {
 			return;
 		}

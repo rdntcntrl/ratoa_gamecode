@@ -178,6 +178,8 @@ vmCvar_t	g_vampireMaxHealth;
 vmCvar_t	g_midAir;
 
 vmCvar_t	g_coins;
+vmCvar_t	g_coinsFrag;
+vmCvar_t	g_coinsDefault;
 
 //Regen
 vmCvar_t	g_regen;
@@ -755,6 +757,8 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_lms_mode, "g_lms_mode", "0", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue },
 
 	{ &g_coins, "g_coins", "0", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_coinsDefault, "g_coinsDefault", "1", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_coinsFrag, "g_coinsFrag", "1", CVAR_ARCHIVE, 0, qtrue },
 
         { &g_catchup, "g_catchup", "0", CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue},
 

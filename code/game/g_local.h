@@ -1473,6 +1473,8 @@ extern vmCvar_t		g_swingGrapple;
 extern vmCvar_t		g_rockets;
 
 extern vmCvar_t		g_coins;
+extern vmCvar_t		g_coinsDefault;
+extern vmCvar_t		g_coinsFrag;
 
 //new in elimination Beta2
 extern vmCvar_t		g_instantgib;
