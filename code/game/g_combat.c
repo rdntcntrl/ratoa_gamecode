@@ -179,6 +179,7 @@ void TossClientCoins( gentity_t *self ) {
 	vec3_t		angles;
 	int i;
 	int numCoins;
+	float speedFactor;
 
 	if (g_coins.integer <= 0) {
 		return;
@@ -188,18 +189,16 @@ void TossClientCoins( gentity_t *self ) {
 
 	numCoins = g_coinsDefault.integer
 		+ g_coinsFrag.integer * self->client->pers.killstreak;
+	speedFactor = 1.0 + (float)self->client->pers.killstreak/10;
 	for (i = 0; i < numCoins; ++i) {
-		if (!G_EntitiesFree()) {
-			return;
-		}
-
 		angles[YAW] = (float)(crandom() * 360.0);
 		//angles[PITCH] = (float)(crandom() * 30.0 + 45.0);
 		angles[PITCH] = 60.0;
 		angles[ROLL] = 0;
 
 		AngleVectors( angles, velocity, NULL, NULL );
-		VectorScale( velocity, (float)(crandom() * 200.0) + 100.0, velocity );
+		//VectorScale( velocity, speedFactor * ((float)(crandom() * 200.0) + 100.0), velocity );
+		VectorScale( velocity, speedFactor * ((float)(crandom() * 200.0) + 80.0), velocity );
 		//velocity[2] += 200 + crandom() * 300;
 		velocity[2] += 400;
 
