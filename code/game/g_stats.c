@@ -232,8 +232,18 @@ void G_WriteStatsJSON(void) {
 	qtime_t now;
 	fileHandle_t f;
 	int len;
+	int humans = 0;
 
 	if (!g_exportStats.integer) {
+		return;
+	}
+
+	if (g_gametype.integer >= GT_TEAM && !g_ffa_gt) {
+		humans = G_CountHumanPlayers(TEAM_RED) + G_CountHumanPlayers(TEAM_BLUE);
+	} else {
+		humans = G_CountHumanPlayers(TEAM_FREE);
+	}
+	if (humans == 0) {
 		return;
 	}
 
