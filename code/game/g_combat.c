@@ -875,6 +875,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 		if (g_gametype.integer == GT_ELIMINATION || g_gametype.integer == GT_CTF_ELIMINATION) {
 			if (level.roundNumber == level.roundNumberStarted) {
 				self->client->pers.deaths += 1;
+				self->client->pers.elimRoundDeaths += 1;
 			}
 		} else {
 			self->client->pers.deaths += 1;
@@ -908,6 +909,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 		self->activator->think = G_FreeEntity;
 		self->activator->nextthink = level.time;
 	}
+
 	self->client->ps.pm_type = PM_DEAD;
 
 	if ( attacker ) {
@@ -1208,21 +1210,59 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 		}
 	}
 
+	self->client->frozen = FROZEN_NOT;
+	if (g_freeze.integer) {
+		self->client->frozen = FROZEN_DIED;
+		self->client->freezetag_thawedBy = -1;
+		self->client->freezetag_thawed = 0.0;
+		
+		if (meansOfDeath != MOD_LAVA
+				&& meansOfDeath != MOD_SLIME
+				&& meansOfDeath != MOD_TRIGGER_HURT
+				&& meansOfDeath != MOD_CRUSH
+				&& meansOfDeath != MOD_UNKNOWN
+				&& meansOfDeath != MOD_WATER
+				&& meansOfDeath != MOD_TARGET_LASER
+				&& meansOfDeath != MOD_TELEFRAG
+				&& meansOfDeath != MOD_JUICED
+		   ) {
+			self->client->frozen = FROZEN_ONMAP;
+			G_CreateFrozenPlayer(self);
+			if (self->frozenPlayer) {
+				G_AddEvent(self->frozenPlayer, EV_FREEZE, killer );
+			}
+			trap_UnlinkEntity(self);
+		}
+		if (self->health > GIB_HEALTH || self->client->ps.stats[STAT_HEALTH] > GIB_HEALTH) {
+			// make sure no body is left behind
+			self->health = GIB_HEALTH;
+			self->client->ps.stats[STAT_HEALTH] = GIB_HEALTH;
+		}
+	}
+
 	self->takedamage = qtrue;	// can still be gibbed
 
 	self->s.weapon = WP_NONE;
 	self->s.powerups = 0;
 	self->r.contents = CONTENTS_CORPSE;
 
-	self->s.angles[0] = 0;
-	self->s.angles[2] = 0;
-	LookAtKiller (self, inflictor, attacker);
+	if (self->client->frozen == FROZEN_ONMAP) {
+		self->client->ps.stats[STAT_DEAD_YAW] = self->client->ps.viewangles[YAW];
+		self->client->ps.viewangles[PITCH] = 0;
+		self->client->ps.viewangles[ROLL] = 0;
+		VectorCopy( self->client->ps.viewangles, self->s.angles );
+	} else {
+		self->s.angles[0] = 0;
+		self->s.angles[2] = 0;
+		LookAtKiller (self, inflictor, attacker);
 
-	VectorCopy( self->s.angles, self->client->ps.viewangles );
+		self->r.maxs[2] = -8;
+		VectorCopy( self->s.angles, self->client->ps.viewangles );
+	}
+
 
 	self->s.loopSound = 0;
 
-	self->r.maxs[2] = -8;
 
 	// don't allow respawn until the death anim is done
 	// g_forcerespawn may force spawning at some later time
@@ -1231,54 +1271,83 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 	// remove powerups
 	memset( self->client->ps.powerups, 0, sizeof(self->client->ps.powerups) );
 
-	// never gib in a nodrop
-	contents = trap_PointContents( self->r.currentOrigin, -1 );
+	if (self->client->frozen != FROZEN_ONMAP) {
+		// never gib in a nodrop
+		contents = trap_PointContents( self->r.currentOrigin, -1 );
 
-	if ( (self->health <= GIB_HEALTH && !(contents & CONTENTS_NODROP) && g_blood.integer) || meansOfDeath == MOD_SUICIDE) {
-		// gib death
-		GibEntity( self, killer );
+		if ( (self->health <= GIB_HEALTH && !(contents & CONTENTS_NODROP) && g_blood.integer) || meansOfDeath == MOD_SUICIDE
+				|| self->client->frozen) {
+			// gib death
+			GibEntity( self, killer );
+		} else {
+			// normal death
+			static int i;
+
+			switch ( i ) {
+				case 0:
+					anim = BOTH_DEATH1;
+					break;
+				case 1:
+					anim = BOTH_DEATH2;
+					break;
+				case 2:
+				default:
+					anim = BOTH_DEATH3;
+					break;
+			}
+
+			// for the no-blood option, we need to prevent the health
+			// from going to gib level
+			if ( self->health <= GIB_HEALTH ) {
+				self->health = GIB_HEALTH+1;
+			}
+
+			self->client->ps.legsAnim = 
+				( ( self->client->ps.legsAnim & ANIM_TOGGLEBIT ) ^ ANIM_TOGGLEBIT ) | anim;
+			self->client->ps.torsoAnim = 
+				( ( self->client->ps.torsoAnim & ANIM_TOGGLEBIT ) ^ ANIM_TOGGLEBIT ) | anim;
+
+			G_AddEvent( self, EV_DEATH1 + i, killer );
+
+			// the body can still be gibbed
+			self->die = body_die;
+
+			// globally cycle through the different death animations
+			i = ( i + 1 ) % 3;
+
+			if (self->s.eFlags & EF_KAMIKAZE) {
+				Kamikaze_DeathTimer( self );
+			}
+		}
+		trap_LinkEntity (self);
 	} else {
-		// normal death
-		static int i;
-
-		switch ( i ) {
-		case 0:
-			anim = BOTH_DEATH1;
-			break;
-		case 1:
-			anim = BOTH_DEATH2;
-			break;
-		case 2:
-		default:
-			anim = BOTH_DEATH3;
-			break;
-		}
-
-		// for the no-blood option, we need to prevent the health
-		// from going to gib level
-		if ( self->health <= GIB_HEALTH ) {
-			self->health = GIB_HEALTH+1;
-		}
-
-		self->client->ps.legsAnim = 
-			( ( self->client->ps.legsAnim & ANIM_TOGGLEBIT ) ^ ANIM_TOGGLEBIT ) | anim;
-		self->client->ps.torsoAnim = 
-			( ( self->client->ps.torsoAnim & ANIM_TOGGLEBIT ) ^ ANIM_TOGGLEBIT ) | anim;
-
-		G_AddEvent( self, EV_DEATH1 + i, killer );
-
-		// the body can still be gibbed
-		self->die = body_die;
-
-		// globally cycle through the different death animations
-		i = ( i + 1 ) % 3;
-
-		if (self->s.eFlags & EF_KAMIKAZE) {
-			Kamikaze_DeathTimer( self );
-		}
+		// created a frozen player copy, so make the real player entity invisible
+		self->takedamage = qfalse;
+		self->s.eType = ET_INVISIBLE;
+		self->r.contents = 0;
+		//self->r.contents = CONTENTS_BODY;
+		// prevent other code from showing this player again
+		self->health = GIB_HEALTH;
+		
+		//self->takedamage = qtrue;
+		//self->s.eFlags = EF_DEAD;
+		//self->s.eType = ET_FROZENPLAYER;
+		//self->r.contents = CONTENTS_BODY;
+		//self->client->ps.eFlags = EF_DEAD;
+		//self->health = 0;
+		//if (self->client->ps.pm_flags & PMF_DUCKED) {
+		//	self->client->ps.legsAnim = 
+		//		( ( self->client->ps.legsAnim & ANIM_TOGGLEBIT ) ^ ANIM_TOGGLEBIT ) | LEGS_IDLECR;
+		//	self->client->ps.torsoAnim = 
+		//		( ( self->client->ps.torsoAnim & ANIM_TOGGLEBIT ) ^ ANIM_TOGGLEBIT ) | TORSO_STAND;
+		//} else {
+		//	self->client->ps.legsAnim = 
+		//		( ( self->client->ps.legsAnim & ANIM_TOGGLEBIT ) ^ ANIM_TOGGLEBIT ) | LEGS_IDLE;
+		//	self->client->ps.torsoAnim = 
+		//		( ( self->client->ps.torsoAnim & ANIM_TOGGLEBIT ) ^ ANIM_TOGGLEBIT ) | TORSO_STAND;
+		//}
 	}
 
-	trap_LinkEntity (self);
 
 	if (g_gametype.integer == GT_ELIMINATION || g_gametype.integer == GT_CTF_ELIMINATION) {
 		G_SendTeamPlayerCounts();
@@ -1786,6 +1855,14 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 	}
         //Sago: This was moved up
         client = targ->client;
+
+	if (g_freeze.integer) { 
+		if (G_IsFrozenPlayerRemnant(targ)) {
+			G_FrozenPlayerDamage(targ->frozenPlayer, targ, attacker, inflictor, dir, damage, mod);
+			return;
+		}
+	}
+
         
         //Sago: See if the client was sent flying
         //Check if damage is by somebody who is not a player!

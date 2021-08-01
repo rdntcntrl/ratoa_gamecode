@@ -82,6 +82,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define KILLCMD_GAME	1
 #define KILLCMD_WARMUP	2
 
+typedef enum {
+	FROZEN_NOT = 0, // not frozen
+	FROZEN_ONMAP, // remnant is still around
+	FROZEN_REMNANTDESTROYED, // remnant was destroyed
+	FROZEN_DIED, // died without producing a remnant
+} frozen_t;
+
 // movers are things like doors, plats, buttons, etc
 typedef enum {
 	MOVER_POS1,
@@ -225,6 +232,11 @@ struct gentity_s {
 
 	// for ra3compat
 	int arenaNum;
+
+	// for freezetag
+	// links the frozen remnant to the actual player entity
+	gentity_t *frozenPlayer;
+	qboolean frozenPlayer_finalized;
 };
 
 
@@ -414,6 +426,7 @@ typedef struct {
     int		elimRoundDmgDone;
     int		elimRoundDmgTaken;
     int		elimRoundKills;
+    int		elimRoundDeaths;
 
     // quad whore detection
     int quadTime;
@@ -440,9 +453,10 @@ typedef struct {
 
     // for revenge award, entitynum of enemy that last killed us
     int lastKilledBy;
+    qboolean gotRevenge;
+
     // time of last death;
     int lastDeathTime;
-    qboolean gotRevenge;
 
     int gauntCorpseGibCount;
 
@@ -541,6 +555,11 @@ struct gclient_s {
 	int			airOutTime;
 	int			lavaDmgTime;
 
+	// increases during thawing out of frozen clients (g_freeze)
+	float			freezetag_thawed;
+	int			freezetag_thawedBy;
+	frozen_t		frozen;
+
 	int			lastKillTime;		// for multiple kill rewards
 
 	qboolean	fireHeld;			// used for hook
@@ -620,6 +639,9 @@ struct gclient_s {
 	int		timeouts; // number of timeouts called;
 
 	qboolean pingHeld;
+
+	// to prevent switching back and forth too fast
+	int	lastSpecatorSwitchTime;
 };
 
 
@@ -670,6 +692,8 @@ typedef struct {
 	int			followautoTime;			
 
 	int			snd_fry;				// sound index for standing in lava
+
+	int			snd_thaw;				// sound index for thawing (freezetag)
 
 	int			warmupModificationCount;	// for detecting if g_warmup is changed
 
@@ -918,6 +942,7 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace);
 void ClearRegisteredItems( void );
 void RegisterItem( gitem_t *item );
 void SaveRegisteredItems( void );
+void G_BounceItem( gentity_t *ent, trace_t *trace );
 
 //
 // g_utils.c
@@ -972,6 +997,8 @@ void TossClientCoins( gentity_t *self );
 void TossClientCubes( gentity_t *self );
 void G_CheckKamikazeAward(gentity_t *attacker, int killsBefore, int deathsBefore);
 void G_StoreViewVectorHistory ( gclient_t *client );
+void GibEntity( gentity_t *self, int killer );
+void G_SetRespawntime( gentity_t *self, int notBefore );
 
 // damage flags
 #define DAMAGE_RADIUS				0x00000001	// damage was indirect
@@ -1012,6 +1039,7 @@ void Touch_DoorTrigger( gentity_t *ent, gentity_t *other, trace_t *trace );
 // g_trigger.c
 //
 void trigger_teleporter_touch (gentity_t *self, gentity_t *other, trace_t *trace );
+void hurt_touch( gentity_t *self, gentity_t *other, trace_t *trace );
 void G_SetTeleporterDestinations(void);
 
 
@@ -1092,6 +1120,12 @@ qboolean G_MixedClientHasRatVM(gclient_t *client);
 void G_UnnamedPlayerRename(gentity_t *ent);
 qboolean G_RA3ArenaAllowed(int arenaNum);
 void G_LoadClans(void);
+void G_DestroyFrozenPlayer( gentity_t *player );
+void G_CreateFrozenPlayer( gentity_t *player );
+void G_UpdateFrozenPlayer( gentity_t *player );
+qboolean G_IsFrozenPlayerFinalized ( gentity_t *player );
+void G_RunFrozenPlayer( gentity_t *frozen );
+qboolean G_IsFrozenPlayerRemnant( gentity_t *ent );
 
 //
 // g_svcmds.c
@@ -1191,6 +1225,13 @@ void ClientThink( int clientNum );
 void ClientEndFrame( gentity_t *ent );
 void G_RunClient( gentity_t *ent );
 void ClientInactivityHeartBeat(gclient_t *client);
+int G_FreezeThawSound(void);
+void G_ClientThawNow( gentity_t *ent, int thawedBy );
+void G_ClientSetFrozenState( gentity_t *ent );
+void G_FrozenPlayerDamage(gentity_t *targPlayer, gentity_t *targ, gentity_t *attacker,
+	       gentity_t *inflictor, vec3_t dir, int damage, int mod);
+void G_FrozenTouchTriggers( gentity_t *ent );
+void P_WorldEffectsFrozen( gentity_t *ent );
 
 //
 // g_team.c
@@ -1440,12 +1481,24 @@ extern	vmCvar_t	g_proxMineTimeout;
 extern	vmCvar_t	g_music;
 extern  vmCvar_t        g_spawnprotect;
 
+extern	vmCvar_t	g_freeze;
+extern	vmCvar_t	g_freezeHealth;
+extern	vmCvar_t	g_freezeKnockback;
+extern	vmCvar_t	g_freezeBounce;
+extern	vmCvar_t	g_freezeRespawnInplace;
+extern	vmCvar_t	g_thawTime;
+extern	vmCvar_t	g_thawTimeDestroyedRemnant;
+extern	vmCvar_t	g_thawTimeDied;
+extern	vmCvar_t	g_thawRadius;
+extern	vmCvar_t	g_autoThawTime;
+
 //elimination:
 extern	vmCvar_t	g_elimination_respawn;
 extern	vmCvar_t	g_elimination_respawn_increment;
 extern	vmCvar_t	g_elimination_selfdamage;
 extern	vmCvar_t	g_elimination_startHealth;
 extern	vmCvar_t	g_elimination_startArmor;
+extern	vmCvar_t	g_elimination_healthReduction;
 extern	vmCvar_t	g_elimination_bfg;
 extern	vmCvar_t	g_elimination_grapple;
 extern	vmCvar_t	g_elimination_roundtime;

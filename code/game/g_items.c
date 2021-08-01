@@ -1131,7 +1131,9 @@ void G_BounceItem( gentity_t *ent, trace_t *trace ) {
 	// check for stop
 	if ( trace->plane.normal[2] > 0 && ent->s.pos.trDelta[2] < 40 ) {
 		trace->endpos[2] += 1.0;	// make sure it is off ground
-		SnapVector( trace->endpos );
+		if (!G_IsFrozenPlayerRemnant(ent)) {
+			SnapVector( trace->endpos );
+		}
 		G_SetOrigin( ent, trace->endpos );
 		ent->s.groundEntityNum = trace->entityNum;
 		return;

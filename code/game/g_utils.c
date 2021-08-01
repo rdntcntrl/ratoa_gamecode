@@ -538,13 +538,15 @@ void G_KillBox (gentity_t *ent) {
 
 	for (i=0 ; i<num ; i++) {
 		hit = &g_entities[touch[i]];
-		if ( !hit->client ) {
-			continue;
+		if ( hit->client ) {
+			// nail it
+			G_Damage ( hit, ent, ent, NULL, NULL,
+					100000, DAMAGE_NO_PROTECTION, MOD_TELEFRAG);
+		} else if ( G_IsFrozenPlayerRemnant(hit) && hit->die ) {
+			hit->die(hit, ent, ent, 100000, MOD_TELEFRAG);
 		}
 
-		// nail it
-		G_Damage ( hit, ent, ent, NULL, NULL,
-			100000, DAMAGE_NO_PROTECTION, MOD_TELEFRAG);
+
 	}
 
 }

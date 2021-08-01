@@ -139,12 +139,23 @@ vmCvar_t	g_enableBreath;
 vmCvar_t	g_proxMineTimeout;
 vmCvar_t	g_music;
 vmCvar_t        g_spawnprotect;
+vmCvar_t	g_freeze;
+vmCvar_t	g_freezeRespawnInplace;
+vmCvar_t	g_freezeHealth;
+vmCvar_t	g_freezeKnockback;
+vmCvar_t	g_freezeBounce;
+vmCvar_t	g_thawTime;
+vmCvar_t	g_thawRadius;
+vmCvar_t	g_thawTimeDestroyedRemnant;
+vmCvar_t	g_thawTimeDied;
+vmCvar_t	g_autoThawTime;
 //Following for elimination:
 vmCvar_t	g_elimination_respawn;
 vmCvar_t	g_elimination_respawn_increment;
 vmCvar_t	g_elimination_selfdamage;
 vmCvar_t	g_elimination_startHealth;
 vmCvar_t	g_elimination_startArmor;
+vmCvar_t	g_elimination_healthReduction;
 vmCvar_t	g_elimination_bfg;
 vmCvar_t	g_elimination_grapple;
 vmCvar_t	g_elimination_roundtime;
@@ -705,12 +716,23 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_rankings, "g_rankings", "0", 0, 0, qfalse},
         { &g_music, "g_music", "", 0, 0, qfalse},
         { &g_spawnprotect, "g_spawnprotect", "500", CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue},
+	{ &g_freeze, "g_freeze", "0", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_freezeRespawnInplace, "g_freezeRespawnInplace", "1", CVAR_ARCHIVE, 0, qfalse },
+	{ &g_freezeHealth, "g_freezeHealth", "0", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_freezeKnockback, "g_freezeKnockback", "1000", CVAR_ARCHIVE, 0, qfalse },
+	{ &g_freezeBounce, "g_freezeBounce", "0.4", CVAR_ARCHIVE, 0, qfalse },
+	{ &g_thawTime, "g_thawTime", "3", CVAR_ARCHIVE, 0, qfalse },
+	{ &g_thawRadius, "g_thawRadius", "125", CVAR_ARCHIVE, 0, qfalse },
+	{ &g_thawTimeDestroyedRemnant, "g_thawTimeDestroyedRemnant", "2", CVAR_ARCHIVE, 0, qfalse },
+	{ &g_thawTimeDied, "g_thawTimeDied", "60", CVAR_ARCHIVE, 0, qfalse },
+	{ &g_autoThawTime, "g_autoThawTime", "60", CVAR_ARCHIVE, 0, qfalse },
 	//Now for elimination stuff:
 	{ &g_elimination_respawn, "elimination_respawn", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_elimination_respawn_increment, "elimination_respawn_increment", "5", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_elimination_selfdamage, "elimination_selfdamage", "0", 0, 0, qtrue },
 	{ &g_elimination_startHealth, "elimination_startHealth", "200", CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue },
 	{ &g_elimination_startArmor, "elimination_startArmor", "150", CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue },
+	{ &g_elimination_healthReduction, "elimination_healthReduction", "0", CVAR_ARCHIVE | CVAR_NORESTART, 0, qfalse },
 	{ &g_elimination_bfg, "elimination_bfg", "0", CVAR_ARCHIVE| CVAR_NORESTART, 0, qtrue },
         { &g_elimination_grapple, "elimination_grapple", "0", CVAR_ARCHIVE| CVAR_NORESTART, 0, qtrue },
 	{ &g_elimination_roundtime, "elimination_roundtime", "120", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue },
@@ -1560,6 +1582,10 @@ void G_UpdateRatFlags( void ) {
 		rflags |= RAT_SWINGGRAPPLE;
 	}
 
+	if (g_freeze.integer) {
+		rflags |= RAT_FREEZETAG;
+	}
+
 	// XXX --> also update code where this is called!
 
 	trap_Cvar_Set("g_ratFlags",va("%i",rflags));
@@ -1661,6 +1687,7 @@ void G_UpdateCvars( void ) {
 						|| cv->vmCvar == &g_bobup
 						|| cv->vmCvar == &g_fastSwim
 						|| cv->vmCvar == &g_swingGrapple
+						|| cv->vmCvar == &g_freeze
 						) {
 					updateRatFlags = qtrue;
 				}
@@ -1735,6 +1762,7 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 	level.startTime = levelTime;
 
 	level.snd_fry = G_SoundIndex("sound/player/fry.wav");	// FIXME standing in lava / slime
+	level.snd_thaw = G_FreezeThawSound();
 
 	if ( g_gametype.integer != GT_SINGLE_PLAYER && g_logfile.string[0] ) {
 		if ( g_logfileSync.integer ) {
@@ -3624,6 +3652,7 @@ void ResetElimRoundStats(void) {
 		client->pers.elimRoundDmgDone = 0;
 		client->pers.elimRoundDmgTaken = 0;
 		client->pers.elimRoundKills = 0;
+		client->pers.elimRoundDeaths = 0;
 		client->pers.lastKilledByStrongMan = -1;
 	}
 }
@@ -5070,6 +5099,11 @@ void G_RunFrame( int levelTime ) {
 		}
 */
 //unlagged - backward reconciliation #2
+
+		if ( G_IsFrozenPlayerRemnant(ent) ) {
+			G_RunFrozenPlayer( ent );
+			continue;
+		}
 
 		if ( ent->s.eType == ET_ITEM || ent->physicsObject ) {
 			G_RunItem( ent );

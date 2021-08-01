@@ -714,6 +714,265 @@ void CopyToBodyQue( gentity_t *ent ) {
 
 //======================================================================
 
+qboolean G_IsFrozenPlayerRemnant( gentity_t *ent ) {
+	return (ent - g_entities >= MAX_CLIENTS 
+			&& ent->s.eType == ET_PLAYER
+			&& ent->frozenPlayer);
+}
+
+static void frozenplayer_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int meansOfDeath ) {
+	if (!self->frozenPlayer || !self->frozenPlayer->frozenPlayer 
+			|| self->frozenPlayer->frozenPlayer != self) {
+		G_FreeEntity(self);
+		return;
+	}
+
+	if ( meansOfDeath != MOD_SUICIDE
+			&& meansOfDeath != MOD_FALLING
+			&& meansOfDeath != MOD_LAVA
+			&& meansOfDeath != MOD_SLIME
+			&& meansOfDeath != MOD_TRIGGER_HURT
+			&& meansOfDeath != MOD_CRUSH
+			&& meansOfDeath != MOD_UNKNOWN
+			&& meansOfDeath != MOD_WATER
+			&& meansOfDeath != MOD_TARGET_LASER
+			&& meansOfDeath != MOD_TELEFRAG
+			&& meansOfDeath != MOD_JUICED
+		   ) {
+		if (g_freezeHealth.integer && attacker && attacker->client) {
+			// remnant was destroyed by a friendly player, thaw client:
+			G_ClientThawNow(self->frozenPlayer, attacker - g_entities);
+			if (self->frozenPlayer) {
+				self->frozenPlayer->frozenPlayer = NULL;
+			}
+		}
+
+		G_FreeEntity(self);
+		return;
+	}
+	if (self->frozenPlayer) {
+		self->frozenPlayer->frozenPlayer = NULL;
+	}
+	// remnant was destroyed by the enviroment make the client thaw quickly:
+	self->frozenPlayer->client->frozen = FROZEN_REMNANTDESTROYED;
+	G_ClientSetFrozenState( self->frozenPlayer );
+	
+	// remnant was destroyed by the enviroment, make client respawn regularly:
+	//self->frozenPlayer->client->frozen = FROZEN_NOT;
+	//G_ClientSetFrozenState( self->frozenPlayer );
+	//G_SetRespawntime(self->frozenPlayer, self->frozenPlayer->client->respawnTime);
+
+	self->health = 0;
+	GibEntity( self, ENTITYNUM_WORLD );
+	self->freeAfterEvent = qtrue;
+	//G_FreeEntity(self);
+}
+
+void G_DestroyFrozenPlayer( gentity_t *player ) {
+	if (!player->client) {
+		return;
+	}
+	if (!player->frozenPlayer
+			|| !player->frozenPlayer->inuse
+			|| player->frozenPlayer->frozenPlayer != player) {
+		player->frozenPlayer = NULL;
+		return;
+	}
+	player->frozenPlayer->frozenPlayer = NULL;
+	G_FreeEntity(player->frozenPlayer);
+	player->frozenPlayer = NULL;
+	player->client->frozen = FROZEN_NOT;
+	player->client->freezetag_thawedBy = -1;
+	player->client->freezetag_thawed = 0;
+}
+
+void G_RunFrozenPlayer( gentity_t *frozen ) {
+	vec3_t origin;
+	trace_t tr;
+	int mask;
+
+	if (!frozen->frozenPlayer
+			|| !frozen->frozenPlayer->inuse
+			|| !frozen->frozenPlayer->frozenPlayer
+			|| frozen->frozenPlayer->frozenPlayer != frozen
+			) {
+		// make sure any frozen players that might get left behind for
+		// whatever reason are freed
+		G_FreeEntity(frozen);
+	}
+
+	// if groundentity has been set to -1, we have been pushed
+	if ( frozen->s.groundEntityNum == -1 ) {
+		if ( frozen->s.pos.trType != TR_GRAVITY ) {
+			frozen->s.pos.trType = TR_GRAVITY;
+			frozen->s.pos.trTime = level.time;
+		}
+	}
+
+	if ( frozen->s.pos.trType != TR_STATIONARY ) {
+		// get current position
+		BG_EvaluateTrajectory( &frozen->s.pos, level.time, origin );
+
+		// trace a line from the previous position to the current position
+		mask = frozen->clipmask;
+		trap_Trace( &tr, frozen->r.currentOrigin, frozen->r.mins, frozen->r.maxs, origin, 
+				frozen->r.ownerNum, mask );
+
+		VectorCopy( tr.endpos, frozen->r.currentOrigin );
+
+		if ( tr.startsolid ) {
+			tr.fraction = 0;
+		}
+
+		trap_LinkEntity( frozen );
+
+		if ( tr.fraction != 1 ) {
+			G_BounceItem( frozen, &tr );
+		}
+	}
+
+
+	G_FrozenTouchTriggers(frozen);
+	P_WorldEffectsFrozen(frozen);
+
+}
+
+qboolean G_IsFrozenPlayerFinalized ( gentity_t *player ) {
+	return (!player->frozenPlayer || !player->frozenPlayer->frozenPlayer
+			|| player->frozenPlayer->frozenPlayer != player
+			|| player->frozenPlayer_finalized);
+
+}
+
+void G_FinalizeFrozenPlayer( gentity_t *player ) {
+	gentity_t *frozen = player->frozenPlayer;
+
+	player->frozenPlayer_finalized = qtrue;
+
+	frozen->timestamp = level.time;
+	frozen->physicsObject = qtrue;
+	//frozen->physicsBounce = 0;		// don't bounce
+	frozen->physicsBounce = g_freezeBounce.value;
+	if (frozen->physicsBounce < 0.0 || frozen->physicsBounce > 1.0) {
+		frozen->physicsBounce = 0.0;
+	}
+
+	//frozen->s.pos.trType = TR_STATIONARY;
+	//frozen->s.groundEntityNum = ENTITYNUM_WORLD;
+	//VectorClear(frozen->s.pos.trDelta);
+	frozen->s.pos.trType = TR_GRAVITY;
+	frozen->s.groundEntityNum = -1;
+	frozen->s.pos.trTime = level.time;
+
+	frozen->r.contents = CONTENTS_BODY;
+	frozen->clipmask = MASK_PLAYERSOLID;
+}
+
+void G_UpdateFrozenPlayer( gentity_t *player ) {
+	gentity_t *frozen = player->frozenPlayer;
+
+	if (player->frozenPlayer_finalized) {
+		return;
+	}
+
+	if (!frozen->frozenPlayer || frozen->frozenPlayer != player) {
+		return;
+	}
+
+	trap_UnlinkEntity (frozen);
+
+	frozen->s = player->s;
+	BG_PlayerStateToEntityState(&player->client->ps, &frozen->s, (qboolean)!g_floatPlayerPosition.integer);
+	frozen->s.eType = ET_PLAYER;
+	frozen->s.eFlags = EF_DEAD;
+	frozen->s.powerups = 0;
+	frozen->s.loopSound = 0;
+	frozen->s.number = frozen - g_entities;
+	frozen->timestamp = level.time;
+	frozen->physicsObject = qtrue;
+	frozen->s.weapon = 0;
+	//frozen->physicsBounce = 0;		// don't bounce
+	//frozen->physicsBounce = 0.25; // bounce for a little while
+	//if ( frozen->s.groundEntityNum == ENTITYNUM_NONE ) {
+	//	frozen->s.pos.trType = TR_GRAVITY;
+	//	frozen->s.pos.trTime = level.time;
+	//	VectorCopy( player->client->ps.velocity, frozen->s.pos.trDelta );
+	//} else {
+	//	frozen->s.pos.trType = TR_STATIONARY;
+	//}
+	
+	//// allow the body to be pushed initially
+	//frozen->s.pos.trType = TR_GRAVITY;
+	//frozen->s.pos.trTime = level.time;
+	//VectorCopy( player->client->ps.velocity, frozen->s.pos.trDelta );
+	
+	frozen->s.event = 0;
+
+	if (player->client->ps.pm_flags & PMF_DUCKED) {
+		frozen->s.legsAnim = 
+			( ( frozen->s.legsAnim & ANIM_TOGGLEBIT ) ^ ANIM_TOGGLEBIT ) | LEGS_IDLECR;
+		frozen->s.torsoAnim = 
+			( ( frozen->s.torsoAnim & ANIM_TOGGLEBIT ) ^ ANIM_TOGGLEBIT ) | TORSO_STAND;
+	} else {
+		frozen->s.legsAnim = 
+			( ( frozen->s.legsAnim & ANIM_TOGGLEBIT ) ^ ANIM_TOGGLEBIT ) | LEGS_IDLE;
+		frozen->s.torsoAnim = 
+			( ( frozen->s.torsoAnim & ANIM_TOGGLEBIT ) ^ ANIM_TOGGLEBIT ) | TORSO_STAND;
+	}
+	
+
+	frozen->r.svFlags = player->r.svFlags;
+	VectorCopy (player->r.mins, frozen->r.mins);
+	VectorCopy (player->r.maxs, frozen->r.maxs);
+	VectorCopy (player->r.absmin, frozen->r.absmin);
+	VectorCopy (player->r.absmax, frozen->r.absmax);
+
+	//frozen->clipmask = MASK_PLAYERSOLID;
+	frozen->clipmask = 0;
+	//frozen->r.contents = CONTENTS_BODY;
+	frozen->r.contents = 0;
+	frozen->r.ownerNum = frozen - g_entities;
+	//frozen->r.ownerNum = player - g_entities;
+
+	VectorCopy ( frozen->s.pos.trBase, frozen->r.currentOrigin );
+	
+	// need to decouple this entity from the player so we can spectate other players in elimination
+	//if ((g_gametype.integer == GT_ELIMINATION || g_gametype.integer == GT_CTF_ELIMINATION) 
+	//		&& player->client->ps.groundEntityNum == ENTITYNUM_WORLD
+	//		&& VectorLengthSquared(player->client->ps.velocity) < 0.01) {
+	//	// looks like we're on solid ground and longer moving,
+	//	// de-couple this from the player entity
+	//	G_FinalizeFrozenPlayer(player);
+	//}
+	
+	G_FinalizeFrozenPlayer(player);
+
+	trap_LinkEntity (frozen);
+}
+
+void G_CreateFrozenPlayer( gentity_t *player ) {
+	gentity_t		*body;
+	//int			contents;
+	
+	body = G_Spawn();
+	body->classname = "frozenplayer";
+
+	// link both entities
+	body->frozenPlayer = player;
+	player->frozenPlayer = body;
+	player->frozenPlayer_finalized = qfalse;
+
+	body->takedamage = qtrue;
+	body->health = 1;
+
+	body->think = NULL;
+	body->nextthink = 0;
+
+	body->die = frozenplayer_die;
+
+	G_UpdateFrozenPlayer(player);
+}
+
 
 /*
 ==================
@@ -751,7 +1010,11 @@ void ClientRespawn( gentity_t *ent ) {
                 //Must always be false in other gametypes
                 ent->client->isEliminated = qfalse;
         }
-        CopyToBodyQue (ent); //Unlinks ent
+	if (g_freeze.integer) {
+		trap_UnlinkEntity(ent);
+	} else {
+		CopyToBodyQue (ent); //Unlinks ent
+	}
 
 	if(g_gametype.integer==GT_LMS) {
 		if(ent->client->pers.livesLeft>0)
@@ -988,6 +1251,21 @@ team_t TeamHealthCount(int ignoreClientNum, int team ) {
 	return count;
 }
 
+void EliminationRespawnClient(gentity_t *ent) {
+	gentity_t *te;
+
+	ent->client->elimRespawnTime = 0;
+	ent->client->ps.pm_type = PM_NORMAL;
+	ent->client->sess.spectatorState = SPECTATOR_NOT;
+	ent->client->isEliminated = qfalse;
+	respawnRound(ent);
+	ent->client->ps.pm_flags &= ~PMF_ELIMWARMUP;
+	te = G_TempEntity( ent->s.pos.trBase, EV_GLOBAL_TEAM_SOUND);
+	te->s.eventParm = ent->client->sess.sessionTeam == TEAM_BLUE ? 
+		GTS_PLAYER_RESPAWNED_BLUE : GTS_PLAYER_RESPAWNED_RED;
+	te->r.svFlags |= SVF_BROADCAST;
+}
+
 /*
 ================
 RespawnElimZombies
@@ -1000,7 +1278,6 @@ int RespawnElimZombies(void)
 	int respawned = 0;
 	int i;
 	gentity_t	*client;
-	gentity_t *te;
 	for(i=0;i<level.maxclients;i++)
 	{
 		if ( level.clients[i].pers.connected == CON_DISCONNECTED ) {
@@ -1021,17 +1298,9 @@ int RespawnElimZombies(void)
 		if (client->client->elimRespawnTime <= 0 || client->client->elimRespawnTime > level.time) {
 			continue;
 		}
-		client->client->elimRespawnTime = 0;
-		client->client->ps.pm_type = PM_NORMAL;
-		client->client->sess.spectatorState = SPECTATOR_NOT;
-		client->client->isEliminated = qfalse;
-		respawnRound(client);
-		client->client->ps.pm_flags &= ~PMF_ELIMWARMUP;
+
+		EliminationRespawnClient(client);
 		respawned++;
-		te = G_TempEntity( client->s.pos.trBase, EV_GLOBAL_TEAM_SOUND);
-		te->s.eventParm = client->client->sess.sessionTeam == TEAM_BLUE ? 
-			GTS_PLAYER_RESPAWNED_BLUE : GTS_PLAYER_RESPAWNED_RED;
-		te->r.svFlags |= SVF_BROADCAST;
 	}
 	return respawned;
 }
@@ -2559,6 +2828,8 @@ void ClientBegin( int clientNum ) {
 	ent->pain = 0;
 	ent->client = client;
 
+	G_DestroyFrozenPlayer(ent);
+
 	oldConnected = client->pers.connected;
 	client->pers.connected = CON_CONNECTED;
 	client->pers.enterTime = level.time;
@@ -2772,6 +3043,7 @@ void ClientSpawn(gentity_t *ent) {
         int		accuracy[WP_NUM_WEAPONS][2];
 	int		eventSequence;
 	char	userinfo[MAX_INFO_STRING];
+	qboolean respawn_inplace;
 
 	index = ent - g_entities;
 	client = ent->client;
@@ -2782,7 +3054,9 @@ void ClientSpawn(gentity_t *ent) {
 	if( 
 	( 
 		( 
-			(g_gametype.integer == GT_ELIMINATION && (!g_elimination_respawn.integer || client->elimRespawnTime)) ||
+			(g_gametype.integer == GT_ELIMINATION 
+			 	&& (!g_elimination_respawn.integer || client->elimRespawnTime) && (!g_freeze.integer || !client->frozen || client->freezetag_thawed < 1.0))
+		       	||
 			g_gametype.integer == GT_CTF_ELIMINATION || (g_gametype.integer == GT_LMS && client->isEliminated)) &&
 			(!level.intermissiontime || level.warmupTime != 0)
 		) &&
@@ -2820,7 +3094,7 @@ void ClientSpawn(gentity_t *ent) {
                 CalculateRanks();
             }
         }
-	
+
 	if (client->pers.joinedByTeamQueue && client->ps.pm_type == PM_NORMAL) {
 		G_SpawnFromQueue(ent);
 	}
@@ -2965,6 +3239,13 @@ void ClientSpawn(gentity_t *ent) {
 	// and this is as good a time as any to clear the saved state
 	ent->client->saved.leveltime = 0;
 //unlagged - backward reconciliation #3
+
+	respawn_inplace = (client->frozen == FROZEN_ONMAP
+			   && client->freezetag_thawed >= 1.0
+			   && g_freezeRespawnInplace.integer
+			   && ent->frozenPlayer
+			   && ent->frozenPlayer->frozenPlayer == ent
+			   );
 
 	// clear everything but the persistant data
 	
@@ -3118,6 +3399,22 @@ else
 	
 	ent->health = client->ps.stats[STAT_ARMOR] = g_elimination_startArmor.integer; //client->ps.stats[STAT_MAX_HEALTH]*2;
 	ent->health = client->ps.stats[STAT_HEALTH] = g_elimination_startHealth.integer; //client->ps.stats[STAT_MAX_HEALTH]*2;	
+	if ((g_gametype.integer == GT_ELIMINATION || g_gametype.integer == GT_CTF_ELIMINATION || g_gametype.integer == GT_LMS) 
+			&& g_elimination_healthReduction.value > 0 
+			&& client->pers.elimRoundDeaths >= 1 
+			&& level.roundNumber == level.roundNumberStarted) {
+		double health = g_elimination_startHealth.integer;
+		int deaths = client->pers.elimRoundDeaths;
+		while (deaths > 0 && health > 1) {
+			health *= g_elimination_healthReduction.value;
+			deaths--;
+		}
+		ent->health = (int)health;
+		if (ent->health < 1) {
+			ent->health = 1;
+		}
+		client->ps.stats[STAT_HEALTH] = ent->health;
+	}
 
 	
 	//	ent->health = client->ps.stats[STAT_HEALTH] = 0;
@@ -3149,8 +3446,21 @@ else
 			+ ((ent->client->sess.sessionTeam == TEAM_RED) ? level.th_teamTokensRed : level.th_teamTokensBlue);
 	}
 
-	G_SetOrigin( ent, spawn_origin );
-	VectorCopy( spawn_origin, client->ps.origin );
+	if (respawn_inplace) {
+		vec3_t origin;
+		VectorCopy(ent->frozenPlayer->r.currentOrigin, origin);
+		VectorCopy(ent->frozenPlayer->s.apos.trBase, spawn_angles);
+		G_SetOrigin(ent, origin);
+		VectorCopy(origin, client->ps.origin);
+	} else {
+		G_SetOrigin( ent, spawn_origin );
+		VectorCopy( spawn_origin, client->ps.origin );
+	}
+
+	G_DestroyFrozenPlayer(ent);
+
+	//client->ps.pm_flags &= ~PMF_FROZEN;
+	//client->ps.eFlags &= ~EF_FROZEN;
 
 	// the respawned flag will be cleared after the attack and jump keys come up
 	client->ps.pm_flags |= PMF_RESPAWNED;
@@ -3168,7 +3478,9 @@ else
 		trap_LinkEntity (ent);
             }*/
 	} else {
-		G_KillBox( ent );
+		if (!respawn_inplace) {
+			G_KillBox( ent );
+		}
 		trap_LinkEntity (ent);
 
 		// force the base weapon up

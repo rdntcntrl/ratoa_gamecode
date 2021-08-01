@@ -37,6 +37,15 @@ static int G_RatScoreboardIndicator( gclient_t *cl ) {
 	return ind;
 }
 
+static int ScoreboardEliminiated(gclient_t *client) {
+	if (g_gametype.integer == GT_LMS) {
+		return client->pers.livesLeft + (client->isEliminated?0:1);
+	} else if (g_gametype.integer == GT_ELIMINATION || g_gametype.integer == GT_CTF_ELIMINATION) {
+		return (client->isEliminated || client->frozen) ? 1 : 0;
+	}
+	return 0;
+}
+
 /*
 ==================
 DeathmatchScoreboardMessage
@@ -115,7 +124,8 @@ void DeathmatchScoreboardMessage( gentity_t *ent, qboolean advanced ) {
 					cl->ps.persistant[PERS_ASSIST_COUNT], 
 					perfect,
 					cl->ps.persistant[PERS_CAPTURES],
-					g_gametype.integer == GT_LMS ? cl->pers.livesLeft + (cl->isEliminated?0:1): cl->isEliminated);
+					ScoreboardEliminiated(cl)
+					);
 		}
 
 		j = strlen(entry);
@@ -182,7 +192,7 @@ void Ratscores1Message( gentity_t *ent ) {
 				cl->ps.persistant[PERS_ASSIST_COUNT], 
 				perfect,
 				cl->ps.persistant[PERS_CAPTURES],
-				g_gametype.integer == GT_LMS ? cl->pers.livesLeft + (cl->isEliminated?0:1): cl->isEliminated,
+				ScoreboardEliminiated(cl),
 				cl->pers.kills,
 				cl->pers.deaths
 			    );
@@ -310,7 +320,7 @@ void Ratscores4Message( gentity_t *ent ) {
 		cl = &level.clients[level.sortedClients[i]];
 
 		Com_sprintf (entry, sizeof(entry),
-				" %i %i %i %i %i %i %i %i %i %i %i %i %i",
+				" %i %i %i %i %i %i %i %i %i %i %i %i %i %i",
 				cl->pers.awardCounts[EAWARD_STRONGMAN],
 				cl->pers.awardCounts[EAWARD_HERO],
 				cl->pers.awardCounts[EAWARD_BUTCHER],
@@ -323,7 +333,8 @@ void Ratscores4Message( gentity_t *ent ) {
 				cl->pers.awardCounts[EAWARD_BERSERKER],
 				cl->pers.awardCounts[EAWARD_VAPORIZED],
 				cl->pers.awardCounts[EAWARD_TWITCHRAIL],
-				cl->pers.awardCounts[EAWARD_RAT]
+				cl->pers.awardCounts[EAWARD_RAT],
+				cl->pers.awardCounts[EAWARD_THAWBUDDY]
 			    );
 
 		j = strlen(entry);
