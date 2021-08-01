@@ -1341,6 +1341,7 @@ extern	vmCvar_t	g_capturelimit;
 extern	vmCvar_t	g_overtime;
 extern	vmCvar_t	g_friendlyFire;
 extern	vmCvar_t	g_friendlyFireReflect;
+extern	vmCvar_t	g_friendlyFireReflectFactor;
 extern	vmCvar_t	g_password;
 extern	vmCvar_t	g_passwordVerifyConnected;
 extern	vmCvar_t	g_needpass;

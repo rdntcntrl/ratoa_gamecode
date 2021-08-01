@@ -1852,7 +1852,9 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 			}
 
 			if ( g_friendlyFireReflect.integer && attacker) {
-				G_Damage(attacker, NULL, attacker, vec3_origin, vec3_origin, damage, dflags | DAMAGE_NO_SELF_PROTECTION, mod );
+				G_Damage(attacker, NULL, attacker, vec3_origin, vec3_origin,
+					       	damage * g_friendlyFireReflectFactor.value,
+					       	dflags | DAMAGE_NO_SELF_PROTECTION, mod );
 				return;
 			}
 		}
