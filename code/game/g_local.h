@@ -972,6 +972,7 @@ void G_StoreViewVectorHistory ( gclient_t *client );
 #define DAMAGE_NO_KNOCKBACK			0x00000004	// do not affect velocity, just view angles
 #define DAMAGE_NO_PROTECTION		0x00000008  // armor, shields, invulnerability, and godmode have no effect
 #define DAMAGE_NO_TEAM_PROTECTION	0x00000010  // armor, shields, invulnerability, and godmode have no effect
+#define DAMAGE_NO_SELF_PROTECTION	0x00000020  // self damage protection has no effect
 
 //
 // g_missile.c
@@ -1339,6 +1340,7 @@ extern	vmCvar_t	g_timelimit;
 extern	vmCvar_t	g_capturelimit;
 extern	vmCvar_t	g_overtime;
 extern	vmCvar_t	g_friendlyFire;
+extern	vmCvar_t	g_friendlyFireReflect;
 extern	vmCvar_t	g_password;
 extern	vmCvar_t	g_passwordVerifyConnected;
 extern	vmCvar_t	g_needpass;

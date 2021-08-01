@@ -1850,6 +1850,11 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 			if ( !g_friendlyFire.integer ) {
 				return;
 			}
+
+			if ( g_friendlyFireReflect.integer && attacker) {
+				G_Damage(attacker, NULL, attacker, vec3_origin, vec3_origin, damage, dflags | DAMAGE_NO_SELF_PROTECTION, mod );
+				return;
+			}
 		}
 		if (mod == MOD_PROXIMITY_MINE) {
 			if (inflictor && inflictor->parent && OnSameTeam(targ, inflictor->parent)) {
@@ -1907,7 +1912,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 
 	// always give half damage if hurting self
 	// calculated after knockback, so rocket jumping works
-	if ( targ == attacker) {
+	if ( targ == attacker && !(dflags & DAMAGE_NO_SELF_PROTECTION)) {
 		damage *= 0.5;
 	}
 
@@ -1922,11 +1927,11 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		damage = 1;
 	}
         
-        if(targ == attacker && (g_dmflags.integer & DF_NO_SELF_DAMAGE) )
+        if(targ == attacker && (g_dmflags.integer & DF_NO_SELF_DAMAGE) && !(dflags & DAMAGE_NO_SELF_PROTECTION))
             damage = 0;
 
 	if ((g_gametype.integer == GT_ELIMINATION || g_gametype.integer == GT_CTF_ELIMINATION || g_gametype.integer == GT_LMS || g_elimination_allgametypes.integer)
-				&& g_elimination_selfdamage.integer<1 && ( targ == attacker ||  mod == MOD_FALLING )) {
+				&& g_elimination_selfdamage.integer<1 && ( targ == attacker ||  mod == MOD_FALLING ) && !(dflags & DAMAGE_NO_SELF_PROTECTION)) {
 		damage = 0;
 	}
 
