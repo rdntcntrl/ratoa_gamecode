@@ -2684,7 +2684,7 @@ void G_BalanceAutoGameStart(void) {
 		return;
 	}
 
-	trap_SendServerCommand ( -1, "print \"^5Automatically Balancing Teams\"");
+	trap_SendServerCommand ( -1, "print \"^5Automatically Balancing Teams\n\"");
 
 	BalanceTeams(qfalse);
 
