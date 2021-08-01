@@ -4140,6 +4140,18 @@ void CheckElimination(void) {
 	}
 }
 
+void G_CheckBalanceAuto(void) {
+	if (!g_balanceAutoGameStart.integer) {
+		return;
+	}
+
+	if (level.warmupTime == 0 || level.time < g_balanceAutoGameStartTime.integer * 1000) {
+		return;
+	}
+
+	G_BalanceAutoGameStart();
+}
+
 /*
 =============
 CheckDomination
@@ -5247,16 +5259,4 @@ void G_CheckUnlockTeams(void) {
 		trap_SendServerCommand( -1, va("print \"^5Server: unlocking teams due to lack of human players!\n"));
 		G_UnlockTeams();
 	}
-}
-
-void G_CheckBalanceAuto(void) {
-	if (!g_balanceAutoGameStart.integer) {
-		return;
-	}
-
-	if (level.warmupTime == 0 || level.time < g_balanceAutoGameStartTime.integer * 1000) {
-		return;
-	}
-
-	G_BalanceAutoGameStart();
 }
