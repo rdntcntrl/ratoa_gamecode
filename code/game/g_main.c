@@ -5553,9 +5553,12 @@ void CheckMultiTournament( void ) {
 
 	for (i=0; i < level.multiTrnNumGames; ++i) {
 		int j;
-		for (j = 0; j < 2; ++j) {
-			if (G_MultiTrnGameOpen(&level.multiTrnGames[i])) {
-				AddMultiTournamentPlayer();
+		// only start pulling in players a bit after we (re)started, to avoid command overflow
+		if (level.time > level.startTime + 2000) {
+			for (j = 0; j < 2; ++j) {
+				if (G_MultiTrnGameOpen(&level.multiTrnGames[i])) {
+					AddMultiTournamentPlayer();
+				}
 			}
 		}
 		if (level.multiTrnGames[i].numPlayers < 2 && 
