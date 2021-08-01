@@ -3897,6 +3897,7 @@ void CG_AutoRecordStart(void) {
 			now.tm_min,
 			now.tm_sec );
 	Q_strncpyz(serverName, cgs.sv_hostname, sizeof(serverName));
+	Q_LstripStr(serverName);
 	Q_CleanStr(serverName);
 
 	Q_strncpyz(demoName, nowString, sizeof(demoName));
@@ -3913,15 +3914,25 @@ void CG_AutoRecordStart(void) {
 			case '"':
 			case '\'':
 				*p = '_';
-				break;
+				continue;
 			// path separators
 			case '/':
 			case '\\':
-				*p = '|';
-				break;
+				*p = '#';
+				continue;
+			// additional characters that aren't allowed on windows
+			case '<':
+			case '>':
+			case ':':
+			case '?':
+			case '*':
+				*p = '_';
+				continue;
 		}
-		if (!isprint(*p)) {
-			*p = '?';
+		if (isspace(*p)) {
+			*p = '_';
+		} else if (!isprint(*p)) {
+			*p = '_';
 		}
 	}
 	trap_SendConsoleCommand(va("record \"%s\"\n", demoName));

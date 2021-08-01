@@ -761,6 +761,10 @@ int Q_PrintStrlen( const char *string );
  * @return pointer to the string
  */
 char *Q_CleanStr( char *string );
+/*
+ * strips whitespace characters on the left side of a string
+ */
+char *Q_LstripStr( char *string );
 // Count the number of char tocount encountered in string
 int Q_CountChar(const char *string, char tocount);
 
