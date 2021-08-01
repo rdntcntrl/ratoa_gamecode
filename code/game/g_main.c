@@ -94,6 +94,9 @@ vmCvar_t	g_blood;
 vmCvar_t	g_podiumDist;
 vmCvar_t	g_podiumDrop;
 vmCvar_t	g_allowVote;
+vmCvar_t	g_balanceNextgameNeedsBalance;
+vmCvar_t	g_balanceAutoGameStart;
+vmCvar_t	g_balanceAutoGameStartTime;
 vmCvar_t	g_balanceSkillThres;
 vmCvar_t	g_balancePlaytime;
 vmCvar_t	g_teamAutoJoin;
@@ -420,6 +423,9 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_friendlyFireReflect, "g_friendlyFireReflect", "0", CVAR_ARCHIVE, 0, qtrue  },
 	{ &g_friendlyFireReflectFactor, "g_friendlyFireReflectFactor", "1", CVAR_ARCHIVE, 0, qfalse  },
 
+        { &g_balanceNextgameNeedsBalance, "g_balanceNextgameNeedsBalance", "0", 0, 0, qfalse },
+	{ &g_balanceAutoGameStart, "g_balanceAutoGameStart", "0", CVAR_ARCHIVE  },
+	{ &g_balanceAutoGameStartTime, "g_balanceAutoGameStartTime", "15", CVAR_ARCHIVE  },
 	{ &g_balanceSkillThres, "g_balanceSkillThres", "0.1", CVAR_ARCHIVE  },
 	{ &g_balancePlaytime, "g_balancePlaytime", "120", CVAR_ARCHIVE  },
 	{ &g_teamAutoJoin, "g_teamAutoJoin", "0", CVAR_ARCHIVE  },
@@ -3188,6 +3194,7 @@ void LogExit( const char *string ) {
 	if ( g_gametype.integer >= GT_TEAM && g_ffa_gt!=1) {
 		G_LogPrintf( "red:%i  blue:%i\n",
 			level.teamScores[TEAM_RED], level.teamScores[TEAM_BLUE] );
+		G_SetBalanceNextGame();
 	}
 
 	for (i=0 ; i < numSorted ; i++) {
@@ -5147,6 +5154,8 @@ void G_RunFrame( int levelTime ) {
 
 	G_CheckUnlockTeams();
 
+	G_CheckBalanceAuto();
+
 //unlagged - backward reconciliation #4
 	// record the time at the end of this frame - it should be about
 	// the time the next frame begins - when the server starts
@@ -5238,4 +5247,16 @@ void G_CheckUnlockTeams(void) {
 		trap_SendServerCommand( -1, va("print \"^5Server: unlocking teams due to lack of human players!\n"));
 		G_UnlockTeams();
 	}
+}
+
+void G_CheckBalanceAuto(void) {
+	if (!g_balanceAutoGameStart.integer) {
+		return;
+	}
+
+	if (level.warmupTime == 0 || level.time < g_balanceAutoGameStartTime.integer * 1000) {
+		return;
+	}
+
+	G_BalanceAutoGameStart();
 }

@@ -2657,7 +2657,63 @@ void ShuffleTeams(void) {
     level.restartAt = level.realtime + 2000;
     level.restarted = qtrue;
     //trap_SendConsoleCommand( EXEC_APPEND, "map_restart 0\n" );
+    
+    G_SetNeedsBalance(qfalse);
+}
 
+void G_SetNeedsBalance(qboolean balanceNeeded) {
+	trap_Cvar_Set( "g_balanceNextgameNeedsBalance", balanceNeeded ? "1" : "0" );
+	trap_Cvar_Update( &g_balanceNextgameNeedsBalance );
+}
+
+void G_BalanceAutoGameStart(void) {
+	int needsbalance;
+	if (!g_balanceAutoGameStart.integer) {
+		return;
+	}
+	if ( g_gametype.integer < GT_TEAM || g_ffa_gt == 1) {
+		return;
+	}
+
+	needsbalance = g_balanceNextgameNeedsBalance.integer;
+	G_SetNeedsBalance(qfalse);
+
+	if (!needsbalance || !CanBalance() 
+			|| fabs(TeamSkillDiff()) < g_balanceSkillThres.value
+			|| !BalanceTeams(qtrue)) {
+		return;
+	}
+
+	trap_SendServerCommand ( -1, "^5Automatically Balancing Teams");
+
+	BalanceTeams(qfalse);
+
+}
+
+void G_SetBalanceNextGame(void) {
+	int highScore, lowScore;
+	qboolean needsBalance = qfalse;
+
+	if (!g_balanceAutoGameStart.integer) {
+		return;
+	}
+	if ( g_gametype.integer < GT_TEAM || g_ffa_gt == 1) {
+		return;
+	}
+
+	if (level.teamScores[TEAM_RED] > level.teamScores[TEAM_BLUE]) {
+		highScore = level.teamScores[TEAM_RED];
+		lowScore = level.teamScores[TEAM_BLUE];
+	} else {
+		highScore = level.teamScores[TEAM_BLUE];
+		lowScore = level.teamScores[TEAM_RED];
+	}
+
+	if (highScore <= 0) {
+		return;
+	}
+
+	G_SetNeedsBalance(lowScore == 0 || (float)highScore/(float)lowScore >= 2.0);
 }
 
 int G_ClientPlaytime(gclient_t *cl) {
@@ -2859,6 +2915,8 @@ qboolean BalanceTeams(qboolean dryrun) {
     level.restartAt = level.realtime + 2000;
     level.restarted = qtrue;
     //trap_SendConsoleCommand( EXEC_APPEND, "map_restart 0\n" );
+
+    G_SetNeedsBalance(qfalse);
 
     return qtrue;
 
