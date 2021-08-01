@@ -77,12 +77,15 @@ void G_JSONExportAward(fileHandle_t f, char *name, int count, qboolean *comma) {
 
 void G_JSONExportPlayer(fileHandle_t f, gclient_t *cl) {
 	qboolean comma;
+	gentity_t *ent = g_entities + (cl - level.clients);
 	int i;
 
 	xfprintf(f, "{");
 	json_writestring(f, "name", cl->pers.netname);
 	xfprintf(f, ",");
 	json_writeint(f, "score", cl->ps.persistant[PERS_SCORE]);
+	xfprintf(f, ",");
+	json_writebool(f, "isbot", ent->r.svFlags & SVF_BOT);
 	xfprintf(f, ",");
 	json_writeint(f, "playtime", (level.time - cl->pers.enterTime)/1000);
 	xfprintf(f, ",");
