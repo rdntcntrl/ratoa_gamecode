@@ -38,12 +38,15 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define MAX_ADMIN_LEVELS 32 
 #define MAX_ADMIN_ADMINS 1024
 #define MAX_ADMIN_BANS 1024
+#define MAX_ADMIN_PLAYERHOOKS 1024
 #define MAX_ADMIN_NAMELOGS 128
 #define MAX_ADMIN_NAMELOG_NAMES 5
 #define MAX_ADMIN_FLAGS 64
 #define MAX_ADMIN_COMMANDS 64
 #define MAX_ADMIN_CMD_LEN 20
 #define MAX_ADMIN_BAN_REASON 50
+#define MAX_ADMIN_PLAYERHOOK 32
+#define MAX_ADMIN_PLAYERHOOK_ARG 256
 //KK-OAX
 #define MAX_ADMIN_WARNINGS 1024
 
@@ -133,6 +136,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define ADMF_TEAMS           'T'
 #define ADMF_PASSVOTE        'V'
 #define ADMF_WARN            'w'
+#define ADMF_PLAYERHOOK      'X'
 #define ADMF_ALLREADY        'y'
 
 #define MAX_ADMIN_LISTITEMS 20
@@ -180,6 +184,19 @@ typedef struct g_admin_ban
 }
 g_admin_ban_t;
 
+typedef struct g_admin_playerhook
+{
+  char name[ MAX_NAME_LENGTH ];
+  char guid[ 33 ];
+  char ip[ 40 ];
+  char action[ MAX_ADMIN_PLAYERHOOK ];
+  char argument[ MAX_ADMIN_PLAYERHOOK_ARG ];
+  char made[ 18 ]; // big enough for strftime() %c
+  int expires;
+  char banner[ MAX_NAME_LENGTH ];
+}
+g_admin_playerhook_t;
+
 typedef struct g_admin_command
 {
   char command[ MAX_ADMIN_CMD_LEN ];
@@ -210,6 +227,7 @@ typedef struct g_admin_warning {
 } g_admin_warning_t;
 
 qboolean G_admin_ban_check( char *userinfo, char *reason, int rlen );
+qboolean G_admin_apply_playerhooks( gentity_t *player, char *userinfo );
 qboolean G_admin_cmd_check( gentity_t *ent, qboolean say );
 qboolean G_admin_record( gentity_t *ent, int skiparg );
 qboolean G_admin_stoprecord( gentity_t *ent, int skiparg );
@@ -235,6 +253,7 @@ qboolean G_admin_ban( gentity_t *ent, int skiparg );
 qboolean G_admin_unban( gentity_t *ent, int skiparg );
 qboolean G_admin_playsound( gentity_t *ent, int skiparg );
 qboolean G_admin_putteam( gentity_t *ent, int skiparg );
+qboolean G_admin_playerhook( gentity_t *ent, int skiparg );
 qboolean G_admin_swap( gentity_t *ent, int skiparg );
 qboolean G_admin_swaprecent( gentity_t *ent, int skiparg );
 qboolean G_admin_listadmins( gentity_t *ent, int skiparg );

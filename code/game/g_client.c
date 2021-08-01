@@ -1825,7 +1825,6 @@ void ClientUserinfoChanged( int clientNum ) {
             revertName = qtrue;
         }
         else if( client->sess.muted & CLMUTE_MUTED
-			&& client->pers.connected == CON_CONNECTED
 			&& !client->pers.forceRename)
         {
             trap_SendServerCommand( ent - g_entities,
@@ -2214,6 +2213,7 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 		ent->r.svFlags &= ~SVF_BOT;
 	}
 
+    	G_admin_apply_playerhooks( ent, userinfo );
 
 	//KK-OAX Swapped these in order...seemed to help the connection process.
 	// get and distribute relevent paramters

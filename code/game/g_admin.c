@@ -184,6 +184,11 @@ g_admin_cmd_t g_admin_cmds[ ] =
       ""
     },
 
+    {"playerhook", "", G_admin_playerhook, ADMF_PLAYERHOOK,
+      "automatically perform an action when a certain player connects",
+      "[name|slot|ip] [action] [duration] [argument]"
+    },
+
     {"playsound", "",  G_admin_playsound, ADMF_PLAYSOUND,
       "play a sound",
       "soundfile [player]"
@@ -318,6 +323,7 @@ static int admin_level_maxname = 0;
 g_admin_level_t *g_admin_levels[ MAX_ADMIN_LEVELS ];
 g_admin_admin_t *g_admin_admins[ MAX_ADMIN_ADMINS ];
 g_admin_ban_t *g_admin_bans[ MAX_ADMIN_BANS ];
+g_admin_playerhook_t *g_admin_playerhooks[ MAX_ADMIN_PLAYERHOOKS ];
 g_admin_command_t *g_admin_commands[ MAX_ADMIN_COMMANDS ];
 g_admin_namelog_t *g_admin_namelog[ MAX_ADMIN_NAMELOGS ];
 //KK-OAX Load us up some warnings here....
@@ -587,6 +593,33 @@ static void admin_writeconfig( void )
     writeFile_int( g_admin_bans[ i ]->expires, f );
     trap_FS_Write( "banner  = ", 10, f );
     writeFile_string( g_admin_bans[ i ]->banner, f );
+    trap_FS_Write( "\n", 1, f );
+  }
+  for( i = 0; i < MAX_ADMIN_PLAYERHOOKS && g_admin_playerhooks[ i ]; i++ )
+  {
+    // don't write expired playerhooks
+    // if expires is 0, then it's a perm action
+    if( g_admin_playerhooks[ i ]->expires != 0 &&
+      ( g_admin_playerhooks[ i ]->expires - t ) < 1 )
+      continue;
+
+    trap_FS_Write( "[playerhook]\n", 13, f );
+    trap_FS_Write( "name    = ", 10, f );
+    writeFile_string( g_admin_playerhooks[ i ]->name, f );
+    trap_FS_Write( "guid    = ", 10, f );
+    writeFile_string( g_admin_playerhooks[ i ]->guid, f );
+    trap_FS_Write( "ip      = ", 10, f );
+    writeFile_string( g_admin_playerhooks[ i ]->ip, f );
+    trap_FS_Write( "action  = ", 10, f );
+    writeFile_string( g_admin_playerhooks[ i ]->action, f );
+    trap_FS_Write( "arg     = ", 10, f );
+    writeFile_string( g_admin_playerhooks[ i ]->argument, f );
+    trap_FS_Write( "made    = ", 10, f );
+    writeFile_string( g_admin_playerhooks[ i ]->made, f );
+    trap_FS_Write( "expires = ", 10, f );
+    writeFile_int( g_admin_playerhooks[ i ]->expires, f );
+    trap_FS_Write( "banner  = ", 10, f );
+    writeFile_string( g_admin_playerhooks[ i ]->banner, f );
     trap_FS_Write( "\n", 1, f );
   }
   for( i = 0; i < MAX_ADMIN_COMMANDS && g_admin_commands[ i ]; i++ )
@@ -1094,6 +1127,84 @@ qboolean G_admin_ban_check( char *userinfo, char *reason, int rlen )
   return qfalse;
 }
 
+static void G_admin_apply_playerhook(gentity_t *player, g_admin_playerhook_t *hook) {
+	int clientNum = player - g_entities;
+	if (Q_stricmp(hook->action, "mute") == 0) {
+		player->client->sess.muted = CLMUTE_MUTED;
+		G_Printf( "^2Player %i was automatically muted by playerhook\n", clientNum );
+		return;
+	} else if (Q_stricmp(hook->action, "shadowmute") == 0) {
+		player->client->sess.muted = CLMUTE_SHADOWMUTED;
+		G_Printf( "^2Player %i was automatically shadow-muted by playerhook\n", clientNum );
+		return;
+	} else if (Q_stricmp(hook->action, "rename") == 0) {
+		char userinfo[ MAX_INFO_STRING ];
+		char err[ MAX_STRING_CHARS ];
+
+		if( !G_admin_name_check( player, hook->argument, err, sizeof( err ) ) )
+		{
+			G_Printf( "^2playerhook: Player %i could not be renamed: %s\n", clientNum, err );
+			return;
+		}
+		player->client->pers.nameChanges--;
+		player->client->pers.nameChangeTime = 0;
+
+		trap_GetUserinfo( clientNum, userinfo, sizeof( userinfo ) );
+		Info_SetValueForKey( userinfo, "name", hook->argument );
+		trap_SetUserinfo( clientNum, userinfo );
+
+		// force the rename, even if the client is muted somehow
+		player->client->pers.forceRename = qtrue;
+		ClientUserinfoChanged( clientNum );
+		player->client->pers.forceRename = qfalse;
+
+		G_Printf( "^2Player %i was automatically renamed by playerhook\n", clientNum );
+		return;
+	}
+}
+
+qboolean G_admin_apply_playerhooks( gentity_t *player, char *userinfo )
+{
+  char *guidp, *ipp;
+  int i;
+  int t;
+  qboolean actionsTaken = qfalse;
+  char ip[MAX_INFO_VALUE];
+  char guid[MAX_INFO_VALUE];
+
+  t = trap_RealTime( NULL );
+  if( !*userinfo )
+    return qfalse;
+  ipp = Info_ValueForKey( userinfo, "ip" );
+  if( !*ipp )
+    return qfalse;
+  guidp = Info_ValueForKey( userinfo, "cl_guid" );
+
+  // copy these because the following code might call Info_ValueForKey and override the values
+  Q_strncpyz(ip, ipp, sizeof(ip));
+  Q_strncpyz(guid, guidp, sizeof(guid));
+
+  for( i = 0; i < MAX_ADMIN_PLAYERHOOKS && g_admin_playerhooks[ i ]; i++ )
+  {
+	  // 0 is for perm 
+	  if( g_admin_playerhooks[ i ]->expires != 0 &&
+			  ( g_admin_playerhooks[ i ]->expires - t ) < 1 ) {
+		  continue;
+	  }
+	  if( strstr( ip, g_admin_playerhooks[ i ]->ip ) ) {
+		  G_admin_apply_playerhook(player, g_admin_playerhooks[ i ]);
+		  actionsTaken = qtrue;
+		  continue; 
+	  }
+	  if( *guid && !Q_stricmp( g_admin_playerhooks[ i ]->guid, guid ) ) {
+		  G_admin_apply_playerhook(player, g_admin_playerhooks[ i ]);
+		  actionsTaken = qtrue;
+		  continue;
+	  }
+  }
+  return actionsTaken;
+}
+
 qboolean G_admin_cmd_check( gentity_t *ent, qboolean say )
 {
   int i;
@@ -1285,14 +1396,15 @@ qboolean G_admin_readconfig( gentity_t *ent, int skiparg )
   g_admin_level_t *l = NULL;
   g_admin_admin_t *a = NULL;
   g_admin_ban_t *b = NULL;
+  g_admin_playerhook_t *p = NULL;
   g_admin_command_t *c = NULL;
   g_admin_warning_t *w = NULL;
-  int lc = 0, ac = 0, bc = 0, cc = 0, wc = 0;
+  int lc = 0, ac = 0, bc = 0, pc = 0, cc = 0, wc = 0;
   fileHandle_t f;
   int len;
   char *cnf, *cnf2;
   char *t;
-  qboolean level_open, admin_open, ban_open, command_open, warning_open;
+  qboolean level_open, admin_open, ban_open, playerhook_open, command_open, warning_open;
   int i;
 
   G_admin_cleanup();
@@ -1321,7 +1433,7 @@ qboolean G_admin_readconfig( gentity_t *ent, int skiparg )
 
   admin_level_maxname = 0;
 
-  level_open = admin_open = ban_open = command_open = warning_open = qfalse;
+  level_open = admin_open = ban_open = playerhook_open = command_open = warning_open = qfalse;
   COM_BeginParseSession( g_admin.string );
   while( 1 )
   {
@@ -1336,7 +1448,7 @@ qboolean G_admin_readconfig( gentity_t *ent, int skiparg )
       l = BG_Alloc( sizeof( g_admin_level_t ) );
       g_admin_levels[ lc++ ] = l;
       level_open = qtrue;
-      admin_open = ban_open = command_open = warning_open = qfalse;
+      admin_open = ban_open = playerhook_open = command_open = warning_open = qfalse;
     }
     else if( !Q_stricmp( t, "[admin]" ) )
     {
@@ -1345,7 +1457,7 @@ qboolean G_admin_readconfig( gentity_t *ent, int skiparg )
       a = BG_Alloc( sizeof( g_admin_admin_t ) );
       g_admin_admins[ ac++ ] = a;
       admin_open = qtrue;
-      level_open = ban_open = command_open = warning_open = qfalse;
+      level_open = ban_open = playerhook_open = command_open = warning_open = qfalse;
     }
     else if( !Q_stricmp( t, "[ban]" ) )
     {
@@ -1354,7 +1466,16 @@ qboolean G_admin_readconfig( gentity_t *ent, int skiparg )
       b = BG_Alloc( sizeof( g_admin_ban_t ) );
       g_admin_bans[ bc++ ] = b;
       ban_open = qtrue;
-      level_open = admin_open = command_open = warning_open = qfalse;
+      level_open = admin_open = playerhook_open = command_open = warning_open = qfalse;
+    }
+    else if( !Q_stricmp( t, "[playerhook]" ) )
+    {
+      if( pc >= MAX_ADMIN_PLAYERHOOKS )
+        return qfalse;
+      p = BG_Alloc( sizeof( g_admin_playerhook_t ) );
+      g_admin_playerhooks[ pc++ ] = p;
+      playerhook_open = qtrue;
+      level_open = admin_open = ban_open = command_open = warning_open = qfalse;
     }
     else if( !Q_stricmp( t, "[command]" ) )
     {
@@ -1364,7 +1485,7 @@ qboolean G_admin_readconfig( gentity_t *ent, int skiparg )
       g_admin_commands[ cc++ ] = c;
       c->levels[ 0 ] = -1;
       command_open = qtrue;
-      level_open = admin_open = ban_open = warning_open = qfalse;
+      level_open = admin_open = ban_open = playerhook_open = warning_open = qfalse;
     }
     else if( !Q_stricmp( t, "[warning]" ) )
     {
@@ -1373,7 +1494,7 @@ qboolean G_admin_readconfig( gentity_t *ent, int skiparg )
       w = BG_Alloc( sizeof( g_admin_warning_t ) );
       g_admin_warnings[ wc++ ] = w;
       warning_open = qtrue;
-      level_open = admin_open = ban_open = command_open = qfalse;
+      level_open = admin_open = ban_open = playerhook_open = command_open = qfalse;
     }  
     else if( level_open )
     {
@@ -1451,6 +1572,45 @@ qboolean G_admin_readconfig( gentity_t *ent, int skiparg )
       else
       {
         COM_ParseError( "[ban] unrecognized token \"%s\"", t );
+      }
+    }
+    else if( playerhook_open )
+    {
+      if( !Q_stricmp( t, "name" ) )
+      {
+        readFile_string( &cnf, p->name, sizeof( p->name ) );
+      }
+      else if( !Q_stricmp( t, "guid" ) )
+      {
+        readFile_string( &cnf, p->guid, sizeof( p->guid ) );
+      }
+      else if( !Q_stricmp( t, "ip" ) )
+      {
+        readFile_string( &cnf, p->ip, sizeof( p->ip ) );
+      }
+      else if( !Q_stricmp( t, "action" ) )
+      {
+        readFile_string( &cnf, p->action, sizeof( p->action ) );
+      }
+      else if( !Q_stricmp( t, "arg" ) )
+      {
+        readFile_string( &cnf, p->argument, sizeof( p->argument ) );
+      }
+      else if( !Q_stricmp( t, "made" ) )
+      {
+        readFile_string( &cnf, p->made, sizeof( p->made ) );
+      }
+      else if( !Q_stricmp( t, "expires" ) )
+      {
+        readFile_int( &cnf, &p->expires );
+      }
+      else if( !Q_stricmp( t, "banner" ) )
+      {
+        readFile_string( &cnf, p->banner, sizeof( p->banner ) );
+      }
+      else
+      {
+        COM_ParseError( "[playerhook] unrecognized token \"%s\"", t );
       }
     }
     else if( command_open )
@@ -1531,8 +1691,8 @@ qboolean G_admin_readconfig( gentity_t *ent, int skiparg )
     }
   }
   BG_Free( cnf2 );
-  ADMP( va( "^3!readconfig: ^7loaded %d levels, %d admins, %d bans, %d commands, %d warnings\n",
-          lc, ac, bc, cc, wc ) );
+  ADMP( va( "^3!readconfig: ^7loaded %d levels, %d admins, %d bans, %d playerhooks, %d commands, %d warnings\n",
+          lc, ac, bc, pc, cc, wc ) );
   if( lc == 0 )
     admin_default_levels();
   else
@@ -1909,6 +2069,55 @@ static qboolean admin_create_warning( gentity_t *ent, char *netname, char *guid,
     return qfalse;
   }
   g_admin_warnings[ i ] = w;
+  return qtrue;
+}
+
+static qboolean admin_create_playerhook( gentity_t *ent,
+  char *netname,
+  char *guid,
+  char *ip,
+  int seconds,
+  char *action,
+  char *argument )
+{
+  g_admin_playerhook_t *p = NULL;
+  qtime_t qt;
+  int t;
+  int i;
+
+  t = trap_RealTime( &qt );
+  p = BG_Alloc( sizeof( g_admin_playerhook_t ) );
+
+  if( !p )
+    return qfalse;
+
+  Q_strncpyz( p->name, netname, sizeof( p->name ) );
+  Q_strncpyz( p->guid, guid, sizeof( p->guid ) );
+  Q_strncpyz( p->ip, ip, sizeof( p->ip ) );
+
+  Com_sprintf( p->made, sizeof( p->made ), "%02i/%02i/%02i %02i:%02i:%02i",
+    qt.tm_mon + 1, qt.tm_mday, qt.tm_year % 100,
+    qt.tm_hour, qt.tm_min, qt.tm_sec );
+
+  if( ent )
+    Q_strncpyz( p->banner, ent->client->pers.netname, sizeof( p->banner ) );
+  else
+    Q_strncpyz( p->banner, "console", sizeof( p->banner ) );
+  if( !seconds )
+    p->expires = 0;
+  else
+    p->expires = t + seconds;
+  Q_strncpyz( p->action, action, sizeof( p->action ) );
+  Q_strncpyz( p->argument, argument, sizeof( p->argument ) );
+  for( i = 0; i < MAX_ADMIN_PLAYERHOOKS && g_admin_playerhooks[ i ]; i++ )
+    ;
+  if( i == MAX_ADMIN_PLAYERHOOKS )
+  {
+    ADMP( "^3!playerhook: ^7too many actions\n" );
+    BG_Free( p );
+    return qfalse;
+  }
+  g_admin_playerhooks[ i ] = p;
   return qtrue;
 }
 
@@ -4107,6 +4316,170 @@ qboolean G_admin_warn( gentity_t *ent, int skiparg )
 	        return qtrue;
 	}   
   
+}
+
+qboolean G_admin_playerhook( gentity_t *ent, int skiparg )
+{
+  int seconds;
+  char search[ MAX_NAME_LENGTH ];
+  char secs[ MAX_TOKEN_CHARS ];
+  char duration[ 32 ];
+  int logmatch = -1, logmatches = 0;
+  int i, j;
+  qboolean exactmatch = qfalse;
+  char n2[ MAX_NAME_LENGTH ];
+  char s2[ MAX_NAME_LENGTH ];
+  char guid_stub[ 9 ];
+  char action[ MAX_ADMIN_PLAYERHOOK ] = "";
+  char *argument = "";
+
+  if( G_SayArgc() < 3 + skiparg )
+  {
+    ADMP( "^3!playerhook: ^7usage: !playerhook [name|slot|ip] [action] [duration] [argument]\n" );
+    return qfalse;
+  }
+  G_SayArgv( 1 + skiparg, search, sizeof( search ) );
+  G_SanitiseString( search, s2, sizeof( s2 ) );
+
+  G_SayArgv( 2 + skiparg, action, sizeof( action ) );
+
+  if( !Q_stricmp( action, "mute" ) ) {
+	  Q_strncpyz( action, "mute", sizeof(action) );
+  } else if( !Q_stricmp( action, "shadowmute" ) ) {
+	  Q_strncpyz( action, "shadowmute", sizeof(action) );
+  } else if( !Q_stricmp( action, "rename" ) ) {
+	  Q_strncpyz( action, "rename", sizeof(action) );
+  } else {
+	  ADMP( "^3!playerhook: ^7invalid action, available actions: mute, shadowmute, rename\n");
+	  return qfalse;
+  }
+
+  seconds = 0;
+  if ( G_SayArgc() > 2 + skiparg ) {
+	  G_SayArgv( 3 + skiparg, secs, sizeof( secs ) );
+	  seconds = G_admin_parse_time( secs );
+  } 
+  if ( G_SayArgc() > 3 + skiparg ) {
+	  argument = G_SayConcatArgs( 4 + skiparg );
+	  if (strlen(argument) >= MAX_ADMIN_PLAYERHOOK_ARG) {
+		  ADMP( "^3!playerhook: ^7argument too long\n");
+		  return qfalse;
+	  } else if (Q_stricmp(action, "rename") == 0) {
+		  if ( strlen(argument) >= MAX_NETNAME) {
+			  ADMP( "^3!playerhook: ^7argument too long\n");
+			  return qfalse;
+		  }
+	  }
+  }
+
+  for( i = 0; i < MAX_ADMIN_NAMELOGS && g_admin_namelog[ i ]; i++ )
+  {
+    // skip disconnected players when banning on slot number
+    if( g_admin_namelog[ i ]->slot == -1 )
+      continue;
+
+    if( !Q_stricmp( va( "%d", g_admin_namelog[ i ]->slot ), search ) )
+    {
+      logmatches = 1;
+      logmatch = i;
+      exactmatch = qtrue;
+      break;
+    }
+  }
+
+  for( i = 0;
+       !exactmatch && i < MAX_ADMIN_NAMELOGS && g_admin_namelog[ i ];
+       i++ )
+  {
+    if( !Q_stricmp( g_admin_namelog[ i ]->ip, search ) )
+    {
+      logmatches = 1;
+      logmatch = i;
+      exactmatch = qtrue;
+      break;
+    }
+    for( j = 0; j < MAX_ADMIN_NAMELOG_NAMES &&
+       g_admin_namelog[ i ]->name[ j ][ 0 ]; j++ )
+    {
+      G_SanitiseString( g_admin_namelog[ i ]->name[ j ], n2, sizeof( n2 ) );
+      if( strstr( n2, s2 ) )
+      {
+        if( logmatch != i )
+          logmatches++;
+        logmatch = i;
+      }
+    }
+  }
+
+  if( !logmatches )
+  {
+    ADMP( "^3!playerhook: ^7no player found by that name, IP, or slot number\n" );
+    return qfalse;
+  }
+  if( logmatches > 1 )
+  {
+    ADMBP_begin();
+    ADMBP( "^3!playerhook: ^7multiple recent clients match name, use IP or slot#:\n" );
+    for( i = 0; i < MAX_ADMIN_NAMELOGS && g_admin_namelog[ i ]; i++ )
+    {
+      for( j = 0; j < 8; j++ )
+        guid_stub[ j ] = g_admin_namelog[ i ]->guid[ j + 24 ];
+      guid_stub[ j ] = '\0';
+      for( j = 0; j < MAX_ADMIN_NAMELOG_NAMES &&
+         g_admin_namelog[ i ]->name[ j ][ 0 ]; j++ )
+      {
+        G_SanitiseString( g_admin_namelog[ i ]->name[ j ], n2, sizeof( n2 ) );
+        if( strstr( n2, s2 ) )
+        {
+          if( g_admin_namelog[ i ]->slot > -1 )
+            ADMBP( "^3" );
+          ADMBP( va( "%-2s (*%s) %15s ^7'%s^7'\n",
+           ( g_admin_namelog[ i ]->slot > -1 ) ?
+             va( "%d", g_admin_namelog[ i ]->slot ) : "-",
+           guid_stub,
+           g_admin_namelog[ i ]->ip,
+           g_admin_namelog[ i ]->name[ j ] ) );
+        }
+      }
+    }
+    ADMBP_end();
+    return qfalse;
+  }
+
+  if( ent && !admin_higher_guid( ent->client->pers.guid,
+    g_admin_namelog[ logmatch ]->guid ) )
+  {
+
+    ADMP( "^3!playerhook: ^7sorry, but your intended victim has a higher admin"
+      " level than you\n" );
+    return qfalse;
+  }
+
+  G_admin_duration( ( seconds ) ? seconds : -1,
+    duration, sizeof( duration ) );
+
+  admin_create_playerhook( ent,
+    g_admin_namelog[ logmatch ]->name[ 0 ],
+    g_admin_namelog[ logmatch ]->guid,
+    g_admin_namelog[ logmatch ]->ip,
+    seconds, action, argument );
+
+  if( !g_admin.string[ 0 ] )
+    ADMP( "^3!playerhook: ^7WARNING g_admin not set, not saving action to a file\n" );
+  else
+  if(strlen(g_admin_namelog[ logmatch ]->guid)==0 || strlen(g_admin_namelog[ logmatch ]->ip)==0 )
+      ADMP( "^3!playerhook: ^7WARNING bot or without GUID or IP cannot write to ban file\n");
+  else
+    admin_writeconfig();
+
+  ADMP( va( "^3!playerhook:^7 created action ^2%s^7, target ^7%s^7, "
+    "duration: %s, argument: %s\n",
+    action,
+    g_admin_namelog[ logmatch ]->name[ 0 ],
+    duration,
+    argument ) );
+
+  return qtrue;
 }
 
 qboolean G_admin_shuffle( gentity_t *ent, int skipargs ) 
