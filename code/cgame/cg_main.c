@@ -3871,6 +3871,10 @@ void CG_AutoRecordStart(void) {
 	char *nowString;
 	char *p;
 
+	if (!cg_autorecord.integer) {
+		return;
+	}
+
 	if (cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR || (cg.snap->ps.pm_flags & PMF_FOLLOW)) {
 		return;
 	}
