@@ -194,12 +194,14 @@ void TossClientCoins( gentity_t *self ) {
 		}
 
 		angles[YAW] = (float)(crandom() * 360.0);
-		angles[PITCH] = (float)(crandom() * 30.0 + 60.0);
+		//angles[PITCH] = (float)(crandom() * 30.0 + 45.0);
+		angles[PITCH] = 60.0;
 		angles[ROLL] = 0;
 
 		AngleVectors( angles, velocity, NULL, NULL );
-		VectorScale( velocity, (float)(crandom() * 50.0) + 80.0, velocity );
-		velocity[2] += 200 + crandom() * 300;
+		VectorScale( velocity, (float)(crandom() * 200.0) + 100.0, velocity );
+		//velocity[2] += 200 + crandom() * 300;
+		velocity[2] += 400;
 
 		drop =  LaunchItem( item, self->s.pos.trBase, velocity );
 		drop->physicsBounce = 0.6;
