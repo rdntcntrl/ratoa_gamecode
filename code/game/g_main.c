@@ -23,9 +23,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "g_local.h"
 
-#define MIN(x,y) (((x) < (y)) ? (x) : (y))
-#define MAX(x,y) (((x) > (y)) ? (x) : (y))
-
 level_locals_t	level;
 
 typedef struct {

@@ -27,6 +27,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "g_public.h"
 #include "challenges.h"
 
+#define MIN(x,y) (((x) < (y)) ? (x) : (y))
+#define MAX(x,y) (((x) > (y)) ? (x) : (y))
+
 //==================================================================
 
 // the "gameversion" client command will print this plus compile date
@@ -422,6 +425,11 @@ typedef struct {
     int		damage[WP_NUM_WEAPONS];
     int		topweapons[WP_NUM_WEAPONS][2];
     int		handicapforced;		
+
+    // TODO: this is ugly. Unforunately the number of items in bg_itemList is
+    // not available as a constant
+#define MAX_BG_ITEM_STATS 128
+    int		items_collected[MAX_BG_ITEM_STATS];
 
     int		elimRoundDmgDone;
     int		elimRoundDmgTaken;

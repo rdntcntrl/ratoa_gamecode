@@ -170,6 +170,25 @@ void G_JSONExportPlayer(fileHandle_t f, gclient_t *cl) {
 	G_JSONExportAward(f, "rat", cl->pers.awardCounts[EAWARD_RAT], &comma);
 	xfprintf(f, "]");
 
+	xfprintf(f, ",");
+	xfprintf(f, "\"items\":{");
+	comma = qfalse;
+	for (i = 0; i < MIN(bg_numItems, MAX_BG_ITEM_STATS); ++i) {
+		gitem_t *item = &bg_itemlist[i];
+		if (!item->classname) {
+			continue;
+		}
+		if (cl->pers.items_collected[i] <= 0) {
+			continue;
+		}
+		if (comma) {
+			xfprintf(f, ",");
+		}
+		comma = qtrue;
+		json_writeint(f, item->classname, cl->pers.items_collected[i]);
+	}
+	xfprintf(f, "}");
+
 	xfprintf(f, "}");
 }
 
