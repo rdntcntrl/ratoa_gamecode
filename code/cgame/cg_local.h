@@ -598,6 +598,7 @@ typedef struct {
 	int			clientNum;
 	
 	qboolean	demoPlayback;
+	qboolean	demoRecording;
 	qboolean	levelShot;			// taking a level menu screenshot
 	int			deferredPlayerLoading;
 	qboolean	loading;			// don't defer players at initial startup
@@ -1845,6 +1846,8 @@ extern vmCvar_t			cg_bobGun;
 extern vmCvar_t			cg_thTokenIndicator;
 extern vmCvar_t			cg_thTokenstyle;
 
+extern vmCvar_t			cg_autorecord;
+
 extern vmCvar_t			cg_timerAlpha;
 extern vmCvar_t			cg_fpsAlpha;
 extern vmCvar_t			cg_speedAlpha;
@@ -2024,6 +2027,8 @@ void CG_Cvar_ResetToDefault( const char *var_name );
 void CG_Cvar_Update( const char *var_name );
 void CG_Cvar_PrintUserChanges( qboolean all );
 qboolean CG_SupportsOggVorbis(void);
+void CG_AutoRecordStart(void);
+void CG_AutoRecordStop(void);
 
 //
 // cg_view.c
@@ -2530,6 +2535,8 @@ qboolean	trap_Key_IsDown( int keynum );
 int			trap_Key_GetCatcher( void );
 void		trap_Key_SetCatcher( int catcher );
 int			trap_Key_GetKey( const char *binding );
+
+int			trap_RealTime( qtime_t *qtime );
 
 
 typedef enum {

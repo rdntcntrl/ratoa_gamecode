@@ -1392,8 +1392,11 @@ static void CG_MapRestart( void ) {
 
 	// play the "fight" sound if this is a restart without warmup
 	if ( cg.warmup == 0 /* && cgs.gametype == GT_TOURNAMENT */) {
+		CG_AutoRecordStart();
 		trap_S_StartLocalSound( cgs.media.countFightSound, CHAN_ANNOUNCER );
 		CG_CenterPrint( "FIGHT!", 120, GIANTCHAR_WIDTH*2 );
+	} else {
+		CG_AutoRecordStop();
 	}
 #ifdef MISSIONPACK
 	if (cg_singlePlayerActive.integer) {

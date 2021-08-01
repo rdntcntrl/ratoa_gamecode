@@ -346,6 +346,8 @@ vmCvar_t	cg_bobGun;
 vmCvar_t	cg_thTokenIndicator;
 vmCvar_t	cg_thTokenstyle;
 
+vmCvar_t	cg_autorecord;
+
 vmCvar_t	cg_timerAlpha;
 vmCvar_t	cg_fpsAlpha;
 vmCvar_t	cg_speedAlpha;
@@ -787,6 +789,8 @@ static cvarTable_t cvarTable[] = { // bk001129
 	// TREASURE HUNTER:
 	{ &cg_thTokenIndicator ,           "cg_thTokenIndicator", "1", CVAR_ARCHIVE},
 	{ &cg_thTokenstyle ,           	   "cg_thTokenstyle", "-999", CVAR_ROM},
+
+	{ &cg_autorecord ,           	   "cg_autorecord", "0", CVAR_ARCHIVE},
 
 	// / RAT ===================
 
@@ -3860,3 +3864,60 @@ void CG_FairCvars() {
     do_vid_restart = qtrue;
 }
 
+void CG_AutoRecordStart(void) {
+	char demoName[MAX_OSPATH];
+	char serverName[MAX_OSPATH];
+	qtime_t now;
+	char *nowString;
+	char *p;
+
+	if (cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR || (cg.snap->ps.pm_flags & PMF_FOLLOW)) {
+		return;
+	}
+
+	trap_RealTime(&now);
+	nowString = va( "%04d%02d%02d%02d%02d%02d-",
+			1900 + now.tm_year,
+			1 + now.tm_mon,
+			now.tm_mday,
+			now.tm_hour,
+			now.tm_min,
+			now.tm_sec );
+	Q_strncpyz(serverName, cgs.sv_hostname, sizeof(serverName));
+	Q_CleanStr(serverName);
+
+	Q_strncpyz(demoName, nowString, sizeof(demoName));
+	Q_strcat(demoName, sizeof(demoName), serverName);
+	Q_strcat(demoName, sizeof(demoName), "-");
+	Q_strcat(demoName, sizeof(demoName), cgs.mapbasename);
+
+	// replace naughty characters
+	for (p = demoName; *p; ++p) {
+		switch (*p) {
+			case '\n':
+			case '\r':
+			case ';':
+			case '"':
+			case '\'':
+				*p = '_';
+				break;
+			// path separators
+			case '/':
+			case '\\':
+				*p = '|';
+				break;
+		}
+		if (!isprint(*p)) {
+			*p = '?';
+		}
+	}
+	trap_SendConsoleCommand(va("record \"%s\"\n", demoName));
+	cg.demoRecording = qtrue;
+}
+
+void CG_AutoRecordStop(void) {
+	if (cg.demoRecording) {
+		trap_SendConsoleCommand("stoprecord\n");
+		cg.demoRecording = qfalse;
+	}
+}
