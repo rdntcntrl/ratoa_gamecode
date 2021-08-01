@@ -2079,6 +2079,10 @@ void Cmd_Game_f( gentity_t *ent ) {
 	int gameId;
 	char        arg[MAX_TOKEN_CHARS];
 
+	if (g_gametype.integer != GT_MULTITOURNAMENT) {
+		return;
+	}
+
 	if( trap_Argc( ) != 2 ) {
 		trap_SendServerCommand( ent - g_entities, va("print \"%s game %i \n\"", 
 					ent->client->sess.sessionTeam == TEAM_FREE ? "Playing in" : "Spectating",
@@ -2104,6 +2108,10 @@ void Cmd_Game_f( gentity_t *ent ) {
 void Cmd_SpecGame_f( gentity_t *ent ) {
 	int gameId;
 	char        arg[MAX_TOKEN_CHARS];
+
+	if (g_gametype.integer != GT_MULTITOURNAMENT) {
+		return;
+	}
 
 	if (ent->client->sess.sessionTeam != TEAM_SPECTATOR) {
 		trap_SendServerCommand( ent - g_entities, va("print \"not spectating\n\""));
