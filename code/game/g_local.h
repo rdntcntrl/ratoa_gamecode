@@ -335,6 +335,8 @@ typedef struct {
 
 	// GT_MULTITOURNAMENT:
 	int gameId;
+	// if this is set, follownext/prev will only cycle through clients that have the same gameId
+	qboolean specOnlyCurrentGameId;
 } clientSession_t;
 
 

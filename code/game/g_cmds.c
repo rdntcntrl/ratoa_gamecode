@@ -1784,6 +1784,13 @@ void Cmd_FollowCycle_f( gentity_t *ent ) {
                     continue;
                 }
 
+		// only cycle through players in the current current game if specOnlyCurrentGameId is set
+		if (g_gametype.integer == GT_MULTITOURNAMENT && ent->client->sess.gameId >= 0
+				&& ent->client->sess.specOnlyCurrentGameId
+				&& level.clients[ clientnum ].sess.gameId != ent->client->sess.gameId) {
+			continue;
+		}
+
 		// this is good, we can use it
 		ent->client->sess.spectatorClient = clientnum;
 		ent->client->sess.spectatorState = SPECTATOR_FOLLOW;
@@ -2094,6 +2101,36 @@ void Cmd_Game_f( gentity_t *ent ) {
 
 }
 
+void Cmd_SpecGame_f( gentity_t *ent ) {
+	int gameId;
+	char        arg[MAX_TOKEN_CHARS];
+
+	if (ent->client->sess.sessionTeam != TEAM_SPECTATOR) {
+		trap_SendServerCommand( ent - g_entities, va("print \"not spectating\n\""));
+		return;
+	}
+
+	if( trap_Argc( ) != 2 ) {
+		trap_SendServerCommand( ent - g_entities, va("print \"Spectating any game!\n\""));
+		ent->client->sess.specOnlyCurrentGameId = qfalse;
+		return;
+	}
+
+	trap_Argv( 1, arg, sizeof( arg ) );
+	gameId = atoi(arg);
+	if (gameId < 0 || gameId >= level.multiTrnNumGames) {
+		trap_SendServerCommand( ent - g_entities, va("print \"Invalid Game Id\n\""));
+		return;
+	}
+
+	if ( ent->client->sess.spectatorState == SPECTATOR_FOLLOW ) {
+		StopFollowing( ent );
+	}
+	ent->client->sess.gameId = gameId;
+	G_UpdateMultiTrnGames();
+	ent->client->sess.specOnlyCurrentGameId = qtrue;
+	trap_SendServerCommand( ent - g_entities, va("print \"Spectating only game %i\n\"", gameId));
+}
 
 
 void Cmd_GoodGame_f( gentity_t *ent ) {
@@ -4148,7 +4185,8 @@ commands_t cmds[ ] =
   { "help", 0, Cmd_Motd_f },
   { "nextmapvote", CMD_INTERMISSION|CMD_FLOODLIMITED, Cmd_NextmapVote_f },
   { "arena", 0, Cmd_Arena_f },
-  { "game", 0, Cmd_Game_f }
+  { "game", 0, Cmd_Game_f },
+  { "specgame", 0, Cmd_SpecGame_f }
 };
 
 static int numCmds = sizeof( cmds ) / sizeof( cmds[ 0 ] );
