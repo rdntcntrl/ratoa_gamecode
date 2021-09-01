@@ -835,6 +835,7 @@ typedef struct {
     qboolean	pingEqualized;
 
     qboolean	tournamentForfeited;
+    qboolean	tournamentStarted;
 
     qboolean	shuffling_teams;
     // restart the game at this time. Separate from warmupTime because this

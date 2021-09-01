@@ -2556,13 +2556,15 @@ void AdjustTournamentScores( void ) {
 	int			clientNum;
 
 	clientNum = level.sortedClients[0];
-	if ( level.clients[ clientNum ].pers.connected == CON_CONNECTED ) {
+	if ( level.clients[ clientNum ].pers.connected == CON_CONNECTED 
+			&& level.clients[ clientNum ].sess.sessionTeam == TEAM_FREE) {
 		level.clients[ clientNum ].sess.wins++;
 		ClientUserinfoChanged( clientNum );
 	}
 
 	clientNum = level.sortedClients[1];
-	if ( level.clients[ clientNum ].pers.connected == CON_CONNECTED ) {
+	if ( level.clients[ clientNum ].pers.connected == CON_CONNECTED 
+			&& level.clients[ clientNum ].sess.sessionTeam == TEAM_FREE) {
 		level.clients[ clientNum ].sess.losses++;
 		ClientUserinfoChanged( clientNum );
 	}
@@ -4656,10 +4658,13 @@ void CheckTournament( void ) {
 	}
 
 	if ( g_gametype.integer == GT_TOURNAMENT ) {
-
-		if (!level.warmupTime && level.numPlayingClients < 2) {
-			level.tournamentForfeited = qtrue;
-			return;
+		if (!level.warmupTime) {
+			if (level.tournamentStarted && level.numPlayingClients < 2) {
+				level.tournamentForfeited = qtrue;
+				return;
+			} else if (level.numPlayingClients >= 2) {
+				level.tournamentStarted = qtrue;
+			}
 		}
 
 		// pull in a spectator if needed
