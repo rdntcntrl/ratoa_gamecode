@@ -168,6 +168,7 @@ void G_JSONExportPlayer(fileHandle_t f, gclient_t *cl) {
 	G_JSONExportAward(f, "vaporized", cl->pers.awardCounts[EAWARD_VAPORIZED], &comma);
 	G_JSONExportAward(f, "twitchrail", cl->pers.awardCounts[EAWARD_TWITCHRAIL], &comma);
 	G_JSONExportAward(f, "rat", cl->pers.awardCounts[EAWARD_RAT], &comma);
+	G_JSONExportAward(f, "thawbuddy", cl->pers.awardCounts[EAWARD_THAWBUDDY], &comma);
 	xfprintf(f, "]");
 
 	xfprintf(f, ",");
