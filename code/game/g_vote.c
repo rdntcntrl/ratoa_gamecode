@@ -604,7 +604,7 @@ int VotePrintCustomVotes (gentity_t *ent) {
 
     pointer = buffer;
 
-    while ( numCommands < MAX_CUSTOM_VOTES ) {
+    for (;;) {
 
 	if (!(pointer = parseCustomVote(pointer, &result))) {
 		break;
