@@ -92,6 +92,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #define	CS_ITEMS				27		// string of 0's and 1's that tell which items are present
 
+#define	CS_MTRNFLAGS				28		// game status flags for multitournament
+
 #define	CS_MODELS				32
 #define	CS_SOUNDS				(CS_MODELS+MAX_MODELS)
 #define	CS_PLAYERS				(CS_SOUNDS+MAX_SOUNDS)
@@ -105,6 +107,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #endif
 
 #define MULTITRN_MAX_GAMES	6
+
+#define MTRN_CSFLAGS_SHIFT 1
+#define MTRN_CSFLAGS_MASK  1
+#define MTRN_CSFLAG_FINISHED 1 
 
 typedef enum {
 	GT_FFA,				// free for all

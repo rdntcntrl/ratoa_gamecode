@@ -1097,6 +1097,16 @@ static void CG_ParseWarmup( void ) {
 	cg.warmup = warmup;
 }
 
+long CG_ParseMtrnGameFlags(const char *s) {
+	return strtol(s, NULL, 16);
+}
+
+long CG_GetMtrnGameFlags(int gameId) {
+	if (gameId < 0 || gameId >= MULTITRN_MAX_GAMES) {
+		return 0;
+	}
+	return (cgs.mtrnGameFlags >> (gameId*MTRN_CSFLAGS_SHIFT) & MTRN_CSFLAGS_MASK);
+}
 
 void CG_SetMtrnScoresIdx( int scoreIdx ) {
 	int i;
@@ -1265,6 +1275,8 @@ static void CG_ConfigStringModified( void ) {
 #endif	
 	} else if ( num == CS_INTERMISSION ) {
 		cg.intermissionStarted = atoi( str );
+	} else if ( num == CS_MTRNFLAGS ) {
+		cgs.mtrnGameFlags = CG_ParseMtrnGameFlags( str );
 	} else if ( num >= CS_MODELS && num < CS_MODELS+MAX_MODELS ) {
 		cgs.gameModels[ num-CS_MODELS ] = trap_R_RegisterModel( str );
 	} else if ( num >= CS_SOUNDS && num < CS_SOUNDS+MAX_SOUNDS ) {

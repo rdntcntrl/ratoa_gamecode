@@ -997,7 +997,11 @@ qboolean CG_DrawRatScoreboard(void) {
 				CG_FillRect( 2, y, SCREEN_WIDTH - 4, SCORETINYCHAR_HEIGHT + 2*lineHeight, color );
 				color[0] = color[1] = color[2] = 1.0;
 				color[3] = fade;
-				CG_DrawTinyScoreString(SCOREBOARD_X+3, y, va("Game %i", gameId), fade);
+				CG_DrawTinyScoreString(SCOREBOARD_X+3, y,
+					       	va("Game %i%s", gameId,
+						       	CG_GetMtrnGameFlags(gameId) & MTRN_CSFLAG_FINISHED ? " (finished)" : ""
+							),
+					       	fade);
 				y += SCORETINYCHAR_HEIGHT;
 
 				CG_RatTeamScoreboardGameId(y, TEAM_FREE, fade, maxClients - n1, lineHeight, qfalse, gameId);

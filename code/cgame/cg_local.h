@@ -1528,6 +1528,8 @@ typedef struct {
 	int				redflag, blueflag;		// flag status from configstrings
 	int				flagStatus;
 
+	long			mtrnGameFlags;
+
 	// for elimination modes
 	int redLivingCount;
 	int blueLivingCount;
@@ -2386,6 +2388,7 @@ void CG_PrintTaunts( void );
 void CG_ShaderStateChanged(void);
 void CG_VoiceChatLocal( int mode, qboolean voiceOnly, int clientNum, int color, const char *cmd );
 void CG_PlayBufferedVoiceChats( void );
+long CG_GetMtrnGameFlags(int gameId);
 
 //
 // cg_playerstate.c
