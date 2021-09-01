@@ -216,6 +216,7 @@ vmCvar_t 	cg_delagProjectileTrail;
 vmCvar_t 	cg_ratScoreboard;
 vmCvar_t 	cg_ratScoreboardAccuracy;
 vmCvar_t 	cg_ratStatusbar;
+vmCvar_t 	cg_ratStatusbarOldNumbers;
 vmCvar_t	cg_ratPlasmaTrail;
 vmCvar_t	cg_ratPlasmaTrailAlpha;
 vmCvar_t	cg_ratPlasmaTrailStep;
@@ -646,6 +647,7 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_ratScoreboard, "cg_ratScoreboard", "1", CVAR_ARCHIVE},
 	{ &cg_ratScoreboardAccuracy, "cg_ratScoreboardAccuracy", "1", 0},
 	{ &cg_ratStatusbar, "cg_ratStatusbar", "4", CVAR_ARCHIVE},
+	{ &cg_ratStatusbarOldNumbers, "cg_ratStatusbarOldNumbers", "0", CVAR_ARCHIVE},
 
 	{ &cg_ratPlasmaTrail, "cg_ratPlasmaTrail", "0", CVAR_ARCHIVE},
 	{ &cg_ratPlasmaTrailAlpha, "cg_ratPlasmaTrailAlpha", "0.1", CVAR_ARCHIVE},
@@ -2271,11 +2273,13 @@ static void CG_RegisterNumbers(void) {
 		"gfx/2d/numbers%s/nine_32b",
 		"gfx/2d/numbers%s/minus_32b",
 	};
+	char *suffix = "";
+	if (cg_ratStatusbar.integer > 2 
+			|| (cg_ratStatusbar.integer > 0 && !cg_ratStatusbarOldNumbers.integer)) {
+		suffix = "_trebfuture";
+	}
 	for ( i=0 ; i<11 ; i++) {
-		cgs.media.numberShaders[i] = trap_R_RegisterShader( 
-				va(sb_nums[i], (cg_ratStatusbar.integer > 0) ? "_trebfuture" : ""
-				  )
-			       	);
+		cgs.media.numberShaders[i] = trap_R_RegisterShader( va(sb_nums[i], suffix));
 	}
 }
 
