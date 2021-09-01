@@ -3274,6 +3274,7 @@ void G_MultitrnIntermission(multiTrnGame_t *game) {
 		MoveClientToIntermission( ent );
 	}
 	G_LinkGameId(oldGameId);
+	G_UpdateMultiTrnFlags();
 }
 
 /*
@@ -5373,6 +5374,19 @@ void AddMultiTournamentPlayer( void ) {
 	SetTeam( &g_entities[ nextInLine - level.clients ], "f" );
 }
 
+void G_UpdateMultiTrnFlags(void) {
+	long flags = 0;
+	int i;
+
+	for (i = 0; i < MULTITRN_MAX_GAMES; ++i) {
+		multiTrnGame_t *game = &level.multiTrnGames[i];
+		if (game->intermissiontime) {
+			flags |= (MTRN_CSFLAG_FINISHED << (i * MTRN_CSFLAGS_SHIFT));
+		}
+	}
+	trap_SetConfigstring(CS_MTRNFLAGS, va("%lx", (unsigned long)flags));
+}
+
 void G_UpdateMultiTrnGames(void) {
 	int i;
 	gclient_t *client;
@@ -5434,6 +5448,7 @@ void G_UpdateMultiTrnGames(void) {
 		}
 		level.multiTrnGames[i].clientMask |= spectatormask;
 	}
+	G_UpdateMultiTrnFlags();
 }
 
 qboolean G_MtrnIntermissionQueued(int gameId) {
