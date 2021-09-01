@@ -3650,7 +3650,15 @@ void LogExit( const char *string ) {
 	}
 #endif
 
-	G_WriteStatsJSON(string, 0);
+	if (g_gametype.integer == GT_MULTITOURNAMENT) {
+		int gameId;
+		for (gameId = 0; gameId < level.multiTrnNumGames; ++gameId) {
+			G_WriteStatsJSON(string, gameId);
+		}
+
+	} else {
+		G_WriteStatsJSON(string, 0);
+	}
 
 }
 
