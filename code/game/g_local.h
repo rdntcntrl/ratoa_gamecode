@@ -74,6 +74,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define MUTED_GAME 2
 #define MUTED_INTERMISSION 4
 #define MUTED_RENAME 8
+#define MUTED_MULTITOURNAMENT 16
 
 #define CLMUTE_MUTED 1
 #define CLMUTE_SHADOWMUTED 2

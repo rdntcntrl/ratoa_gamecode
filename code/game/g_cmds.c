@@ -2509,6 +2509,14 @@ static void G_SayTo( gentity_t *ent, gentity_t *other, int mode, int color, cons
 		return;
 	}
 
+	if (g_tournamentMuteSpec.integer & MUTED_MULTITOURNAMENT
+			&& !level.warmupTime
+			&& !level.intermissiontime) {
+		if (other->client->sess.gameId != ent->client->sess.gameId) {
+			return;
+		}
+	}
+
 	if (G_IsIndividualMuted(other, ent)) {
 		return;
 	}
