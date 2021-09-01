@@ -1880,7 +1880,7 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 	// parse the key/value pairs and spawn gentities
 	G_SpawnEntitiesFromString();
 
-	for (i = 0; i < level.multiTrnNumGames; ++i) {
+	for (i = 0; i < MAX(1,level.multiTrnNumGames); ++i) {
 		G_LinkGameId(i);
 
 		G_SetTeleporterDestinations();
@@ -5905,7 +5905,7 @@ void G_RunFrame( int levelTime ) {
             trap_Cvar_Set("elimflags",va("%i",g_elimflags.integer&(~EF_ONEWAY) ) );
         }
 
-	for (gameId = 0; gameId < level.multiTrnNumGames; ++gameId) {
+	for (gameId = 0; gameId < MAX(1,level.multiTrnNumGames); ++gameId) {
 		G_LinkGameId(gameId);
 		//
 		// go through all allocated objects
