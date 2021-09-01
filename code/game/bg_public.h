@@ -191,8 +191,9 @@ typedef enum {
 
 typedef enum {
 	MOVEMENT_VQ3 = 0,
-	MOVEMENT_CPM,
+	MOVEMENT_CPM_DEFRAG,
 	MOVEMENT_RM,
+	MOVEMENT_CPM_CPMA,
 
 	MOVEMENT_NUM_MOVEMENTS,
 } movement_t;
