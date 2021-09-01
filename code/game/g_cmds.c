@@ -2021,6 +2021,48 @@ void G_Timein( void ) {
 	}
 }
 
+qboolean G_MtrnForfeit(gentity_t *ent) {
+	int gameId = ent->gameId;
+	multiTrnGame_t *game;
+	int cnum = ent-g_entities;
+	int opponentCnum;
+
+	if (!G_ValidGameId(gameId)) {
+		return qfalse;
+	}
+	game = &level.multiTrnGames[gameId];
+	if (game->numPlayers != 2
+			|| !(game->gameFlags & MTRN_GFL_RUNNING)
+			|| !(game->gameFlags & MTRN_GFL_STARTEDATBEGINNING)
+			|| (game->gameFlags & MTRN_GFL_FORFEITED)) {
+		trap_SendServerCommand(ent-g_entities,va("cp \"" S_COLOR_CYAN "Impossible to forfeit!\"" ) );
+		return qfalse;
+	}
+
+	if (game->clients[0] == cnum) {
+		opponentCnum = game->clients[1];
+	} else if (game->clients[1] == cnum) {
+		opponentCnum = game->clients[0];
+	} else {
+		return qfalse;
+	}
+
+	if (level.clients[cnum].ps.persistant[PERS_SCORE] >= level.clients[opponentCnum].ps.persistant[PERS_SCORE]) {
+		level.clients[cnum].ps.persistant[PERS_SCORE] = -999;
+		if (level.clients[opponentCnum].ps.persistant[PERS_SCORE] <= -999) {
+			level.clients[opponentCnum].ps.persistant[PERS_SCORE] = -998;
+		}
+	}
+	game->gameFlags |= MTRN_GFL_FORFEITED;
+	CalculateRanks();
+
+	trap_SendServerCommand( -1, va("print \"%s" S_COLOR_CYAN " forfeited!\n\"", ent->client->pers.netname) );
+	G_Say( ent, &g_entities[opponentCnum], SAY_TELL, "I give up, you win. Good Game!" );
+	G_Say( ent, ent, SAY_TELL,                       "I give up, you win. Good Game!" );
+
+	return qtrue;
+}
+
 qboolean G_Forfeit(gentity_t *ent, qboolean quiet) {
 	int cnum = ent - g_entities;
 	int opponentCnum;
@@ -2038,6 +2080,10 @@ qboolean G_Forfeit(gentity_t *ent, qboolean quiet) {
 			trap_SendServerCommand(ent-g_entities,va("cp \"" S_COLOR_CYAN "Can't forfeit during warmup!\"" ) );
 		}
 		return qfalse;
+	}
+
+	if (g_gametype.integer == GT_MULTITOURNAMENT) {
+		return G_MtrnForfeit(ent);
 	}
 
 	if (g_gametype.integer != GT_TOURNAMENT 
@@ -2143,7 +2189,9 @@ void Cmd_SpecGame_f( gentity_t *ent ) {
 
 void Cmd_GoodGame_f( gentity_t *ent ) {
 	if (G_Forfeit(ent, qfalse)) {
-		G_Say(ent, NULL, SAY_ALL, "I give up, you win. Good Game!");
+		if (g_gametype.integer != GT_MULTITOURNAMENT) {
+			G_Say(ent, NULL, SAY_ALL, "I give up, you win. Good Game!");
+		}
 	}
 }
 
