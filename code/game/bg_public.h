@@ -991,5 +991,6 @@ char *BG_TeamName( team_t team );
 
 char *BG_MovementToString( movement_t movement );
 movement_t BG_MovementFromString( const char *s );
+const char *BG_EntityTypeToString(int eType);
 
 #endif

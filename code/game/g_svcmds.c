@@ -316,59 +316,20 @@ Svcmd_EntityList_f
 ===================
 */
 void	Svcmd_EntityList_f (void) {
-	int			e;
-	gentity_t		*check;
+	int			i;
+	gentity_t		*ent;
 
-	check = g_entities+1;
-	for (e = 1; e < level.num_entities ; e++, check++) {
-		if ( !check->inuse ) {
+	ent = &g_entities[0];
+	for (i = 0; i < level.num_entities ; i++, ent++) {
+		if ( !ent->inuse ) {
 			continue;
 		}
-                G_Printf("%3i:", e);
-		switch ( check->s.eType ) {
-		case ET_GENERAL:
-			G_Printf("ET_GENERAL          ");
-			break;
-		case ET_PLAYER:
-			G_Printf("ET_PLAYER           ");
-			break;
-		case ET_ITEM:
-			G_Printf("ET_ITEM             ");
-			break;
-		case ET_MISSILE:
-			G_Printf("ET_MISSILE          ");
-			break;
-		case ET_MOVER:
-			G_Printf("ET_MOVER            ");
-			break;
-		case ET_BEAM:
-			G_Printf("ET_BEAM             ");
-			break;
-		case ET_PORTAL:
-			G_Printf("ET_PORTAL           ");
-			break;
-		case ET_SPEAKER:
-			G_Printf("ET_SPEAKER          ");
-			break;
-		case ET_PUSH_TRIGGER:
-			G_Printf("ET_PUSH_TRIGGER     ");
-			break;
-		case ET_TELEPORT_TRIGGER:
-			G_Printf("ET_TELEPORT_TRIGGER ");
-			break;
-		case ET_INVISIBLE:
-			G_Printf("ET_INVISIBLE        ");
-			break;
-		case ET_GRAPPLE:
-			G_Printf("ET_GRAPPLE          ");
-			break;
-		default:
-			G_Printf("%3i                 ", check->s.eType);
-			break;
+                G_Printf("%4i:", i);
+                G_Printf("%-20s(%3i)", BG_EntityTypeToString(ent->s.eType), ent->s.eType);
+		if ( ent->classname ) {
+			G_Printf(" %-30s", ent->classname);
 		}
-		if ( check->classname ) {
-			G_Printf("%s", check->classname);
-		}
+		G_Printf(" %s", vtos(ent->r.currentOrigin));
                 G_Printf("\n");
 	}
 }
