@@ -1643,10 +1643,6 @@ void G_StoreViewVectorHistory ( gclient_t *client ) {
 #define TWITCHRAIL_ANGLE 55.0
 #define TWITCHRAIL_DISTANCE 100.0
 void G_CheckTwitchRail(gentity_t *attacker, gentity_t *victim, int mod) {
-#ifdef Q3_VM
-	// VM is currently missing acos()
-	return;
-#else
 	int idx;
 	int i;
 	int sz;
@@ -1691,7 +1687,6 @@ void G_CheckTwitchRail(gentity_t *attacker, gentity_t *victim, int mod) {
 		}
 		idx = (idx + 1) % VIEWVECTOR_HISTORY;
 	}
-#endif // Q3_VM
 }
 
 
