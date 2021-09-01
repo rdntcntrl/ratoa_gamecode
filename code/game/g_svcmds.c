@@ -329,6 +329,7 @@ void	Svcmd_EntityList_f (void) {
 		if ( ent->classname ) {
 			G_Printf(" %-30s", ent->classname);
 		}
+		G_Printf(" gameId %2i", ent->gameId);
 		G_Printf(" %s", vtos(ent->r.currentOrigin));
                 G_Printf("\n");
 	}
