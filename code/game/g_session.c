@@ -143,7 +143,7 @@ void G_InitSessionData( gclient_t *client, char *userinfo, qboolean firstTime,
 
 	sess = &client->sess;
 
-	if (g_gametype.integer == GT_TOURNAMENT || g_gametype.integer == GT_MULTITOURNAMENT) {
+	if (g_gametype.integer == GT_TOURNAMENT) {
 		sess->spectatorGroup = SPECTATORGROUP_QUEUED;
 	} else {
 		sess->spectatorGroup = SPECTATORGROUP_SPEC;
