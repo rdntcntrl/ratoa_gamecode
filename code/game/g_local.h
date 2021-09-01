@@ -78,9 +78,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define CLMUTE_MUTED 1
 #define CLMUTE_SHADOWMUTED 2
 
-#define RULES_FAST 0
-#define RULES_SLOW 1
-
 #define ITEMDROP_FLAG 1
 #define ITEMDROP_WEAPON 2
 
@@ -1211,7 +1208,6 @@ void QDECL G_Error( const char *fmt, ... ) __attribute__((noreturn));
 void LogExit( const char *string ); 
 void CheckTeamVote( int team );
 void G_PingEqualizerReset(void);
-void G_SetRuleset(int ruleset);
 void G_LockTeams(void);
 void G_UnlockTeams(void);
 void G_CheckUnlockTeams(void);
@@ -2001,7 +1997,6 @@ void Svcmd_BannerPrint_f( void );
 void Svcmd_EjectClient_f( void );
 void Svcmd_DumpUser_f( void );
 void Svcmd_Chat_f( void );
-void Svcmd_Ruleset_f( void );
 void Svcmd_ListIP_f( void );
 void Svcmd_MessageWrapper( void );
 void Svcmd_BalanceTeams_f( void );

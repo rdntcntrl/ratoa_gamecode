@@ -5249,30 +5249,6 @@ void G_RunFrame( int levelTime ) {
 }
 
 
-void G_SetRuleset(int ruleset) {
-	if (ruleset == RULES_FAST) {
-		trap_Cvar_Set("g_fastSwitch", "1");
-		trap_Cvar_Set("g_fastWeapons", "1");
-		trap_Cvar_Set("g_additiveJump", "1");
-		trap_Cvar_Set("g_ratPhysics", "0");
-		trap_Cvar_Set("g_rampJump", "0");
-		trap_Cvar_Set("g_itemPickup", "1");
-		trap_Cvar_Set("g_screenShake", "0");
-		trap_Cvar_Set("g_teleMissiles", "1");
-		trap_Cvar_Set("g_pushGrenades", "1");
-	} else if (ruleset == RULES_SLOW) {
-		trap_Cvar_Set("g_fastSwitch", "0");
-		trap_Cvar_Set("g_fastWeapons", "1");
-		trap_Cvar_Set("g_additiveJump", "0");
-		trap_Cvar_Set("g_ratPhysics", "0");
-		trap_Cvar_Set("g_rampJump", "0");
-		trap_Cvar_Set("g_itemPickup", "1");
-		trap_Cvar_Set("g_screenShake", "0");
-		trap_Cvar_Set("g_teleMissiles", "1");
-		trap_Cvar_Set("g_pushGrenades", "1");
-	}
-}
-
 void G_LockTeams(void) {
 	level.RedTeamLocked = qtrue;
 	level.BlueTeamLocked = qtrue;
