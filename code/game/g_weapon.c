@@ -122,7 +122,7 @@ qboolean CheckGauntletAttack( gentity_t *ent ) {
 	if(g_instantgib.integer)
 		damage = 500; //High damage in instant gib (normally enough to gib)
 	else
-		damage = 50 * s_quadFactor;
+		damage = g_gauntDamage.integer * s_quadFactor;
 	G_Damage( traceEnt, ent, ent, forward, tr.endpos,
 		damage, 0, MOD_GAUNTLET );
 

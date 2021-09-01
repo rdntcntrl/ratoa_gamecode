@@ -1702,6 +1702,7 @@ extern vmCvar_t        g_mgDamage;
 extern vmCvar_t        g_mgTeamDamage;
 extern vmCvar_t        g_railgunDamage;
 extern vmCvar_t        g_lgDamage;
+extern vmCvar_t        g_gauntDamage;
 
 extern vmCvar_t        g_railJump;
 

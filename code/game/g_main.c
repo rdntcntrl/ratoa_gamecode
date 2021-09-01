@@ -346,6 +346,7 @@ vmCvar_t        g_mgDamage;
 vmCvar_t        g_mgTeamDamage;
 vmCvar_t        g_railgunDamage;
 vmCvar_t        g_lgDamage;
+vmCvar_t        g_gauntDamage;
 
 vmCvar_t        g_railJump;
 
@@ -689,6 +690,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_mgTeamDamage,		"g_mgTeamDamage", "6", 0, 0, qtrue },
 	{ &g_railgunDamage,		"g_railgunDamage", "80", 0, 0, qtrue },
 	{ &g_lgDamage, 			"g_lgDamage", "7", 0, 0, qtrue },
+	{ &g_gauntDamage,		"g_gauntDamage", "50", 0, 0, qtrue },
 
 	{ &g_railJump, 			"g_railJump", "0", CVAR_ARCHIVE, 0, qtrue },
 
