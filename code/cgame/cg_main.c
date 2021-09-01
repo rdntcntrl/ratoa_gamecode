@@ -200,14 +200,6 @@ vmCvar_t 	cg_scorePlum;
 
 vmCvar_t 	cg_ratInitialized;
 
-vmCvar_t 	g_movement;
-vmCvar_t 	g_rampJump;
-vmCvar_t 	g_additiveJump;
-vmCvar_t 	g_swingGrapple;
-vmCvar_t 	g_fastSwim;
-vmCvar_t 	g_fastSwitch;
-vmCvar_t 	g_fastWeapons;
-vmCvar_t 	g_regularFootsteps;
 vmCvar_t 	cg_predictTeleport;
 vmCvar_t 	cg_predictWeapons;
 vmCvar_t 	cg_predictExplosions;
@@ -628,15 +620,6 @@ static cvarTable_t cvarTable[] = { // bk001129
 
 	// RAT ===================
 	{ &cg_ratInitialized, "cg_ratInitialized", "0", CVAR_ARCHIVE},
-
-	{ &g_movement, "g_movement", "0", CVAR_SERVERINFO},
-	{ &g_rampJump, "g_rampJump", "0", CVAR_SYSTEMINFO},
-	{ &g_additiveJump, "g_additiveJump", "0", CVAR_SYSTEMINFO},
-	{ &g_swingGrapple, "g_swingGrapple", "0", CVAR_SYSTEMINFO},
-	{ &g_fastSwim, "g_fastSwim", "1", CVAR_SYSTEMINFO},
-	{ &g_fastSwitch, "g_fastSwitch", "1", CVAR_SYSTEMINFO},
-	{ &g_fastWeapons, "g_fastWeapons", "1", CVAR_SYSTEMINFO},
-	{ &g_regularFootsteps, "g_regularFootsteps", "1", CVAR_SYSTEMINFO},
 
 	// TODO: make CVAR_ARCHIVE
 	{ &cg_predictTeleport, "cg_predictTeleport", "1", 0},
