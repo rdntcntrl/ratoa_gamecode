@@ -871,54 +871,54 @@ intptr_t vmMain( int command, int arg0, int arg1, int arg2, int arg3, int arg4, 
 	switch ( command ) {
 	case GAME_INIT:
 		G_InitGame( arg0, arg1, arg2 );
-		G_LinkGameId(-1);
+		G_LinkGameId(MTRN_GAMEID_ANY);
 		return 0;
 	case GAME_SHUTDOWN:
-		G_LinkGameId(-1);
+		G_LinkGameId(MTRN_GAMEID_ANY);
 		G_ShutdownGame( arg0 );
 		return 0;
 	case GAME_CLIENT_CONNECT:
-		G_LinkGameId(-1);
+		G_LinkGameId(MTRN_GAMEID_ANY);
 		ret = (intptr_t)ClientConnect( arg0, arg1, arg2 );
-		G_LinkGameId(-1);
+		G_LinkGameId(MTRN_GAMEID_ANY);
 		return ret;
 	case GAME_CLIENT_THINK:
 		ClientThink( arg0 );
-		G_LinkGameId(-1);
+		G_LinkGameId(MTRN_GAMEID_ANY);
 		return 0;
 	case GAME_CLIENT_USERINFO_CHANGED:
 		ClientUserinfoChangedLimited( arg0 );
-		G_LinkGameId(-1);
+		G_LinkGameId(MTRN_GAMEID_ANY);
 		return 0;
 	case GAME_CLIENT_DISCONNECT:
 		ClientDisconnect( arg0 );
-		G_LinkGameId(-1);
+		G_LinkGameId(MTRN_GAMEID_ANY);
 		return 0;
 	case GAME_CLIENT_BEGIN:
 		ClientBegin( arg0 );
-		G_LinkGameId(-1);
+		G_LinkGameId(MTRN_GAMEID_ANY);
 		return 0;
 	case GAME_CLIENT_COMMAND:
 		ClientCommand( arg0 );
-		G_LinkGameId(-1);
+		G_LinkGameId(MTRN_GAMEID_ANY);
 		return 0;
 	case GAME_RUN_FRAME:
-		G_LinkGameId(-1);
+		G_LinkGameId(MTRN_GAMEID_ANY);
 		G_RunFrame( arg0 );
-		G_LinkGameId(-1);
+		G_LinkGameId(MTRN_GAMEID_ANY);
 		return 0;
 	case GAME_CONSOLE_COMMAND:
-		G_LinkGameId(-1);
+		G_LinkGameId(MTRN_GAMEID_ANY);
 		retb = ConsoleCommand();
-		G_LinkGameId(-1);
+		G_LinkGameId(MTRN_GAMEID_ANY);
 		return retb;
 	case BOTAI_START_FRAME:
-		G_LinkGameId(-1);
+		G_LinkGameId(MTRN_GAMEID_ANY);
 		reti = BotAIStartFrame( arg0 );
-		G_LinkGameId(-1);
+		G_LinkGameId(MTRN_GAMEID_ANY);
 		return reti;
 	}
-	G_LinkGameId(-1);
+	G_LinkGameId(MTRN_GAMEID_ANY);
 
 	return -1;
 }
@@ -1899,7 +1899,7 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 
 	}
 	if (g_gametype.integer == GT_MULTITOURNAMENT) {
-		G_LinkGameId(-1);
+		G_LinkGameId(MTRN_GAMEID_ANY);
 	}
 
 	SaveRegisteredItems();
@@ -5418,7 +5418,7 @@ void G_UpdateMultiTrnGames(void) {
 		if (client->pers.connected == CON_DISCONNECTED) {
 			continue;
 		}
-		if (client->sess.sessionTeam == TEAM_SPECTATOR && client->sess.gameId == -1) {
+		if (client->sess.sessionTeam == TEAM_SPECTATOR && client->sess.gameId == MTRN_GAMEID_ANY) {
 			// spectators that want to free-spec every game
 			// simultaneously
 			spectatormask |= (1 << i);
@@ -5490,12 +5490,12 @@ qboolean G_MultiTrnCanJoinGame(int gameId) {
 
 int G_FindFreeMultiTrnSlot(void) {
 	int i;
-	int openGameId = -1;
+	int openGameId = MTRN_GAMEID_ANY;
 
 	// favor joining a game that already has a player in it
 	for (i=0; i < level.multiTrnNumGames; ++i) {
 		if (G_MultiTrnGameOpen(&level.multiTrnGames[i])) {
-			if (openGameId == -1) {
+			if (openGameId == MTRN_GAMEID_ANY) {
 				openGameId = i;
 			}
 			if (level.multiTrnGames[i].numPlayers == 1) {
@@ -5516,7 +5516,7 @@ void G_MtrnRePairup(void) {
 	level.shuffling_teams = qtrue; // suppress team change broadcasts
 	for (i=0; i < level.multiTrnNumGames; ++i) {
 		numUnpaired = 0;
-		unPairedGameId = -1;
+		unPairedGameId = MTRN_GAMEID_ANY;
 		for (j=0; j < level.multiTrnNumGames; ++j) {
 			if (G_MultiTrnGameOpen(&level.multiTrnGames[j]) 
 					&& level.multiTrnGames[j].numPlayers == 1) {
@@ -6025,7 +6025,7 @@ void G_RunFrame( int levelTime ) {
 			break;
 		}
 	}
-	G_LinkGameId(-1);
+	G_LinkGameId(MTRN_GAMEID_ANY);
 
 //end = trap_Milliseconds();
 

@@ -112,6 +112,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define MTRN_CSFLAGS_MASK  1
 #define MTRN_CSFLAG_FINISHED 1 
 
+#define MTRN_GAMEID_ANY (-1)
+
 typedef enum {
 	GT_FFA,				// free for all
 	GT_TOURNAMENT,		// one on one tournament

@@ -1254,7 +1254,7 @@ void SetTeam_Force( gentity_t *ent, char *s, gentity_t *by, qboolean tryforce ) 
 	int					teamLeader;
 	char	            userinfo[MAX_INFO_STRING];
 	qboolean            force = qfalse;
-	int wantGameId = -1;
+	int wantGameId = MTRN_GAMEID_ANY;
 
     	if (tryforce) {
 		if (by == NULL) {
@@ -1392,10 +1392,10 @@ void SetTeam_Force( gentity_t *ent, char *s, gentity_t *by, qboolean tryforce ) 
 		}
 		team = TEAM_SPECTATOR;
 	} else if ( g_gametype.integer == GT_MULTITOURNAMENT && team == TEAM_FREE) {
-		if (wantGameId == -1 &&  G_FindFreeMultiTrnSlot() == -1) {
+		if (wantGameId == MTRN_GAMEID_ANY &&  G_FindFreeMultiTrnSlot() == MTRN_GAMEID_ANY) {
 			specGroup = SPECTATORGROUP_QUEUED;
 			team = TEAM_SPECTATOR;
-		} else if (wantGameId != -1 && !G_MultiTrnCanJoinGame(wantGameId)) {
+		} else if (wantGameId != MTRN_GAMEID_ANY && !G_MultiTrnCanJoinGame(wantGameId)) {
 			trap_SendServerCommand( ent - g_entities,
 					va("print \"Can't join game %i!\n\"", wantGameId) );
 			return;
@@ -1408,7 +1408,7 @@ void SetTeam_Force( gentity_t *ent, char *s, gentity_t *by, qboolean tryforce ) 
 	oldTeam = client->sess.sessionTeam;
 	if ( team == oldTeam && team != TEAM_SPECTATOR 
 			&& (g_gametype.integer != GT_MULTITOURNAMENT 
-				|| wantGameId == -1 
+				|| wantGameId == MTRN_GAMEID_ANY 
 				|| wantGameId == client->sess.gameId)) {
 		return;
 	}
@@ -1510,7 +1510,7 @@ void SetTeam_Force( gentity_t *ent, char *s, gentity_t *by, qboolean tryforce ) 
 
 	if ( g_gametype.integer == GT_MULTITOURNAMENT
 			&& client->sess.sessionTeam == TEAM_FREE) {
-		if (wantGameId != -1 && G_MultiTrnCanJoinGame(wantGameId)) {
+		if (wantGameId != MTRN_GAMEID_ANY && G_MultiTrnCanJoinGame(wantGameId)) {
 			ent->client->sess.gameId = wantGameId;
 		} else {
 			ent->client->sess.gameId = G_FindFreeMultiTrnSlot();
@@ -2091,7 +2091,7 @@ void Cmd_Game_f( gentity_t *ent ) {
 	}
 	trap_Argv( 1, arg, sizeof( arg ) );
 	gameId = atoi(arg);
-	if (gameId < -1 || gameId >= level.multiTrnNumGames) {
+	if (gameId != MTRN_GAMEID_ANY && (gameId <= 0 || gameId >= level.multiTrnNumGames)) {
 		trap_SendServerCommand( ent - g_entities, va("print \"Invalid Game Id\n\""));
 		return;
 	}

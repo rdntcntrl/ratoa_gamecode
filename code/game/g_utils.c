@@ -711,7 +711,7 @@ qboolean G_ValidGameId(int gameId) {
 qboolean G_InUse(gentity_t *ent) {
 	return ent->inuse && (g_gametype.integer != GT_MULTITOURNAMENT 
 			|| level.currentGameId == ent->gameId 
-			|| ent->gameId == -1);
+			|| ent->gameId == MTRN_GAMEID_ANY);
 }
 
 void G_SetGameIDMask(gentity_t *ent, int gameId) {
@@ -737,7 +737,7 @@ void G_LinkGameId(int gameId) {
 	}
 
 	if (!G_ValidGameId(gameId)) {
-		gameId = -1;
+		gameId = MTRN_GAMEID_ANY;
 	}
 
 	for (i=0, ent = &g_entities[0]; i<level.num_entities ; i++, ent++) {
@@ -751,14 +751,14 @@ void G_LinkGameId(int gameId) {
 		}
 		G_SetGameIDMask(ent, ent->gameId);
 	}
-	if (gameId == -1) {
+	if (gameId == MTRN_GAMEID_ANY) {
 		for (i=0, ent = &g_entities[0]; i<level.num_entities ; i++, ent++) {
 			if (ent->inuse && (ent->r.linked || ent->wasLinked)) {
 				ent->wasLinked = qtrue;
 				trap_LinkEntity(ent);
 			}
 		}
-		level.currentGameId = -1;
+		level.currentGameId = MTRN_GAMEID_ANY;
 		return;
 	}
 	for (i=0, ent = &g_entities[0]; i<level.num_entities ; i++, ent++) {
@@ -772,7 +772,7 @@ void G_LinkGameId(int gameId) {
 	}
 	for (i=0, ent = &g_entities[0]; i<level.num_entities ; i++, ent++) {
 		if (ent->inuse && ent->wasLinked 
-				&& (ent->gameId == gameId || ent->gameId == -1)) {
+				&& (ent->gameId == gameId || ent->gameId == MTRN_GAMEID_ANY)) {
 			trap_LinkEntity(ent);
 		}
 	}

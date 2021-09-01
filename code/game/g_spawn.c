@@ -774,7 +774,7 @@ void G_MultiTrnSpawn(void) {
 		   ) {
 			// all of these types only need one instance for all
 			// games
-			G_SetGameIDMask(ent, -1);
+			G_SetGameIDMask(ent, MTRN_GAMEID_ANY);
 			break;
 		}
 
