@@ -167,7 +167,7 @@ TEMPDIR=/tmp
 
 # set PKG_CONFIG_PATH to influence this, e.g.
 # PKG_CONFIG_PATH=/opt/cross/i386-mingw32msvc/lib/pkgconfig
-ifeq ($(shell which pkg-config > /dev/null; echo $$?),0)
+ifeq ($(shell command -v pkg-config > /dev/null; echo $$?),0)
   CURL_CFLAGS=$(shell pkg-config --cflags libcurl)
   CURL_LIBS=$(shell pkg-config --libs libcurl)
   OPENAL_CFLAGS=$(shell pkg-config --cflags openal)
@@ -178,7 +178,7 @@ ifeq ($(shell which pkg-config > /dev/null; echo $$?),0)
 endif
 # Use sdl-config if all else fails
 ifeq ($(SDL_CFLAGS),)
-  ifeq ($(shell which sdl-config > /dev/null; echo $$?),0)
+  ifeq ($(shell command -v sdl-config > /dev/null; echo $$?),0)
     SDL_CFLAGS=$(shell sdl-config --cflags)
     SDL_LIBS=$(shell sdl-config --libs)
   endif
