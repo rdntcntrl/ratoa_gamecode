@@ -4148,7 +4148,14 @@ void CG_FireWeapon( centity_t *cent ) {
 
 	// lightning gun only does this this on initial press
 	if ( ent->weapon == WP_LIGHTNING ) {
-		if ( cent->pe.lightningFiring ) {
+		// we could get EV_FIRE_WEAPON as a separate event (not on the player entity)
+		// due to SendPendingPredictableEvents()
+		if (ent->eType != ET_PLAYER && ent->clientNum >= 0 && ent->clientNum < MAX_CLIENTS) {
+			centity_t *playerCEnt = &cg_entities[ent->clientNum];
+			if (!playerCEnt->currentValid || playerCEnt->pe.lightningFiring) {
+				return;
+			}
+		} else if ( cent->pe.lightningFiring ) {
 			return;
 		}
 	}
