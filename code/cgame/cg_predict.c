@@ -30,7 +30,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 static	pmove_t		cg_pmove;
 
 static	int			cg_numSolidEntities;
-static	centity_t	*cg_solidEntities[MAX_ENTITIES_IN_SNAPSHOT];
+ // MAX_ENTITIES_IN_SNAPSHOT + 1 to make sure predictedPlayerEntity fits in there
+static	centity_t	*cg_solidEntities[MAX_ENTITIES_IN_SNAPSHOT+1];
 static	int			cg_numTriggerEntities;
 static	centity_t	*cg_triggerEntities[MAX_ENTITIES_IN_SNAPSHOT];
 
@@ -58,6 +59,14 @@ void CG_BuildSolidList( void ) {
 		snap = cg.snap;
 	}
 
+	if (cg.validPPS 
+			&& cg.predictedPlayerState.pm_type == PM_NORMAL 
+			&& cg.predictedPlayerEntity.currentState.eType == ET_PLAYER
+			&& cg.predictedPlayerEntity.currentState.solid) {
+		// eType is ET_INVISIBLE in case we are not in-game (spectating)
+		cg_solidEntities[cg_numSolidEntities] = &cg.predictedPlayerEntity;
+		cg_numSolidEntities++;
+	}
 	for ( i = 0 ; i < snap->numEntities ; i++ ) {
 		cent = &cg_entities[ snap->entities[ i ].number ];
 		ent = &cent->currentState;
@@ -74,6 +83,40 @@ void CG_BuildSolidList( void ) {
 			continue;
 		}
 	}
+}
+
+void CG_EncodePlayerBBox( pmove_t *pm, entityState_t *ent) {
+	int i, j, k;
+
+	ent->solid = 0;
+	if (!pm || !pm->ps ||pm->ps->pm_type != PM_NORMAL) {
+		return;
+	}
+
+	// Encoding logic from trap_LinkEntity
+	
+	// assume that x/y are equal and symetric
+	i = pm->maxs[0];
+	if (i<1)
+		i = 1;
+	if (i>255)
+		i = 255;
+
+	// z is not symetric
+	j = (-pm->mins[2]);
+	if (j<1)
+		j = 1;
+	if (j>255)
+		j = 255;
+
+	// and z maxs can be negative...
+	k = (pm->maxs[2]+32);
+	if (k<1)
+		k = 1;
+	if (k>255)
+		k = 255;
+
+	ent->solid = (k<<16) | (j<<8) | i;
 }
 
 /*
@@ -253,6 +296,48 @@ static void CG_InterpolatePlayerState( qboolean grabAngles ) {
 
 }
 
+qboolean CG_ItemPredictionDangerous(centity_t *item) {
+	if (item->currentState.time2 > 0 
+			&& cg.time + CG_ReliablePing() + 10 >= item->currentState.time2) {
+		// item is about to disappear, so don't predict it
+		return qtrue;
+	}
+	if (!cg_predictItemsNearPlayers.integer) {
+		int i;
+		centity_t *player;
+		for (i = 0; i < MAX_CLIENTS; ++i) {
+			if (i == cg.clientNum) {
+				continue;
+			}
+			player = &cg_entities[i];
+
+			if (!player->currentValid || player->currentState.eType != ET_PLAYER) {
+				continue;
+			}
+
+			//CG_Printf("porigin = %f %f %f, iorigin = %f %f %f \nDistance = %f\n", 
+			//		player->lerpOrigin[0],
+			//		player->lerpOrigin[1],
+			//		player->lerpOrigin[2],
+			//		item->currentState.origin[0],
+			//		item->currentState.origin[1],
+			//		item->currentState.origin[2],
+			//		Distance(item->currentState.origin, player->currentState.origin));
+
+			if (Distance(item->currentState.origin, player->lerpOrigin) > 192) {
+				continue;
+			}
+
+			// TODO: trace maybe?
+
+			// player is close by, don't predict
+			return qtrue;
+
+		}
+	}
+	return qfalse;
+}
+
 /*
 ===================
 CG_TouchItem
@@ -261,22 +346,23 @@ CG_TouchItem
 static void CG_TouchItem( centity_t *cent ) {
 	gitem_t		*item;
 	//For instantgib
-	qboolean	canBePicked;
+	//qboolean	canBePicked;
 
-	if(cgs.gametype == GT_ELIMINATION || cgs.gametype == GT_LMS)
-		return; //No weapon pickup in elimination
+	//if(cgs.gametype == GT_ELIMINATION || cgs.gametype == GT_LMS)
+	//	return; //No weapon pickup in elimination
 
 	//normally we can
-	canBePicked = qtrue;
+	//canBePicked = qtrue;
 
-	//But in instantgib, rocket arena, and CTF_ELIMINATION we normally can't:
-	if(cgs.nopickup || cgs.gametype == GT_CTF_ELIMINATION)
-		canBePicked = qfalse;
+	//// TODO: is this even needed? 
+	////But in instantgib, rocket arena, and CTF_ELIMINATION we normally can't:
+	//if(cgs.nopickup || cgs.gametype == GT_CTF_ELIMINATION)
+	//	canBePicked = qfalse;
 
 	if ( !cg_predictItems.integer ) {
 		return;
 	}
-	if ( !BG_PlayerTouchesItem( &cg.predictedPlayerState, &cent->currentState, cg.time, 0 ) ) {
+	if ( !BG_PlayerTouchesItem( &cg.predictedPlayerState, &cent->currentState, cg.time, (cgs.ratFlags & RAT_EASYPICKUP) ? 1 : 0) ) {
 		return;
 	}
 
@@ -289,76 +375,131 @@ static void CG_TouchItem( centity_t *cent ) {
 		return;		// can't hold it
 	}
 
+	if (cent->currentState.time && cent->currentState.time  > cg.time) {
+		// item was recently dropped by player using \drop, prevent
+		// pickup (so dropping player doesn't re-pickup it immediately
+		return;
+	}
+
 	item = &bg_itemlist[ cent->currentState.modelindex ];
 
-	// Special case for flags.  
-	// We don't predict touching our own flag
-#if 1 //MISSIONPACK
-	if( cgs.gametype == GT_1FCTF ) {
-		if( item->giTag != PW_NEUTRALFLAG ) {
-			return;
+	if (item->giType == IT_TEAM) {
+		//// Special case for flags.  
+		//// We don't predict touching our own flag
+		//if( cgs.gametype == GT_1FCTF ) {
+		//	if( item->giTag == PW_NEUTRALFLAG ) {
+		//		canBePicked = qtrue;
+		//	}
+		//}
+		//	//if( cgs.gametype == GT_CTF || cgs.gametype == GT_CTF_ELIMINATION || cgs.gametype == GT_HARVESTER ) {
+		//	//	if (cg.predictedPlayerState.persistant[PERS_TEAM] == TEAM_RED &&
+		//	//		item->giTag == PW_REDFLAG) {
+		//	//		return;
+		//	//	}
+		//	//	if (cg.predictedPlayerState.persistant[PERS_TEAM] == TEAM_BLUE &&
+		//	//		item->giTag == PW_BLUEFLAG) {
+		//	//		return;
+		//	//	}
+		//	//Even in instantgib, we can predict our enemy flag
+		//	if (cg.predictedPlayerState.persistant[PERS_TEAM] == TEAM_RED &&
+		//			item->giTag == PW_BLUEFLAG && (!(cgs.elimflags&EF_ONEWAY) || cgs.attackingTeam == TEAM_RED)) {
+		//		canBePicked = qtrue;
+		//	}
+		//	if (cg.predictedPlayerState.persistant[PERS_TEAM] == TEAM_BLUE &&
+		//			item->giTag == PW_REDFLAG && (!(cgs.elimflags&EF_ONEWAY) || cgs.attackingTeam == TEAM_BLUE)) {
+		//		canBePicked = qtrue;
+		//	}
+		//}
+		
+		if( cgs.gametype == GT_CTF_ELIMINATION ) {
+			if (cgs.elimflags & EF_ONEWAY && cg.predictedPlayerState.persistant[PERS_TEAM] != cgs.attackingTeam) {
+				return;
+			}
+		}
+
+		//Currently we don't predict anything in Double Domination because it looks like we take a flag
+		if( cgs.gametype == GT_DOUBLE_D ) {
+			if(cgs.redflag == TEAM_NONE)
+				return; //Can never pick if just one flag is NONE (because then the other is too)
+			if(item->giTag == PW_REDFLAG){ //at point A
+				//if(cgs.redflag != cg.predictedPlayerState.persistant[PERS_TEAM]) //not already taken
+				//	trap_S_StartLocalSound( cgs.media.hitSound , CHAN_ANNOUNCER );
+				return;
+			}	
+			if(item->giTag == PW_BLUEFLAG){ //at point B
+				//if(cgs.blueflag != cg.predictedPlayerState.persistant[PERS_TEAM]) //already taken
+				//	trap_S_StartLocalSound( cgs.media.hitSound , CHAN_ANNOUNCER );
+				return;
+			}	
 		}
 	}
-	if( cgs.gametype == GT_CTF || cgs.gametype == GT_CTF_ELIMINATION || cgs.gametype == GT_HARVESTER ) {
-#else
-	if( cgs.gametype == GT_CTF || cgs.gametype == GT_CTF_ELIMINATION ) {
-#endif
-		if (cg.predictedPlayerState.persistant[PERS_TEAM] == TEAM_RED &&
-			item->giTag == PW_REDFLAG)
-			return;
-		if (cg.predictedPlayerState.persistant[PERS_TEAM] == TEAM_BLUE &&
-			item->giTag == PW_BLUEFLAG)
-			return;
-		//Even in instantgib, we can predict our enemy flag
-		if (cg.predictedPlayerState.persistant[PERS_TEAM] == TEAM_RED &&
-			item->giTag == PW_BLUEFLAG && (!(cgs.elimflags&EF_ONEWAY) || cgs.attackingTeam == TEAM_RED))
-			canBePicked = qtrue;
-		if (cg.predictedPlayerState.persistant[PERS_TEAM] == TEAM_BLUE &&
-			item->giTag == PW_REDFLAG && (!(cgs.elimflags&EF_ONEWAY) || cgs.attackingTeam == TEAM_BLUE))
-			canBePicked = qtrue;
-		if (item->giTag == WP_RAILGUN)
-			canBePicked = qfalse;
-		if (item->giTag == WP_PLASMAGUN)
-			canBePicked = qfalse;
-	}
 
-	//Currently we don't predict anything in Double Domination because it looks like we take a flag
-	if( cgs.gametype == GT_DOUBLE_D ) {
-		if(cgs.redflag == TEAM_NONE)
-			return; //Can never pick if just one flag is NONE (because then the other is too)
-		if(item->giTag == PW_REDFLAG){ //at point A
-			if(cgs.redflag != cg.predictedPlayerState.persistant[PERS_TEAM]) //not already taken
-                            trap_S_StartLocalSound( cgs.media.hitSound , CHAN_ANNOUNCER );
-			return;
-		}	
-		if(item->giTag == PW_BLUEFLAG){ //at point B
-			if(cgs.blueflag != cg.predictedPlayerState.persistant[PERS_TEAM]) //already taken
-                            trap_S_StartLocalSound( cgs.media.hitSound , CHAN_ANNOUNCER );
-			return;
-		}	
+	if (CG_ItemPredictionDangerous(cent)) {
+		return;
 	}
 
 	// grab it
-	if(canBePicked)
-	{
-		BG_AddPredictableEventToPlayerstate( EV_ITEM_PICKUP, cent->currentState.modelindex , &cg.predictedPlayerState);
+	//if(canBePicked)
+	//{
+	
+	BG_AddPredictableEventToPlayerstate( EV_ITEM_PICKUP, cent->currentState.modelindex , &cg.predictedPlayerState);
 
-		// remove it from the frame so it won't be drawn
-		cent->currentState.eFlags |= EF_NODRAW;
+	// remove it from the frame so it won't be drawn
+	cent->currentState.eFlags |= EF_NODRAW;
+	cent->nextState.eFlags |= EF_NODRAW;
 
-		// don't touch it again this prediction
-		cent->miscTime = cg.time;
+	// don't touch it again this prediction
+	cent->miscTime = cg.time;
 
-		// if its a weapon, give them some predicted ammo so the autoswitch will work
-		if ( item->giType == IT_WEAPON ) {
-			cg.predictedPlayerState.stats[ STAT_WEAPONS ] |= 1 << item->giTag;
-			if ( !cg.predictedPlayerState.ammo[ item->giTag ] ) {
-				cg.predictedPlayerState.ammo[ item->giTag ] = 1;
-			}
+	// if its a weapon, give them some predicted ammo so the autoswitch will work
+	if ( item->giType == IT_WEAPON ) {
+		cg.predictedPlayerState.stats[ STAT_WEAPONS ] |= 1 << item->giTag;
+		if (cg_predictWeapons.integer && cg.predictedPlayerState.ammo[ item->giTag ] < item->quantity) {
+			cg.predictedPlayerState.ammo[ item->giTag ] = item->quantity;
+		} else if ( !cg.predictedPlayerState.ammo[ item->giTag ] ) {
+			cg.predictedPlayerState.ammo[ item->giTag ] = 1;
 		}
 	}
+	//}
 }
 
+
+qboolean CG_MissileTouchedPortal(const vec3_t start, const vec3_t end) {
+	int			i;
+	trace_t		trace;
+	entityState_t	*ent;
+	clipHandle_t cmodel;
+	centity_t	*cent;
+
+	for ( i = 0 ; i < cg_numTriggerEntities ; i++ ) {
+		cent = cg_triggerEntities[ i ];
+		ent = &cent->currentState;
+
+		if ( ent->solid != SOLID_BMODEL ) {
+			continue;
+		}
+
+		cmodel = trap_CM_InlineModel( ent->modelindex );
+		if ( !cmodel ) {
+			continue;
+		}
+
+		trap_CM_BoxTrace( &trace, start, end,
+			NULL, NULL, cmodel, -1 );
+
+		//if ( !trace.startsolid ) {
+		//	continue;
+		//}
+		if (trace.fraction == 1.0) {
+			continue;
+		}
+
+		if ( ent->eType == ET_TELEPORT_TRIGGER ) {
+			return qtrue;
+		}
+	}
+	return qfalse;
+}
 
 /*
 =========================
@@ -412,7 +553,41 @@ static void CG_TouchTriggerPrediction( void ) {
 		}
 
 		if ( ent->eType == ET_TELEPORT_TRIGGER ) {
-			cg.hyperspace = qtrue;
+			if (cg_predictTeleport.integer && ent->generic1 && !cg.predictedTeleports) {
+				qboolean noAngles;
+
+				// only predict 1 teleport until we get confirmation from the server
+				cg.predictedTeleports++;
+						
+				// teleporter has unique destination
+				VectorCopy( ent->origin2, cg.predictedPlayerState.origin );
+
+				cg.predictedPlayerState.origin[2] += 1;
+				noAngles = (ent->angles2[0] > 999999.0);
+				if (!noAngles) {
+					int			i;
+					// spit the player out
+					AngleVectors( ent->angles2, cg.predictedPlayerState.velocity, NULL, NULL );
+					VectorScale( cg.predictedPlayerState.velocity, 400, cg.predictedPlayerState.velocity );
+					cg.predictedPlayerState.pm_time = 160;
+					cg.predictedPlayerState.pm_flags |= PMF_TIME_KNOCKBACK;
+
+					// reset rampjump
+					cg.predictedPlayerState.stats[STAT_JUMPTIME] = 0;
+
+					// set the delta angle
+					for (i=0 ; i<3 ; i++) {
+						int		cmdAngle;
+
+						cmdAngle = ANGLE2SHORT(ent->angles2[i]);
+						cg.predictedPlayerState.delta_angles[i] = cmdAngle - cg_pmove.cmd.angles[i];
+					}
+					VectorCopy (ent->angles2, cg.predictedPlayerState.viewangles );
+				}
+			} else {
+				cg.hyperspace = qtrue;
+			}
+			//cg.hyperspace = qtrue;
 		} else if ( ent->eType == ET_PUSH_TRIGGER ) {
 			BG_TouchJumpPad( &cg.predictedPlayerState, ent );
 		}
@@ -590,9 +765,11 @@ void CG_PredictPlayerState( void ) {
 //unlagged - optimized prediction
 	int stateIndex = 0, predictCmd = 0; //Sago: added initializing
 	int numPredicted = 0, numPlayedBack = 0; // debug code
+	int prevMsec;
 //unlagged - optimized prediction
 
 	cg.hyperspace = qfalse;	// will be set if touching a trigger_teleport
+	cg.predictedTeleports = 0;
 
 	// if this is the first frame we must guarantee
 	// predictedPlayerState is valid even if there is some
@@ -606,12 +783,14 @@ void CG_PredictPlayerState( void ) {
 	// demo playback just copies the moves
 	if ( cg.demoPlayback || (cg.snap->ps.pm_flags & PMF_FOLLOW) ) {
 		CG_InterpolatePlayerState( qfalse );
+		CG_EncodePlayerBBox(NULL, &cg.predictedPlayerEntity.currentState);
 		return;
 	}
 
 	// non-predicting local movement will grab the latest angles
 	if ( cg_nopredict.integer || cg_synchronousClients.integer ) {
 		CG_InterpolatePlayerState( qtrue );
+		CG_EncodePlayerBBox(NULL, &cg.predictedPlayerEntity.currentState);
 		return;
 	}
 
@@ -627,6 +806,9 @@ void CG_PredictPlayerState( void ) {
 	}
 	if ( cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR ) {
 		cg_pmove.tracemask &= ~CONTENTS_BODY;	// spectators can fly through bodies
+	}
+	if (cgs.ratFlags & RAT_NOINVISWALLS) {
+		cg_pmove.tracemask &= ~CONTENTS_PLAYERCLIP;
 	}
 	cg_pmove.noFootsteps = ( cgs.dmflags & DF_NO_FOOTSTEPS ) > 0;
 
@@ -674,6 +856,7 @@ void CG_PredictPlayerState( void ) {
 	cg_pmove.pmove_msec = pmove_msec.integer;
         cg_pmove.pmove_float = pmove_float.integer;
         cg_pmove.pmove_flags = cgs.dmflags;
+        cg_pmove.pmove_ratflags = cgs.ratFlags;
         
 
 //unlagged - optimized prediction
@@ -763,12 +946,18 @@ void CG_PredictPlayerState( void ) {
 
 	// run cmds
 	moved = qfalse;
+	prevMsec = -1;
 	for ( cmdNum = current - CMD_BACKUP + 1 ; cmdNum <= current ; cmdNum++ ) {
 		// get the command
 		trap_GetUserCmd( cmdNum, &cg_pmove.cmd );
 
 		if ( cg_pmove.pmove_fixed ) {
 			PM_UpdateViewAngles( cg_pmove.ps, &cg_pmove.cmd );
+		}
+
+		// save previous time
+		if (cmdNum < current) {
+			prevMsec = cg_pmove.cmd.serverTime;
 		}
 
 		// don't do anything if the time is before the snapshot player time
@@ -833,6 +1022,13 @@ void CG_PredictPlayerState( void ) {
 					cg.predictedErrorTime = cg.oldTime;
 				}
 			}
+		}
+
+		// store time delta between commands (used for projectile delag)
+		if (prevMsec != -1 && latestCmd.serverTime - prevMsec > 0) {
+			cg.cmdMsecDelta = latestCmd.serverTime - prevMsec;
+		} else {
+			cg.cmdMsecDelta = 0;
 		}
 
 		// don't predict gauntlet firing, which is only supposed to happen
@@ -911,6 +1107,7 @@ void CG_PredictPlayerState( void ) {
 	}
 
 	if ( !moved ) {
+		CG_EncodePlayerBBox(&cg_pmove, &cg.predictedPlayerEntity.currentState);
 		if ( cg_showmiss.integer ) {
 			CG_Printf( "not moved\n" );
 		}
@@ -937,6 +1134,8 @@ void CG_PredictPlayerState( void ) {
 			cg.eventSequence = cg.predictedPlayerState.eventSequence;
 		}
 	}
+
+	CG_EncodePlayerBBox(&cg_pmove, &cg.predictedPlayerEntity.currentState);
 }
 
 

@@ -26,10 +26,15 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "cg_local.h"
 
-#define	MAX_LOCAL_ENTITIES	512 
+//#define	MAX_LOCAL_ENTITIES	512 
+// increase to accomodate plasma trails / dense rocket trails (XXX: might cause problems, reduce again)
+// Predicted Missiles also need to be rendered, make sure they together don't exceed 512
+#define	MAX_LOCAL_ENTITIES	(512 - MAX_PREDICTED_MISSILES)
 localEntity_t	cg_localEntities[MAX_LOCAL_ENTITIES];
 localEntity_t	cg_activeLocalEntities;		// double linked list
 localEntity_t	*cg_freeLocalEntities;		// single linked list
+
+static int cg_localentityId = 0;
 
 /*
 ===================
@@ -48,6 +53,8 @@ void	CG_InitLocalEntities( void ) {
 	for ( i = 0 ; i < MAX_LOCAL_ENTITIES - 1 ; i++ ) {
 		cg_localEntities[i].next = &cg_localEntities[i+1];
 	}
+
+	cg_localentityId = 0;
 }
 
 
@@ -60,6 +67,8 @@ void CG_FreeLocalEntity( localEntity_t *le ) {
 	if ( !le->prev ) {
 		CG_Error( "CG_FreeLocalEntity: not active" );
 	}
+
+	le->id = 0;
 
 	// remove from the doubly linked active list
 	le->prev->next = le->next;
@@ -96,7 +105,32 @@ localEntity_t	*CG_AllocLocalEntity( void ) {
 	le->prev = &cg_activeLocalEntities;
 	cg_activeLocalEntities.next->prev = le;
 	cg_activeLocalEntities.next = le;
+
+	if (++cg_localentityId == 0) {
+		le->id = ++cg_localentityId;
+	} else {
+		le->id = cg_localentityId;
+	}
 	return le;
+}
+
+void CG_FreeLocalEntityById(int id) {
+	localEntity_t *le, *next;
+
+	if (id == 0) {
+		// only free entities have id == 0
+		return;
+	}
+
+	le = cg_activeLocalEntities.next;
+	for ( ; le != &cg_activeLocalEntities ; le = next ) {
+		next = le->next;
+
+		if (le->id == id) {
+			CG_FreeLocalEntity(le);
+			return;
+		}
+	}
 }
 
 
@@ -553,6 +587,55 @@ void CG_AddFadeRGB( localEntity_t *le ) {
 }
 
 /*
+====================
+CG_AddFadeRGBSin
+====================
+*/
+void CG_AddFadeRGBSin( localEntity_t *le ) {
+	refEntity_t *re;
+	float c;
+
+	re = &le->refEntity;
+
+	// fade using cosine instead of linear fade
+	c = 1.0 - (float)( le->endTime - cg.time) / (float)( le->endTime - le->startTime);
+	//c = cos(c*M_PI/2.0);
+	c = (cos(c*M_PI)+1.0)/2.0;
+	c *= 0xff;
+
+	re->shaderRGBA[0] = le->color[0] * c;
+	re->shaderRGBA[1] = le->color[1] * c;
+	re->shaderRGBA[2] = le->color[2] * c;
+	re->shaderRGBA[3] = le->color[3] * c;
+
+	trap_R_AddRefEntityToScene( re );
+}
+
+#define RAIL3_EXPAND_DIAMETER 12
+void CG_AddRailtube( localEntity_t *le ) {
+	refEntity_t *re;
+	float f, c;
+
+	re = &le->refEntity;
+
+	f = ( le->endTime - cg.time ) * le->lifeRate;
+	c = f * 0xff;
+
+	re->shaderRGBA[0] = le->color[0] * c;
+	re->shaderRGBA[1] = le->color[1] * c;
+	re->shaderRGBA[2] = le->color[2] * c;
+	re->shaderRGBA[3] = le->color[3] * c;
+
+	VectorNormalize(re->axis[1]);
+	VectorNormalize(re->axis[2]);
+	f = 1.0 - f;
+	VectorScale(re->axis[1], f * RAIL3_EXPAND_DIAMETER + cg_ratRailRadius.value * 2, re->axis[1]);
+	VectorScale(re->axis[2], f * RAIL3_EXPAND_DIAMETER + cg_ratRailRadius.value * 2, re->axis[2]);
+
+	trap_R_AddRefEntityToScene( re );
+}
+
+/*
 ==================
 CG_AddMoveScaleFade
 ==================
@@ -575,12 +658,20 @@ static void CG_AddMoveScaleFade( localEntity_t *le ) {
 	}
 
 	re->shaderRGBA[3] = 0xff * c * le->color[3];
+	if ( le->leFlags & LEF_FADE_RGB ) {
+		re->shaderRGBA[0] = 0xff * c * le->color[0];
+		re->shaderRGBA[1] = 0xff * c * le->color[1];
+		re->shaderRGBA[2] = 0xff * c * le->color[2];
+	}
 
 	if ( !( le->leFlags & LEF_PUFF_DONT_SCALE ) ) {
 		re->radius = le->radius * ( 1.0 - c ) + 8;
 	}
 
 	BG_EvaluateTrajectory( &le->pos, cg.time, re->origin );
+	if ( le->leFlags & LEF_MOVE_OLDORIGIN) {
+		BG_EvaluateTrajectory( &le->pos2, cg.time, re->oldorigin );
+	}
 
 	// if the view would be "inside" the sprite, kill the sprite
 	// so it doesn't add too much overdraw
@@ -616,7 +707,9 @@ static void CG_AddScaleFade( localEntity_t *le ) {
 	c = ( le->endTime - cg.time ) * le->lifeRate;
 
 	re->shaderRGBA[3] = 0xff * c * le->color[3];
-	re->radius = le->radius * ( 1.0 - c ) + 8;
+	if (!(le->leFlags & LEF_PUFF_DONT_SCALE)) {
+		re->radius = le->radius * ( 1.0 - c ) + 8;
+	}
 
 	// if the view would be "inside" the sprite, kill the sprite
 	// so it doesn't add too much overdraw
@@ -629,6 +722,52 @@ static void CG_AddScaleFade( localEntity_t *le ) {
 		return;
 	}
 		}
+	trap_R_AddRefEntityToScene( re );
+}
+
+static void CG_AddLocationPing( localEntity_t *le ) {
+	refEntity_t	*re;
+	float		c;
+	vec3_t		delta;
+	float		len;
+	float finalRadius;
+
+	re = &le->refEntity;
+
+	// fade / grow time
+	c = ( le->endTime - cg.time ) * le->lifeRate;
+
+	re->shaderRGBA[3] = 0xff * c * le->color[3];
+	if (!(le->leFlags & LEF_PUFF_DONT_SCALE)) {
+		re->radius = le->radius + (le->radius2-le->radius) * ( 1.0 - c );
+		finalRadius = le->radius2;
+	}  else {
+		finalRadius = re->radius;
+	}
+
+	if (cg_pingLocationHud.integer && (le->leFlags & LEF_PINGLOC_HUD)) {
+		qhandle_t hudShader = cgs.media.pingLocationHudMarker;
+		if (le->generic == LOCPING_ENEMY) {
+			hudShader = cgs.media.pingLocationEnemyHudMarker;
+		} else if (le->generic == LOCPING_REDFLAG) {
+			hudShader = cgs.media.pingLocationRedFlagHudMarker;
+		} else if (le->generic == LOCPING_BLUEFLAG) {
+			hudShader = cgs.media.pingLocationBlueFlagHudMarker;
+		} else if (le->generic == LOCPING_NEUTRALFLAG) {
+			hudShader = cgs.media.pingLocationNeutralFlagHudMarker;
+		}
+		CG_PingHudMarker ( re->origin, c * le->color[3], hudShader );
+	}
+
+
+	// if the view would be "inside" the sprite, kill the sprite
+	// so it doesn't add too much overdraw
+	VectorSubtract( re->origin, cg.refdef.vieworg, delta );
+	len = VectorLength( delta );
+	if ( len < finalRadius ) {
+		CG_FreeLocalEntity( le );
+		return;
+	}
 	trap_R_AddRefEntityToScene( re );
 }
 
@@ -921,6 +1060,8 @@ void CG_AddRefEntity( localEntity_t *le ) {
 	trap_R_AddRefEntityToScene( &le->refEntity );
 }
 
+
+
 //#endif
 /*
 ===================
@@ -1061,6 +1202,12 @@ void CG_AddLocalEntities( void ) {
 		case LE_FADE_RGB:				// teleporters, railtrails
 			CG_AddFadeRGB( le );
 			break;
+		case LE_FADE_RGB_SIN:				// railtrails
+			CG_AddFadeRGBSin( le );
+			break;
+		case LE_RAILTUBE:				// railtrails
+			CG_AddRailtube( le );
+			break;
 
 		case LE_FALL_SCALE_FADE: // gib blood trails
 			CG_AddFallScaleFade( le );
@@ -1068,6 +1215,10 @@ void CG_AddLocalEntities( void ) {
 
 		case LE_SCALE_FADE:		// rocket trails
 			CG_AddScaleFade( le );
+			break;
+
+		case LE_LOCATIONPING:		// location pings
+			CG_AddLocationPing( le );
 			break;
 
 		case LE_SCOREPLUM:

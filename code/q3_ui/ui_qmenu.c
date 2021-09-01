@@ -1629,6 +1629,9 @@ sfxHandle_t Menu_DefaultKey( menuframework_s *m, int key )
 
 			case MTYPE_FIELD:
 				sound = MenuField_Key( (menufield_s*)item, &key );
+				if (((menufield_s*)item)->generic.callback) {
+					((menufield_s*)item)->generic.callback(item, QM_ACTIVATED);
+				}
 				break;
 		}
 

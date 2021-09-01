@@ -39,7 +39,7 @@ void CG_BubbleTrail( vec3_t start, vec3_t end, float spacing ) {
 	float		len;
 	int			i;
 
-	if ( cg_noProjectileTrail.integer ) {
+	if ( cg_noProjectileTrail.integer || cg_noBubbleTrail.integer) {
 		return;
 	}
 
@@ -132,7 +132,6 @@ localEntity_t *CG_SmokePuff( const vec3_t p, const vec3_t vel,
 	le->color[1] = g; 
 	le->color[2] = b;
 	le->color[3] = a;
-
 
 	le->pos.trType = TR_LINEAR_STOP;
 	le->pos.trTime = startTime;
@@ -822,7 +821,246 @@ void CG_BigExplosion( vec3_t playerOrigin ) {
 	CG_LaunchExplode( origin, velocity, cgs.media.smoke2 );
 }
 
+/*
+ * Draw an indicator at the screen border
+ */
+void CG_HudBorderMarker ( vec3_t origin, float alpha, float radius, qhandle_t shader, int baseAngle ) {
+	vec3_t dir;
+	float front, left, up;
+	vec3_t flu;
+	float r, inc, az;
+	// half FOV
+	float hfov_y = cg.refdef.fov_y * M_PI/360;
+	float hfov_x = cg.refdef.fov_x * M_PI/360;
 
+	VectorSubtract(origin, cg.refdef.vieworg, dir);
 
+	front = DotProduct (dir, cg.refdef.viewaxis[0] );
+	left = DotProduct (dir, cg.refdef.viewaxis[1] );
+	up = DotProduct (dir, cg.refdef.viewaxis[2] );
 
+	flu[0] = front;
+	flu[1] = left;
+	flu[2] = up;
 
+	r = VectorLength(flu);
+	az = atan2(flu[1],flu[0]);
+	inc = acos(flu[2]/r);
+	inc = M_PI/2.0 - inc;
+
+	if (fabs(az) < hfov_x && fabs(inc) < hfov_y) {
+		// inside fov, no need to draw marker
+		// Note: this isn't entirely accurate
+		return;
+	}  else {
+		refEntity_t ent;
+		float phi;
+		float dist = 8;
+		vec3_t middleOfPlane;
+		vec3_t planeAxis[2];
+		float ratio;
+		float circleSz = 100;
+		float r;
+		float h1,h2;
+
+		memset( &ent, 0, sizeof( ent ) );
+		ent.reType = RT_SPRITE;
+		ent.renderfx = RF_FIRST_PERSON;
+
+		phi = atan2(-flu[2], flu[1]);
+		ent.rotation = phi/M_PI*180;
+		ent.rotation += baseAngle;
+
+		// make sure it stays the same size regardless of fov
+		ent.radius =  0.5 * radius * tan(hfov_x);
+		ent.customShader = shader;
+		ent.shaderRGBA[0] = 255;
+		ent.shaderRGBA[1] = 255;
+		ent.shaderRGBA[2] = 255;
+		ent.shaderRGBA[3] = 0xff * alpha;
+
+		ratio = tan(hfov_y)/tan(hfov_x);
+	
+		VectorScale(cg.refdef.viewaxis[0], dist, middleOfPlane);
+		r = dist/cos(hfov_x);
+		VectorScale(cg.refdef.viewaxis[1], r * sin(hfov_x) - ent.radius, planeAxis[0]);
+
+		r = dist/cos(hfov_y);
+		VectorScale(cg.refdef.viewaxis[2], -(r * sin(hfov_y) - ent.radius), planeAxis[1]);
+
+		r = cos(phi) * circleSz;
+		VectorScale(planeAxis[0], r, ent.origin);
+
+		r = sin(phi) * circleSz * 1.0/ratio;
+		VectorMA(ent.origin, r, planeAxis[1], ent.origin);
+
+		h1 = fabs(VectorLength(planeAxis[0])/cos(phi));
+		h2 = fabs(VectorLength(planeAxis[1])/sin(phi));
+		if (h2 < h1) {
+			h1 = h2;
+		}
+		if (VectorLength(ent.origin) > h1) {
+			VectorNormalize(ent.origin);
+			VectorScale(ent.origin, h1, ent.origin);
+		}
+
+		VectorAdd(middleOfPlane, ent.origin, ent.origin);
+		VectorAdd(cg.refdef.vieworg, ent.origin, ent.origin);
+		trap_R_AddRefEntityToScene( &ent );
+	}
+}
+
+void CG_PingHudMarker ( vec3_t pingOrigin, float alpha, qhandle_t shader ) {
+	CG_HudBorderMarker ( pingOrigin, alpha, MIN(cg_pingLocationHudSize.value,2.0), shader, 180);
+}
+
+void CG_PingLocation( centity_t *cent ) {
+	localEntity_t	*le;
+	refEntity_t		*re;
+	int startTime = cg.time;
+	int durationBg = cg_pingLocationTime.integer;
+	int durationFg = cg_pingLocationTime2.integer;
+	int radiusBg = cg_pingLocationSize.integer;
+	int radiusFg = cg_pingLocationSize2.integer;
+	locationping_t locping;
+
+	if (cgs.gametype < GT_TEAM || cgs.ffa_gt == 1 ) {
+		return;
+	}
+
+	if (!cg_pingLocation.integer) {
+		return;
+	}
+
+	if (!cent->currentValid 
+			|| cent->currentState.otherEntityNum < 0
+			|| cent->currentState.otherEntityNum >= MAX_CLIENTS) {
+		return;
+	} else {
+		cgs.clientinfo[cent->currentState.otherEntityNum].lastPinglocationTime = cg.time;
+	}
+
+	// BG //
+	le = CG_AllocLocalEntity();
+	le->leFlags = 0;
+	le->radius = radiusFg/2.0;
+	le->radius2 = radiusBg;
+
+	re = &le->refEntity;
+	re->rotation = 0;
+	re->shaderTime = startTime / 1000.0f;
+
+	le->leType = LE_LOCATIONPING;
+	le->startTime = startTime;
+	le->fadeInTime = 0;
+	le->endTime = startTime + durationBg;
+	le->lifeRate = 1.0 / ( le->endTime - le->startTime );
+	le->color[0] = 1;
+	le->color[1] = 1; 
+	le->color[2] = 1;
+	le->color[3] = 1;
+
+	le->pos.trType = TR_STATIONARY;
+	le->pos.trTime = startTime;
+	VectorSet( le->pos.trDelta, 0, 0, 0);
+	VectorCopy( cent->lerpOrigin, le->pos.trBase );
+
+	VectorCopy( cent->lerpOrigin, re->origin );
+
+	re->shaderRGBA[0] = le->color[0] * 0xff;
+	re->shaderRGBA[1] = le->color[1] * 0xff;
+	re->shaderRGBA[2] = le->color[2] * 0xff;
+	re->shaderRGBA[3] = 0xff;
+
+	re->reType = RT_SPRITE;
+	re->radius = le->radius;
+
+	switch ((locationping_t)cent->currentState.generic1) {
+		case LOCPING_WARN:
+			re->customShader = cgs.media.pingLocationWarn;
+
+			trap_S_StartSound (cent->lerpOrigin, ENTITYNUM_NONE, CHAN_AUTO, cgs.media.pingLocationWarnSound );
+			trap_S_StartLocalSound( cgs.media.pingLocationWarnLowSound, CHAN_LOCAL_SOUND );
+			// was a warning ping, no foreground to draw
+			return;
+		case LOCPING_DEAD:
+			re->customShader = cgs.media.pingLocationDead;
+
+			trap_S_StartSound (cent->lerpOrigin, ENTITYNUM_NONE, CHAN_AUTO, cgs.media.pingLocationWarnSound );
+			trap_S_StartLocalSound( cgs.media.pingLocationWarnLowSound, CHAN_LOCAL_SOUND );
+			// was a "dead" ping, no foreground to draw
+			return;
+		case LOCPING_ENEMY:
+			re->customShader = cgs.media.pingLocationEnemyBg;
+
+			break;
+		case LOCPING_REDFLAG:
+			re->customShader = cgs.media.pingLocationRedFlagBg;
+			break;
+		case LOCPING_BLUEFLAG:
+			re->customShader = cgs.media.pingLocationBlueFlagBg;
+			break;
+		case LOCPING_NEUTRALFLAG:
+			re->customShader = cgs.media.pingLocationNeutralFlagBg;
+			break;
+		case LOCPING_PING:
+		default:
+			re->customShader = cgs.media.pingLocationBg;
+			break;
+	}
+	if (cg_pingLocationBeep.integer) {
+		trap_S_StartSound (cent->lerpOrigin, ENTITYNUM_NONE, CHAN_AUTO, cgs.media.pingLocationSound );
+		//trap_S_StartLocalSound( cgs.media.pingLocationLowSound, CHAN_LOCAL_SOUND );
+		trap_S_StartLocalSound( cgs.media.pingLocationSound, CHAN_LOCAL_SOUND );
+	}
+
+	// FG //
+	le = CG_AllocLocalEntity();
+	le->leFlags = 0;
+	le->radius = radiusFg;
+
+	re = &le->refEntity;
+	re->rotation = 0;
+	re->shaderTime = startTime / 1000.0f;
+
+	le->leType = LE_LOCATIONPING;
+	le->leFlags = LEF_PUFF_DONT_SCALE | LEF_PINGLOC_HUD;
+	le->startTime = startTime;
+	le->fadeInTime = 0;
+	le->endTime = startTime + durationFg;
+	le->lifeRate = 1.0 / ( le->endTime - le->startTime );
+	le->color[0] = 1;
+	le->color[1] = 1; 
+	le->color[2] = 1;
+	le->color[3] = 1;
+
+	le->pos.trType = TR_STATIONARY;
+	le->pos.trTime = startTime;
+	VectorSet( le->pos.trDelta, 0, 0, 0);
+	VectorCopy( cent->lerpOrigin, le->pos.trBase );
+
+	VectorCopy( cent->lerpOrigin, re->origin );
+
+	le->generic = (locationping_t)cent->currentState.generic1;
+	locping = (locationping_t)cent->currentState.generic1;
+	if (locping == LOCPING_ENEMY) {
+		re->customShader = cgs.media.pingLocationEnemyFg;
+	} else if (locping == LOCPING_REDFLAG && (cgs.gametype == GT_CTF || cgs.gametype == GT_CTF_ELIMINATION)) {
+		re->customShader = cgs.media.pingLocationRedFlagFg;
+	} else if (locping == LOCPING_BLUEFLAG && (cgs.gametype == GT_CTF || cgs.gametype == GT_CTF_ELIMINATION)) {
+		re->customShader = cgs.media.pingLocationBlueFlagFg;
+	} else if (locping == LOCPING_NEUTRALFLAG && cgs.gametype == GT_1FCTF) {
+		re->customShader = cgs.media.pingLocationNeutralFlagFg;
+	} else {
+		re->customShader = cgs.media.pingLocationFg;
+	}
+
+	re->shaderRGBA[0] = le->color[0] * 0xff;
+	re->shaderRGBA[1] = le->color[1] * 0xff;
+	re->shaderRGBA[2] = le->color[2] * 0xff;
+	re->shaderRGBA[3] = 0xff;
+
+	re->reType = RT_SPRITE;
+	re->radius = le->radius;
+
+}

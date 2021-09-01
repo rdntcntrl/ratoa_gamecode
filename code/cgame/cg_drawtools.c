@@ -45,6 +45,14 @@ void CG_AdjustFrom640( float *x, float *y, float *w, float *h ) {
 }
 
 /*
+ * Converts a height referring to the virtual 640x480 screen to a width,
+ * preserving the aspect ratio on the real screen
+ */
+float CG_HeightToWidth(float h) {
+	return (h*cgs.screenYScale)/cgs.screenXScale;
+}
+
+/*
 ================
 CG_FillRect
 
@@ -96,6 +104,60 @@ void CG_DrawRect( float x, float y, float width, float height, float size, const
 	trap_R_SetColor( NULL );
 }
 
+/*
+ * For widescreen compatibility
+ * Draws the side lines the same size as the top/bottom lines on any screen
+ */
+void CG_DrawRectAspect( float x, float y, float width, float height, float size, const float *color ) {
+	float sidesize = CG_HeightToWidth(size);
+	trap_R_SetColor( color );
+
+	if (sidesize > width) {
+		sidesize = width;
+	}
+
+	CG_DrawTopBottom(x, y, width, height, size);
+	CG_DrawSides(x, y, width, height, sidesize);
+
+	trap_R_SetColor( NULL );
+}
+
+void CG_DrawCornersSides(float x, float y, float w, float h, float cornerlength, float size) {
+	CG_AdjustFrom640( &x, &y, &w, &h );
+	size *= cgs.screenXScale;
+	cornerlength *= cgs.screenYScale;
+	trap_R_DrawStretchPic( x, y, size, cornerlength, 0, 0, 0, 0, cgs.media.whiteShader );
+	trap_R_DrawStretchPic( x + w - size, y, size, cornerlength, 0, 0, 0, 0, cgs.media.whiteShader );
+
+	trap_R_DrawStretchPic( x, y+h-cornerlength, size, cornerlength, 0, 0, 0, 0, cgs.media.whiteShader );
+	trap_R_DrawStretchPic( x + w - size, y+h-cornerlength, size, cornerlength, 0, 0, 0, 0, cgs.media.whiteShader );
+}
+
+void CG_DrawCornersTopBottom(float x, float y, float w, float h, float cornerlength, float size) {
+	CG_AdjustFrom640( &x, &y, &w, &h );
+	size *= cgs.screenYScale;
+	cornerlength *= cgs.screenXScale;
+	trap_R_DrawStretchPic( x, y, cornerlength, size, 0, 0, 0, 0, cgs.media.whiteShader );
+	trap_R_DrawStretchPic( x, y + h - size, cornerlength, size, 0, 0, 0, 0, cgs.media.whiteShader );
+
+	trap_R_DrawStretchPic( x+w-cornerlength, y, cornerlength, size, 0, 0, 0, 0, cgs.media.whiteShader );
+	trap_R_DrawStretchPic( x+w-cornerlength, y + h - size, cornerlength, size, 0, 0, 0, 0, cgs.media.whiteShader );
+}
+
+void CG_DrawCorners( float x, float y, float width, float height, float cornerlength, float thickness, const float *color ) {
+	float sidethickness = CG_HeightToWidth(thickness);
+	trap_R_SetColor( color );
+
+	if (sidethickness > width) {
+		sidethickness = width;
+	}
+
+	CG_DrawCornersTopBottom(x, y, width, height, cornerlength, thickness);
+	CG_DrawCornersSides(x, y, width, height, cornerlength, sidethickness);
+
+	trap_R_SetColor( NULL );
+}
+
 
 
 /*
@@ -110,6 +172,65 @@ void CG_DrawPic( float x, float y, float width, float height, qhandle_t hShader 
 	trap_R_DrawStretchPic( x, y, width, height, 0, 0, 1, 1, hShader );
 }
 
+/*
+ * Preserves aspect ratio on the real screen (not the 640x480 virtual screen)
+ */
+float CG_DrawPicSquareByHeight( float x, float y, float height, qhandle_t hShader ) {
+	float width = CG_HeightToWidth(height);
+	CG_AdjustFrom640( &x, &y, &width, &height );
+	trap_R_DrawStretchPic( x, y, width, height, 0, 0, 1, 1, hShader );
+	return width;
+}
+
+qhandle_t CG_SelectFont(float width, float height) {
+	if (!cg_newFont.integer) {
+		return cgs.media.charsetShader;
+	}
+	if (height <= 16) {
+		return cgs.media.charsetShader16;
+	} else if (height > 32) {
+		return cgs.media.charsetShader64;
+	} 
+	return cgs.media.charsetShader32;
+}
+
+/*
+===============
+CG_DrawCharFloat
+
+Coordinates and size in 640*480 virtual screen size
+===============
+*/
+void CG_DrawCharFloat( float x, float y, float width, float height, int ch ) {
+	int row, col;
+	float frow, fcol;
+	float size;
+	float	ax, ay, aw, ah;
+
+	ch &= 255;
+
+	if ( ch == ' ' ) {
+		return;
+	}
+
+	ax = x;
+	ay = y;
+	aw = width;
+	ah = height;
+	CG_AdjustFrom640( &ax, &ay, &aw, &ah );
+
+	row = ch>>4;
+	col = ch&15;
+
+	frow = row*0.0625;
+	fcol = col*0.0625;
+	size = 0.0625;
+
+	trap_R_DrawStretchPic( ax, ay, aw, ah,
+					   fcol, frow, 
+					   fcol + size, frow + size, 
+					   CG_SelectFont(aw, ah) );
+}
 
 
 /*
@@ -147,7 +268,78 @@ void CG_DrawChar( int x, int y, int width, int height, int ch ) {
 	trap_R_DrawStretchPic( ax, ay, aw, ah,
 					   fcol, frow, 
 					   fcol + size, frow + size, 
-					   cgs.media.charsetShader );
+					   CG_SelectFont(aw, ah) );
+}
+
+#define FONTSHADOW_OFFSETFACTOR (1.0/14.0)
+
+/*
+==================
+CG_DrawStringExtFloat
+
+Draws a multi-colored string with a drop shadow, optionally forcing
+to a fixed color.
+
+Coordinates are at 640 by 480 virtual resolution
+==================
+*/
+void CG_DrawStringExtFloat( float x, float y, const char *string, const float *setColor, 
+		qboolean forceColor, qboolean shadow, float charWidth, float charHeight, int maxChars ) {
+	vec4_t		color;
+	const char	*s;
+	float			xx;
+	int			cnt;
+
+	if (maxChars <= 0)
+		maxChars = 32767; // do them all!
+
+	// draw the drop shadow
+	if (shadow) {
+		//int shadow_offset = 2;
+		//if (charHeight <= SCORECHAR_HEIGHT || charWidth <= SCORECHAR_WIDTH) {
+		//	shadow_offset = 1;
+		//}
+		float shadow_offset = (FONTSHADOW_OFFSETFACTOR) * charHeight;
+
+		color[0] = color[1] = color[2] = 0;
+		color[3] = setColor[3];
+		trap_R_SetColor( color );
+		s = string;
+		xx = x;
+		cnt = 0;
+		while ( *s && cnt < maxChars) {
+			if ( Q_IsColorString( s ) ) {
+				s += 2;
+				continue;
+			}
+			CG_DrawCharFloat( xx + CG_HeightToWidth(shadow_offset), y + shadow_offset, charWidth, charHeight, *s );
+			cnt++;
+			xx += charWidth;
+			s++;
+		}
+	}
+
+	// draw the colored text
+	s = string;
+	xx = x;
+	cnt = 0;
+	trap_R_SetColor( setColor );
+	while ( *s && cnt < maxChars) {
+		if ( Q_IsColorString( s ) ) {
+			if ( !forceColor ) {
+				memcpy( color, g_color_table[ColorIndex(*(s+1))], sizeof( color ) );
+				color[3] = setColor[3];
+				trap_R_SetColor( color );
+			}
+			s += 2;
+			continue;
+		}
+		CG_DrawCharFloat( xx, y, charWidth, charHeight, *s );
+		xx += charWidth;
+		cnt++;
+		s++;
+	}
+	trap_R_SetColor( NULL );
 }
 
 
@@ -173,6 +365,12 @@ void CG_DrawStringExt( int x, int y, const char *string, const float *setColor,
 
 	// draw the drop shadow
 	if (shadow) {
+		//int shadow_offset = 2;
+		//if (charHeight <= SCORECHAR_HEIGHT || charWidth <= SCORECHAR_WIDTH) {
+		//	shadow_offset = 1;
+		//}
+		float shadow_offset = (FONTSHADOW_OFFSETFACTOR) * charHeight;
+
 		color[0] = color[1] = color[2] = 0;
 		color[3] = setColor[3];
 		trap_R_SetColor( color );
@@ -184,7 +382,7 @@ void CG_DrawStringExt( int x, int y, const char *string, const float *setColor,
 				s += 2;
 				continue;
 			}
-			CG_DrawChar( xx + 2, y + 2, charWidth, charHeight, *s );
+			CG_DrawCharFloat( xx + CG_HeightToWidth(shadow_offset), y + shadow_offset, charWidth, charHeight, *s );
 			cnt++;
 			xx += charWidth;
 			s++;
@@ -214,12 +412,64 @@ void CG_DrawStringExt( int x, int y, const char *string, const float *setColor,
 	trap_R_SetColor( NULL );
 }
 
+void CG_DrawScoreString( int x, int y, const char *s, float alpha, int maxchars ) {
+	float   color[4];
+
+	color[0] = color[1] = color[2] = 1.0;
+	color[3] = alpha;
+	CG_DrawStringExt( x, y, s, color, qfalse, qtrue, SCORECHAR_WIDTH, SCORECHAR_HEIGHT, maxchars );
+}
+
+void CG_DrawScoreStringColor( int x, int y, const char *s, vec4_t color ) {
+	CG_DrawStringExt( x, y, s, color, qtrue, qtrue, SCORECHAR_WIDTH, SCORECHAR_HEIGHT, 0 );
+}
+
+void CG_DrawSmallScoreString( int x, int y, const char *s, float alpha ) {
+	float   color[4];
+
+	color[0] = color[1] = color[2] = 1.0;
+	color[3] = alpha;
+	CG_DrawStringExt( x, y, s, color, qfalse, qtrue, SCORESMALLCHAR_WIDTH, SCORESMALLCHAR_HEIGHT, 0 );
+}
+
+void CG_DrawSmallScoreStringColor( int x, int y, const char *s, vec4_t color ) {
+	CG_DrawStringExt( x, y, s, color, qtrue, qtrue, SCORESMALLCHAR_WIDTH, SCORESMALLCHAR_HEIGHT, 0 );
+}
+
+void CG_DrawTinyScoreString( int x, int y, const char *s, float alpha ) {
+	float   color[4];
+
+	color[0] = color[1] = color[2] = 1.0;
+	color[3] = alpha;
+	CG_DrawStringExt( x, y, s, color, qfalse, qtrue, SCORETINYCHAR_WIDTH, SCORETINYCHAR_HEIGHT, 0 );
+}
+
+void CG_DrawTinyScoreStringColor( int x, int y, const char *s, vec4_t color ) {
+	CG_DrawStringExt( x, y, s, color, qtrue, qtrue, SCORETINYCHAR_WIDTH, SCORETINYCHAR_HEIGHT, 0 );
+}
+
+void CG_DrawMediumString( int x, int y, const char *s, float alpha ) {
+	float	color[4];
+
+	color[0] = color[1] = color[2] = 1.0;
+	color[3] = alpha;
+	CG_DrawStringExt( x, y, s, color, qfalse, qtrue, MEDIUMCHAR_WIDTH, MEDIUMCHAR_HEIGHT, 0 );
+}
+
 void CG_DrawBigString( int x, int y, const char *s, float alpha ) {
 	float	color[4];
 
 	color[0] = color[1] = color[2] = 1.0;
 	color[3] = alpha;
 	CG_DrawStringExt( x, y, s, color, qfalse, qtrue, BIGCHAR_WIDTH, BIGCHAR_HEIGHT, 0 );
+}
+
+void CG_DrawBigStringAspect( int x, int y, const char *s, float alpha ) {
+	float	color[4];
+
+	color[0] = color[1] = color[2] = 1.0;
+	color[3] = alpha;
+	CG_DrawStringExt( x, y, s, color, qfalse, qtrue, CG_HeightToWidth(BIGCHAR_WIDTH), BIGCHAR_HEIGHT, 0 );
 }
 
 void CG_DrawBigStringColor( int x, int y, const char *s, vec4_t color ) {
@@ -236,6 +486,14 @@ void CG_DrawSmallString( int x, int y, const char *s, float alpha ) {
 
 void CG_DrawSmallStringColor( int x, int y, const char *s, vec4_t color ) {
 	CG_DrawStringExt( x, y, s, color, qtrue, qfalse, SMALLCHAR_WIDTH, SMALLCHAR_HEIGHT, 0 );
+}
+
+void CG_DrawStringFloat( float x, float y, const char *string, float alpha, float charWidth, float charHeight) {
+	float	color[4];
+
+	color[0] = color[1] = color[2] = 1.0;
+	color[3] = alpha;
+	CG_DrawStringExt( x, y, string, color, qfalse, qfalse, charWidth, charHeight, 0 );
 }
 
 /*
@@ -350,6 +608,32 @@ float *CG_FadeColor( int startMsec, int totalMsec ) {
 	return color;
 }
 
+/*
+================
+CG_FadeScale
+================
+*/
+float CG_FadeScale( int startMsec, int totalMsec ) {
+	int			t;
+
+	if ( startMsec == 0 ) {
+		return 0.0;
+	}
+
+	t = cg.time - startMsec;
+
+	if ( t >= totalMsec ) {
+		return 0.0;
+	}
+
+	// scale out
+	if ( totalMsec - t < FADE_TIME ) {
+		return ( totalMsec - t ) * 1.0/FADE_TIME;
+	} 
+	return 1.0;
+}
+
+
 
 /*
 ================
@@ -382,9 +666,6 @@ CG_GetColorForHealth
 =================
 */
 void CG_GetColorForHealth( int health, int armor, vec4_t hcolor ) {
-	int		count;
-	int		max;
-
 	// calculate the total points of damage that can
 	// be sustained at the current health / armor level
 	if ( health <= 0 ) {
@@ -392,12 +673,8 @@ void CG_GetColorForHealth( int health, int armor, vec4_t hcolor ) {
 		hcolor[3] = 1;
 		return;
 	}
-	count = armor;
-	max = health * ARMOR_PROTECTION / ( 1.0 - ARMOR_PROTECTION );
-	if ( max < count ) {
-		count = max;
-	}
-	health += count;
+
+	health = CG_GetTotalHitPoints(health, armor);
 
 	// set the color based on health
 	hcolor[0] = 1.0;
@@ -427,6 +704,55 @@ CG_ColorForHealth
 void CG_ColorForHealth( vec4_t hcolor ) {
 
 	CG_GetColorForHealth( cg.snap->ps.stats[STAT_HEALTH], 
+		cg.snap->ps.stats[STAT_ARMOR], hcolor );
+}
+
+/*
+=================
+CG_GetColorForHealth2
+=================
+*/
+void CG_GetColorForHealth2( int health, int armor, vec4_t hcolor ) {
+	// calculate the total points of damage that can
+	// be sustained at the current health / armor level
+	if ( health <= 0 ) {
+		VectorClear( hcolor );	// black
+		hcolor[3] = 1;
+		return;
+	}
+
+	health = CG_GetTotalHitPoints(health, armor);
+
+	// set the color based on health
+	hcolor[0] = 1.0;
+	hcolor[3] = 1.0;
+
+	if (health > 100) {
+		// direct rocket hit survivable = white
+		hcolor[1] = hcolor[2] = 1.0;
+	} else if (health > 80) {
+		// rail hit survivable = yellow
+		hcolor[1] = 1.0;
+		hcolor[2] = 0.0;
+	} else if (health > 50) {
+		// rail deadly = orange;
+		hcolor[1] = 0.4;
+		hcolor[2] = 0.0;
+	} else {
+		// below 50 = red
+		hcolor[1] = 0.0;
+		hcolor[2] = 0.0;
+	}
+}
+
+/*
+=================
+CG_ColorForHealth2
+=================
+*/
+void CG_ColorForHealth2( vec4_t hcolor ) {
+
+	CG_GetColorForHealth2( cg.snap->ps.stats[STAT_HEALTH], 
 		cg.snap->ps.stats[STAT_ARMOR], hcolor );
 }
 
@@ -752,7 +1078,7 @@ UI_ProportionalSizeScale
 */
 float UI_ProportionalSizeScale( int style ) {
 	if(  style & UI_SMALLFONT ) {
-		return 0.75;
+		return 0.5;
 	}
 
 	return 1.00;

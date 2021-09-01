@@ -80,6 +80,8 @@ MULTIPLAYER MENU (SERVER BROWSER)
 #define ID_ONLY_HUMANS                  24
 #define ID_HIDE_PRIVATE                 25
 
+#define ID_FILTER	                26
+
 #define GR_LOGO				30
 #define GR_LETTERS			31
 
@@ -223,6 +225,8 @@ typedef struct {
         
         menuradiobutton_s	onlyhumans;
         menuradiobutton_s	hideprivate;
+
+        menufield_s	        filter;
 
 	menulist_s			list;
 	menubitmap_s		mappic;
@@ -481,6 +485,23 @@ const char *s;
 	return len;
 }
 
+static qboolean ArenaServers_Filtered(servernode_t *servernodeptr) {
+	char	hostname[MAX_HOSTNAMELENGTH+3];
+	char	filter[MAX_EDIT_LINE];
+
+        if (!g_arenaservers.filter.field.buffer[0]) {
+		return qtrue;
+	}
+
+
+	Q_strncpyz(hostname, servernodeptr->hostname, sizeof(hostname));
+	Q_CleanStr(hostname);
+	Q_strncpyz(filter, g_arenaservers.filter.field.buffer, MAX_EDIT_LINE);
+	Q_CleanStr(filter);
+
+	return Q_stristr(hostname, filter) == NULL ? qfalse : qtrue;
+
+}
 
 /*
 =================
@@ -512,6 +533,7 @@ static void ArenaServers_UpdateMenu( void ) {
 			g_arenaservers.showempty.generic.flags	&= ~QMF_GRAYED;
                         g_arenaservers.onlyhumans.generic.flags	&= ~QMF_GRAYED;
                         g_arenaservers.hideprivate.generic.flags	&= ~QMF_GRAYED;
+                        g_arenaservers.filter.generic.flags	&= ~QMF_GRAYED;
 			g_arenaservers.showfull.generic.flags	&= ~QMF_GRAYED;
 			g_arenaservers.list.generic.flags		&= ~QMF_GRAYED;
 			g_arenaservers.refresh.generic.flags	&= ~QMF_GRAYED;
@@ -540,6 +562,7 @@ static void ArenaServers_UpdateMenu( void ) {
 			g_arenaservers.showempty.generic.flags	|= QMF_GRAYED;
                         g_arenaservers.onlyhumans.generic.flags	|= QMF_GRAYED;
                         g_arenaservers.hideprivate.generic.flags	|= QMF_GRAYED;
+                        g_arenaservers.filter.generic.flags	|= QMF_GRAYED;
 			g_arenaservers.showfull.generic.flags	|= QMF_GRAYED;
 			g_arenaservers.list.generic.flags		|= QMF_GRAYED;
 			g_arenaservers.refresh.generic.flags	|= QMF_GRAYED;
@@ -568,6 +591,7 @@ static void ArenaServers_UpdateMenu( void ) {
 			g_arenaservers.showempty.generic.flags	&= ~QMF_GRAYED;
                         g_arenaservers.onlyhumans.generic.flags	&= ~QMF_GRAYED;
                         g_arenaservers.hideprivate.generic.flags	&= ~QMF_GRAYED;
+                        g_arenaservers.filter.generic.flags	&= ~QMF_GRAYED;
 			g_arenaservers.showfull.generic.flags	&= ~QMF_GRAYED;
 			g_arenaservers.list.generic.flags		|= QMF_GRAYED;
 			g_arenaservers.refresh.generic.flags	&= ~QMF_GRAYED;
@@ -685,6 +709,10 @@ static void ArenaServers_UpdateMenu( void ) {
                 
                 if(g_hideprivate && servernodeptr->needPass)
                     continue;
+
+		if (!ArenaServers_Filtered(servernodeptr)) {
+			continue;
+		}
 
 		if( servernodeptr->pingtime < servernodeptr->minPing ) {
 			pingColor = S_COLOR_BLUE;
@@ -839,7 +867,7 @@ static void ArenaServers_Insert( char* adrstr, char* info, int pingtime )
 
 	Q_strncpyz( servernodeptr->hostname, Info_ValueForKey( info, "hostname"), MAX_HOSTNAMELENGTH );
 	Q_CleanStrWithColor( servernodeptr->hostname );
-	Q_strupr( servernodeptr->hostname );
+	//Q_strupr( servernodeptr->hostname );
 
 	Q_strncpyz( servernodeptr->mapname, Info_ValueForKey( info, "mapname"), MAX_MAPNAMELENGTH );
 	Q_CleanStr( servernodeptr->mapname );
@@ -934,13 +962,11 @@ void ArenaServers_LoadFavorites( void )
 	int				i;
 	int				j;
 	int				numtempitems;
-	char			emptyinfo[MAX_INFO_STRING];
 	char			adrstr[MAX_ADDRESSLENGTH];
 	servernode_t	templist[MAX_FAVORITESERVERS];
 	qboolean		found;
 
 	found        = qfalse;
-	emptyinfo[0] = '\0';
 
 	// copy the old
 	memcpy( templist, g_favoriteserverlist, sizeof(servernode_t)*MAX_FAVORITESERVERS );
@@ -1435,6 +1461,10 @@ static void ArenaServers_Event( void* ptr, int event ) {
 		ArenaServers_UpdateMenu();
 		break;
 
+        case ID_FILTER:
+		ArenaServers_UpdateMenu();
+		break;
+
 	case ID_LIST:
 		if( event == QM_GOTFOCUS ) {
 			ArenaServers_UpdatePicture();
@@ -1558,7 +1588,8 @@ static void ArenaServers_MenuInit( void ) {
 	g_arenaservers.banner.style  	    = UI_CENTER;
 	g_arenaservers.banner.color  	    = color_white;
 
-	y = 80-SMALLCHAR_HEIGHT;
+	//y = 80-SMALLCHAR_HEIGHT;
+	y = 70-SMALLCHAR_HEIGHT;
 	g_arenaservers.master.generic.type			= MTYPE_SPINCONTROL;
 	g_arenaservers.master.generic.name			= "Servers:";
 	g_arenaservers.master.generic.flags			= QMF_PULSEIFFOCUS|QMF_SMALLFONT;
@@ -1623,6 +1654,17 @@ static void ArenaServers_MenuInit( void ) {
 	g_arenaservers.hideprivate.generic.id			= ID_HIDE_PRIVATE;
 	g_arenaservers.hideprivate.generic.x			= 320;
 	g_arenaservers.hideprivate.generic.y			= y;
+
+        y += SMALLCHAR_HEIGHT;
+	g_arenaservers.filter.generic.type		= MTYPE_FIELD;
+	g_arenaservers.filter.generic.name		= "Filter:";
+	g_arenaservers.filter.generic.flags		= QMF_PULSEIFFOCUS|QMF_SMALLFONT;
+	g_arenaservers.filter.generic.callback	= ArenaServers_Event;
+	g_arenaservers.filter.generic.id			= ID_FILTER;
+	g_arenaservers.filter.generic.x			= 320;
+	g_arenaservers.filter.generic.y			= y;
+	g_arenaservers.filter.field.widthInChars	= 31;
+	g_arenaservers.filter.field.maxchars		= MAX_HOSTNAMELENGTH;
 
 	y += 2 * SMALLCHAR_HEIGHT;
 	g_arenaservers.list.generic.type			= MTYPE_SCROLLLIST;
@@ -1766,6 +1808,7 @@ static void ArenaServers_MenuInit( void ) {
 	Menu_AddItem( &g_arenaservers.menu, (void*) &g_arenaservers.showempty );
         Menu_AddItem( &g_arenaservers.menu, (void*) &g_arenaservers.onlyhumans );
         Menu_AddItem( &g_arenaservers.menu, (void*) &g_arenaservers.hideprivate );
+        Menu_AddItem( &g_arenaservers.menu, (void*) &g_arenaservers.filter );
 
 	Menu_AddItem( &g_arenaservers.menu, (void*) &g_arenaservers.mappic );
 	Menu_AddItem( &g_arenaservers.menu, (void*) &g_arenaservers.list );
@@ -1808,6 +1851,8 @@ static void ArenaServers_MenuInit( void ) {
         
         g_arenaservers.hideprivate.curvalue = 1; //Com_Clamp( 0, 1, ui_browserOnlyHumans.integer );
         g_hideprivate = 1; //ui_browserOnlyHumans.integer;
+
+        g_arenaservers.filter.field.buffer[0] = '\0';
 
 	// force to initial state and refresh
 	g_arenaservers.master.curvalue = g_servertype = ArenaServers_SetType(g_servertype);

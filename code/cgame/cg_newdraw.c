@@ -160,8 +160,6 @@ void CG_SelectPrevPlayer( void ) {
 
 
 static void CG_DrawPlayerArmorIcon( rectDef_t *rect, qboolean draw2D ) {
-	centity_t	*cent;
-	playerState_t	*ps;
 	vec3_t		angles;
 	vec3_t		origin;
 
@@ -169,8 +167,6 @@ static void CG_DrawPlayerArmorIcon( rectDef_t *rect, qboolean draw2D ) {
 		return;
 	}
 
-	cent = &cg_entities[cg.snap->ps.clientNum];
-	ps = &cg.snap->ps;
 
 	if ( draw2D || ( !cg_draw3dIcons.integer && cg_drawIcons.integer) ) { // bk001206 - parentheses
 		CG_DrawPic( rect->x, rect->y + rect->h/2 + 1, rect->w, rect->h, cgs.media.armorIcon );
@@ -189,10 +185,8 @@ static void CG_DrawPlayerArmorIcon( rectDef_t *rect, qboolean draw2D ) {
 static void CG_DrawPlayerArmorValue(rectDef_t *rect, float scale, vec4_t color, qhandle_t shader, int textStyle) {
 	char	num[16];
   int value;
-	centity_t	*cent;
 	playerState_t	*ps;
 
-  cent = &cg_entities[cg.snap->ps.clientNum];
 	ps = &cg.snap->ps;
 
 	value = ps->stats[STAT_ARMOR];

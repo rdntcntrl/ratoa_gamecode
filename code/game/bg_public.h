@@ -760,7 +760,7 @@ typedef enum {
 							// EFX: rotate + bob
 	IT_PERSISTANT_POWERUP,
 	IT_TEAM,
-	IT_COIN,
+	IT_COIN
 } itemType_t;
 
 #define MAX_ITEM_MODELS 4

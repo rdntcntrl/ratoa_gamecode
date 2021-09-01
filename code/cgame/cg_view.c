@@ -336,21 +336,23 @@ static void CG_OffsetFirstPersonView( void ) {
 		return;
 	}
 
-	// add angles based on weapon kick
-	VectorAdd (angles, cg.kick_angles, angles);
+	if (cgs.ratFlags & RAT_SCREENSHAKE) {
+		// add angles based on weapon kick
+		VectorAdd (angles, cg.kick_angles, angles);
 
-	// add angles based on damage kick
-	if ( cg.damageTime && cgs.gametype!=GT_ELIMINATION && cgs.gametype!=GT_CTF_ELIMINATION && cgs.gametype!=GT_LMS) {
-		ratio = cg.time - cg.damageTime;
-		if ( ratio < DAMAGE_DEFLECT_TIME ) {
-			ratio /= DAMAGE_DEFLECT_TIME;
-			angles[PITCH] += ratio * cg.v_dmg_pitch;
-			angles[ROLL] += ratio * cg.v_dmg_roll;
-		} else {
-			ratio = 1.0 - ( ratio - DAMAGE_DEFLECT_TIME ) / DAMAGE_RETURN_TIME;
-			if ( ratio > 0 ) {
+		// add angles based on damage kick
+		if ( cg.damageTime && cgs.gametype!=GT_ELIMINATION && cgs.gametype!=GT_CTF_ELIMINATION && cgs.gametype!=GT_LMS) {
+			ratio = cg.time - cg.damageTime;
+			if ( ratio < DAMAGE_DEFLECT_TIME ) {
+				ratio /= DAMAGE_DEFLECT_TIME;
 				angles[PITCH] += ratio * cg.v_dmg_pitch;
 				angles[ROLL] += ratio * cg.v_dmg_roll;
+			} else {
+				ratio = 1.0 - ( ratio - DAMAGE_DEFLECT_TIME ) / DAMAGE_RETURN_TIME;
+				if ( ratio > 0 ) {
+					angles[PITCH] += ratio * cg.v_dmg_pitch;
+					angles[ROLL] += ratio * cg.v_dmg_roll;
+				}
 			}
 		}
 	}
@@ -400,13 +402,15 @@ static void CG_OffsetFirstPersonView( void ) {
 			* (DUCK_TIME - timeDelta) / DUCK_TIME;
 	}
 
-	// add bob height
-	bob = cg.bobfracsin * cg.xyspeed * cg_bobup.value;
-	if (bob > 6) {
-		bob = 6;
-	}
+	if (!(cgs.ratFlags & RAT_NOBOBUP)) {
+		// add bob height
+		bob = cg.bobfracsin * cg.xyspeed * cg_bobup.value;
+		if (bob > 6) {
+			bob = 6;
+		}
 
-	origin[2] += bob;
+		origin[2] += bob;
+	}
 
 
 	// add fall height
@@ -443,20 +447,45 @@ static void CG_OffsetFirstPersonView( void ) {
 
 //======================================================================
 
+void CG_ZoomIn( void ) {
+	cg.zoomed = qtrue;
+	cg.zoomTime = cg.time;
+	if (cgs.ratFlags & RAT_SPECSHOWZOOM) {
+		trap_SendClientCommand( "zoom" );
+	}
+}
+
+void CG_ZoomOut( void ) {
+	cg.zoomed = qfalse;
+	cg.zoomTime = cg.time;
+	if (cgs.ratFlags & RAT_SPECSHOWZOOM) {
+		trap_SendClientCommand( "unzoom" );
+	}
+}
+
 void CG_ZoomDown_f( void ) { 
+	if (cg_zoomToggle.integer) {
+		if (cg.zoomed) {
+			CG_ZoomOut();
+		} else {
+			CG_ZoomIn();
+		}
+		return;
+	}
 	if ( cg.zoomed ) {
 		return;
 	}
-	cg.zoomed = qtrue;
-	cg.zoomTime = cg.time;
+	CG_ZoomIn();
 }
 
 void CG_ZoomUp_f( void ) { 
+	if (cg_zoomToggle.integer) {
+		return;
+	}
 	if ( !cg.zoomed ) {
 		return;
 	}
-	cg.zoomed = qfalse;
-	cg.zoomTime = cg.time;
+	CG_ZoomOut();
 }
 
 
@@ -469,14 +498,15 @@ Fixed fov at intermissions, otherwise account for fov variable and zooms.
 */
 #define	WAVE_AMPLITUDE	1
 #define	WAVE_FREQUENCY	0.4
+#define MAX_FOV_X 145
+#define MAX_BASICLOCK_FOV 140
 
-static int CG_CalcFov( void ) {
+static int CG_CalcFovImpl( float fov, float zoomFov ) {
 	float	x;
 	float	phase;
 	float	v;
 	int		contents;
 	float	fov_x, fov_y;
-	float	zoomFov;
 	float	f;
 	int		inwater;
 
@@ -489,14 +519,15 @@ static int CG_CalcFov( void ) {
 			// dmflag to prevent wide fov for all clients
 			fov_x = 90;
 		} else {
-			fov_x = cg_fov.value;
+			fov_x = fov;
 			if ( fov_x < 1 ) {
 				fov_x = 1;
-			} else if ( fov_x > 160 ) {
-				fov_x = 160;
+			} else if ( fov_x > MAX_FOV_X ) {
+				Com_Printf("limiting fov to 145!\n");
+				fov_x = MAX_FOV_X;
 			}
-                        if( (cgs.videoflags & VF_LOCK_CVARS_BASIC) && fov_x>140 )
-                            fov_x = 140;
+                        if( (cgs.videoflags & VF_LOCK_CVARS_BASIC) && fov_x>MAX_BASICLOCK_FOV )
+                            fov_x = MAX_BASICLOCK_FOV;
 
 		}
 
@@ -505,27 +536,26 @@ static int CG_CalcFov( void ) {
 			zoomFov = 22.5;
 		} else {
                         // account for zooms
-                        zoomFov = cg_zoomFov.value;
                         if ( zoomFov < 1 ) {
                                 zoomFov = 1;
-                        } else if ( zoomFov > 160 ) {
-                                zoomFov = 160;
+                        } else if ( zoomFov > MAX_FOV_X ) {
+                                zoomFov = MAX_FOV_X;
                         }
 
-                        if( (cgs.videoflags & VF_LOCK_CVARS_BASIC) && zoomFov>140 )
-                                zoomFov = 140;
+                        if( (cgs.videoflags & VF_LOCK_CVARS_BASIC) && zoomFov>MAX_BASICLOCK_FOV )
+                                zoomFov = MAX_BASICLOCK_FOV;
                 }
 
 		if ( cg.zoomed ) {
-			f = ( cg.time - cg.zoomTime ) / (float)ZOOM_TIME;
-			if ( f > 1.0 ) {
+			f = ( cg.time - cg.zoomTime ) / (float)ZOOM_TIME*cg_zoomAnimScale.value;
+			if ( f > 1.0 || cg_zoomAnim.integer == 0) {
 				fov_x = zoomFov;
 			} else {
 				fov_x = fov_x + f * ( zoomFov - fov_x );
 			}
 		} else {
-			f = ( cg.time - cg.zoomTime ) / (float)ZOOM_TIME;
-			if ( f > 1.0 ) {
+			f = ( cg.time - cg.zoomTime ) / (float)ZOOM_TIME*cg_zoomAnimScale.value;
+			if ( f > 1.0 || cg_zoomAnim.integer == 0) {
 				fov_x = fov_x;
 			} else {
 				fov_x = zoomFov + f * ( fov_x - zoomFov );
@@ -555,13 +585,38 @@ static int CG_CalcFov( void ) {
 	cg.refdef.fov_x = fov_x;
 	cg.refdef.fov_y = fov_y;
 
-	if ( !cg.zoomed ) {
-		cg.zoomSensitivity = 1;
+	if (cg_sensScaleWithFOV.integer) {
+		cg.zoomSensitivity = cg.refdef.fov_x / 90.0;
 	} else {
-		cg.zoomSensitivity = cg.refdef.fov_y / 75.0;
+		if ( !cg.zoomed ) {
+			cg.zoomSensitivity = 1;
+		} else {
+			cg.zoomSensitivity = cg.refdef.fov_y / 75.0;
+		}
 	}
 
 	return inwater;
+}
+
+float CG_HorPlusFovX(float fov_y) {
+	float y;
+	y = cg.refdef.height / tan ( fov_y / 360 * M_PI );
+	return atan2(cg.refdef.width, y) * 360 / M_PI;
+}
+
+static int CG_CalcFov( void ) {
+	float fov = cg_fov.value;
+	float zoomFov = cg_zoomFovTmp.value > 0 ? cg_zoomFovTmp.value : cg_zoomFov.value;
+
+	if (cg_horplus.integer) {
+		// when using HOR+ FOV, cg_fov / cg_zoomFov refer to the
+		// vertical FOV and the horizontal FOV is scaled based on the
+		// screen's aspect ratio: 
+		fov = CG_HorPlusFovX(fov);
+		zoomFov = CG_HorPlusFovX(zoomFov);
+	}
+
+	return CG_CalcFovImpl(fov, zoomFov);
 }
 
 
@@ -576,6 +631,10 @@ static void CG_DamageBlendBlob( void ) {
 	int			t;
 	int			maxTime;
 	refEntity_t		ent;
+
+	if (cg_hudDamageIndicator.integer < 2 || cg_hudDamageIndicator.integer > 3) {
+		return;
+	}
 
 	if ( !cg.damageValue ) {
 		return;
@@ -602,15 +661,34 @@ static void CG_DamageBlendBlob( void ) {
 	ent.renderfx = RF_FIRST_PERSON;
 
 	VectorMA( cg.refdef.vieworg, 8, cg.refdef.viewaxis[0], ent.origin );
-	VectorMA( ent.origin, cg.damageX * -8, cg.refdef.viewaxis[1], ent.origin );
-	VectorMA( ent.origin, cg.damageY * 8, cg.refdef.viewaxis[2], ent.origin );
+	if (cg_hudDamageIndicator.integer == 3) {
+		VectorMA( ent.origin, cg.damageX * -8, cg.refdef.viewaxis[1], ent.origin );
+		VectorMA( ent.origin, cg.damageY * 8, cg.refdef.viewaxis[2], ent.origin );
+	}
 
-	ent.radius = cg.damageValue * 3;
-	ent.customShader = cgs.media.viewBloodShader;
-	ent.shaderRGBA[0] = 255;
-	ent.shaderRGBA[1] = 255;
-	ent.shaderRGBA[2] = 255;
-	ent.shaderRGBA[3] = 200 * ( 1.0 - ((float)t / maxTime) );
+	if (cg_hudDamageIndicator.integer == 2) {
+		float phi = atan2(cg.damageY, cg.damageX); 
+		phi = phi/M_PI * 180;
+		if (phi < 0) {
+			phi += 360;
+		}
+		ent.rotation = phi;
+		// make sure it stays the same size regardless of fov
+		ent.radius = tan(cg.refdef.fov_x * M_PI/360.0);
+		ent.radius *= 3.5 * cg_hudDamageIndicatorScale.value;
+		ent.customShader = cgs.media.damageIndicatorCenter;
+		ent.shaderRGBA[0] = 255;
+		ent.shaderRGBA[1] = 0;
+		ent.shaderRGBA[2] = 0;
+		ent.shaderRGBA[3] = 255.0 * MAX(0.0, MIN(1.0, cg_hudDamageIndicatorAlpha.value)) * ( 1.0 - ((float)t / maxTime) );
+	} else {
+		ent.radius = cg.damageValue * 3;
+		ent.customShader = cgs.media.viewBloodShader;
+		ent.shaderRGBA[0] = 255;
+		ent.shaderRGBA[1] = 255;
+		ent.shaderRGBA[2] = 255;
+		ent.shaderRGBA[3] = 200 * ( 1.0 - ((float)t / maxTime) );
+	}
 	trap_R_AddRefEntityToScene( &ent );
 }
 
@@ -742,7 +820,7 @@ void CG_AddBufferedSound( sfxHandle_t sfx ) {
 	cg.soundBuffer[cg.soundBufferIn] = sfx;
 	cg.soundBufferIn = (cg.soundBufferIn + 1) % MAX_SOUNDBUFFER;
 	if (cg.soundBufferIn == cg.soundBufferOut) {
-		cg.soundBufferOut++;
+		cg.soundBufferOut = (cg.soundBufferOut + 1) % MAX_SOUNDBUFFER;
 	}
 }
 
@@ -757,12 +835,143 @@ static void CG_PlayBufferedSounds( void ) {
 			trap_S_StartLocalSound(cg.soundBuffer[cg.soundBufferOut], CHAN_ANNOUNCER);
 			cg.soundBuffer[cg.soundBufferOut] = 0;
 			cg.soundBufferOut = (cg.soundBufferOut + 1) % MAX_SOUNDBUFFER;
-			cg.soundTime = cg.time + 750;
+			cg.soundTime = cg.time + MAX(0,cg_soundBufferDelay.integer);
+			//cg.soundTime = cg.time + 750;
+		}
+	}
+}
+
+int CG_AddBufferedRewardSound( sfxHandle_t sfx ) {
+	int delay = 0;
+	int delayFactor = 0;
+	if ( !sfx )
+		return delay;
+	cg.rewardSoundBuffer[cg.rewardSoundBufferIn] = sfx;
+	cg.rewardSoundBufferIn = (cg.rewardSoundBufferIn + 1) % MAX_REWARDSOUNDBUFFER;
+	if (cg.rewardSoundBufferIn == cg.rewardSoundBufferOut) {
+		cg.rewardSoundBufferOut = (cg.rewardSoundBufferOut + 1) % MAX_REWARDSOUNDBUFFER;
+	}
+	if (cg.rewardSoundBufferOut < cg.rewardSoundBufferIn) {
+		delayFactor =  cg.rewardSoundBufferIn - cg.rewardSoundBufferOut -1;
+	} else {
+		delayFactor = cg.rewardSoundBufferIn + MAX_REWARDSOUNDBUFFER - cg.rewardSoundBufferOut -1;
+	}
+	if (cg.rewardSoundTime > cg.time) {
+		delay += cg.rewardSoundTime - cg.time;
+	}
+	delay += delayFactor * REWARD2_SOUNDDELAY;
+	return delay;
+	
+}
+
+static void CG_PlayBufferedRewardSounds( void ) {
+	if ( cg.rewardSoundTime < cg.time ) {
+		if (cg.rewardSoundBufferOut != cg.rewardSoundBufferIn && cg.rewardSoundBuffer[cg.rewardSoundBufferOut]) {
+			trap_S_StartLocalSound(cg.rewardSoundBuffer[cg.rewardSoundBufferOut], CHAN_ANNOUNCER);
+			cg.rewardSoundBuffer[cg.rewardSoundBufferOut] = 0;
+			cg.rewardSoundBufferOut = (cg.rewardSoundBufferOut + 1) % MAX_REWARDSOUNDBUFFER;
+			cg.rewardSoundTime = cg.time + REWARD2_SOUNDDELAY;
 		}
 	}
 }
 
 //=========================================================================
+
+
+void CG_AddSpawnpoints( void ){
+	int i;
+	refEntity_t		legs;
+	refEntity_t		torso;
+	refEntity_t		head;
+	clientInfo_t	*ci;
+
+	if( !cg_drawSpawnpoints.integer )
+		return;
+
+	ci = &cgs.clientinfo[ cg.snap->ps.clientNum ];
+	memset( &legs, 0, sizeof(legs) );
+	memset( &torso, 0, sizeof(torso) );
+	memset( &head, 0, sizeof(head) );
+
+	legs.hModel = ci->legsModel;
+	torso.hModel = ci->torsoModel;
+	head.hModel = ci->headModel;
+
+	legs.customShader = cgs.media.spawnPointShader;
+	torso.customShader = cgs.media.spawnPointShader;
+	head.customShader = cgs.media.spawnPointShader;
+
+	legs.frame = ci->animations[ LEGS_IDLE ].firstFrame;
+	legs.oldframe = legs.frame;
+	torso.frame = ci->animations[ TORSO_STAND ].firstFrame;
+	torso.oldframe = torso.frame;
+	
+	for( i=0; i < cg.numSpawnpoints; i++ ){
+	    VectorCopy( cg.spawnpoints[i].origin, legs.origin);
+	    AnglesToAxis(cg.spawnpoints[i].angle, legs.axis);
+	    //AnglesToAxis(cg.spawnpoints[i].angle, torso.axis);
+	    //AnglesToAxis(cg.spawnpoints[i].angle, head.axis);
+
+	    legs.shaderRGBA[3] = 255;
+	    if( cg.spawnpoints[i].team == TEAM_BLUE ){
+		    legs.shaderRGBA[0] = 0;
+		    legs.shaderRGBA[1] = 0;
+		    legs.shaderRGBA[2] = 255;
+	    } else if( cg.spawnpoints[i].team == TEAM_RED ){
+		    legs.shaderRGBA[0] = 255;
+		    legs.shaderRGBA[1] = 0;
+		    legs.shaderRGBA[2] = 0;
+	    } else {
+		    legs.shaderRGBA[0] = 255;
+		    legs.shaderRGBA[1] = 255;
+		    legs.shaderRGBA[2] = 255;
+	    }
+	    memcpy(&torso.shaderRGBA, &legs.shaderRGBA, sizeof(legs.shaderRGBA));
+	    memcpy(&head.shaderRGBA, &legs.shaderRGBA, sizeof(legs.shaderRGBA));
+
+	    trap_R_AddRefEntityToScene(&legs);
+	    AxisClear(torso.axis);
+	    CG_PositionRotatedEntityOnTag( &torso, &legs, ci->legsModel, "tag_torso");
+	    trap_R_AddRefEntityToScene(&torso);
+	    AxisClear(head.axis);
+	    CG_PositionRotatedEntityOnTag( &head, &torso, ci->torsoModel, "tag_head");
+	    trap_R_AddRefEntityToScene(&head);
+	}
+}
+
+void CG_SpecZooming(void) {
+	qboolean enabled = (cg_specShowZoom.integer && cgs.ratFlags & RAT_SPECSHOWZOOM);
+
+	if (cg.specZoomed) {
+		if (!enabled || cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR 
+				|| (!(cg.snap->ps.pm_flags & PMF_FOLLOW) && !cg.demoPlayback) ) {
+			// reset spectator zoom if we are in free spec / not following anyone
+			cg.zoomed = qfalse;
+			cg.specZoomed = qfalse;
+			cg.zoomTime = cg.time;
+			return;
+		}
+
+		if (!(cg.snap->ps.stats[STAT_EXTFLAGS] & EXTFL_ZOOMING)) {
+			cg.zoomed = qfalse;
+			cg.specZoomed = qfalse;
+			cg.zoomTime = cg.time;
+		}
+	}  
+
+	if (!enabled || (!(cg.snap->ps.pm_flags & PMF_FOLLOW) && !cg.demoPlayback)) {
+		return;
+	}
+
+	if ((cg.snap->ps.stats[STAT_EXTFLAGS] & EXTFL_ZOOMING)) {
+		if (!cg.zoomed) {
+			cg.specZoomed = qtrue;
+			cg.zoomTime = cg.time;
+		}
+		cg.zoomed = qtrue;
+	}
+}
+
 
 /*
 =================
@@ -816,6 +1025,8 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demo
 	// decide on third person view
 	cg.renderingThirdPerson = cg_thirdPerson.integer || (cg.snap->ps.stats[STAT_HEALTH] <= 0);
 
+	CG_SpecZooming();
+
 	// build cg.refdef
 	inwater = CG_CalcViewValues();
 
@@ -827,14 +1038,20 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demo
 	// build the render lists
 	if ( !cg.hyperspace ) {
 		CG_AddPacketEntities();			// adter calcViewValues, so predicted player state is correct
+		CG_AddPredictedMissiles();
 		CG_AddMarks();
 		CG_AddParticles ();
 		CG_AddLocalEntities();
+		if ( cg.warmup != 0 ) {
+			CG_AddSpawnpoints();
+		}
 	}
 	CG_AddViewWeapon( &cg.predictedPlayerState );
 
 	// add buffered sounds
 	CG_PlayBufferedSounds();
+
+	CG_PlayBufferedRewardSounds();
 
 	// play buffered voice chats
 	CG_PlayBufferedVoiceChats();

@@ -197,6 +197,8 @@ void CG_Respawn( void ) {
 
 	// select the weapon the server says we are using
 	cg.weaponSelect = cg.snap->ps.weapon;
+
+	CG_ResetStatusbar();
 }
 
 extern char *eventnames[];
@@ -275,17 +277,44 @@ void CG_CheckChangedPredictableEvents( playerState_t *ps ) {
 	}
 }
 
-/*
-==================
-pushReward
-==================
-*/
-static void pushReward(sfxHandle_t sfx, qhandle_t shader, int rewardCount) {
-	if (cg.rewardStack < (MAX_REWARDSTACK-1)) {
-		cg.rewardStack++;
-		cg.rewardSound[cg.rewardStack] = sfx;
-		cg.rewardShader[cg.rewardStack] = shader;
-		cg.rewardCount[cg.rewardStack] = rewardCount;
+void CG_PushReward(sfxHandle_t sfx, qhandle_t shader, int rewardCount) {
+	if (cg_drawRewards.integer == 2) {
+		if (cg.rewardStack < (MAX_REWARDSTACK-1)) {
+			cg.rewardStack++;
+			cg.rewardSound[cg.rewardStack] = sfx;
+			cg.rewardShader[cg.rewardStack] = shader;
+			cg.rewardCount[cg.rewardStack] = rewardCount;
+		}
+	} else {
+		int i = 0;
+		qboolean found = qfalse;
+		for (i = 0; i < MAX_REWARDROW; ++i) {
+			if (cg.reward2Shader[i] == shader 
+					&& (cg.reward2RowTimes[i] == -1 
+						|| (cg.reward2RowTimes[i] > 0 
+							&& cg.reward2RowTimes[i] + CG_Reward2Time(i) > cg.time)
+						)
+					) {
+				found = qtrue;
+				break;
+			}
+		}
+		if (!found) {
+			for (i = 0; i < MAX_REWARDROW; ++i) {
+				if (cg.reward2RowTimes[i] == -1 || (cg.reward2RowTimes[i] > 0 && cg.reward2RowTimes[i] + CG_Reward2Time(i) > cg.time)) {
+					continue;
+				}
+				found = qtrue;
+				break;
+			}
+		}
+		if (!found) {
+			return;
+		}
+		cg.reward2RowTimes[i] = -1;
+		cg.reward2Shader[i] = shader;
+		cg.reward2Count[i] = rewardCount;
+		cg.reward2SoundDelay[i] = CG_AddBufferedRewardSound(sfx);
 	}
 }
 
@@ -296,8 +325,12 @@ CG_CheckLocalSounds
 ==================
 */
 void CG_CheckLocalSounds( playerState_t *ps, playerState_t *ops ) {
-	int			highScore, health, armor, reward;
+	int			highScore, reward;
+#ifdef MISSIONPACK
+	int			health, armor;
+#endif
 	sfxHandle_t sfx;
+	int damage;
 
 	// don't play the sounds if the player just changed teams
 	if ( ps->persistant[PERS_TEAM] != ops->persistant[PERS_TEAM] ) {
@@ -306,9 +339,9 @@ void CG_CheckLocalSounds( playerState_t *ps, playerState_t *ops ) {
 
 	// hit changes
 	if ( ps->persistant[PERS_HITS] > ops->persistant[PERS_HITS] ) {
+#ifdef MISSIONPACK
 		armor  = ps->persistant[PERS_ATTACKEE_ARMOR] & 0xff;
 		health = ps->persistant[PERS_ATTACKEE_ARMOR] >> 8;
-#ifdef MISSIONPACK
 		if (armor > 50 ) {
 			trap_S_StartLocalSound( cgs.media.hitSoundHighArmor, CHAN_LOCAL_SOUND );
 		} else if (armor || health > 100) {
@@ -317,7 +350,25 @@ void CG_CheckLocalSounds( playerState_t *ps, playerState_t *ops ) {
 			trap_S_StartLocalSound( cgs.media.hitSound, CHAN_LOCAL_SOUND );
 		}
 #else
-		trap_S_StartLocalSound( cgs.media.hitSound, CHAN_LOCAL_SOUND );
+		cg.lastHitTime = cg.time;
+		cg.lastHitDamage = ps->persistant[PERS_DAMAGE_DONE] - ops->persistant[PERS_DAMAGE_DONE];
+
+		if (cg_hitsound.integer == 2) {
+			trap_S_StartLocalSound( cgs.media.hitSound, CHAN_LOCAL_SOUND );
+		} else {
+			damage = ps->persistant[PERS_DAMAGE_DONE] - ops->persistant[PERS_DAMAGE_DONE];
+			if (damage >= 100) {
+				trap_S_StartLocalSound( cgs.media.hitSound0, CHAN_LOCAL_SOUND );
+			} else if (damage >= 75) {
+				trap_S_StartLocalSound( cgs.media.hitSound1, CHAN_LOCAL_SOUND );
+			} else if (damage >= 50) {
+				trap_S_StartLocalSound( cgs.media.hitSound2, CHAN_LOCAL_SOUND );
+			} else if (damage >= 25) {
+				trap_S_StartLocalSound( cgs.media.hitSound3, CHAN_LOCAL_SOUND );
+			} else {
+				trap_S_StartLocalSound( cgs.media.hitSound4, CHAN_LOCAL_SOUND );
+			}
+		}
 #endif
 	} else if ( ps->persistant[PERS_HITS] < ops->persistant[PERS_HITS] ) {
 		trap_S_StartLocalSound( cgs.media.hitTeamSound, CHAN_LOCAL_SOUND );
@@ -339,7 +390,7 @@ void CG_CheckLocalSounds( playerState_t *ps, playerState_t *ops ) {
 	// reward sounds
 	reward = qfalse;
 	if (ps->persistant[PERS_CAPTURES] != ops->persistant[PERS_CAPTURES]) {
-		pushReward(cgs.media.captureAwardSound, cgs.media.medalCapture, ps->persistant[PERS_CAPTURES]);
+		CG_PushReward(cgs.media.captureAwardSound, cgs.media.medalCapture, ps->persistant[PERS_CAPTURES]);
 		reward = qtrue;
 		//Com_Printf("capture\n");
 	}
@@ -353,7 +404,7 @@ void CG_CheckLocalSounds( playerState_t *ps, playerState_t *ops ) {
 #else
 		sfx = cgs.media.impressiveSound;
 #endif
-		pushReward(sfx, cgs.media.medalImpressive, ps->persistant[PERS_IMPRESSIVE_COUNT]);
+		CG_PushReward(sfx, cgs.media.medalImpressive, ps->persistant[PERS_IMPRESSIVE_COUNT]);
 		reward = qtrue;
 		//Com_Printf("impressive\n");
 	}
@@ -370,7 +421,7 @@ void CG_CheckLocalSounds( playerState_t *ps, playerState_t *ops ) {
 		    sfx = cgs.media.excellentSound;
 #endif
 
-		    pushReward(sfx, cgs.media.medalExcellent, ps->persistant[PERS_EXCELLENT_COUNT]);
+		    CG_PushReward(sfx, cgs.media.medalExcellent, ps->persistant[PERS_EXCELLENT_COUNT]);
 		    reward = qtrue;
 		    //Com_Printf("excellent\n");
 	    }
@@ -385,17 +436,17 @@ void CG_CheckLocalSounds( playerState_t *ps, playerState_t *ops ) {
 #else
 		sfx = cgs.media.humiliationSound;
 #endif
-		pushReward(sfx, cgs.media.medalGauntlet, ps->persistant[PERS_GAUNTLET_FRAG_COUNT]);
+		CG_PushReward(sfx, cgs.media.medalGauntlet, ps->persistant[PERS_GAUNTLET_FRAG_COUNT]);
 		reward = qtrue;
 		//Com_Printf("guantlet frag\n");
 	}
 	if (ps->persistant[PERS_DEFEND_COUNT] != ops->persistant[PERS_DEFEND_COUNT]) {
-		pushReward(cgs.media.defendSound, cgs.media.medalDefend, ps->persistant[PERS_DEFEND_COUNT]);
+		CG_PushReward(cgs.media.defendSound, cgs.media.medalDefend, ps->persistant[PERS_DEFEND_COUNT]);
 		reward = qtrue;
 		//Com_Printf("defend\n");
 	}
 	if (ps->persistant[PERS_ASSIST_COUNT] != ops->persistant[PERS_ASSIST_COUNT]) {
-		pushReward(cgs.media.assistSound, cgs.media.medalAssist, ps->persistant[PERS_ASSIST_COUNT]);
+		CG_PushReward(cgs.media.assistSound, cgs.media.medalAssist, ps->persistant[PERS_ASSIST_COUNT]);
 		reward = qtrue;
 		//Com_Printf("assist\n");
 	}
@@ -425,6 +476,32 @@ void CG_CheckLocalSounds( playerState_t *ps, playerState_t *ops ) {
 			trap_S_StartLocalSound( cgs.media.youHaveFlagSound, CHAN_ANNOUNCER );
 		}
 	}
+	
+	// check for powerup pickup
+	if ((ps->powerups[PW_QUAD] != ops->powerups[PW_QUAD] && ps->powerups[PW_QUAD])
+			&& cgs.media.announceQuad) {
+		trap_S_StartLocalSound( cgs.media.announceQuad, CHAN_ANNOUNCER );
+	}
+	if ((ps->powerups[PW_BATTLESUIT] != ops->powerups[PW_BATTLESUIT] && ps->powerups[PW_BATTLESUIT])
+			&& cgs.media.announceBattlesuit) {
+		trap_S_StartLocalSound( cgs.media.announceBattlesuit, CHAN_ANNOUNCER );
+	}
+	if ((ps->powerups[PW_HASTE] != ops->powerups[PW_HASTE] && ps->powerups[PW_HASTE])
+			&& cgs.media.announceHaste) {
+		trap_S_StartLocalSound( cgs.media.announceHaste, CHAN_ANNOUNCER );
+	}
+	if ((ps->powerups[PW_INVIS] != ops->powerups[PW_INVIS] && ps->powerups[PW_INVIS])
+			&& cgs.media.announceInvis) {
+		trap_S_StartLocalSound( cgs.media.announceInvis, CHAN_ANNOUNCER );
+	}
+	if ((ps->powerups[PW_REGEN] != ops->powerups[PW_REGEN] && ps->powerups[PW_REGEN])
+			&& cgs.media.announceRegen) {
+		trap_S_StartLocalSound( cgs.media.announceRegen, CHAN_ANNOUNCER );
+	}
+	if ((ps->powerups[PW_FLIGHT] != ops->powerups[PW_FLIGHT] && ps->powerups[PW_FLIGHT])
+			&& cgs.media.announceFlight) {
+		trap_S_StartLocalSound( cgs.media.announceFlight, CHAN_ANNOUNCER );
+	}
 
 	// lead changes
 	if (!reward) {
@@ -449,19 +526,23 @@ void CG_CheckLocalSounds( playerState_t *ps, playerState_t *ops ) {
 	if ( cgs.timelimit > 0 && cgs.timelimit <= 1000 ) {
 		int		msec;
 
-		msec = cg.time - cgs.levelStartTime;
-		if ( !( cg.timelimitWarnings & 4 ) && msec > ( cgs.timelimit * 60 + 2 ) * 1000 ) {
-			cg.timelimitWarnings |= 1 | 2 | 4;
-			trap_S_StartLocalSound( cgs.media.suddenDeathSound, CHAN_ANNOUNCER );
+		// don't warn during timeout or warmup
+		if (cgs.timeoutEnd <= cg.time && cg.warmup == 0) {
+			msec = cg.time - cgs.levelStartTime;
+			if ( !( cg.timelimitWarnings & 4 ) && msec > ( cgs.timelimit * 60 + 2 ) * 1000 + cgs.timeoutOvertime && cgs.overtime <= 0) {
+				cg.timelimitWarnings |= 1 | 2 | 4;
+				trap_S_StartLocalSound( cgs.media.suddenDeathSound, CHAN_ANNOUNCER );
+			}
+			else if ( !( cg.timelimitWarnings & 2 ) && msec > (cgs.timelimit - 1) * 60 * 1000 + cgs.timeoutOvertime) {
+				cg.timelimitWarnings |= 1 | 2;
+				trap_S_StartLocalSound( cgs.media.oneMinuteSound, CHAN_ANNOUNCER );
+			}
+			else if ( cgs.timelimit > 5 && !( cg.timelimitWarnings & 1 ) && msec > (cgs.timelimit - 5) * 60 * 1000 + cgs.timeoutOvertime ) {
+				cg.timelimitWarnings |= 1;
+				trap_S_StartLocalSound( cgs.media.fiveMinuteSound, CHAN_ANNOUNCER );
+			}
 		}
-		else if ( !( cg.timelimitWarnings & 2 ) && msec > (cgs.timelimit - 1) * 60 * 1000 ) {
-			cg.timelimitWarnings |= 1 | 2;
-			trap_S_StartLocalSound( cgs.media.oneMinuteSound, CHAN_ANNOUNCER );
-		}
-		else if ( cgs.timelimit > 5 && !( cg.timelimitWarnings & 1 ) && msec > (cgs.timelimit - 5) * 60 * 1000 ) {
-			cg.timelimitWarnings |= 1;
-			trap_S_StartLocalSound( cgs.media.fiveMinuteSound, CHAN_ANNOUNCER );
-		}
+
 	}
 
 	// fraglimit warnings

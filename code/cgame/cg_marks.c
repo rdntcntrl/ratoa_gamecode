@@ -230,7 +230,7 @@ void CG_ImpactMark( qhandle_t markShader, const vec3_t origin, const vec3_t dir,
 CG_AddMarks
 ===============
 */
-#define	MARK_TOTAL_TIME		10000
+#define	MARK_TOTAL_TIME		40000
 #define	MARK_FADE_TIME		1000
 
 void CG_AddMarks( void ) {
@@ -263,12 +263,10 @@ void CG_AddMarks( void ) {
 				if ( fade < 0 ) {
 					fade = 0;
 				}
-				if ( mp->verts[0].modulate[0] != 0 ) {
-					for ( j = 0 ; j < mp->poly.numVerts ; j++ ) {
-						mp->verts[j].modulate[0] = mp->color[0] * fade;
-						mp->verts[j].modulate[1] = mp->color[1] * fade;
-						mp->verts[j].modulate[2] = mp->color[2] * fade;
-					}
+				for ( j = 0 ; j < mp->poly.numVerts ; j++ ) {
+					mp->verts[j].modulate[0] = mp->color[0] * fade;
+					mp->verts[j].modulate[1] = mp->color[1] * fade;
+					mp->verts[j].modulate[2] = mp->color[2] * fade;
 				}
 			}
 		}
@@ -1091,9 +1089,9 @@ void CG_AddParticles (void)
 	float			alpha;
 	float			time, time2;
 	vec3_t			org;
-	int				color;
+	//int				color;
 	cparticle_t		*active, *tail;
-	int				type;
+	//int				type;
 	vec3_t			rotate_ang;
 
 	if (!initparticles)
@@ -1198,7 +1196,7 @@ void CG_AddParticles (void)
 		if (alpha > 1.0)
 			alpha = 1;
 
-		color = p->color;
+		//color = p->color;
 
 		time2 = time*time;
 
@@ -1206,7 +1204,7 @@ void CG_AddParticles (void)
 		org[1] = p->org[1] + p->vel[1]*time + p->accel[1]*time2;
 		org[2] = p->org[2] + p->vel[2]*time + p->accel[2]*time2;
 
-		type = p->type;
+		//type = p->type;
 
 		CG_AddParticleToScene (p, org, alpha);
 	}

@@ -208,6 +208,9 @@ void UI_DrawConnectScreen( qboolean overlay ) {
 		UI_DrawProportionalString_AutoWrapped( 320, 192, 630, 20, cstate.messageString, UI_CENTER|UI_SMALLFONT|UI_DROPSHADOW, menu_text_color );
 	}
 
+	// make sure the nextmap vote menu is closed
+	UI_VoteNextMapMenu_Close();
+
 #if 0
 	// display password field
 	if ( passwordNeeded ) {

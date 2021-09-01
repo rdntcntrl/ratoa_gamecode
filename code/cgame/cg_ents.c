@@ -219,6 +219,122 @@ static void CG_Speaker( centity_t *cent ) {
 	cent->miscTime = cg.time + cent->currentState.frame * 100 + cent->currentState.clientNum * 100 * crandom();
 }
 
+static void CG_TreasureHuntToken ( centity_t *cent ) {
+	refEntity_t		ent;
+	entityState_t	*es;
+	gitem_t			*item;
+	float			scale;
+	int team = cgs.clientinfo[ cg.clientNum ].team;
+
+	es = &cent->currentState;
+	item = &bg_itemlist[ es->modelindex ];
+
+	memset (&ent, 0, sizeof(ent));
+
+	if (cgs.th_tokenStyle == -999) {
+		// restore tokenstyle after vid_restart
+		cgs.th_tokenStyle = cg_thTokenstyle.integer;
+	}
+
+	if (cgs.th_oldTokenStyle != cgs.th_tokenStyle) {
+		cgs.media.thToken = trap_R_RegisterModel( 
+				cgs.th_tokenStyle > 0 ? 
+					va("models/powerups/treasure/thToken%i.md3", cgs.th_tokenStyle )
+					:
+					"models/powerups/treasure/thToken.md3" 
+				);
+		cgs.th_oldTokenStyle = cgs.th_tokenStyle;
+		trap_Cvar_Set("cg_thTokenstyle", va("%i", cgs.th_tokenStyle));
+	}
+
+
+	if (cgs.th_tokenStyle == -1
+			//((item->giTag == HARVESTER_REDCUBE && team == TEAM_RED)
+			// || (item->giTag == HARVESTER_BLUECUBE && team == TEAM_BLUE)
+			 ) {
+		ent.hModel = cg_items[es->modelindex].models[0];
+
+		// items bob up and down continuously
+		scale = 0.005 + cent->currentState.number * 0.00001;
+		cent->lerpOrigin[2] += 4 + cos( ( cg.time + 1000 ) *  scale ) * 4;
+		VectorCopy( cg.autoAngles, cent->lerpAngles );
+		AxisCopy( cg.autoAxis, ent.axis );
+
+		//cent->lerpOrigin[2] -= 10;
+	} else {
+		// tokenstyle == 0 -> make enemy token harder to see
+		ent.hModel = cgs.media.thToken;
+		//cent->lerpOrigin[2] += 8; // good for OA model
+		//cent->lerpOrigin[2] -= 9; // for new token model
+		//cent->lerpOrigin[2] -= 4; // for new token model
+		//cent->lerpOrigin[2] -= 5; // for new token model
+
+		cent->lerpOrigin[2] -= ITEM_RADIUS; // for new token model with anchor at the bottom
+
+		// make it stationary
+		VectorSet( cent->lerpAngles, 0, 0, 0);
+		AnglesToAxis(cent->lerpAngles, ent.axis);
+
+		//// use blue/red shaders for your own team's tokens:
+		//if (item->giTag == HARVESTER_REDCUBE && team == TEAM_RED) {
+		//	ent.customShader = cgs.media.thTokenRedShader;
+		//	//ent.customShader = cgs.media.thTokenTeamShader;
+		//	//ent.shaderRGBA[0] = 255;
+		//	//ent.shaderRGBA[1] = 0;
+		//	//ent.shaderRGBA[2] = 0;
+		//	//ent.shaderRGBA[3] = 255;
+		//} else if (item->giTag == HARVESTER_BLUECUBE && team == TEAM_BLUE) {
+		//	ent.customShader = cgs.media.thTokenBlueShader;
+		//	//ent.customShader = cgs.media.thTokenTeamShader;
+		//	//ent.shaderRGBA[0] = 0;
+		//	//ent.shaderRGBA[1] = 0;
+		//	//ent.shaderRGBA[2] = 255;
+		//	//ent.shaderRGBA[3] = 255;
+		//}
+	}
+
+	VectorCopy( cent->lerpOrigin, ent.origin);
+	VectorCopy( cent->lerpOrigin, ent.oldorigin);
+
+	ent.nonNormalizedAxes = qfalse;
+
+	if (cgs.th_tokenStyle != -1 && ((item->giTag == HARVESTER_REDCUBE && team == TEAM_RED)
+				|| (item->giTag == HARVESTER_BLUECUBE && team == TEAM_BLUE))) {
+		switch (cg_thTokenIndicator.integer) {
+			case 1:
+				if (cgs.th_phase != TH_SEEK) {
+					trap_R_AddRefEntityToScene(&ent);
+				}
+				//ent.radius = 7;
+				ent.radius = 8;
+				//ent.origin[2] += 21; 
+				//ent.oldorigin[2] += 21; 
+				ent.origin[2] += ITEM_RADIUS * 2 + 1;
+				ent.oldorigin[2] += ITEM_RADIUS * 2 + 1;
+				ent.customShader = (team == TEAM_BLUE) ? cgs.media.thTokenBlueISolidShader : cgs.media.thTokenRedISolidShader;
+				break;
+			case 2:
+				trap_R_AddRefEntityToScene(&ent);
+				ent.radius = 17;
+				ent.origin[2] += 11; 
+				ent.oldorigin[2] += 11; 
+				ent.customShader = (team == TEAM_BLUE) ? cgs.media.thTokenBlueIShader : cgs.media.thTokenRedIShader;
+				break;
+			default:
+				return;
+		}
+		ent.reType = RT_SPRITE;
+		ent.shaderRGBA[0] = 255;
+		ent.shaderRGBA[1] = 255;
+		ent.shaderRGBA[2] = 255;
+		ent.shaderRGBA[3] = 255;
+		trap_R_AddRefEntityToScene(&ent);
+	} else {
+		// always add enemy tokens
+		trap_R_AddRefEntityToScene(&ent);
+	}
+}
+
 /*
 ==================
 CG_Item
@@ -244,7 +360,7 @@ static void CG_Item( centity_t *cent ) {
 	}
 
 	item = &bg_itemlist[ es->modelindex ];
-	if ( cg_simpleItems.integer && item->giType != IT_TEAM ) {
+	if ( (cg_simpleItems.integer && item->giType != IT_TEAM) || item->giType == IT_COIN ) {
 		memset( &ent, 0, sizeof( ent ) );
 		ent.reType = RT_SPRITE;
 		VectorCopy( cent->lerpOrigin, ent.origin );
@@ -253,8 +369,24 @@ static void CG_Item( centity_t *cent ) {
 		ent.shaderRGBA[0] = 255;
 		ent.shaderRGBA[1] = 255;
 		ent.shaderRGBA[2] = 255;
-		ent.shaderRGBA[3] = 255;
+		// fade out if the item is about to disappear (for dropped items)
+		if (es->time2 > 0 
+				&& cg_itemFade.integer == 1
+				&& es->time2 < cg.time + cg_itemFadeTime.value
+				) {
+			ent.shaderRGBA[3] = 255 * 
+				MIN(1.0,MAX(0.0,(((float)(cg_itemFadeTime.value - es->time2 + cg.time))/cg_itemFadeTime.value)));
+		} else {
+			// 0 -> full alpha, as the shaders use 'alphaGen oneMinusEntity'
+			// this is so that the icons can still drawn on the HUD/UI
+			ent.shaderRGBA[3] = 0;
+		}
 		trap_R_AddRefEntityToScene(&ent);
+		return;
+	}
+
+	if (cgs.gametype == GT_TREASURE_HUNTER && item->giType == IT_TEAM) {
+		CG_TreasureHuntToken( cent );
 		return;
 	}
 
@@ -310,6 +442,15 @@ static void CG_Item( centity_t *cent ) {
 		VectorScale( ent.axis[1], frac, ent.axis[1] );
 		VectorScale( ent.axis[2], frac, ent.axis[2] );
 		ent.nonNormalizedAxes = qtrue;
+	} else if (es->time2 > 0 
+			&& cg_itemFade.integer == 1
+			&& es->time2 < cg.time + cg_itemFadeTime.value) {
+		// if they're about to disappear, slowly scale down
+		frac = MIN(1.0,MAX(0.0,(((float)(es->time2 - cg.time))/cg_itemFadeTime.value)));
+		VectorScale( ent.axis[0], frac, ent.axis[0] );
+		VectorScale( ent.axis[1], frac, ent.axis[1] );
+		VectorScale( ent.axis[2], frac, ent.axis[2] );
+		ent.nonNormalizedAxes = qtrue;
 	} else {
 		frac = 1.0;
 	}
@@ -327,7 +468,8 @@ static void CG_Item( centity_t *cent ) {
 		VectorScale( ent.axis[1], 1.5, ent.axis[1] );
 		VectorScale( ent.axis[2], 1.5, ent.axis[2] );
 		ent.nonNormalizedAxes = qtrue;
-		trap_S_AddLoopingSound( cent->currentState.number, cent->lerpOrigin, vec3_origin, cgs.media.weaponHoverSound );
+		// remove weird weapon looping sound
+		//trap_S_AddLoopingSound( cent->currentState.number, cent->lerpOrigin, vec3_origin, cgs.media.weaponHoverSound );
 	}
 
 	if ( item->giType == IT_HOLDABLE && item->giTag == HI_KAMIKAZE ) {
@@ -403,6 +545,9 @@ static void CG_Missile( centity_t *cent ) {
 	const weaponInfo_t		*weapon;
 //	int	col;
 
+	CG_RemovePredictedMissile(cent);
+	CG_RecoverMissile(cent);
+
 	s1 = &cent->currentState;
 	if ( s1->weapon >= WP_NUM_WEAPONS ) {
 		s1->weapon = 0;
@@ -412,10 +557,29 @@ static void CG_Missile( centity_t *cent ) {
 	// calculate the axis
 	VectorCopy( s1->angles, cent->lerpAngles);
 
+	if (cent->missileStatus.missileFlags & MF_TRAILFINISHED) {
+		// explosion was predicted, and last bit of trail was drawn
+		// already
+		return;
+	}
+
 	// add trails
 	if ( weapon->missileTrailFunc ) 
 	{
 		weapon->missileTrailFunc( cent, weapon );
+	}
+
+	if (cent->missileStatus.missileFlags & MF_EXPLODED) {
+		// explosion was predicted, don't render the missile anymore
+		// make sure that we don't continue to draw the trail next time
+		cent->missileStatus.missileFlags |= MF_TRAILFINISHED;
+		return;
+	}
+
+
+	if (s1->time2 > 0) {
+		// missile already exploded, don't render it
+		return;
 	}
 /*
 	if ( cent->currentState.modelindex == TEAM_RED ) {
@@ -454,9 +618,15 @@ static void CG_Missile( centity_t *cent ) {
 	VectorCopy( cent->lerpOrigin, ent.origin);
 	VectorCopy( cent->lerpOrigin, ent.oldorigin);
 
+	//CG_Printf("cent->currentState.pos.trTime = %i, trBase = %f %f %f\n", cent->currentState.pos.trTime,
+	//		cent->currentState.pos.trBase[0],
+	//		cent->currentState.pos.trBase[1],
+	//		cent->currentState.pos.trBase[2]
+	//		);
+
 	if ( cent->currentState.weapon == WP_PLASMAGUN ) {
 		ent.reType = RT_SPRITE;
-		ent.radius = 16;
+		ent.radius = PLASMABALL_RADIUS;
 		ent.rotation = 0;
 		ent.customShader = cgs.media.plasmaBallShader;
 		trap_R_AddRefEntityToScene( &ent );
@@ -467,6 +637,24 @@ static void CG_Missile( centity_t *cent ) {
 	ent.skinNum = cg.clientFrame & 1;
 	ent.hModel = weapon->missileModel;
 	ent.renderfx = weapon->missileRenderfx | RF_NOSHADOW;
+
+	if (cent->currentState.weapon == WP_GRENADE_LAUNCHER) {
+		ent.customShader = cgs.media.grenadeBrightSkinShader;
+		if (cgs.gametype >= GT_TEAM && cgs.ffa_gt != 1) {
+			if ((s1->generic1 == TEAM_BLUE || s1->generic1 == TEAM_RED) && CG_AllowColoredProjectiles())  {
+				ent.customShader = cgs.media.grenadeBrightSkinShaderWhite;
+				CG_ProjectileColor(s1->generic1, ent.shaderRGBA);
+			} else if (s1->generic1 == TEAM_BLUE) {
+				ent.customShader = cgs.media.grenadeBrightSkinShaderBlue;
+			} else if (s1->generic1 == TEAM_RED) {
+				ent.customShader = cgs.media.grenadeBrightSkinShaderRed;
+			}
+			// can also be a grenade not spawned by a player, in
+			// that case use the default skin
+		}
+
+
+	}
 
 //#ifdef MISSIONPACK
 	if ( cent->currentState.weapon == WP_PROX_LAUNCHER ) {
@@ -497,7 +685,7 @@ static void CG_Missile( centity_t *cent ) {
 	}
 
 	// add to refresh list, possibly with quad glow
-	CG_AddRefEntityWithPowerups( &ent, s1, TEAM_FREE, qtrue );
+	CG_AddRefEntityWithPowerups( &ent, s1, TEAM_FREE, qtrue, NULL, 0, qfalse );
 }
 
 /*
@@ -660,7 +848,8 @@ Also called by client movement prediction code
 void CG_AdjustPositionForMover( const vec3_t in, int moverNum, int fromTime, int toTime, vec3_t out ) {
 	centity_t	*cent;
 	vec3_t	oldOrigin, origin, deltaOrigin;
-	vec3_t	oldAngles, angles, deltaAngles;
+	//vec3_t	oldAngles, angles, deltaAngles;
+	vec3_t	oldAngles, angles;
 
 	if ( moverNum <= 0 || moverNum >= ENTITYNUM_MAX_NORMAL ) {
 		VectorCopy( in, out );
@@ -680,7 +869,7 @@ void CG_AdjustPositionForMover( const vec3_t in, int moverNum, int fromTime, int
 	BG_EvaluateTrajectory( &cent->currentState.apos, toTime, angles );
 
 	VectorSubtract( origin, oldOrigin, deltaOrigin );
-	VectorSubtract( angles, oldAngles, deltaAngles );
+	//VectorSubtract( angles, oldAngles, deltaAngles );
 
 	VectorAdd( in, deltaOrigin, out );
 
@@ -721,6 +910,35 @@ static void CG_InterpolateEntityPosition( centity_t *cent ) {
 	cent->lerpAngles[1] = LerpAngle( current[1], next[1], f );
 	cent->lerpAngles[2] = LerpAngle( current[2], next[2], f );
 
+}
+
+int CG_ProjectileNudgeTimeshift(centity_t *cent) {
+		// if it's one of ours
+		if ( cent->currentState.otherEntityNum == cg.clientNum ) {
+			// extrapolate one server frame's worth - this will correct for tiny
+			// visual inconsistencies introduced by backward-reconciling all players
+			// one server frame before running projectiles
+			return 1000 / sv_fps.integer;
+		}
+		else if (cg.snap && cg.snap->ps.pm_flags & PMF_FOLLOW) {
+			// while spectating, don't nudge since we're getting the
+			// same delayed view for player and missile
+			return 1000 / sv_fps.integer;
+		}
+		// if it's not, and it's not a grenade launcher
+		else if ( cent->currentState.weapon != WP_GRENADE_LAUNCHER ) {
+			// extrapolate based on cg_projectileNudge
+			switch (cg_projectileNudgeAuto.integer) {
+				case 1:
+					return cent->projectileNudge + 1000 / sv_fps.integer;
+				case 2:
+					return cent->projectileNudge/2.0 + 1000 / sv_fps.integer;
+				default:
+					return cg_projectileNudge.integer + 1000 / sv_fps.integer;
+					
+			}
+		}
+		return 0;
 }
 
 /*
@@ -779,18 +997,7 @@ static void CG_CalcEntityLerpPositions( centity_t *cent ) {
 //unlagged - projectile nudge
 	// if it's a missile but not a grappling hook
 	if ( cent->currentState.eType == ET_MISSILE && cent->currentState.weapon != WP_GRAPPLING_HOOK ) {
-		// if it's one of ours
-		if ( cent->currentState.otherEntityNum == cg.clientNum ) {
-			// extrapolate one server frame's worth - this will correct for tiny
-			// visual inconsistencies introduced by backward-reconciling all players
-			// one server frame before running projectiles
-			timeshift = 1000 / sv_fps.integer;
-		}
-		// if it's not, and it's not a grenade launcher
-		else if ( cent->currentState.weapon != WP_GRENADE_LAUNCHER ) {
-			// extrapolate based on cg_projectileNudge
-			timeshift = cg_projectileNudge.integer + 1000 / sv_fps.integer;
-		}
+		timeshift = CG_ProjectileNudgeTimeshift(cent);
 	}
 
 	// just use the current frame and evaluate as best we can
@@ -806,6 +1013,12 @@ static void CG_CalcEntityLerpPositions( centity_t *cent ) {
 
 		BG_EvaluateTrajectory( &cent->currentState.pos, cg.time, lastOrigin );
 
+		if (cent->currentState.eType == ET_MISSILE 
+				&& cg_predictExplosions.integer
+				&& CG_MissileTouchedPortal(lastOrigin, cent->lerpOrigin)) {
+			cent->missileStatus.missileFlags |= MF_DISAPPEARED;
+		}
+
 		CG_Trace( &tr, lastOrigin, vec3_origin, vec3_origin, cent->lerpOrigin, cent->currentState.number, MASK_SHOT );
 
 		// don't let the projectile go through the floor
@@ -813,7 +1026,11 @@ static void CG_CalcEntityLerpPositions( centity_t *cent ) {
 			cent->lerpOrigin[0] = lastOrigin[0] + tr.fraction * ( cent->lerpOrigin[0] - lastOrigin[0] );
 			cent->lerpOrigin[1] = lastOrigin[1] + tr.fraction * ( cent->lerpOrigin[1] - lastOrigin[1] );
 			cent->lerpOrigin[2] = lastOrigin[2] + tr.fraction * ( cent->lerpOrigin[2] - lastOrigin[2] );
-		}
+			if (cent->currentState.eType == ET_MISSILE) {
+				CG_PredictedExplosion(&tr, cent->currentState.weapon, NULL, cent);
+				cent->missileStatus.missileFlags |= MF_DISAPPEARED;
+			}
+		} 
 	}
 //unlagged - projectile nudge
 
@@ -1080,6 +1297,8 @@ void CG_AddPacketEntities( void ) {
 	BG_PlayerStateToEntityState( ps, &cg.predictedPlayerEntity.currentState, qfalse );
 	CG_AddCEntity( &cg.predictedPlayerEntity );
 
+	CG_BuildSolidList();
+
 	// lerp the non-predicted value for lightning gun origins
 	CG_CalcEntityLerpPositions( &cg_entities[ cg.snap->ps.clientNum ] );
 
@@ -1089,7 +1308,9 @@ void CG_AddPacketEntities( void ) {
 		// we have data for them and they don't need to interpolate
 		for ( num = 0 ; num < cg.nextSnap->numEntities ; num++ ) {
 			cent = &cg_entities[ cg.nextSnap->entities[ num ].number ];
-			if ( cent->nextState.eType == ET_MISSILE || cent->nextState.eType == ET_GENERAL ) {
+			if ( cent->nextState.eType == ET_MISSILE 
+					|| cent->nextState.eType == ET_GENERAL
+			  		|| cent->nextState.eType == ET_ITEM ) {
 				// transition it immediately and add it
 				CG_TransitionEntity( cent );
 				cent->interpolate = qtrue;
@@ -1103,7 +1324,11 @@ void CG_AddPacketEntities( void ) {
 	for ( num = 0 ; num < cg.snap->numEntities ; num++ ) {
 		cent = &cg_entities[ cg.snap->entities[ num ].number ];
 //unlagged - early transitioning
-		if ( !cg.nextSnap || (cent->nextState.eType != ET_MISSILE && cent->nextState.eType != ET_GENERAL) ) {
+		if ( !cg.nextSnap || 
+				(cent->nextState.eType != ET_MISSILE 
+				 && cent->nextState.eType != ET_GENERAL
+				 && cent->nextState.eType != ET_ITEM
+				 ) ) {
 //unlagged - early transitioning
 			CG_AddCEntity( cent );
 		} //Also unlagged

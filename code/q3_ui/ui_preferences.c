@@ -61,7 +61,7 @@ GAME OPTIONS MENU
 #define ID_CHATBEEP             145
 #define ID_TEAMCHATBEEP         146
 
-#define	NUM_CROSSHAIRS			99
+#define	NUM_CROSSHAIRS			64
 
 
 typedef struct {
@@ -110,7 +110,7 @@ static const char *teamoverlay_names[] =
 };
 
 static void Preferences_SetMenuItems( void ) {
-	s_preferences.crosshair.curvalue		= (int)trap_Cvar_VariableValue( "cg_drawCrosshair" ) % NUM_CROSSHAIRS;
+	s_preferences.crosshair.curvalue		= ((int)trap_Cvar_VariableValue( "cg_drawCrosshair" ) -1) % NUM_CROSSHAIRS;
         s_preferences.crosshairHealth.curvalue          = trap_Cvar_VariableValue( "cg_crosshairHealth") != 0;
         s_preferences.crosshairColorRed.curvalue        = trap_Cvar_VariableValue( "cg_crosshairColorRed")*255.0f;
         s_preferences.crosshairColorGreen.curvalue      = trap_Cvar_VariableValue( "cg_crosshairColorGreen")*255.0f;
@@ -142,7 +142,7 @@ static void Preferences_Event( void* ptr, int notification ) {
 		if( s_preferences.crosshair.curvalue == NUM_CROSSHAIRS || s_preferences.crosshairShader[s_preferences.crosshair.curvalue]==0 ) {
 			s_preferences.crosshair.curvalue = 0;
 		}
-		trap_Cvar_SetValue( "cg_drawCrosshair", s_preferences.crosshair.curvalue );
+		trap_Cvar_SetValue( "cg_drawCrosshair", s_preferences.crosshair.curvalue + 1 );
 		break;
 
         case ID_CROSSHAIRHEALTH:
@@ -283,9 +283,6 @@ static void Crosshair_Draw( void *self ) {
 	}
 
 	UI_DrawString( x - SMALLCHAR_WIDTH, y, s->generic.name, style|UI_RIGHT, color );
-	if( !s->curvalue ) {
-		return;
-	}
         color4[0]=((float)s_preferences.crosshairColorRed.curvalue)/255.f;
         color4[1]=((float)s_preferences.crosshairColorGreen.curvalue)/255.f;
         color4[2]=((float)s_preferences.crosshairColorBlue.curvalue)/255.f;
@@ -579,10 +576,7 @@ void Preferences_Cache( void ) {
 	trap_R_RegisterShaderNoMip( ART_BACK0 );
 	trap_R_RegisterShaderNoMip( ART_BACK1 );
 	for( n = 0; n < NUM_CROSSHAIRS; n++ ) {
-                if (n < 10)
-			s_preferences.crosshairShader[n] = trap_R_RegisterShaderNoMip( va("gfx/2d/crosshair%c", 'a' + n ) );
-		else
-			s_preferences.crosshairShader[n] = trap_R_RegisterShaderNoMip( va("gfx/2d/crosshair%02d", n - 10) );
+		s_preferences.crosshairShader[n] = trap_R_RegisterShaderNoMip( va("gfx/2d/crosshairs/crosshair%d", (n+1) ) );
 	
 	}
 }

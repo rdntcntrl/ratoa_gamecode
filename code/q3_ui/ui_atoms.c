@@ -128,6 +128,16 @@ void UI_PushMenu( menuframework_s *menu )
 
 /*
 =================
+UI_PushedMenus
+=================
+*/
+int UI_PushedMenus (void)
+{
+	return uis.menusp;
+}
+
+/*
+=================
 UI_PopMenu
 =================
 */
@@ -939,6 +949,11 @@ char *UI_Argv( int arg ) {
 	return buffer;
 }
 
+int UI_Argc( void ) {
+	return trap_Argc();
+
+}
+
 
 char *UI_Cvar_VariableString( const char *var_name ) {
 	static char	buffer[MAX_STRING_CHARS];
@@ -946,6 +961,18 @@ char *UI_Cvar_VariableString( const char *var_name ) {
 	trap_Cvar_VariableStringBuffer( var_name, buffer, sizeof( buffer ) );
 
 	return buffer;
+}
+
+int UI_Cvar_VariableInteger( const char *var_name ) {
+	return atoi(UI_Cvar_VariableString(var_name));
+}
+
+/*
+ * Sends a client command to the server via cgame
+ */
+void UI_SendClientCommand( const char *command ) {
+	trap_Cvar_Set("cg_ui_clientCommand", command);
+	trap_Cmd_ExecuteText( EXEC_APPEND, "cg_ui_SendCLientCommand\n");
 }
 
 
@@ -1046,20 +1073,28 @@ qboolean UI_ConsoleCommand( int realTime ) {
 		return qtrue;
 	}
 
-        if ( Q_stricmp (cmd, "ui_mappage") == 0 ) {
-		mappage.pagenumber = atoi(UI_Argv( 1 ));
-                Q_strncpyz(mappage.mapname[0],UI_Argv(2),32);
-                Q_strncpyz(mappage.mapname[1],UI_Argv(3),32);
-                Q_strncpyz(mappage.mapname[2],UI_Argv(4),32);
-                Q_strncpyz(mappage.mapname[3],UI_Argv(5),32);
-                Q_strncpyz(mappage.mapname[4],UI_Argv(6),32);
-                Q_strncpyz(mappage.mapname[5],UI_Argv(7),32);
-                Q_strncpyz(mappage.mapname[6],UI_Argv(8),32);
-                Q_strncpyz(mappage.mapname[7],UI_Argv(9),32);
-                Q_strncpyz(mappage.mapname[8],UI_Argv(10),32);
-                Q_strncpyz(mappage.mapname[9],UI_Argv(11),32);
+        //if ( Q_stricmp (cmd, "ui_mappage") == 0 ) {
+	//	int i;
+	//	mappage.pagenumber = atoi(UI_Argv( 1 ));
+	//	for (i = 0; i < MAPPAGE_NUM; ++i) {
+	//		Q_strncpyz(mappage.mapname[i],UI_Argv(i+2),MAX_MAPNAME_LENGTH);
+	//	}
 
+        //        UI_VoteMapMenuInternal();
+	//	return qtrue;
+	//}
+	
+        if ( Q_stricmp (cmd, "ui_mappage_update") == 0 ) {
                 UI_VoteMapMenuInternal();
+		return qtrue;
+	}
+
+        if ( Q_stricmp (cmd, "ui_votemapmenu") == 0 ) {
+		UI_VoteMapMenu();
+		return qtrue;
+	}
+        if ( Q_stricmp (cmd, "ui_nextmapvote") == 0 ) {
+		UI_VoteNextMapMenu();
 		return qtrue;
 	}
 

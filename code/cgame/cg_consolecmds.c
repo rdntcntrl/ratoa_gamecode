@@ -56,7 +56,134 @@ void CG_TargetCommand_f( void ) {
 	}
 
 	trap_Argv( 1, test, 4 );
-	trap_SendConsoleCommand( va( "gc %i %i", targetNum, atoi( test ) ) );
+	trap_SendConsoleCommand( va( "gc %i %i\n", targetNum, atoi( test ) ) );
+}
+
+static char *ConcatArgs( int start ) {
+	int		i, c, tlen;
+	static char	line[MAX_STRING_CHARS];
+	int		len;
+	char	arg[MAX_STRING_CHARS];
+
+	len = 0;
+	c = trap_Argc();
+	for ( i = start ; i < c ; i++ ) {
+		trap_Argv( i, arg, sizeof( arg ) );
+		tlen = strlen( arg );
+		if ( len + tlen >= MAX_STRING_CHARS - 1 ) {
+			break;
+		}
+		memcpy( line + len, arg, tlen );
+		len += tlen;
+		if ( i != c - 1 ) {
+			line[len] = ' ';
+			len++;
+		}
+	}
+
+	line[len] = 0;
+
+	return line;
+}
+
+void CG_CGConfig_f( void ) {
+	int n = trap_Argc();
+	qboolean all = qfalse;
+	if (n > 1 && strcmp("-a", CG_Argv(1)) == 0) {
+		all = qtrue;
+	}
+	Com_Printf(S_COLOR_CYAN "// user-modified cgame cvars:\n");
+	CG_Cvar_PrintUserChanges(all);
+}
+
+void CG_Echo_f( void ) {
+	CG_Printf("%s\n", ConcatArgs(1));
+
+}
+
+// sets color1/2 to random colors
+void CG_Randomcolors_f( void ) {
+	int seed;
+
+	seed = trap_Milliseconds();
+	trap_Cvar_Set("color1", va("H%i", (int)(Q_random(&seed)*360.0)));	
+	trap_Cvar_Set("color2", va("H%i", (int)(Q_random(&seed)*360.0)));	
+}
+
+void CG_Mapvote_f( void ) {
+	int n = trap_Argc();
+
+	if (n > 1) {
+		trap_Cvar_Set("ui_mapvote_filter", ConcatArgs(1));
+	} 
+	if (trap_Key_GetCatcher() & KEYCATCH_CONSOLE) {
+		trap_SendConsoleCommand("toggleconsole\n");
+	}
+	trap_SendConsoleCommand("ui_votemapmenu\n");
+}
+
+void CG_Taunt_f( void ) {
+	int n = trap_Argc();
+
+	if (n == 1) {
+		CG_PrintTaunts();
+		return;
+	}
+
+	trap_SendClientCommand(va("taunt %s\n", ConcatArgs(1)));
+}
+
+#define MAX_DOCCFGSIZE (24*1024)
+void CG_Doc_f( void ) {
+	char *source_fn = "configs/ratmod_doc.cfg";
+	char *dest_fn = "ratmod_doc.cfg";
+	fileHandle_t f;
+	int len;
+	char *p1;
+	char *p2;
+	char buf[MAX_DOCCFGSIZE];
+
+	memset(buf, 0, sizeof(buf));
+
+	len = trap_FS_FOpenFile(source_fn, &f, FS_READ);
+
+	if (!f || len == 0) {
+		CG_Printf("failed to open doc file!\n");
+		return;
+	}
+
+	if (len >= sizeof(buf)-1) {
+		CG_Printf("doc file too large\n");
+		return;
+	}
+
+	trap_FS_Read(buf, sizeof(buf)-1, f);
+	buf[len] = '\0';
+	trap_FS_FCloseFile(f);
+
+
+	trap_FS_FOpenFile(dest_fn, &f, FS_WRITE);
+
+	if (!f) {
+		CG_Printf("failed to write doc file!\n");
+		return;
+	}
+ 	trap_FS_Write( buf, strlen(buf), f );
+	trap_FS_FCloseFile(f);
+
+	p1 = buf;
+	do {
+		p2 = strchr(p1, '\n');
+		if (*p1) {
+			if (p2) {
+				*p2 = '\0';
+			}
+			CG_Printf("^2> %s\n", p1);
+		}
+		p1 = p2 ? p2 + 1 : NULL;
+	} while (p1);
+
+	CG_Printf("config documentation written to file '%s'\n", dest_fn);
 }
 
 
@@ -81,7 +208,8 @@ Keybinding command
 =================
 */
 static void CG_SizeDown_f (void) {
-	trap_Cvar_Set("cg_viewsize", va("%i",(int)(cg_viewsize.integer-10)));
+	CG_Printf("if you really want to decrease the view size, decrease \\cg_viewsize directly.\n");
+	//trap_Cvar_Set("cg_viewsize", va("%i",(int)(cg_viewsize.integer-10)));
 }
 
 
@@ -104,10 +232,11 @@ static void CG_ScoresDown_f( void ) {
 #ifdef MISSIONPACK
 		CG_BuildSpectatorString();
 #endif
-	if ( cg.scoresRequestTime + 2000 < cg.time ) {
-		// the scores are more than two seconds out of data,
+	if ( cg.scoresRequestTime + 1000 < cg.time ) {
+		// the scores are more than 2s out of data,
 		// so request new ones
 		cg.scoresRequestTime = cg.time;
+
 		trap_SendClientCommand( "score" );
 
 		// leave the current scores up if they were already
@@ -137,9 +266,7 @@ static void CG_AccDown_f( void ) {
 		cg.accRequestTime = cg.time;
 		trap_SendClientCommand( "acc" );
 
-		if ( !cg.showAcc ) {
-			cg.showAcc = qtrue;
-		}
+		cg.showAcc = qtrue;
 
 	} else {
 		cg.showAcc = qtrue;
@@ -152,6 +279,43 @@ static void CG_AccUp_f( void ) {
                 cg.showAcc = qfalse;
                 cg.accFadeTime = cg.time;
         }
+}
+
+static void CG_ResetCfg_f( void ) {
+	CG_CvarResetDefaults();
+        trap_SendConsoleCommand("vid_restart\n");
+}
+
+static void CG_HUD_f( void ) {
+	int		num;
+
+	if (trap_Argc() != 2) {
+		CG_Printf("Usage: \\hud <n>\n"
+				"  Traditional HUD:\n"
+				"    \\hud 0\n"
+				"  Futuristic HUD:\n"
+				"    \\hud 1\n"
+			 );
+		return;
+	}
+	num = atoi( CG_Argv( 1 ) );
+	switch (num) {
+		case 1:
+			CG_Cvar_SetAndUpdate("cg_ratStatusbar", "4");
+			CG_Cvar_SetAndUpdate("cg_hudDamageIndicator", "1");
+			CG_Cvar_SetAndUpdate("cg_emptyIndicator", "1");
+			CG_Cvar_SetAndUpdate("cg_weaponbarStyle", "14");
+			CG_Cvar_SetAndUpdate("cg_drawFPS", "3");
+			break;
+		default:
+			CG_Cvar_SetAndUpdate("cg_ratStatusbar", "1");
+			CG_Cvar_SetAndUpdate("cg_hudDamageIndicator", "0");
+			CG_Cvar_SetAndUpdate("cg_emptyIndicator", "0");
+			CG_Cvar_SetAndUpdate("cg_weaponbarStyle", "13");
+			CG_Cvar_SetAndUpdate("cg_drawFPS", "1");
+			break;
+	}
+
 }
 
 
@@ -323,7 +487,7 @@ static void CG_NextOrder_f( void ) {
 
 static void CG_ConfirmOrder_f (void ) {
 	trap_SendConsoleCommand(va("cmd vtell %d %s\n", cgs.acceptLeader, VOICECHAT_YES));
-	trap_SendConsoleCommand("+button5; wait; -button5");
+	trap_SendConsoleCommand("+button5; wait; -button5\n");
 	if (cg.time < cgs.acceptOrderTime) {
 		trap_SendClientCommand(va("teamtask %d\n", cgs.acceptTask));
 		cgs.acceptOrderTime = 0;
@@ -332,7 +496,7 @@ static void CG_ConfirmOrder_f (void ) {
 
 static void CG_DenyOrder_f (void ) {
 	trap_SendConsoleCommand(va("cmd vtell %d %s\n", cgs.acceptLeader, VOICECHAT_NO));
-	trap_SendConsoleCommand("+button6; wait; -button6");
+	trap_SendConsoleCommand("+button6; wait; -button6\n");
 	if (cg.time < cgs.acceptOrderTime) {
 		cgs.acceptOrderTime = 0;
 	}
@@ -447,6 +611,40 @@ static void CG_EditHud_f( void ) {
 
 #endif
 
+void CG_PingLocationDown_f( void ) { 
+	trap_SendConsoleCommand("+button12\n");
+}
+void CG_PingLocationUp_f( void ) { 
+	trap_SendConsoleCommand("-button12\n");
+}
+
+void CG_PingLocationWarnDown_f( void ) { 
+	trap_SendConsoleCommand("+button13\n");
+}
+void CG_PingLocationWarnUp_f( void ) { 
+	trap_SendConsoleCommand("-button13\n");
+}
+
+/*
+ * Sends a client command to the server
+ * This is used by the UI since it doesn't have the necessary interface to send
+ * client commands directly
+ */
+void CG_UI_SendClientCommand( void ) {
+	char cmd[MAX_CVAR_VALUE_STRING] = "";
+
+	CG_Cvar_Update("cg_ui_clientCommand");
+	trap_Cvar_VariableStringBuffer("cg_ui_clientCommand", cmd, sizeof(cmd));
+
+	if (strlen(cmd) <= 0) {
+		Com_Printf("failed to send client command: empty\n");
+		return;
+	}
+
+	CG_Cvar_SetAndUpdate("cg_ui_clientCommand", "");
+	trap_SendClientCommand( cmd );
+}
+
 /*
 ==================
 CG_StartOrbit_f
@@ -502,6 +700,10 @@ static consoleCommand_t	commands[] = {
 	{ "-scores", CG_ScoresUp_f },
 	{ "+zoom", CG_ZoomDown_f },
 	{ "-zoom", CG_ZoomUp_f },
+	{ "+ping", CG_PingLocationDown_f },
+	{ "-ping", CG_PingLocationUp_f },
+	{ "+pingWarn", CG_PingLocationWarnDown_f },
+	{ "-pingWarn", CG_PingLocationWarnUp_f },
 	{ "sizeup", CG_SizeUp_f },
 	{ "sizedown", CG_SizeDown_f },
 	{ "weapnext", CG_NextWeapon_f },
@@ -512,6 +714,13 @@ static consoleCommand_t	commands[] = {
 	{ "vtell_target", CG_VoiceTellTarget_f },
 	{ "vtell_attacker", CG_VoiceTellAttacker_f },
 	{ "tcmd", CG_TargetCommand_f },
+	{ "sampleconfig", CG_Doc_f },
+	{ "doc", CG_Doc_f },
+	{ "cecho", CG_Echo_f },
+	{ "randomcolors", CG_Randomcolors_f },
+	{ "cgconfig", CG_CGConfig_f },
+	{ "mv", CG_Mapvote_f },
+	{ "taunt", CG_Taunt_f },
 #ifdef MISSIONPACK
 	{ "loadhud", CG_LoadHud_f },
 	{ "nextTeamMember", CG_NextTeamMember_f },
@@ -543,7 +752,11 @@ static consoleCommand_t	commands[] = {
 	{ "loaddeferred", CG_LoadDeferredPlayers },
         { "+acc", CG_AccDown_f },
 	{ "-acc", CG_AccUp_f },
-        { "clients", CG_PrintClientNumbers }
+        { "clients", CG_PrintClientNumbers },
+
+        { "cg_ui_SendClientCommand", CG_UI_SendClientCommand },
+        { "resetcfg", CG_ResetCfg_f },
+        { "hud", CG_HUD_f }
 };
 
 
@@ -613,10 +826,19 @@ void CG_InitConsoleCommands( void ) {
 	trap_AddCommand ("setviewpos");
 	trap_AddCommand ("callvote");
 	trap_AddCommand ("getmappage");
+	trap_AddCommand ("getrecmappage");
 	trap_AddCommand ("vote");
 	trap_AddCommand ("callteamvote");
 	trap_AddCommand ("teamvote");
+	trap_AddCommand ("rules");
+	trap_AddCommand ("drop");
+	trap_AddCommand ("followauto");
 	trap_AddCommand ("stats");
 	trap_AddCommand ("teamtask");
 	trap_AddCommand ("loaddefered");	// spelled wrong, but not changing for demo
+	trap_AddCommand ("timeout");
+	trap_AddCommand ("timein");
+	trap_AddCommand ("pause");
+	trap_AddCommand ("unpause");
+	trap_AddCommand ("mv");
 }

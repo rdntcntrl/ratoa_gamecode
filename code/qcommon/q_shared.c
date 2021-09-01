@@ -926,6 +926,25 @@ char *Q_CleanStr( char *string ) {
             return string;
 }
 
+char *Q_LstripStr( char *string ) {
+	char*	d;
+	char*	s;
+	int		c;
+	int n = 0;
+
+	s = string;
+	d = string;
+	while (isspace((c = *s))) {
+		s++;
+	}
+	while ((c = *s)) {
+		*d++ = c;
+		s++;
+	}
+	
+	return string;
+}
+
 int Q_CountChar(const char *string, char tocount)
 {
 	int count;

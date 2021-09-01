@@ -27,10 +27,15 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "cg_local.h"
 #include "../../ui/menudef.h" // bk001205 - for Q3_ui as well
 
+#define MAX_NETNAME 32
+#define MAX_CHAT_TEXT (MAX_NETNAME + MAX_RAT_SAY_TEXT + 6)
+
 typedef struct {
 	const char *order;
 	int taskNum;
 } orderTask_t;
+
+#ifdef MISSIONPACK // bk001204
 
 static const orderTask_t validOrders[] = {
 	{ VOICECHAT_GETFLAG,						TEAMTASK_OFFENSE },
@@ -46,7 +51,6 @@ static const orderTask_t validOrders[] = {
 
 static const int numValidOrders = sizeof(validOrders) / sizeof(orderTask_t);
 
-#ifdef MISSIONPACK // bk001204
 static int CG_ValidOrder(const char *p) {
 	int i;
 	for (i = 0; i < numValidOrders; i++) {
@@ -57,6 +61,344 @@ static int CG_ValidOrder(const char *p) {
 	return -1;
 }
 #endif
+
+/*
+=================
+CG_ParseTimeout
+
+=================
+*/
+static void CG_ParseTimeout( void ) {
+	cgs.timeoutEnd = atoi(CG_Argv(1));
+}
+
+/*
+=================
+CG_ParseOvertime
+
+=================
+*/
+static void CG_ParseOvertime( void ) {
+	cgs.timeoutOvertime = atoi(CG_Argv(1));
+}
+
+
+
+/*
+=================
+CG_ParseRatScores
+
+=================
+*/
+static void CG_ParseRatScores( void ) {
+	int		i, powerups;
+
+	cg.numScores = atoi( CG_Argv( 1 ) );
+	if ( cg.numScores > MAX_CLIENTS ) {
+		cg.numScores = MAX_CLIENTS;
+	}
+
+	cg.teamScores[0] = atoi( CG_Argv( 2 ) );
+	cg.teamScores[1] = atoi( CG_Argv( 3 ) );
+
+	cgs.roundStartTime = atoi( CG_Argv( 4 ) );
+
+	//Update thing in lower-right corner
+	if(cgs.gametype == GT_ELIMINATION || cgs.gametype == GT_CTF_ELIMINATION)
+	{
+		cgs.scores1 = cg.teamScores[0];
+		cgs.scores2 = cg.teamScores[1];
+	}
+
+	memset( cg.scores, 0, sizeof( cg.scores ) );
+
+#define NUM_RAT_DATA 21
+#define FIRST_RAT_DATA 4
+
+	for ( i = 0 ; i < cg.numScores ; i++ ) {
+		//
+		cg.scores[i].client = atoi( CG_Argv( i * NUM_RAT_DATA + FIRST_RAT_DATA + 1 ) );
+		cg.scores[i].score = atoi( CG_Argv( i * NUM_RAT_DATA + FIRST_RAT_DATA + 2 ) );
+		cg.scores[i].ping = atoi( CG_Argv( i * NUM_RAT_DATA + FIRST_RAT_DATA + 3 ) );
+		cg.scores[i].time = atoi( CG_Argv( i * NUM_RAT_DATA + FIRST_RAT_DATA + 4 ) );
+		cg.scores[i].scoreFlags = atoi( CG_Argv( i * NUM_RAT_DATA + FIRST_RAT_DATA + 5 ) );
+		powerups = atoi( CG_Argv( i * NUM_RAT_DATA + FIRST_RAT_DATA + 6 ) );
+		cg.scores[i].accuracy = atoi(CG_Argv(i * NUM_RAT_DATA + FIRST_RAT_DATA + 7));
+		cg.scores[i].impressiveCount = atoi(CG_Argv(i * NUM_RAT_DATA + FIRST_RAT_DATA + 8));
+		cg.scores[i].excellentCount = atoi(CG_Argv(i * NUM_RAT_DATA + FIRST_RAT_DATA + 9));
+		cg.scores[i].guantletCount = atoi(CG_Argv(i * NUM_RAT_DATA + FIRST_RAT_DATA + 10));
+		cg.scores[i].defendCount = atoi(CG_Argv(i * NUM_RAT_DATA + FIRST_RAT_DATA + 11));
+		cg.scores[i].assistCount = atoi(CG_Argv(i * NUM_RAT_DATA + FIRST_RAT_DATA + 12));
+		cg.scores[i].perfect = atoi(CG_Argv(i * NUM_RAT_DATA + FIRST_RAT_DATA + 13));
+		cg.scores[i].captures = atoi(CG_Argv(i * NUM_RAT_DATA + FIRST_RAT_DATA + 14));
+		cg.scores[i].isDead = atoi(CG_Argv(i * NUM_RAT_DATA + FIRST_RAT_DATA + 15));
+		cg.scores[i].kills = atoi(CG_Argv(i * NUM_RAT_DATA + FIRST_RAT_DATA + 16));
+		cg.scores[i].deaths = atoi(CG_Argv(i * NUM_RAT_DATA + FIRST_RAT_DATA + 17));
+		cg.scores[i].dmgGiven = atoi(CG_Argv(i * NUM_RAT_DATA + FIRST_RAT_DATA + 18));
+		cg.scores[i].dmgTaken = atoi(CG_Argv(i * NUM_RAT_DATA + FIRST_RAT_DATA + 19));
+		cg.scores[i].spectatorGroup = atoi(CG_Argv(i * NUM_RAT_DATA + FIRST_RAT_DATA + 20));
+		cg.scores[i].flagrecovery = atoi(CG_Argv(i * NUM_RAT_DATA + FIRST_RAT_DATA + 21));
+		//cgs.roundStartTime = 
+
+		if ( cg.scores[i].client < 0 || cg.scores[i].client >= MAX_CLIENTS ) {
+			cg.scores[i].client = 0;
+		}
+		cgs.clientinfo[ cg.scores[i].client ].score = cg.scores[i].score;
+		cgs.clientinfo[ cg.scores[i].client ].powerups = powerups;
+		cgs.clientinfo[ cg.scores[i].client ].isDead = cg.scores[i].isDead;
+
+		cg.scores[i].team = cgs.clientinfo[cg.scores[i].client].team;
+	}
+}
+
+
+static void CG_PurgeScoreBuf(void) {
+	cg.received_ratscores = 0;
+	cg.numScores_buf = 0;
+	memset( cg.scores_buf, 0, sizeof( cg.scores_buf ) );
+}
+
+static void CG_CheckScoreUpdate(void) {
+	if (cg.ratscores_expected != cg.received_ratscores) {
+		return;
+	}
+
+	// TODO: switching pointers would be more efficient
+	memcpy( cg.scores, cg.scores_buf, sizeof(cg.scores));
+	cg.numScores = cg.numScores_buf;
+	cg.stats_available = (cg.received_ratscores == 4);
+
+	CG_PurgeScoreBuf();
+}
+
+/*
+=================
+CG_ParseRatScores1
+
+=================
+*/
+static void CG_ParseRatScores1( void ) {
+	int		i, powerups;
+	int numScores;
+
+	// defines whether we have to wait for stats as well (ratscores3)
+	cg.ratscores_expected = atoi( CG_Argv( 1 ) );
+	if (cg.ratscores_expected != 2 && cg.ratscores_expected != 4) {
+		cg.ratscores_expected = 2;
+	}
+
+	numScores = atoi( CG_Argv( 2 ) );
+	if ( numScores > MAX_CLIENTS ) {
+		numScores = MAX_CLIENTS;
+	}
+
+	cg.teamScores[0] = atoi( CG_Argv( 3 ) );
+	cg.teamScores[1] = atoi( CG_Argv( 4 ) );
+
+	cgs.roundStartTime = atoi( CG_Argv( 5 ) );
+
+	cg.teamsLocked = (qboolean)atoi( CG_Argv( 6 ) );
+	cg.teamQueueSystem = (qboolean)atoi( CG_Argv( 7 ) );
+
+	//Update thing in lower-right corner
+	if(cgs.gametype == GT_ELIMINATION || cgs.gametype == GT_CTF_ELIMINATION)
+	{
+		cgs.scores1 = cg.teamScores[0];
+		cgs.scores2 = cg.teamScores[1];
+	}
+
+	CG_PurgeScoreBuf();
+	cg.received_ratscores = 1;
+
+	cg.numScores_buf = numScores;
+	//memset( cg.scores, 0, sizeof( cg.scores ) );
+
+#define NUM_RAT1_DATA 17
+#define FIRST_RAT1_DATA 7
+
+	for ( i = 0 ; i < numScores ; i++ ) {
+		//
+		cg.scores_buf[i].client = atoi( CG_Argv( i * NUM_RAT1_DATA + FIRST_RAT1_DATA + 1 ) );
+		cg.scores_buf[i].score = atoi( CG_Argv( i * NUM_RAT1_DATA + FIRST_RAT1_DATA + 2 ) );
+		cg.scores_buf[i].ping = atoi( CG_Argv( i * NUM_RAT1_DATA + FIRST_RAT1_DATA + 3 ) );
+		cg.scores_buf[i].time = atoi( CG_Argv( i * NUM_RAT1_DATA + FIRST_RAT1_DATA + 4 ) );
+		cg.scores_buf[i].scoreFlags = atoi( CG_Argv( i * NUM_RAT1_DATA + FIRST_RAT1_DATA + 5 ) );
+		powerups = atoi( CG_Argv( i * NUM_RAT1_DATA + FIRST_RAT1_DATA + 6 ) );
+		cg.scores_buf[i].accuracy = atoi(CG_Argv(i * NUM_RAT1_DATA + FIRST_RAT1_DATA + 7));
+		cg.scores_buf[i].impressiveCount = atoi(CG_Argv(i * NUM_RAT1_DATA + FIRST_RAT1_DATA + 8));
+		cg.scores_buf[i].excellentCount = atoi(CG_Argv(i * NUM_RAT1_DATA + FIRST_RAT1_DATA + 9));
+		cg.scores_buf[i].guantletCount = atoi(CG_Argv(i * NUM_RAT1_DATA + FIRST_RAT1_DATA + 10));
+		cg.scores_buf[i].defendCount = atoi(CG_Argv(i * NUM_RAT1_DATA + FIRST_RAT1_DATA + 11));
+		cg.scores_buf[i].assistCount = atoi(CG_Argv(i * NUM_RAT1_DATA + FIRST_RAT1_DATA + 12));
+		cg.scores_buf[i].perfect = atoi(CG_Argv(i * NUM_RAT1_DATA + FIRST_RAT1_DATA + 13));
+		cg.scores_buf[i].captures = atoi(CG_Argv(i * NUM_RAT1_DATA + FIRST_RAT1_DATA + 14));
+		cg.scores_buf[i].isDead = atoi(CG_Argv(i * NUM_RAT1_DATA + FIRST_RAT1_DATA + 15));
+		cg.scores_buf[i].kills = atoi(CG_Argv(i * NUM_RAT1_DATA + FIRST_RAT1_DATA + 16));
+		cg.scores_buf[i].deaths = atoi(CG_Argv(i * NUM_RAT1_DATA + FIRST_RAT1_DATA + 17));
+
+		if ( cg.scores_buf[i].client < 0 || cg.scores_buf[i].client >= MAX_CLIENTS ) {
+			cg.scores_buf[i].client = 0;
+		}
+		cgs.clientinfo[ cg.scores_buf[i].client ].score = cg.scores_buf[i].score;
+		cgs.clientinfo[ cg.scores_buf[i].client ].powerups = powerups;
+		cgs.clientinfo[ cg.scores_buf[i].client ].isDead = cg.scores_buf[i].isDead;
+
+		cg.scores_buf[i].team = cgs.clientinfo[cg.scores_buf[i].client].team;
+	}
+
+	CG_CheckScoreUpdate();
+}
+
+/*
+=================
+CG_ParseRatScores2
+
+=================
+*/
+static void CG_ParseRatScores2( void ) {
+	int		i;
+	int numScores;
+
+	if (cg.ratscores_expected < 2 || cg.received_ratscores >= 2) {
+		return;
+	}
+	cg.received_ratscores++;
+
+	numScores = atoi( CG_Argv( 1 ) );
+	if ( numScores > MAX_CLIENTS ) {
+		numScores = MAX_CLIENTS;
+	}
+
+
+	if (cg.numScores_buf != numScores) {
+		CG_PurgeScoreBuf();
+		return;
+	}
+
+#define NUM_RAT2_DATA 8
+#define FIRST_RAT2_DATA 1
+
+	for ( i = 0 ; i < numScores ; i++ ) {
+		cg.scores_buf[i].dmgGiven = atoi(CG_Argv(i * NUM_RAT2_DATA + FIRST_RAT2_DATA + 1));
+		cg.scores_buf[i].dmgTaken = atoi(CG_Argv(i * NUM_RAT2_DATA + FIRST_RAT2_DATA + 2));
+		cg.scores_buf[i].spectatorGroup = atoi(CG_Argv(i * NUM_RAT2_DATA + FIRST_RAT2_DATA + 3));
+		cg.scores_buf[i].flagrecovery = atoi(CG_Argv(i * NUM_RAT2_DATA + FIRST_RAT2_DATA + 4));
+		cg.scores_buf[i].topweapon1 = atoi(CG_Argv(i * NUM_RAT2_DATA + FIRST_RAT2_DATA + 5));
+		cg.scores_buf[i].topweapon2 = atoi(CG_Argv(i * NUM_RAT2_DATA + FIRST_RAT2_DATA + 6));
+		cg.scores_buf[i].topweapon3 = atoi(CG_Argv(i * NUM_RAT2_DATA + FIRST_RAT2_DATA + 7));
+		cg.scores_buf[i].ratclient = atoi(CG_Argv(i * NUM_RAT2_DATA + FIRST_RAT2_DATA + 8));
+
+		if (cg.scores_buf[i].topweapon1 >= WP_NUM_WEAPONS || cg.scores_buf[i].topweapon1 < WP_NONE) {
+			cg.scores_buf[i].topweapon1 = WP_NONE;
+		}
+		if (cg.scores_buf[i].topweapon2 >= WP_NUM_WEAPONS || cg.scores_buf[i].topweapon2 < WP_NONE) {
+			cg.scores_buf[i].topweapon2 = WP_NONE;
+		}
+		if (cg.scores_buf[i].topweapon3 >= WP_NUM_WEAPONS || cg.scores_buf[i].topweapon3 < WP_NONE) {
+			cg.scores_buf[i].topweapon3 = WP_NONE;
+		}
+
+
+	}
+
+	CG_CheckScoreUpdate();
+}
+
+/*
+=================
+CG_ParseRatScores3
+
+=================
+*/
+static void CG_ParseRatScores3( void ) {
+	int		i;
+	int numScores;
+
+	if (cg.ratscores_expected < 3 || cg.received_ratscores >= 3) {
+		return;
+	}
+	cg.received_ratscores++;
+
+	numScores = atoi( CG_Argv( 1 ) );
+	if ( numScores > MAX_CLIENTS ) {
+		numScores = MAX_CLIENTS;
+	}
+
+	if (cg.numScores_buf != numScores) {
+		CG_PurgeScoreBuf();
+		return;
+	}
+	//memset( cg.scores, 0, sizeof( cg.scores ) );
+
+#define NUM_RAT3_DATA 16
+#define FIRST_RAT3_DATA 1
+
+	for ( i = 0 ; i < numScores ; i++ ) {
+		cg.scores_buf[i].eaward_counts[EAWARD_FRAGS] = atoi(CG_Argv(i * NUM_RAT3_DATA + FIRST_RAT3_DATA + 1));
+		cg.scores_buf[i].eaward_counts[EAWARD_ACCURACY]= atoi(CG_Argv(i * NUM_RAT3_DATA + FIRST_RAT3_DATA + 2));
+		cg.scores_buf[i].eaward_counts[EAWARD_TELEFRAG] = atoi(CG_Argv(i * NUM_RAT3_DATA + FIRST_RAT3_DATA + 3));
+		cg.scores_buf[i].eaward_counts[EAWARD_TELEMISSILE_FRAG] = atoi(CG_Argv(i * NUM_RAT3_DATA + FIRST_RAT3_DATA + 4));
+		cg.scores_buf[i].eaward_counts[EAWARD_ROCKETSNIPER] = atoi(CG_Argv(i * NUM_RAT3_DATA + FIRST_RAT3_DATA + 5));
+		cg.scores_buf[i].eaward_counts[EAWARD_FULLSG] = atoi(CG_Argv(i * NUM_RAT3_DATA + FIRST_RAT3_DATA + 6));
+		cg.scores_buf[i].eaward_counts[EAWARD_IMMORTALITY] = atoi(CG_Argv(i * NUM_RAT3_DATA + FIRST_RAT3_DATA + 7));
+		cg.scores_buf[i].eaward_counts[EAWARD_AIRROCKET] = atoi(CG_Argv(i * NUM_RAT3_DATA + FIRST_RAT3_DATA + 8));
+		cg.scores_buf[i].eaward_counts[EAWARD_AIRGRENADE] = atoi(CG_Argv(i * NUM_RAT3_DATA + FIRST_RAT3_DATA + 9));
+		cg.scores_buf[i].eaward_counts[EAWARD_ROCKETRAIL] = atoi(CG_Argv(i * NUM_RAT3_DATA + FIRST_RAT3_DATA + 10));
+		cg.scores_buf[i].eaward_counts[EAWARD_LGRAIL] = atoi(CG_Argv(i * NUM_RAT3_DATA + FIRST_RAT3_DATA + 11));
+		cg.scores_buf[i].eaward_counts[EAWARD_RAILTWO] = atoi(CG_Argv(i * NUM_RAT3_DATA + FIRST_RAT3_DATA + 12));
+		cg.scores_buf[i].eaward_counts[EAWARD_DEADHAND] = atoi(CG_Argv(i * NUM_RAT3_DATA + FIRST_RAT3_DATA + 13));
+		cg.scores_buf[i].eaward_counts[EAWARD_SHOWSTOPPER] = atoi(CG_Argv(i * NUM_RAT3_DATA + FIRST_RAT3_DATA + 14));
+		cg.scores_buf[i].eaward_counts[EAWARD_AMBUSH] = atoi(CG_Argv(i * NUM_RAT3_DATA + FIRST_RAT3_DATA + 15));
+		cg.scores_buf[i].eaward_counts[EAWARD_KAMIKAZE] = atoi(CG_Argv(i * NUM_RAT3_DATA + FIRST_RAT3_DATA + 16));
+	}
+
+	CG_CheckScoreUpdate();
+}
+
+static void CG_ParseRatScores4( void ) {
+	int		i;
+	int numScores;
+
+	if (cg.ratscores_expected < 4 || cg.received_ratscores >= 4) {
+		return;
+	}
+	cg.received_ratscores++;
+
+	numScores = atoi( CG_Argv( 1 ) );
+	if ( numScores > MAX_CLIENTS ) {
+		numScores = MAX_CLIENTS;
+	}
+
+	if (cg.numScores_buf != numScores) {
+		CG_PurgeScoreBuf();
+		return;
+	}
+	//memset( cg.scores, 0, sizeof( cg.scores ) );
+
+#define NUM_RAT4_DATA 14
+#define FIRST_RAT4_DATA 1
+
+	for ( i = 0 ; i < numScores ; i++ ) {
+		cg.scores_buf[i].eaward_counts[EAWARD_STRONGMAN] = atoi(CG_Argv(i * NUM_RAT4_DATA + FIRST_RAT4_DATA + 1));
+		cg.scores_buf[i].eaward_counts[EAWARD_HERO]= atoi(CG_Argv(i * NUM_RAT4_DATA + FIRST_RAT4_DATA + 2));
+		cg.scores_buf[i].eaward_counts[EAWARD_BUTCHER]= atoi(CG_Argv(i * NUM_RAT4_DATA + FIRST_RAT4_DATA + 3));
+		cg.scores_buf[i].eaward_counts[EAWARD_KILLINGSPREE]= atoi(CG_Argv(i * NUM_RAT4_DATA + FIRST_RAT4_DATA + 4));
+		cg.scores_buf[i].eaward_counts[EAWARD_RAMPAGE]= atoi(CG_Argv(i * NUM_RAT4_DATA + FIRST_RAT4_DATA + 5));
+		cg.scores_buf[i].eaward_counts[EAWARD_MASSACRE]= atoi(CG_Argv(i * NUM_RAT4_DATA + FIRST_RAT4_DATA + 6));
+		cg.scores_buf[i].eaward_counts[EAWARD_UNSTOPPABLE]= atoi(CG_Argv(i * NUM_RAT4_DATA + FIRST_RAT4_DATA + 7));
+		cg.scores_buf[i].eaward_counts[EAWARD_GRIMREAPER]= atoi(CG_Argv(i * NUM_RAT4_DATA + FIRST_RAT4_DATA + 8));
+
+		cg.scores_buf[i].eaward_counts[EAWARD_REVENGE]= atoi(CG_Argv(i * NUM_RAT4_DATA + FIRST_RAT4_DATA + 9));
+		cg.scores_buf[i].eaward_counts[EAWARD_BERSERKER]= atoi(CG_Argv(i * NUM_RAT4_DATA + FIRST_RAT4_DATA + 10));
+		cg.scores_buf[i].eaward_counts[EAWARD_VAPORIZED]= atoi(CG_Argv(i * NUM_RAT4_DATA + FIRST_RAT4_DATA + 11));
+		cg.scores_buf[i].eaward_counts[EAWARD_TWITCHRAIL]= atoi(CG_Argv(i * NUM_RAT4_DATA + FIRST_RAT4_DATA + 12));
+		cg.scores_buf[i].eaward_counts[EAWARD_RAT]= atoi(CG_Argv(i * NUM_RAT4_DATA + FIRST_RAT4_DATA + 13));
+		cg.scores_buf[i].eaward_counts[EAWARD_THAWBUDDY]= atoi(CG_Argv(i * NUM_RAT4_DATA + FIRST_RAT4_DATA + 14));
+	}
+
+	CG_CheckScoreUpdate();
+}
+
 
 /*
 =================
@@ -107,6 +449,8 @@ static void CG_ParseScores( void ) {
 		cg.scores[i].captures = atoi(CG_Argv(i * NUM_DATA + FIRST_DATA + 14));
 		cg.scores[i].isDead = atoi(CG_Argv(i * NUM_DATA + FIRST_DATA + 15));
 		//cgs.roundStartTime = 
+		
+		cg.scores[i].time *= 60;
 
 		if ( cg.scores[i].client < 0 || cg.scores[i].client >= MAX_CLIENTS ) {
 			cg.scores[i].client = 0;
@@ -150,52 +494,237 @@ static void CG_ParseElimination( void ) {
 		cgs.scores2 = atoi( CG_Argv( 2 ) );
 	}
 	cgs.roundStartTime = atoi( CG_Argv( 3 ) );
+	cgs.elimStartHealth = atoi( CG_Argv( 4 ) );
+	cgs.elimStartArmor = atoi( CG_Argv( 5 ) );
+}
+
+static void CG_ParseCustomVotes( void ) {
+    char customvotes[MAX_CVAR_VALUE_STRING] = "";
+    const char *temp;
+    const char*	c;
+    int i;
+
+    memset(&customvotes,0,sizeof(customvotes));
+
+    for(i=1;i<=12;i++) {
+        temp = CG_Argv( i );
+        for( c = temp; *c; ++c) {
+		if (!(isalnum(*c) 
+			|| *c == '-' 
+			|| *c == '_'
+			|| *c == '+'
+		    		 )) {
+			//The server tried something bad!
+			Com_Printf("Error: illegal character %c in customvotes received from server\n", *c);
+			return;
+		}
+            }
+        Q_strcat(customvotes,sizeof(customvotes),va("%s ",temp));
+    }
+    trap_Cvar_Set("cg_vote_custom_commands",customvotes);
+}
+
+#define NEXTMAPVOTE_NUM_MAPS 6
+
+static void CG_ParseNextMapVotes( void ) {
+    char votes[1024] = "";
+    int i;
+
+    for(i=1;i<NEXTMAPVOTE_NUM_MAPS+1;i++) {
+        Q_strcat(votes,sizeof(votes),va("%i ",atoi(CG_Argv(i))));
+    }
+    trap_Cvar_Set("ui_nextmapvote_votes", votes);
+}
+
+/*
+=================
+CG_ParseNextMapVote
+Rat: Based on CG_ParseMappage, same security considerations apply
+Rat: Update: now doesn't pass data as command arguments anymore
+=================
+*/
+static void CG_ParseNextMapVote( void ) {
+    char maps[1024] = "";
+    const char *temp;
+    const char*	c;
+    int i;
+
+    cgs.nextmapVoteEndTime = atoi(CG_Argv(1));
+    if (cgs.nextmapVoteEndTime < cg.time) {
+	    cgs.nextmapVoteEndTime = cg.time;
+    }
+
+    for(i=2;i<NEXTMAPVOTE_NUM_MAPS+2;i++) {
+        temp = CG_Argv( i );
+        for( c = temp; *c; ++c) {
+		if (!(isalnum(*c) 
+			|| *c == '-' 
+			|| *c == '_'
+			|| *c == '+'
+		    		 )) {
+			//The server tried something bad!
+			Com_Printf("Error: illegal character %c in nextmapvote received from server\n", *c);
+			return;
+		}
+            }
+        if(strlen(temp)<1)
+            temp = "---";
+        Q_strcat(maps,sizeof(maps),va("%s ",temp));
+    }
+    trap_Cvar_Set("ui_nextmapvote_votes", "");
+    trap_Cvar_Set("ui_nextmapvote_maps", maps);
+    trap_SendConsoleCommand("ui_nextmapvote\n");
+}
+
+/*
+=================
+CG_ParseTreasureHunt
+
+=================
+*/
+static void CG_ParseTreasureHunt( void ) {
+	if(cgs.gametype != GT_TREASURE_HUNTER) {
+		return;
+	}
+	cgs.th_phase = atoi( CG_Argv( 1 ) );
+	if (cgs.th_phase > TH_SEEK || cgs.th_phase < TH_INIT) {
+		cgs.th_phase = TH_INIT;
+	}
+	cgs.th_roundDuration = atoi( CG_Argv( 2 ) );
+	cgs.th_roundStart = atoi( CG_Argv( 3 ) );
+	cgs.th_redTokens = atoi( CG_Argv( 4 ) );
+	cgs.th_blueTokens = atoi( CG_Argv( 5 ) );
+	cgs.th_tokenStyle = atoi( CG_Argv( 6 ) );
 }
 
 /*
 =================
 CG_ParseMappage
-Sago: This parses values from the server rather directly. Some checks are performed, but beware if you change it or new
-security holes are found
+Rat: This uses a Cvar to transmit the data isntead
 =================
 */
 static void CG_ParseMappage( void ) {
-    char command[1024];
+    char maplist[MAX_CVAR_VALUE_STRING] = "";
     const char *temp;
     const char*	c;
     int i;
+    int nummaps = 30;
+    int pagenum = 0;
+    int cvarNum;
+    int cvarMaps;
 
     temp = CG_Argv( 1 );
     for( c = temp; *c; ++c) {
-		switch(*c) {
-			case '\n':
-			case '\r':
-			case ';':
-				//The server tried something bad!
-				return;
-			break;
-		}
-        }
-    Q_strncpyz(command,va("ui_mappage %s",temp),1024);
-    for(i=2;i<12;i++) {
+	    if (!(isalnum(*c) 
+			|| *c == '-' 
+			|| *c == '_'
+			|| *c == '+'
+				)) {
+		    //The server tried something bad!
+		    Com_Printf("Error: illegal character %c in mappage received from server\n", *c);
+		    return;
+	    }
+    }
+    pagenum = atoi(temp);
+    if (pagenum < 0) {
+	    pagenum = 0;
+    }
+    trap_Cvar_Set("ui_mappage_pagenum", va("%i", pagenum));
+
+    cvarNum = 0;
+    cvarMaps = 0;
+    for(i=2;i<nummaps+2;i++) {
+	if (cvarMaps == 7) {
+		trap_Cvar_Set(va("ui_mappage_page%i", cvarNum), maplist);
+		++cvarNum;
+		cvarMaps = 0;
+		maplist[0] = '\0';
+	}
         temp = CG_Argv( i );
         for( c = temp; *c; ++c) {
-                    switch(*c) {
-                            case '\n':
-                            case '\r':
-                            case ';':
-                                    //The server tried something bad!
-                                    return;
-                            break;
-                    }
+		if (!(isalnum(*c) 
+			|| *c == '-' 
+			|| *c == '_'
+			|| *c == '+'
+		    		 )) {
+			//The server tried something bad!
+			Com_Printf("Error: illegal character %c in mappage received from server\n", *c);
+			return;
+		}
             }
         if(strlen(temp)<1)
             temp = "---";
-        Q_strcat(command,1024,va(" %s ",temp));
+        Q_strcat(maplist,sizeof(maplist),va("%s ",temp));
+	++cvarMaps;
     }
-    trap_SendConsoleCommand(command);
+    trap_Cvar_Set(va("ui_mappage_page%i", cvarNum), maplist);
+    trap_SendConsoleCommand("ui_mappage_update\n");
 
 }
+
+///*
+//=================
+//CG_ParseMappage2
+//Sago: This parses values from the server rather directly. Some checks are performed, but beware if you change it or new
+//security holes are found
+//=================
+//*/
+//static void CG_ParseMappage2( void ) {
+//    char command[1024];
+//    const char *temp;
+//    const char*	c;
+//    int i;
+//    int nummaps = 30;
+//
+//    temp = CG_Argv( 1 );
+//    for( c = temp; *c; ++c) {
+//	    if (!(isalnum(*c) 
+//			|| *c == '-' 
+//			|| *c == '_'
+//			|| *c == '+'
+//				)) {
+//		    //The server tried something bad!
+//		    Com_Printf("Error: illegal character %c in mappage received from server\n", *c);
+//		    return;
+//	    }
+//		//switch(*c) {
+//		//	case '\n':
+//		//	case '\r':
+//		//	case ';':
+//		//		//The server tried something bad!
+//		//		return;
+//		//	break;
+//		//}
+//        }
+//    Q_strncpyz(command,va("ui_mappage %s",temp),sizeof(command));
+//    for(i=2;i<nummaps+2;i++) {
+//        temp = CG_Argv( i );
+//        for( c = temp; *c; ++c) {
+//		if (!(isalnum(*c) 
+//			|| *c == '-' 
+//			|| *c == '_'
+//			|| *c == '+'
+//		    		 )) {
+//			//The server tried something bad!
+//			Com_Printf("Error: illegal character %c in mappage received from server\n", *c);
+//			return;
+//		}
+//                //    switch(*c) {
+//                //            case '\n':
+//                //            case '\r':
+//                //            case ';':
+//                //                    //The server tried something bad!
+//                //                    return;
+//                //            break;
+//                //    }
+//            }
+//        if(strlen(temp)<1)
+//            temp = "---";
+//        Q_strcat(command,sizeof(command),va(" %s ",temp));
+//    }
+//    trap_SendConsoleCommand(command);
+//
+//}
 
 /*
 =================
@@ -258,11 +787,83 @@ static void CG_ParseObeliskHealth( void ) {
     cg.blueObeliskHealth = atoi( CG_Argv(2) );
 }
 
+
+static void CG_ParseSpecGroup ( void ) {
+     cg.spectatorGroup = (spectatorGroup_t) atoi ( CG_Argv ( 1 ) );
+}
+
+static void CG_ParseQueueJoin ( void ) {
+	int myteam = cgs.clientinfo[cg.clientNum].team;
+	char *s_team = "";
+	if (cgs.gametype < GT_TEAM || cgs.ffa_gt == 1) {
+		return;
+	}
+	trap_S_StartLocalSound( cgs.media.queueJoinSound, CHAN_AUTO );
+	switch (myteam) {
+		case TEAM_RED:
+			s_team = S_COLOR_RED "Red";
+			break;
+		case TEAM_BLUE:
+			s_team = S_COLOR_BLUE "Blue";
+			break;
+		default:
+			return;
+	}
+	CG_CenterPrint ( va (S_COLOR_YELLOW "Joined Team %s", s_team ), 120, BIGCHAR_WIDTH );
+}
+
+static void CG_ParseReadyMask ( void ) {
+    int readyMask, i;
+    readyMask = atoi ( CG_Argv ( 1 ) );
+
+    if ( cg.warmup >= 0 )
+        return;
+
+    if ( readyMask != cg.readyMask ) {
+        for ( i = 0; i < 32 ; i++ ) {
+            if ( ( cg.readyMask & ( 1 << i ) ) != ( readyMask & ( 1 << i ) ) ) {
+
+                if ( readyMask & ( 1 << i ) )
+                    CG_CenterPrint ( va ( "%s ^2is ready", cgs.clientinfo[ i ].name ), 120, BIGCHAR_WIDTH );
+                else
+                    CG_CenterPrint ( va ( "%s ^1is not ready", cgs.clientinfo[ i ].name ), 120, BIGCHAR_WIDTH );
+            }
+        }
+        cg.readyMask = readyMask;
+    }
+}
+
 /**
  * Sets the respawn counter for the client.
  */
 static void CG_ParseRespawnTime( void ) {
     cg.respawnTime = atoi( CG_Argv(1) );
+}
+
+static void CG_ParseAward( void ) {
+	extAward_t award = atoi( CG_Argv( 1 ) );
+	int count = atoi( CG_Argv( 2 ) );
+
+	if (count < 1) {
+		return;
+	}
+
+	if (award < 0 || award >= EAWARD_NUM_AWARDS) {
+		return;
+	}
+	CG_PushReward(cgs.media.eaward_sounds[award], cgs.media.eaward_medals[award], count);
+}
+
+static void CG_ParseTaunt( void ) {
+	int clientNum = atoi( CG_Argv( 1 ) );
+
+	if( clientNum < 0 || clientNum >= MAX_CLIENTS ) {
+		return;
+	}
+
+	CG_PlayTaunt(clientNum, CG_Argv(2));
+
+	//trap_S_StartSound (NULL, clientNum, CHAN_VOICE, CG_CustomSound( clientNum, "*taunt.wav" ) );
 }
 
 /*
@@ -275,6 +876,16 @@ static void CG_ParseTeam( void ) {
     //TODO: Add code here
     if(cg_voip_teamonly.integer)
 	trap_Cvar_Set("cl_voipSendTarget",CG_Argv(1));
+}
+
+static void CG_ParseVoteResult( void ) {
+	const char *r = CG_Argv( 1 );
+	if (*r == 'p') {
+		trap_S_StartLocalSound( cgs.media.votePassed, CHAN_ANNOUNCER );
+	} else if (*r == 'f') {
+		trap_S_StartLocalSound( cgs.media.voteFailed, CHAN_ANNOUNCER );
+
+	}
 }
 
 /*
@@ -292,6 +903,52 @@ static void CG_ParseAttackingTeam( void ) {
 		cgs.attackingTeam = TEAM_BLUE;
 	else
 		cgs.attackingTeam = TEAM_NONE; //Should never happen.
+}
+
+static void CG_ParseTeamPlayerCounts( void ) {
+	int livingRed, livingBlue, totalRed, totalBlue;
+	int team = TEAM_SPECTATOR;
+	qboolean dead = qfalse;
+
+	if (cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR && cg.snap->ps.pm_flags & PMF_FOLLOW) {
+		team = cg.snap->ps.persistant[PERS_TEAM];
+		dead = (cg.snap->ps.pm_type == PM_DEAD);
+	} else if (cg.snap->ps.persistant[PERS_TEAM] != TEAM_SPECTATOR) {
+		team = cg.predictedPlayerState.persistant[PERS_TEAM];
+		dead = (cg.predictedPlayerState.pm_type == PM_DEAD);
+	}
+		
+
+	totalRed = atoi ( CG_Argv ( 3 ) );
+	totalBlue = atoi ( CG_Argv ( 4 ) );
+
+	if ( cg.warmup < 0 ) {
+		cgs.redLivingCount = totalRed;
+		cgs.blueLivingCount = totalBlue;
+		return;
+	}
+
+	livingRed = atoi ( CG_Argv ( 1 ) );
+	livingBlue = atoi ( CG_Argv ( 2 ) );
+	totalRed = atoi ( CG_Argv ( 3 ) );
+	totalBlue = atoi ( CG_Argv ( 4 ) );
+
+	cgs.elimNextRespawnTime = MAX(0,atoi ( CG_Argv ( 5 ) ));
+
+
+	if ( totalRed != 1 && livingRed == 1 && livingRed != cgs.redLivingCount && team == TEAM_RED && !dead ) {
+		cg.elimLastPlayerTime = cg.time;
+		//CG_CenterPrint ( va ( "You are the chosen one!" ), 100, BIGCHAR_WIDTH );
+	}
+	if ( totalBlue != 1 && livingBlue == 1 && livingBlue != cgs.blueLivingCount && team == TEAM_BLUE && !dead ) {
+		cg.elimLastPlayerTime = cg.time;
+		//CG_CenterPrint ( va ( "You are the chosen one!" ), 100, BIGCHAR_WIDTH );
+	}
+
+	cgs.redLivingCount = livingRed;
+	cgs.blueLivingCount = livingBlue;
+
+
 }
 
 /*
@@ -313,7 +970,7 @@ static void CG_ParseTeamInfo( void ) {
 	}
 
 	for ( i = 0 ; i < numSortedTeamPlayers ; i++ ) {
-		client = atoi( CG_Argv( i * 6 + 2 ) );
+		client = atoi( CG_Argv( i * 7 + 2 ) );
                 if( client < 0 || client >= MAX_CLIENTS )
 		{
 		  CG_Error( "CG_ParseTeamInfo: bad client number: %d", client );
@@ -323,11 +980,12 @@ static void CG_ParseTeamInfo( void ) {
 
 		sortedTeamPlayers[i] = client;
 
-		cgs.clientinfo[ client ].location = atoi( CG_Argv( i * 6 + 3 ) );
-		cgs.clientinfo[ client ].health = atoi( CG_Argv( i * 6 + 4 ) );
-		cgs.clientinfo[ client ].armor = atoi( CG_Argv( i * 6 + 5 ) );
-		cgs.clientinfo[ client ].curWeapon = atoi( CG_Argv( i * 6 + 6 ) );
-		cgs.clientinfo[ client ].powerups = atoi( CG_Argv( i * 6 + 7 ) );
+		cgs.clientinfo[ client ].location = atoi( CG_Argv( i * 7 + 3 ) );
+		cgs.clientinfo[ client ].health = atoi( CG_Argv( i * 7 + 4 ) );
+		cgs.clientinfo[ client ].armor = atoi( CG_Argv( i * 7 + 5 ) );
+		cgs.clientinfo[ client ].curWeapon = atoi( CG_Argv( i * 7 + 6 ) );
+		cgs.clientinfo[ client ].powerups = atoi( CG_Argv( i * 7 + 7 ) );
+		cgs.clientinfo[ client ].respawnTime = atoi( CG_Argv( i * 7 + 8 ) );
 	}
 }
 
@@ -359,23 +1017,60 @@ void CG_ParseServerinfo( void ) {
 	cgs.fraglimit = atoi( Info_ValueForKey( info, "fraglimit" ) );
 	cgs.capturelimit = atoi( Info_ValueForKey( info, "capturelimit" ) );
 	cgs.timelimit = atoi( Info_ValueForKey( info, "timelimit" ) );
+	cgs.overtime = atoi( Info_ValueForKey( info, "g_overtime" ) );
 	cgs.maxclients = atoi( Info_ValueForKey( info, "sv_maxclients" ) );
+	if (cgs.maxclients > MAX_CLIENTS) {
+		cgs.maxclients = MAX_CLIENTS;
+	} else if (cgs.maxclients < 0 ) {
+		cgs.maxclients = 0;
+	}
 	cgs.roundtime = atoi( Info_ValueForKey( info, "elimination_roundtime" ) );
 	cgs.nopickup = atoi( Info_ValueForKey( info, "g_rockets" ) ) + atoi( Info_ValueForKey( info, "g_instantgib" ) ) + atoi( Info_ValueForKey( info, "g_elimination" ) );
 	cgs.lms_mode = atoi( Info_ValueForKey( info, "g_lms_mode" ) );
 	cgs.altExcellent = atoi( Info_ValueForKey( info, "g_altExcellent" ) );
 	mapname = Info_ValueForKey( info, "mapname" );
+	Com_sprintf( cgs.mapbasename, sizeof( cgs.mapbasename ), "%s", mapname );
 	Com_sprintf( cgs.mapname, sizeof( cgs.mapname ), "maps/%s.bsp", mapname );
 	Q_strncpyz( cgs.redTeam, Info_ValueForKey( info, "g_redTeam" ), sizeof(cgs.redTeam) );
 	trap_Cvar_Set("g_redTeam", cgs.redTeam);
 	Q_strncpyz( cgs.blueTeam, Info_ValueForKey( info, "g_blueTeam" ), sizeof(cgs.blueTeam) );
 	trap_Cvar_Set("g_blueTeam", cgs.blueTeam);
+	
+	Q_strncpyz( cgs.sv_hostname, Info_ValueForKey( info, "sv_hostname" ), sizeof(cgs.sv_hostname) );
 
 //unlagged - server options
 	// we'll need this for deciding whether or not to predict weapon effects
 	cgs.delagHitscan = atoi( Info_ValueForKey( info, "g_delagHitscan" ) );
 	trap_Cvar_Set("g_delagHitscan", va("%i", cgs.delagHitscan));
 //unlagged - server options
+//
+	cgs.rocketSpeed = atoi( Info_ValueForKey( info, "g_rocketSpeed" ) );
+	trap_Cvar_Set("g_rocketSpeed", va("%i", cgs.rocketSpeed));
+
+	cgs.delagMissileMaxLatency = atoi( Info_ValueForKey( info, "g_delagMissileMaxLatency" ) );
+	trap_Cvar_Set("g_delagMissileMaxLatency", va("%i", cgs.delagMissileMaxLatency));
+
+	cgs.predictedMissileNudge = atoi( Info_ValueForKey( info, "g_delagMissileBaseNudge" ) );
+	trap_Cvar_Set("g_delagMissileBaseNudge", va("%i", cgs.predictedMissileNudge));
+
+	cgs.ratFlags = atoi( Info_ValueForKey( info, "g_ratFlags" ) );
+	trap_Cvar_Set("g_ratFlags", va("%i", cgs.ratFlags));
+
+	trap_Cvar_Set("g_ratPhysics", va("%i", (cgs.ratFlags & RAT_RATPHYSICS) ? 1 : 0));
+	trap_Cvar_Set("g_rampJump", va("%i", (cgs.ratFlags & RAT_RAMPJUMP) ? 1 : 0));
+	trap_Cvar_Set("g_additiveJump", va("%i", (cgs.ratFlags & RAT_ADDITIVEJUMP) ? 1 : 0));
+	trap_Cvar_Set("g_fastSwim", va("%i", (cgs.ratFlags & RAT_FASTSWIM) ? 1 : 0));
+	trap_Cvar_Set("g_swingGrapple", va("%i", (cgs.ratFlags & RAT_SWINGGRAPPLE) ? 1 : 0));
+	trap_Cvar_Set("g_fastSwitch", va("%i", (cgs.ratFlags & RAT_FASTSWITCH) ? 1 : 0));
+	trap_Cvar_Set("g_fastWeapons", va("%i", (cgs.ratFlags & RAT_FASTWEAPONS) ? 1 : 0));
+	trap_Cvar_Set("g_regularFootsteps", va("%i", (cgs.ratFlags & RAT_REGULARFOOTSTEPS) ? 1 : 0));
+
+	cgs.maxBrightshellAlpha = atof( Info_ValueForKey( info, "g_maxBrightshellAlpha" ) );
+	// don't allow the server to set values that are too high / low
+	cgs.maxBrightshellAlpha = MAX(MIN(cgs.maxBrightshellAlpha, 0.8), 0.1);
+
+	cgs.startWhenReady = atoi( Info_ValueForKey( info, "g_startWhenReady" ) );
+	trap_Cvar_Set("g_startWhenReady", va("%i", cgs.startWhenReady));
 
         //Copy allowed votes directly to the client:
         trap_Cvar_Set("cg_voteflags",Info_ValueForKey( info, "voteflags" ) );
@@ -426,13 +1121,13 @@ void CG_SetConfigValues( void ) {
 	cgs.levelStartTime = atoi( CG_ConfigString( CS_LEVEL_START_TIME ) );
 	if( cgs.gametype == GT_CTF || cgs.gametype == GT_CTF_ELIMINATION || cgs.gametype == GT_DOUBLE_D) {
 		s = CG_ConfigString( CS_FLAGSTATUS );
-		cgs.redflag = s[0] - '0';
-		cgs.blueflag = s[1] - '0';
+		cgs.redflag = MIN(2,MAX(0,s[0] - '0'));
+		cgs.blueflag = MIN(2,MAX(0,s[1] - '0'));
 	}
 //#ifdef MISSIONPACK
 	else if( cgs.gametype == GT_1FCTF ) {
 		s = CG_ConfigString( CS_FLAGSTATUS );
-		cgs.flagStatus = s[0] - '0';
+		cgs.flagStatus = MIN(2,MAX(0,s[0] - '0'));
 	}
 //#endif
 	cg.warmup = atoi( CG_ConfigString( CS_WARMUP ) );
@@ -513,6 +1208,9 @@ static void CG_ConfigStringModified( void ) {
 	} else if ( num == CS_VOTE_TIME ) {
 		cgs.voteTime = atoi( str );
 		cgs.voteModified = qtrue;
+		if (cgs.voteTime) {
+			trap_S_StartLocalSound( cgs.media.voteNow, CHAN_ANNOUNCER );
+		}
 	} else if ( num == CS_VOTE_YES ) {
 		cgs.voteYes = atoi( str );
 		cgs.voteModified = qtrue;
@@ -521,9 +1219,9 @@ static void CG_ConfigStringModified( void ) {
 		cgs.voteModified = qtrue;
 	} else if ( num == CS_VOTE_STRING ) {
 		Q_strncpyz( cgs.voteString, str, sizeof( cgs.voteString ) );
-#ifdef MISSIONPACK
-		trap_S_StartLocalSound( cgs.media.voteNow, CHAN_ANNOUNCER );
-#endif //MISSIONPACK
+//#ifdef MISSIONPACK
+		//trap_S_StartLocalSound( cgs.media.voteNow, CHAN_ANNOUNCER );
+//#endif //MISSIONPACK
 	} else if ( num >= CS_TEAMVOTE_TIME && num <= CS_TEAMVOTE_TIME + 1) {
 		cgs.teamVoteTime[num-CS_TEAMVOTE_TIME] = atoi( str );
 		cgs.teamVoteModified[num-CS_TEAMVOTE_TIME] = qtrue;
@@ -548,6 +1246,11 @@ static void CG_ConfigStringModified( void ) {
 		}
 	} else if ( num >= CS_PLAYERS && num < CS_PLAYERS+MAX_CLIENTS ) {
 		CG_NewClientInfo( num - CS_PLAYERS );
+		if (num - CS_PLAYERS == cg.clientNum) {
+			// make sure to update all other player models in case we switched teams
+			CG_ForceModelChange();
+			CG_ParseForcedColors();
+		}
 		CG_BuildSpectatorString();
 	} else if ( num == CS_FLAGSTATUS ) {
 		if( cgs.gametype == GT_CTF || cgs.gametype == GT_CTF_ELIMINATION || cgs.gametype == GT_DOUBLE_D) {
@@ -579,6 +1282,10 @@ static void CG_AddToTeamChat( const char *str ) {
 	char *p, *ls;
 	int lastcolor;
 	int chatHeight;
+
+	if (cg_newConsole.integer) {
+		return;
+	}
 
 	if (cg_teamChatHeight.integer < TEAMCHAT_HEIGHT) {
 		chatHeight = cg_teamChatHeight.integer;
@@ -657,6 +1364,7 @@ static void CG_MapRestart( void ) {
 		CG_Printf( "CG_MapRestart\n" );
 	}
 
+	CG_InitPMissilles();
 	CG_InitLocalEntities();
 	CG_InitMarkPolys();
 	CG_ClearParticles ();
@@ -670,6 +1378,11 @@ static void CG_MapRestart( void ) {
 
 	cgs.voteTime = 0;
 
+	cgs.timeoutOvertime = 0;
+	cgs.timeoutEnd = 0;
+
+	cg.readyMask = 0;
+
 	cg.mapRestart = qtrue;
 
 	CG_StartMusic();
@@ -680,8 +1393,11 @@ static void CG_MapRestart( void ) {
 
 	// play the "fight" sound if this is a restart without warmup
 	if ( cg.warmup == 0 /* && cgs.gametype == GT_TOURNAMENT */) {
+		CG_AutoRecordStart();
 		trap_S_StartLocalSound( cgs.media.countFightSound, CHAN_ANNOUNCER );
 		CG_CenterPrint( "FIGHT!", 120, GIANTCHAR_WIDTH*2 );
+	} else {
+		CG_AutoRecordStop();
 	}
 #ifdef MISSIONPACK
 	if (cg_singlePlayerActive.integer) {
@@ -1012,8 +1728,8 @@ typedef struct bufferedVoiceChat_s
 	int clientNum;
 	sfxHandle_t snd;
 	int voiceOnly;
-	char cmd[MAX_SAY_TEXT];
-	char message[MAX_SAY_TEXT];
+	char cmd[MAX_RAT_SAY_TEXT];
+	char message[MAX_RAT_SAY_TEXT];
 } bufferedVoiceChat_t;
 
 bufferedVoiceChat_t voiceChatBuffer[MAX_VOICECHATBUFFER];
@@ -1169,6 +1885,97 @@ void CG_VoiceChat( int mode ) {
 #endif
 }
 
+#define MAX_TAUNTFILESIZE	16384
+#define MAX_TAUNTS		128
+
+struct taunt_s
+{
+	char id[64];
+	sfxHandle_t sound;
+};
+
+struct tauntList_s 
+{
+	int numTaunts;
+	struct taunt_s taunts[MAX_TAUNTS];
+};
+
+struct tauntList_s tauntList;
+
+void CG_LoadTaunts(void) {
+	int	len;
+	fileHandle_t f;
+	char buf[MAX_TAUNTFILESIZE];
+	char **p, *ptr;
+	char *token;
+	sfxHandle_t sound;
+
+	memset(&tauntList, 0, sizeof(tauntList));
+
+	len = trap_FS_FOpenFile( "sound/taunts/tauntlist.cfg", &f, FS_READ );
+	if ( !f ) {
+		return;
+	}
+	if ( len >= MAX_TAUNTFILESIZE ) {
+		trap_Print( va( S_COLOR_RED "taunt file too large: is %i, max allowed is %i\n", len, MAX_TAUNTFILESIZE ) );
+		trap_FS_FCloseFile( f );
+		return;
+	}
+
+	trap_FS_Read( buf, len, f );
+	buf[len] = 0;
+	trap_FS_FCloseFile( f );
+
+	ptr = buf;
+	p = &ptr;
+
+	for (tauntList.numTaunts = 0; tauntList.numTaunts < MAX_TAUNTS; tauntList.numTaunts++) {
+		token = COM_ParseExt(p, qtrue);
+		if (!token || token[0] == 0) {
+			return;
+		}
+		Com_sprintf(tauntList.taunts[tauntList.numTaunts].id, sizeof( tauntList.taunts[tauntList.numTaunts].id ), "%s", token);
+		token = COM_ParseExt(p, qtrue);
+		if (Q_stricmp(token, "{")) {
+			trap_Print( va( S_COLOR_RED "expected { found %s in taunt file\n", token ) );
+			return;
+		}
+
+		token = COM_ParseExt(p, qtrue);
+		if (!token || token[0] == 0) {
+			return;
+		}
+		if (!Q_stricmp(token, "}"))
+			break;
+		sound = trap_S_RegisterSound( token, qtrue );
+		tauntList.taunts[tauntList.numTaunts].sound = sound;
+		token = COM_ParseExt(p, qtrue);
+		if (!token || token[0] == 0) {
+			return;
+		}
+	}
+}
+
+void CG_PlayTaunt(int clientNum, const char *id) {
+	int i;
+
+	for (i = 0; i < tauntList.numTaunts; ++i) {
+		if (!Q_stricmp(tauntList.taunts[i].id, id)) {
+			trap_S_StartSound (NULL, clientNum, CHAN_VOICE, tauntList.taunts[i].sound );
+			return;
+		}
+	}
+}
+
+void CG_PrintTaunts( void ) {
+	int i;
+
+	CG_Printf("List of taunts:\n");
+	for (i = 0; i < tauntList.numTaunts; ++i) {
+		CG_Printf(" %s\n", tauntList.taunts[i].id);
+	}
+}
+
 /*
 =================
 CG_RemoveChatEscapeChar
@@ -1186,6 +1993,26 @@ static void CG_RemoveChatEscapeChar( char *text ) {
 	text[l] = '\0';
 }
 
+
+static void CG_ParseSpawnpoints( void ){
+    int i;
+    cg.numSpawnpoints = atoi( CG_Argv(1) );
+    if (cg.numSpawnpoints > MAX_SPAWNPOINTS) {
+	    cg.numSpawnpoints = MAX_SPAWNPOINTS;
+    } else if (cg.numSpawnpoints < 0 ) {
+	    cg.numSpawnpoints = 0;
+    }
+    for( i = 0; i < cg.numSpawnpoints ; i++ ){
+	cg.spawnpoints[i].origin[0] = atoi(CG_Argv( 2 + i*7 ));
+	cg.spawnpoints[i].origin[1] = atoi(CG_Argv( 3 + i*7 ));
+	cg.spawnpoints[i].origin[2] = atoi(CG_Argv( 4 + i*7 ));
+	cg.spawnpoints[i].angle[0] = atoi(CG_Argv( 5 + i*7 ));
+	cg.spawnpoints[i].angle[1] = atoi(CG_Argv( 6 + i*7 ));
+	cg.spawnpoints[i].angle[2] = atoi(CG_Argv( 7 + i*7 ));
+	cg.spawnpoints[i].team = atoi(CG_Argv( 8 + i*7 ));
+    }
+}
+
 /*
 =================
 CG_ServerCommand
@@ -1196,7 +2023,7 @@ Cmd_Argc() / Cmd_Argv()
 */
 static void CG_ServerCommand( void ) {
 	const char	*cmd;
-	char		text[MAX_SAY_TEXT];
+	char		text[MAX_CHAT_TEXT];
 
 	cmd = CG_Argv(0);
 
@@ -1206,7 +2033,8 @@ static void CG_ServerCommand( void ) {
 	}
 
 	if ( !strcmp( cmd, "cp" ) ) {
-		CG_CenterPrint( CG_Argv(1), SCREEN_HEIGHT * 0.30, BIGCHAR_WIDTH );
+		//CG_CenterPrint( CG_Argv(1), SCREEN_HEIGHT * 0.30, BIGCHAR_WIDTH );
+		CG_CenterPrint( CG_Argv(1), SCREEN_HEIGHT * 0.30, CENTERPRINT_WIDTH );
 		return;
 	}
 
@@ -1220,12 +2048,17 @@ static void CG_ServerCommand( void ) {
 #ifdef MISSIONPACK
 		cmd = CG_Argv(1);			// yes, this is obviously a hack, but so is the way we hear about
 									// votes passing or failing
-		if ( !Q_stricmpn( cmd, "vote failed", 11 ) || !Q_stricmpn( cmd, "team vote failed", 16 )) {
+		if ( !Q_stricmp( cmd, "vote failed.\n" ) || !Q_stricmp( cmd, "team vote failed.\n" )) {
 			trap_S_StartLocalSound( cgs.media.voteFailed, CHAN_ANNOUNCER );
-		} else if ( !Q_stricmpn( cmd, "vote passed", 11 ) || !Q_stricmpn( cmd, "team vote passed", 16 ) ) {
+		} else if ( !Q_stricmp( cmd, "vote passed.\n" ) || !Q_stricmp( cmd, "team vote passed.\n" ) ) {
 			trap_S_StartLocalSound( cgs.media.votePassed, CHAN_ANNOUNCER );
 		}
 #endif
+		return;
+	}
+
+	if ( !strcmp( cmd, "printChat" ) ) {
+		CG_PrintfChat(qfalse, "%s", CG_Argv(1) );
 		return;
 	}
 
@@ -1233,20 +2066,20 @@ static void CG_ServerCommand( void ) {
 		if ( !cg_teamChatsOnly.integer ) {
                         if( cg_chatBeep.integer )
                                 trap_S_StartLocalSound( cgs.media.talkSound, CHAN_LOCAL_SOUND );
-			Q_strncpyz( text, CG_Argv(1), MAX_SAY_TEXT );
+			Q_strncpyz( text, CG_Argv(1), MAX_CHAT_TEXT );
 			CG_RemoveChatEscapeChar( text );
-			CG_Printf( "%s\n", text );
+			CG_PrintfChat( qfalse, "%s\n", text );
 		}
 		return;
 	}
 
 	if ( !strcmp( cmd, "tchat" ) ) {
                 if( cg_teamChatBeep.integer )
-                        trap_S_StartLocalSound( cgs.media.talkSound, CHAN_LOCAL_SOUND );
-		Q_strncpyz( text, CG_Argv(1), MAX_SAY_TEXT );
+                        trap_S_StartLocalSound( cgs.media.teamTalkSound, CHAN_LOCAL_SOUND );
+		Q_strncpyz( text, CG_Argv(1), MAX_CHAT_TEXT );
 		CG_RemoveChatEscapeChar( text );
 		CG_AddToTeamChat( text );
-		CG_Printf( "%s\n", text );
+		CG_PrintfChat( qtrue, "%s\n", text );
 		return;
 	}
 	if ( !strcmp( cmd, "vchat" ) ) {
@@ -1266,6 +2099,41 @@ static void CG_ServerCommand( void ) {
 
 	if ( !strcmp( cmd, "scores" ) ) {
 		CG_ParseScores();
+		return;
+	}
+
+	if ( !strcmp( cmd, "ratscores" ) ) {
+		CG_ParseRatScores();
+		return;
+	}
+
+	if ( !strcmp( cmd, "ratscores1" ) ) {
+		CG_ParseRatScores1();
+		return;
+	}
+
+	if ( !strcmp( cmd, "ratscores2" ) ) {
+		CG_ParseRatScores2();
+		return;
+	}
+
+	if ( !strcmp( cmd, "ratscores3" ) ) {
+		CG_ParseRatScores3();
+		return;
+	}
+
+	if ( !strcmp( cmd, "ratscores4" ) ) {
+		CG_ParseRatScores4();
+		return;
+	}
+
+	if ( !strcmp( cmd, "timeout" ) ) {
+		CG_ParseTimeout();
+		return;
+	}
+
+	if ( !strcmp( cmd, "overtime" ) ) {
+		CG_ParseOvertime();
 		return;
 	}
 
@@ -1296,8 +2164,18 @@ static void CG_ServerCommand( void ) {
 		return;
 	}
 
-	if ( !strcmp( cmd, "mappage" ) ) {
+	if ( !strcmp( cmd, "mappage" ) || !strcmp( cmd, "mappagel" ) ) {
 		CG_ParseMappage();
+		return;
+	}
+
+	if ( !strcmp( cmd, "nextmapvotes" ) ) {
+		CG_ParseNextMapVotes();
+		return;
+	}
+
+	if ( !strcmp( cmd, "nextmapvote" ) ) {
+		CG_ParseNextMapVote();
 		return;
 	}
 
@@ -1306,10 +2184,16 @@ static void CG_ServerCommand( void ) {
 		return;
 	}
 
+	if ( !strcmp( cmd, "tplayerCounts" ) ) {
+		CG_ParseTeamPlayerCounts();
+		return;
+	}
+
 	if ( !strcmp( cmd, "tinfo" ) ) {
 		CG_ParseTeamInfo();
 		return;
 	}
+
 
 	if ( !strcmp( cmd, "map_restart" ) ) {
 		CG_MapRestart();
@@ -1358,8 +2242,23 @@ static void CG_ServerCommand( void ) {
             return;
         }
 
+	if ( !strcmp ( cmd, "readyMask" ) ) {
+		CG_ParseReadyMask();
+		return;
+	}
+
         if ( !strcmp( cmd, "respawn" ) ) {
 		CG_ParseRespawnTime();
+		return;
+	}
+
+        if ( !strcmp( cmd, "spawnPoints" ) ) {
+		CG_ParseSpawnpoints();
+		return;
+	}
+
+        if ( !strcmp( cmd, "award" ) ) {
+		CG_ParseAward();
 		return;
 	}
 
@@ -1367,17 +2266,35 @@ static void CG_ServerCommand( void ) {
 		CG_ParseTeam();
 		return;
 	}
+	
+        if ( !strcmp( cmd, "taunt" ) ) {
+		CG_ParseTaunt();
+		return;
+	}
+
+	if ( !strcmp( cmd, "treasureHunt" ) ) {
+		CG_ParseTreasureHunt();
+		return;
+	}
+
+        if ( !strcmp( cmd, "vresult" ) ) {
+		CG_ParseVoteResult();
+		return;
+	}
+
+        if ( !strcmp( cmd, "specgroup" ) ) {
+		CG_ParseSpecGroup();
+		return;
+	}
+
+        if ( !strcmp( cmd, "qjoin" ) ) {
+		CG_ParseQueueJoin();
+		return;
+	}
+
 
         if ( !strcmp( cmd, "customvotes" ) ) {
-            char infoString[1024];
-            int i;
-            //TODO: Create a ParseCustomvotes function
-            memset(&infoString,0,sizeof(infoString));
-            for(i=1;i<=12;i++) {
-                Q_strcat(infoString,sizeof(infoString),CG_Argv( i ));
-                Q_strcat(infoString,sizeof(infoString)," ");
-            }
-            trap_Cvar_Set("cg_vote_custom_commands",infoString);
+		CG_ParseCustomVotes();
 		return;
 	}
 

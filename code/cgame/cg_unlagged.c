@@ -28,10 +28,392 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 void CG_ShotgunPattern( vec3_t origin, vec3_t origin2, int seed, int otherEntNum );
 void CG_Bullet( vec3_t end, int sourceEntityNum, vec3_t normal, qboolean flesh, int fleshEntityNum );
 
+predictedMissile_t *CG_BasePredictMissile( entityState_t *ent,  vec3_t muzzlePoint );
+void CG_FinishPredictMissileModel( entityState_t *ent, predictedMissile_t *pm );
+void CG_PredictNailgunMissile( entityState_t *ent, vec3_t muzzlePoint, vec3_t forward, vec3_t right, vec3_t up );
+
 // and this as well
 //Must be in sync with g_weapon.c
 #define MACHINEGUN_SPREAD	200
 #define CHAINGUN_SPREAD		600
+
+
+// similar to localentites
+predictedMissile_t	cg_predictedMissiles[MAX_PREDICTED_MISSILES];
+predictedMissile_t	cg_activePMissiles;		// double linked list
+predictedMissile_t	*cg_freePMissiles;		// single linked list
+
+// how much longer than the player's roundtrip time  a predicted missile will
+// stay alive awaiting confirmation from the server
+#define PMISSILE_WINDOWTIME 30
+
+/*
+===================
+CG_InitPMissilles
+
+This is called at startup and for tournement restarts
+===================
+*/
+void	CG_InitPMissilles( void ) {
+	int		i;
+
+	memset( cg_predictedMissiles, 0, sizeof( cg_predictedMissiles ) );
+	cg_activePMissiles.next = &cg_activePMissiles;
+	cg_activePMissiles.prev = &cg_activePMissiles;
+	cg_freePMissiles = cg_predictedMissiles;
+	for ( i = 0 ; i < MAX_PREDICTED_MISSILES - 1 ; i++ ) {
+		cg_predictedMissiles[i].next = &cg_predictedMissiles[i+1];
+	}
+}
+
+
+/*
+==================
+CG_FreePMissile
+==================
+*/
+void CG_FreePMissile( predictedMissile_t *pm ) {
+	if ( !pm->prev ) {
+		CG_Error( "CG_FreePMissile: not active" );
+	}
+
+	// remove from the doubly linked active list
+	pm->prev->next = pm->next;
+	pm->next->prev = pm->prev;
+
+	// the free list is only singly linked
+	pm->next = cg_freePMissiles;
+	cg_freePMissiles = pm;
+}
+
+/*
+===================
+CG_AllocPMissile
+
+Will allways succeed, even if it requires freeing an old active PMissile
+===================
+*/
+predictedMissile_t	*CG_AllocPMissile( void ) {
+	predictedMissile_t	*pm;
+
+	if ( !cg_freePMissiles ) {
+		// no free PMissiles, so free the one at the end of the chain
+		// remove the oldest active one
+		CG_FreePMissile( cg_activePMissiles.prev );
+	}
+
+	pm = cg_freePMissiles;
+	cg_freePMissiles = cg_freePMissiles->next;
+
+	memset( pm, 0, sizeof( *pm ) );
+
+	// link into the active list
+	pm->next = cg_activePMissiles.next;
+	pm->prev = &cg_activePMissiles;
+	cg_activePMissiles.next->prev = pm;
+	cg_activePMissiles.next = pm;
+	return pm;
+}
+
+void CG_RemoveOldMissileExplosion(predictedMissileStatus_t *pms) {
+	if (pms->expLEntityID) {
+		// localentity drawing the explosion is still active,
+		// free it
+		CG_FreeLocalEntityById(pms->expLEntityID);
+	}
+	pms->expLEntityID = 0;
+}
+
+// if an explosion was predicted wrongfully, this will try to recover it
+// early
+void CG_RecoverMissile(centity_t *missile) {
+	predictedMissileStatus_t *pms = &missile->missileStatus;
+	
+	if (!(pms->missileFlags & (MF_EXPLODED | MF_DISAPPEARED))
+			|| (pms->missileFlags & MF_EXPLOSIONCONFIRMED)) {
+		// explosion/portal wasn't predicted or explosion was already confirmed
+		// by server
+		return;
+	}
+
+	//if (pms->explosionTime + 1000/sv_fps.integer + CG_ProjectileNudgeTimeshift(missile) < cg.time) {
+	// only actually recover if there really was an explosion drawn
+	if (pms->explosionTime && pms->explosionTime + 1000/sv_fps.integer + CG_ProjectileNudgeTimeshift(missile) < cg.time) {
+		// missile is still around at a time when we should have the
+		// confirmation from the server that it exploded. Prediction was
+		// wrong, recover the missile
+		pms->missileFlags &= ~(MF_EXPLODED | MF_DISAPPEARED | MF_HITPLAYER | MF_HITWALLMETAL | MF_HITWALL | MF_TRAILFINISHED);
+
+		CG_RemoveOldMissileExplosion(pms);
+
+	}
+}
+
+
+void CG_RemovePredictedMissile( centity_t *missile) {
+	predictedMissile_t	*pm, *next;
+
+	if (!cg_ratPredictMissiles.integer) {
+		return;
+	}
+
+	if (missile->missileStatus.missileFlags & MF_REMOVEDPMISSILE) {
+		// already ran;
+		return;
+	}
+	// mark that we ran on this
+	missile->missileStatus.missileFlags |= MF_REMOVEDPMISSILE;
+
+	if (!CG_IsOwnMissile(missile)) {
+		return;
+	}
+
+	pm = cg_activePMissiles.next;
+	for ( ; pm != &cg_activePMissiles ; pm = next ) {
+		next = pm->next;
+
+		if (pm->weapon != missile->currentState.weapon) {
+			continue;
+		}
+
+		if (missile->currentState.pos.trTime - PMISSILE_WINDOWTIME > pm->pos.trTime
+				|| missile->currentState.pos.trTime + PMISSILE_WINDOWTIME < pm->pos.trTime) {
+			continue;
+		}
+
+		// TODO: ADD TRAJECTORY CHECKS FOR NG
+		
+		if (pm->status.missileFlags & MF_EXPLODED) {
+			// copy status so we don't predict another explosion if
+			// it already did explode
+			memcpy(&missile->missileStatus, &pm->status, sizeof(missile->missileStatus));
+		}
+
+		CG_FreePMissile( pm );
+		return;
+	}
+}
+
+qboolean CG_ShouldPredictExplosion(void) {
+	return !(CG_ReliablePing() + 20 > cgs.delagMissileMaxLatency);
+}
+
+#define PMISSILE_DOUBLE_EXPLOSION_DISTANCE 128
+qboolean CG_ExplosionPredicted(centity_t *cent, int checkFlags, vec3_t realExpOrigin, int realHitEnt) {
+	int flags = checkFlags;
+	if (cent->currentState.eType != ET_MISSILE
+			|| cg_ratPredictMissiles.integer <= 0
+			|| !(cgs.ratFlags & RAT_PREDICTMISSILES) 
+			|| !cg_predictExplosions.integer) {
+		return qfalse;
+	}
+	CG_RemovePredictedMissile(cent);
+
+	// don't check MF_HITPLAYER/MF_HITWALL(METAL),
+	// as it is unreliable.
+	// e.g. if the player was killed by the missile, the game will
+	// create an EV_MISSILE_MISS event, not a HIT!
+	flags &= ~(MF_HITPLAYER | MF_HITWALL | MF_HITWALLMETAL);
+	flags |= MF_EXPLODED;
+	
+	if ((cent->missileStatus.missileFlags & flags) != flags) {
+		return qfalse;
+	}
+	if (Distance(realExpOrigin, cent->missileStatus.explosionPos) > PMISSILE_DOUBLE_EXPLOSION_DISTANCE) {
+		return qfalse;
+	}
+	if (checkFlags & MF_HITPLAYER 
+			&& cent->missileStatus.missileFlags & MF_HITPLAYER 
+			&& realHitEnt != cent->missileStatus.hitEntity) {
+		return qfalse;
+	}
+
+	return qtrue;
+}
+
+
+void CG_UpdateMissileStatus(predictedMissileStatus_t *pms, int addedFlags, vec3_t explosionOrigin, int hitEntity) {
+	pms->missileFlags |= addedFlags;
+	VectorCopy(explosionOrigin, pms->explosionPos);
+	pms->explosionTime = cg.time + 1000 / sv_fps.integer;
+	pms->hitEntity = hitEntity;
+}
+
+
+void CG_PredictedExplosion(trace_t *tr, int weapon, predictedMissile_t *predMissile, centity_t *missileEnt)  {
+	centity_t *hitEnt;
+	predictedMissileStatus_t *pms;
+
+	if (missileEnt) {
+		CG_RemovePredictedMissile(missileEnt);
+	}
+
+	if (!cg_predictExplosions.integer 
+			|| cg_ratPredictMissiles.integer <= 0
+			|| !(cgs.ratFlags & RAT_PREDICTMISSILES)
+			|| tr->surfaceFlags & SURF_NOIMPACT
+			|| !(predMissile || missileEnt)) {
+		return;
+	}
+
+	switch (weapon) {
+		// TODO: predict grenade bounce
+		case WP_GRENADE_LAUNCHER:
+		case WP_PROX_LAUNCHER:
+		// TODO: PREDICT NAILGUN HITS
+		case WP_NAILGUN:
+		case WP_GRAPPLING_HOOK:
+			return;
+	}
+
+	if (predMissile) {
+		if (!CG_ShouldPredictExplosion()) {
+			// prediction might not be accurate because we're close
+			// to the delag ping limit, so don't predict the
+			// explosion
+			return;
+		}
+		pms = &predMissile->status;
+	}  else {
+		if (cg_projectileNudgeAuto.integer != 1) {
+			// can't accurately predict these missiles if they're
+			// not properly nudged
+			return;
+		}
+		pms = &missileEnt->missileStatus;
+	}
+
+	if (pms->missileFlags & (MF_EXPLODED | MF_DISAPPEARED)) {
+		// some explosion was already predicted, so don't bother
+		// until we have the confirmed information from the server
+		return;
+	}
+
+
+	hitEnt = &cg_entities[tr->entityNum];
+	if (hitEnt->currentState.eType == ET_PLAYER ) {
+		if (!cg_predictPlayerExplosions.integer) {
+			return;
+		}
+		if (missileEnt) {
+			int missileOwner = CG_MissileOwner(missileEnt);
+		       	if (missileOwner == tr->entityNum) {
+				// missiles never hit their owner
+				return;
+			} else if (missileOwner != cg.clientNum
+					&& cg_projectileNudgeAuto.integer != 1) {
+				// cannot accurately predict other's missile
+				// hits on players if automatic nudge is disabled
+				return;
+			}
+		}
+		if (tr->entityNum != cg.clientNum && cg_predictPlayerExplosions.integer <= 1) {
+			// missile hit other player, only predict this on setting >= 2
+			// as this is less accurate
+			return;
+		}
+		CG_MissileHitPlayer( weapon, tr->endpos, tr->plane.normal, tr->entityNum, pms );
+		CG_UpdateMissileStatus(pms, MF_EXPLODED | MF_HITPLAYER, tr->endpos, tr->entityNum);
+	} else if (tr->surfaceFlags & SURF_METALSTEPS) {
+		CG_MissileHitWall(weapon, 0, tr->endpos, tr->plane.normal, IMPACTSOUND_METAL, pms);
+		CG_UpdateMissileStatus(pms, MF_EXPLODED | MF_HITWALLMETAL, tr->endpos, tr->entityNum);
+	} else {
+		CG_MissileHitWall(weapon, 0, tr->endpos, tr->plane.normal, IMPACTSOUND_DEFAULT, pms);
+		CG_UpdateMissileStatus(pms, MF_EXPLODED | MF_HITWALL, tr->endpos, tr->entityNum);
+	}
+}
+
+
+
+void CG_RunPredictedMissile( predictedMissile_t *pm) {
+	vec3_t	newOrigin;
+	trace_t	trace;
+	int timeshift = 0;
+	int time;
+	const weaponInfo_t *weapon = &cg_weapons[pm->weapon];
+
+	if (pm->removeTime < cg.time) {
+		CG_FreePMissile(pm);
+		return;
+	}
+
+	if (pm->status.missileFlags & (MF_EXPLODED | MF_DISAPPEARED)) {
+		// this missile exploded / disappeared
+		return;
+	}
+
+	timeshift = 1000 / sv_fps.integer;
+	time = cg.time + timeshift;
+
+	// calculate new position
+	BG_EvaluateTrajectory( &pm->pos, time, newOrigin);
+
+	// trace a line from previous position to new position
+	if (cg_predictExplosions.integer) {
+		if (CG_MissileTouchedPortal(pm->refEntity.origin, newOrigin)) {
+			pm->status.missileFlags |= MF_DISAPPEARED;
+			return; 
+		}
+	}
+	CG_Trace( &trace,  pm->refEntity.origin, NULL, NULL, newOrigin, cg.snap->ps.clientNum, MASK_SHOT );
+
+	if ( trace.fraction == 1.0 ) {
+
+		// still in free fall
+		VectorCopy( newOrigin, pm->refEntity.origin );
+		if ( weapon->missileDlight ) {
+			trap_R_AddLightToScene(newOrigin, weapon->missileDlight, 
+					weapon->missileDlightColor[0], weapon->missileDlightColor[1], weapon->missileDlightColor[2] );
+		}
+
+		if (pm->weapon == WP_PLASMAGUN) {
+			trap_R_AddRefEntityToScene( &pm->refEntity );
+			return;
+		}
+
+		if ( VectorNormalize2( pm->pos.trDelta, pm->refEntity.axis[0] ) == 0 ) {
+			pm->refEntity.axis[0][2] = 1;
+		}
+		if ( pm->pos.trType != TR_STATIONARY ) {
+			RotateAroundDirection( pm->refEntity.axis, cg.time / 4 );
+		}
+
+		trap_R_AddRefEntityToScene( &pm->refEntity );
+
+		return;
+	} else {
+		CG_PredictedExplosion(&trace, pm->weapon, pm, NULL);
+		pm->status.missileFlags |= MF_DISAPPEARED;
+		return; 
+	}
+}
+
+void CG_AddPredictedMissiles(void ) {
+	predictedMissile_t	*pm, *next;
+
+	// walk the list backwards, so any new PMissiles generated
+	// will be present this frame
+	pm = cg_activePMissiles.prev;
+	for ( ; pm != &cg_activePMissiles ; pm = next ) {
+		// grab next now, so if the PMissile is freed we
+		// still have it
+		next = pm->prev;
+
+		CG_RunPredictedMissile(pm);
+	}
+}
+
+int CG_MissileOwner(centity_t *missile) {
+	if (missile->currentState.time2 <= 0) {
+		return missile->currentState.otherEntityNum;
+	} 
+	return missile->currentState.otherEntityNum2;
+}
+
+qboolean CG_IsOwnMissile(centity_t *missile) {
+	return CG_MissileOwner(missile) == cg.clientNum;
+}
+
 
 /*
 =======================
@@ -137,10 +519,10 @@ void CG_PredictWeaponEffects( centity_t *cent ) {
 			VectorMA( muzzlePoint, -1, up, muzzlePoint );
 
                         if(!cg.renderingThirdPerson) {
-                           if(cg_drawGun.integer == 2)
-				VectorMA(muzzlePoint, 8, cg.refdef.viewaxis[1], muzzlePoint);
-                           else if(cg_drawGun.integer == 3)
+                           if(cg_drawGun.integer == 3 || (cg_drawZoomScope.integer && cg.zoomed))
 				VectorMA(muzzlePoint, 4, cg.refdef.viewaxis[1], muzzlePoint);
+			   else if(cg_drawGun.integer == 2)
+				VectorMA(muzzlePoint, 8, cg.refdef.viewaxis[1], muzzlePoint);
                         }
 
 			// draw a rail trail
@@ -150,7 +532,7 @@ void CG_PredictWeaponEffects( centity_t *cent ) {
 			// explosion at end if not SURF_NOIMPACT
 			if ( !(trace.surfaceFlags & SURF_NOIMPACT) ) {
 				// predict an explosion
-				CG_MissileHitWall( ent->weapon, cg.predictedPlayerState.clientNum, trace.endpos, trace.plane.normal, IMPACTSOUND_DEFAULT );
+				CG_MissileHitWall( ent->weapon, cg.predictedPlayerState.clientNum, trace.endpos, trace.plane.normal, IMPACTSOUND_DEFAULT, NULL );
 			}
 		}
 	}
@@ -276,8 +658,196 @@ void CG_PredictWeaponEffects( centity_t *cent ) {
 			CG_Bullet( tr.endpos, cg.predictedPlayerState.clientNum, tr.plane.normal, flesh, fleshEntityNum );
 			//Com_Printf( "Predicted bullet\n" );
 		}
+	} else if ((cg_ratPredictMissiles.integer > 0 && (cgs.ratFlags & RAT_PREDICTMISSILES))
+		       	&& (ent->weapon == WP_PLASMAGUN
+			    || ent->weapon == WP_ROCKET_LAUNCHER 
+			    || ent->weapon == WP_GRENADE_LAUNCHER
+			    || ent->weapon == WP_BFG
+			    || ent->weapon == WP_PROX_LAUNCHER
+			    || ent->weapon == WP_NAILGUN
+			   )
+		   ) {
+		predictedMissile_t	*pm;
+		refEntity_t	*bolt;
+
+		if (cg.snap->ps.pm_flags & PMF_FOLLOW) {
+			return;
+		}
+
+		if (CG_ReliablePing() > cgs.delagMissileMaxLatency) {
+			return;
+		}
+
+		// calculate the muzzle point the way the server sees it (snapped vectors)
+		VectorCopy( cg.predictedPlayerState.origin, muzzlePoint );
+		//SnapVector(muzzlePoint);
+		muzzlePoint[2] += cg.predictedPlayerState.viewheight;
+		// get forward, right, and up
+		AngleVectors( cg.predictedPlayerState.viewangles, forward, right, up );
+		VectorMA( muzzlePoint, 14, forward, muzzlePoint );
+		// snap again
+		//SnapVector(muzzlePoint);
+
+		if (ent->weapon == WP_NAILGUN) {
+			CG_PredictNailgunMissile(ent, muzzlePoint, forward, right, up);
+			return;
+		}
+
+
+		pm = CG_BasePredictMissile(ent, muzzlePoint);
+
+		bolt = &pm->refEntity;
+
+		switch (ent->weapon) {
+			case WP_PLASMAGUN:
+				VectorScale(forward, 2000, pm->pos.trDelta);
+				SnapVector(pm->pos.trDelta);
+				pm->pos.trType = TR_LINEAR;
+				bolt->reType = RT_SPRITE;
+				bolt->radius = PLASMABALL_RADIUS;
+				bolt->rotation = 0;
+				bolt->customShader = cgs.media.plasmaBallShader;
+				// NOTE RETURN!
+				return;
+			case WP_ROCKET_LAUNCHER:
+				VectorScale(forward, cgs.rocketSpeed, pm->pos.trDelta);
+				SnapVector(pm->pos.trDelta);
+				pm->pos.trType = TR_LINEAR;
+				break;
+			case WP_GRENADE_LAUNCHER:
+				forward[2] += 0.2f;
+				VectorNormalize( forward );
+				VectorScale(forward, 700, pm->pos.trDelta);
+				SnapVector(pm->pos.trDelta);
+				pm->pos.trType = TR_GRAVITY;
+				if (cgs.gametype >= GT_TEAM && cgs.ffa_gt != 1) {
+					if (CG_AllowColoredProjectiles()) {
+						bolt->customShader = cgs.media.grenadeBrightSkinShaderWhite;
+						CG_ProjectileColor(cg.snap->ps.persistant[PERS_TEAM], bolt->shaderRGBA);
+					} else if (cg.snap->ps.persistant[PERS_TEAM] == TEAM_BLUE) {
+						bolt->customShader = cgs.media.grenadeBrightSkinShaderBlue;
+					} else {
+						bolt->customShader = cgs.media.grenadeBrightSkinShaderRed;
+					}
+				} else {
+					bolt->customShader = cgs.media.grenadeBrightSkinShader;
+				}
+
+				break;
+			case WP_BFG:
+				VectorScale(forward, 2000, pm->pos.trDelta);
+				SnapVector(pm->pos.trDelta);
+				pm->pos.trType = TR_LINEAR;
+				break;
+			case WP_PROX_LAUNCHER:
+				forward[2] += 0.2f;
+				VectorScale(forward, 700, pm->pos.trDelta);
+				SnapVector(pm->pos.trDelta);
+				pm->pos.trType = TR_GRAVITY;
+				break;
+		}
+		CG_FinishPredictMissileModel(ent, pm);
+		if (ent->weapon == WP_PROX_LAUNCHER && cg.predictedPlayerState.persistant[PERS_TEAM] == TEAM_BLUE) {
+			bolt->hModel = cgs.media.blueProxMine;
+		}
 	}
 }
+
+predictedMissile_t *CG_BasePredictMissile( entityState_t *ent,  vec3_t muzzlePoint ) {
+	predictedMissile_t	*pm;
+	refEntity_t	*bolt;
+	int lifetime = CG_ReliablePing() + PMISSILE_WINDOWTIME;
+
+	pm = CG_AllocPMissile();
+	pm->removeTime = cg.time + lifetime;
+	pm->weapon = ent->weapon;
+
+	bolt = &pm->refEntity;
+
+	VectorCopy(muzzlePoint, pm->pos.trBase);
+	pm->pos.trTime = cg.time-cgs.predictedMissileNudge-cg.cmdMsecDelta;
+
+	if ((cgs.gametype == GT_ELIMINATION || cgs.gametype == GT_CTF_ELIMINATION || cgs.gametype == GT_LMS)
+			&& cg.warmup == 0 && cgs.roundStartTime 
+			&& (pm->pos.trTime + cgs.predictedMissileNudge) < cgs.roundStartTime) {
+		pm->pos.trTime = cgs.roundStartTime - cgs.predictedMissileNudge;
+	}
+
+	VectorCopy( muzzlePoint, bolt->origin );
+	VectorCopy( muzzlePoint, bolt->oldorigin );
+
+	return pm;
+}
+
+int CG_ReliablePing( void ) {
+	return CG_ReliablePingFromSnaps(cg.snap, cg.nextSnap);
+}
+
+int CG_ReliablePingFromSnaps(snapshot_t *snap, snapshot_t *nextSnap) {
+	int ping = 999;
+
+	if (snap) {
+		ping = snap->ping;
+	}
+
+	if (ping >= 999 && snap && nextSnap && (snap != nextSnap)) {
+		// cg.snap->ping caps out at around 248
+		// so try calculating the ping a different way
+		ping = (snap->serverTime - nextSnap->ps.commandTime);
+	}
+
+	if (ping > 999) {
+		ping = 999;
+	} else if (ping < 0) {
+		ping = 0;
+	}
+
+	return ping;
+}
+
+void CG_FinishPredictMissileModel( entityState_t *ent, predictedMissile_t *pm ) {
+	refEntity_t	*bolt = &pm->refEntity;
+
+	bolt->reType = RT_MODEL;
+	bolt->rotation = 0;
+	bolt->hModel = cg_weapons[ent->weapon].missileModel;
+	bolt->renderfx = cg_weapons[ent->weapon].missileRenderfx | RF_NOSHADOW;
+}
+
+#define NAILGUN_SPREAD 500
+#define NUM_NAILSHOTS 15
+void CG_PredictNailgunMissile( entityState_t *ent, vec3_t muzzlePoint, vec3_t forward, vec3_t right, vec3_t up ) {
+	predictedMissile_t	*pm;
+	int i;
+	int seed = cg.oldTime % 256;
+	float		r, u, scale;
+	vec3_t		dir;
+	vec3_t		end;
+
+	for (i = 0; i < NUM_NAILSHOTS; ++i) {
+		pm = CG_BasePredictMissile(ent, muzzlePoint);
+
+		r = Q_random(&seed) * M_PI * 2.0f;
+		u = sin(r) * Q_crandom(&seed) * NAILGUN_SPREAD * 16;
+		r = cos(r) * Q_crandom(&seed) * NAILGUN_SPREAD * 16;
+		VectorMA( muzzlePoint, 8192 * 16, forward, end);
+		VectorMA (end, r, right, end);
+		VectorMA (end, u, up, end);
+		VectorSubtract( end, muzzlePoint, dir );
+		VectorNormalize( dir );
+
+		scale = 555 + Q_random(&seed) * 1800;
+		VectorScale( dir, scale, pm->pos.trDelta );
+		SnapVector( pm->pos.trDelta );
+
+		pm->pos.trType = TR_LINEAR;
+
+		CG_FinishPredictMissileModel(ent, pm);
+	}
+
+}
+
+
 
 /*
 =================

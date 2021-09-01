@@ -91,7 +91,7 @@ static void Demos_MenuEvent( void *ptr, int event ) {
 	switch( ((menucommon_s*)ptr)->id ) {
 	case ID_GO:
 		UI_ForceMenuOff ();
-		trap_Cmd_ExecuteText( EXEC_APPEND, va( "demo %s\n",
+		trap_Cmd_ExecuteText( EXEC_APPEND, va( "demo \"%s\"\n",
 								s_demos.list.itemnames[s_demos.list.curvalue]) );
 		break;
 	case ID_BACK:
@@ -116,10 +116,6 @@ UI_DemosMenu_Key
 =================
 */
 static sfxHandle_t UI_DemosMenu_Key( int key ) {
-	menucommon_s	*item;
-
-        item = Menu_ItemAtCursor( &s_demos.menu );
-
         if( key == K_MWHEELUP ) {
             ScrollList_Key( &s_demos.list, K_UPARROW );
         }

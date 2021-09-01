@@ -335,17 +335,34 @@ extern	vec3_t	bytedirs[NUMVERTEXNORMALS];
 #define	SCREEN_WIDTH		640
 #define	SCREEN_HEIGHT		480
 
+#define SUPERTINYCHAR_WIDTH	6
+#define SUPERTINYCHAR_HEIGHT	8
+
 #define TINYCHAR_WIDTH		(SMALLCHAR_WIDTH)
 #define TINYCHAR_HEIGHT		(SMALLCHAR_HEIGHT/2)
 
 #define SMALLCHAR_WIDTH		8
 #define SMALLCHAR_HEIGHT	16
 
+#define MEDIUMCHAR_WIDTH	10
+#define MEDIUMCHAR_HEIGHT	16
+
 #define BIGCHAR_WIDTH		16
 #define BIGCHAR_HEIGHT		16
 
 #define	GIANTCHAR_WIDTH		32
 #define	GIANTCHAR_HEIGHT	48
+
+#define CENTERPRINT_WIDTH	13
+
+#define SCORECHAR_WIDTH		9
+#define SCORECHAR_HEIGHT	14
+
+#define SCORESMALLCHAR_WIDTH	8
+#define SCORESMALLCHAR_HEIGHT	12
+
+#define SCORETINYCHAR_WIDTH	6
+#define SCORETINYCHAR_HEIGHT	10
 
 extern	vec4_t		colorBlack;
 extern	vec4_t		colorRed;
@@ -619,6 +636,9 @@ void AngleVectors( const vec3_t angles, vec3_t forward, vec3_t right, vec3_t up)
 void PerpendicularVector( vec3_t dst, const vec3_t src );
 int Q_isnan( float x );
 
+void Q_HSV2RGB(float h, float s, float v, float *out);
+void Q_RGB2HSV(float *in, float *h, float *s, float *v);
+
 
 //=============================================
 
@@ -741,6 +761,10 @@ int Q_PrintStrlen( const char *string );
  * @return pointer to the string
  */
 char *Q_CleanStr( char *string );
+/*
+ * strips whitespace characters on the left side of a string
+ */
+char *Q_LstripStr( char *string );
 // Count the number of char tocount encountered in string
 int Q_CountChar(const char *string, char tocount);
 

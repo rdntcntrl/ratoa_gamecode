@@ -121,6 +121,40 @@ extern vmCvar_t	ui_server13;
 extern vmCvar_t	ui_server14;
 extern vmCvar_t	ui_server15;
 extern vmCvar_t	ui_server16;
+extern vmCvar_t	ui_server17;
+extern vmCvar_t	ui_server18;
+extern vmCvar_t	ui_server19;
+extern vmCvar_t	ui_server20;
+extern vmCvar_t	ui_server21;
+extern vmCvar_t	ui_server22;
+extern vmCvar_t	ui_server23;
+extern vmCvar_t	ui_server24;
+extern vmCvar_t	ui_server25;
+extern vmCvar_t	ui_server26;
+extern vmCvar_t	ui_server27;
+extern vmCvar_t	ui_server28;
+extern vmCvar_t	ui_server29;
+extern vmCvar_t	ui_server30;
+extern vmCvar_t	ui_server31;
+extern vmCvar_t	ui_server32;
+
+extern vmCvar_t	ui_mapvote_filter;
+extern vmCvar_t	ui_mapvote_sort;
+
+extern vmCvar_t	ui_mappage_pagenum;
+extern vmCvar_t ui_mappage_page0;
+extern vmCvar_t ui_mappage_page1;
+extern vmCvar_t ui_mappage_page2;
+extern vmCvar_t ui_mappage_page3;
+extern vmCvar_t ui_mappage_page4;
+extern vmCvar_t ui_mappage_page5;
+extern vmCvar_t ui_mappage_page6;
+extern vmCvar_t ui_mappage_page7;
+extern vmCvar_t ui_mappage_page8;
+
+extern vmCvar_t	ui_nextmapvote_remaining;
+extern vmCvar_t	ui_nextmapvote_maps;
+extern vmCvar_t	ui_nextmapvote_votes;
 
 //extern vmCvar_t	ui_cdkey;
 //extern vmCvar_t	ui_cdkeychecked;
@@ -296,10 +330,15 @@ typedef struct
 } menutext_s;
 
 #define MAX_MAPNAME_LENGTH 32
+//#define MAPPAGE_NUM 10
+#define MAPPAGE_NUM 30
+
+// XXX: must be the same as NMV_MAX_MAPSPERPAGE
+#define NEXTMAPVOTE_MAP_NUM 6
 
 typedef struct {
 	int pagenumber;
-	char mapname[10][MAX_MAPNAME_LENGTH];
+	char mapname[MAPPAGE_NUM][MAX_MAPNAME_LENGTH];
 } t_mappage;
 
 extern t_mappage mappage;
@@ -324,6 +363,7 @@ extern sfxHandle_t	menu_out_sound;
 extern sfxHandle_t	menu_buzz_sound;
 extern sfxHandle_t	menu_null_sound;
 extern sfxHandle_t	weaponChangeSound;
+extern sfxHandle_t	talkSound;
 extern vec4_t		menu_text_color;
 extern vec4_t		menu_grayed_color;
 extern vec4_t		menu_dark_color;
@@ -475,7 +515,7 @@ extern void SpecifyServer_Cache( void );
 //
 // ui_servers2.c
 //
-#define MAX_FAVORITESERVERS 16
+#define MAX_FAVORITESERVERS 32
 
 extern void UI_ArenaServersMenu( void );
 extern void ArenaServers_Cache( void );
@@ -532,6 +572,12 @@ extern void UI_VoteKickMenu( void );
 //
 extern void UI_VoteMapMenu( void );
 extern void UI_VoteMapMenuInternal( void );
+
+//
+// ui_votemenu_nextmap.c
+//
+extern void UI_VoteNextMapMenu( void );
+extern void UI_VoteNextMapMenu_Close( void );
 
 //
 // ui_password.c
@@ -685,10 +731,13 @@ extern void			UI_DrawTextBox (int x, int y, int width, int lines);
 extern qboolean		UI_IsFullscreen( void );
 extern void			UI_SetActiveMenu( uiMenuCommand_t menu );
 extern void			UI_PushMenu ( menuframework_s *menu );
+extern int 			UI_PushedMenus (void);
 extern void			UI_PopMenu (void);
 extern void			UI_ForceMenuOff (void);
 extern char			*UI_Argv( int arg );
 extern char			*UI_Cvar_VariableString( const char *var_name );
+extern int 			UI_Cvar_VariableInteger( const char *var_name );
+extern void 			UI_SendClientCommand( const char *command );
 extern void			UI_Refresh( int time );
 extern void			UI_StartDemoLoop( void );
 extern qboolean		m_entersound;

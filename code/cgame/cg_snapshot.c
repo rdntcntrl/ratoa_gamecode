@@ -40,6 +40,13 @@ static void CG_ResetEntity( centity_t *cent ) {
 	}
 
 	cent->trailTime = cg.snap->serverTime;
+	if (cent->currentState.eType == ET_MISSILE) {
+		cent->trailTime = MIN(cent->currentState.pos.trTime+cgs.predictedMissileNudge, cent->trailTime);
+	}
+	if (cent->currentState.eType == ET_MISSILE) {
+		cent->projectileNudge = CG_ReliablePing();
+		memset(&cent->missileStatus, 0, sizeof(cent->missileStatus));
+	}
 
 	VectorCopy (cent->currentState.origin, cent->lerpOrigin);
 	VectorCopy (cent->currentState.angles, cent->lerpAngles);
@@ -47,6 +54,22 @@ static void CG_ResetEntity( centity_t *cent ) {
 		CG_ResetPlayerEntity( cent );
 	}
 }
+
+void CG_UpdateQuiet ( centity_t *cent ) {
+	if (cent->currentState.eType == ET_PLAYER) {
+		// this may be set by ratmod/rat server engine to indicate
+		// that this player entity was broadcast only for teleporter prediction
+		// and may not make any sounds
+		if (cent->currentState.time2 == 1) {
+			cent->quiet = qtrue;
+		} else {
+			cent->quiet = qfalse;
+		}
+	} else {
+		cent->quiet = qfalse;
+	}
+}
+
 
 /*
 ===============
@@ -68,6 +91,8 @@ void CG_TransitionEntity( centity_t *cent ) {
 
 	// clear the next state.  if will be set by the next CG_SetNextSnap
 	cent->interpolate = qfalse;
+
+	CG_UpdateQuiet( cent );
 
 	// check for events
 	CG_CheckEvents( cent );
@@ -93,6 +118,7 @@ void CG_SetInitialSnapshot( snapshot_t *snap ) {
 	cg.snap = snap;
 
 	BG_PlayerStateToEntityState( &snap->ps, &cg_entities[ snap->ps.clientNum ].currentState, qfalse );
+	cg_entities[ cg.snap->ps.clientNum ].quiet = qfalse;
 
 	// sort out solid entities
 	CG_BuildSolidList();
@@ -113,6 +139,8 @@ void CG_SetInitialSnapshot( snapshot_t *snap ) {
 		cent->currentValid = qtrue;
 
 		CG_ResetEntity( cent );
+
+		CG_UpdateQuiet( cent );
 
 		// check for events
 		CG_CheckEvents( cent );
@@ -158,6 +186,7 @@ static void CG_TransitionSnapshot( void ) {
 
 	BG_PlayerStateToEntityState( &cg.snap->ps, &cg_entities[ cg.snap->ps.clientNum ].currentState, qfalse );
 	cg_entities[ cg.snap->ps.clientNum ].interpolate = qfalse;
+	cg_entities[ cg.snap->ps.clientNum ].quiet = qfalse;
 
 	for ( i = 0 ; i < cg.snap->numEntities ; i++ ) {
 		cent = &cg_entities[ cg.snap->entities[ i ].number ];
@@ -222,6 +251,19 @@ static void CG_SetNextSnap( snapshot_t *snap ) {
 			cent->interpolate = qfalse;
 		} else {
 			cent->interpolate = qtrue;
+		}
+
+		if (es->eType == ET_MISSILE) {
+			// either teleport bit was flipped or it's at least set
+			// ( can happen if the missile teleported already the
+			// first tiem it's seen)
+			if (cent->currentValid) {
+				cent->missileTeleported |= ( ( cent->currentState.eFlags ^ es->eFlags ) & EF_TELEPORT_BIT );
+			} else {
+				cent->missileTeleported = es->eFlags & EF_TELEPORT_BIT;
+			}
+		} else {
+			cent->missileTeleported = qfalse;
 		}
 	}
 
