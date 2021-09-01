@@ -2273,8 +2273,7 @@ static void CG_RegisterNumbers(void) {
 	};
 	for ( i=0 ; i<11 ; i++) {
 		cgs.media.numberShaders[i] = trap_R_RegisterShader( 
-				va(sb_nums[i],
-					(cg_ratStatusbar.integer >= 4 && cg_ratStatusbar.integer <= 5) ? "_trebfuture" : ""
+				va(sb_nums[i], (cg_ratStatusbar.integer > 0) ? "_trebfuture" : ""
 				  )
 			       	);
 	}
