@@ -707,31 +707,39 @@ void Cmd_Rules_f( gentity_t *ent ) {
 
 	trap_SendServerCommand( ent-g_entities, va("print \""
 				"Server rules:\n"
-				" -Fast weapon switch:    %s" S_COLOR_WHITE "\n"
-				" -Fast weapons:          %s" S_COLOR_WHITE "\n"
+				" -movement:              " S_COLOR_WHITE "%s\n"
 				" -Smooth/additive jump:  %s" S_COLOR_WHITE "\n"
 				" -Ramp jump:             %s" S_COLOR_WHITE "\n"
+				" -Smooth stairs:         %s" S_COLOR_WHITE "\n"
+				" -Overbounce:            %s" S_COLOR_WHITE "\n"
+				" -Fast weapon switch:    %s" S_COLOR_WHITE "\n"
+				" -Fast weapons:          %s" S_COLOR_WHITE "\n"
 				" -Forced models:         %s" S_COLOR_WHITE "\n"
 				" -Bright shells:         %s" S_COLOR_WHITE "\n"
+				" -Bright outlines:       %s" S_COLOR_WHITE "\n"
 				" -Item pickup height:    %s" S_COLOR_WHITE "\n"
 				" -Powerup glows:         %s" S_COLOR_WHITE "\n"
 				" -Screen shake upon hit: %s" S_COLOR_WHITE "\n"
-				" -movement:              " S_COLOR_WHITE "%s\n"
 				" -Jumppad grenades:      %s" S_COLOR_WHITE "\n"
 				" -Tele missiles:         %s" S_COLOR_WHITE "\n"
+				" -Ambient sounds:        %s" S_COLOR_WHITE "\n"
 				"\"", 
-				g_fastSwitch.integer ? S_COLOR_GREEN "ON" : S_COLOR_RED "OFF",
-				g_fastWeapons.integer ? S_COLOR_GREEN "ON" : S_COLOR_RED "OFF",
+				BG_MovementToString(g_movement.integer),
 				g_additiveJump.integer ? S_COLOR_GREEN "ON" : S_COLOR_RED "OFF",
 				g_rampJump.integer ? S_COLOR_GREEN "ON" : S_COLOR_RED "OFF",
+				g_smoothStairs.integer ? S_COLOR_GREEN "ON" : S_COLOR_RED "OFF",
+				g_overbounce.integer ? S_COLOR_GREEN "ON" : S_COLOR_RED "OFF",
+				g_fastSwitch.integer ? S_COLOR_GREEN "ON" : S_COLOR_RED "OFF",
+				g_fastWeapons.integer ? S_COLOR_GREEN "ON" : S_COLOR_RED "OFF",
 				g_allowForcedModels.integer ? S_COLOR_GREEN "ON" : S_COLOR_RED "OFF",
 				g_brightPlayerShells.integer ? S_COLOR_GREEN "ON" : S_COLOR_RED "OFF",
+				g_brightPlayerOutlines.integer ? S_COLOR_GREEN "ON" : S_COLOR_RED "OFF",
 				g_itemPickup.integer ? "high" : "low",
 				g_powerupGlows.integer ? S_COLOR_GREEN "ON" : S_COLOR_RED "OFF",
 				g_screenShake.integer ? S_COLOR_GREEN "ON" : S_COLOR_RED "OFF",
-				BG_MovementToString(g_movement.integer),
 				g_pushGrenades.integer ? S_COLOR_GREEN "ON" : S_COLOR_RED "OFF",
-				g_teleMissiles.integer ? S_COLOR_GREEN "ON" : S_COLOR_RED "OFF"
+				g_teleMissiles.integer ? S_COLOR_GREEN "ON" : S_COLOR_RED "OFF",
+				g_ambientSound.integer ? S_COLOR_GREEN "ON" : S_COLOR_RED "OFF"
 
 				));
 }

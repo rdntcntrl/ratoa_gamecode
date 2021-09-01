@@ -1662,7 +1662,7 @@ extern  vmCvar_t        g_bobup;
 extern  vmCvar_t        g_allowForcedModels;
 extern  vmCvar_t        g_brightModels;
 extern  vmCvar_t        g_brightPlayerShells;
-extern  vmCvar_t        g_brightPlayerOutline;
+extern  vmCvar_t        g_brightPlayerOutlines;
 extern  vmCvar_t        g_friendsWallHack;
 extern  vmCvar_t        g_friendsFlagIndicator;
 extern  vmCvar_t        g_specShowZoom;
