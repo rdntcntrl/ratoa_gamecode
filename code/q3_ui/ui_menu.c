@@ -59,7 +59,8 @@ typedef struct {
 	menutext_s		mods;
 	menutext_s		exit;
 
-	qhandle_t		bannerModel;
+	//qhandle_t		bannerModel;
+	qhandle_t		bannerLogo;
 } mainmenu_t;
 
 
@@ -149,7 +150,9 @@ MainMenu_Cache
 ===============
 */
 void MainMenu_Cache( void ) {
-	s_main.bannerModel = trap_R_RegisterModel( MAIN_BANNER_MODEL );
+	//s_main.bannerModel = trap_R_RegisterModel( MAIN_BANNER_MODEL );
+	s_main.bannerLogo = trap_R_RegisterShaderNoMip( "ratmod_menulogo_white" );
+
 }
 
 sfxHandle_t ErrorMessage_Key(int key)
@@ -167,60 +170,62 @@ TTimo: this function is common to the main menu and errorMessage menu
 */
 
 static void Main_MenuDraw( void ) {
-	refdef_t		refdef;
-	refEntity_t		ent;
-	vec3_t			origin;
-	vec3_t			angles;
-	float			adjust;
-	float			x, y, w, h;
-	vec4_t			color = {0.2, 0.2, 1.0, 1};
+	//refdef_t		refdef;
+	//refEntity_t		ent;
+	//vec3_t			origin;
+	//vec3_t			angles;
+	//float			adjust;
+	//float			x, y, w, h;
+	vec4_t			color = {1.0, 1.0, 0, 1};
 
-	// setup the refdef
+	//// setup the refdef
 
-	memset( &refdef, 0, sizeof( refdef ) );
+	//memset( &refdef, 0, sizeof( refdef ) );
 
-	refdef.rdflags = RDF_NOWORLDMODEL;
+	//refdef.rdflags = RDF_NOWORLDMODEL;
 
-	AxisClear( refdef.viewaxis );
+	//AxisClear( refdef.viewaxis );
 
-	x = 0;
-	y = 0;
-	w = 640;
-	h = 120;
-	UI_AdjustFrom640( &x, &y, &w, &h );
-	refdef.x = x;
-	refdef.y = y;
-	refdef.width = w;
-	refdef.height = h;
+	//x = 0;
+	//y = 0;
+	//w = 640;
+	//h = 120;
+	//UI_AdjustFrom640( &x, &y, &w, &h );
+	//refdef.x = x;
+	//refdef.y = y;
+	//refdef.width = w;
+	//refdef.height = h;
 
-	adjust = 0; // JDC: Kenneth asked me to stop this 1.0 * sin( (float)uis.realtime / 1000 );
-	refdef.fov_x = 60 + adjust;
-	refdef.fov_y = 19.6875 + adjust;
+	//adjust = 0; // JDC: Kenneth asked me to stop this 1.0 * sin( (float)uis.realtime / 1000 );
+	//refdef.fov_x = 60 + adjust;
+	//refdef.fov_y = 19.6875 + adjust;
 
-	refdef.time = uis.realtime;
+	//refdef.time = uis.realtime;
 
-	origin[0] = 300;
-	origin[1] = 0;
-	origin[2] = -32;
+	//origin[0] = 300;
+	//origin[1] = 0;
+	//origin[2] = -32;
 
-	trap_R_ClearScene();
+	//trap_R_ClearScene();
 
-	// add the model
+	//// add the model
 
-	memset( &ent, 0, sizeof(ent) );
+	//memset( &ent, 0, sizeof(ent) );
 
-	adjust = 5.0 * sin( (float)uis.realtime / 5000 );
-	VectorSet( angles, 0, 180 + adjust, 0 );
-	AnglesToAxis( angles, ent.axis );
-	ent.hModel = s_main.bannerModel;
-	VectorCopy( origin, ent.origin );
-	VectorCopy( origin, ent.lightingOrigin );
-	ent.renderfx = RF_LIGHTING_ORIGIN | RF_NOSHADOW;
-	VectorCopy( ent.origin, ent.oldorigin );
+	//adjust = 5.0 * sin( (float)uis.realtime / 5000 );
+	//VectorSet( angles, 0, 180 + adjust, 0 );
+	//AnglesToAxis( angles, ent.axis );
+	//ent.hModel = s_main.bannerModel;
+	//VectorCopy( origin, ent.origin );
+	//VectorCopy( origin, ent.lightingOrigin );
+	//ent.renderfx = RF_LIGHTING_ORIGIN | RF_NOSHADOW;
+	//VectorCopy( ent.origin, ent.oldorigin );
 
-	trap_R_AddRefEntityToScene( &ent );
+	//trap_R_AddRefEntityToScene( &ent );
 
-	trap_R_RenderScene( &refdef );
+	//trap_R_RenderScene( &refdef );
+
+	UI_DrawHandlePic( 320-60, 0, 120, 120, s_main.bannerLogo );
 	
 	if (strlen(s_errorMessage.errorMessage))
 	{
@@ -233,13 +238,14 @@ static void Main_MenuDraw( void ) {
 	}
 
 		UI_DrawProportionalString( 320, 372, "", UI_CENTER|UI_SMALLFONT, color );
-		UI_DrawString( 320, 400, "OpenArena(c) 2005-2012 OpenArena Team", UI_CENTER|UI_SMALLFONT, color );
-		UI_DrawString( 320, 414, "OpenArena comes with ABSOLUTELY NO WARRANTY; this is free software", UI_CENTER|UI_SMALLFONT, color );
+		UI_DrawString( 320, 386, "RatArena(c) 2017-2021 Ratmod Team", UI_CENTER|UI_SMALLFONT, color );
+		UI_DrawString( 320, 400, "based on OpenArena(c) 2005-2012 OpenArena Team", UI_CENTER|UI_SMALLFONT, color );
+		UI_DrawString( 320, 414, "Ratmod/OpenArena comes with ABSOLUTELY NO WARRANTY; this is free software", UI_CENTER|UI_SMALLFONT, color );
 		UI_DrawString( 320, 428, "and you are welcome to redistribute it under certain conditions;", UI_CENTER|UI_SMALLFONT, color );
 		UI_DrawString( 320, 444, "read COPYING for details.", UI_CENTER|UI_SMALLFONT, color );
                 
                 //Draw version.
-                UI_DrawString( 640-40, 480-14, "^70.8.8", UI_SMALLFONT, color );
+                UI_DrawString( 320, 480-14, "^20.9.0-rc1", UI_CENTER|UI_SMALLFONT, color );
                 if((int)trap_Cvar_VariableValue("protocol")!=71)
                     UI_DrawString( 0, 480-14, va("^7Protocol: %i",(int)trap_Cvar_VariableValue("protocol")), UI_SMALLFONT, color);
 }
