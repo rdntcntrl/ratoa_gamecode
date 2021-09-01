@@ -692,7 +692,7 @@ static int CG_RatTeamScoreboardGameId(int y, team_t team, float fade, int maxCli
 }
 
 static int CG_RatTeamScoreboard(int y, team_t team, float fade, int maxClients, int lineHeight, qboolean countOnly) {
-	return CG_RatTeamScoreboardGameId(y, team, fade, maxClients, lineHeight, countOnly, -1);
+	return CG_RatTeamScoreboardGameId(y, team, fade, maxClients, lineHeight, countOnly, MTRN_GAMEID_ANY);
 }
 
 
@@ -977,7 +977,7 @@ qboolean CG_DrawRatScoreboard(void) {
 
 	} else if (cgs.gametype == GT_MULTITOURNAMENT) {
 		int gameId;
-		int maxGameId = -1;
+		int maxGameId = MTRN_GAMEID_ANY;
 		score_t *score;
 		for (i = 0; i < cg.numScores; i++) {
 			score = &cg.scores[i];
