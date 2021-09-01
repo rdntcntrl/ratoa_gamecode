@@ -1305,7 +1305,19 @@ void SetTeam_Force( gentity_t *ent, char *s, gentity_t *by, qboolean tryforce ) 
 			counts[TEAM_BLUE] = TeamCountExt( ent - g_entities, TEAM_BLUE, qfalse, QueueIsConnectingPhase());
 			counts[TEAM_RED] = TeamCountExt( ent - g_entities, TEAM_RED, qfalse, QueueIsConnectingPhase());
 
-			if (g_teamForceQueue.integer && counts[TEAM_RED] + counts[TEAM_BLUE] > 0) {
+			if (g_teamForceQueue.integer && level.intermissiontime) {
+				if (client->sess.sessionTeam != TEAM_SPECTATOR) {
+					return;
+				}
+				specState = SPECTATOR_FREE;
+				if (autojoin) {
+					specGroup = SPECTATORGROUP_QUEUED;
+				} else {
+					specGroup = team == TEAM_RED ? SPECTATORGROUP_QUEUED_RED : SPECTATORGROUP_QUEUED_BLUE;
+				}
+				team = TEAM_SPECTATOR;
+				client->pers.queueJoinTime = level.time;
+			} else if (g_teamForceQueue.integer && counts[TEAM_RED] + counts[TEAM_BLUE] > 0) {
 				if (team == TEAM_RED && counts[TEAM_RED] - counts[TEAM_BLUE] >= 0) {
 					team = TEAM_SPECTATOR;
 					specState = SPECTATOR_FREE;
@@ -1364,6 +1376,15 @@ void SetTeam_Force( gentity_t *ent, char *s, gentity_t *by, qboolean tryforce ) 
 	//
 	oldTeam = client->sess.sessionTeam;
 	if ( team == oldTeam && team != TEAM_SPECTATOR ) {
+		return;
+	}
+
+	if (!force && level.intermissiontime && 
+			(
+			 (oldTeam != TEAM_SPECTATOR || team != TEAM_SPECTATOR) ||
+			 specState != SPECTATOR_FREE
+			)
+			) {
 		return;
 	}
 
@@ -1535,6 +1556,11 @@ void Cmd_Team_f( gentity_t *ent ) {
 		    trap_SendServerCommand( ent-g_entities, "print \"May not switch teams more than once per 3 seconds.\n\"" );
 		    return;
 		}
+	}
+
+	if (level.intermissiontime && ent->client->sess.sessionTeam != TEAM_SPECTATOR) {
+		trap_SendServerCommand( ent-g_entities, "print \"May not switch teams during intermission.\n\"" );
+		return;
 	}
 
 	// if they are playing a tournement game, count as a loss
@@ -3936,7 +3962,7 @@ void Cmd_GetGTMappage_f( gentity_t *ent ) {
 commands_t cmds[ ] = 
 {
   // normal commands
-  { "team", 0, Cmd_Team_f },
+  { "team", CMD_INTERMISSION, Cmd_Team_f },
   { "vote", CMD_FLOODLIMITED, Cmd_Vote_f },
   /*{ "ignore", 0, Cmd_Ignore_f },
   { "unignore", 0, Cmd_Ignore_f },*/
