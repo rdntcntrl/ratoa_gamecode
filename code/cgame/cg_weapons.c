@@ -1230,6 +1230,7 @@ void CG_RegisterWeapon( int weaponNum ) {
 	vec3_t			mins, maxs;
 	int				i;
 	const char *worldmodel = NULL;
+	unsigned int soundIdx;
 
 	weaponInfo = &cg_weapons[weaponNum];
 
@@ -1311,10 +1312,12 @@ void CG_RegisterWeapon( int weaponNum ) {
 
 	case WP_LIGHTNING:
 		MAKERGB( weaponInfo->flashDlightColor, 0.6f, 0.6f, 1.0f );
-		weaponInfo->readySound = trap_S_RegisterSound( "sound/weapons/melee/fsthum.wav", qfalse );
-		weaponInfo->firingSound = trap_S_RegisterSound( "sound/weapons/lightning/lg_hum.wav", qfalse );
+#define NUM_LG_SOUNDPACKS 2
+		soundIdx = (((unsigned int)(cg_lgSound.integer - 1)) % NUM_LG_SOUNDPACKS) + 1;
+		weaponInfo->readySound = trap_S_RegisterSound( va("sound/weapons/melee/fsthum%u.wav", soundIdx), qfalse );
+		weaponInfo->firingSound = trap_S_RegisterSound( va("sound/weapons/lightning/lg_hum%u.wav", soundIdx), qfalse );
 
-		weaponInfo->flashSound[0] = trap_S_RegisterSound( "sound/weapons/lightning/lg_fire.wav", qfalse );
+		weaponInfo->flashSound[0] = trap_S_RegisterSound( va("sound/weapons/lightning/lg_fire%u.wav", soundIdx), qfalse );
 		switch (cg_ratLg.integer) {
 			case 1:
 				cgs.media.lightningShader = trap_R_RegisterShader( "lightningBoltRat1");
