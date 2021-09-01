@@ -16,7 +16,7 @@ void xfprintf( fileHandle_t f, const char *fmt, ... ) {
 	trap_FS_Write(buf, len, f);
 }
 
-void json_writestring(fileHandle_t f, char *key, char *val) {
+void json_writestring(fileHandle_t f, const char *key, const char *val) {
 	char *p;
 	xfprintf(f, "\"%s\":\"", key);
 	for (p = val; *p; ++p) {
@@ -33,19 +33,19 @@ void json_writestring(fileHandle_t f, char *key, char *val) {
 	xfprintf(f, "\"");
 }
 
-void json_writeint(fileHandle_t f, char *key, int val) {
+void json_writeint(fileHandle_t f, const char *key, int val) {
 	xfprintf(f, "\"%s\":%i", key, val);
 }
 
-void json_writefloat(fileHandle_t f, char *key, float val) {
+void json_writefloat(fileHandle_t f, const char *key, float val) {
 	xfprintf(f, "\"%s\":%f", key, val);
 }
 
-void json_writebool(fileHandle_t f, char *key, qboolean val) {
+void json_writebool(fileHandle_t f, const char *key, qboolean val) {
 	xfprintf(f, "\"%s\":%s", key, val ? "true" : "false");
 }
 
-void json_timestamp(fileHandle_t f, char *key) {
+void json_timestamp(fileHandle_t f, const char *key) {
 	qtime_t now;
 	trap_RealTime(&now);
 	json_writestring(f, key, va("%04i-%02i-%02iT%02i:%02i:%02i",
@@ -59,7 +59,7 @@ void json_timestamp(fileHandle_t f, char *key) {
 
 }
 
-void G_JSONExportAward(fileHandle_t f, char *name, int count, qboolean *comma) {
+void G_JSONExportAward(fileHandle_t f, const char *name, int count, qboolean *comma) {
 	if (count <= 0) {
 		return;
 	}
@@ -256,7 +256,7 @@ void G_JSONExport(fileHandle_t f, const char *exitreason) {
 	xfprintf(f, "}");
 }
 
-void G_WriteStatsJSON(const char *exitreason) {
+void G_WriteStatsJSON(const char *exitreason, int game_id) {
 	char fname[MAX_OSPATH];
 	qtime_t now;
 	fileHandle_t f;
@@ -277,13 +277,14 @@ void G_WriteStatsJSON(const char *exitreason) {
 	}
 
 	trap_RealTime(&now);
-	Com_sprintf(fname, sizeof(fname), "%04i-%02i-%02i-%02i-%02i-%02i.json",
+	Com_sprintf(fname, sizeof(fname), "%04i-%02i-%02i-%02i-%02i-%02i_%i.json",
 				1900+now.tm_year,
 				1+now.tm_mon,
 			       	now.tm_mday,
 				now.tm_hour,
 				now.tm_min,
-				now.tm_sec
+				now.tm_sec,
+				game_id
 				);
 	len = trap_FS_FOpenFile( va("stats/%s", fname), &f, FS_WRITE );
 	if (len < 0) {

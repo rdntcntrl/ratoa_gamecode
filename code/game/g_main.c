@@ -3273,7 +3273,7 @@ void LogExit( const char *string ) {
 	}
 #endif
 
-	G_WriteStatsJSON(string);
+	G_WriteStatsJSON(string, 0);
 
 }
 
