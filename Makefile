@@ -30,7 +30,7 @@ endif
   BUILD_GAME_SO    = 1
   BUILD_GAME_QVM   = 1
 ifndef BUILD_MISSIONPACK
-  BUILD_MISSIONPACK=
+  BUILD_MISSIONPACK=0
 endif
 
 ifneq ($(PLATFORM),darwin)
