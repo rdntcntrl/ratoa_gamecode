@@ -2200,7 +2200,7 @@ static void CG_DrawHudDamageIndicator(void) {
 
 }
 
-#define HUD_MOVEMENT_SIZE (48)
+#define HUD_MOVEMENT_SIZE (24)
 static void CG_DrawMovementKeys(void) {
 	float color[4] = { 1.0, 1.0, 1.0, 1.0 };
 	float hue, sat, val;
@@ -2219,6 +2219,7 @@ static void CG_DrawMovementKeys(void) {
 
 	CG_PlayerColorFromString(cg_hudMovementKeysColor.string, &hue, &sat, &val);
 	Q_HSV2RGB(hue,sat,val, color);
+	color[3] = cg_hudMovementKeysAlpha.value;
 	trap_R_SetColor(color);
 
 	jump   = cg.snap->ps.stats[STAT_MOVEMENT_KEYS] & MOVEMENT_KEY_JUMP;
@@ -2254,7 +2255,6 @@ static void CG_DrawMovementKeys(void) {
 		// y = 0 - h * offsetFactor;
 		CG_DrawPic( x, y - h/4.0, w, h, cgs.media.movementKeyIndicatorJump );
 	}
-	w = CG_HeightToWidth(size);
 	y = (SCREEN_HEIGHT - h)/2.0;
 	if (left) {
 		// left

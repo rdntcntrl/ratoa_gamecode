@@ -1756,6 +1756,7 @@ extern vmCvar_t			cg_hudDamageIndicatorAlpha;
 extern vmCvar_t			cg_hudMovementKeys;
 extern vmCvar_t			cg_hudMovementKeysScale;
 extern vmCvar_t			cg_hudMovementKeysColor;
+extern vmCvar_t			cg_hudMovementKeysAlpha;
 extern vmCvar_t			cg_emptyIndicator;
 extern vmCvar_t			cg_reloadIndicator;
 extern vmCvar_t			cg_reloadIndicatorY;
