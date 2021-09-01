@@ -1312,7 +1312,7 @@ void CG_RegisterWeapon( int weaponNum ) {
 
 	case WP_LIGHTNING:
 		MAKERGB( weaponInfo->flashDlightColor, 0.6f, 0.6f, 1.0f );
-#define NUM_LG_SOUNDPACKS 2
+#define NUM_LG_SOUNDPACKS 5
 		soundIdx = (((unsigned int)(cg_lgSound.integer - 1)) % NUM_LG_SOUNDPACKS) + 1;
 		weaponInfo->readySound = trap_S_RegisterSound( va("sound/weapons/melee/fsthum%u.wav", soundIdx), qfalse );
 		weaponInfo->firingSound = trap_S_RegisterSound( va("sound/weapons/lightning/lg_hum%u.wav", soundIdx), qfalse );
