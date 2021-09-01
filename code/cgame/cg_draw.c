@@ -2207,6 +2207,7 @@ static void CG_DrawMovementKeys(void) {
 	float x,y, w, h;
 	qboolean left, right, up, down, jump, crouch;
 	float size = HUD_MOVEMENT_SIZE * cg_hudMovementKeysScale.value;
+	int movement_keys;
 
 
 	if (cg_hudMovementKeys.integer != 1) {
@@ -2222,12 +2223,14 @@ static void CG_DrawMovementKeys(void) {
 	color[3] = cg_hudMovementKeysAlpha.value;
 	trap_R_SetColor(color);
 
-	jump   = cg.snap->ps.stats[STAT_MOVEMENT_KEYS] & MOVEMENT_KEY_JUMP;
-	crouch = cg.snap->ps.stats[STAT_MOVEMENT_KEYS] & MOVEMENT_KEY_CROUCH;
-	up     = cg.snap->ps.stats[STAT_MOVEMENT_KEYS] & MOVEMENT_KEY_UP;
-	down   = cg.snap->ps.stats[STAT_MOVEMENT_KEYS] & MOVEMENT_KEY_DOWN;
-	left   = cg.snap->ps.stats[STAT_MOVEMENT_KEYS] & MOVEMENT_KEY_LEFT;
-	right  = cg.snap->ps.stats[STAT_MOVEMENT_KEYS] & MOVEMENT_KEY_RIGHT;
+	movement_keys = cg.predictedPlayerState.stats[STAT_MOVEMENT_KEYS];
+
+	jump   = movement_keys & MOVEMENT_KEY_JUMP;
+	crouch = movement_keys & MOVEMENT_KEY_CROUCH;
+	up     = movement_keys & MOVEMENT_KEY_UP;
+	down   = movement_keys & MOVEMENT_KEY_DOWN;
+	left   = movement_keys & MOVEMENT_KEY_LEFT;
+	right  = movement_keys & MOVEMENT_KEY_RIGHT;
 
 	if (!(left || up || down || right || crouch || jump)) {
 		return;
