@@ -5751,7 +5751,7 @@ static void CG_DrawEmptyIndicator( void ) {
 	}
 }
 
-#define MAX_RELOADTIME 1500
+#define MAX_RELOADTIME RAIL_RELOAD_REGULAR
 static void CG_DrawReloadIndicator( void ) {
 	int time = cg.predictedPlayerState.weaponTime;
 	float width;

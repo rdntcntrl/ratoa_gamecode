@@ -162,6 +162,9 @@ typedef enum {
 	WEAPON_FIRING
 } weaponstate_t;
 
+#define RAIL_RELOAD_REGULAR 1500
+#define RAIL_RELOAD_FAST    1250
+
 // pmove->pm_flags
 #define	PMF_DUCKED			1
 #define	PMF_JUMP_HELD		2

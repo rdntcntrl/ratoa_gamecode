@@ -2000,9 +2000,9 @@ static void PM_Weapon( void ) {
 		break;
 	case WP_RAILGUN:
 		if (pm->pmove_ratflags & RAT_FASTWEAPONS) {
-			addTime = 1250;
+			addTime = RAIL_RELOAD_FAST;
 		} else {
-			addTime = 1500;
+			addTime = RAIL_RELOAD_REGULAR;
 		}
 		break;
 	case WP_BFG:
