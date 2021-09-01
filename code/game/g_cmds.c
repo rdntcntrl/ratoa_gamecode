@@ -1846,6 +1846,7 @@ void Cmd_Timeout_f( gentity_t *ent ) {
 }
 
 void G_TimeinCommand(gentity_t *caller) {
+	int delta;
 
 	if (!level.timeout || level.timein) {
 		return;
@@ -1863,7 +1864,7 @@ void G_TimeinCommand(gentity_t *caller) {
 
 	level.timein = qtrue;
 
-	int delta = level.realtime - level.timeoutEnd + 6000;
+	delta = level.realtime - level.timeoutEnd + 6000;
 	G_TimeoutModTimes(delta);
 	level.timeoutAdd += delta;
 	level.timeoutEnd += delta;

@@ -22,8 +22,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 //
 #include "g_local.h"
 
-#define MIN(x,y) (x < y ? x : y)
-
 #define MISSILE_PRESTEP_TIME	50
 
 int G_DelagLatency(gclient_t *client) {
@@ -86,6 +84,10 @@ int G_MissileLagTime(gclient_t *client) {
 }
 
 void G_MissileRunDelag(gentity_t *ent, int stepmsec) {
+	int prevTimeSaved;
+	int lvlTimeSaved;
+	int projectileDelagTime;
+
 	if (g_delagMissileNudgeOnly.integer
 			|| level.previousTime <= DELAG_MAX_BACKTRACK
 			|| stepmsec <= 0) {
@@ -102,9 +104,9 @@ void G_MissileRunDelag(gentity_t *ent, int stepmsec) {
 		return;
 	}
 
-	int prevTimeSaved = level.previousTime;
-	int lvlTimeSaved = level.time;
-	int projectileDelagTime = level.previousTime - (DELAG_MAX_BACKTRACK/stepmsec) * stepmsec;
+	prevTimeSaved = level.previousTime;
+	lvlTimeSaved = level.time;
+	projectileDelagTime = level.previousTime - (DELAG_MAX_BACKTRACK/stepmsec) * stepmsec;
 	while (projectileDelagTime < prevTimeSaved) {
 		if ( !ent->inuse || ent->freeAfterEvent ) {
 			// make sure we don't run missile again

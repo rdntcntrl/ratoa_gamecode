@@ -3556,8 +3556,9 @@ void CheckExitRules( void ) {
 		//if ( (level.time - level.startTime)/60000 >= g_timelimit.integer ) {
 		if ( (level.time - level.startTime) >= g_timelimit.integer * 60000 + level.timeoutOvertime + g_overtime.integer * 60*1000 *  level.overtimeCount) {
 			if (ScoreIsTied() && g_overtime.integer > 0) {
+				int newtimelimit;
 				level.overtimeCount++;
-				int newtimelimit = g_timelimit.integer * 60 + level.overtimeCount * g_overtime.integer * 60;
+				newtimelimit = g_timelimit.integer * 60 + level.overtimeCount * g_overtime.integer * 60;
 				trap_SendServerCommand( -1, va("print \"" S_COLOR_YELLOW "%i minute%s" S_COLOR_CYAN " of overtime added. " 
 						S_COLOR_CYAN "Game ends at " S_COLOR_YELLOW "%i:%02i\n\"", 
 						g_overtime.integer,
