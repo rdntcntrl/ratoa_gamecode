@@ -723,6 +723,7 @@ void Cmd_Rules_f( gentity_t *ent ) {
 				" -Jumppad grenades:      %s" S_COLOR_WHITE "\n"
 				" -Tele missiles:         %s" S_COLOR_WHITE "\n"
 				" -Ambient sounds:        %s" S_COLOR_WHITE "\n"
+				" -Rocket speed:          %i" S_COLOR_WHITE "\n"
 				"\"", 
 				BG_MovementToString(g_movement.integer),
 				g_additiveJump.integer ? S_COLOR_GREEN "ON" : S_COLOR_RED "OFF",
@@ -739,8 +740,8 @@ void Cmd_Rules_f( gentity_t *ent ) {
 				g_screenShake.integer ? S_COLOR_GREEN "ON" : S_COLOR_RED "OFF",
 				g_pushGrenades.integer ? S_COLOR_GREEN "ON" : S_COLOR_RED "OFF",
 				g_teleMissiles.integer ? S_COLOR_GREEN "ON" : S_COLOR_RED "OFF",
-				g_ambientSound.integer ? S_COLOR_GREEN "ON" : S_COLOR_RED "OFF"
-
+				g_ambientSound.integer ? S_COLOR_GREEN "ON" : S_COLOR_RED "OFF",
+				g_rocketSpeed.integer
 				));
 }
 
