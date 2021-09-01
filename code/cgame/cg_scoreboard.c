@@ -320,9 +320,7 @@ static int CG_RatDrawClientAward(int y, int x, int count, qhandle_t hShader) {
 static void CG_RatDrawClientStats(int y, score_t *score, float *color, float fade) {
 	char string[1024];
 	clientInfo_t *ci;
-	centity_t *cent;
 	int x;
-	float tcolor[4] = { 1.0, 1.0, 1.0, 1.0 };
 	//int ysmall = y + (SCORECHAR_HEIGHT - SCORESMALLCHAR_HEIGHT);
 	//int yaward = y + (SCORECHAR_HEIGHT - RATSB2_AWARD_HEIGHT);
 	//int ytiny = y + (SCORECHAR_HEIGHT - SCORETINYCHAR_HEIGHT);
@@ -333,7 +331,6 @@ static void CG_RatDrawClientStats(int y, score_t *score, float *color, float fad
 	}
 
 	ci = &cgs.clientinfo[score->client];
-	cent = &cg_entities[score->client];
 
 	CG_RatHighlightScore(RATSB2_NAME_X, y, score, fade);
 

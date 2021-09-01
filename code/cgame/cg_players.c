@@ -2330,7 +2330,6 @@ static void CG_FriendFlagIndicator(centity_t *cent) {
 static void CG_FriendHudMarker( centity_t *cent ) {
 	int team;
 	float distance;
-	float maxDist;
 	float hfov_x;
 	float size;
 
@@ -3052,6 +3051,8 @@ void CG_ProjectileColor(team_t team, byte *outColor) {
 				break;
 			case TEAM_RED:
 				coloridx = MODELCOLOR_RED;
+				break;
+			default:
 				break;
 		}
 	} else if (team == myteam) {

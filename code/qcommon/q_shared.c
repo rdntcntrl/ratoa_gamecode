@@ -930,7 +930,6 @@ char *Q_LstripStr( char *string ) {
 	char*	d;
 	char*	s;
 	int		c;
-	int n = 0;
 
 	s = string;
 	d = string;

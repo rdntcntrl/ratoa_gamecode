@@ -612,6 +612,8 @@ footstep_t CG_Footsteps(clientInfo_t *ci) {
 			case FOOTSTEP_MECH:
 			case FOOTSTEP_ENERGY:
 				return footsteps;
+			default:
+				break;
 		}
 	} 
 
