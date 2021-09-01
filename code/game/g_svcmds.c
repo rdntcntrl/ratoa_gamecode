@@ -324,6 +324,7 @@ void	Svcmd_EntityList_f (void) {
 		if ( !ent->inuse ) {
 			continue;
 		}
+                G_Printf("%s", ent->wasLinked ? S_COLOR_GREEN : S_COLOR_WHITE);
                 G_Printf("%4i:", i);
                 G_Printf("%-20s(%3i)", BG_EntityTypeToString(ent->s.eType), ent->s.eType);
 		if ( ent->classname ) {

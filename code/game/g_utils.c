@@ -714,19 +714,28 @@ qboolean G_InUse(gentity_t *ent) {
 			|| ent->gameId == MTRN_GAMEID_ANY);
 }
 
+static qboolean G_IsInGame(gentity_t *ent, int gameId) {
+	return gameId == ent->gameId || ent->gameId == MTRN_GAMEID_ANY;
+}
+
+static void G_SetGameIDMask_nogtcheck(gentity_t *ent, int gameId) {
+	ent->gameId = gameId;
+	ent->r.svFlags |= SVF_CLIENTMASK;
+	if (!G_ValidGameId(gameId)) { 
+		ent->r.singleClient = 0;
+		return;
+	}
+	ent->r.singleClient = level.multiTrnGames[gameId].clientMask;
+	ent->r.singleClient &= ~(ent->multiTrnClientExcludeMask);
+}
+
 void G_SetGameIDMask(gentity_t *ent, int gameId) {
 	if (g_gametype.integer != GT_MULTITOURNAMENT) {
 		return;
 	}
-	ent->gameId = gameId;
-	ent->r.svFlags |= SVF_CLIENTMASK;
-	if (!G_ValidGameId(ent->gameId)) { 
-		ent->r.singleClient = 0;
-		return;
-	}
-	ent->r.singleClient = level.multiTrnGames[ent->gameId].clientMask;
-	ent->r.singleClient &= ~(ent->multiTrnClientExcludeMask);
+	G_SetGameIDMask_nogtcheck(ent, gameId);
 }
+
 
 void G_LinkGameId(int gameId) {
 	int i;
@@ -740,21 +749,16 @@ void G_LinkGameId(int gameId) {
 		gameId = MTRN_GAMEID_ANY;
 	}
 
-	for (i=0, ent = &g_entities[0]; i<level.num_entities ; i++, ent++) {
-		if (!ent->inuse) {
-			continue;
-		}
-		if (i < MAX_CLIENTS) {
-			// don't change client's gameId, but update the mask
-			G_SetGameIDMask(ent, ent->gameId);
-			continue;
-		}
-		G_SetGameIDMask(ent, ent->gameId);
-	}
 	if (gameId == MTRN_GAMEID_ANY) {
 		for (i=0, ent = &g_entities[0]; i<level.num_entities ; i++, ent++) {
-			if (ent->inuse && (ent->r.linked || ent->wasLinked)) {
-				ent->wasLinked = qtrue;
+			if (!ent->inuse) {
+				continue;
+			}
+			G_SetGameIDMask_nogtcheck(ent, ent->gameId);
+			if (G_IsInGame(ent, level.currentGameId)) {
+				ent->wasLinked = ent->r.linked;
+			}
+			if (!ent->r.linked && ent->wasLinked) {
 				trap_LinkEntity(ent);
 			}
 		}
@@ -765,15 +769,16 @@ void G_LinkGameId(int gameId) {
 		if (!ent->inuse) {
 			continue;
 		}
-		if (G_InUse(ent)) {
+		G_SetGameIDMask_nogtcheck(ent, ent->gameId);
+		if (G_IsInGame(ent, level.currentGameId)) {
 			ent->wasLinked = ent->r.linked;
 		}
-		trap_UnlinkEntity(ent);
-	}
-	for (i=0, ent = &g_entities[0]; i<level.num_entities ; i++, ent++) {
-		if (ent->inuse && ent->wasLinked 
-				&& (ent->gameId == gameId || ent->gameId == MTRN_GAMEID_ANY)) {
-			trap_LinkEntity(ent);
+		if (G_IsInGame(ent, gameId)) {
+			if (!ent->r.linked && ent->wasLinked) {
+				trap_LinkEntity(ent);
+			}
+		} else if (ent->r.linked) {
+			trap_UnlinkEntity(ent);
 		}
 	}
 	level.currentGameId = gameId;
