@@ -44,9 +44,9 @@ int allowedVote(char *commandStr) {
     }
     //Now constructing a string that starts and ends with '/' like: "/clientkick/"
     tempStr[0] = '/';
-    strncpy(&tempStr[1],commandStr,length);
-    tempStr[length+1] = '/';
-    tempStr[length+2] = '\0';
+    tempStr[1] = '\0';
+    Q_strcat(tempStr,sizeof(tempStr),commandStr);
+    Q_strcat(tempStr, sizeof(tempStr), "/");
     if(Q_stristr(voteNames,tempStr) != NULL)
         return qtrue;
     else
@@ -320,9 +320,9 @@ int allowedGametype(char *gametypeStr) {
         return qfalse;
     }
     tempStr[0] = '/';
-    strncpy(&tempStr[1],gametypeStr,length);
-    tempStr[length+1] = '/';
-    tempStr[length+2] = '\0';
+    tempStr[1] = '\0';
+    Q_strcat(tempStr,sizeof(tempStr),gametypeStr);
+    Q_strcat(tempStr, sizeof(tempStr), "/");
     if(Q_stristr(voteGametypes,tempStr) != NULL)
         return qtrue;
     else {

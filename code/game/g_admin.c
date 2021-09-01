@@ -2793,7 +2793,6 @@ qboolean G_admin_swaprecent( gentity_t *ent, int skiparg )
   gentity_t *victims[2];
   team_t teams[2];
   char *teamstrings[2];
-  int i;
 
   if (g_gametype.integer < GT_TEAM || g_ffa_gt == 1) {
 	  ADMP( "^3!swaprecent: ^7only works in team gametypes\n" );
@@ -4236,7 +4235,6 @@ qboolean G_admin_warn( gentity_t *ent, int skiparg )
     char s2[ MAX_NAME_LENGTH ];
     gentity_t *vic;
     int totalWarnings;
-    int soundIndex;
     
     if( G_admin_permission( ent, ADMF_UNACCOUNTABLE ) )
     {
