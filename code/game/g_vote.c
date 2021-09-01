@@ -472,6 +472,8 @@ char *parseCustomVote(char *buf, t_customvote *result) {
 	return NULL;
 }
 
+#define CUSTOMVOTE_BUFFER_SIZE (128*1024)
+
 /*
 ==================
 getCustomVote
@@ -482,18 +484,20 @@ t_customvote getCustomVote(char* votecommand) {
     t_customvote result;
     fileHandle_t	file;
     char *pointer;
-    char            buffer[128*1024];
+    char *buffer;
+    
+    buffer = BG_Alloc(CUSTOMVOTE_BUFFER_SIZE);
 
     trap_FS_FOpenFile(g_votecustom.string,&file,FS_READ);
 
     if(!file) {
         memset(&result,0,sizeof(result));
-        return result;
+        goto out;
     }
 
-    memset(&buffer,0,sizeof(buffer));
+    memset(buffer,0,CUSTOMVOTE_BUFFER_SIZE);
 
-    trap_FS_Read(&buffer,sizeof(buffer)-1,file);
+    trap_FS_Read(buffer,CUSTOMVOTE_BUFFER_SIZE-1,file);
 
     pointer = buffer;
 
@@ -503,13 +507,16 @@ t_customvote getCustomVote(char* votecommand) {
 	}
 
         if(!Q_stricmp(result.votename,votecommand)) {
-            return result;
+		goto out;
         }
     }
 
     //Nothing was found
     memset(&result,0,sizeof(result));
-        return result;
+
+out:
+    BG_Free(buffer);
+    return result;
 }
 
 #define MAX_CUSTOM_VOTES    48
@@ -526,21 +533,23 @@ VoteParseCustomVotes
 int VoteParseCustomVotes ( void ) {
     t_customvote result;
     fileHandle_t	file;
-    char            buffer[128*1024];
+    char *buffer;
     char *pointer;
     int numCommands = 0;
+
+    buffer = BG_Alloc(CUSTOMVOTE_BUFFER_SIZE);
 
     memset(&custom_vote_info, 0, sizeof(custom_vote_info));
 
     trap_FS_FOpenFile(g_votecustom.string,&file,FS_READ);
 
     if(!file) {
-        return numCommands;
+	    goto out;
     }
 
-    memset(&buffer,0,sizeof(buffer));
+    memset(buffer,0,CUSTOMVOTE_BUFFER_SIZE);
 
-    trap_FS_Read(&buffer,sizeof(buffer)-1,file);
+    trap_FS_Read(buffer,CUSTOMVOTE_BUFFER_SIZE-1,file);
 
     pointer = buffer;
 
@@ -558,6 +567,9 @@ int VoteParseCustomVotes ( void ) {
 
 
     }
+
+out:
+    BG_Free(buffer);
     return numCommands;
 }
 
@@ -569,25 +581,26 @@ VotePrintCustomVotes
 int VotePrintCustomVotes (gentity_t *ent) {
     t_customvote result;
     fileHandle_t	file;
-    char            buffer[128*1024];
+    char *buffer;
     char *pointer;
     char printBuf[512];
     const char *delim = " - " S_COLOR_GREEN;
     const char *linestart = S_COLOR_WHITE;
     int numCommands = 0;
 
+    buffer = BG_Alloc(CUSTOMVOTE_BUFFER_SIZE);
 
     trap_FS_FOpenFile(g_votecustom.string,&file,FS_READ);
 
     if(!file) {
-        return numCommands;
+	    goto out;
     }
 
-    memset(&buffer,0,sizeof(buffer));
+    memset(buffer,0,CUSTOMVOTE_BUFFER_SIZE);
     memset(&printBuf, 0, sizeof(printBuf));
     Q_strncpyz(printBuf, S_COLOR_CYAN "Custom vote commands are: \n", sizeof(printBuf));
 
-    trap_FS_Read(&buffer,sizeof(buffer)-1,file);
+    trap_FS_Read(buffer,CUSTOMVOTE_BUFFER_SIZE-1,file);
 
     pointer = buffer;
 
@@ -621,6 +634,8 @@ int VotePrintCustomVotes (gentity_t *ent) {
 	    trap_SendServerCommand( ent-g_entities, va("print \"%s\"", printBuf) );
     }
 
+out:
+    BG_Free(buffer);
     return numCommands;
 }
 
