@@ -905,6 +905,7 @@ void Team_Dom_TakePoint( gentity_t *point, int team, int clientnumber ) {
         G_LogPrintf( "DOM: %i %i %i %i: %s takes point %s!\n",
                     clientnumber,i,0,team,
                     TeamName(team),level.domination_points_names[i]);
+	point->dropPickupTime = level.time+200;
 	SendDominationPointsStatusMessageToAllClients();
 }
 
@@ -924,6 +925,7 @@ void Team_DD_RemovePointBgfx( void ) {
 	}
 }
 
+#define DD_PICKUPDELAY 200
 void Team_DD_makeA2team( gentity_t *target, int team ) {
 	gitem_t			*it;
 	//gentity_t		*it_ent;
@@ -947,6 +949,7 @@ void Team_DD_makeA2team( gentity_t *target, int team ) {
 	ddA->classname = it->classname;
 	G_SpawnItem(ddA, it);
 	FinishSpawningItem(ddA );
+	target->dropPickupTime = level.time + DD_PICKUPDELAY;
 }
 
 void Team_DD_makeB2team( gentity_t *target, int team ) {
@@ -973,6 +976,7 @@ void Team_DD_makeB2team( gentity_t *target, int team ) {
 	ddB->classname = it->classname;
 	G_SpawnItem(ddB, it);
 	FinishSpawningItem(ddB );
+	target->dropPickupTime = level.time + DD_PICKUPDELAY;
 }
 
 void Team_TH_TokenDestroyed( gentity_t *ent ) {

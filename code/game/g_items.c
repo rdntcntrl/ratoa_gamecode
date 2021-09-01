@@ -497,6 +497,12 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 		return;
 	}
 
+	if ((g_gametype.integer == GT_DOMINATION || g_gametype.integer == GT_DOUBLE_D) && ent->item->giType == IT_TEAM) {
+		if (level.time < ent->dropPickupTime) {
+			return;
+		}
+	}
+
 	//In double DD we cannot "pick up" a flag we already got
 	if(g_gametype.integer == GT_DOUBLE_D) {
 		if( strcmp(ent->classname, "team_CTF_redflag") == 0 )
