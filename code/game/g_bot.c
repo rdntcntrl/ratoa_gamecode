@@ -435,7 +435,6 @@ void G_LoadArenas( void ) {
 
 	level.arenasLoaded = qtrue;
 
-out:
 	BG_Free(dirlist);
 }
 

@@ -17,7 +17,7 @@ void xfprintf( fileHandle_t f, const char *fmt, ... ) {
 }
 
 void json_writestring(fileHandle_t f, const char *key, const char *val) {
-	char *p;
+	const char *p;
 	xfprintf(f, "\"%s\":\"", key);
 	for (p = val; *p; ++p) {
 		if (*p == '"') {
