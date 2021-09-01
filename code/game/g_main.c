@@ -660,7 +660,7 @@ static cvarTable_t		gameCvarTable[] = {
 
         { &g_itemPickup, "g_itemPickup", "0", CVAR_ARCHIVE , 0, qtrue },
         { &g_itemDrop, "g_itemDrop", "0", CVAR_ARCHIVE , 0, qtrue },
-        { &g_usesRatVM, "g_usesRatVM", "0", 0, 0, qfalse },
+        { &g_usesRatVM, "g_usesRatVM", "1", 0, 0, qfalse },
         { &g_usesRatEngine, "g_usesRatEngine", "0", CVAR_ROM | CVAR_INIT, 0, qfalse },
         { &g_mixedMode, "g_mixedMode", "0", CVAR_ARCHIVE, 0, qfalse },
         { &g_broadcastClients, "g_broadcastClients", "0", 0, 0, qfalse },
