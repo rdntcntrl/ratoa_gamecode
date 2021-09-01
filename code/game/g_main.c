@@ -609,8 +609,8 @@ static cvarTable_t		gameCvarTable[] = {
         { &g_eqpingSavedPing, "g_eqpingSavedPing", "0", CVAR_ROM, 0, qfalse },
         { &g_eqpingAutoTourney, "g_eqpingAutoTourney", "0", CVAR_ARCHIVE, 0, qtrue },
 
-        { &g_teleMissiles, "g_teleMissiles", "0", CVAR_ARCHIVE, 0, qtrue },
-        { &g_pushGrenades, "g_pushGrenades", "0", CVAR_ARCHIVE, 0, qtrue },
+        { &g_teleMissiles, "g_teleMissiles", "1", CVAR_ARCHIVE, 0, qtrue },
+        { &g_pushGrenades, "g_pushGrenades", "1", CVAR_ARCHIVE, 0, qtrue },
         { &g_teleMissilesMaxTeleports, "g_teleMissilesMaxTeleports", "3", CVAR_ARCHIVE, 0, qfalse },
 
         { &g_newShotgun, "g_newShotgun", "1", CVAR_ARCHIVE, 0, qtrue },
