@@ -938,6 +938,13 @@ typedef struct {
 	qhandle_t	damageIndicatorTop;
 	qhandle_t	damageIndicatorRight;
 	qhandle_t	damageIndicatorLeft;
+	
+	qhandle_t	movementKeyIndicatorJump;
+	qhandle_t	movementKeyIndicatorCrouch;
+	qhandle_t	movementKeyIndicatorUp;
+	qhandle_t	movementKeyIndicatorDown;
+	qhandle_t	movementKeyIndicatorLeft;
+	qhandle_t	movementKeyIndicatorRight;
 
 	qhandle_t	bardot;
 	qhandle_t	bardot_additiveglow;
@@ -1746,6 +1753,9 @@ extern vmCvar_t			cg_hudDamageIndicator;
 extern vmCvar_t			cg_hudDamageIndicatorScale;
 extern vmCvar_t			cg_hudDamageIndicatorOffset;
 extern vmCvar_t			cg_hudDamageIndicatorAlpha;
+extern vmCvar_t			cg_hudMovementKeys;
+extern vmCvar_t			cg_hudMovementKeysScale;
+extern vmCvar_t			cg_hudMovementKeysColor;
 extern vmCvar_t			cg_emptyIndicator;
 extern vmCvar_t			cg_reloadIndicator;
 extern vmCvar_t			cg_reloadIndicatorY;

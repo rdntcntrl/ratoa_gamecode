@@ -2200,6 +2200,77 @@ static void CG_DrawHudDamageIndicator(void) {
 
 }
 
+#define HUD_MOVEMENT_SIZE (48)
+static void CG_DrawMovementKeys(void) {
+	float color[4] = { 1.0, 1.0, 1.0, 1.0 };
+	float hue, sat, val;
+	float x,y, w, h;
+	qboolean left, right, up, down, jump, crouch;
+	float size = HUD_MOVEMENT_SIZE * cg_hudMovementKeysScale.value;
+
+
+	if (cg_hudMovementKeys.integer != 1) {
+		return;
+	}
+
+	if ( !cg.snap ) {
+		return;
+	}
+
+	CG_PlayerColorFromString(cg_hudMovementKeysColor.string, &hue, &sat, &val);
+	Q_HSV2RGB(hue,sat,val, color);
+	trap_R_SetColor(color);
+
+	jump   = cg.snap->ps.stats[STAT_MOVEMENT_KEYS] & MOVEMENT_KEY_JUMP;
+	crouch = cg.snap->ps.stats[STAT_MOVEMENT_KEYS] & MOVEMENT_KEY_CROUCH;
+	up     = cg.snap->ps.stats[STAT_MOVEMENT_KEYS] & MOVEMENT_KEY_UP;
+	down   = cg.snap->ps.stats[STAT_MOVEMENT_KEYS] & MOVEMENT_KEY_DOWN;
+	left   = cg.snap->ps.stats[STAT_MOVEMENT_KEYS] & MOVEMENT_KEY_LEFT;
+	right  = cg.snap->ps.stats[STAT_MOVEMENT_KEYS] & MOVEMENT_KEY_RIGHT;
+
+	if (!(left || up || down || right || crouch || jump)) {
+		return;
+	}
+
+	h = size;
+	w = CG_HeightToWidth(h);
+	x = (SCREEN_WIDTH - w)/2.0;
+	y = (SCREEN_HEIGHT - h)/2.0 + h;
+	if (down) {
+		// down
+		CG_DrawPic( x, y, w, h, cgs.media.movementKeyIndicatorDown );
+	}
+	if (crouch) {
+		// crouch
+		CG_DrawPic( x, y + h/4.0, w, h, cgs.media.movementKeyIndicatorCrouch );
+	}
+	y = (SCREEN_HEIGHT - h)/2.0 - h;
+	if (up) {
+		// up
+		CG_DrawPic( x, y, w, h, cgs.media.movementKeyIndicatorUp );
+	}
+	if (jump) {
+		// jump
+		// y = 0 - h * offsetFactor;
+		CG_DrawPic( x, y - h/4.0, w, h, cgs.media.movementKeyIndicatorJump );
+	}
+	w = CG_HeightToWidth(size);
+	y = (SCREEN_HEIGHT - h)/2.0;
+	if (left) {
+		// left
+		x = (SCREEN_WIDTH - w)/2.0 - w;
+		CG_DrawPic( x, y, w, h, cgs.media.movementKeyIndicatorLeft );
+	}
+	if (right) {
+		// right
+		x = (SCREEN_WIDTH - w)/2.0 + w;
+		CG_DrawPic( x, y, w, h, cgs.media.movementKeyIndicatorRight );
+	}
+
+	trap_R_SetColor(NULL);
+
+}
+
 /*
 ===========================================================================================
 
@@ -6633,6 +6704,7 @@ static void CG_Draw2D(stereoFrame_t stereoFrame)
 				CG_DrawRatStatusBar4Bg();
 			}
 			CG_DrawHudDamageIndicator();
+			CG_DrawMovementKeys();
 
 #ifdef MISSIONPACK
 			if ( cg_drawStatus.integer ) {
