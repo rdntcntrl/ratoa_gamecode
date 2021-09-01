@@ -755,13 +755,15 @@ Parses textual entity definitions out of an entstring and spawns gentities.
 ==============
 */
 void G_SpawnEntitiesFromString( void ) {
+	char *buffer = NULL;
 	// allow calls to G_Spawn*()
 	level.spawning = qtrue;
 	level.numSpawnVars = 0;
 
 	if (g_readSpawnVarFiles.integer) {
-		char buffer[SPAWNVARFILE_BUFFER_SIZE];
-		char *pbuf = buffer;
+		char *pbuf;
+		buffer = BG_Alloc(SPAWNVARFILE_BUFFER_SIZE);
+		pbuf = buffer;
 		if (G_ReadSpawnVarFile(pbuf)) {
 			// the worldspawn is not an actual entity, but it still
 			// has a "spawn" function to perform any global setup
@@ -776,7 +778,7 @@ void G_SpawnEntitiesFromString( void ) {
 				G_SpawnGEntityFromSpawnVars();
 			}	
 			level.spawning = qfalse;
-			return;
+			goto out;
 		}
 	}
 
@@ -794,5 +796,10 @@ void G_SpawnEntitiesFromString( void ) {
 	}	
 
 	level.spawning = qfalse;			// any future calls to G_Spawn*() will be errors
+
+out:
+	if (buffer) {
+		BG_Free(buffer);
+	}
 }
 
