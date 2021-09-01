@@ -389,19 +389,19 @@ void UI_MainMenu( void ) {
 	s_main.challenges.color					= color_red;
 	s_main.challenges.style					= style;
 
-	if (UI_TeamArenaExists()) {
-		teamArena = qtrue;
-		y += MAIN_MENU_VERTICAL_SPACING;
-		s_main.teamArena.generic.type			= MTYPE_PTEXT;
-		s_main.teamArena.generic.flags			= QMF_CENTER_JUSTIFY|QMF_PULSEIFFOCUS;
-		s_main.teamArena.generic.x				= 320;
-		s_main.teamArena.generic.y				= y;
-		s_main.teamArena.generic.id				= ID_TEAMARENA;
-		s_main.teamArena.generic.callback		= Main_MenuEvent; 
-		s_main.teamArena.string					= "MISSION PACK";
-		s_main.teamArena.color					= color_red;
-		s_main.teamArena.style					= style;
-	}
+	//if (UI_TeamArenaExists()) {
+	//	teamArena = qtrue;
+	//	y += MAIN_MENU_VERTICAL_SPACING;
+	//	s_main.teamArena.generic.type			= MTYPE_PTEXT;
+	//	s_main.teamArena.generic.flags			= QMF_CENTER_JUSTIFY|QMF_PULSEIFFOCUS;
+	//	s_main.teamArena.generic.x				= 320;
+	//	s_main.teamArena.generic.y				= y;
+	//	s_main.teamArena.generic.id				= ID_TEAMARENA;
+	//	s_main.teamArena.generic.callback		= Main_MenuEvent; 
+	//	s_main.teamArena.string					= "MISSION PACK";
+	//	s_main.teamArena.color					= color_red;
+	//	s_main.teamArena.style					= style;
+	//}
 
 	y += MAIN_MENU_VERTICAL_SPACING;
 	s_main.mods.generic.type			= MTYPE_PTEXT;
