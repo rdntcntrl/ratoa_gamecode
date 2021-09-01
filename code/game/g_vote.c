@@ -63,12 +63,14 @@ t_mappage getMappage(int page, qboolean largepage, qboolean recommenedonly) {
 	t_mappage result;
 	fileHandle_t	file;
 	char *token,*pointer;
-	char buffer[MAX_MAPNAME_BUFFER];
+	char *buffer;
 	int i, nummaps,maplen;
 	int maps_in_page = largepage ? MAPS_PER_LARGEPAGE : MAPS_PER_PAGE;
 
+	buffer = BG_Alloc(MAX_MAPNAME_BUFFER);
+
 	memset(&result,0,sizeof(result));
-        memset(&buffer,0,sizeof(buffer));
+        memset(buffer,0, MAX_MAPNAME_BUFFER);
 
 	//Check if there is a votemaps.cfg
 	trap_FS_FOpenFile(g_votemaps.string,&file,FS_READ);
@@ -79,14 +81,14 @@ t_mappage getMappage(int page, qboolean largepage, qboolean recommenedonly) {
 	if(file)
 	{
 		//there is a votemaps.cfg file, take allowed maps from there
-		trap_FS_Read(&buffer,sizeof(buffer)-1,file);
+		trap_FS_Read(buffer,MAX_MAPNAME_BUFFER-1,file);
 		pointer = buffer;
 		token = COM_Parse(&pointer);
 		if(token[0]==0 && page == 0) {
 			//First page empty
 			result.pagenumber = -1;
                         trap_FS_FCloseFile(file);
-			return result;
+			goto out;
 		}
 		//Skip the first pages
 		for(i=0;i<maps_in_page*page;i++) {
@@ -95,7 +97,8 @@ t_mappage getMappage(int page, qboolean largepage, qboolean recommenedonly) {
 		if(!token || token[0]==0) {
 			//Page empty, return to first page
                         trap_FS_FCloseFile(file);
-			return getMappage(0, largepage, recommenedonly);
+			result = getMappage(0, largepage, recommenedonly);
+			goto out;
 		}
 		//There is an actual page:
                 result.pagenumber = page;
@@ -104,13 +107,15 @@ t_mappage getMappage(int page, qboolean largepage, qboolean recommenedonly) {
 			token = COM_Parse(&pointer);
 		}
                 trap_FS_FCloseFile(file);
-		return result;
+		goto out;
 	}
         //There is no votemaps.cfg file, find filelist of maps
-        nummaps = trap_FS_GetFileList("maps",".bsp",buffer,sizeof(buffer));
+        nummaps = trap_FS_GetFileList("maps",".bsp",buffer,MAX_MAPNAME_BUFFER);
 
-        if(nummaps && nummaps<=maps_in_page*page)
-            return getMappage(0, largepage, recommenedonly);
+        if(nummaps && nummaps<=maps_in_page*page) {
+            result = getMappage(0, largepage, recommenedonly);
+	    goto out;
+	}
 
         pointer = buffer;
         result.pagenumber = page;
@@ -126,6 +131,8 @@ t_mappage getMappage(int page, qboolean largepage, qboolean recommenedonly) {
                     Q_strncpyz(result.mapname[i-maps_in_page*page],pointer,copylen);
                 }
 	}
+out:
+	BG_Free(buffer);
         return result;
 }
 
