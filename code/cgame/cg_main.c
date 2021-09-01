@@ -2009,8 +2009,15 @@ static void CG_RegisterSounds( void ) {
 
 	cgs.media.noAmmoSound = trap_S_RegisterSound( "sound/weapons/noammo.wav", qfalse );
 
-	cgs.media.talkSound = trap_S_RegisterSound( "sound/player/talk.wav", qfalse );
-	cgs.media.teamTalkSound = trap_S_RegisterSound( "sound/player/teamtalk.wav", qfalse );
+	{
+#define NUM_TALK_SOUNDS 2
+#define NUM_TEAMTALK_SOUNDS 2
+		unsigned int talkIdx;
+		talkIdx = cg_chatBeep.integer > 0 ? ((cg_chatBeep.integer - 1) % NUM_TALK_SOUNDS) + 1 : 1;
+		cgs.media.talkSound = trap_S_RegisterSound( va("sound/player/talk%u.wav", talkIdx), qfalse );
+		talkIdx = cg_teamChatBeep.integer > 0 ? ((cg_teamChatBeep.integer - 1 ) % NUM_TEAMTALK_SOUNDS) + 1 : 1;
+		cgs.media.teamTalkSound = trap_S_RegisterSound( va("sound/player/teamtalk%u.wav", talkIdx), qfalse );
+	}
 	cgs.media.landSound = trap_S_RegisterSound( "sound/player/land1.wav", qfalse);
 
         switch(cg_hitsound.integer) {
