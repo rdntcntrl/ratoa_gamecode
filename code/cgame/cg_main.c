@@ -722,7 +722,7 @@ static cvarTable_t cvarTable[] = { // bk001129
 
 	{ &cg_mySound ,     "cg_mySound", "", CVAR_ARCHIVE},
 	{ &cg_teamSound ,   "cg_teamSound", "", CVAR_ARCHIVE},
-	{ &cg_enemySound ,  "cg_enemySound", "penguin", CVAR_ARCHIVE},
+	{ &cg_enemySound ,  "cg_enemySound", "beret", CVAR_ARCHIVE},
 
 	{ &cg_myFootsteps ,     "cg_myFootsteps", "-1", CVAR_ARCHIVE},
 	{ &cg_teamFootsteps ,   "cg_teamFootsteps", "-1", CVAR_ARCHIVE},
@@ -932,7 +932,7 @@ void CG_SetEngineCvars( void ) {
 }
 
 
-#define LATEST_RATINITIALIZED 29
+#define LATEST_RATINITIALIZED 30
 
 int CG_MigrateOldCrosshair(int old) {
 	switch (old) {
@@ -1376,6 +1376,14 @@ void CG_RatOldCfgUpdate(void) {
 		}
 
 		CG_Cvar_SetAndUpdate( "cg_ratInitialized", "29" );
+	}
+
+	if (cg_ratInitialized.integer < 30) {
+		if (!Q_stricmp(cg_enemySound.string, "penguin")) {
+			CG_Cvar_ResetToDefault("cg_enemySound");
+		}
+
+		CG_Cvar_SetAndUpdate( "cg_ratInitialized", "30" );
 	}
 }
 
