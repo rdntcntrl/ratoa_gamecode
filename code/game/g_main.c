@@ -2583,7 +2583,7 @@ qboolean ReorderMultiTournament( void ) {
 	for ( i = 0;  i < numConnectedClients; i++ ) {
 		cl = &level.clients[ sortedClients[i] ];
 		if (cl->sess.sessionTeam == TEAM_FREE) {
-			SetTeam( &g_entities[ sortedClients[i] ], "q");
+			SetTeam_Force( &g_entities[ sortedClients[i] ], "q", NULL, qtrue);
 		}
 	}
 	for ( i = 0;  i < numConnectedClients; i++ ) {
