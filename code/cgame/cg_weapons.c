@@ -4805,7 +4805,7 @@ void CG_ShotgunPattern( vec3_t origin, vec3_t origin2, int seed, int otherEntNum
 	if (cgs.ratFlags & RAT_NEWSHOTGUN) { 
 		for ( i = 0 ; i < 12 ; i++ ) {
                         int randomness = 100;
-                        // creates a pentagon inside a hexagon, which one pellet in the center
+                        // creates a pentagon inside a hexagon, with one pellet in the center
                         if (i < 5) {
                                 float t = i*(72.0*M_PI/180.0) + M_PI/5.0;
                                 r = 300 * 16 * cos(t);
