@@ -1,5 +1,7 @@
 # RatArena gamecode
 
+![RatArena Logo](ratmod_logo.svg)
+
 RatArena (or Ratmod) is a mod for OpenArena for both competitive and casual gameplay.
 
 It adds many new features and quality improvements, among them are:
