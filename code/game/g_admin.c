@@ -339,7 +339,7 @@ g_admin_namelog_t *g_admin_namelog[ MAX_ADMIN_NAMELOGS ];
 //KK-OAX Load us up some warnings here....
 g_admin_warning_t *g_admin_warnings[ MAX_ADMIN_WARNINGS ];
     
-qboolean G_admin_permission( gentity_t *ent, char flag )
+qboolean G_admin_permission( gentity_t *ent, int flag )
 {
   int i;
   int l = 0;

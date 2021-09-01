@@ -149,7 +149,7 @@ typedef struct
   char *keyword;
   char *alias;
   qboolean ( * handler ) ( gentity_t *ent, int skiparg );
-  char flag;
+  int flag;
   char *function;  // used for !help
   char *syntax;  // used for !help
 }
@@ -234,7 +234,7 @@ qboolean G_admin_showbalance( gentity_t *ent, int skiparg );
 qboolean G_admin_balance( gentity_t *ent, int skiparg );
 qboolean G_admin_stoprecord( gentity_t *ent, int skiparg );
 qboolean G_admin_readconfig( gentity_t *ent, int skiparg );
-qboolean G_admin_permission( gentity_t *ent, char flag );
+qboolean G_admin_permission( gentity_t *ent, int flag );
 qboolean G_admin_uses_registeredname( gentity_t *ent );
 qboolean G_admin_name_check( gentity_t *ent, char *name, char *err, int len );
 void G_admin_namelog_update( gclient_t *ent, qboolean disconnect );
