@@ -704,6 +704,7 @@ void Cmd_Acc_f( gentity_t *ent ) {
 ==================
 */
 void Cmd_Rules_f( gentity_t *ent ) {
+
 	trap_SendServerCommand( ent-g_entities, va("print \""
 				"Server rules:\n"
 				" -Fast weapon switch:    %s" S_COLOR_WHITE "\n"
@@ -715,7 +716,7 @@ void Cmd_Rules_f( gentity_t *ent ) {
 				" -Item pickup height:    %s" S_COLOR_WHITE "\n"
 				" -Powerup glows:         %s" S_COLOR_WHITE "\n"
 				" -Screen shake upon hit: %s" S_COLOR_WHITE "\n"
-				" -Rat physics:           %s" S_COLOR_WHITE "\n"
+				" -movement:              " S_COLOR_WHITE "%s\n"
 				" -Jumppad grenades:      %s" S_COLOR_WHITE "\n"
 				" -Tele missiles:         %s" S_COLOR_WHITE "\n"
 				"\"", 
@@ -728,7 +729,7 @@ void Cmd_Rules_f( gentity_t *ent ) {
 				g_itemPickup.integer ? "high" : "low",
 				g_powerupGlows.integer ? S_COLOR_GREEN "ON" : S_COLOR_RED "OFF",
 				g_screenShake.integer ? S_COLOR_GREEN "ON" : S_COLOR_RED "OFF",
-				g_ratPhysics.integer ? S_COLOR_GREEN "ON" : S_COLOR_RED "OFF",
+				BG_MovementToString(g_movement.integer),
 				g_pushGrenades.integer ? S_COLOR_GREEN "ON" : S_COLOR_RED "OFF",
 				g_teleMissiles.integer ? S_COLOR_GREEN "ON" : S_COLOR_RED "OFF"
 

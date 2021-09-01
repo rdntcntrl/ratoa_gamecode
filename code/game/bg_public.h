@@ -184,6 +184,14 @@ typedef enum {
 #define FROZENSTATE_FROZEN	1
 #define FROZENSTATE_THAWING	2
 
+typedef enum {
+	MOVEMENT_VQ3 = 0,
+	MOVEMENT_CPM,
+	MOVEMENT_RM,
+
+	MOVEMENT_NUM_MOVEMENTS,
+} movement_t;
+
 #define	MAXTOUCH	32
 typedef struct {
 	// state (in / out)
@@ -220,6 +228,8 @@ typedef struct {
         int                     pmove_flags;
         //more flags affecting movement (see g_ratFlags)
         int                     pmove_ratflags;
+        // Selects between VQ3, CPM, and RM.
+        movement_t              pmove_movement;
 
 	// callbacks to test the world
 	// these will be different functions during game and cgame
@@ -840,7 +850,7 @@ qboolean	BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const play
 #define RAT_PREDICTMISSILES 	(1 << 3)
 #define RAT_FASTSWITCH 		(1 << 4)
 #define RAT_FASTWEAPONS 	(1 << 5)
-#define RAT_RATPHYSICS 		(1 << 6)
+// #define RAT_RATPHYSICS 		(1 << 6)
 #define RAT_RAMPJUMP 		(1 << 7)
 #define RAT_ALLOWFORCEDMODELS 	(1 << 8)
 #define RAT_FRIENDSWALLHACK 	(1 << 9)
@@ -963,5 +973,8 @@ qboolean	BG_PlayerTouchesItem( playerState_t *ps, entityState_t *item, int atTim
 //KK-OAX
 //bg_misc.c
 char *BG_TeamName( team_t team );
+
+char *BG_MovementToString( movement_t movement );
+movement_t BG_MovementFromString( const char *s );
 
 #endif
