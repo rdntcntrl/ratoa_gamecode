@@ -3027,43 +3027,47 @@ int G_GametypeBitsCurrent( void ) {
 }
 
 qboolean SelectNextmapVoteMaps( void ) {
-	struct maplist_s maplist;
+	struct maplist_s *maplist;
 	int numMaps = 0;
 	int took;
 	int numPlayers = level.numPlayingClients;
+	qboolean ret = qfalse;
+
+	maplist = BG_Alloc(sizeof(*maplist));
 
 	if (!g_nextmapVotePlayerNumFilter.integer) {
 		numPlayers = 0;
 	}
 
 	// recommended lists
-	getCompleteMaplist(qtrue, 0, numPlayers,  &maplist);
-	took = SelectNextmapVoteMapsFromList(&maplist, g_nextmapVoteNumRecommended.integer, &numMaps, level.nextmapVoteMaps);
+	getCompleteMaplist(qtrue, 0, numPlayers,  maplist);
+	took = SelectNextmapVoteMapsFromList(maplist, g_nextmapVoteNumRecommended.integer, &numMaps, level.nextmapVoteMaps);
 	if (numPlayers && took < g_nextmapVoteNumRecommended.integer) {
 		// try again, ignoring the player count constraints
-		getCompleteMaplist(qtrue, 0, 0,  &maplist);
-		took = SelectNextmapVoteMapsFromList(&maplist, g_nextmapVoteNumRecommended.integer - took, &numMaps, level.nextmapVoteMaps);
+		getCompleteMaplist(qtrue, 0, 0, maplist);
+		took = SelectNextmapVoteMapsFromList(maplist, g_nextmapVoteNumRecommended.integer - took, &numMaps, level.nextmapVoteMaps);
 	}
 
 	// all maps but filtered by gametype
-	getCompleteMaplist(qfalse, G_GametypeBitsCurrent(), numPlayers, &maplist);
-	took = SelectNextmapVoteMapsFromList(&maplist, g_nextmapVoteNumGametype.integer, &numMaps, level.nextmapVoteMaps);
+	getCompleteMaplist(qfalse, G_GametypeBitsCurrent(), numPlayers, maplist);
+	took = SelectNextmapVoteMapsFromList(maplist, g_nextmapVoteNumGametype.integer, &numMaps, level.nextmapVoteMaps);
 	if (numPlayers && took < g_nextmapVoteNumGametype.integer) {
-		getCompleteMaplist(qfalse, G_GametypeBitsCurrent(), 0, &maplist);
-		SelectNextmapVoteMapsFromList(&maplist, g_nextmapVoteNumGametype.integer - took, &numMaps, level.nextmapVoteMaps);
+		getCompleteMaplist(qfalse, G_GametypeBitsCurrent(), 0, maplist);
+		SelectNextmapVoteMapsFromList(maplist, g_nextmapVoteNumGametype.integer - took, &numMaps, level.nextmapVoteMaps);
 	}
 
 	// all maps
-	getCompleteMaplist(qfalse, 0, numPlayers,  &maplist);
-	SelectNextmapVoteMapsFromList(&maplist, NEXTMAPVOTE_NUM_MAPS-numMaps, &numMaps, level.nextmapVoteMaps);
+	getCompleteMaplist(qfalse, 0, numPlayers,  maplist);
+	SelectNextmapVoteMapsFromList(maplist, NEXTMAPVOTE_NUM_MAPS-numMaps, &numMaps, level.nextmapVoteMaps);
 	if (numPlayers && numMaps != NEXTMAPVOTE_NUM_MAPS) {
-		getCompleteMaplist(qfalse, 0, 0,  &maplist);
-		SelectNextmapVoteMapsFromList(&maplist, NEXTMAPVOTE_NUM_MAPS-numMaps, &numMaps, level.nextmapVoteMaps);
+		getCompleteMaplist(qfalse, 0, 0,  maplist);
+		SelectNextmapVoteMapsFromList(maplist, NEXTMAPVOTE_NUM_MAPS-numMaps, &numMaps, level.nextmapVoteMaps);
 	}
 
 	if (numMaps != NEXTMAPVOTE_NUM_MAPS) {
 		Com_Printf("could not find %i maps for nextmapvote, cancelling\n", NEXTMAPVOTE_NUM_MAPS);
-		return qfalse;
+		ret = qfalse;
+		goto out;
 	}
 
 
@@ -3078,7 +3082,10 @@ qboolean SelectNextmapVoteMaps( void ) {
 				level.nextmapVoteMaps[4],
 				level.nextmapVoteMaps[5]
 				));
-	return qtrue;
+	ret = qtrue;
+out:
+	BG_Free(maplist);
+	return ret;
 }
 
 
