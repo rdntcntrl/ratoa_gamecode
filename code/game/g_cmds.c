@@ -1936,6 +1936,13 @@ qboolean G_Forfeit(gentity_t *ent, qboolean quiet) {
 		return qfalse;
 	}
 
+	if (level.warmupTime) {
+		if (!quiet) {
+			trap_SendServerCommand(ent-g_entities,va("cp \"" S_COLOR_CYAN "Can't forfeit during warmup!\"" ) );
+		}
+		return qfalse;
+	}
+
 	if (g_gametype.integer != GT_TOURNAMENT 
 			|| level.numPlayingClients != 2) {
 		if (!quiet) {
@@ -1944,12 +1951,6 @@ qboolean G_Forfeit(gentity_t *ent, qboolean quiet) {
 		return qfalse;
 	}
 
-	if (level.warmupTime) {
-		if (!quiet) {
-			trap_SendServerCommand(ent-g_entities,va("cp \"" S_COLOR_CYAN "Can't forfeit during warmup!\"" ) );
-		}
-		return qfalse;
-	}
 
 	if (cnum == level.sortedClients[0]) {
 		opponentCnum = level.sortedClients[1];
