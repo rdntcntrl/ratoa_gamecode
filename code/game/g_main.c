@@ -3985,10 +3985,11 @@ void CheckExitRules( void ) {
 			}
 
 			if (g_fraglimit.integer) {
+				int i;
 				if (ScoreIsTiedMtrnGame(gameId)) {
 					continue;
 				}
-				for (int i = 0; i < 2; ++i) {
+				for (i = 0; i < 2; ++i) {
 					gclient_t *cl = &level.clients[game->clients[i]];
 					if (cl->ps.persistant[PERS_SCORE] >= g_fraglimit.integer ) {
 						trap_SendServerCommand( -1, va("print \"Game %i: %s" S_COLOR_WHITE " hit the fraglimit.\n\"",
