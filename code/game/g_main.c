@@ -1128,6 +1128,9 @@ void G_EQPingClientReset(gclient_t *client) {
 }
 
 void G_EQPingClientSet(gclient_t *client) {
+	if (!g_usesRatEngine.integer) {
+		return;
+	}
 	if (client->pers.realPing < level.eqPing) {
 		trap_RAT_EQPing_SetDelay(client - g_clients, level.eqPing - client->pers.realPing);
 	} else {
