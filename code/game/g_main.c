@@ -305,6 +305,7 @@ vmCvar_t        g_killDisable;
 
 vmCvar_t        g_startWhenReady;
 vmCvar_t        g_autoStartTime;
+vmCvar_t        g_autoStartMinPlayers;
 vmCvar_t        g_countDownHealthArmor;
 vmCvar_t        g_powerupGlows;
 vmCvar_t        g_screenShake;
@@ -644,6 +645,7 @@ static cvarTable_t		gameCvarTable[] = {
 
         { &g_startWhenReady, "g_startWhenReady", "0", CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qfalse },
         { &g_autoStartTime, "g_autoStartTime", "0", CVAR_ARCHIVE, 0, qfalse },
+        { &g_autoStartMinPlayers, "g_autoStartMinPlayers", "0", CVAR_ARCHIVE, 0, qfalse },
 
         { &g_countDownHealthArmor, "g_countDownHealthArmor", "1", CVAR_ARCHIVE , 0, qfalse },
 	
@@ -1704,7 +1706,8 @@ void G_UpdateCvars( void ) {
 }
 
 qboolean G_AutoStartReady( void ) {
-	return	(g_autoStartTime.integer > 0 && g_autoStartTime.integer*1000 < (level.time - level.startTime));
+	return	level.numPlayingClients >= g_autoStartMinPlayers.integer 
+		&& (g_autoStartTime.integer > 0 && g_autoStartTime.integer*1000 < (level.time - level.startTime));
 }
 
 /*
