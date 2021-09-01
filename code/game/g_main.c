@@ -470,7 +470,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_speed, "g_speed", "320", 0, 0, qtrue  },
 	{ &g_spectatorSpeed, "g_spectatorSpeed", "400", CVAR_ARCHIVE, 0, qfalse  },
 	{ &g_gravity, "g_gravity", "800", 0, 0, qtrue  },
-	{ &g_gravityModifier, "g_gravityModifier", "1", 0, 0, qtrue  },
+	{ &g_gravityModifier, "g_gravityModifier", "0.940", 0, 0, qtrue  },
 	{ &g_gravityJumppadFix, "g_gravityJumppadFix", "1", CVAR_ARCHIVE, 0, qfalse  },
         { &g_damageScore, "g_damageScore", "0", CVAR_ARCHIVE, 0, qfalse },
         { &g_damageModifier, "g_damageModifier", "0", 0, 0, qtrue },
@@ -549,7 +549,7 @@ static cvarTable_t		gameCvarTable[] = {
 
 	{ &g_smoothClients, "g_smoothClients", "1", 0, 0, qfalse},
 	{ &pmove_fixed, "pmove_fixed", "0", CVAR_SYSTEMINFO | CVAR_ARCHIVE, 0, qfalse},
-	{ &pmove_msec, "pmove_msec", "11", CVAR_SYSTEMINFO | CVAR_ARCHIVE, 0, qfalse},
+	{ &pmove_msec, "pmove_msec", "8", CVAR_SYSTEMINFO | CVAR_ARCHIVE, 0, qfalse},
 
         { &pmove_float, "pmove_float", "1", CVAR_SYSTEMINFO | CVAR_ARCHIVE, 0, qtrue},
 
@@ -617,7 +617,7 @@ static cvarTable_t		gameCvarTable[] = {
 
 	{ &g_ratPhysics,   "g_ratPhysics", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_rampJump,     "g_rampJump", "0", CVAR_ARCHIVE, 0, qtrue },
-	{ &g_additiveJump,     "g_additiveJump", "0", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_additiveJump,     "g_additiveJump", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_fastSwim,   "g_fastSwim", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_lavaDamage,     "g_lavaDamage", "10", CVAR_ARCHIVE, 0, qfalse },
 	{ &g_slimeDamage,     "g_slimeDamage", "4", CVAR_ARCHIVE, 0, qfalse },
@@ -625,7 +625,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_fastWeapons,  "g_fastWeapons", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_regularFootsteps,  "g_regularFootsteps", "1", CVAR_ARCHIVE, 0, qfalse },
 	{ &g_smoothStairs,  "g_smoothStairs", "0", CVAR_ARCHIVE, 0, qtrue },
-	{ &g_overbounce,  "g_overbounce", "1", CVAR_ARCHIVE, 0, qfalse },
+	{ &g_overbounce,  "g_overbounce", "0", CVAR_ARCHIVE, 0, qfalse },
 
 	{ &g_bobup,  "g_bobup", "0", CVAR_ARCHIVE, 0, qfalse },
 
@@ -648,23 +648,23 @@ static cvarTable_t		gameCvarTable[] = {
         { &g_countDownHealthArmor, "g_countDownHealthArmor", "1", CVAR_ARCHIVE , 0, qfalse },
 	
         { &g_powerupGlows, "g_powerupGlows", "1", CVAR_ARCHIVE, 0, qfalse },
-        { &g_screenShake, "g_screenShake", "1", CVAR_ARCHIVE, 0, qfalse },
+        { &g_screenShake, "g_screenShake", "0", CVAR_ARCHIVE, 0, qfalse },
 	{ &g_bobup,  "g_bobup", "0", CVAR_ARCHIVE, 0, qfalse },
         { &g_allowForcedModels, "g_allowForcedModels", "1", CVAR_ARCHIVE, 0, qfalse },
         { &g_brightModels, "g_brightModels", "1", CVAR_ARCHIVE, 0, qfalse },
         { &g_brightPlayerShells, "g_brightPlayerShells", "1", CVAR_ARCHIVE, 0, qfalse },
         { &g_brightPlayerOutlines, "g_brightPlayerOutlines", "1", CVAR_ARCHIVE, 0, qfalse },
-        { &g_friendsWallHack, "g_friendsWallHack", "0", CVAR_ARCHIVE, 0, qfalse },
-        { &g_friendsFlagIndicator, "g_friendsFlagIndicator", "0", CVAR_ARCHIVE, 0, qfalse },
+        { &g_friendsWallHack, "g_friendsWallHack", "1", CVAR_ARCHIVE, 0, qfalse },
+        { &g_friendsFlagIndicator, "g_friendsFlagIndicator", "1", CVAR_ARCHIVE, 0, qfalse },
         { &g_specShowZoom, "g_specShowZoom", "1", CVAR_ARCHIVE, 0, qfalse },
 
-        { &g_itemPickup, "g_itemPickup", "0", CVAR_ARCHIVE , 0, qtrue },
+        { &g_itemPickup, "g_itemPickup", "1", CVAR_ARCHIVE , 0, qtrue },
         { &g_itemDrop, "g_itemDrop", "0", CVAR_ARCHIVE , 0, qtrue },
         { &g_usesRatVM, "g_usesRatVM", "1", 0, 0, qfalse },
         { &g_usesRatEngine, "g_usesRatEngine", "0", CVAR_ROM | CVAR_INIT, 0, qfalse },
         { &g_mixedMode, "g_mixedMode", "0", CVAR_ARCHIVE, 0, qfalse },
         { &g_broadcastClients, "g_broadcastClients", "0", 0, 0, qfalse },
-        { &g_useExtendedScores, "g_useExtendedScores", "0", CVAR_ARCHIVE, 0, qfalse },
+        { &g_useExtendedScores, "g_useExtendedScores", "1", CVAR_ARCHIVE, 0, qfalse },
         { &g_statsboard, "g_statsboard", "1", CVAR_ARCHIVE, 0, qfalse },
         { &g_exportStats, "g_exportStats", "0", CVAR_ARCHIVE, 0, qfalse },
         { &g_ratFlags, "g_ratFlags", "0", CVAR_SERVERINFO, 0, qfalse },
@@ -674,17 +674,17 @@ static cvarTable_t		gameCvarTable[] = {
         { &g_botshandicapped, "g_botshandicapped", "1", CVAR_ARCHIVE, 0, qfalse },
         { &g_bots_randomcolors, "g_bots_randomcolors", "1", CVAR_ARCHIVE, 0, qfalse },
 
-        { &g_pingLocationAllowed, "g_pingLocationAllowed", "0", CVAR_ARCHIVE, 0, qfalse },
+        { &g_pingLocationAllowed, "g_pingLocationAllowed", "1", CVAR_ARCHIVE, 0, qfalse },
         { &g_pingLocationRadius, "g_pingLocationRadius", "300", CVAR_ARCHIVE, 0, qfalse },
         { &g_pingLocationFov, "g_pingLocationFov", "15", CVAR_ARCHIVE, 0, qfalse },
 
-        { &g_tauntAllowed, "g_tauntAllowed", "0", CVAR_ARCHIVE, 0, qfalse },
+        { &g_tauntAllowed, "g_tauntAllowed", "1", CVAR_ARCHIVE, 0, qfalse },
         { &g_tauntTime, "g_tauntTime", "5000", CVAR_ARCHIVE, 0, qfalse },
         { &g_tauntAfterDeathTime, "g_tauntAfterDeathTime", "1500", CVAR_ARCHIVE, 0, qfalse },
 
 // weapon config
 	{ &g_mgDamage,			"g_mgDamage", "6", 0, 0, qtrue },
-	{ &g_mgTeamDamage,		"g_mgTeamDamage", "5", 0, 0, qtrue },
+	{ &g_mgTeamDamage,		"g_mgTeamDamage", "6", 0, 0, qtrue },
 	{ &g_railgunDamage,		"g_railgunDamage", "80", 0, 0, qtrue },
 	{ &g_lgDamage, 			"g_lgDamage", "7", 0, 0, qtrue },
 
