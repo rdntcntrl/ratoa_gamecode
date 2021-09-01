@@ -2722,17 +2722,19 @@ void G_UnnamedPlayerRename(gentity_t *ent) {
 		char	userinfo[MAX_INFO_STRING];
 		char oldname[ MAX_NAME_LENGTH ];
 		char newname[ MAX_NAME_LENGTH ] = "";
-		char buffer[UNNAMEDRENAME_FILESIZE];
+		char *buffer;
 		char error[MAX_STRING_CHARS];
 		char *s;
 		int tries = 0;
 		int addedChars = 0;
 		qboolean nametaken = qtrue;
 
+		buffer = BG_Alloc(UNNAMEDRENAME_FILESIZE);
+
 		for (tries = 0; tries < UNNAMEDRENAME_MAX_TRIES; ++tries) {
 			memset(newname, 0, sizeof(newname));
 			addedChars = 0;
-			if (G_ReadNameFile(g_unnamedRenameAdjlist.string, buffer, sizeof(buffer))) {
+			if (G_ReadNameFile(g_unnamedRenameAdjlist.string, buffer, UNNAMEDRENAME_FILESIZE)) {
 				char name[MAX_NAME_LENGTH];
 				Q_strcat(newname, sizeof(newname), G_PickPlayerNameColor());
 				G_PickRandomName(buffer, name, sizeof(name));
@@ -2741,7 +2743,7 @@ void G_UnnamedPlayerRename(gentity_t *ent) {
 
 			}
 
-			if (G_ReadNameFile(g_unnamedRenameNounlist.string, buffer, sizeof(buffer))) {
+			if (G_ReadNameFile(g_unnamedRenameNounlist.string, buffer, UNNAMEDRENAME_FILESIZE)) {
 				char name[MAX_NAME_LENGTH];
 				G_PickRandomName(buffer, name, sizeof(name));
 				Q_strcat(newname, sizeof(newname), " ");
@@ -2792,6 +2794,8 @@ void G_UnnamedPlayerRename(gentity_t *ent) {
 				       	newname));
 
 		ent->client->sess.unnamedPlayerState = UNNAMEDSTATE_WASRENAMED;
+
+		BG_Free(buffer);
 
 	}
 }

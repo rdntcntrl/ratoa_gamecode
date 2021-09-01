@@ -387,7 +387,7 @@ void G_LoadArenas( void ) {
 	int			numdirs;
 	vmCvar_t	arenasFile;
 	char		filename[128];
-	char		dirlist[MAX_MAPNAME_BUFFER];
+	char		*dirlist;
 	char*		dirptr;
 	int			i, n;
 	int			dirlen;
@@ -395,6 +395,8 @@ void G_LoadArenas( void ) {
 	if (level.arenasLoaded) {
 		return;
 	}
+
+	dirlist = BG_Alloc(MAX_MAPNAME_BUFFER);
 
 	g_numArenas = 0;
 
@@ -407,7 +409,7 @@ void G_LoadArenas( void ) {
 	}
 
 	// get all arenas from .arena files
-	numdirs = trap_FS_GetFileList("scripts", ".arena", dirlist, sizeof(dirlist) );
+	numdirs = trap_FS_GetFileList("scripts", ".arena", dirlist, MAX_MAPNAME_BUFFER );
 	dirptr  = dirlist;
 	for (i = 0; i < numdirs; i++, dirptr += dirlen+1) {
 		dirlen = strlen(dirptr);
@@ -417,7 +419,7 @@ void G_LoadArenas( void ) {
 	}
 
 	// get additional (server-provided) map info from .mapdb files
-	numdirs = trap_FS_GetFileList(".", ".mapdb", dirlist, sizeof(dirlist) );
+	numdirs = trap_FS_GetFileList(".", ".mapdb", dirlist, MAX_MAPNAME_BUFFER );
 	dirptr  = dirlist;
 	for (i = 0; i < numdirs; i++, dirptr += dirlen+1) {
 		dirlen = strlen(dirptr);
@@ -432,6 +434,9 @@ void G_LoadArenas( void ) {
 	}
 
 	level.arenasLoaded = qtrue;
+
+out:
+	BG_Free(dirlist);
 }
 
 
