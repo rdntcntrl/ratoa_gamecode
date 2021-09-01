@@ -3913,6 +3913,7 @@ void CG_AutoRecordStart(void) {
 			// path separators
 			case '/':
 			case '\\':
+			case '|':
 				*p = '#';
 				continue;
 			// additional characters that aren't allowed on windows
