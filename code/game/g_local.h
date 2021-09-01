@@ -1657,6 +1657,7 @@ extern  vmCvar_t        g_startWhenReady;
 extern  vmCvar_t        g_autoStartTime;
 extern  vmCvar_t        g_autoStartMinPlayers;
 extern  vmCvar_t        g_countDownHealthArmor;
+extern  vmCvar_t        g_spawnHealthBonus;
 extern  vmCvar_t        g_powerupGlows;
 extern  vmCvar_t        g_screenShake;
 extern  vmCvar_t        g_bobup;

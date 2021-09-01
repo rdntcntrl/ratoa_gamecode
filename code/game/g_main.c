@@ -307,6 +307,7 @@ vmCvar_t        g_startWhenReady;
 vmCvar_t        g_autoStartTime;
 vmCvar_t        g_autoStartMinPlayers;
 vmCvar_t        g_countDownHealthArmor;
+vmCvar_t        g_spawnHealthBonus;
 vmCvar_t        g_powerupGlows;
 vmCvar_t        g_screenShake;
 vmCvar_t        g_allowForcedModels;
@@ -649,6 +650,7 @@ static cvarTable_t		gameCvarTable[] = {
         { &g_autoStartMinPlayers, "g_autoStartMinPlayers", "0", CVAR_ARCHIVE, 0, qfalse },
 
         { &g_countDownHealthArmor, "g_countDownHealthArmor", "1", CVAR_ARCHIVE , 0, qfalse },
+        { &g_spawnHealthBonus, "g_spawnHealthBonus", "25", CVAR_ARCHIVE, 0, qtrue },
 	
         { &g_powerupGlows, "g_powerupGlows", "1", CVAR_ARCHIVE, 0, qfalse },
         { &g_screenShake, "g_screenShake", "0", CVAR_ARCHIVE, 0, qfalse },
