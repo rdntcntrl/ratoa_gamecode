@@ -138,30 +138,35 @@ out:
 
 t_mappage getGTMappage(int page, qboolean largepage) {
 	t_mappage result;
-	struct maplist_s maplist;
+	struct maplist_s *maplist;
 	int maps_in_page = largepage ? MAPS_PER_LARGEPAGE : MAPS_PER_PAGE;
 	int i;
 	int start;
 
+	maplist = BG_Alloc(sizeof(*maplist));
+
 	// FIXME: not very optimized, this gets called for every page and
 	// assembles the complete list each time
-	getCompleteMaplist(qfalse, G_GametypeBitsCurrent(), 0, &maplist);
+	getCompleteMaplist(qfalse, G_GametypeBitsCurrent(), 0, maplist);
 
 	memset(&result,0,sizeof(result));
 	result.pagenumber = page;
 
 	start = maps_in_page * page;
-	if (start >= maplist.num) {
+	if (start >= maplist->num) {
 		if (page > 0) {
-			return getGTMappage(0, largepage);
+			result = getGTMappage(0, largepage);
+			goto out;
 		}
-		return result;
+		goto out;
 	}
 
-	for(i = 0; i < maps_in_page && i+start < maplist.num; ++i) {
-		Q_strncpyz(result.mapname[i],maplist.mapname[i+start],MAX_MAPNAME);
+	for(i = 0; i < maps_in_page && i+start < maplist->num; ++i) {
+		Q_strncpyz(result.mapname[i],maplist->mapname[i+start],MAX_MAPNAME);
 	}
 
+out:
+	BG_Free(maplist);
 	return result;
 }
 
