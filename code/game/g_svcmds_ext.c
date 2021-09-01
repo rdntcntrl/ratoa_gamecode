@@ -200,6 +200,9 @@ void Svcmd_DumpUser_f( void )
   info = &userinfo[ 0 ];
   G_Printf( "userinfo\n--------\n" );
   //Info_Print( userinfo );
+  G_Printf("%-20s%f\n", 
+		  "estimated fps",
+		  cl->pers.fps_nframes > 0 ? 1000.0/((float)cl->pers.fps_time/(float)cl->pers.fps_nframes) : 0.0);
   while( 1 )
   {
     Info_NextPair( &info, key, value );

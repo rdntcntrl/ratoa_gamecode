@@ -1176,6 +1176,15 @@ void ClientThink_real( gentity_t *ent ) {
 		return;
 	}
 
+	if (client->pers.fps_last > 0) {
+		int ms = trap_Milliseconds();
+		client->pers.fps_time += ms - client->pers.fps_last;
+		client->pers.fps_nframes++;
+		client->pers.fps_last = ms;
+	} else {
+		client->pers.fps_last = trap_Milliseconds();
+	}
+
 	// broadcast players who are alive such that they can be seen
 	// immediately when going through teleporters (with client-side teleport prediction)
 	// (Normally, the server only sends entities client when they in LOS of
