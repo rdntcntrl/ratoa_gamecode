@@ -3540,7 +3540,6 @@ static void CG_DrawUpperRight(stereoFrame_t stereoFrame)
 }
 
 int CG_GetScoresMtrn(int scoreNum) {
-	int gameId = 0;
 	clientInfo_t *ci = &cgs.clientinfo [ cg.snap->ps.clientNum ];
 	if (!ci->infoValid
 			|| ci->gameId < 0 
