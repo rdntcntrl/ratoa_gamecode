@@ -2068,6 +2068,9 @@ static void CG_ServerCommand( void ) {
 	}
 
 	if ( !strcmp( cmd, "chat" ) ) {
+		if (!cg_chat.integer) {
+			return;
+		}
 		if ( !cg_teamChatsOnly.integer ) {
                         if( cg_chatBeep.integer )
                                 trap_S_StartLocalSound( cgs.media.talkSound, CHAN_LOCAL_SOUND );
@@ -2079,6 +2082,9 @@ static void CG_ServerCommand( void ) {
 	}
 
 	if ( !strcmp( cmd, "tchat" ) ) {
+		if (!cg_chat.integer) {
+			return;
+		}
                 if( cg_teamChatBeep.integer )
                         trap_S_StartLocalSound( cgs.media.teamTalkSound, CHAN_LOCAL_SOUND );
 		Q_strncpyz( text, CG_Argv(1), MAX_CHAT_TEXT );
@@ -2088,16 +2094,25 @@ static void CG_ServerCommand( void ) {
 		return;
 	}
 	if ( !strcmp( cmd, "vchat" ) ) {
+		if (!cg_chat.integer) {
+			return;
+		}
 		CG_VoiceChat( SAY_ALL );
 		return;
 	}
 
 	if ( !strcmp( cmd, "vtchat" ) ) {
+		if (!cg_chat.integer) {
+			return;
+		}
 		CG_VoiceChat( SAY_TEAM );
 		return;
 	}
 
 	if ( !strcmp( cmd, "vtell" ) ) {
+		if (!cg_chat.integer) {
+			return;
+		}
 		CG_VoiceChat( SAY_TELL );
 		return;
 	}

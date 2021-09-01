@@ -1700,6 +1700,7 @@ extern  vmCvar_t		cg_friendHudMarkerSize;
 extern  vmCvar_t		cg_friendHudMarkerMaxScale;
 extern  vmCvar_t		cg_friendHudMarkerMinScale;
 extern	vmCvar_t		cg_teamChatsOnly;
+extern	vmCvar_t		cg_chat;
 extern	vmCvar_t		cg_noVoiceChats;
 extern	vmCvar_t		cg_noVoiceText;
 extern  vmCvar_t		cg_scorePlum;
