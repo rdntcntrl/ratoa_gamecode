@@ -227,9 +227,8 @@ qboolean	PM_SlideMove( qboolean gravity ) {
 static float PM_GetUpStepVelocityCap(pmove_t *pm) {
 	switch (pm->pmove_movement) {
 	case MOVEMENT_CPM:
+	case MOVEMENT_RM:
 		return 25.0f * pm->ps->gravity * pml.frametime;
-	// case MOVEMENT_RM:
-	// 	return 0.0f;
 	default:
 		return 0.0f;
 	}
