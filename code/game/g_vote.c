@@ -187,11 +187,13 @@ static qboolean MapFilter(const char *mapname, int gametypebits_filter, int numP
 void getCompleteMaplist(qboolean recommenedonly, int gametypebits_filter, int numPlayers, struct maplist_s *out) {
 	fileHandle_t	file;
 	char *token,*pointer;
-	char buffer[MAX_MAPNAME_BUFFER];
+	char *buffer;
 	int nummaps, maplen;
 
+	buffer = BG_Alloc(MAX_MAPNAME_BUFFER);
+
 	memset(out,0,sizeof(*out));
-        memset(&buffer,0,sizeof(buffer));
+        memset(buffer,0,MAX_MAPNAME_BUFFER);
 
 	//Check if there is a votemaps.cfg
 	trap_FS_FOpenFile(g_votemaps.string,&file,FS_READ);
@@ -207,7 +209,7 @@ void getCompleteMaplist(qboolean recommenedonly, int gametypebits_filter, int nu
 	if(file)
 	{
 		//there is a recommendedmaps file or a votemaps.cfg file, take allowed maps from there
-		trap_FS_Read(&buffer,sizeof(buffer)-1,file);
+		trap_FS_Read(buffer,MAX_MAPNAME_BUFFER-1,file);
 		pointer = buffer;
 		token = COM_Parse(&pointer);
 		while (token && token[0] != 0 && out->num < MAX_MAPS) {
@@ -218,13 +220,13 @@ void getCompleteMaplist(qboolean recommenedonly, int gametypebits_filter, int nu
 			token = COM_Parse(&pointer);
 		}
                 trap_FS_FCloseFile(file);
-		return;
+		goto out;
 	}
 	if (!file && recommenedonly) {
-		return;
+		goto out;
 	}
 
-        nummaps = trap_FS_GetFileList("maps",".bsp",buffer,sizeof(buffer));
+        nummaps = trap_FS_GetFileList("maps",".bsp",buffer,MAX_MAPNAME_BUFFER);
         pointer = buffer;
 
 	if (nummaps > MAX_MAPS) {
@@ -245,7 +247,8 @@ void getCompleteMaplist(qboolean recommenedonly, int gametypebits_filter, int nu
 			out->num++;
 		}
 	}
-        return;
+out:
+	BG_Free(buffer);
 }
 
 /*
