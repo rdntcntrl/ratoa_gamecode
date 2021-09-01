@@ -111,7 +111,7 @@ void TeleportPlayer( gentity_t *player, vec3_t origin, vec3_t angles ) {
 	// toggle the teleport bit so the client knows to not lerp
 	player->client->ps.eFlags ^= EF_TELEPORT_BIT;
 
-	if (g_movement.integer == RAT_MOVEMENT_RM) {
+	if (g_movement.integer == MOVEMENT_RM) {
 		// reset rampjump
 		player->client->ps.stats[STAT_JUMPTIME] = 0;
 	}

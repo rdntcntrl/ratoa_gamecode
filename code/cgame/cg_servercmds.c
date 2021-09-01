@@ -1057,8 +1057,8 @@ void CG_ParseServerinfo( void ) {
 	trap_Cvar_Set("g_ratFlags", va("%i", cgs.ratFlags));
 
 	cgs.movement = atoi( Info_ValueForKey( info, "g_movement" ) );
-	if ((cgs.movement > RAT_MOVEMENT_RM) || (cgs.movement < RAT_MOVEMENT_VQ3)) {
-		cgs.movement = RAT_MOVEMENT_VQ3;
+	if ((cgs.movement >= MOVEMENT_NUM_MOVEMENTS) || (cgs.movement < MOVEMENT_VQ3)) {
+		cgs.movement = MOVEMENT_VQ3;
 	}
 	trap_Cvar_Set("g_movement", va("%i", cgs.movement));
 

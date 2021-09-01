@@ -1929,3 +1929,26 @@ char *BG_TeamName( team_t team )
     return "Free For All";
   return "<team>";
 }
+
+char *BG_MovementToString( movement_t movement )
+{
+	switch (movement) {
+	case MOVEMENT_CPM:
+		return "CPM";
+	case MOVEMENT_RM:
+		return "RM";
+	default:
+		return "VQ3";
+	}
+}
+
+movement_t BG_MovementFromString( const char *s )
+{
+	if (Q_stricmp(BG_MovementToString(MOVEMENT_CPM), s) == 0) {
+		return MOVEMENT_CPM;
+	} else if (Q_stricmp(BG_MovementToString(MOVEMENT_RM), s) == 0) {
+		return MOVEMENT_RM;
+	} else {
+		return MOVEMENT_VQ3;
+	}
+}

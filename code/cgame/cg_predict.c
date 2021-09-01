@@ -572,7 +572,7 @@ static void CG_TouchTriggerPrediction( void ) {
 					cg.predictedPlayerState.pm_time = 160;
 					cg.predictedPlayerState.pm_flags |= PMF_TIME_KNOCKBACK;
 
-					if (cgs.movement == RAT_MOVEMENT_RM) {
+					if (cgs.movement == MOVEMENT_RM) {
 						// reset rampjump
 						cg.predictedPlayerState.stats[STAT_JUMPTIME] = 0;
 					}

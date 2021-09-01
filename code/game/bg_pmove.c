@@ -665,50 +665,55 @@ static float PM_GetSwimscale(pmove_t *pm) {
 
 static float PM_GetAccelerate(pmove_t *pm) {
 	switch (pm->pmove_movement) {
-	case RAT_MOVEMENT_CPM:
+	case MOVEMENT_CPM:
 		return pm_cpm_accelerate;
-	case RAT_MOVEMENT_RM:
+	case MOVEMENT_RM:
 		return pm_rat_accelerate;
+	default:
+		return pm_accelerate;
 	}
-	return pm_accelerate;
 }
 
 static float PM_GetAirAccelerate(pmove_t *pm) {
 	switch (pm->pmove_movement) {
-	case RAT_MOVEMENT_CPM:
+	case MOVEMENT_CPM:
 		return pm_cpm_airaccelerate;
-	case RAT_MOVEMENT_RM:
+	case MOVEMENT_RM:
 		return pm_rat_airaccelerate;
+	default:
+		return pm_airaccelerate;
 	}
-	return pm_airaccelerate;
 }
 
 static float PM_GetAirStrafeAccelerate(pmove_t *pm) {
 	switch (pm->pmove_movement) {
-	case RAT_MOVEMENT_CPM:
+	case MOVEMENT_CPM:
 		return pm_cpm_airstrafeaccelerate;
-	case RAT_MOVEMENT_RM:
+	case MOVEMENT_RM:
 		return pm_rat_airstrafeaccelerate;
+	default:
+		return pm_airaccelerate;
 	}
-	return pm_airaccelerate;
 }
 
 static float PM_GetAirStopAccelerate(pmove_t *pm) {
 	switch (pm->pmove_movement) {
-	case RAT_MOVEMENT_CPM:
+	case MOVEMENT_CPM:
 		return pm_cpm_airstopaccelerate;
+	default:
+		return 0.0f;
 	}
-	return 0.0f;
 }
 
 static float PM_GetAirStrafeWishspeed(pmove_t *pm) {
 	switch (pm->pmove_movement) {
 	// case MOVEMENT_CPM:
 	// 	return pm_cpm_airstrafewishspeed;
-	case RAT_MOVEMENT_RM:
+	case MOVEMENT_RM:
 		return pm_rat_airstrafewishspeed;
+	default:
+		return pm_cpm_airstrafewishspeed;
 	}
-	return pm_cpm_airstrafewishspeed;
 }
 
 
@@ -825,7 +830,7 @@ static void PM_AirMove( void ) {
 	
 	// begin Xonotic Darkplaces Air Control
 	switch (pm->pmove_movement) {
-	case RAT_MOVEMENT_CPM:
+	case MOVEMENT_CPM:
 	// case MOVEMENT_RM:
 		curdir[0] = pm->ps->velocity[0];
 		curdir[1] = pm->ps->velocity[1];
@@ -835,6 +840,9 @@ static void PM_AirMove( void ) {
 			dot = -DotProduct(curdir, wishdir);
 			accel = accel + (PM_GetAirStopAccelerate(pm) - accel) * (dot > 0 ? dot : 0);
 		}
+		break;
+	default: // shut up the compiler
+		break;
 	}
 	// end Xonotic Darkplaces Air Control
 	
@@ -850,9 +858,12 @@ static void PM_AirMove( void ) {
 
 	// begin Xonotic Darkplaces Air Control
 	switch (pm->pmove_movement) {
-	case RAT_MOVEMENT_CPM:
+	case MOVEMENT_CPM:
 	// case MOVEMENT_RM:
 		PM_CPM_Aircontrol(pm, wishdir, wishspeed2);
+		break;
+	default:
+		break;
 	}
 	// end Xonotic Darkplaces Air Control
 
@@ -1023,7 +1034,7 @@ static void PM_WalkMove( void ) {
 	if ( pm->waterlevel ) {
 		float	waterScale;
 
-		if ((pm->pmove_movement != RAT_MOVEMENT_RM) || pm->waterlevel != 1) {
+		if ((pm->pmove_movement != MOVEMENT_RM) || pm->waterlevel != 1) {
 			waterScale = pm->waterlevel / 3.0;
 			waterScale = 1.0 - ( 1.0 - PM_GetSwimscale(pm) ) * waterScale;
 			if ( wishspeed > pm->ps->speed * waterScale ) {
@@ -1037,7 +1048,7 @@ static void PM_WalkMove( void ) {
 	if ( ( pml.groundTrace.surfaceFlags & SURF_SLICK ) || pm->ps->pm_flags & PMF_TIME_KNOCKBACK ) {
 		// Slick and ground boost (probably).
 		switch (pm->pmove_movement) {
-		case RAT_MOVEMENT_CPM:
+		case MOVEMENT_CPM:
 			accelerate = PM_GetAccelerate(pm);
 			break;
 		default:
