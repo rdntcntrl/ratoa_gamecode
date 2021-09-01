@@ -5483,7 +5483,7 @@ qboolean G_MultiTrnGameOpen(multiTrnGame_t *game) {
 }
 
 qboolean G_MultiTrnCanJoinGame(int gameId) {
-	if (gameId < 0 || gameId >= level.multiTrnNumGames) {
+	if (!G_ValidGameId(gameId)) {
 		return qfalse;
 	}
 	return G_MultiTrnGameOpen(&level.multiTrnGames[gameId]);

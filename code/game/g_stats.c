@@ -269,7 +269,7 @@ qboolean G_ShouldRecordMtrnGame(int gameId) {
 	int i;
 	multiTrnGame_t *game;
 
-	if (gameId < 0 || gameId >= MULTITRN_MAX_GAMES) {
+	if (!G_ValidGameId(gameId)) {
 		return qfalse;
 	}
        

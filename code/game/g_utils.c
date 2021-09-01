@@ -705,7 +705,7 @@ int DebugLine(vec3_t start, vec3_t end, int color) {
 }
 
 qboolean G_ValidGameId(int gameId) {
-	return (gameId >= 0 && gameId <= level.multiTrnNumGames);
+	return (gameId >= 0 && gameId < level.multiTrnNumGames);
 }
 
 qboolean G_InUse(gentity_t *ent) {

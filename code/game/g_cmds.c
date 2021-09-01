@@ -1304,7 +1304,7 @@ void SetTeam_Force( gentity_t *ent, char *s, gentity_t *by, qboolean tryforce ) 
 	} else if ( g_gametype.integer == GT_MULTITOURNAMENT && s[0] >= '0' && s[0] <= '9' ) {
 		team = TEAM_FREE;
 		wantGameId = atoi(s);
-		if (wantGameId < 0 || wantGameId >= level.multiTrnNumGames) {
+		if (!G_ValidGameId(wantGameId)) {
 			trap_SendServerCommand( ent - g_entities,
 					"print \"Invalid game id!\n\"" );
 			return;
@@ -2091,7 +2091,7 @@ void Cmd_Game_f( gentity_t *ent ) {
 	}
 	trap_Argv( 1, arg, sizeof( arg ) );
 	gameId = atoi(arg);
-	if (gameId != MTRN_GAMEID_ANY && (gameId <= 0 || gameId >= level.multiTrnNumGames)) {
+	if (gameId != MTRN_GAMEID_ANY && !G_ValidGameId(gameId)) {
 		trap_SendServerCommand( ent - g_entities, va("print \"Invalid Game Id\n\""));
 		return;
 	}
@@ -2126,7 +2126,7 @@ void Cmd_SpecGame_f( gentity_t *ent ) {
 
 	trap_Argv( 1, arg, sizeof( arg ) );
 	gameId = atoi(arg);
-	if (gameId < 0 || gameId >= level.multiTrnNumGames) {
+	if (!G_ValidGameId(gameId)) {
 		trap_SendServerCommand( ent - g_entities, va("print \"Invalid Game Id\n\""));
 		return;
 	}
