@@ -28,7 +28,7 @@ It adds many new features and quality improvements, among them are:
 - improved weapon visuals (e.g. rail, rockets, lightning gun, grenades, ..)
 - pause/unpause feature
 - physics improvements
-- physics settings: additive jump, ramjump, ratmode (more aircontrol), etc.
+- physics settings: additive jump, rampjump, ratmode (more aircontrol), etc.
 - taunts
 - numerous bugfixes and quality improvements
 - ...and much more!
