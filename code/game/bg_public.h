@@ -220,6 +220,8 @@ typedef struct {
         int                     pmove_flags;
         //more flags affecting movement (see g_ratFlags)
         int                     pmove_ratflags;
+        // Selects between VQ3, CPM, and RM.
+        int                     pmove_movement;
 
 	// callbacks to test the world
 	// these will be different functions during game and cgame
@@ -840,7 +842,7 @@ qboolean	BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const play
 #define RAT_PREDICTMISSILES 	(1 << 3)
 #define RAT_FASTSWITCH 		(1 << 4)
 #define RAT_FASTWEAPONS 	(1 << 5)
-#define RAT_RATPHYSICS 		(1 << 6)
+// #define RAT_RATPHYSICS 		(1 << 6)
 #define RAT_RAMPJUMP 		(1 << 7)
 #define RAT_ALLOWFORCEDMODELS 	(1 << 8)
 #define RAT_FRIENDSWALLHACK 	(1 << 9)
@@ -865,6 +867,10 @@ qboolean	BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const play
 
 #define SCORE_RATINDICATOR_HASRAT  	1
 #define SCORE_RATINDICATOR_ISREGISTERED 2
+
+#define RAT_MOVEMENT_VQ3	0
+#define RAT_MOVEMENT_CPM	1
+#define RAT_MOVEMENT_RM		2
 
 // for treasure hunter
 typedef enum {

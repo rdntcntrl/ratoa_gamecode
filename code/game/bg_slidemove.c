@@ -224,6 +224,16 @@ qboolean	PM_SlideMove( qboolean gravity ) {
 	return ( bumpcount != 0 );
 }
 
+static float PM_GetUpStepVelocityCap(pmove_t *pm) {
+	switch (pm->pmove_movement) {
+	case RAT_MOVEMENT_CPM:
+		return 25.0f * pm->ps->gravity * pml.frametime;
+	// case MOVEMENT_RM:
+	// 	return 0.0f;
+	}
+	return 0.0f;
+}
+
 /*
 ==================
 PM_StepSlideMove
@@ -250,8 +260,8 @@ void PM_StepSlideMove( qboolean gravity ) {
 	down[2] -= STEPSIZE;
 	pm->trace (&trace, start_o, pm->mins, pm->maxs, down, pm->ps->clientNum, pm->tracemask);
 	VectorSet(up, 0, 0, 1);
-	// never step up when you still have up velocity
-	if ( pm->ps->velocity[2] > 0 && (trace.fraction == 1.0 ||
+	// almost never step up when you still have up velocity
+	if ( pm->ps->velocity[2] > PM_GetUpStepVelocityCap(pm) && (trace.fraction == 1.0 ||
 										DotProduct(trace.plane.normal, up) < 0.7)) {
 		return;
 	}

@@ -572,8 +572,10 @@ static void CG_TouchTriggerPrediction( void ) {
 					cg.predictedPlayerState.pm_time = 160;
 					cg.predictedPlayerState.pm_flags |= PMF_TIME_KNOCKBACK;
 
-					// reset rampjump
-					cg.predictedPlayerState.stats[STAT_JUMPTIME] = 0;
+					if (cgs.movement == RAT_MOVEMENT_RM) {
+						// reset rampjump
+						cg.predictedPlayerState.stats[STAT_JUMPTIME] = 0;
+					}
 
 					// set the delta angle
 					for (i=0 ; i<3 ; i++) {
@@ -857,6 +859,7 @@ void CG_PredictPlayerState( void ) {
         cg_pmove.pmove_float = pmove_float.integer;
         cg_pmove.pmove_flags = cgs.dmflags;
         cg_pmove.pmove_ratflags = cgs.ratFlags;
+        cg_pmove.pmove_movement = cgs.movement;
         
 
 //unlagged - optimized prediction

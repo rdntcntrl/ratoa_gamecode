@@ -704,6 +704,21 @@ void Cmd_Acc_f( gentity_t *ent ) {
 ==================
 */
 void Cmd_Rules_f( gentity_t *ent ) {
+	char *movement = NULL;
+	switch (g_movement.integer) {
+	// case RAT_MOVEMENT_VQ3:
+	// 	movement = "VQ3";
+	// 	break;
+	case RAT_MOVEMENT_CPM:
+		movement = "CPM";
+		break;
+	case RAT_MOVEMENT_RM:
+		movement = "RM";
+		break;
+	default:
+		movement = "VQ3";
+	}
+	
 	trap_SendServerCommand( ent-g_entities, va("print \""
 				"Server rules:\n"
 				" -Fast weapon switch:    %s" S_COLOR_WHITE "\n"
@@ -715,7 +730,7 @@ void Cmd_Rules_f( gentity_t *ent ) {
 				" -Item pickup height:    %s" S_COLOR_WHITE "\n"
 				" -Powerup glows:         %s" S_COLOR_WHITE "\n"
 				" -Screen shake upon hit: %s" S_COLOR_WHITE "\n"
-				" -Rat physics:           %s" S_COLOR_WHITE "\n"
+				" -movement:              " S_COLOR_WHITE "%s\n"
 				" -Jumppad grenades:      %s" S_COLOR_WHITE "\n"
 				" -Tele missiles:         %s" S_COLOR_WHITE "\n"
 				"\"", 
@@ -728,7 +743,7 @@ void Cmd_Rules_f( gentity_t *ent ) {
 				g_itemPickup.integer ? "high" : "low",
 				g_powerupGlows.integer ? S_COLOR_GREEN "ON" : S_COLOR_RED "OFF",
 				g_screenShake.integer ? S_COLOR_GREEN "ON" : S_COLOR_RED "OFF",
-				g_ratPhysics.integer ? S_COLOR_GREEN "ON" : S_COLOR_RED "OFF",
+				movement,
 				g_pushGrenades.integer ? S_COLOR_GREEN "ON" : S_COLOR_RED "OFF",
 				g_teleMissiles.integer ? S_COLOR_GREEN "ON" : S_COLOR_RED "OFF"
 
