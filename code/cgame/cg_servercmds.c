@@ -1056,7 +1056,12 @@ void CG_ParseServerinfo( void ) {
 	cgs.ratFlags = atoi( Info_ValueForKey( info, "g_ratFlags" ) );
 	trap_Cvar_Set("g_ratFlags", va("%i", cgs.ratFlags));
 
-	trap_Cvar_Set("g_ratPhysics", va("%i", (cgs.ratFlags & RAT_RATPHYSICS) ? 1 : 0));
+	cgs.movement = atoi( Info_ValueForKey( info, "g_movement" ) );
+	if ((cgs.movement > RAT_MOVEMENT_RM) || (cgs.movement < RAT_MOVEMENT_VQ3)) {
+		cgs.movement = RAT_MOVEMENT_VQ3;
+	}
+	trap_Cvar_Set("g_movement", va("%i", cgs.movement));
+
 	trap_Cvar_Set("g_rampJump", va("%i", (cgs.ratFlags & RAT_RAMPJUMP) ? 1 : 0));
 	trap_Cvar_Set("g_additiveJump", va("%i", (cgs.ratFlags & RAT_ADDITIVEJUMP) ? 1 : 0));
 	trap_Cvar_Set("g_fastSwim", va("%i", (cgs.ratFlags & RAT_FASTSWIM) ? 1 : 0));

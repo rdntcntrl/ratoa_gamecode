@@ -1589,6 +1589,7 @@ typedef struct {
     int		delagMissileMaxLatency;
     int		predictedMissileNudge;
     int		ratFlags;
+    int		movement;
     float	maxBrightshellAlpha;
     int		timeoutEnd;
     int		timeoutOvertime;
@@ -1705,7 +1706,7 @@ extern  vmCvar_t		cg_scorePlum;
 
 extern vmCvar_t                	cg_ratInitialized;
 
-extern vmCvar_t                	g_ratPhysics;
+extern vmCvar_t                	g_movement;
 extern vmCvar_t                	g_rampJump;
 extern vmCvar_t                	g_additiveJump;
 extern vmCvar_t                	g_swingGrapple;

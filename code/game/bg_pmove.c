@@ -31,24 +31,33 @@ pmove_t		*pm;
 pml_t		pml;
 
 // movement parameters
-float	pm_stopspeed = 100.0f;
-float	pm_duckScale = 0.25f;
-float	pm_swimScale = 0.50;
-float	pm_swimScaleFast = 0.75f;
-float	pm_wadeScale = 0.70f;
+const float	pm_stopspeed = 100.0f;
+const float	pm_duckScale = 0.25f;
+const float	pm_swimScale = 0.50;
+const float	pm_swimScaleFast = 0.75f;
+const float	pm_wadeScale = 0.70f;
 
-float	pm_accelerate = 10.0f;
-float	pm_airaccelerate = 1.0f;
-float	pm_wateraccelerate = 4.0f;
-float	pm_flyaccelerate = 8.0f;
+const float	pm_accelerate = 10.0f;
+const float	pm_airaccelerate = 1.0f;
+const float	pm_wateraccelerate = 4.0f;
+const float	pm_flyaccelerate = 8.0f;
 
-float	pm_rat_accelerate = 14.0f;
-float	pm_rat_airaccelerate = 2.4f;
+const float	pm_rat_accelerate = 14.0f;
+const float	pm_rat_airaccelerate = 2.4f;
+const float	pm_rat_airstrafeaccelerate = 40.0f;
+const float	pm_rat_airstrafewishspeed = 42.0f;
 
-float	pm_friction = 6.0f;
-float	pm_waterfriction = 1.0f;
-float	pm_flightfriction = 3.0f;
-float	pm_spectatorfriction = 5.0f;
+const float	pm_cpm_accelerate = 15.0f;
+const float	pm_cpm_airaccelerate = 1.0f;
+const float	pm_cpm_airstopaccelerate = 2.5f;
+const float	pm_cpm_airstrafeaccelerate = 70.0f;
+const float	pm_cpm_airstrafewishspeed = 30.0f;
+const float	pm_cpm_aircontrol = 150.0f;
+
+const float	pm_friction = 6.0f;
+const float	pm_waterfriction = 1.0f;
+const float	pm_flightfriction = 3.0f;
+const float	pm_spectatorfriction = 5.0f;
 
 int		c_pmove = 0;
 
@@ -262,7 +271,6 @@ static void PM_Friction( void ) {
 	vel[2] = vel[2] * newspeed;
 }
 
-
 /*
 ==============
 PM_Accelerate
@@ -425,18 +433,17 @@ static qboolean PM_CheckJump( void ) {
 	pm->ps->groundEntityNum = ENTITYNUM_NONE;
 
 	if ( (pm->pmove_ratflags & (RAT_RAMPJUMP | RAT_ADDITIVEJUMP)) && (pm->ps->velocity[2] >= 0) ) {
-		if (pm->ps->stats[STAT_JUMPTIME] > 0 && (pm->pmove_ratflags & RAT_RAMPJUMP)) {
-			//float speed = sqrt(pml.forward[0]*pml.forward[0] + pml.forward[1]*pml.forward[1]);
-			//pm->ps->velocity[0] += (pml.forward[0]/speed)*80;
-			//pm->ps->velocity[1] += (pml.forward[1]/speed)*80;
-			pm->ps->velocity[2] += JUMP_VELOCITY + 100;
-		} else {
-			pm->ps->velocity[2] += JUMP_VELOCITY;
-		}
+		pm->ps->velocity[2] += JUMP_VELOCITY;
 	} else {
 		pm->ps->velocity[2] = JUMP_VELOCITY;
 	}
 
+	if (pm->ps->stats[STAT_JUMPTIME] > 0 && (pm->pmove_ratflags & RAT_RAMPJUMP)) {
+		//float speed = sqrt(pml.forward[0]*pml.forward[0] + pml.forward[1]*pml.forward[1]);
+		//pm->ps->velocity[0] += (pml.forward[0]/speed)*80;
+		//pm->ps->velocity[1] += (pml.forward[1]/speed)*80;
+		pm->ps->velocity[2] += 100;
+	}
 	pm->ps->stats[STAT_JUMPTIME] = 400;
 
 	PM_AddEvent( EV_JUMP );
@@ -657,17 +664,116 @@ static float PM_GetSwimscale(pmove_t *pm) {
 }
 
 static float PM_GetAccelerate(pmove_t *pm) {
-	if (pm->pmove_ratflags & RAT_RATPHYSICS) {
+	switch (pm->pmove_movement) {
+	case RAT_MOVEMENT_CPM:
+		return pm_cpm_accelerate;
+	case RAT_MOVEMENT_RM:
 		return pm_rat_accelerate;
 	}
 	return pm_accelerate;
 }
 
 static float PM_GetAirAccelerate(pmove_t *pm) {
-	if (pm->pmove_ratflags & RAT_RATPHYSICS) {
+	switch (pm->pmove_movement) {
+	case RAT_MOVEMENT_CPM:
+		return pm_cpm_airaccelerate;
+	case RAT_MOVEMENT_RM:
 		return pm_rat_airaccelerate;
 	}
 	return pm_airaccelerate;
+}
+
+static float PM_GetAirStrafeAccelerate(pmove_t *pm) {
+	switch (pm->pmove_movement) {
+	case RAT_MOVEMENT_CPM:
+		return pm_cpm_airstrafeaccelerate;
+	case RAT_MOVEMENT_RM:
+		return pm_rat_airstrafeaccelerate;
+	}
+	return pm_airaccelerate;
+}
+
+static float PM_GetAirStopAccelerate(pmove_t *pm) {
+	switch (pm->pmove_movement) {
+	case RAT_MOVEMENT_CPM:
+		return pm_cpm_airstopaccelerate;
+	}
+	return 0.0f;
+}
+
+static float PM_GetAirStrafeWishspeed(pmove_t *pm) {
+	switch (pm->pmove_movement) {
+	// case MOVEMENT_CPM:
+	// 	return pm_cpm_airstrafewishspeed;
+	case RAT_MOVEMENT_RM:
+		return pm_rat_airstrafewishspeed;
+	}
+	return pm_cpm_airstrafewishspeed;
+}
+
+
+/*
+==================
+PM_IsMoveInDirection
+
+Copied with edits from cl_input.c from Xonotic's Darkplaces engine, which is
+covered under the GPLv2+ license.
+==================
+*/
+static vec_t PM_IsMoveInDirection(vec_t forward, vec_t side, vec_t angle)
+{
+	if(forward == 0 && side == 0)
+		return 0; // avoid division by zero
+	angle -= RAD2DEG(atan2(side, forward));
+	angle = (AngleMod(angle + 180) - 180) / 45;
+	if(angle >  1)
+		return 0;
+	if(angle < -1)
+		return 0;
+	return 1 - fabs(angle);
+}
+
+/*
+==================
+CL_ClientMovement_Physics_CPM_PM_Aircontrol
+
+Copied with edits from cl_input.c from Xonotic's Darkplaces engine, which is
+covered under the GPLv2+ license.
+==================
+*/
+static void PM_CPM_Aircontrol(pmove_t *pm, vec3_t wishdir, vec_t wishspeed)
+{
+	vec_t zspeed, speed, dot, k;
+
+#if 0
+	// this doesn't play well with analog input
+	if(pm->cmd.forwardmove == 0 || pm->cmd.rightmove != 0)
+		return;
+	k = 32;
+#else
+	k = 32 * (2 * PM_IsMoveInDirection(pm->cmd.forwardmove, pm->cmd.rightmove, 0) - 1);
+	if(k <= 0)
+		return;
+#endif
+
+	k *= Com_Clamp(0, 1, wishspeed / PM_GetAirStrafeWishspeed(pm));
+
+	zspeed = pm->ps->velocity[2];
+	pm->ps->velocity[2] = 0;
+	speed = VectorNormalize(pm->ps->velocity);
+
+	dot = DotProduct(pm->ps->velocity, wishdir);
+
+	if(dot > 0) { // we can't change direction while slowing down
+		k *= dot*dot*pml.frametime;
+		k *= pm_cpm_aircontrol;
+		VectorMA(vec3_origin, speed, pm->ps->velocity, pm->ps->velocity);
+		VectorMA(pm->ps->velocity, k, wishdir, pm->ps->velocity);
+		VectorNormalize(pm->ps->velocity);
+	}
+
+	VectorScale(pm->ps->velocity, speed, pm->ps->velocity);
+	pm->ps->velocity[2] = zspeed;
 }
 
 
@@ -682,11 +788,13 @@ static void PM_AirMove( void ) {
 	vec3_t		wishvel;
 	float		fmove, smove;
 	vec3_t		wishdir;
-	float		wishspeed;
+	float		wishspeed, wishspeed2;
 	float		scale;
 	usercmd_t	cmd;
 	float		accel = PM_GetAirAccelerate(pm);
 	float		zspeed;
+	vec3_t		curdir;
+	float		dot;
 
 	PM_Friction();
 
@@ -713,18 +821,40 @@ static void PM_AirMove( void ) {
 	VectorCopy (wishvel, wishdir);
 	wishspeed = VectorNormalize(wishdir);
 	wishspeed *= scale;
-
-	if (pm->pmove_ratflags & RAT_RATPHYSICS) {
+	wishspeed2 = wishspeed;
+	
+	// begin Xonotic Darkplaces Air Control
+	switch (pm->pmove_movement) {
+	case RAT_MOVEMENT_CPM:
+	// case MOVEMENT_RM:
+		curdir[0] = pm->ps->velocity[0];
+		curdir[1] = pm->ps->velocity[1];
+		curdir[2] = 0;
+		VectorNormalize(curdir);
+		if (PM_GetAirStopAccelerate(pm)) {
+			dot = -DotProduct(curdir, wishdir);
+			accel = accel + (PM_GetAirStopAccelerate(pm) - accel) * (dot > 0 ? dot : 0);
+		}
+	}
+	// end Xonotic Darkplaces Air Control
+	
+	if (pm->pmove_movement) {
 		if (fmove == 0 && smove != 0) {
-			if (wishspeed > 42.0) {
-				wishspeed = 42.0;
-			}
-			accel = 40.0f;
+			wishspeed = PM_GetAirStrafeWishspeed(pm);
+			accel = PM_GetAirStrafeAccelerate(pm);
 		}
 	} 
 
 	// not on ground, so little effect on velocity
 	PM_Accelerate (wishdir, wishspeed, accel);
+
+	// begin Xonotic Darkplaces Air Control
+	switch (pm->pmove_movement) {
+	case RAT_MOVEMENT_CPM:
+	// case MOVEMENT_RM:
+		PM_CPM_Aircontrol(pm, wishdir, wishspeed2);
+	}
+	// end Xonotic Darkplaces Air Control
 
 	zspeed = pm->ps->velocity[2];
 
@@ -749,8 +879,10 @@ static void PM_AirMove( void ) {
 	PM_StepSlideMove ( qtrue );
 
 	// Did we collide with the ground? No? Set the overbounce flag.
-	// zspeed and pm->ps->veloicty[2] are both negative in a fall.
+	// zspeed and pm->ps->velocity[2] are both negative in a fall.
 	// If they are both positive, the result shouldn't matter.
+	/* The above is a lie. Collisions with ramps can still happen when vertical
+	velocity is slightly positve. */
 	if ( zspeed < pm->ps->velocity[2] ) {
 		pm->ps->stats[STAT_OVERBOUNCE] = 0;
 	} else {
@@ -891,7 +1023,7 @@ static void PM_WalkMove( void ) {
 	if ( pm->waterlevel ) {
 		float	waterScale;
 
-		if (!(pm->pmove_ratflags & RAT_RATPHYSICS) || pm->waterlevel != 1) {
+		if ((pm->pmove_movement != RAT_MOVEMENT_RM) || pm->waterlevel != 1) {
 			waterScale = pm->waterlevel / 3.0;
 			waterScale = 1.0 - ( 1.0 - PM_GetSwimscale(pm) ) * waterScale;
 			if ( wishspeed > pm->ps->speed * waterScale ) {
@@ -903,7 +1035,14 @@ static void PM_WalkMove( void ) {
 	// when a player gets hit, they temporarily lose
 	// full control, which allows them to be moved a bit
 	if ( ( pml.groundTrace.surfaceFlags & SURF_SLICK ) || pm->ps->pm_flags & PMF_TIME_KNOCKBACK ) {
-		accelerate = PM_GetAirAccelerate(pm);
+		// Slick and ground boost (probably).
+		switch (pm->pmove_movement) {
+		case RAT_MOVEMENT_CPM:
+			accelerate = PM_GetAccelerate(pm);
+			break;
+		default:
+			accelerate = PM_GetAirAccelerate(pm);
+		}
 	} else {
 		accelerate = PM_GetAccelerate(pm);
 	}
