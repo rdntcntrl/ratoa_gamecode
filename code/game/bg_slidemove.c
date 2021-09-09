@@ -298,6 +298,9 @@ void PM_StepSlideMove( qboolean gravity ) {
 	}
 	if ( trace.fraction < 1.0 ) {
 		if (pm->pmove_ratflags & RAT_SMOOTHSTAIRS) {
+			if (DotProduct(pm->ps->velocity, trace.plane.normal) > 0) {
+				pm->ps->stats[STAT_WALKTIME] = 100;
+			}
 			PM_OneSidedClipVelocity( pm->ps->velocity, trace.plane.normal, pm->ps->velocity, OVERCLIP );
 		} else {
 			PM_ClipVelocity( pm->ps->velocity, trace.plane.normal, pm->ps->velocity, OVERCLIP );

@@ -981,6 +981,9 @@ static void PM_WalkMove( void ) {
 	if ( PM_CheckJump () || 
 			( (pm->pmove_ratflags & RAT_NOOVERBOUNCE) 
 			  && pm->ps->stats[STAT_OVERBOUNCE] == 1 ) ) {
+		if (pml.walking && pm->ps->stats[STAT_WALKTIME]) {
+			pm->ps->stats[STAT_WALKTIME] = 0;
+		}
 		// jumped away
 		if ( pm->waterlevel > 1 ) {
 			PM_WaterMove();
@@ -991,6 +994,7 @@ static void PM_WalkMove( void ) {
 		return;
 	}
 
+	pml.walking = qtrue;
 	PM_Friction ();
 
 	fmove = pm->cmd.forwardmove;
@@ -1073,7 +1077,7 @@ static void PM_WalkMove( void ) {
 	vel = VectorLength(pm->ps->velocity);
 
 	// slide along the ground plane
-	PM_ClipVelocity (pm->ps->velocity, pml.groundTrace.plane.normal, 
+	PM_OneSidedClipVelocity (pm->ps->velocity, pml.groundTrace.plane.normal,
 		pm->ps->velocity, OVERCLIP );
 
 	// don't decrease velocity when going up or down a slope
@@ -2298,6 +2302,10 @@ void PmoveSingle (pmove_t *pmove) {
 		pm->ps->stats[STAT_JUMPTIME] -= pml.msec;
 	}
 
+	if (pm->ps->stats[STAT_WALKTIME] > 0) {
+		pm->ps->stats[STAT_WALKTIME] -= pml.msec;
+	}
+
 	if ( pm->ps->powerups[PW_INVULNERABILITY] ) {
 		PM_InvulnerabilityMove();
 	} else
@@ -2317,7 +2325,7 @@ void PmoveSingle (pmove_t *pmove) {
 	} else if ( pm->waterlevel > 1 ) {
 		// swimming
 		PM_WaterMove();
-	} else if ( pml.walking ) {
+	} else if ( pml.walking || pm->ps->stats[STAT_WALKTIME] > 0 ) {
 		// walking on ground
 		PM_WalkMove();
 	} else {

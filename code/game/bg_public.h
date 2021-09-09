@@ -259,7 +259,8 @@ typedef enum {
 	STAT_EXTFLAGS,					// extended playerstate flags
 	STAT_BOBCYCLEREM,				// used to store fractions of bobCycle for consistent, FPS-independent footsteps
 	STAT_OVERBOUNCE,					// Overbounce flag (only 1 bit, this could be integrated into another bitflag field if more STAT_ fields are required)
-	STAT_FROZENSTATE				// used to store frozen/thawing state if g_freeze = 1
+	STAT_FROZENSTATE,				// used to store frozen/thawing state if g_freeze = 1
+	STAT_WALKTIME
 } statIndex_t;
 
 
