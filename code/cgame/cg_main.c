@@ -201,6 +201,7 @@ vmCvar_t 	cg_scorePlum;
 vmCvar_t 	cg_ratInitialized;
 
 vmCvar_t 	g_movement;
+vmCvar_t 	g_crouchSlide;
 vmCvar_t 	g_rampJump;
 vmCvar_t 	g_additiveJump;
 vmCvar_t 	g_swingGrapple;
@@ -630,6 +631,7 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_ratInitialized, "cg_ratInitialized", "0", CVAR_ARCHIVE},
 
 	{ &g_movement, "g_movement", "0", CVAR_SERVERINFO},
+	{ &g_crouchSlide, "g_crouchSlide", "0", CVAR_SYSTEMINFO},
 	{ &g_rampJump, "g_rampJump", "0", CVAR_SYSTEMINFO},
 	{ &g_additiveJump, "g_additiveJump", "0", CVAR_SYSTEMINFO},
 	{ &g_swingGrapple, "g_swingGrapple", "0", CVAR_SYSTEMINFO},

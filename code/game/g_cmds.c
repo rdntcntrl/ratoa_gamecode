@@ -711,6 +711,7 @@ void Cmd_Rules_f( gentity_t *ent ) {
 				" -Smooth/additive jump:  %s" S_COLOR_WHITE "\n"
 				" -Ramp jump:             %s" S_COLOR_WHITE "\n"
 				" -Smooth stairs:         %s" S_COLOR_WHITE "\n"
+				" -Crouch slide:          %s" S_COLOR_WHITE "\n"
 				" -Overbounce:            %s" S_COLOR_WHITE "\n"
 				" -Fast weapon switch:    %s" S_COLOR_WHITE "\n"
 				" -Fast weapons:          %s" S_COLOR_WHITE "\n"
@@ -728,6 +729,7 @@ void Cmd_Rules_f( gentity_t *ent ) {
 				g_additiveJump.integer ? S_COLOR_GREEN "ON" : S_COLOR_RED "OFF",
 				g_rampJump.integer ? S_COLOR_GREEN "ON" : S_COLOR_RED "OFF",
 				g_smoothStairs.integer ? S_COLOR_GREEN "ON" : S_COLOR_RED "OFF",
+				g_crouchSlide.integer ? S_COLOR_GREEN "ON" : S_COLOR_RED "OFF",
 				g_overbounce.integer ? S_COLOR_GREEN "ON" : S_COLOR_RED "OFF",
 				g_fastSwitch.integer ? S_COLOR_GREEN "ON" : S_COLOR_RED "OFF",
 				g_fastWeapons.integer ? S_COLOR_GREEN "ON" : S_COLOR_RED "OFF",

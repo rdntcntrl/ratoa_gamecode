@@ -242,6 +242,7 @@ vmCvar_t        g_teleMissilesMaxTeleports;
 vmCvar_t        g_pushGrenades;
 vmCvar_t        g_newShotgun;
 vmCvar_t        g_movement;
+vmCvar_t        g_crouchSlide;
 vmCvar_t        g_rampJump;
 vmCvar_t        g_additiveJump;
 vmCvar_t        g_fastSwim;
@@ -618,6 +619,7 @@ static cvarTable_t		gameCvarTable[] = {
         { &g_newShotgun, "g_newShotgun", "1", CVAR_ARCHIVE, 0, qtrue },
 
 	{ &g_movement,   "g_movement", "0", CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qtrue },
+	{ &g_crouchSlide,   "g_crouchSlide", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_rampJump,     "g_rampJump", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_additiveJump,     "g_additiveJump", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_fastSwim,   "g_fastSwim", "1", CVAR_ARCHIVE, 0, qtrue },
@@ -1511,9 +1513,9 @@ void G_UpdateRatFlags( void ) {
 		rflags |= RAT_FASTWEAPONS;
 	}
 
-	// if (g_ratPhysics.integer == 1) {
-	// 	rflags |= RAT_RATPHYSICS;
-	// }
+	if (g_crouchSlide.integer == 1) {
+		rflags |= RAT_CROUCHSLIDE;
+	}
 
 	if (g_rampJump.integer) {
 		rflags |= RAT_RAMPJUMP;
@@ -1675,7 +1677,7 @@ void G_UpdateCvars( void ) {
 						|| cv->vmCvar == &g_predictMissiles
 						|| cv->vmCvar == &g_fastSwitch
 						|| cv->vmCvar == &g_fastWeapons
-						// || cv->vmCvar == &g_ratPhysics
+						|| cv->vmCvar == &g_crouchSlide
 						|| cv->vmCvar == &g_rampJump
 						|| cv->vmCvar == &g_allowForcedModels
 						|| cv->vmCvar == &g_friendsWallHack

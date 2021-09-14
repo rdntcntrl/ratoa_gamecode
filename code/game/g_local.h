@@ -1595,6 +1595,7 @@ extern  vmCvar_t        g_teleMissilesMaxTeleports;
 extern  vmCvar_t        g_pushGrenades;
 extern  vmCvar_t        g_newShotgun;
 extern  vmCvar_t        g_movement;
+extern  vmCvar_t        g_crouchSlide;
 extern  vmCvar_t        g_rampJump;
 extern  vmCvar_t        g_additiveJump;
 extern  vmCvar_t        g_fastSwim;

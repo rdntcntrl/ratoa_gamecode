@@ -1708,6 +1708,7 @@ extern  vmCvar_t		cg_scorePlum;
 extern vmCvar_t                	cg_ratInitialized;
 
 extern vmCvar_t                	g_movement;
+extern vmCvar_t                	g_crouchSlide;
 extern vmCvar_t                	g_rampJump;
 extern vmCvar_t                	g_additiveJump;
 extern vmCvar_t                	g_swingGrapple;

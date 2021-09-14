@@ -39,6 +39,7 @@ const float	pm_wadeScale = 0.70f;
 
 const float	pm_accelerate = 10.0f;
 const float	pm_airaccelerate = 1.0f;
+const float	pm_duckaccelerate = 10.0f;
 const float	pm_wateraccelerate = 4.0f;
 const float	pm_flyaccelerate = 8.0f;
 
@@ -216,6 +217,10 @@ static void PM_Friction( void ) {
 	float	*vel;
 	float	speed, newspeed, control;
 	float	drop;
+	
+	if (pm->ps->stats[STAT_SLIDETIME] > 0) {
+		return;
+	}
 	
 	vel = pm->ps->velocity;
 	
@@ -424,7 +429,7 @@ static qboolean PM_CheckJump( void ) {
 	}
 
 	
-
+	pm->ps->stats[STAT_SLIDETIME] = 0;
 
 	pml.groundPlane = qfalse;		// jumping away
 	pml.walking = qfalse;
@@ -1057,8 +1062,19 @@ static void PM_WalkMove( void ) {
 	} else {
 		accelerate = PM_GetAccelerate(pm);
 	}
+	if (pm->ps->stats[STAT_SLIDETIME] > 0) {
+		accelerate = pm_duckaccelerate;
+	}
 
+	vel = VectorLength(pm->ps->velocity);
 	PM_Accelerate (wishdir, wishspeed, accelerate);
+	if (pm->ps->stats[STAT_SLIDETIME] > 0) {
+		if (VectorLength(pm->ps->velocity) > vel && vel >= wishspeed) {
+			VectorNormalize(pm->ps->velocity);
+			VectorScale(pm->ps->velocity, vel, pm->ps->velocity);
+		}
+	}
+	
 
 	//Com_Printf("velocity = %1.1f %1.1f %1.1f\n", pm->ps->velocity[0], pm->ps->velocity[1], pm->ps->velocity[2]);
 	//Com_Printf("velocity1 = %1.1f\n", VectorLength(pm->ps->velocity));
@@ -1241,6 +1257,9 @@ static void PM_CrashLand( void ) {
 	// ducking while falling doubles damage
 	if ( pm->ps->pm_flags & PMF_DUCKED ) {
 		delta *= 2;
+		if (pm->pmove_ratflags & RAT_CROUCHSLIDE) {
+			pm->ps->stats[STAT_SLIDETIME] = 1000;
+		}
 	}
 
 	// never take falling damage if completely underwater
@@ -2296,6 +2315,10 @@ void PmoveSingle (pmove_t *pmove) {
 
 	if (pm->ps->stats[STAT_JUMPTIME] > 0) {
 		pm->ps->stats[STAT_JUMPTIME] -= pml.msec;
+	}
+
+	if (pm->ps->stats[STAT_SLIDETIME] > 0) {
+		pm->ps->stats[STAT_SLIDETIME] -= pml.msec;
 	}
 
 	if ( pm->ps->powerups[PW_INVULNERABILITY] ) {
