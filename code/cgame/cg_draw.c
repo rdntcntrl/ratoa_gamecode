@@ -2435,11 +2435,20 @@ static float CG_DrawTimer( float y ) {
 
 	s = va( "%s%i:%i%i", negative ? "-" : "", mins, tens, seconds );
 	w = CG_DrawStrlen( s ) * char_width;
-
 	//CG_DrawBigString( 635 - w, y + 2, s, 1.0F);
 	switch (cg_timerPosition.integer) {
 		case 1:
 			CG_DrawStringExt( (SCREEN_WIDTH-w)/2.0, 10, s, color, qfalse, qtrue, char_width, char_height, 0 );
+			return y;
+			break;
+	        case 2:
+			CG_DrawStringExt( (SCREEN_WIDTH-w)/2.0,
+					  ((SCREEN_HEIGHT - char_height) / 2) + cg_crosshairSize.integer + (char_height / 2), s, color, qfalse, qtrue, char_width, char_height, 0 );
+			return y;
+			break;
+	        case 3:
+			CG_DrawStringExt( (SCREEN_WIDTH-w)/2.0,
+					  ((SCREEN_HEIGHT - char_height) / 2) - cg_crosshairSize.integer + (char_height / 2), s, color, qfalse, qtrue, char_width, char_height, 0 );
 			return y;
 			break;
 		default:

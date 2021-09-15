@@ -1,9 +1,9 @@
 
 #Tip: You can create a supermake.local file and this script will get the variable from there!
-BINNAME=openarena
-MODNAME=oax
+BINNAME=/usr/bin/openarena
+MODNAME=rat
 #ARCH should be either i386 (32 bit) or x86_64 (64 bit)
-ARCH=i386
+ARCH=x86_64
 
 if [ -r ./supermake.local ] ; then
 source ./supermake.local
