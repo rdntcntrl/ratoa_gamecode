@@ -2448,7 +2448,7 @@ static float CG_DrawTimer( float y ) {
 			break;
 	        case 3:
 			CG_DrawStringExt( (SCREEN_WIDTH-w)/2.0,
-					  ((SCREEN_HEIGHT - char_height) / 2) - cg_crosshairSize.integer + (char_height / 2), s, color, qfalse, qtrue, char_width, char_height, 0 );
+					  ((SCREEN_HEIGHT - char_height) / 2) - cg_crosshairSize.integer - (char_height / 2), s, color, qfalse, qtrue, char_width, char_height, 0 );
 			return y;
 			break;
 		default:
