@@ -260,7 +260,7 @@ typedef enum {
 	STAT_BOBCYCLEREM,				// used to store fractions of bobCycle for consistent, FPS-independent footsteps
 	STAT_OVERBOUNCE,					// Overbounce flag (only 1 bit, this could be integrated into another bitflag field if more STAT_ fields are required)
 	STAT_FROZENSTATE,				// used to store frozen/thawing state if g_freeze = 1
-	STAT_SLIDETIME					// time left to slide
+	STAT_SLIDETIMEOUT				// holds slide time left after releasing crouch
 } statIndex_t;
 
 
@@ -290,6 +290,7 @@ typedef enum {
 
 // stats[STAT_EXTFLAGS]
 #define EXTFL_ZOOMING 1
+#define EXTFL_SLIDING 2
 
 
 // entityState_t->eFlags
@@ -977,5 +978,8 @@ char *BG_TeamName( team_t team );
 
 char *BG_MovementToString( movement_t movement );
 movement_t BG_MovementFromString( const char *s );
+
+void BG_UpdateCrouchSlideVars( int graceTime, int crouchTurn, int crouchAccel, int crouchWishspeed, int crouchSpeedCap,
+                               int standTurn, int standAccel, int standWishspeed, int standSpeedCap );
 
 #endif

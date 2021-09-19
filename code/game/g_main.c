@@ -241,6 +241,15 @@ vmCvar_t        g_teleMissiles;
 vmCvar_t        g_teleMissilesMaxTeleports;
 vmCvar_t        g_pushGrenades;
 vmCvar_t        g_newShotgun;
+vmCvar_t        g_crouchGraceTime;
+vmCvar_t        g_crouchCrouchTurn;
+vmCvar_t        g_crouchCrouchAccel;
+vmCvar_t        g_crouchCrouchWishspeed;
+vmCvar_t        g_crouchCrouchSpeedCap;
+vmCvar_t        g_crouchStandTurn;
+vmCvar_t        g_crouchStandAccel;
+vmCvar_t        g_crouchStandWishspeed;
+vmCvar_t        g_crouchStandSpeedCap;
 vmCvar_t        g_movement;
 vmCvar_t        g_crouchSlide;
 vmCvar_t        g_rampJump;
@@ -618,6 +627,15 @@ static cvarTable_t		gameCvarTable[] = {
 
         { &g_newShotgun, "g_newShotgun", "1", CVAR_ARCHIVE, 0, qtrue },
 
+	{ &g_crouchGraceTime,   "g_crouchGraceTime", "1000", 0, 0, qtrue },
+	{ &g_crouchCrouchTurn,   "g_crouchCrouchTurn", "10", 0, 0, qtrue },
+	{ &g_crouchCrouchAccel,   "g_crouchCrouchAccel", "1", 0, 0, qtrue },
+	{ &g_crouchCrouchWishspeed,   "g_crouchCrouchWishspeed", "320", 0, 0, qtrue },
+	{ &g_crouchCrouchSpeedCap,   "g_crouchCrouchSpeedCap", "0", 0, 0, qtrue },
+	{ &g_crouchStandTurn,   "g_crouchStandTurn", "10", 0, 0, qtrue },
+	{ &g_crouchStandAccel,   "g_crouchStandAccel", "0", 0, 0, qtrue },
+	{ &g_crouchStandWishspeed,   "g_crouchStandWishspeed", "320", 0, 0, qtrue },
+	{ &g_crouchStandSpeedCap,   "g_crouchStandSpeedCap", "0", 0, 0, qtrue },
 	{ &g_movement,   "g_movement", "0", CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qtrue },
 	{ &g_crouchSlide,   "g_crouchSlide", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_rampJump,     "g_rampJump", "0", CVAR_ARCHIVE, 0, qtrue },
@@ -5055,6 +5073,16 @@ void G_RunFrame( int levelTime ) {
 
 	// get any cvar changes
 	G_UpdateCvars();
+	
+	BG_UpdateCrouchSlideVars(g_crouchGraceTime.integer,
+	                         g_crouchCrouchTurn.integer,
+	                         g_crouchCrouchAccel.integer,
+	                         g_crouchCrouchWishspeed.integer,
+	                         g_crouchCrouchSpeedCap.integer,
+	                         g_crouchStandTurn.integer,
+	                         g_crouchStandAccel.integer,
+	                         g_crouchStandWishspeed.integer,
+	                         g_crouchStandSpeedCap.integer);
 
 	G_UpdateRatFlags();
 

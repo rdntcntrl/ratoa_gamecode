@@ -60,6 +60,20 @@ const float	pm_waterfriction = 1.0f;
 const float	pm_flightfriction = 3.0f;
 const float	pm_spectatorfriction = 5.0f;
 
+
+int crouchGraceTime = 1000;
+
+int crouchCrouchTurn = 10;
+int crouchCrouchAccel = 1;
+int crouchCrouchWishspeed = 320;
+int crouchCrouchSpeedCap = 0;
+
+int crouchStandTurn = 10;
+int crouchStandAccel = 0;
+int crouchStandWishspeed = 320;
+int crouchStandSpeedCap = 0;
+
+
 int		c_pmove = 0;
 
 static float PM_GetSwimscale(pmove_t *pm);
@@ -218,7 +232,7 @@ static void PM_Friction( void ) {
 	float	speed, newspeed, control;
 	float	drop;
 	
-	if (pm->ps->stats[STAT_SLIDETIME] > 0) {
+	if (pm->ps->stats[STAT_EXTFLAGS] & EXTFL_SLIDING) {
 		return;
 	}
 	
@@ -427,9 +441,6 @@ static qboolean PM_CheckJump( void ) {
 		pm->cmd.upmove = 0;
 		return qfalse;
 	}
-
-	
-	pm->ps->stats[STAT_SLIDETIME] = 0;
 
 	pml.groundPlane = qfalse;		// jumping away
 	pml.walking = qfalse;
@@ -806,6 +817,11 @@ static void PM_AirMove( void ) {
 	vec3_t		curdir;
 	float		dot;
 
+	if (!pml.walking) {
+		pm->ps->stats[STAT_EXTFLAGS] &= ~EXTFL_SLIDING;
+		pm->ps->stats[STAT_SLIDETIMEOUT] = 0;
+	}
+
 	PM_Friction();
 
 	fmove = pm->cmd.forwardmove;
@@ -1002,6 +1018,10 @@ static void PM_WalkMove( void ) {
 	smove = pm->cmd.rightmove;
 
 	cmd = pm->cmd;
+	
+	if (pm->ps->stats[STAT_EXTFLAGS] & EXTFL_SLIDING) {
+		cmd.upmove = 0;
+	}
 	scale = PM_CmdScale( &cmd );
 
 	// set the movementDir so clients can rotate the legs for strafing
@@ -1022,8 +1042,7 @@ static void PM_WalkMove( void ) {
 		wishvel[i] = pml.forward[i]*fmove + pml.right[i]*smove;
 	}
 	// when going up or down slopes the wish velocity should Not be zero
-//	wishvel[2] = 0;
-
+	
 	VectorCopy (wishvel, wishdir);
 	wishspeed = VectorNormalize(wishdir);
 	wishspeed *= scale;
@@ -1033,6 +1052,10 @@ static void PM_WalkMove( void ) {
 		if ( wishspeed > pm->ps->speed * pm_duckScale ) {
 			wishspeed = pm->ps->speed * pm_duckScale;
 		}
+	}
+	
+	if (pm->ps->stats[STAT_EXTFLAGS] & EXTFL_SLIDING) {
+		wishspeed = (pm->ps->pm_flags & PMF_DUCKED) ? crouchCrouchWishspeed : crouchStandWishspeed;
 	}
 
 	// clamp the speed lower if wading or walking on the bottom
@@ -1062,14 +1085,30 @@ static void PM_WalkMove( void ) {
 	} else {
 		accelerate = PM_GetAccelerate(pm);
 	}
-	if (pm->ps->stats[STAT_SLIDETIME] > 0) {
-		accelerate = pm_duckaccelerate;
-	}
-
+	
+	// Crouch slide acceleration.
 	vel = VectorLength(pm->ps->velocity);
+	if (pm->ps->stats[STAT_EXTFLAGS] & EXTFL_SLIDING) {
+		// Turn.
+		accelerate = (pm->ps->pm_flags & PMF_DUCKED) ? crouchCrouchTurn : crouchStandTurn;
+	}
 	PM_Accelerate (wishdir, wishspeed, accelerate);
-	if (pm->ps->stats[STAT_SLIDETIME] > 0) {
+	if (pm->ps->stats[STAT_EXTFLAGS] & EXTFL_SLIDING) {
+		int crouchSpeedCap;
+		if (VectorLength(pm->ps->velocity) < vel) {
+			pm->ps->stats[STAT_EXTFLAGS] &= ~EXTFL_SLIDING;
+		}
+		
 		if (VectorLength(pm->ps->velocity) > vel && vel >= wishspeed) {
+			// Accelerate.
+			accelerate = (pm->ps->pm_flags & PMF_DUCKED) ? crouchCrouchAccel : crouchStandAccel;
+			VectorNormalize(pm->ps->velocity);
+			VectorScale(pm->ps->velocity, vel + accelerate * wishspeed * pml.frametime, pm->ps->velocity);
+		}
+		
+		// Cap speed.
+		crouchSpeedCap = (pm->ps->pm_flags & PMF_DUCKED) ? crouchCrouchSpeedCap : crouchStandSpeedCap;
+		if (crouchSpeedCap && VectorLength(pm->ps->velocity) > vel && vel >= crouchSpeedCap) {
 			VectorNormalize(pm->ps->velocity);
 			VectorScale(pm->ps->velocity, vel, pm->ps->velocity);
 		}
@@ -1258,7 +1297,7 @@ static void PM_CrashLand( void ) {
 	if ( pm->ps->pm_flags & PMF_DUCKED ) {
 		delta *= 2;
 		if (pm->pmove_ratflags & RAT_CROUCHSLIDE) {
-			pm->ps->stats[STAT_SLIDETIME] = 1000;
+			pm->ps->stats[STAT_EXTFLAGS] |= EXTFL_SLIDING;
 		}
 	}
 
@@ -1597,6 +1636,8 @@ static void PM_CheckDuck (void)
 			pm->trace (&trace, pm->ps->origin, pm->mins, pm->maxs, pm->ps->origin, pm->ps->clientNum, pm->tracemask );
 			if (!trace.allsolid)
 				pm->ps->pm_flags &= ~PMF_DUCKED;
+			// pm->ps->stats[STAT_EXTFLAGS] &= ~EXTFL_SLIDING;
+			pm->ps->stats[STAT_SLIDETIMEOUT] = crouchGraceTime;
 		}
 	}
 
@@ -2317,8 +2358,12 @@ void PmoveSingle (pmove_t *pmove) {
 		pm->ps->stats[STAT_JUMPTIME] -= pml.msec;
 	}
 
-	if (pm->ps->stats[STAT_SLIDETIME] > 0) {
-		pm->ps->stats[STAT_SLIDETIME] -= pml.msec;
+	if (pm->ps->stats[STAT_SLIDETIMEOUT] > 0) {
+		pm->ps->stats[STAT_SLIDETIMEOUT] -= pml.msec;
+		if (pm->ps->stats[STAT_SLIDETIMEOUT] <= 0) {
+			pm->ps->stats[STAT_EXTFLAGS] &= ~EXTFL_SLIDING;
+			pm->ps->stats[STAT_SLIDETIMEOUT] = 0;
+		}
 	}
 
 	if ( pm->ps->powerups[PW_INVULNERABILITY] ) {
@@ -2424,3 +2469,17 @@ void Pmove (pmove_t *pmove) {
 
 }
 
+void BG_UpdateCrouchSlideVars( int graceTime, int crouchTurn, int crouchAccel, int crouchWishspeed, int crouchSpeedCap,
+                               int standTurn, int standAccel, int standWishspeed, int standSpeedCap ) {
+	crouchGraceTime = graceTime;
+	
+	crouchCrouchTurn = crouchTurn;
+	crouchCrouchAccel = crouchAccel;
+	crouchCrouchWishspeed = crouchWishspeed;
+	crouchCrouchSpeedCap = crouchSpeedCap;
+	
+	crouchStandTurn = standTurn;
+	crouchStandAccel = standAccel;
+	crouchStandWishspeed = standWishspeed;
+	crouchStandSpeedCap = standSpeedCap;
+}

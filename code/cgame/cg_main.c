@@ -200,6 +200,15 @@ vmCvar_t 	cg_scorePlum;
 
 vmCvar_t 	cg_ratInitialized;
 
+vmCvar_t 	g_crouchGraceTime;
+vmCvar_t 	g_crouchCrouchTurn;
+vmCvar_t 	g_crouchCrouchAccel;
+vmCvar_t 	g_crouchCrouchWishspeed;
+vmCvar_t 	g_crouchCrouchSpeedCap;
+vmCvar_t 	g_crouchStandTurn;
+vmCvar_t 	g_crouchStandAccel;
+vmCvar_t 	g_crouchStandWishspeed;
+vmCvar_t 	g_crouchStandSpeedCap;
 vmCvar_t 	g_movement;
 vmCvar_t 	g_crouchSlide;
 vmCvar_t 	g_rampJump;
@@ -630,6 +639,15 @@ static cvarTable_t cvarTable[] = { // bk001129
 	// RAT ===================
 	{ &cg_ratInitialized, "cg_ratInitialized", "0", CVAR_ARCHIVE},
 
+	{ &g_crouchGraceTime, "g_crouchGraceTime", "1000", 0},
+	{ &g_crouchCrouchTurn, "g_crouchCrouchTurn", "1", 0},
+	{ &g_crouchCrouchAccel, "g_crouchCrouchAccel", "10", 0},
+	{ &g_crouchCrouchWishspeed, "g_crouchCrouchWishspeed", "320", 0},
+	{ &g_crouchCrouchSpeedCap, "g_crouchCrouchSpeedCap", "0", 0},
+	{ &g_crouchStandTurn, "g_crouchStandTurn", "10", 0},
+	{ &g_crouchStandAccel, "g_crouchStandAccel", "0", 0},
+	{ &g_crouchStandWishspeed, "g_crouchStandWishspeed", "320", 0},
+	{ &g_crouchStandSpeedCap, "g_crouchStandSpeedCap", "0", 0},
 	{ &g_movement, "g_movement", "0", CVAR_SERVERINFO},
 	{ &g_crouchSlide, "g_crouchSlide", "0", CVAR_SYSTEMINFO},
 	{ &g_rampJump, "g_rampJump", "0", CVAR_SYSTEMINFO},
