@@ -232,10 +232,6 @@ static void PM_Friction( void ) {
 	float	speed, newspeed, control;
 	float	drop;
 	
-	if (pm->ps->stats[STAT_EXTFLAGS] & EXTFL_SLIDING) {
-		return;
-	}
-	
 	vel = pm->ps->velocity;
 	
 	VectorCopy( vel, vec );
@@ -255,7 +251,7 @@ static void PM_Friction( void ) {
 
 	// apply ground friction
 	if ( pm->waterlevel <= 1 ) {
-		if ( pml.walking && !(pml.groundTrace.surfaceFlags & SURF_SLICK) ) {
+		if ( pml.walking && !(pml.groundTrace.surfaceFlags & SURF_SLICK) && !(pm->ps->stats[STAT_EXTFLAGS] & EXTFL_SLIDING) ) {
 			// if getting knocked back, no friction
 			if ( ! (pm->ps->pm_flags & PMF_TIME_KNOCKBACK) ) {
 				control = speed < pm_stopspeed ? pm_stopspeed : speed;
