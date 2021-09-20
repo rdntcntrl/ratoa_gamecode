@@ -1114,7 +1114,8 @@ static void PM_WalkMove( void ) {
 	//Com_Printf("velocity = %1.1f %1.1f %1.1f\n", pm->ps->velocity[0], pm->ps->velocity[1], pm->ps->velocity[2]);
 	//Com_Printf("velocity1 = %1.1f\n", VectorLength(pm->ps->velocity));
 
-	if ( ( pml.groundTrace.surfaceFlags & SURF_SLICK ) || pm->ps->pm_flags & PMF_TIME_KNOCKBACK || pm->ps->stats[STAT_EXTFLAGS] & EXTFL_SLIDING ) {
+	// Increasing velocity down slopes while sliding is disabled for now due to a bug emphasized by pmove_float.
+	if ( ( pml.groundTrace.surfaceFlags & SURF_SLICK ) || pm->ps->pm_flags & PMF_TIME_KNOCKBACK /*|| pm->ps->stats[STAT_EXTFLAGS] & EXTFL_SLIDING*/ ) {
 		pm->ps->velocity[2] -= pm->ps->gravity * pml.frametime;
 	} else {
 		// don't reset the z velocity for slopes
