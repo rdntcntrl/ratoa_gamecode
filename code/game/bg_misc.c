@@ -1583,6 +1583,10 @@ char *eventnames[] = {
 	"EV_FOOTWADE",
 	"EV_SWIM",
 
+	"EV_STEP_DOWN_16",
+	"EV_STEP_DOWN_12",
+	"EV_STEP_DOWN_8",
+	"EV_STEP_DOWN_4",
 	"EV_STEP_4",
 	"EV_STEP_8",
 	"EV_STEP_12",

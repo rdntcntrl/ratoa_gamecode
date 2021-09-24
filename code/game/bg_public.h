@@ -485,6 +485,11 @@ typedef enum {
 	EV_FOOTWADE,
 	EV_SWIM,
 
+	EV_STEP_DOWN_16,
+	EV_STEP_DOWN_12,
+	EV_STEP_DOWN_8,
+	EV_STEP_DOWN_4,
+	EV_STEP_0,
 	EV_STEP_4,
 	EV_STEP_8,
 	EV_STEP_12,
@@ -852,7 +857,7 @@ qboolean	BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const play
 #define RAT_PREDICTMISSILES 	(1 << 3)
 #define RAT_FASTSWITCH 		(1 << 4)
 #define RAT_FASTWEAPONS 	(1 << 5)
-#define RAT_CROUCHSLIDE		(1 << 6)
+// #define RAT_CROUCHSLIDE		(1 << 6)
 #define RAT_RAMPJUMP 		(1 << 7)
 #define RAT_ALLOWFORCEDMODELS 	(1 << 8)
 #define RAT_FRIENDSWALLHACK 	(1 << 9)
@@ -872,6 +877,8 @@ qboolean	BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const play
 #define RAT_SMOOTHSTAIRS	(1 << 23)
 #define RAT_NOOVERBOUNCE	(1 << 24)
 #define RAT_FREEZETAG		(1 << 25)
+#define RAT_CROUCHSLIDE		(1 << 26)
+#define RAT_SLIDEMODE		(1 << 27)
 
 #define MAX_RAT_SAY_TEXT 256
 
@@ -978,8 +985,5 @@ char *BG_TeamName( team_t team );
 
 char *BG_MovementToString( movement_t movement );
 movement_t BG_MovementFromString( const char *s );
-
-void BG_UpdateCrouchSlideVars( int graceTime, int crouchTurn, int crouchAccel, int crouchWishspeed, int crouchSpeedCap,
-                               int standTurn, int standAccel, int standWishspeed, int standSpeedCap );
 
 #endif

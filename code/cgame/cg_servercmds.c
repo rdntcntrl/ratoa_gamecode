@@ -1064,6 +1064,7 @@ void CG_ParseServerinfo( void ) {
 
 	trap_Cvar_Set("g_rampJump", va("%i", (cgs.ratFlags & RAT_RAMPJUMP) ? 1 : 0));
 	trap_Cvar_Set("g_crouchSlide", va("%i", (cgs.ratFlags & RAT_CROUCHSLIDE) ? 1 : 0));
+	trap_Cvar_Set("g_slideMode", va("%i", (cgs.ratFlags & RAT_SLIDEMODE) ? 1 : 0));
 	trap_Cvar_Set("g_additiveJump", va("%i", (cgs.ratFlags & RAT_ADDITIVEJUMP) ? 1 : 0));
 	trap_Cvar_Set("g_fastSwim", va("%i", (cgs.ratFlags & RAT_FASTSWIM) ? 1 : 0));
 	trap_Cvar_Set("g_swingGrapple", va("%i", (cgs.ratFlags & RAT_SWINGGRAPPLE) ? 1 : 0));

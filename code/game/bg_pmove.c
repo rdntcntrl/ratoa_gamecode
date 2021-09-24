@@ -61,18 +61,14 @@ const float	pm_flightfriction = 3.0f;
 const float	pm_spectatorfriction = 5.0f;
 
 
-int crouchGraceTime = 1000;
+const int crouchGraceTime = 100;
 
-int crouchCrouchTurn = 10;
-int crouchCrouchAccel = 1;
-int crouchCrouchWishspeed = 320;
-int crouchCrouchSpeedCap = 0;
-
-int crouchStandTurn = 10;
-int crouchStandAccel = 0;
-int crouchStandWishspeed = 320;
-int crouchStandSpeedCap = 0;
-
+const int crouchTurn = 15;
+const int crouchGoAccel = 2;
+const int crouchAccel = -1;
+const int crouchWishspeed = 226;
+const int crouchGoSpeedCap = 600;
+const int crouchSpeedCap = 0;
 
 int		c_pmove = 0;
 
@@ -1009,6 +1005,10 @@ static void PM_WalkMove( void ) {
 	}
 
 	PM_Friction ();
+	
+	if (!pm->cmd.forwardmove && !pm->cmd.rightmove) {
+		pm->ps->stats[STAT_EXTFLAGS] &= ~EXTFL_SLIDING;
+	}
 
 	fmove = pm->cmd.forwardmove;
 	smove = pm->cmd.rightmove;
@@ -1051,7 +1051,7 @@ static void PM_WalkMove( void ) {
 	}
 	
 	if (pm->ps->stats[STAT_EXTFLAGS] & EXTFL_SLIDING) {
-		wishspeed = (pm->ps->pm_flags & PMF_DUCKED) ? crouchCrouchWishspeed : crouchStandWishspeed;
+		wishspeed = crouchWishspeed;
 	}
 
 	// clamp the speed lower if wading or walking on the bottom
@@ -1086,7 +1086,7 @@ static void PM_WalkMove( void ) {
 	vel = VectorLength(pm->ps->velocity);
 	if (pm->ps->stats[STAT_EXTFLAGS] & EXTFL_SLIDING) {
 		// Turn.
-		accelerate = (pm->ps->pm_flags & PMF_DUCKED) ? crouchCrouchTurn : crouchStandTurn;
+		accelerate = crouchTurn;
 	}
 	PM_Accelerate (wishdir, wishspeed, accelerate);
 	if (pm->ps->stats[STAT_EXTFLAGS] & EXTFL_SLIDING) {
@@ -1097,13 +1097,13 @@ static void PM_WalkMove( void ) {
 		
 		if (VectorLength(pm->ps->velocity) > vel && vel >= wishspeed) {
 			// Accelerate.
-			accelerate = (pm->ps->pm_flags & PMF_DUCKED) ? crouchCrouchAccel : crouchStandAccel;
+			accelerate = (pm->pmove_ratflags & RAT_SLIDEMODE) ? crouchGoAccel : crouchAccel;
 			VectorNormalize(pm->ps->velocity);
 			VectorScale(pm->ps->velocity, vel + accelerate * wishspeed * pml.frametime, pm->ps->velocity);
 		}
 		
 		// Cap speed.
-		crouchSpeedCap = (pm->ps->pm_flags & PMF_DUCKED) ? crouchCrouchSpeedCap : crouchStandSpeedCap;
+		crouchSpeedCap = (pm->pmove_ratflags & RAT_SLIDEMODE) ? crouchGoSpeedCap : crouchSpeedCap;
 		if (crouchSpeedCap && VectorLength(pm->ps->velocity) > vel && vel >= crouchSpeedCap) {
 			VectorNormalize(pm->ps->velocity);
 			VectorScale(pm->ps->velocity, vel, pm->ps->velocity);
@@ -1115,7 +1115,7 @@ static void PM_WalkMove( void ) {
 	//Com_Printf("velocity1 = %1.1f\n", VectorLength(pm->ps->velocity));
 
 	// Increasing velocity down slopes while sliding is disabled for now due to a bug emphasized by pmove_float.
-	if ( ( pml.groundTrace.surfaceFlags & SURF_SLICK ) || pm->ps->pm_flags & PMF_TIME_KNOCKBACK /*|| pm->ps->stats[STAT_EXTFLAGS] & EXTFL_SLIDING*/ ) {
+	if ( ( pml.groundTrace.surfaceFlags & SURF_SLICK ) || pm->ps->pm_flags & PMF_TIME_KNOCKBACK || pm->ps->stats[STAT_EXTFLAGS] & EXTFL_SLIDING ) {
 		pm->ps->velocity[2] -= pm->ps->gravity * pml.frametime;
 	} else {
 		// don't reset the z velocity for slopes
@@ -2409,8 +2409,8 @@ void PmoveSingle (pmove_t *pmove) {
 	PM_WaterEvents();
 
 	// snap some parts of playerstate to save network bandwidth
-        //But only if pmove_float is not enabled
-        if(!(pm->pmove_float))
+        //But only if pmove_float is not enabled. We always snap on slick surfaces to prevent acceleration.
+        if(!(pm->pmove_float) || pml.groundTrace.surfaceFlags & SURF_SLICK || pm->ps->stats[STAT_EXTFLAGS] & EXTFL_SLIDING)
             trap_SnapVector( pm->ps->velocity );
 }
 
@@ -2464,19 +2464,4 @@ void Pmove (pmove_t *pmove) {
 
 	//PM_CheckStuck();
 
-}
-
-void BG_UpdateCrouchSlideVars( int graceTime, int crouchTurn, int crouchAccel, int crouchWishspeed, int crouchSpeedCap,
-                               int standTurn, int standAccel, int standWishspeed, int standSpeedCap ) {
-	crouchGraceTime = graceTime;
-	
-	crouchCrouchTurn = crouchTurn;
-	crouchCrouchAccel = crouchAccel;
-	crouchCrouchWishspeed = crouchWishspeed;
-	crouchCrouchSpeedCap = crouchSpeedCap;
-	
-	crouchStandTurn = standTurn;
-	crouchStandAccel = standAccel;
-	crouchStandWishspeed = standWishspeed;
-	crouchStandSpeedCap = standSpeedCap;
 }

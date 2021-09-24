@@ -253,6 +253,43 @@ void PM_StepSlideMove( qboolean gravity ) {
 	VectorCopy (pm->ps->velocity, start_v);
 
 	if ( PM_SlideMove( gravity ) == 0 ) {
+		
+		if (pm->ps->stats[STAT_EXTFLAGS] & EXTFL_SLIDING) {
+			VectorCopy (pm->ps->origin, down);
+			down[2] -= stepSize;
+			pm->trace (&trace, pm->ps->origin, pm->mins, pm->maxs, down, pm->ps->clientNum, pm->tracemask);
+			if ( !trace.allsolid ) {
+				VectorCopy (trace.endpos, pm->ps->origin);
+			}
+			if ( trace.fraction < 1.0 ) {
+				if (pm->pmove_ratflags & RAT_SMOOTHSTAIRS) {
+					PM_OneSidedClipVelocity( pm->ps->velocity, trace.plane.normal, pm->ps->velocity, OVERCLIP );
+				} else {
+					PM_ClipVelocity( pm->ps->velocity, trace.plane.normal, pm->ps->velocity, OVERCLIP );
+				}
+			}
+			{
+				// use the step move
+				float	delta;
+		
+				delta = start_o[2] - pm->ps->origin[2];
+				if ( delta > 2 ) {
+					if ( delta < 7 ) {
+						PM_AddEvent( EV_STEP_DOWN_4 );
+					} else if ( delta < 11 ) {
+						PM_AddEvent( EV_STEP_DOWN_8 );
+					} else if ( delta < 15 ) {
+						PM_AddEvent( EV_STEP_DOWN_12 );
+					} else {
+						PM_AddEvent( EV_STEP_DOWN_16 );
+					}
+				}
+				if ( pm->debugLevel ) {
+					Com_Printf("%i:stepped down\n", c_pmove);
+				}
+			}
+		}
+		
 		return;		// we got exactly where we wanted to go first try	
 	}
 
