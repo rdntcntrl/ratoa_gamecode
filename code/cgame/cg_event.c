@@ -733,10 +733,6 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 		}
 		break;
 
-	case EV_STEP_DOWN_16:		// smooth out step down transitions
-	case EV_STEP_DOWN_12:
-	case EV_STEP_DOWN_8:
-	case EV_STEP_DOWN_4:
 	case EV_STEP_4:
 	case EV_STEP_8:
 	case EV_STEP_12:
@@ -768,9 +764,6 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 		cg.stepChange = oldStep + step;
 		if ( cg.stepChange > MAX_STEP_CHANGE ) {
 			cg.stepChange = MAX_STEP_CHANGE;
-		}
-		else if ( -cg.stepChange > MAX_STEP_CHANGE ) {
-			cg.stepChange = -MAX_STEP_CHANGE;
 		}
 		cg.stepTime = cg.time;
 		break;
