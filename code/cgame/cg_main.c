@@ -683,7 +683,7 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_hudDamageIndicatorScale, "cg_hudDamageIndicatorScale", "1.0", CVAR_ARCHIVE},
 	{ &cg_hudDamageIndicatorOffset, "cg_hudDamageIndicatorOffset", "0.0", CVAR_ARCHIVE},
 	{ &cg_hudDamageIndicatorAlpha, "cg_hudDamageIndicatorAlpha", "1.0", CVAR_ARCHIVE},
-	{ &cg_hudMovementKeys, "cg_hudMovementKeys", "0", CVAR_ARCHIVE},
+	{ &cg_hudMovementKeys, "cg_hudMovementKeys", "0", CVAR_ARCHIVE | CVAR_LATCH},
 	{ &cg_hudMovementKeysScale, "cg_hudMovementKeysScale", "1.0", CVAR_ARCHIVE},
 	{ &cg_hudMovementKeysColor, "cg_hudMovementKeysColor", "H0 0.0 1.0", CVAR_ARCHIVE},
 	{ &cg_emptyIndicator, "cg_emptyIndicator", "1", CVAR_ARCHIVE},
