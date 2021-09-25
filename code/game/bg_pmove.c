@@ -665,7 +665,8 @@ static float PM_GetSwimscale(pmove_t *pm) {
 
 static float PM_GetAccelerate(pmove_t *pm) {
 	switch (pm->pmove_movement) {
-	case MOVEMENT_CPM:
+	case MOVEMENT_CPM_CPMA:
+	case MOVEMENT_CPM_DEFRAG:
 		return pm_cpm_accelerate;
 	case MOVEMENT_RM:
 		return pm_rat_accelerate;
@@ -676,7 +677,8 @@ static float PM_GetAccelerate(pmove_t *pm) {
 
 static float PM_GetAirAccelerate(pmove_t *pm) {
 	switch (pm->pmove_movement) {
-	case MOVEMENT_CPM:
+	case MOVEMENT_CPM_CPMA:
+	case MOVEMENT_CPM_DEFRAG:
 		return pm_cpm_airaccelerate;
 	case MOVEMENT_RM:
 		return pm_rat_airaccelerate;
@@ -687,7 +689,8 @@ static float PM_GetAirAccelerate(pmove_t *pm) {
 
 static float PM_GetAirStrafeAccelerate(pmove_t *pm) {
 	switch (pm->pmove_movement) {
-	case MOVEMENT_CPM:
+	case MOVEMENT_CPM_CPMA:
+	case MOVEMENT_CPM_DEFRAG:
 		return pm_cpm_airstrafeaccelerate;
 	case MOVEMENT_RM:
 		return pm_rat_airstrafeaccelerate;
@@ -698,7 +701,8 @@ static float PM_GetAirStrafeAccelerate(pmove_t *pm) {
 
 static float PM_GetAirStopAccelerate(pmove_t *pm) {
 	switch (pm->pmove_movement) {
-	case MOVEMENT_CPM:
+	case MOVEMENT_CPM_CPMA:
+	case MOVEMENT_CPM_DEFRAG:
 		return pm_cpm_airstopaccelerate;
 	default:
 		return 0.0f;
@@ -830,7 +834,8 @@ static void PM_AirMove( void ) {
 	
 	// begin Xonotic Darkplaces Air Control
 	switch (pm->pmove_movement) {
-	case MOVEMENT_CPM:
+	case MOVEMENT_CPM_DEFRAG:
+	case MOVEMENT_CPM_CPMA:
 	// case MOVEMENT_RM:
 		curdir[0] = pm->ps->velocity[0];
 		curdir[1] = pm->ps->velocity[1];
@@ -858,7 +863,8 @@ static void PM_AirMove( void ) {
 
 	// begin Xonotic Darkplaces Air Control
 	switch (pm->pmove_movement) {
-	case MOVEMENT_CPM:
+	case MOVEMENT_CPM_CPMA:
+	case MOVEMENT_CPM_DEFRAG:
 	// case MOVEMENT_RM:
 		PM_CPM_Aircontrol(pm, wishdir, wishspeed2);
 		break;
@@ -1048,7 +1054,7 @@ static void PM_WalkMove( void ) {
 	if ( ( pml.groundTrace.surfaceFlags & SURF_SLICK ) || pm->ps->pm_flags & PMF_TIME_KNOCKBACK ) {
 		// Slick and ground boost (probably).
 		switch (pm->pmove_movement) {
-		case MOVEMENT_CPM:
+		case MOVEMENT_CPM_DEFRAG:
 			accelerate = PM_GetAccelerate(pm);
 			break;
 		default:
