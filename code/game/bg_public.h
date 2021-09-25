@@ -259,7 +259,8 @@ typedef enum {
 	STAT_EXTFLAGS,					// extended playerstate flags
 	STAT_BOBCYCLEREM,				// used to store fractions of bobCycle for consistent, FPS-independent footsteps
 	STAT_OVERBOUNCE,					// Overbounce flag (only 1 bit, this could be integrated into another bitflag field if more STAT_ fields are required)
-	STAT_FROZENSTATE				// used to store frozen/thawing state if g_freeze = 1
+	STAT_FROZENSTATE,				// used to store frozen/thawing state if g_freeze = 1
+	STAT_MOVEMENT_KEYS				// used to store key presses.
 } statIndex_t;
 
 
@@ -290,6 +291,14 @@ typedef enum {
 // stats[STAT_EXTFLAGS]
 #define EXTFL_ZOOMING 1
 
+
+// stats[STAT_MOVEMENT_KEYS]
+#define MOVEMENT_KEY_UP     1
+#define MOVEMENT_KEY_DOWN   2
+#define MOVEMENT_KEY_LEFT   4
+#define MOVEMENT_KEY_RIGHT  8
+#define MOVEMENT_KEY_JUMP   16
+#define MOVEMENT_KEY_CROUCH 32
 
 // entityState_t->eFlags
 #define	EF_DEAD				0x00000001		// don't draw a foe marker over players with EF_DEAD

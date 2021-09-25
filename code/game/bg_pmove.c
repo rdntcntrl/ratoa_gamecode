@@ -2370,6 +2370,16 @@ void Pmove (pmove_t *pmove) {
 		pmove->ps->commandTime = finalTime - 1000;
 	}
 
+	// Send movement keys to the client.
+	pmove->ps->stats[STAT_MOVEMENT_KEYS] = 0
+		| (pmove->cmd.upmove > 0 ? MOVEMENT_KEY_JUMP : 0)
+		| (pmove->cmd.upmove < 0 ? MOVEMENT_KEY_CROUCH : 0)
+		| (pmove->cmd.forwardmove > 0 ? MOVEMENT_KEY_UP : 0)
+		| (pmove->cmd.forwardmove < 0 ? MOVEMENT_KEY_DOWN : 0)
+		| (pmove->cmd.rightmove > 0 ? MOVEMENT_KEY_RIGHT : 0)
+		| (pmove->cmd.rightmove < 0 ? MOVEMENT_KEY_LEFT : 0)
+	;
+
 	pmove->ps->pmove_framecount = (pmove->ps->pmove_framecount+1) & ((1<<PS_PMOVEFRAMECOUNTBITS)-1);
 
 	// chop the move up if it is too long, to prevent framerate
