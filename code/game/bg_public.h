@@ -31,7 +31,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #define	GAME_VERSION		BASEGAME "-1"
 
-#define RATMOD_VERSION "0.10.0"
+#define RATMOD_VERSION "0.10.1"
 
 #define	DEFAULT_GRAVITY		800
 #define	GIB_HEALTH			-40
@@ -267,7 +267,8 @@ typedef enum {
 	STAT_BOBCYCLEREM,				// used to store fractions of bobCycle for consistent, FPS-independent footsteps
 	STAT_OVERBOUNCE,					// Overbounce flag (only 1 bit, this could be integrated into another bitflag field if more STAT_ fields are required)
 	STAT_FROZENSTATE,				// used to store frozen/thawing state if g_freeze = 1
-	STAT_SLIDETIMEOUT				// holds slide time left after releasing crouch
+	STAT_SLIDETIMEOUT,				// holds slide time left after releasing crouch
+	STAT_MOVEMENT_KEYS				// used to store key presses.
 } statIndex_t;
 
 
@@ -299,6 +300,14 @@ typedef enum {
 #define EXTFL_ZOOMING 1
 #define EXTFL_SLIDING 2
 
+
+// stats[STAT_MOVEMENT_KEYS]
+#define MOVEMENT_KEY_UP     1
+#define MOVEMENT_KEY_DOWN   2
+#define MOVEMENT_KEY_LEFT   4
+#define MOVEMENT_KEY_RIGHT  8
+#define MOVEMENT_KEY_JUMP   16
+#define MOVEMENT_KEY_CROUCH 32
 
 // entityState_t->eFlags
 #define	EF_DEAD				0x00000001		// don't draw a foe marker over players with EF_DEAD
@@ -987,5 +996,6 @@ char *BG_TeamName( team_t team );
 
 char *BG_MovementToString( movement_t movement );
 movement_t BG_MovementFromString( const char *s );
+const char *BG_EntityTypeToString(int eType);
 
 #endif

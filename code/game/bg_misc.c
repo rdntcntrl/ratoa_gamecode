@@ -1574,7 +1574,23 @@ void BG_EvaluateTrajectoryDelta( const trajectory_t *tr, int atTime, vec3_t resu
 	}
 }
 
-char *eventnames[] = {
+const char *entitynames[] = {
+	"ET_GENERAL",
+	"ET_PLAYER",
+	"ET_ITEM",
+	"ET_MISSILE",
+	"ET_MOVER",
+	"ET_BEAM",
+	"ET_PORTAL",
+	"ET_SPEAKER",
+	"ET_PUSH_TRIGGER",
+	"ET_TELEPORT_TRIGGER",
+	"ET_INVISIBLE",
+	"ET_GRAPPLE",
+	"ET_TEAM"
+};
+
+const char *eventnames[] = {
 	"EV_NONE",
 
 	"EV_FOOTSTEP",
@@ -1685,6 +1701,27 @@ char *eventnames[] = {
 
 };
 
+const char *BG_EventToString(int event) {
+	if (event < 0) {
+		return "INVALID_EVENT";
+	}
+	if (event < sizeof(eventnames)/sizeof(eventnames[0])) {
+		return eventnames[event];
+	}
+	return "UNKNOWN_EVENT";
+}
+
+
+const char *BG_EntityTypeToString(int eType) {
+	if (eType < 0) {
+		return "INVALID_ETYPE";
+	}
+	if (eType < sizeof(entitynames)/sizeof(entitynames[0])) {
+		return entitynames[eType];
+	}
+	return BG_EventToString(eType -= ET_EVENTS);
+}
+
 /*
 ===============
 BG_AddPredictableEventToPlayerstate
@@ -1703,9 +1740,9 @@ void BG_AddPredictableEventToPlayerstate( int newEvent, int eventParm, playerSta
 		trap_Cvar_VariableStringBuffer("showevents", buf, sizeof(buf));
 		if ( atof(buf) != 0 ) {
 #ifdef QAGAME
-			Com_Printf(" game event svt %5d -> %5d: num = %20s parm %d\n", ps->pmove_framecount/*ps->commandTime*/, ps->eventSequence, eventnames[newEvent], eventParm);
+			Com_Printf(" game event svt %5d -> %5d: num = %20s parm %d\n", ps->pmove_framecount/*ps->commandTime*/, ps->eventSequence, BG_EventToString(newEvent), eventParm);
 #else
-			Com_Printf("Cgame event svt %5d -> %5d: num = %20s parm %d\n", ps->pmove_framecount/*ps->commandTime*/, ps->eventSequence, eventnames[newEvent], eventParm);
+			Com_Printf("Cgame event svt %5d -> %5d: num = %20s parm %d\n", ps->pmove_framecount/*ps->commandTime*/, ps->eventSequence, BG_EventToString(newEvent), eventParm);
 #endif
 		}
 	}

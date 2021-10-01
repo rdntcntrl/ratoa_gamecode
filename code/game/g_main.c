@@ -310,6 +310,7 @@ vmCvar_t        g_startWhenReady;
 vmCvar_t        g_autoStartTime;
 vmCvar_t        g_autoStartMinPlayers;
 vmCvar_t        g_countDownHealthArmor;
+vmCvar_t        g_spawnHealthBonus;
 vmCvar_t        g_powerupGlows;
 vmCvar_t        g_screenShake;
 vmCvar_t        g_allowForcedModels;
@@ -655,6 +656,7 @@ static cvarTable_t		gameCvarTable[] = {
         { &g_autoStartMinPlayers, "g_autoStartMinPlayers", "0", CVAR_ARCHIVE, 0, qfalse },
 
         { &g_countDownHealthArmor, "g_countDownHealthArmor", "1", CVAR_ARCHIVE , 0, qfalse },
+        { &g_spawnHealthBonus, "g_spawnHealthBonus", "25", CVAR_ARCHIVE, 0, qtrue },
 	
         { &g_powerupGlows, "g_powerupGlows", "1", CVAR_ARCHIVE, 0, qfalse },
         { &g_screenShake, "g_screenShake", "0", CVAR_ARCHIVE, 0, qfalse },
@@ -2062,6 +2064,7 @@ Add a queued players in team games
 qboolean AddQueuedPlayers( void ) {
 	int			i;
 	gclient_t	*client;
+	gclient_t	*nextInLineOverall;
 	gclient_t	*nextInLine[2];
 	gclient_t	*nextInLineBlue;
 	gclient_t	*nextInLineRed;
@@ -2089,6 +2092,7 @@ qboolean AddQueuedPlayers( void ) {
 		return qfalse;
 	}
 
+	nextInLineOverall = NULL;
 	nextInLine[0] = NULL;
 	nextInLine[1] = NULL;
 	nextInLineBlue = NULL;
@@ -2136,6 +2140,14 @@ qboolean AddQueuedPlayers( void ) {
 		} else if (client->sess.spectatorGroup == SPECTATORGROUP_QUEUED_RED
 				&& (!nextInLineRed || nextInLineRed->sess.spectatorNum < client->sess.spectatorNum)) {
 			nextInLineRed = client;
+		} else {
+			continue;
+		}
+		
+		if (!nextInLineOverall) {
+			nextInLineOverall = client;
+		} else if (client->sess.spectatorNum > nextInLineOverall->sess.spectatorNum) {
+			nextInLineOverall = client;
 		}
 	}
 
@@ -2175,7 +2187,15 @@ qboolean AddQueuedPlayers( void ) {
 			QueueJoinPlayer( &g_entities[ nextInLineRed - level.clients ], "r");
 			return qtrue;
 		}
-	} else {
+	} else if (counts[TEAM_RED] == 0 && counts[TEAM_BLUE] == 0 && !(level.RedTeamLocked || level.BlueTeamLocked)) {
+		// teams are empty (or only contain bots), just add whoever is next in line, one at the time
+		if (!nextInLineOverall) {
+			return qfalse;
+		}
+		QueueJoinPlayer( &g_entities[ nextInLineOverall - level.clients ],
+				nextInLineOverall->sess.spectatorGroup == SPECTATORGROUP_QUEUED_RED ?  "r" : "b");
+
+	} else if (!(level.RedTeamLocked || level.BlueTeamLocked)) {
 		// join a pair
 		int freecount = 0;
 		for (i = 0; i < 2; ++i) {

@@ -36,7 +36,10 @@ int teamSoundModificationCount = -1;
 int enemySoundModificationCount = -1;
 int forceColorModificationCounts = -1;
 int ratStatusbarModificationCount = -1;
+int hudMovementKeysModificationCount = -1;
+qboolean hudMovementKeysRegistered = qfalse;
 
+static void CG_RegisterMovementKeysShaders(void);
 static void CG_RegisterNumbers(void);
 void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum );
 void CG_Shutdown( void );
@@ -239,6 +242,10 @@ vmCvar_t	cg_hudDamageIndicator;
 vmCvar_t	cg_hudDamageIndicatorScale;
 vmCvar_t	cg_hudDamageIndicatorOffset;
 vmCvar_t	cg_hudDamageIndicatorAlpha;
+vmCvar_t	cg_hudMovementKeys;
+vmCvar_t	cg_hudMovementKeysScale;
+vmCvar_t	cg_hudMovementKeysColor;
+vmCvar_t	cg_hudMovementKeysAlpha;
 vmCvar_t	cg_emptyIndicator;
 vmCvar_t	cg_reloadIndicator;
 vmCvar_t	cg_reloadIndicatorY;
@@ -665,6 +672,10 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_hudDamageIndicatorScale, "cg_hudDamageIndicatorScale", "1.0", CVAR_ARCHIVE},
 	{ &cg_hudDamageIndicatorOffset, "cg_hudDamageIndicatorOffset", "0.0", CVAR_ARCHIVE},
 	{ &cg_hudDamageIndicatorAlpha, "cg_hudDamageIndicatorAlpha", "1.0", CVAR_ARCHIVE},
+	{ &cg_hudMovementKeys, "cg_hudMovementKeys", "0", CVAR_ARCHIVE},
+	{ &cg_hudMovementKeysScale, "cg_hudMovementKeysScale", "1.0", CVAR_ARCHIVE},
+	{ &cg_hudMovementKeysColor, "cg_hudMovementKeysColor", "H192 1.0 1.0", CVAR_ARCHIVE},
+	{ &cg_hudMovementKeysAlpha, "cg_hudMovementKeysAlpha", "0.75", CVAR_ARCHIVE},
 	{ &cg_emptyIndicator, "cg_emptyIndicator", "1", CVAR_ARCHIVE},
 	{ &cg_reloadIndicator, "cg_reloadIndicator", "0", CVAR_ARCHIVE},
 	{ &cg_reloadIndicatorY, "cg_reloadIndicatorY", "340", CVAR_ARCHIVE},
@@ -1631,6 +1642,12 @@ void CG_UpdateCvars( void ) {
 	if ( ratStatusbarModificationCount != cg_ratStatusbar.modificationCount ) {
 		CG_RegisterNumbers();
 		ratStatusbarModificationCount = cg_ratStatusbar.modificationCount;
+	}
+	
+	if ( hudMovementKeysModificationCount != cg_hudMovementKeys.modificationCount && !hudMovementKeysRegistered ) {
+		CG_RegisterMovementKeysShaders();
+		hudMovementKeysRegistered = qtrue;
+		hudMovementKeysModificationCount = cg_hudMovementKeys.modificationCount;
 	}
 }
 
@@ -2674,7 +2691,12 @@ static void CG_RegisterGraphics( void ) {
 			cgs.media.damageIndicatorLeft = trap_R_RegisterShaderNoMip("damageIndicatorLeft");
 			break;
 	}
-
+	
+	if (cg_hudMovementKeys.integer) {
+		CG_RegisterMovementKeysShaders();
+		hudMovementKeysRegistered = qtrue;
+	}
+	
 	if (cg_drawZoomScope.integer) {
 		cgs.media.zoomScopeMGShader = trap_R_RegisterShader("zoomScopeMG");
 		cgs.media.zoomScopeRGShader = trap_R_RegisterShader("zoomScopeRG");
@@ -2797,6 +2819,14 @@ static void CG_RegisterGraphics( void ) {
 */
 }
 
+static void CG_RegisterMovementKeysShaders(void) {
+	cgs.media.movementKeyIndicatorCrouch = trap_R_RegisterShader("movementKeyIndicatorCrouch");
+	cgs.media.movementKeyIndicatorJump = trap_R_RegisterShader("movementKeyIndicatorJump");
+	cgs.media.movementKeyIndicatorUp = trap_R_RegisterShader("movementKeyIndicatorUp");
+	cgs.media.movementKeyIndicatorDown = trap_R_RegisterShader("movementKeyIndicatorDown");
+	cgs.media.movementKeyIndicatorLeft = trap_R_RegisterShader("movementKeyIndicatorLeft");
+	cgs.media.movementKeyIndicatorRight = trap_R_RegisterShader("movementKeyIndicatorRight");
+}
 
 
 /*																																			
