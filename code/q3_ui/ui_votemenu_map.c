@@ -622,6 +622,7 @@ const char *UI_GetGametypeName(int gametype) {
 	case GT_SINGLE_PLAYER:
 		return "Single Player";
 	case GT_TOURNAMENT:
+	case GT_MULTITOURNAMENT:
 		return "Duel";
 	case GT_TEAM:
 		return "TDM";

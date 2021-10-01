@@ -275,7 +275,7 @@ static void CG_ParseRatScores2( void ) {
 		return;
 	}
 
-#define NUM_RAT2_DATA 8
+#define NUM_RAT2_DATA 9
 #define FIRST_RAT2_DATA 1
 
 	for ( i = 0 ; i < numScores ; i++ ) {
@@ -287,6 +287,7 @@ static void CG_ParseRatScores2( void ) {
 		cg.scores_buf[i].topweapon2 = atoi(CG_Argv(i * NUM_RAT2_DATA + FIRST_RAT2_DATA + 6));
 		cg.scores_buf[i].topweapon3 = atoi(CG_Argv(i * NUM_RAT2_DATA + FIRST_RAT2_DATA + 7));
 		cg.scores_buf[i].ratclient = atoi(CG_Argv(i * NUM_RAT2_DATA + FIRST_RAT2_DATA + 8));
+		cg.scores_buf[i].gameId = atoi(CG_Argv(i * NUM_RAT2_DATA + FIRST_RAT2_DATA + 9));
 
 		if (cg.scores_buf[i].topweapon1 >= WP_NUM_WEAPONS || cg.scores_buf[i].topweapon1 < WP_NONE) {
 			cg.scores_buf[i].topweapon1 = WP_NONE;
@@ -1007,7 +1008,7 @@ void CG_ParseServerinfo( void ) {
 	//By default do as normal:
 	cgs.ffa_gt = 0;
 	//See if ffa gametype
-	if(cgs.gametype == GT_LMS)	
+	if(cgs.gametype == GT_LMS || cgs.gametype == GT_MULTITOURNAMENT)	
 		cgs.ffa_gt = 1;
 	trap_Cvar_Set("g_gametype", va("%i", cgs.gametype));
 	cgs.dmflags = atoi( Info_ValueForKey( info, "dmflags" ) );
@@ -1096,6 +1097,53 @@ static void CG_ParseWarmup( void ) {
 	cg.warmup = warmup;
 }
 
+long CG_ParseMtrnGameFlags(const char *s) {
+	return strtol(s, NULL, 16);
+}
+
+long CG_GetMtrnGameFlags(int gameId) {
+	if (gameId < 0 || gameId >= MULTITRN_MAX_GAMES) {
+		return 0;
+	}
+	return (cgs.mtrnGameFlags >> (gameId*MTRN_CSFLAGS_SHIFT) & MTRN_CSFLAGS_MASK);
+}
+
+void CG_SetMtrnScoresIdx( int scoreIdx ) {
+	int i;
+	const char *str = CG_ConfigString(scoreIdx);
+	int *scores;
+
+	if (scoreIdx == CS_SCORES1) {
+		scores = cgs.scores1Mtrn;
+	} else {
+		scores = cgs.scores2Mtrn;
+	}
+
+	memset(scores, 0, sizeof(cgs.scores1Mtrn));
+
+	for (i = 0; i < MULTITRN_MAX_GAMES; ++i) {
+		if (*str) {
+			scores[i] = atoi(str);
+		}
+		while (*str && *str != ' ') {
+			++str;
+		}
+		while (*str == ' ') {
+			++str;
+		}
+	}
+}
+
+void CG_SetScores(void) {
+	if (cgs.gametype != GT_MULTITOURNAMENT) {
+		cgs.scores1 = atoi(CG_ConfigString(CS_SCORES1));
+		cgs.scores2 = atoi(CG_ConfigString(CS_SCORES2));
+		return;
+	}
+	CG_SetMtrnScoresIdx(CS_SCORES1);
+	CG_SetMtrnScoresIdx(CS_SCORES2);
+}
+
 /*
 ================
 CG_SetConfigValues
@@ -1106,8 +1154,7 @@ Called on load to set the initial values from configure strings
 void CG_SetConfigValues( void ) {
 	const char *s;
 
-	cgs.scores1 = atoi( CG_ConfigString( CS_SCORES1 ) );
-	cgs.scores2 = atoi( CG_ConfigString( CS_SCORES2 ) );
+	CG_SetScores();
 	cgs.levelStartTime = atoi( CG_ConfigString( CS_LEVEL_START_TIME ) );
 	if( cgs.gametype == GT_CTF || cgs.gametype == GT_CTF_ELIMINATION || cgs.gametype == GT_DOUBLE_D) {
 		s = CG_ConfigString( CS_FLAGSTATUS );
@@ -1190,9 +1237,9 @@ static void CG_ConfigStringModified( void ) {
 	} else if ( num == CS_WARMUP ) {
 		CG_ParseWarmup();
 	} else if ( num == CS_SCORES1 ) {
-		cgs.scores1 = atoi( str );
+		CG_SetScores();
 	} else if ( num == CS_SCORES2 ) {
-		cgs.scores2 = atoi( str );
+		CG_SetScores();
 	} else if ( num == CS_LEVEL_START_TIME ) {
 		cgs.levelStartTime = atoi( str );
 	} else if ( num == CS_VOTE_TIME ) {
@@ -1228,6 +1275,8 @@ static void CG_ConfigStringModified( void ) {
 #endif	
 	} else if ( num == CS_INTERMISSION ) {
 		cg.intermissionStarted = atoi( str );
+	} else if ( num == CS_MTRNFLAGS ) {
+		cgs.mtrnGameFlags = CG_ParseMtrnGameFlags( str );
 	} else if ( num >= CS_MODELS && num < CS_MODELS+MAX_MODELS ) {
 		cgs.gameModels[ num-CS_MODELS ] = trap_R_RegisterModel( str );
 	} else if ( num >= CS_SOUNDS && num < CS_SOUNDS+MAX_SOUNDS ) {
