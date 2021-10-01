@@ -318,6 +318,34 @@ static void CG_HUD_f( void ) {
 
 }
 
+static char *CG_OnOffStr(qboolean val) {
+	return val ? S_COLOR_GREEN "ON" : S_COLOR_RED "OFF";
+}
+
+static void CG_Rules_f( void ) {
+	CG_Printf("Server rules: \n");
+	CG_Printf(" -movement:              %s\n", BG_MovementToString(cgs.movement));
+	CG_Printf(" -Smooth/additive jump:  %s\n", CG_OnOffStr(cgs.ratFlags & RAT_ADDITIVEJUMP));
+	CG_Printf(" -Ramp jump:             %s\n", CG_OnOffStr(cgs.ratFlags & RAT_RAMPJUMP));
+	CG_Printf(" -Smooth stairs:         %s\n", CG_OnOffStr(cgs.ratFlags & RAT_SMOOTHSTAIRS));
+	CG_Printf(" -Crouch slide:          %s\n", CG_OnOffStr(cgs.ratFlags & RAT_CROUCHSLIDE));
+	CG_Printf(" -Crouch slide mode:     %s\n", (cgs.ratFlags & RAT_SLIDEMODE) ? "liberal" : "conservative");
+	CG_Printf(" -Smooth stairs:         %s\n", CG_OnOffStr(cgs.ratFlags & RAT_SMOOTHSTAIRS));
+	CG_Printf(" -Overbounce:            %s\n", CG_OnOffStr(!(cgs.ratFlags & RAT_NOOVERBOUNCE)));
+	CG_Printf(" -Fast weapon switch:    %s\n", CG_OnOffStr(cgs.ratFlags & RAT_FASTSWITCH));
+	CG_Printf(" -Fast weapons:          %s\n", CG_OnOffStr(cgs.ratFlags & RAT_FASTWEAPONS));
+	CG_Printf(" -Forced models:         %s\n", CG_OnOffStr(cgs.ratFlags & RAT_ALLOWFORCEDMODELS));
+	CG_Printf(" -Bright shells:         %s\n", CG_OnOffStr(cgs.ratFlags & RAT_BRIGHTSHELL));
+	CG_Printf(" -Bright outlines:       %s\n", CG_OnOffStr(cgs.ratFlags & RAT_BRIGHTOUTLINE));
+	CG_Printf(" -Item pickup height:    %s\n", (cgs.ratFlags & RAT_EASYPICKUP) ? "high" : "regular");
+	CG_Printf(" -Powerup glows:         %s\n", CG_OnOffStr(cgs.ratFlags & RAT_POWERUPGLOWS));
+	CG_Printf(" -Screen shake upon hit: %s\n", CG_OnOffStr(cgs.ratFlags & RAT_SCREENSHAKE));
+	CG_Printf(" -Rocket speed:          %i\n", cgs.rocketSpeed);
+	CG_Printf(" -Shotgun type:          %s\n", cgs.ratFlags & RAT_NEWSHOTGUN ? "rat" : "classic");
+	CG_Printf(" -Grapple type:          %s\n", cgs.ratFlags & RAT_SWINGGRAPPLE ? "swinging" : "classic");
+	trap_SendClientCommand("srules");
+}
+
 
 #ifdef MISSIONPACK
 extern menuDef_t *menuScoreboard;
@@ -756,7 +784,8 @@ static consoleCommand_t	commands[] = {
 
         { "cg_ui_SendClientCommand", CG_UI_SendClientCommand },
         { "resetcfg", CG_ResetCfg_f },
-        { "hud", CG_HUD_f }
+        { "hud", CG_HUD_f },
+        { "rules", CG_Rules_f }
 };
 
 

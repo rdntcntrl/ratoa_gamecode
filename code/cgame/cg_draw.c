@@ -2435,11 +2435,22 @@ static float CG_DrawTimer( float y ) {
 
 	s = va( "%s%i:%i%i", negative ? "-" : "", mins, tens, seconds );
 	w = CG_DrawStrlen( s ) * char_width;
-
 	//CG_DrawBigString( 635 - w, y + 2, s, 1.0F);
 	switch (cg_timerPosition.integer) {
 		case 1:
 			CG_DrawStringExt( (SCREEN_WIDTH-w)/2.0, 10, s, color, qfalse, qtrue, char_width, char_height, 0 );
+			return y;
+			break;
+	        case 2:
+			CG_DrawStringExt( (SCREEN_WIDTH-w)/2.0,
+					  SCREEN_HEIGHT/2 + cg_crosshairSize.integer,
+					  s, color, qfalse, qtrue, char_width, char_height, 0 );
+			return y;
+			break;
+	        case 3:
+			CG_DrawStringExt( (SCREEN_WIDTH-w)/2.0,
+					  SCREEN_HEIGHT / 2 - cg_crosshairSize.integer - char_height,
+					  s, color, qfalse, qtrue, char_width, char_height, 0 );
 			return y;
 			break;
 		default:
@@ -5740,7 +5751,7 @@ static void CG_DrawEmptyIndicator( void ) {
 	}
 }
 
-#define MAX_RELOADTIME 1500
+#define MAX_RELOADTIME RAIL_RELOAD_REGULAR
 static void CG_DrawReloadIndicator( void ) {
 	int time = cg.predictedPlayerState.weaponTime;
 	float width;

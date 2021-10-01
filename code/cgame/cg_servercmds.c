@@ -1041,46 +1041,28 @@ void CG_ParseServerinfo( void ) {
 //unlagged - server options
 	// we'll need this for deciding whether or not to predict weapon effects
 	cgs.delagHitscan = atoi( Info_ValueForKey( info, "g_delagHitscan" ) );
-	trap_Cvar_Set("g_delagHitscan", va("%i", cgs.delagHitscan));
 //unlagged - server options
 //
 	cgs.rocketSpeed = atoi( Info_ValueForKey( info, "g_rocketSpeed" ) );
-	trap_Cvar_Set("g_rocketSpeed", va("%i", cgs.rocketSpeed));
 
 	cgs.delagMissileMaxLatency = atoi( Info_ValueForKey( info, "g_delagMissileMaxLatency" ) );
-	trap_Cvar_Set("g_delagMissileMaxLatency", va("%i", cgs.delagMissileMaxLatency));
 
 	cgs.predictedMissileNudge = atoi( Info_ValueForKey( info, "g_delagMissileBaseNudge" ) );
-	trap_Cvar_Set("g_delagMissileBaseNudge", va("%i", cgs.predictedMissileNudge));
 
 	cgs.ratFlags = atoi( Info_ValueForKey( info, "g_ratFlags" ) );
-	trap_Cvar_Set("g_ratFlags", va("%i", cgs.ratFlags));
 
 	cgs.movement = atoi( Info_ValueForKey( info, "g_movement" ) );
 	if ((cgs.movement >= MOVEMENT_NUM_MOVEMENTS) || (cgs.movement < MOVEMENT_VQ3)) {
 		cgs.movement = MOVEMENT_VQ3;
 	}
-	trap_Cvar_Set("g_movement", va("%i", cgs.movement));
 	
 	cgs.slideSlowAccel = atof( Info_ValueForKey( info, "g_slideSlowAccel" ) );
-	trap_Cvar_Set("g_slideSlowAccel", va("%f", cgs.slideSlowAccel));
-
-	trap_Cvar_Set("g_rampJump", va("%i", (cgs.ratFlags & RAT_RAMPJUMP) ? 1 : 0));
-	trap_Cvar_Set("g_crouchSlide", va("%i", (cgs.ratFlags & RAT_CROUCHSLIDE) ? 1 : 0));
-	trap_Cvar_Set("g_slideMode", va("%i", (cgs.ratFlags & RAT_SLIDEMODE) ? 1 : 0));
-	trap_Cvar_Set("g_additiveJump", va("%i", (cgs.ratFlags & RAT_ADDITIVEJUMP) ? 1 : 0));
-	trap_Cvar_Set("g_fastSwim", va("%i", (cgs.ratFlags & RAT_FASTSWIM) ? 1 : 0));
-	trap_Cvar_Set("g_swingGrapple", va("%i", (cgs.ratFlags & RAT_SWINGGRAPPLE) ? 1 : 0));
-	trap_Cvar_Set("g_fastSwitch", va("%i", (cgs.ratFlags & RAT_FASTSWITCH) ? 1 : 0));
-	trap_Cvar_Set("g_fastWeapons", va("%i", (cgs.ratFlags & RAT_FASTWEAPONS) ? 1 : 0));
-	trap_Cvar_Set("g_regularFootsteps", va("%i", (cgs.ratFlags & RAT_REGULARFOOTSTEPS) ? 1 : 0));
 
 	cgs.maxBrightshellAlpha = atof( Info_ValueForKey( info, "g_maxBrightshellAlpha" ) );
 	// don't allow the server to set values that are too high / low
 	cgs.maxBrightshellAlpha = MAX(MIN(cgs.maxBrightshellAlpha, 0.8), 0.1);
 
 	cgs.startWhenReady = atoi( Info_ValueForKey( info, "g_startWhenReady" ) );
-	trap_Cvar_Set("g_startWhenReady", va("%i", cgs.startWhenReady));
 
         //Copy allowed votes directly to the client:
         trap_Cvar_Set("cg_voteflags",Info_ValueForKey( info, "voteflags" ) );

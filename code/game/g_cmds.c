@@ -699,50 +699,28 @@ void Cmd_Acc_f( gentity_t *ent ) {
 
 /*
 ==================
- Cmd_Rules_f
+ Cmd_SRules_f
  Print server ruleset
 ==================
 */
-void Cmd_Rules_f( gentity_t *ent ) {
+void Cmd_SRules_f( gentity_t *ent ) {
 
 	trap_SendServerCommand( ent-g_entities, va("print \""
-				"Server rules:\n"
-				" -movement:              " S_COLOR_WHITE "%s\n"
-				" -Smooth/additive jump:  %s" S_COLOR_WHITE "\n"
-				" -Ramp jump:             %s" S_COLOR_WHITE "\n"
-				" -Smooth stairs:         %s" S_COLOR_WHITE "\n"
-				" -Crouch slide:          %s" S_COLOR_WHITE "\n"
-				" -Overbounce:            %s" S_COLOR_WHITE "\n"
-				" -Fast weapon switch:    %s" S_COLOR_WHITE "\n"
-				" -Fast weapons:          %s" S_COLOR_WHITE "\n"
-				" -Forced models:         %s" S_COLOR_WHITE "\n"
-				" -Bright shells:         %s" S_COLOR_WHITE "\n"
-				" -Bright outlines:       %s" S_COLOR_WHITE "\n"
-				" -Item pickup height:    %s" S_COLOR_WHITE "\n"
-				" -Powerup glows:         %s" S_COLOR_WHITE "\n"
-				" -Screen shake upon hit: %s" S_COLOR_WHITE "\n"
 				" -Jumppad grenades:      %s" S_COLOR_WHITE "\n"
 				" -Tele missiles:         %s" S_COLOR_WHITE "\n"
 				" -Ambient sounds:        %s" S_COLOR_WHITE "\n"
+				" -Machinegun damage:     %i" S_COLOR_WHITE "\n"
+				" -Lightning gun damage:  %i" S_COLOR_WHITE "\n"
+				" -Railgun damage:        %i" S_COLOR_WHITE "\n"
+				" -Gauntlet damage:       %i" S_COLOR_WHITE "\n"
 				"\"", 
-				BG_MovementToString(g_movement.integer),
-				g_additiveJump.integer ? S_COLOR_GREEN "ON" : S_COLOR_RED "OFF",
-				g_rampJump.integer ? S_COLOR_GREEN "ON" : S_COLOR_RED "OFF",
-				g_smoothStairs.integer ? S_COLOR_GREEN "ON" : S_COLOR_RED "OFF",
-				g_crouchSlide.integer ? S_COLOR_GREEN "ON" : S_COLOR_RED "OFF",
-				g_slideMode.integer ? S_COLOR_BLUE "liberal" : S_COLOR_RED "conservative",
-				g_overbounce.integer ? S_COLOR_GREEN "ON" : S_COLOR_RED "OFF",
-				g_fastSwitch.integer ? S_COLOR_GREEN "ON" : S_COLOR_RED "OFF",
-				g_fastWeapons.integer ? S_COLOR_GREEN "ON" : S_COLOR_RED "OFF",
-				g_allowForcedModels.integer ? S_COLOR_GREEN "ON" : S_COLOR_RED "OFF",
-				g_brightPlayerShells.integer ? S_COLOR_GREEN "ON" : S_COLOR_RED "OFF",
-				g_brightPlayerOutlines.integer ? S_COLOR_GREEN "ON" : S_COLOR_RED "OFF",
-				g_itemPickup.integer ? "high" : "low",
-				g_powerupGlows.integer ? S_COLOR_GREEN "ON" : S_COLOR_RED "OFF",
-				g_screenShake.integer ? S_COLOR_GREEN "ON" : S_COLOR_RED "OFF",
 				g_pushGrenades.integer ? S_COLOR_GREEN "ON" : S_COLOR_RED "OFF",
 				g_teleMissiles.integer ? S_COLOR_GREEN "ON" : S_COLOR_RED "OFF",
-				g_ambientSound.integer ? S_COLOR_GREEN "ON" : S_COLOR_RED "OFF"
+				g_ambientSound.integer ? S_COLOR_GREEN "ON" : S_COLOR_RED "OFF",
+				(g_gametype.integer == GT_TEAM ? g_mgTeamDamage.integer : g_mgDamage.integer),
+				g_lgDamage.integer,
+				g_railgunDamage.integer,
+				g_gauntDamage.integer
 
 				));
 }
@@ -1958,6 +1936,13 @@ qboolean G_Forfeit(gentity_t *ent, qboolean quiet) {
 		return qfalse;
 	}
 
+	if (level.warmupTime) {
+		if (!quiet) {
+			trap_SendServerCommand(ent-g_entities,va("cp \"" S_COLOR_CYAN "Can't forfeit during warmup!\"" ) );
+		}
+		return qfalse;
+	}
+
 	if (g_gametype.integer != GT_TOURNAMENT 
 			|| level.numPlayingClients != 2) {
 		if (!quiet) {
@@ -1966,12 +1951,6 @@ qboolean G_Forfeit(gentity_t *ent, qboolean quiet) {
 		return qfalse;
 	}
 
-	if (level.warmupTime) {
-		if (!quiet) {
-			trap_SendServerCommand(ent-g_entities,va("cp \"" S_COLOR_CYAN "Can't forfeit during warmup!\"" ) );
-		}
-		return qfalse;
-	}
 
 	if (cnum == level.sortedClients[0]) {
 		opponentCnum = level.sortedClients[1];
@@ -3995,7 +3974,7 @@ commands_t cmds[ ] =
   { "score", CMD_INTERMISSION, Cmd_Score_f },
   { "acc", CMD_INTERMISSION, Cmd_Acc_f},
 
-  { "rules", 0, Cmd_Rules_f},
+  { "srules", 0, Cmd_SRules_f},
 
   // cheats
   { "give", CMD_CHEAT|CMD_LIVING, Cmd_Give_f },

@@ -200,17 +200,6 @@ vmCvar_t 	cg_scorePlum;
 
 vmCvar_t 	cg_ratInitialized;
 
-vmCvar_t 	g_movement;
-vmCvar_t 	g_crouchSlide;
-vmCvar_t 	g_slideMode;
-vmCvar_t 	g_slideSlowAccel;
-vmCvar_t 	g_rampJump;
-vmCvar_t 	g_additiveJump;
-vmCvar_t 	g_swingGrapple;
-vmCvar_t 	g_fastSwim;
-vmCvar_t 	g_fastSwitch;
-vmCvar_t 	g_fastWeapons;
-vmCvar_t 	g_regularFootsteps;
 vmCvar_t 	cg_predictTeleport;
 vmCvar_t 	cg_predictWeapons;
 vmCvar_t 	cg_predictExplosions;
@@ -236,6 +225,7 @@ vmCvar_t	cg_ratRailBeefy;
 vmCvar_t	cg_ratRailRadius;
 vmCvar_t	cg_ratLg;
 vmCvar_t	cg_ratLgImpact;
+vmCvar_t	cg_lgSound;
 vmCvar_t	cg_consoleStyle;
 vmCvar_t 	cg_noBubbleTrail;
 vmCvar_t	cg_specShowZoom;
@@ -632,18 +622,6 @@ static cvarTable_t cvarTable[] = { // bk001129
 	// RAT ===================
 	{ &cg_ratInitialized, "cg_ratInitialized", "0", CVAR_ARCHIVE},
 
-	{ &g_movement, "g_movement", "0", CVAR_SERVERINFO},
-	{ &g_crouchSlide, "g_crouchSlide", "0", CVAR_SYSTEMINFO},
-	{ &g_slideMode, "g_slideMode", "0", CVAR_SYSTEMINFO},
-	{ &g_slideMode, "g_slideSlowAccel", "-0.5", CVAR_SERVERINFO},
-	{ &g_rampJump, "g_rampJump", "0", CVAR_SYSTEMINFO},
-	{ &g_additiveJump, "g_additiveJump", "0", CVAR_SYSTEMINFO},
-	{ &g_swingGrapple, "g_swingGrapple", "0", CVAR_SYSTEMINFO},
-	{ &g_fastSwim, "g_fastSwim", "1", CVAR_SYSTEMINFO},
-	{ &g_fastSwitch, "g_fastSwitch", "1", CVAR_SYSTEMINFO},
-	{ &g_fastWeapons, "g_fastWeapons", "1", CVAR_SYSTEMINFO},
-	{ &g_regularFootsteps, "g_regularFootsteps", "1", CVAR_SYSTEMINFO},
-
 	// TODO: make CVAR_ARCHIVE
 	{ &cg_predictTeleport, "cg_predictTeleport", "1", 0},
 	{ &cg_predictWeapons, "cg_predictWeapons", "1", 0},
@@ -673,6 +651,7 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_ratRailRadius, "cg_ratRailRadius", "0.5", CVAR_ARCHIVE},
 	{ &cg_ratLg, "cg_ratLg", "3", CVAR_ARCHIVE|CVAR_LATCH},
 	{ &cg_ratLgImpact, "cg_ratLgImpact", "1", CVAR_ARCHIVE},
+	{ &cg_lgSound, "cg_lgSound", "1", CVAR_ARCHIVE|CVAR_LATCH},
 	{ &cg_consoleStyle, "cg_consoleStyle", "2", CVAR_ARCHIVE},
 	{ &cg_noBubbleTrail, "cg_noBubbleTrail", "1", CVAR_ARCHIVE},
 	{ &cg_specShowZoom, "cg_specShowZoom", "1", CVAR_ARCHIVE},
@@ -745,7 +724,7 @@ static cvarTable_t cvarTable[] = { // bk001129
 
 	{ &cg_mySound ,     "cg_mySound", "", CVAR_ARCHIVE},
 	{ &cg_teamSound ,   "cg_teamSound", "", CVAR_ARCHIVE},
-	{ &cg_enemySound ,  "cg_enemySound", "penguin", CVAR_ARCHIVE},
+	{ &cg_enemySound ,  "cg_enemySound", "beret", CVAR_ARCHIVE},
 
 	{ &cg_myFootsteps ,     "cg_myFootsteps", "-1", CVAR_ARCHIVE},
 	{ &cg_teamFootsteps ,   "cg_teamFootsteps", "-1", CVAR_ARCHIVE},
@@ -832,7 +811,7 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_cmdTimeNudge, "cg_cmdTimeNudge", "0", CVAR_ARCHIVE | CVAR_USERINFO },
 	// this will be automagically copied from the server
 	{ &sv_fps, "sv_fps", "20", CVAR_SYSTEMINFO | CVAR_ROM },
-	{ &cg_projectileNudge, "cg_projectileNudge", "0", CVAR_ARCHIVE },
+	{ &cg_projectileNudge, "cg_projectileNudge", "0", CVAR_CHEAT },
 	{ &cg_projectileNudgeAuto, "cg_projectileNudgeAuto", "0", CVAR_ARCHIVE },
 	{ &cg_optimizePrediction, "cg_optimizePrediction", "1", CVAR_ARCHIVE },
 	{ &cl_timeNudge, "cl_timeNudge", "0", CVAR_ARCHIVE },
@@ -955,7 +934,7 @@ void CG_SetEngineCvars( void ) {
 }
 
 
-#define LATEST_RATINITIALIZED 29
+#define LATEST_RATINITIALIZED 30
 
 int CG_MigrateOldCrosshair(int old) {
 	switch (old) {
@@ -1399,6 +1378,14 @@ void CG_RatOldCfgUpdate(void) {
 		}
 
 		CG_Cvar_SetAndUpdate( "cg_ratInitialized", "29" );
+	}
+
+	if (cg_ratInitialized.integer < 30) {
+		if (!Q_stricmp(cg_enemySound.string, "penguin")) {
+			CG_Cvar_ResetToDefault("cg_enemySound");
+		}
+
+		CG_Cvar_SetAndUpdate( "cg_ratInitialized", "30" );
 	}
 }
 
@@ -3936,6 +3923,7 @@ void CG_AutoRecordStart(void) {
 			// path separators
 			case '/':
 			case '\\':
+			case '|':
 				*p = '#';
 				continue;
 			// additional characters that aren't allowed on windows

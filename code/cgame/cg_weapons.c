@@ -1230,6 +1230,7 @@ void CG_RegisterWeapon( int weaponNum ) {
 	vec3_t			mins, maxs;
 	int				i;
 	const char *worldmodel = NULL;
+	unsigned int soundIdx;
 
 	weaponInfo = &cg_weapons[weaponNum];
 
@@ -1311,10 +1312,12 @@ void CG_RegisterWeapon( int weaponNum ) {
 
 	case WP_LIGHTNING:
 		MAKERGB( weaponInfo->flashDlightColor, 0.6f, 0.6f, 1.0f );
-		weaponInfo->readySound = trap_S_RegisterSound( "sound/weapons/melee/fsthum.wav", qfalse );
-		weaponInfo->firingSound = trap_S_RegisterSound( "sound/weapons/lightning/lg_hum.wav", qfalse );
+#define NUM_LG_SOUNDPACKS 5
+		soundIdx = (((unsigned int)(cg_lgSound.integer - 1)) % NUM_LG_SOUNDPACKS) + 1;
+		weaponInfo->readySound = trap_S_RegisterSound( va("sound/weapons/melee/fsthum%u.wav", soundIdx), qfalse );
+		weaponInfo->firingSound = trap_S_RegisterSound( va("sound/weapons/lightning/lg_hum%u.wav", soundIdx), qfalse );
 
-		weaponInfo->flashSound[0] = trap_S_RegisterSound( "sound/weapons/lightning/lg_fire.wav", qfalse );
+		weaponInfo->flashSound[0] = trap_S_RegisterSound( va("sound/weapons/lightning/lg_fire%u.wav", soundIdx), qfalse );
 		switch (cg_ratLg.integer) {
 			case 1:
 				cgs.media.lightningShader = trap_R_RegisterShader( "lightningBoltRat1");
@@ -1965,9 +1968,9 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
 	if ( ps || cent->currentState.clientNum == cg.predictedPlayerState.clientNum ) {
 		if ( cg.predictedPlayerState.weapon == WP_RAILGUN 
 			&& cg.predictedPlayerState.weaponstate == WEAPON_FIRING ) {
-			float	f;
+			float	f = (float)cg.predictedPlayerState.weaponTime;
 
-			f = (float)cg.predictedPlayerState.weaponTime / 1500;
+			f /= (float)((cgs.ratFlags & RAT_FASTWEAPONS) ? RAIL_RELOAD_FAST : RAIL_RELOAD_REGULAR);
 			gun.shaderRGBA[1] = 0;
 			gun.shaderRGBA[0] = 
 			gun.shaderRGBA[2] = 255 * ( 1.0 - f );
@@ -4145,7 +4148,14 @@ void CG_FireWeapon( centity_t *cent ) {
 
 	// lightning gun only does this this on initial press
 	if ( ent->weapon == WP_LIGHTNING ) {
-		if ( cent->pe.lightningFiring ) {
+		// we could get EV_FIRE_WEAPON as a separate event (not on the player entity)
+		// due to SendPendingPredictableEvents()
+		if (ent->eType != ET_PLAYER && ent->clientNum >= 0 && ent->clientNum < MAX_CLIENTS) {
+			centity_t *playerCEnt = &cg_entities[ent->clientNum];
+			if (!playerCEnt->currentValid || playerCEnt->pe.lightningFiring) {
+				return;
+			}
+		} else if ( cent->pe.lightningFiring ) {
 			return;
 		}
 	}

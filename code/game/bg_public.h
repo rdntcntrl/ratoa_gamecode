@@ -31,6 +31,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #define	GAME_VERSION		BASEGAME "-1"
 
+#define RATMOD_VERSION "0.10.0"
+
 #define	DEFAULT_GRAVITY		800
 #define	GIB_HEALTH			-40
 #define	ARMOR_PROTECTION	0.66
@@ -160,6 +162,9 @@ typedef enum {
 	WEAPON_FIRING
 } weaponstate_t;
 
+#define RAIL_RELOAD_REGULAR 1500
+#define RAIL_RELOAD_FAST    1250
+
 // pmove->pm_flags
 #define	PMF_DUCKED			1
 #define	PMF_JUMP_HELD		2
@@ -186,8 +191,9 @@ typedef enum {
 
 typedef enum {
 	MOVEMENT_VQ3 = 0,
-	MOVEMENT_CPM,
+	MOVEMENT_CPM_DEFRAG,
 	MOVEMENT_RM,
+	MOVEMENT_CPM_CPMA,
 
 	MOVEMENT_NUM_MOVEMENTS,
 } movement_t;

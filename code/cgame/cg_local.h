@@ -1708,17 +1708,6 @@ extern  vmCvar_t		cg_scorePlum;
 
 extern vmCvar_t                	cg_ratInitialized;
 
-extern vmCvar_t                	g_movement;
-extern vmCvar_t                	g_crouchSlide;
-extern vmCvar_t                	g_slideMode;
-extern vmCvar_t                	g_slideSlowAccel;
-extern vmCvar_t                	g_rampJump;
-extern vmCvar_t                	g_additiveJump;
-extern vmCvar_t                	g_swingGrapple;
-extern vmCvar_t                	g_fastSwim;
-extern vmCvar_t                	g_fastSwitch;
-extern vmCvar_t                	g_fastWeapons;
-extern vmCvar_t                	g_regularFootsteps;
 extern vmCvar_t                	cg_predictTeleport;
 extern vmCvar_t                	cg_predictWeapons;
 extern vmCvar_t                	cg_predictExplosions;
@@ -1743,6 +1732,7 @@ extern vmCvar_t			cg_ratRailBeefy;
 extern vmCvar_t			cg_ratRailRadius;
 extern vmCvar_t			cg_ratLg;
 extern vmCvar_t			cg_ratLgImpact;
+extern vmCvar_t			cg_lgSound;
 extern vmCvar_t			cg_consoleStyle;
 extern vmCvar_t			cg_delagProjectileTrail;
 extern vmCvar_t			cg_noBubbleTrail;

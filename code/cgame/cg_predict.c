@@ -572,7 +572,11 @@ static void CG_TouchTriggerPrediction( void ) {
 					cg.predictedPlayerState.pm_time = 160;
 					cg.predictedPlayerState.pm_flags |= PMF_TIME_KNOCKBACK;
 
-					if (cgs.movement != MOVEMENT_CPM) {
+					switch (cgs.movement) {
+					case MOVEMENT_CPM_CPMA:
+					case MOVEMENT_CPM_DEFRAG:
+						break;
+					default:
 						// reset rampjump
 						cg.predictedPlayerState.stats[STAT_JUMPTIME] = 0;
 					}
@@ -1097,7 +1101,9 @@ void CG_PredictPlayerState( void ) {
 		CG_TouchTriggerPrediction();
 
 		// check for predictable events that changed from previous predictions
-		//CG_CheckChangedPredictableEvents(&cg.predictedPlayerState);
+		if (!cg_optimizePrediction.integer || cmdNum == cg.lastPredictedCommand) {
+			CG_CheckChangedPredictableEvents(&cg.predictedPlayerState);
+		}
 	}
 
 //unlagged - optimized prediction

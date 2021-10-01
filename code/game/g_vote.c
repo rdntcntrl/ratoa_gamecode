@@ -498,6 +498,7 @@ t_customvote getCustomVote(char* votecommand) {
     memset(buffer,0,CUSTOMVOTE_BUFFER_SIZE);
 
     trap_FS_Read(buffer,CUSTOMVOTE_BUFFER_SIZE-1,file);
+    trap_FS_FCloseFile(file);
 
     pointer = buffer;
 
@@ -550,6 +551,7 @@ int VoteParseCustomVotes ( void ) {
     memset(buffer,0,CUSTOMVOTE_BUFFER_SIZE);
 
     trap_FS_Read(buffer,CUSTOMVOTE_BUFFER_SIZE-1,file);
+    trap_FS_FCloseFile(file);
 
     pointer = buffer;
 
@@ -601,6 +603,7 @@ int VotePrintCustomVotes (gentity_t *ent) {
     Q_strncpyz(printBuf, S_COLOR_CYAN "Custom vote commands are: \n", sizeof(printBuf));
 
     trap_FS_Read(buffer,CUSTOMVOTE_BUFFER_SIZE-1,file);
+    trap_FS_FCloseFile(file);
 
     pointer = buffer;
 

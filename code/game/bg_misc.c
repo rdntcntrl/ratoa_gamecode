@@ -1933,8 +1933,10 @@ char *BG_TeamName( team_t team )
 char *BG_MovementToString( movement_t movement )
 {
 	switch (movement) {
-	case MOVEMENT_CPM:
-		return "CPM";
+	case MOVEMENT_CPM_CPMA:
+		return "CPMA";
+	case MOVEMENT_CPM_DEFRAG:
+		return "CPMD";
 	case MOVEMENT_RM:
 		return "RM";
 	default:
@@ -1944,8 +1946,10 @@ char *BG_MovementToString( movement_t movement )
 
 movement_t BG_MovementFromString( const char *s )
 {
-	if (Q_stricmp(BG_MovementToString(MOVEMENT_CPM), s) == 0) {
-		return MOVEMENT_CPM;
+	if (Q_stricmp(BG_MovementToString(MOVEMENT_CPM_CPMA), s) == 0) {
+		return MOVEMENT_CPM_CPMA;
+	}else if (Q_stricmp(BG_MovementToString(MOVEMENT_CPM_DEFRAG), s) == 0) {
+		return MOVEMENT_CPM_DEFRAG;
 	} else if (Q_stricmp(BG_MovementToString(MOVEMENT_RM), s) == 0) {
 		return MOVEMENT_RM;
 	} else {
