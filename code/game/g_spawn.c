@@ -436,7 +436,11 @@ int G_SpawnGEntityFromSpawnVars( void ) {
 	int			i;
 	gentity_t	*ent;
 	char		*s, *value, *gametypeName;
-	static char *gametypeNames[] = {"ffa", "tournament", "single", "team", "ctf", "oneflag", "obelisk", "harvester", "elimination", "ctf", "lms", "dd", "dom", "th", "tournament"};
+	static char *gametypeNames[] = {"ffa", "tournament", "single", "team", "ctf", "oneflag", "obelisk", "harvester", "elimination", "ctf", "lms", "dd", "dom", "th"
+#ifdef WITH_MULTITOURNAMENT
+		, "tournament"
+#endif
+	};
 
 	// get the next free entity
 	ent = G_Spawn();
@@ -749,6 +753,7 @@ void SP_worldspawn( void ) {
 
 }
 
+#ifdef WITH_MULTITOURNAMENT
 void G_MultiTrnSpawn(void) {
 	int gameId;
 	int entityNum;
@@ -780,6 +785,7 @@ void G_MultiTrnSpawn(void) {
 
 	}
 }
+#endif // WITH_MULTITOURNAMENT
 
 
 /*
@@ -810,11 +816,15 @@ void G_SpawnEntitiesFromString( void ) {
 
 			// parse ents
 			while( G_ParseSpawnVarsFromString(&pbuf) ) {
+#ifdef WITH_MULTITOURNAMENT
 				if (g_gametype.integer == GT_MULTITOURNAMENT) {
 					G_MultiTrnSpawn();
 				} else {
+#endif
 					G_SpawnGEntityFromSpawnVars();
+#ifdef WITH_MULTITOURNAMENT
 				}
+#endif
 			}	
 			level.spawning = qfalse;
 			goto out;
@@ -831,11 +841,15 @@ void G_SpawnEntitiesFromString( void ) {
 
 	// parse ents
 	while( G_ParseSpawnVars() ) {
+#ifdef WITH_MULTITOURNAMENT
 		if (g_gametype.integer == GT_MULTITOURNAMENT) {
 			G_MultiTrnSpawn();
 		} else {
+#endif
 			G_SpawnGEntityFromSpawnVars();
+#ifdef WITH_MULTITOURNAMENT
 		}
+#endif
 	}	
 
 	level.spawning = qfalse;			// any future calls to G_Spawn*() will be errors

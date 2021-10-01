@@ -280,9 +280,11 @@ vmCvar_t	g_ra3maxArena;
 vmCvar_t	g_ra3forceArena;
 vmCvar_t	g_ra3nextForceArena;
 
+#ifdef WITH_MULTITOURNAMENT
 vmCvar_t	g_multiTournamentGames;
 vmCvar_t	g_multiTournamentAutoRePair;
 vmCvar_t	g_multiTournamentEndgameRePair;
+#endif
 
 vmCvar_t	g_enableGreenArmor;
 
@@ -602,9 +604,11 @@ static cvarTable_t		gameCvarTable[] = {
         { &g_ra3forceArena, "g_ra3forceArena", "-1", 0, 0, qfalse },
         { &g_ra3nextForceArena, "g_ra3nextForceArena", "-1", 0, 0, qfalse },
 
+#ifdef WITH_MULTITOURNAMENT
         { &g_multiTournamentGames, "g_multiTournamentGames", "4", CVAR_INIT, 0, qfalse },
         { &g_multiTournamentAutoRePair, "g_multiTournamentAutoRePair", "1", CVAR_ARCHIVE, 0, qfalse },
         { &g_multiTournamentEndgameRePair, "g_multiTournamentEndgameRePair", "1", CVAR_ARCHIVE, 0, qfalse },
+#endif
 
         { &g_enableGreenArmor, "g_enableGreenArmor", "0", CVAR_ARCHIVE, 0, qfalse },
 
@@ -847,7 +851,9 @@ static cvarTable_t		gameCvarTable[] = {
 // bk001129 - made static to avoid aliasing
 static int gameCvarTableSize = sizeof( gameCvarTable ) / sizeof( gameCvarTable[0] );
 
+#ifdef WITH_MULTITOURNAMENT
 int QDECL SortRanksMultiTournament( const void *a, const void *b );
+#endif
 int QDECL SortRanks( const void *a, const void *b );
 
 void G_InitGame( int levelTime, int randomSeed, int restart );
@@ -865,60 +871,94 @@ This must be the very first function compiled into the .q3vm file
 ================
 */
 intptr_t vmMain( int command, int arg0, int arg1, int arg2, int arg3, int arg4, int arg5, int arg6, int arg7, int arg8, int arg9, int arg10, int arg11  ) {
+#ifdef WITH_MULTITOURNAMENT
 	intptr_t ret;
 	int reti;
 	qboolean retb;
+#endif
 	switch ( command ) {
 	case GAME_INIT:
 		G_InitGame( arg0, arg1, arg2 );
+#ifdef WITH_MULTITOURNAMENT
 		G_LinkGameId(MTRN_GAMEID_ANY);
+#endif
 		return 0;
 	case GAME_SHUTDOWN:
+#ifdef WITH_MULTITOURNAMENT
 		G_LinkGameId(MTRN_GAMEID_ANY);
+#endif
 		G_ShutdownGame( arg0 );
 		return 0;
 	case GAME_CLIENT_CONNECT:
+#ifdef WITH_MULTITOURNAMENT
 		G_LinkGameId(MTRN_GAMEID_ANY);
 		ret = (intptr_t)ClientConnect( arg0, arg1, arg2 );
 		G_LinkGameId(MTRN_GAMEID_ANY);
 		return ret;
+#else
+		return (intptr_t)ClientConnect( arg0, arg1, arg2 );
+#endif
 	case GAME_CLIENT_THINK:
 		ClientThink( arg0 );
+#ifdef WITH_MULTITOURNAMENT
 		G_LinkGameId(MTRN_GAMEID_ANY);
+#endif
 		return 0;
 	case GAME_CLIENT_USERINFO_CHANGED:
 		ClientUserinfoChangedLimited( arg0 );
+#ifdef WITH_MULTITOURNAMENT
 		G_LinkGameId(MTRN_GAMEID_ANY);
+#endif
 		return 0;
 	case GAME_CLIENT_DISCONNECT:
 		ClientDisconnect( arg0 );
+#ifdef WITH_MULTITOURNAMENT
 		G_LinkGameId(MTRN_GAMEID_ANY);
+#endif
 		return 0;
 	case GAME_CLIENT_BEGIN:
 		ClientBegin( arg0 );
+#ifdef WITH_MULTITOURNAMENT
 		G_LinkGameId(MTRN_GAMEID_ANY);
+#endif
 		return 0;
 	case GAME_CLIENT_COMMAND:
 		ClientCommand( arg0 );
+#ifdef WITH_MULTITOURNAMENT
 		G_LinkGameId(MTRN_GAMEID_ANY);
+#endif
 		return 0;
 	case GAME_RUN_FRAME:
+#ifdef WITH_MULTITOURNAMENT
 		G_LinkGameId(MTRN_GAMEID_ANY);
+#endif
 		G_RunFrame( arg0 );
+#ifdef WITH_MULTITOURNAMENT
 		G_LinkGameId(MTRN_GAMEID_ANY);
+#endif
 		return 0;
 	case GAME_CONSOLE_COMMAND:
+#ifdef WITH_MULTITOURNAMENT
 		G_LinkGameId(MTRN_GAMEID_ANY);
 		retb = ConsoleCommand();
 		G_LinkGameId(MTRN_GAMEID_ANY);
 		return retb;
+#else
+		return ConsoleCommand();
+#endif
 	case BOTAI_START_FRAME:
+#ifdef WITH_MULTITOURNAMENT
 		G_LinkGameId(MTRN_GAMEID_ANY);
 		reti = BotAIStartFrame( arg0 );
 		G_LinkGameId(MTRN_GAMEID_ANY);
 		return reti;
+#else
+		return BotAIStartFrame( arg0 );
+#endif
 	}
+#ifdef WITH_MULTITOURNAMENT
 	G_LinkGameId(MTRN_GAMEID_ANY);
+#endif
 
 	return -1;
 }
@@ -1509,7 +1549,11 @@ void G_RegisterCvars( void ) {
 	}
 
 	//set FFA status for high gametypes:
-	if ( g_gametype.integer == GT_LMS || g_gametype.integer == GT_MULTITOURNAMENT ) {
+	if ( g_gametype.integer == GT_LMS
+#ifdef WITH_MULTITOURNAMENT
+		       	|| g_gametype.integer == GT_MULTITOURNAMENT 
+#endif
+			) {
 		g_ffa_gt = 1;	//Last Man standig is a FFA gametype
 	} else {
 		g_ffa_gt = 0;	//If >GT_CTF use bases
@@ -1868,6 +1912,7 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 
 	ClearRegisteredItems();
 
+#ifdef WITH_MULTITOURNAMENT
 	if (g_gametype.integer == GT_MULTITOURNAMENT) {
 		if (g_multiTournamentGames.integer > 0 
 			       && g_multiTournamentGames.integer <= MULTITRN_MAX_GAMES) {
@@ -1876,12 +1921,15 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 			level.multiTrnNumGames = MULTITRN_MAX_GAMES;
 		}
 	}
+#endif // WITH_MULTITOURNAMENT
 
 	// parse the key/value pairs and spawn gentities
 	G_SpawnEntitiesFromString();
 
+#ifdef WITH_MULTITOURNAMENT
 	for (i = 0; i < MAX(1,level.multiTrnNumGames); ++i) {
 		G_LinkGameId(i);
+#endif
 
 		G_SetTeleporterDestinations();
 
@@ -1893,14 +1941,18 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 			G_CheckTeamItems();
 		}
 
+#ifdef WITH_MULTITOURNAMENT
 		if (g_gametype.integer != GT_MULTITOURNAMENT) {
 			break;
 		}
 
 	}
+#endif
+#ifdef WITH_MULTITOURNAMENT
 	if (g_gametype.integer == GT_MULTITOURNAMENT) {
 		G_LinkGameId(MTRN_GAMEID_ANY);
 	}
+#endif
 
 	SaveRegisteredItems();
 
@@ -2009,7 +2061,9 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 		G_LoadClans();
 	}
 
+#ifdef WITH_MULTITOURNAMENT
 	G_UpdateMultiTrnGames();
+#endif
 	CalculateRanks();
 }
 
@@ -2558,6 +2612,7 @@ void AddTournamentQueue(gclient_t *client)
     }
 }
 
+#ifdef WITH_MULTITOURNAMENT
 qboolean ReorderMultiTournament( void ) {
 	int i;
 	int numConnectedClients;
@@ -2600,6 +2655,7 @@ qboolean ReorderMultiTournament( void ) {
 
 	return qtrue;
 }
+#endif // WITH_MULTITOURNAMENT
 
 /*
 =======================
@@ -2675,6 +2731,7 @@ void RemoveTournamentWinner( void ) {
 }
 
 
+#ifdef WITH_MULTITOURNAMENT
 void AdjustMultiTournamentScores( multiTrnGame_t *game ) {
 	gclient_t *cl1, *cl2;
 
@@ -2705,6 +2762,7 @@ void AdjustMultiTournamentScores( multiTrnGame_t *game ) {
 
 
 }
+#endif // WITH_MULTITOURNAMENT
 
 /*
 =======================
@@ -2730,6 +2788,7 @@ void AdjustTournamentScores( void ) {
 
 }
 
+#ifdef WITH_MULTITOURNAMENT
 int QDECL SortRanksMultiTournament( const void *a, const void *b ) {
 	gclient_t	*ca, *cb;
 
@@ -2793,6 +2852,7 @@ int QDECL SortRanksMultiTournament( const void *a, const void *b ) {
 	}
 	return 0;
 }
+#endif // WITH_MULTITOURNAMENT
 
 /*
 =============
@@ -2856,6 +2916,7 @@ int QDECL SortRanks( const void *a, const void *b ) {
         //        return -1;
         //} // confusing
 	
+#ifdef WITH_MULTITOURNAMENT
 	if (g_gametype.integer == GT_MULTITOURNAMENT) {
 		gentity_t *ea = &g_entities[ca->ps.clientNum];
 		gentity_t *eb = &g_entities[cb->ps.clientNum];
@@ -2866,6 +2927,7 @@ int QDECL SortRanks( const void *a, const void *b ) {
 			return 1;
 		}
 	}
+#endif
 
 	// then sort by score
 	if ( ca->ps.persistant[PERS_SCORE]
@@ -2879,6 +2941,7 @@ int QDECL SortRanks( const void *a, const void *b ) {
 	return 0;
 }
 
+#ifdef WITH_MULTITOURNAMENT
 char *G_MultiTrnScoreString(int scoreId) {
 	int gameId;
 	char scoreStr[256] = "";
@@ -2908,6 +2971,7 @@ char *G_MultiTrnScoreString(int scoreId) {
 	}
 	return va("%s", scoreStr);
 }
+#endif // WITH_MULTITOURNAMENT
 
 /*
 ============
@@ -2982,6 +3046,7 @@ void CalculateRanks( void ) {
 				cl->ps.persistant[PERS_RANK] = 1;
 			}
 		}
+#ifdef WITH_MULTITOURNAMENT
 	} else if ( g_gametype.integer == GT_MULTITOURNAMENT ) {	
 		for ( i = 0; i < level.multiTrnNumGames; ++i) {
 			multiTrnGame_t *game = &level.multiTrnGames[i];
@@ -3003,6 +3068,7 @@ void CalculateRanks( void ) {
 				level.clients[ game->clients[0] ].ps.persistant[PERS_RANK] = 0;
 			}
 		}
+#endif // WITH_MULTITOURNAMENT
 	} else {	
 		rank = -1;
 		score = 0;
@@ -3029,9 +3095,11 @@ void CalculateRanks( void ) {
 	if ( g_gametype.integer >= GT_TEAM && g_ffa_gt!=1) {
 		trap_SetConfigstring( CS_SCORES1, va("%i", level.teamScores[TEAM_RED] ) );
 		trap_SetConfigstring( CS_SCORES2, va("%i", level.teamScores[TEAM_BLUE] ) );
+#ifdef WITH_MULTITOURNAMENT
 	} else if (g_gametype.integer == GT_MULTITOURNAMENT ) {
 		trap_SetConfigstring( CS_SCORES1, G_MultiTrnScoreString(CS_SCORES1));
 		trap_SetConfigstring( CS_SCORES2, G_MultiTrnScoreString(CS_SCORES2));
+#endif
 	} else {
 		if ( level.numConnectedClients == 0 ) {
 			trap_SetConfigstring( CS_SCORES1, va("%i", SCORE_NOT_PRESENT) );
@@ -3231,6 +3299,7 @@ void MoveClientToIntermission( gentity_t *ent ) {
 	ent->r.contents = 0;
 }
 
+#ifdef WITH_MULTITOURNAMENT
 void G_MultitrnIntermission(multiTrnGame_t *game) {
 	int i;
 	gentity_t *ent;
@@ -3276,6 +3345,7 @@ void G_MultitrnIntermission(multiTrnGame_t *game) {
 	G_LinkGameId(oldGameId);
 	G_UpdateMultiTrnFlags();
 }
+#endif // WITH_MULTITOURNAMENT
 
 /*
 ==================
@@ -3346,7 +3416,9 @@ BeginIntermission
 void BeginIntermission( void ) {
 	int			i;
 	gentity_t	*client;
+#ifdef WITH_MULTITOURNAMENT
 	int oldGameId = level.currentGameId;
+#endif
 
 	if ( level.intermissiontime ) {
 		return;		// already active
@@ -3364,14 +3436,20 @@ void BeginIntermission( void ) {
 		if (!client->inuse)
 			continue;
 		// respawn if dead
+#ifdef WITH_MULTITOURNAMENT
 		G_LinkGameId(0); // make sure everybody has a spawn point, including spectators
+#endif
 		if (client->health <= 0) {
 			ClientRespawn(client);
 		}
+#ifdef WITH_MULTITOURNAMENT
 		G_LinkGameId(0);
+#endif
 		MoveClientToIntermission( client );
 	}
+#ifdef WITH_MULTITOURNAMENT
 	G_LinkGameId(oldGameId);
+#endif
 #ifdef MISSIONPACK
 	if (g_singlePlayer.integer) {
 		trap_Cvar_Set("ui_singlePlayerActive", "0");
@@ -3420,7 +3498,9 @@ void ExitLevel (void) {
 			level.intermissiontime = 0;
 		}
 		return;	
-	} else if ( g_gametype.integer == GT_MULTITOURNAMENT  ) {
+	} 
+#ifdef WITH_MULTITOURNAMENT
+	else if ( g_gametype.integer == GT_MULTITOURNAMENT  ) {
 		if ( !level.restarted ) {
 			if (!ReorderMultiTournament()) {
 				trap_SendConsoleCommand( EXEC_APPEND, "map_restart 0\n" );
@@ -3431,6 +3511,7 @@ void ExitLevel (void) {
 		}
 		return;	
 	}
+#endif // WITH_MULTITOURNAMENT
 
 	trap_Cvar_VariableStringBuffer( "nextmap", nextmap, sizeof(nextmap) );
 	trap_Cvar_VariableStringBuffer( "d1", d1, sizeof(d1) );
@@ -3556,6 +3637,7 @@ void QDECL G_LogPrintf( const char *fmt, ... ) {
 	trap_FS_Write( string, strlen( string ), level.logFile );
 }
 
+#ifdef WITH_MULTITOURNAMENT
 void LogMtrnExit( const char *string, int gameId) {
 	gclient_t *cl;
 	multiTrnGame_t *game;
@@ -3581,6 +3663,7 @@ void LogMtrnExit( const char *string, int gameId) {
 				cl->pers.netname );
 	}
 }
+#endif // WITH_MULTITOURNAMENT
 
 
 /*
@@ -3650,6 +3733,7 @@ void LogExit( const char *string ) {
 	}
 #endif
 
+#ifdef WITH_MULTITOURNAMENT
 	if (g_gametype.integer == GT_MULTITOURNAMENT) {
 		int gameId;
 		for (gameId = 0; gameId < level.multiTrnNumGames; ++gameId) {
@@ -3657,8 +3741,11 @@ void LogExit( const char *string ) {
 		}
 
 	} else {
+#endif
 		G_WriteStatsJSON(string, 0);
+#ifdef WITH_MULTITOURNAMENT
 	}
+#endif
 
 }
 
@@ -3857,6 +3944,7 @@ void CheckIntermissionExit( void ) {
 	ExitLevel();
 }
 
+#ifdef WITH_MULTITOURNAMENT
 qboolean ScoreIsTiedMtrnGame(int gameId) {
 	multiTrnGame_t *game;
 	if (!G_ValidGameId(gameId)) {
@@ -3870,6 +3958,7 @@ qboolean ScoreIsTiedMtrnGame(int gameId) {
 	return (level.clients[game->clients[0]].ps.persistant[PERS_SCORE] 
 			== level.clients[game->clients[1]].ps.persistant[PERS_SCORE]);
 }
+#endif // WITH_MULTITOURNAMENT
 
 /*
 =============
@@ -3883,6 +3972,7 @@ qboolean ScoreIsTied( void ) {
 		return qfalse;
 	}
 
+#ifdef WITH_MULTITOURNAMENT
 	if ( g_gametype.integer == GT_MULTITOURNAMENT ) {
 		int i;
 		// just check if there is one tied game
@@ -3893,6 +3983,7 @@ qboolean ScoreIsTied( void ) {
 		}
 		return qfalse;
 	}
+#endif
         
         //Sago: In Elimination and Oneway Flag Capture teams must win by two points.
         if ( g_gametype.integer == GT_ELIMINATION || 
@@ -3912,6 +4003,7 @@ qboolean ScoreIsTied( void ) {
 	return a == b;
 }
 
+#ifdef WITH_MULTITOURNAMENT
 qboolean G_MultiTrnFinished(void) {
 	int i;
 	for ( i = 0; i < level.multiTrnNumGames; ++i ) {
@@ -3922,6 +4014,7 @@ qboolean G_MultiTrnFinished(void) {
 	}
 	return qtrue;
 }
+#endif
 
 /*
 =================
@@ -3953,6 +4046,7 @@ void CheckExitRules( void ) {
         }
 
 
+#ifdef WITH_MULTITOURNAMENT
 	if (g_gametype.integer == GT_MULTITOURNAMENT && !level.warmupTime) {
 		int gameId;
 		qboolean sendScores = qfalse;
@@ -4004,6 +4098,7 @@ void CheckExitRules( void ) {
 			SendScoreboardMessageToAllClients();
 		}
 	}
+#endif // WITH_MULTITOURNAMENT
 
 	if ( level.intermissionQueued ) {
 #ifdef MISSIONPACK
@@ -4026,7 +4121,11 @@ void CheckExitRules( void ) {
 		// always wait for sudden death
 		return;
 	}
-	if ( g_gametype.integer != GT_MULTITOURNAMENT && g_timelimit.integer > 0 && !level.warmupTime ) {
+	if ( g_timelimit.integer > 0 && !level.warmupTime
+#ifdef WITH_MULTITOURNAMENT
+			&& g_gametype.integer != GT_MULTITOURNAMENT
+#endif
+	   ) {
 		//if ( (level.time - level.startTime)/60000 >= g_timelimit.integer ) {
 		if ( (level.time - level.startTime) >= g_timelimit.integer * 60000 + level.timeoutOvertime + g_overtime.integer * 60*1000 *  level.overtimeCount) {
 			if (ScoreIsTied() && g_overtime.integer > 0) {
@@ -4059,12 +4158,13 @@ void CheckExitRules( void ) {
 		LogExit("Match ended due to forfeit!");
 		return;
 	}
+#ifdef WITH_MULTITOURNAMENT
 	if (g_gametype.integer == GT_MULTITOURNAMENT) {
 		if (level.tournamentForfeited) {
 			LogExit("All matches ended due to forfeit!\n");
 			return;
 		}
-		
+
 		if (G_NumActiveMultiTrnGames() <= 0) {
 			return;
 		}
@@ -4074,13 +4174,19 @@ void CheckExitRules( void ) {
 			return;
 		}
 	}
+#endif // WITH_MULTITOURNAMENT
 
 
 	if ( level.numPlayingClients < 2 ) {
 		return;
 	}
 
-	if ( g_gametype.integer != GT_MULTITOURNAMENT && (g_gametype.integer < GT_CTF || g_ffa_gt>0 ) && g_fraglimit.integer ) {
+	if ( (g_gametype.integer < GT_CTF || g_ffa_gt>0 ) && g_fraglimit.integer
+#ifdef WITH_MULTITOURNAMENT
+			&& g_gametype.integer != GT_MULTITOURNAMENT
+#endif
+		
+	   ) {
 		if ( level.teamScores[TEAM_RED] >= g_fraglimit.integer ) {
 			trap_SendServerCommand( -1, "print \"Red hit the fraglimit.\n\"" );
 			LogExit( "Fraglimit hit." );
@@ -5214,7 +5320,11 @@ void CheckTournament( void ) {
 			level.restarted = qtrue;
 			return;
 		}
-	} else if ( g_gametype.integer != GT_MULTITOURNAMENT && g_gametype.integer != GT_SINGLE_PLAYER && level.warmupTime != 0 ) {
+	} else if ( g_gametype.integer != GT_SINGLE_PLAYER
+#ifdef WITH_MULTITOURNAMENT
+			&& g_gametype.integer != GT_MULTITOURNAMENT
+#endif
+			&& level.warmupTime != 0 ) {
 		int		counts[TEAM_NUM_TEAMS];
 		qboolean	notEnough = qfalse;
 		int i;
@@ -5325,6 +5435,7 @@ void CheckTournament( void ) {
 	}
 }
 
+#ifdef WITH_MULTITOURNAMENT
 int G_NumActiveMultiTrnGames(void) {
 	int i;
 	int numActiveGames = 0;
@@ -5667,6 +5778,7 @@ void CheckMultiTournament( void ) {
 	}
 }
 
+#endif // WITH_MULTITOURNAMENT
 
 
 
@@ -5846,7 +5958,9 @@ Advances the non-player objects in the world
 */
 void G_RunFrame( int levelTime ) {
 	int			i;
+#ifdef WITH_MULTITOURNAMENT
 	int			gameId;
+#endif
 	gentity_t	*ent;
 	int			msec;
 
@@ -5905,8 +6019,10 @@ void G_RunFrame( int levelTime ) {
             trap_Cvar_Set("elimflags",va("%i",g_elimflags.integer&(~EF_ONEWAY) ) );
         }
 
+#ifdef WITH_MULTITOURNAMENT
 	for (gameId = 0; gameId < MAX(1,level.multiTrnNumGames); ++gameId) {
 		G_LinkGameId(gameId);
+#endif
 		//
 		// go through all allocated objects
 		//
@@ -6022,18 +6138,22 @@ void G_RunFrame( int levelTime ) {
 			}
 		}
 
+#ifdef WITH_MULTITOURNAMENT
 		if (g_gametype.integer != GT_MULTITOURNAMENT) {
 			break;
 		}
 	}
 	G_LinkGameId(MTRN_GAMEID_ANY);
+#endif // WITH_MULTITOURNAMENT
 
 //end = trap_Milliseconds();
 
 	// see if it is time to do a tournement restart
 	CheckTournament();
 
+#ifdef WITH_MULTITOURNAMENT
 	CheckMultiTournament();
+#endif
 
 	//Check Elimination state
 	CheckElimination();

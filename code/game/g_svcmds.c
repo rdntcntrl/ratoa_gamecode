@@ -324,13 +324,17 @@ void	Svcmd_EntityList_f (void) {
 		if ( !ent->inuse ) {
 			continue;
 		}
+#ifdef WITH_MULTITOURNAMENT
                 G_Printf("%s", ent->wasLinked ? S_COLOR_GREEN : S_COLOR_WHITE);
+#endif
                 G_Printf("%4i:", i);
                 G_Printf("%-20s(%3i)", BG_EntityTypeToString(ent->s.eType), ent->s.eType);
 		if ( ent->classname ) {
 			G_Printf(" %-30s", ent->classname);
 		}
+#ifdef WITH_MULTITOURNAMENT
 		G_Printf(" gameId %2i", ent->gameId);
+#endif
 		G_Printf(" %s", vtos(ent->r.currentOrigin));
                 G_Printf("\n");
 	}

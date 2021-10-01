@@ -71,9 +71,11 @@ void G_PlayDenied(gentity_t *ent, gentity_t *other) {
 			continue;
 		}
 
+#ifdef WITH_MULTITOURNAMENT
 		if ( g_gametype.integer == GT_MULTITOURNAMENT && other->client->sess.gameId != client->sess.gameId) {
 			continue;
 		}
+#endif
 
 		// if too far away, no sound
 		VectorSubtract( ent->s.pos.trBase, client->ps.origin, delta );

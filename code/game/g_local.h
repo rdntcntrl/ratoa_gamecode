@@ -74,7 +74,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define MUTED_GAME 2
 #define MUTED_INTERMISSION 4
 #define MUTED_RENAME 8
+#ifdef WITH_MULTITOURNAMENT
 #define MUTED_MULTITOURNAMENT 16
+#endif
 
 #define CLMUTE_MUTED 1
 #define CLMUTE_SHADOWMUTED 2
@@ -119,9 +121,11 @@ struct gentity_s {
 
 	qboolean	inuse;
 
+#ifdef WITH_MULTITOURNAMENT
 	int		gameId;
 	qboolean	wasLinked;
-	int		multiTrnClientExcludeMask;	
+	int		multiTrnClientExcludeMask;
+#endif
 
 	char		*classname;			// set in QuakeEd
 	int			spawnflags;			// set in QuakeEd
@@ -290,6 +294,7 @@ typedef struct {
 #define	FOLLOW_ACTIVE2	-2
 
 
+#ifdef WITH_MULTITOURNAMENT
 #define MULTITRN_WAITTIME	5000
 #define	MULTITRN_INTERMISSION_DELAY_TIME	800
 
@@ -304,6 +309,7 @@ typedef struct {
 	int clientMask;
 	int clients[2];
 } multiTrnGame_t;
+#endif // WITH_MULTITOURNAMENT
 
 typedef enum {
 	UNNAMEDSTATE_CLEAN = 0,
@@ -334,10 +340,12 @@ typedef struct {
 	int    skillPlaytime; // play time, over multiple games
 	float  skillScore; // score, over multiple games
 
+#ifdef WITH_MULTITOURNAMENT
 	// GT_MULTITOURNAMENT:
 	int gameId;
 	// if this is set, follownext/prev will only cycle through clients that have the same gameId
 	qboolean specOnlyCurrentGameId;
+#endif
 } clientSession_t;
 
 
@@ -881,12 +889,14 @@ typedef struct {
     int teamBalanceTime;
      
     
+#ifdef WITH_MULTITOURNAMENT
     // for GT_MULTITOURNAMENT
     int			multiTrnNumGames;
     int			currentGameId;
     multiTrnGame_t	multiTrnGames[MULTITRN_MAX_GAMES];
     qboolean		multiTrnReorder;	
     qboolean		multiTrnInit;	
+#endif
 } level_locals_t;
 
 //KK-OAX These are some Print Shortcuts for KillingSprees and Admin
@@ -1022,10 +1032,14 @@ void G_SetOrigin( gentity_t *ent, vec3_t origin );
 void AddRemap(const char *oldShader, const char *newShader, float timeOffset);
 void ClearRemaps(void);
 const char *BuildShaderStateConfig( void );
+
+// GT_MULTITOURNAMENT
 qboolean G_InUse(gentity_t *ent);
+#ifdef WITH_MULTITOURNAMENT
 qboolean G_ValidGameId(int gameId);
 void G_LinkGameId(int gameId);
 void G_SetGameIDMask(gentity_t *ent, int gameId);
+#endif
 
 //
 // g_combat.c
@@ -1251,6 +1265,8 @@ void G_CheckUnlockTeams(void);
 void G_EQPingSet(int maxEQPing, qboolean forceMax);
 void G_EQPingClientSet(gclient_t *client);
 void G_EQPingClientReset(gclient_t *client);
+
+#ifdef WITH_MULTITOURNAMENT
 int G_FindFreeMultiTrnSlot(void);
 qboolean G_MultiTrnCanJoinGame(int gameId);
 void G_UpdateMultiTrnGames(void);
@@ -1259,6 +1275,7 @@ void G_UpdateMultiTrnFlags(void);
 qboolean G_MtrnIntermissionTimeClient(gclient_t *cl);
 qboolean G_MtrnIntermissionTime(int gameId);
 int G_NumActiveMultiTrnGames(void);
+#endif // WITH_MULTITOURNAMENT
 
 //
 // g_client.c
@@ -1677,9 +1694,11 @@ extern  vmCvar_t	g_ra3maxArena;
 extern  vmCvar_t	g_ra3forceArena;
 extern  vmCvar_t	g_ra3nextForceArena;
 
+#ifdef WITH_MULTITOURNAMENT
 extern  vmCvar_t	g_multiTournamentGames;
 extern  vmCvar_t	g_multiTournamentAutoRePair;
 extern  vmCvar_t	g_multiTournamentEndgameRePair;
+#endif
 
 extern  vmCvar_t	g_enableGreenArmor;
 

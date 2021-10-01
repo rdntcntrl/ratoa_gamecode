@@ -207,10 +207,12 @@ void G_JSONExport(fileHandle_t f, const char *exitreason, int gameId) {
 	json_timestamp(f, "time");
 	xfprintf(f, ",");
 	json_writeint(f, "gametype", g_gametype.integer);
+#ifdef WITH_MULTITOURNAMENT
 	if (g_gametype.integer == GT_MULTITOURNAMENT) {
 		xfprintf(f, ",");
 		json_writeint(f, "gameId", gameId);
 	}
+#endif
 	xfprintf(f, ",");
 	if (g_gametype.integer >= GT_TEAM && !g_ffa_gt) {
 		json_writebool(f, "team_gt", qtrue);
@@ -249,9 +251,11 @@ void G_JSONExport(fileHandle_t f, const char *exitreason, int gameId) {
 			continue;
 		}
 
+#ifdef WITH_MULTITOURNAMENT
 		if (g_gametype.integer == GT_MULTITOURNAMENT && cl->sess.gameId != gameId) {
 			continue;
 		}
+#endif
 
 		if (comma) {
 			xfprintf(f, ",");
@@ -265,6 +269,7 @@ void G_JSONExport(fileHandle_t f, const char *exitreason, int gameId) {
 	xfprintf(f, "}");
 }
 
+#ifdef WITH_MULTITOURNAMENT
 qboolean G_ShouldRecordMtrnGame(int gameId) {
 	int i;
 	multiTrnGame_t *game;
@@ -297,6 +302,7 @@ qboolean G_ShouldRecordMtrnGame(int gameId) {
 	}
 	return qtrue;
 }
+#endif // WITH_MULTITOURNAMENT
 
 void G_WriteStatsJSON(const char *exitreason, int game_id) {
 	char fname[MAX_OSPATH];
@@ -311,11 +317,13 @@ void G_WriteStatsJSON(const char *exitreason, int game_id) {
 
 	if (g_gametype.integer >= GT_TEAM && !g_ffa_gt) {
 		humans = G_CountHumanPlayers(TEAM_RED) + G_CountHumanPlayers(TEAM_BLUE);
+#ifdef WITH_MULTITOURNAMENT
 	} else if (g_gametype.integer == GT_MULTITOURNAMENT) {
 		if (!G_ShouldRecordMtrnGame(game_id)) {
 			return;
 		}
 		humans = 2;
+#endif
 	} else {
 		humans = G_CountHumanPlayers(TEAM_FREE);
 	}

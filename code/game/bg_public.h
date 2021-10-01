@@ -92,7 +92,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #define	CS_ITEMS				27		// string of 0's and 1's that tell which items are present
 
+#ifdef WITH_MULTITOURNAMENT
 #define	CS_MTRNFLAGS				28		// game status flags for multitournament
+#endif
 
 #define	CS_MODELS				32
 #define	CS_SOUNDS				(CS_MODELS+MAX_MODELS)
@@ -106,6 +108,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #error overflow: (CS_MAX) > MAX_CONFIGSTRINGS
 #endif
 
+#ifdef WITH_MULTITOURNAMENT
 #define MULTITRN_MAX_GAMES	6
 
 #define MTRN_CSFLAGS_SHIFT 1
@@ -113,6 +116,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define MTRN_CSFLAG_FINISHED 1 
 
 #define MTRN_GAMEID_ANY (-1)
+#endif // WITH_MULTITOURNAMENT
 
 typedef enum {
 	GT_FFA,				// free for all
@@ -138,7 +142,9 @@ typedef enum {
 	GT_DOUBLE_D,			// Double Domination
 	GT_DOMINATION,			// Standard domination 12
 	GT_TREASURE_HUNTER,			
+#ifdef WITH_MULTITOURNAMENT
 	GT_MULTITOURNAMENT,
+#endif
 	GT_MAX_GAME_TYPE
 	
 } gametype_t;

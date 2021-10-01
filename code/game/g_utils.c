@@ -374,6 +374,7 @@ void G_InitGentity( gentity_t *e ) {
 	e->s.number = e - g_entities;
 	e->r.ownerNum = ENTITYNUM_NONE;
 
+#ifdef WITH_MULTITOURNAMENT
 	if (g_gametype.integer == GT_MULTITOURNAMENT) {
 		if (!G_ValidGameId(level.currentGameId)) {
 			Com_Printf("^3Warning: creating entity %i with invalid gameId %i\n",
@@ -381,6 +382,7 @@ void G_InitGentity( gentity_t *e ) {
 		}
 		G_SetGameIDMask(e, level.currentGameId);
 	}
+#endif
 }
 
 /*
@@ -704,6 +706,11 @@ int DebugLine(vec3_t start, vec3_t end, int color) {
 	return trap_DebugPolygonCreate(color, 4, points);
 }
 
+#ifndef WITH_MULTITOURNAMENT
+qboolean G_InUse(gentity_t *ent) {
+	return ent->inuse;
+}
+#else
 qboolean G_ValidGameId(int gameId) {
 	return (gameId >= 0 && gameId < level.multiTrnNumGames);
 }
@@ -783,3 +790,4 @@ void G_LinkGameId(int gameId) {
 	}
 	level.currentGameId = gameId;
 }
+#endif // WITH_MULTITOURNAMENT
