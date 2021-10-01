@@ -113,6 +113,10 @@ MULTIPLAYER MENU (SERVER BROWSER)
 #define GAMES_LMS			10
 #define GAMES_DOUBLE_D			11
 #define GAMES_DOM                       12
+#define GAMES_TH                        13
+#ifdef WITH_MULTITOURNAMENT
+#define GAMES_MULTITOURNAMENT           14
+#endif
 
 
 static const char *master_items[] = {
@@ -140,6 +144,10 @@ static const char *servertype_items[] = {
 	"Last Man Standing",
 	"Double Domination",
         "Domination",
+        "Treasure Hunter",
+#ifdef WITH_MULTITOURNAMENT
+        "Multitournament",
+#endif
 	NULL
 };
 
@@ -167,9 +175,8 @@ static char* gamenames[] = {
 	"Last Man Standing",
 	"Double Domination",
         "Domination",	// Dom replaces Rocket Arena 3
-	"Q3F",						// Q3F
-	"Urban Terror",		// Urban Terror
-	"OSP",						// Orange Smoothie Productions
+	"Treasure Hunter",
+	"Multitournament",
 	"???",			// unknown
 	NULL
 };
@@ -647,7 +654,11 @@ static void ArenaServers_UpdateMenu( void ) {
 			break;
 
 		case GAMES_TOURNEY:
-			if( servernodeptr->gametype != GT_TOURNAMENT ) {
+			if( servernodeptr->gametype != GT_TOURNAMENT 
+#ifdef WITH_MULTITOURNAMENT
+					&& servernodeptr->gametype != GT_MULTITOURNAMENT
+#endif
+					) {
 				continue;
 			}
 			break;
@@ -705,6 +716,18 @@ static void ArenaServers_UpdateMenu( void ) {
 				continue;
 			}
 			break;
+                case GAMES_TH:
+			if( servernodeptr->gametype != GT_TREASURE_HUNTER ) {
+				continue;
+			}
+			break;
+#ifdef WITH_MULTITOURNAMENT
+                case GAMES_MULTITOURNAMENT:
+			if( servernodeptr->gametype != GT_MULTITOURNAMENT ) {
+				continue;
+			}
+			break;
+#endif
 		}
                 
                 if(g_hideprivate && servernodeptr->needPass)
@@ -904,9 +927,15 @@ static void ArenaServers_Insert( char* adrstr, char* info, int pingtime )
 	if( i < 0 ) {
 		i = 0;
 	}
-	else if( i > 11 ) {
-		i = 12;
+#ifdef WITH_MULTITOURNAMENT
+	else if( i > 13 ) {
+		i = 14;
 	}
+#else
+	else if( i > 12 ) {
+		i = 13;
+	}
+#endif
 	if( *s ) {
 		servernodeptr->gametype = i;//-1;
 		Q_strncpyz( servernodeptr->gamename, s, sizeof(servernodeptr->gamename) );
@@ -1283,6 +1312,15 @@ static void ArenaServers_StartRefresh( void )
                 case GAMES_DOM:
                     strcpy( myargs, " dom" );
                     break;
+
+                case GAMES_TH:
+                    strcpy( myargs, va(" %d", GT_TREASURE_HUNTER) );
+                    break;
+#ifdef WITH_MULTITOURNAMENT
+                case GAMES_MULTITOURNAMENT:
+                    strcpy( myargs, va(" %d", GT_MULTITOURNAMENT) );
+                    break;
+#endif
 		}
 
 
