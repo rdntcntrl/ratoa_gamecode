@@ -1028,12 +1028,14 @@ void CG_NewClientInfo( int clientNum ) {
 	newInfo.forcedModel = qfalse;
 	newInfo.forcedBrightModel = qfalse;
 
+#ifdef WITH_MULTITOURNAMENT
 	// gameId for GT_MULTITOURNAMENT
 	v = Info_ValueForKey( configstring, "g" );
 	newInfo.gameId = atoi(v);
 	if (newInfo.gameId < 0 || newInfo.gameId >= MULTITRN_MAX_GAMES) {
 		newInfo.gameId = 0;
 	}
+#endif
 
 	// isolate the player's name
 	v = Info_ValueForKey(configstring, "n");

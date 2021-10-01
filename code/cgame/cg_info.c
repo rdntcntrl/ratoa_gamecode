@@ -288,9 +288,11 @@ void CG_DrawInformation( void ) {
 		break;
         case GT_TREASURE_HUNTER:
 		s = "Treasure Hunter";
+#ifdef WITH_MULTITOURNAMENT
         case GT_MULTITOURNAMENT:
 		s = "Multitournament";
 		break;
+#endif
 	default:
 		s = "Unknown Gametype";
 		break;

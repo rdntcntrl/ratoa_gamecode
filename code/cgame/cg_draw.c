@@ -3539,6 +3539,7 @@ static void CG_DrawUpperRight(stereoFrame_t stereoFrame)
 
 }
 
+#ifdef WITH_MULTITOURNAMENT
 int CG_GetScoresMtrn(int scoreNum) {
 	clientInfo_t *ci = &cgs.clientinfo [ cg.snap->ps.clientNum ];
 	if (!ci->infoValid
@@ -3551,6 +3552,7 @@ int CG_GetScoresMtrn(int scoreNum) {
 		return cgs.scores2Mtrn[ci->gameId];
 	}
 }
+#endif
 
 /*
 ===========================================================================================
@@ -3750,13 +3752,17 @@ static float CG_DrawScores( float y ) {
         statusA = cgs.redflag;
         statusB = cgs.blueflag;
 
+#ifdef WITH_MULTITOURNAMENT
 	if (cgs.gametype == GT_MULTITOURNAMENT) {
 		s1 = CG_GetScoresMtrn(1);
 		s2 = CG_GetScoresMtrn(2);
 	} else {
+#endif
 		s1 = cgs.scores1;
 		s2 = cgs.scores2;
+#ifdef WITH_MULTITOURNAMENT
 	}
+#endif
 
 	y -= SCOREBOX_HEIGHT + 4;
 
