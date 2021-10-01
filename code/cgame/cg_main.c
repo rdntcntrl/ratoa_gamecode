@@ -142,6 +142,7 @@ vmCvar_t	cg_debugPosition;
 vmCvar_t	cg_debugEvents;
 vmCvar_t	cg_errorDecay;
 vmCvar_t	cg_nopredict;
+vmCvar_t	cg_checkChangedEvents;
 vmCvar_t	cg_noPlayerAnims;
 vmCvar_t	cg_showmiss;
 vmCvar_t	cg_footsteps;
@@ -550,6 +551,7 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_debugEvents, "cg_debugevents", "0", CVAR_CHEAT },
 	{ &cg_errorDecay, "cg_errordecay", "100", 0 },
 	{ &cg_nopredict, "cg_nopredict", "0", 0 },
+	{ &cg_checkChangedEvents, "cg_checkChangedEvents", "0", 0 },
 	{ &cg_noPlayerAnims, "cg_noplayeranims", "0", CVAR_CHEAT },
 	{ &cg_showmiss, "cg_showmiss", "0", 0 },
 	{ &cg_footsteps, "cg_footsteps", "1", CVAR_CHEAT },

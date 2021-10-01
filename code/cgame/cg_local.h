@@ -1655,6 +1655,7 @@ extern	vmCvar_t		cg_debugEvents;
 extern	vmCvar_t		cg_railTrailTime;
 extern	vmCvar_t		cg_errorDecay;
 extern	vmCvar_t		cg_nopredict;
+extern	vmCvar_t		cg_checkChangedEvents;
 extern	vmCvar_t		cg_noPlayerAnims;
 extern	vmCvar_t		cg_showmiss;
 extern	vmCvar_t		cg_footsteps;

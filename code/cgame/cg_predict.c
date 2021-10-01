@@ -1097,8 +1097,10 @@ void CG_PredictPlayerState( void ) {
 		CG_TouchTriggerPrediction();
 
 		// check for predictable events that changed from previous predictions
-		if (!cg_optimizePrediction.integer || cmdNum == cg.lastPredictedCommand) {
-			CG_CheckChangedPredictableEvents(&cg.predictedPlayerState);
+		if (cg_checkChangedEvents.integer) {
+			if (!cg_optimizePrediction.integer || cmdNum == cg.lastPredictedCommand) {
+				CG_CheckChangedPredictableEvents(&cg.predictedPlayerState);
+			}
 		}
 	}
 
