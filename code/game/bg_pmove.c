@@ -39,6 +39,7 @@ const float	pm_wadeScale = 0.70f;
 
 const float	pm_accelerate = 10.0f;
 const float	pm_airaccelerate = 1.0f;
+const float	pm_duckaccelerate = 10.0f;
 const float	pm_wateraccelerate = 4.0f;
 const float	pm_flyaccelerate = 8.0f;
 
@@ -58,6 +59,16 @@ const float	pm_friction = 6.0f;
 const float	pm_waterfriction = 1.0f;
 const float	pm_flightfriction = 3.0f;
 const float	pm_spectatorfriction = 5.0f;
+
+
+const int crouchGraceTime = 100;
+
+const float crouchTurn = 15;
+const float crouchGoAccel = 2;
+// const float crouchAccel = -0.5;
+const float crouchWishspeed = 226;
+const float crouchGoSpeedCap = 600;
+const float crouchSpeedCap = 0;
 
 int		c_pmove = 0;
 
@@ -236,7 +247,7 @@ static void PM_Friction( void ) {
 
 	// apply ground friction
 	if ( pm->waterlevel <= 1 ) {
-		if ( pml.walking && !(pml.groundTrace.surfaceFlags & SURF_SLICK) ) {
+		if ( pml.walking && !(pml.groundTrace.surfaceFlags & SURF_SLICK) && !(pm->ps->stats[STAT_EXTFLAGS] & EXTFL_SLIDING) ) {
 			// if getting knocked back, no friction
 			if ( ! (pm->ps->pm_flags & PMF_TIME_KNOCKBACK) ) {
 				control = speed < pm_stopspeed ? pm_stopspeed : speed;
@@ -422,9 +433,6 @@ static qboolean PM_CheckJump( void ) {
 		pm->cmd.upmove = 0;
 		return qfalse;
 	}
-
-	
-
 
 	pml.groundPlane = qfalse;		// jumping away
 	pml.walking = qfalse;
@@ -805,6 +813,11 @@ static void PM_AirMove( void ) {
 	vec3_t		curdir;
 	float		dot;
 
+	if (!pml.walking) {
+		pm->ps->stats[STAT_EXTFLAGS] &= ~EXTFL_SLIDING;
+		pm->ps->stats[STAT_SLIDETIMEOUT] = 0;
+	}
+
 	PM_Friction();
 
 	fmove = pm->cmd.forwardmove;
@@ -998,11 +1011,19 @@ static void PM_WalkMove( void ) {
 	}
 
 	PM_Friction ();
+	
+	if (!pm->cmd.forwardmove && !pm->cmd.rightmove) {
+		pm->ps->stats[STAT_EXTFLAGS] &= ~EXTFL_SLIDING;
+	}
 
 	fmove = pm->cmd.forwardmove;
 	smove = pm->cmd.rightmove;
 
 	cmd = pm->cmd;
+	
+	if (pm->ps->stats[STAT_EXTFLAGS] & EXTFL_SLIDING) {
+		cmd.upmove = 0;
+	}
 	scale = PM_CmdScale( &cmd );
 
 	// set the movementDir so clients can rotate the legs for strafing
@@ -1023,8 +1044,7 @@ static void PM_WalkMove( void ) {
 		wishvel[i] = pml.forward[i]*fmove + pml.right[i]*smove;
 	}
 	// when going up or down slopes the wish velocity should Not be zero
-//	wishvel[2] = 0;
-
+	
 	VectorCopy (wishvel, wishdir);
 	wishspeed = VectorNormalize(wishdir);
 	wishspeed *= scale;
@@ -1034,6 +1054,10 @@ static void PM_WalkMove( void ) {
 		if ( wishspeed > pm->ps->speed * pm_duckScale ) {
 			wishspeed = pm->ps->speed * pm_duckScale;
 		}
+	}
+	
+	if (pm->ps->stats[STAT_EXTFLAGS] & EXTFL_SLIDING) {
+		wishspeed = crouchWishspeed;
 	}
 
 	// clamp the speed lower if wading or walking on the bottom
@@ -1063,13 +1087,41 @@ static void PM_WalkMove( void ) {
 	} else {
 		accelerate = PM_GetAccelerate(pm);
 	}
-
+	
+	// Crouch slide acceleration.
+	vel = VectorLength(pm->ps->velocity);
+	if (pm->ps->stats[STAT_EXTFLAGS] & EXTFL_SLIDING) {
+		// Turn.
+		accelerate = crouchTurn;
+	}
 	PM_Accelerate (wishdir, wishspeed, accelerate);
+	if (pm->ps->stats[STAT_EXTFLAGS] & EXTFL_SLIDING) {
+		float crouchSpeedCap;
+		if (VectorLength(pm->ps->velocity) < vel) {
+			pm->ps->stats[STAT_EXTFLAGS] &= ~EXTFL_SLIDING;
+		}
+		
+		if (VectorLength(pm->ps->velocity) > vel && vel >= wishspeed) {
+			// Accelerate.
+			accelerate = (pm->pmove_ratflags & RAT_SLIDEMODE) ? crouchGoAccel : pm->pmove_slideSlowAccel;
+			VectorNormalize(pm->ps->velocity);
+			VectorScale(pm->ps->velocity, vel + accelerate * wishspeed * pml.frametime, pm->ps->velocity);
+		}
+		
+		// Cap speed.
+		crouchSpeedCap = (pm->pmove_ratflags & RAT_SLIDEMODE) ? crouchGoSpeedCap : crouchSpeedCap;
+		if (crouchSpeedCap && VectorLength(pm->ps->velocity) > vel && vel >= crouchSpeedCap) {
+			VectorNormalize(pm->ps->velocity);
+			VectorScale(pm->ps->velocity, vel, pm->ps->velocity);
+		}
+	}
+	
 
 	//Com_Printf("velocity = %1.1f %1.1f %1.1f\n", pm->ps->velocity[0], pm->ps->velocity[1], pm->ps->velocity[2]);
 	//Com_Printf("velocity1 = %1.1f\n", VectorLength(pm->ps->velocity));
 
-	if ( ( pml.groundTrace.surfaceFlags & SURF_SLICK ) || pm->ps->pm_flags & PMF_TIME_KNOCKBACK ) {
+	// Increasing velocity down slopes while sliding is disabled for now due to a bug emphasized by pmove_float.
+	if ( ( pml.groundTrace.surfaceFlags & SURF_SLICK ) || pm->ps->pm_flags & PMF_TIME_KNOCKBACK || pm->ps->stats[STAT_EXTFLAGS] & EXTFL_SLIDING ) {
 		pm->ps->velocity[2] -= pm->ps->gravity * pml.frametime;
 	} else {
 		// don't reset the z velocity for slopes
@@ -1247,6 +1299,9 @@ static void PM_CrashLand( void ) {
 	// ducking while falling doubles damage
 	if ( pm->ps->pm_flags & PMF_DUCKED ) {
 		delta *= 2;
+		if (pm->pmove_ratflags & RAT_CROUCHSLIDE) {
+			pm->ps->stats[STAT_EXTFLAGS] |= EXTFL_SLIDING;
+		}
 	}
 
 	// never take falling damage if completely underwater
@@ -1582,8 +1637,13 @@ static void PM_CheckDuck (void)
 			// try to stand up
 			pm->maxs[2] = 32;
 			pm->trace (&trace, pm->ps->origin, pm->mins, pm->maxs, pm->ps->origin, pm->ps->clientNum, pm->tracemask );
-			if (!trace.allsolid)
+			if (!trace.allsolid) {
 				pm->ps->pm_flags &= ~PMF_DUCKED;
+				if (pm->pmove_ratflags & RAT_CROUCHSLIDE) {
+					// pm->ps->stats[STAT_EXTFLAGS] &= ~EXTFL_SLIDING;
+					pm->ps->stats[STAT_SLIDETIMEOUT] = crouchGraceTime;
+				}
+			}
 		}
 	}
 
@@ -2304,6 +2364,14 @@ void PmoveSingle (pmove_t *pmove) {
 		pm->ps->stats[STAT_JUMPTIME] -= pml.msec;
 	}
 
+	if (pm->ps->stats[STAT_SLIDETIMEOUT] > 0) {
+		pm->ps->stats[STAT_SLIDETIMEOUT] -= pml.msec;
+		if (pm->ps->stats[STAT_SLIDETIMEOUT] <= 0) {
+			pm->ps->stats[STAT_EXTFLAGS] &= ~EXTFL_SLIDING;
+			pm->ps->stats[STAT_SLIDETIMEOUT] = 0;
+		}
+	}
+
 	if ( pm->ps->powerups[PW_INVULNERABILITY] ) {
 		PM_InvulnerabilityMove();
 	} else
@@ -2350,8 +2418,8 @@ void PmoveSingle (pmove_t *pmove) {
 	PM_WaterEvents();
 
 	// snap some parts of playerstate to save network bandwidth
-        //But only if pmove_float is not enabled
-        if(!(pm->pmove_float))
+        //But only if pmove_float is not enabled. We always snap on slick surfaces to prevent acceleration.
+        if(!(pm->pmove_float) || pml.groundTrace.surfaceFlags & SURF_SLICK || pm->ps->stats[STAT_EXTFLAGS] & EXTFL_SLIDING)
             trap_SnapVector( pm->ps->velocity );
 }
 
@@ -2416,4 +2484,3 @@ void Pmove (pmove_t *pmove) {
 	//PM_CheckStuck();
 
 }
-

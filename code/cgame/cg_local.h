@@ -1596,6 +1596,7 @@ typedef struct {
     int		predictedMissileNudge;
     int		ratFlags;
     movement_t	movement;
+    float	slideSlowAccel;
     float	maxBrightshellAlpha;
     int		timeoutEnd;
     int		timeoutOvertime;

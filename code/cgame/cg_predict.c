@@ -580,6 +580,9 @@ static void CG_TouchTriggerPrediction( void ) {
 						// reset rampjump
 						cg.predictedPlayerState.stats[STAT_JUMPTIME] = 0;
 					}
+					// Reset crouch slide.
+					cg.predictedPlayerState.stats[STAT_EXTFLAGS] &= EXTFL_SLIDING;
+					cg.predictedPlayerState.stats[STAT_SLIDETIMEOUT] = 0;
 
 					// set the delta angle
 					for (i=0 ; i<3 ; i++) {
@@ -864,6 +867,7 @@ void CG_PredictPlayerState( void ) {
         cg_pmove.pmove_flags = cgs.dmflags;
         cg_pmove.pmove_ratflags = cgs.ratFlags;
         cg_pmove.pmove_movement = cgs.movement;
+        cg_pmove.pmove_slideSlowAccel = cgs.slideSlowAccel;
         
 
 //unlagged - optimized prediction
