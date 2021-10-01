@@ -40,7 +40,7 @@ static int G_RatScoreboardIndicator( gclient_t *cl ) {
 static int ScoreboardEliminiated(gclient_t *client) {
 	if (g_gametype.integer == GT_LMS) {
 		return client->pers.livesLeft + (client->isEliminated?0:1);
-	} else if (g_gametype.integer == GT_ELIMINATION || g_gametype.integer == GT_CTF_ELIMINATION) {
+	} else if (G_IsElimTeamGT()) {
 		return (client->isEliminated || client->frozen) ? 1 : 0;
 	}
 	return 0;
@@ -1098,7 +1098,7 @@ void Cmd_Kill_f( gentity_t *ent ) {
 		return;
 	}
 	if (level.warmupTime ||
-		       	((g_gametype.integer == GT_ELIMINATION || g_gametype.integer == GT_CTF_ELIMINATION || g_gametype.integer == GT_LMS) 
+		       	(G_IsElimGT() 
 			 && (level.roundNumber != level.roundNumberStarted))) {
 		if (g_killDisable.integer & KILLCMD_WARMUP) {
 			trap_SendServerCommand( ent - g_entities, "print \"\\kill disabled during warmup.\n\"" );
@@ -1110,7 +1110,7 @@ void Cmd_Kill_f( gentity_t *ent ) {
 	}
 
 	if ( g_killSafety.integer && !level.warmupTime) {
-		if ((g_gametype.integer == GT_ELIMINATION || g_gametype.integer == GT_CTF_ELIMINATION || g_gametype.integer == GT_LMS) 
+		if (G_IsElimGT() 
 				&& ( 
 					  (level.roundNumber == level.roundNumberStarted && level.time < level.roundStartTime + g_killSafety.integer) 
 				   )) {
@@ -1491,7 +1491,7 @@ to free floating spectator mode
 =================
 */
 void StopFollowing( gentity_t *ent ) {
-	if(g_gametype.integer<GT_ELIMINATION || g_gametype.integer>GT_LMS)
+	if(!G_IsElimGT())
 	{
 		//Shouldn't this already be the case?
 		ent->client->ps.persistant[ PERS_TEAM ] = TEAM_SPECTATOR;	
@@ -1615,7 +1615,7 @@ void Cmd_Follow_f( gentity_t *ent ) {
 		return;
 	}
 
-        if ( (g_gametype.integer == GT_ELIMINATION || g_gametype.integer == GT_CTF_ELIMINATION) && g_elimination_lockspectator.integer
+        if ( G_IsElimTeamGT() && g_elimination_lockspectator.integer
             &&  ((ent->client->sess.sessionTeam == TEAM_RED && level.clients[ i ].sess.sessionTeam == TEAM_BLUE) ||
                  (ent->client->sess.sessionTeam == TEAM_BLUE && level.clients[ i ].sess.sessionTeam == TEAM_RED) ) ) {
             return;
@@ -1714,7 +1714,7 @@ void Cmd_FollowCycle_f( gentity_t *ent ) {
 		}
 
                 //Stop players from spectating players on the enemy team in elimination modes.
-                if ( (g_gametype.integer == GT_ELIMINATION || g_gametype.integer == GT_CTF_ELIMINATION) && g_elimination_lockspectator.integer
+                if ( G_IsElimTeamGT() && g_elimination_lockspectator.integer
                     &&  ((ent->client->sess.sessionTeam == TEAM_RED && level.clients[ clientnum ].sess.sessionTeam == TEAM_BLUE) ||
                          (ent->client->sess.sessionTeam == TEAM_BLUE && level.clients[ clientnum ].sess.sessionTeam == TEAM_RED) ) ) {
                     continue;
@@ -1785,7 +1785,7 @@ void G_TimeoutModTimes(int delta) {
 		}
 	}
 
-	if (g_gametype.integer == GT_ELIMINATION || g_gametype.integer == GT_CTF_ELIMINATION || g_gametype.integer == GT_LMS) {
+	if (G_IsElimGT()) {
 		level.roundStartTime += delta;
 	}
 
@@ -1837,7 +1837,7 @@ void G_Timeout(gentity_t *caller) {
 				level.timeoutAdd/1000,
 				timeoutend_minutes(),
 				timeoutend_seconds()));
-	if (g_gametype.integer == GT_ELIMINATION || g_gametype.integer == GT_CTF_ELIMINATION || g_gametype.integer == GT_LMS) {
+	if (G_IsElimGT()) {
 		SendEliminationMessageToAllClients();
 	}
 }
@@ -1889,7 +1889,7 @@ void G_TimeinCommand(gentity_t *caller) {
 		trap_SendServerCommand(-1, va("timeout %i", level.timeoutEnd));
 	}
 
-	if (g_gametype.integer == GT_ELIMINATION || g_gametype.integer == GT_CTF_ELIMINATION || g_gametype.integer == GT_LMS) {
+	if (G_IsElimGT()) {
 		SendEliminationMessageToAllClients();
 		if (g_gametype.integer != GT_LMS) {
 			G_SendTeamPlayerCounts();

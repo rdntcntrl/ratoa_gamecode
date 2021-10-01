@@ -3272,7 +3272,7 @@ static float CG_DrawTeamOverlay( float y, qboolean right, qboolean upper ) {
 //	char		*s;
 //	int			w;	
 //
-//	if ( !(cg.snap->ps.pm_flags & PMF_FOLLOW) || ( ( cgs.elimflags & EF_NO_FREESPEC ) && (cgs.gametype == GT_ELIMINATION || cgs.gametype == GT_CTF_ELIMINATION ) ) ) {
+//	if ( !(cg.snap->ps.pm_flags & PMF_FOLLOW) || ( ( cgs.elimflags & EF_NO_FREESPEC ) && BG_IsElimTeamGT(cgs.gametype) ) ) {
 //		return y;
 //	}
 //
@@ -3373,7 +3373,7 @@ void CG_DrawEliminationStatus(void) {
 	float	w;
 	float color[4] = { 1.0, 1.0, 1.0, 1.0 };
 
-	if (cgs.gametype != GT_ELIMINATION && cgs.gametype != GT_CTF_ELIMINATION) {
+	if (!BG_IsElimTeamGT(cgs.gametype)) {
 		return;
 	}
 	
@@ -3510,7 +3510,7 @@ static void CG_DrawUpperRight(stereoFrame_t stereoFrame)
 	if (cg_drawFPS.integer == 1 && (stereoFrame == STEREO_CENTER || stereoFrame == STEREO_RIGHT)) {
 		y = CG_DrawFPS( y );
 	}
-	if (cgs.gametype==GT_ELIMINATION || cgs.gametype == GT_CTF_ELIMINATION || cgs.gametype==GT_LMS) {
+	if (BG_IsElimGT(cgs.gametype)) {
 		y = CG_DrawEliminationTimer( y );
 		/*if (cgs.clientinfo[ cg.clientNum ].isDead)
 			y = CG_DrawEliminationDeathMessage( y);*/
@@ -6649,7 +6649,7 @@ static void CG_Draw2D(stereoFrame_t stereoFrame)
 		teamChatSizeY *= f;
 
 		if ( cg.snap->ps.pm_type == PM_INTERMISSION || cg_commonConsole.integer ||
-				((cgs.gametype == GT_ELIMINATION || cgs.gametype == GT_CTF_ELIMINATION) && cg.warmup != -1 && cg.time < cgs.roundStartTime)) {
+				(BG_IsElimTeamGT(cgs.gametype) && cg.warmup != -1 && cg.time < cgs.roundStartTime)) {
 			CG_DrawGenericConsole(&cgs.commonConsole, commonConsoleLines, cg_chatTime.integer, 
 					0, 0, 
 					chatSizeX,

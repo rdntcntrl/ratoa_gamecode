@@ -2496,8 +2496,7 @@ int BotCanAndWantsToRocketJump(bot_state_t *bs) {
 	//if low on rockets
 	if (bs->inventory[INVENTORY_ROCKETS] < 3) return qfalse;
         //Sago: Special rule - always happy to rocket jump in elimination, eCTF end LMS if
-        if ( (g_gametype.integer==GT_ELIMINATION || g_gametype.integer==GT_CTF_ELIMINATION || g_gametype.integer==GT_LMS )
-                && g_elimination_selfdamage.integer==0) {
+        if ( G_IsElimGT() && g_elimination_selfdamage.integer==0) {
             return qtrue;
         }
 	//never rocket jump with the Quad

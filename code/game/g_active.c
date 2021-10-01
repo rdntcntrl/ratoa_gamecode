@@ -426,7 +426,7 @@ void G_ClientThawNow( gentity_t *ent, int thawedBy ) {
 	ent->client->freezetag_thawedBy = thawedBy;
 	ent->client->freezetag_thawed = 1.0;
 	G_ClientSetFrozenState(ent);
-	if (g_gametype.integer == GT_ELIMINATION || g_gametype.integer == GT_CTF_ELIMINATION) {
+	if (G_IsElimTeamGT()) {
 		EliminationRespawnClient(ent);
 		G_SendTeamPlayerCounts();
 	} else {
@@ -437,7 +437,7 @@ void G_ClientThawNow( gentity_t *ent, int thawedBy ) {
 		if (thawingEnt->client->pers.connected == CON_CONNECTED) {
 			trap_SendServerCommand( ent - g_entities, va("cp \"Thawed by %s\"", thawingEnt->client->pers.netname) );
 
-			if ((g_gametype.integer == GT_ELIMINATION || g_gametype.integer == GT_CTF_ELIMINATION)
+			if (G_IsElimTeamGT()
 					&& level.roundNumber == level.roundNumberStarted) {
 				AwardMessage(thawingEnt, EAWARD_THAWBUDDY, ++(thawingEnt->client->pers.awardCounts[EAWARD_THAWBUDDY]));
 			}
@@ -664,7 +664,7 @@ void SpectatorThink( gentity_t *ent, usercmd_t *ucmd ) {
 
 	client = ent->client;
 
-        if ( ( g_gametype.integer == GT_ELIMINATION || g_gametype.integer == GT_CTF_ELIMINATION) &&
+        if ( G_IsElimTeamGT() &&
                 client->sess.spectatorState != SPECTATOR_FOLLOW &&
                 g_elimination_lockspectator.integer>1 &&
                 ent->client->sess.sessionTeam != TEAM_SPECTATOR ) {
@@ -711,7 +711,7 @@ void SpectatorThink( gentity_t *ent, usercmd_t *ucmd ) {
 	}
 
 	if ( ( client->buttons & BUTTON_USE_HOLDABLE ) && ! ( client->oldbuttons & BUTTON_USE_HOLDABLE ) ) {
-		if ( ( g_gametype.integer == GT_ELIMINATION || g_gametype.integer == GT_CTF_ELIMINATION) &&
+		if ( G_IsElimTeamGT() &&
                 g_elimination_lockspectator.integer>1 &&
                 ent->client->sess.sessionTeam != TEAM_SPECTATOR ) {
                     return;
@@ -1588,10 +1588,7 @@ void ClientThink_real( gentity_t *ent ) {
 			  ) 
 			  ||
 			  ( 
-				  ( ( g_gametype.integer == GT_LMS ) ||
-				    ( g_gametype.integer == GT_ELIMINATION ) ||
-				    ( g_gametype.integer == GT_CTF_ELIMINATION ) 
-				  ) &&
+				  G_IsElimGT() &&
 				  ( level.time - client->respawnTime > 0 ) 
 			  ) 
 			  ||	
@@ -1708,7 +1705,7 @@ void SpectatorClientEndFrame( gentity_t *ent ) {
 					ent->client->sess.spectatorState = SPECTATOR_FREE;
 					if (ent->client->sess.sessionTeam == TEAM_SPECTATOR) {
 						ClientBegin( ent->client - level.clients );
-					} else if (g_gametype.integer == GT_ELIMINATION || g_gametype.integer == GT_CTF_ELIMINATION) {
+					} else if (G_IsElimTeamGT()) {
 						// don't call clientbegin on players that are part of a playing team in elimination
 						Cmd_FollowCycle_f(ent);
 					}
@@ -1875,8 +1872,7 @@ void ClientEndFrame( gentity_t *ent ) {
 	G_StoreViewVectorHistory(ent->client);
 
 	if (!level.warmupTime && !level.timeout &&
-			((g_gametype.integer != GT_ELIMINATION && g_gametype.integer != GT_CTF_ELIMINATION
-			 && g_gametype.integer != GT_LMS) || level.roundNumber == level.roundNumberStarted)) {
+			(!G_IsElimGT() || level.roundNumber == level.roundNumberStarted)) {
 		ent->client->sess.skillPlaytime += level.time - level.previousTime;
 	}
 }

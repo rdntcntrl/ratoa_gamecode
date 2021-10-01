@@ -938,8 +938,7 @@ void G_ApplyMissileNudge (gentity_t *self, gentity_t *bolt) {
 	bolt->needsDelag = qtrue;
 	bolt->launchTime = bolt->s.pos.trTime;
 	
-	if ((g_gametype.integer == GT_ELIMINATION || g_gametype.integer == GT_CTF_ELIMINATION || g_gametype.integer == GT_LMS) 
-			&& level.time > level.roundStartTime - 1000*g_elimination_activewarmup.integer) {
+	if (G_IsElimGT() && level.time > level.roundStartTime - 1000*g_elimination_activewarmup.integer) {
 		if (bolt->launchTime < level.roundStartTime) {
 			int prestep = 0;
 			if (g_delagMissiles.integer) {

@@ -1215,6 +1215,8 @@ void G_EQPingSet(int maxEQPing, qboolean forceMax);
 void G_EQPingClientSet(gclient_t *client);
 void G_EQPingClientReset(gclient_t *client);
 qboolean G_IsTeamGametype(void);
+qboolean G_IsElimTeamGT(void);
+qboolean G_IsElimGT(void);
 
 //
 // g_client.c

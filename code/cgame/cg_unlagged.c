@@ -767,7 +767,7 @@ predictedMissile_t *CG_BasePredictMissile( entityState_t *ent,  vec3_t muzzlePoi
 	VectorCopy(muzzlePoint, pm->pos.trBase);
 	pm->pos.trTime = cg.time-cgs.predictedMissileNudge-cg.cmdMsecDelta;
 
-	if ((cgs.gametype == GT_ELIMINATION || cgs.gametype == GT_CTF_ELIMINATION || cgs.gametype == GT_LMS)
+	if (BG_IsElimGT(cgs.gametype)
 			&& cg.warmup == 0 && cgs.roundStartTime 
 			&& (pm->pos.trTime + cgs.predictedMissileNudge) < cgs.roundStartTime) {
 		pm->pos.trTime = cgs.roundStartTime - cgs.predictedMissileNudge;

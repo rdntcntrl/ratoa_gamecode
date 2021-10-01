@@ -937,7 +937,7 @@ void G_UpdateFrozenPlayer( gentity_t *player ) {
 	VectorCopy ( frozen->s.pos.trBase, frozen->r.currentOrigin );
 	
 	// need to decouple this entity from the player so we can spectate other players in elimination
-	//if ((g_gametype.integer == GT_ELIMINATION || g_gametype.integer == GT_CTF_ELIMINATION) 
+	//if (G_IsElimTeamGT() 
 	//		&& player->client->ps.groundEntityNum == ENTITYNUM_WORLD
 	//		&& VectorLengthSquared(player->client->ps.velocity) < 0.01) {
 	//	// looks like we're on solid ground and longer moving,
@@ -1002,7 +1002,7 @@ respawn
 void ClientRespawn( gentity_t *ent ) {
 	gentity_t	*tent;
 
-	if((g_gametype.integer!=GT_ELIMINATION && g_gametype.integer!=GT_CTF_ELIMINATION && g_gametype.integer !=GT_LMS) && !ent->client->isEliminated)
+	if(!G_IsElimGT() && !ent->client->isEliminated)
 	{
 		ent->client->isEliminated = qtrue; //must not be true in warmup
 		//Tried moving CopyToBodyQue
@@ -1038,15 +1038,14 @@ void ClientRespawn( gentity_t *ent ) {
 		}
 	}
 
-	if((g_gametype.integer==GT_ELIMINATION || g_gametype.integer==GT_CTF_ELIMINATION || g_gametype.integer==GT_LMS) 
-			&& ent->client->ps.pm_type == PM_SPECTATOR && ent->client->ps.stats[STAT_HEALTH] > 0) {
+	if(G_IsElimGT() && ent->client->ps.pm_type == PM_SPECTATOR && ent->client->ps.stats[STAT_HEALTH] > 0) {
 		return;
 	}
 
 	ClientSpawn(ent);
 
 	// add a teleportation effect
-	if(g_gametype.integer!=GT_ELIMINATION && g_gametype.integer!=GT_CTF_ELIMINATION && g_gametype.integer!=GT_LMS)
+	if(!G_IsElimGT())
 	{	
 		tent = G_TempEntity( ent->client->ps.origin, EV_PLAYER_TELEPORT_IN );
 		tent->s.clientNum = ent->s.clientNum;
@@ -1078,7 +1077,7 @@ void respawnRound( gentity_t *ent ) {
 	ClientSpawn(ent);
 
         // add a teleportation effect
-        if(g_gametype.integer!=GT_ELIMINATION && g_gametype.integer!=GT_CTF_ELIMINATION && g_gametype.integer!=GT_LMS)
+        if(!G_IsElimGT())
         {
                 tent = G_TempEntity( ent->client->ps.origin, EV_PLAYER_TELEPORT_IN );
                 tent->s.clientNum = ent->s.clientNum;
@@ -2158,7 +2157,7 @@ void ClientUserinfoChanged( int clientNum ) {
 	if ( ( ( client->sess.sessionTeam == TEAM_SPECTATOR ) ||
 		( ( ( client->isEliminated ) /*||
 		( client->ps.pm_type == PM_SPECTATOR )*/ ) &&   //Sago: If this is true client.isEliminated or TEAM_SPECTATOR is true to and this is redundant
-		( g_gametype.integer == GT_ELIMINATION || g_gametype.integer == GT_CTF_ELIMINATION || g_gametype.integer == GT_LMS) ) ) &&
+		G_IsElimGT() ) ) &&
 		( client->sess.spectatorState == SPECTATOR_SCOREBOARD ) ) {
 
 		Q_strncpyz( client->pers.netname, "scoreboard", sizeof(client->pers.netname) );
@@ -3129,7 +3128,7 @@ void ClientSpawn(gentity_t *ent) {
 	// do it before setting health back up, so farthest
 	// ranging doesn't count this client
 	if ((client->sess.sessionTeam == TEAM_SPECTATOR) 
-			|| ( (client->ps.pm_type == PM_SPECTATOR || client->isEliminated )  && (g_gametype.integer == GT_ELIMINATION || g_gametype.integer == GT_CTF_ELIMINATION) ) ) {
+			|| ( (client->ps.pm_type == PM_SPECTATOR || client->isEliminated )  && G_IsElimTeamGT() ) ) {
 		if (g_ra3compat.integer && client->pers.arenaNum >= 0) {
 			spawnPoint = SelectSpectatorSpawnPointArena (
 					client->pers.arenaNum,
@@ -3332,7 +3331,7 @@ void ClientSpawn(gentity_t *ent) {
 
 	client->ps.clientNum = index;
 
-if(g_gametype.integer != GT_ELIMINATION && g_gametype.integer != GT_CTF_ELIMINATION && g_gametype.integer != GT_LMS && !g_elimination_allgametypes.integer && !g_elimination_spawn_allgametypes.integer)
+if(!G_IsElimGT() && !g_elimination_allgametypes.integer && !g_elimination_spawn_allgametypes.integer)
 {
 	client->ps.stats[STAT_WEAPONS] = ( 1 << WP_MACHINEGUN );
 	if ( g_gametype.integer == GT_TEAM ) {
@@ -3403,7 +3402,7 @@ else
 	
 	ent->health = client->ps.stats[STAT_ARMOR] = g_elimination_startArmor.integer; //client->ps.stats[STAT_MAX_HEALTH]*2;
 	ent->health = client->ps.stats[STAT_HEALTH] = g_elimination_startHealth.integer; //client->ps.stats[STAT_MAX_HEALTH]*2;	
-	if ((g_gametype.integer == GT_ELIMINATION || g_gametype.integer == GT_CTF_ELIMINATION || g_gametype.integer == GT_LMS) 
+	if (G_IsElimGT() 
 			&& g_elimination_healthReduction.value > 0 
 			&& client->pers.elimRoundDeaths >= 1 
 			&& level.roundNumber == level.roundNumberStarted) {
@@ -3468,16 +3467,16 @@ else
 
 	// the respawned flag will be cleared after the attack and jump keys come up
 	client->ps.pm_flags |= PMF_RESPAWNED;
-	if(g_gametype.integer==GT_ELIMINATION || g_gametype.integer==GT_CTF_ELIMINATION || g_gametype.integer==GT_LMS)	
+	if(G_IsElimGT())	
 		client->ps.pm_flags |= PMF_ELIMWARMUP;
 
 	trap_GetUsercmd( client - level.clients, &ent->client->pers.cmd );
 	SetClientViewAngle( ent, spawn_angles );
 
 	if ( (ent->client->sess.sessionTeam == TEAM_SPECTATOR) || ((client->ps.pm_type == PM_SPECTATOR || client->isEliminated) && 
-		(g_gametype.integer == GT_ELIMINATION || g_gametype.integer == GT_CTF_ELIMINATION || g_gametype.integer == GT_LMS) ) ) {
+		G_IsElimGT() ) ) {
                 //Sago: Lets see if this fixes the bots only bug - loose all point on dead bug. (It didn't)
-            /*if(g_gametype.integer == GT_ELIMINATION || g_gametype.integer == GT_CTF_ELIMINATION || g_gametype.integer == GT_LMS) {
+            /*if(G_IsElimGT()) {
                 G_KillBox( ent );
 		trap_LinkEntity (ent);
             }*/
@@ -3532,9 +3531,9 @@ else
 
 	// positively link the client, even if the command times are weird
 	//if ( (ent->client->sess.sessionTeam != TEAM_SPECTATOR) || ( (!client->isEliminated || client->ps.pm_type != PM_SPECTATOR)&& 
-	//	(g_gametype.integer == GT_ELIMINATION || g_gametype.integer == GT_CTF_ELIMINATION || g_gametype.integer == GT_LMS) ) ) {
+	//	(G_IsElimGT()) ) ) {
 	if (!(ent->client->sess.sessionTeam == TEAM_SPECTATOR 
-				|| ((g_gametype.integer == GT_ELIMINATION || g_gametype.integer == GT_CTF_ELIMINATION || g_gametype.integer == GT_LMS)
+				|| (G_IsElimGT()
 				       	&& (client->isEliminated || client->ps.pm_type == PM_SPECTATOR )))) {
 		BG_PlayerStateToEntityState( &client->ps, &ent->s, (qboolean)!g_floatPlayerPosition.integer );
 		VectorCopy( ent->client->ps.origin, ent->r.currentOrigin );
@@ -3601,7 +3600,7 @@ void ClientDisconnect( int clientNum ) {
 		}
 	}
 
-	if (g_gametype.integer == GT_ELIMINATION || g_gametype.integer == GT_CTF_ELIMINATION) {
+	if (G_IsElimTeamGT()) {
 		if (ent->client->sess.sessionTeam != TEAM_SPECTATOR && !ent->client->isEliminated) {
 			G_SendTeamPlayerCounts();
 		}

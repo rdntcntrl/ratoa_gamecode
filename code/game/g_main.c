@@ -1487,6 +1487,14 @@ qboolean G_IsTeamGametype(void) {
 	return g_is_team_gt;
 }
 
+qboolean G_IsElimTeamGT(void) {
+	return BG_IsElimTeamGT(g_gametype.integer);
+}
+
+qboolean G_IsElimGT(void) {
+	return BG_IsElimGT(g_gametype.integer);
+}
+
 void G_UpdateRatFlags( void ) {
 	int rflags = 0;
 
@@ -2343,7 +2351,7 @@ void CheckTeamBalance( void ) {
 	} 
 	largeTeam = balance < 0 ? TEAM_RED : TEAM_BLUE;
 	if (level.teamBalanceTime == 0) {
-		if (g_gametype.integer == GT_ELIMINATION || g_gametype.integer == GT_CTF_ELIMINATION) {
+		if (G_IsElimTeamGT()) {
 			// as soon as we're in active warmup
 			if(level.roundNumber > level.roundNumberStarted && level.time > level.roundStartTime - 1000 * g_elimination_activewarmup.integer) {
 				trap_SendServerCommand( -1, 
@@ -2377,8 +2385,8 @@ void CheckTeamBalance( void ) {
 			return;
 		}
 	} 
-	if (g_gametype.integer != GT_ELIMINATION && g_gametype.integer != GT_CTF_ELIMINATION 
-			&&level.teamBalanceTime - level.time == 5000 && g_teamBalanceDelay.integer >= 15) {
+	if (!G_IsElimTeamGT()
+			&& level.teamBalanceTime - level.time == 5000 && g_teamBalanceDelay.integer >= 15) {
 		trap_SendServerCommand( -1, 
 				va("cp \"" S_COLOR_YELLOW "Balancing in " S_COLOR_RED "5s" S_COLOR_YELLOW"!\n"));
 	}
@@ -2654,7 +2662,7 @@ int QDECL SortRanks( const void *a, const void *b ) {
 	}
 
         //In elimination and CTF elimination, sort dead players last
-        //if((g_gametype.integer == GT_ELIMINATION || g_gametype.integer == GT_CTF_ELIMINATION)
+        //if(G_IsElimTeamGT()
         //        && level.roundNumber==level.roundNumberStarted && (ca->isEliminated != cb->isEliminated)) {
         //    if( ca->isEliminated )
         //        return 1;
@@ -2822,9 +2830,7 @@ void SendScoreboardMessageToAllClients( void ) {
 		if ( level.clients[ i ].pers.connected == CON_CONNECTED ) {
 			//DeathmatchScoreboardMessage( g_entities + i, (g_usesRatVM.integer > 0 || G_MixedClientHasRatVM( &level.clients[i])));
 			DeathmatchScoreboardMessageAuto( g_entities + i);
-			if (g_gametype.integer == GT_ELIMINATION ||
-					g_gametype.integer == GT_CTF_ELIMINATION ||
-					g_gametype.integer == GT_LMS) {
+			if (G_IsElimGT()) {
 				EliminationMessage( g_entities + i );
 			}
 		}
@@ -4026,7 +4032,7 @@ CheckElimination
 */
 void CheckElimination(void) {
 	if ( level.numPlayingClients < 1 ) {
-		if( (g_gametype.integer == GT_ELIMINATION || g_gametype.integer == GT_CTF_ELIMINATION) &&
+		if( G_IsElimTeamGT() &&
 			( level.time+1000*g_elimination_warmup.integer-500>level.roundStartTime ))
 			RestartEliminationRound(); //For spectators
 		return;
@@ -4040,7 +4046,7 @@ void CheckElimination(void) {
 		return;
 	}	
 
-	if(g_gametype.integer == GT_ELIMINATION || g_gametype.integer == GT_CTF_ELIMINATION)
+	if(G_IsElimTeamGT())
 	{
 		int		counts[TEAM_NUM_TEAMS];
 		int		countsLiving[TEAM_NUM_TEAMS];
@@ -5085,7 +5091,7 @@ void G_RunFrame( int levelTime ) {
 		return;
 	}
 
-        if( (g_gametype.integer==GT_ELIMINATION || g_gametype.integer==GT_CTF_ELIMINATION) && !(g_elimflags.integer & EF_NO_FREESPEC) && g_elimination_lockspectator.integer>1)
+        if( G_IsElimTeamGT() && !(g_elimflags.integer & EF_NO_FREESPEC) && g_elimination_lockspectator.integer>1)
             trap_Cvar_Set("elimflags",va("%i",g_elimflags.integer|EF_NO_FREESPEC));
         else
         if( (g_elimflags.integer & EF_NO_FREESPEC) && g_elimination_lockspectator.integer<2)

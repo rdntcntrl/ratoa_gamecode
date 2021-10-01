@@ -60,8 +60,7 @@ void AddScore( gentity_t *ent, vec3_t origin, int score ) {
 		return;
 	}
 	// no scoring in elimination warmup
-	if ((g_gametype.integer == GT_ELIMINATION || g_gametype.integer == GT_CTF_ELIMINATION || g_gametype.integer == GT_LMS)
-			&& level.roundNumber != level.roundNumberStarted) {
+	if (G_IsElimGT() && level.roundNumber != level.roundNumberStarted) {
 		return;
 	}
 
@@ -752,7 +751,7 @@ void G_CheckDeathEAwards(gentity_t *victim, gentity_t *inflictor, gentity_t *att
 
 	switch (meansOfDeath) {
 		case MOD_TELEFRAG:
-			if ((g_gametype.integer != GT_ELIMINATION && g_gametype.integer != GT_CTF_ELIMINATION) 
+			if (!G_IsElimTeamGT() 
 					|| level.roundNumber == level.roundNumberStarted) {
 				AwardMessage(attacker, EAWARD_TELEFRAG, ++(attacker->client->pers.awardCounts[EAWARD_TELEFRAG]));
 			}
@@ -828,7 +827,7 @@ void G_SetRespawntime( gentity_t *self, int notBefore ) {
 	//For testing:
 	//G_Printf("Respawntime: %i\n",self->client->respawnTime);
 	//However during warm up, we should respawn quicker!
-	if(g_gametype.integer == GT_ELIMINATION || g_gametype.integer == GT_CTF_ELIMINATION || g_gametype.integer == GT_LMS)
+	if(G_IsElimGT())
 		if(level.time<=level.roundStartTime && level.time>level.roundStartTime-1000*g_elimination_activewarmup.integer) {
 			//self->client->respawnTime = level.time + rand()%800;
 			self->client->respawnTime = level.time + 400;
@@ -872,7 +871,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 	}
 
 	if (self->client) {
-		if (g_gametype.integer == GT_ELIMINATION || g_gametype.integer == GT_CTF_ELIMINATION) {
+		if (G_IsElimTeamGT()) {
 			if (level.roundNumber == level.roundNumberStarted) {
 				self->client->pers.deaths += 1;
 				self->client->pers.elimRoundDeaths += 1;
@@ -917,7 +916,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 		if ( attacker->client ) {
 			killerName = attacker->client->pers.netname;
 			if (self != attacker) {
-				if (g_gametype.integer == GT_ELIMINATION || g_gametype.integer == GT_CTF_ELIMINATION || g_gametype.integer == GT_LMS) {
+				if (G_IsElimGT()) {
 					attacker->client->pers.elimRoundKills += 1;
 					if (level.roundNumber == level.roundNumberStarted) {
 						attacker->client->pers.kills += 1;
@@ -956,7 +955,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 	ent->s.otherEntityNum2 = killer;
         //Sago: Hmmm... generic? Can I transmit anything I like? Like if it is a team kill? Let's try
         ent->s.generic1 = OnSameTeam (self, attacker);
-        if( !((g_gametype.integer==GT_ELIMINATION || g_gametype.integer==GT_CTF_ELIMINATION) && level.time < level.roundStartTime) )
+        if( !(G_IsElimTeamGT() && level.time < level.roundStartTime) )
             ent->r.svFlags = SVF_BROADCAST;	// send to everyone (if not an elimination gametype during active warmup)
         else
             ent->r.svFlags = SVF_NOCLIENT;
@@ -976,7 +975,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 		attacker->client->lastkilled_client = self->s.number;
 
 		if ( attacker == self || OnSameTeam (self, attacker ) ) {
-			if(g_gametype.integer != GT_TREASURE_HUNTER && g_gametype.integer!=GT_LMS && !((g_gametype.integer==GT_ELIMINATION || g_gametype.integer==GT_CTF_ELIMINATION) && level.time < level.roundStartTime))
+			if(g_gametype.integer != GT_TREASURE_HUNTER && g_gametype.integer!=GT_LMS && !(G_IsElimTeamGT() && level.time < level.roundStartTime))
                                 AddScore( attacker, self->r.currentOrigin, -1 );
 		} else {
 			if(g_gametype.integer!=GT_LMS && g_gametype.integer != GT_TREASURE_HUNTER)
@@ -1160,7 +1159,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 			attacker->client->lastKillTime = level.time;
 		}
 	} else {
-		if(g_gametype.integer != GT_TREASURE_HUNTER && g_gametype.integer!=GT_LMS && !((g_gametype.integer==GT_ELIMINATION || g_gametype.integer==GT_CTF_ELIMINATION) && level.time < level.roundStartTime))
+		if(g_gametype.integer != GT_TREASURE_HUNTER && g_gametype.integer!=GT_LMS && !(G_IsElimTeamGT() && level.time < level.roundStartTime))
                     //if(self->client->ps.persistant[PERS_SCORE]>0 || level.numNonSpectatorClients<3) //Cannot get negative scores by suicide
 			AddScore( self, self->r.currentOrigin, -1 );
 	}
@@ -1348,7 +1347,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 	}
 
 
-	if (g_gametype.integer == GT_ELIMINATION || g_gametype.integer == GT_CTF_ELIMINATION) {
+	if (G_IsElimTeamGT()) {
 		G_SendTeamPlayerCounts();
 	}
 
@@ -1692,7 +1691,7 @@ void G_CheckTwitchRail(gentity_t *attacker, gentity_t *victim, int mod) {
 
 #define IMMORTALITY_DAMAGE 800
 void G_CheckImmortality(gentity_t *ent) {
-	if (g_gametype.integer == GT_ELIMINATION || g_gametype.integer == GT_CTF_ELIMINATION || g_gametype.integer == GT_LMS) {
+	if (G_IsElimGT()) {
 		// immortality award doesn't make sense in those gametypes
 		return;
 	}
@@ -1830,7 +1829,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		return;
 	}
 
-	if (g_gametype.integer == GT_ELIMINATION || g_gametype.integer == GT_CTF_ELIMINATION) {
+	if (G_IsElimTeamGT()) {
 		// avoid doing damage w/ gaunt during elimination warmup
 		if( (( level.time < level.roundStartTime ) && ( level.time>level.roundStartTime-1000*g_elimination_activewarmup.integer ))
 				&& mod != MOD_FALLING && mod != MOD_SUICIDE && mod != MOD_TELEFRAG && mod != MOD_SUICIDE) {
@@ -2062,14 +2061,14 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
         if(targ == attacker && (g_dmflags.integer & DF_NO_SELF_DAMAGE) && !(dflags & DAMAGE_NO_SELF_PROTECTION))
             damage = 0;
 
-	if ((g_gametype.integer == GT_ELIMINATION || g_gametype.integer == GT_CTF_ELIMINATION || g_gametype.integer == GT_LMS || g_elimination_allgametypes.integer)
+	if ((G_IsElimGT() || g_elimination_allgametypes.integer)
 				&& g_elimination_selfdamage.integer<1 && ( targ == attacker ||  mod == MOD_FALLING ) && !(dflags & DAMAGE_NO_SELF_PROTECTION)) {
 		damage = 0;
 	}
 
 
 //So people can be telefragged!
-	if ((g_gametype.integer == GT_ELIMINATION || g_gametype.integer == GT_CTF_ELIMINATION || g_gametype.integer == GT_LMS) && level.time < level.roundStartTime && ((mod == MOD_LAVA) || (mod == MOD_SLIME)) ) {
+	if (G_IsElimGT() && level.time < level.roundStartTime && ((mod == MOD_LAVA) || (mod == MOD_SLIME)) ) {
 		damage = 1000;
 	}
 
@@ -2163,7 +2162,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 			}
 		}
 		if (targ->client && targ->client->ps.pm_type != PM_DEAD) {
-			if (g_gametype.integer == GT_ELIMINATION || g_gametype.integer == GT_CTF_ELIMINATION || g_gametype.integer == GT_LMS) {
+			if (G_IsElimGT()) {
 				targ->client->pers.elimRoundDmgTaken += dmgTaken;
 				if (level.roundNumber == level.roundNumberStarted) {
 					targ->client->pers.dmgTaken += dmgTaken;
@@ -2180,7 +2179,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 			if (attacker && attacker->client && targ->client 
 					&& targ->client->ps.pm_type != PM_DEAD && !OnSameTeam(targ, attacker) ) {
 				int weapon = G_WeaponForMOD(mod);
-				if (g_gametype.integer == GT_ELIMINATION || g_gametype.integer == GT_CTF_ELIMINATION || g_gametype.integer == GT_LMS) {
+				if (G_IsElimGT()) {
 					attacker->client->pers.elimRoundDmgDone += dmgTaken;
 					if (level.roundNumber == level.roundNumberStarted) {
 						G_CheckDamageScore(attacker, targ, dmgTaken);
