@@ -551,7 +551,7 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_debugEvents, "cg_debugevents", "0", CVAR_CHEAT },
 	{ &cg_errorDecay, "cg_errordecay", "100", 0 },
 	{ &cg_nopredict, "cg_nopredict", "0", 0 },
-	{ &cg_checkChangedEvents, "cg_checkChangedEvents", "0", 0 },
+	{ &cg_checkChangedEvents, "cg_checkChangedEvents", "1", CVAR_ARCHIVE },
 	{ &cg_noPlayerAnims, "cg_noplayeranims", "0", CVAR_CHEAT },
 	{ &cg_showmiss, "cg_showmiss", "0", 0 },
 	{ &cg_footsteps, "cg_footsteps", "1", CVAR_CHEAT },
