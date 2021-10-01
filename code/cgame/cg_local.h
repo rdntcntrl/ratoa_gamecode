@@ -417,6 +417,9 @@ typedef struct {
 	int			topweapon2;
 	int			topweapon3;
 	int			ratclient;
+#ifdef WITH_MULTITOURNAMENT
+	int			gameId;
+#endif
 
 } score_t;
 
@@ -502,6 +505,11 @@ typedef struct {
 	int		isDead;
 
 	int 		lastPinglocationTime;
+
+#ifdef WITH_MULTITOURNAMENT
+	// for GT_MULTITOURNAMENT
+	int		gameId;
+#endif
 
 } clientInfo_t;
 
@@ -1516,9 +1524,16 @@ typedef struct {
 	int domination_points_status[MAX_DOMINATION_POINTS];
 
 
-	int				scores1, scores2;		// from configstrings
+	// from configstrings
+	int				scores1, scores2;
+#ifdef WITH_MULTITOURNAMENT
+	int				scores1Mtrn[MULTITRN_MAX_GAMES];
+	int				scores2Mtrn[MULTITRN_MAX_GAMES];		
+#endif
 	int				redflag, blueflag;		// flag status from configstrings
 	int				flagStatus;
+
+	long			mtrnGameFlags;
 
 	// for elimination modes
 	int redLivingCount;
@@ -2158,6 +2173,9 @@ int CG_Reward2Time(int idx);
 void CG_ResetStatusbar(void);
 void CG_Ratstatusbar4RegisterShaders(void);
 void CG_Ratstatusbar3RegisterShaders(void);
+#ifdef WITH_MULTITOURNAMENT
+int CG_GetScoresMtrn(int scoreNum);
+#endif
 
 
 
@@ -2379,6 +2397,9 @@ void CG_PrintTaunts( void );
 void CG_ShaderStateChanged(void);
 void CG_VoiceChatLocal( int mode, qboolean voiceOnly, int clientNum, int color, const char *cmd );
 void CG_PlayBufferedVoiceChats( void );
+#ifdef WITH_MULTITOURNAMENT
+long CG_GetMtrnGameFlags(int gameId);
+#endif
 
 //
 // cg_playerstate.c

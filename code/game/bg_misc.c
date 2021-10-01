@@ -1995,7 +1995,12 @@ movement_t BG_MovementFromString( const char *s )
 }
 
 qboolean BG_IsTeamGametype(gametype_t gametype) {
-	return gametype >= GT_TEAM && gametype != GT_LMS;
+	return gametype >= GT_TEAM
+#ifdef WITH_MULTITOURNAMENT
+		&& gametype != GT_MULTITOURNAMENT
+#endif
+		&& gametype != GT_LMS
+		;
 }
 
 qboolean BG_IsElimTeamGT(gametype_t gametype) {

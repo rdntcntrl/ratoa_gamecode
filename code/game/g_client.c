@@ -276,6 +276,37 @@ gentity_t *SelectRandomFurthestSpawnPoint ( vec3_t avoidPoint, vec3_t origin, ve
 	return list_spot[rnd];
 }
 
+#ifdef WITH_MULTITOURNAMENT
+gentity_t *SelectMultiTournamentSpawnPoint ( gclient_t *client, vec3_t origin, vec3_t angles ) {
+	int		opponentClientNum;
+	gclient_t	*opponent;
+	int gameId = client->sess.gameId;
+
+	if (!G_ValidGameId(gameId)) {
+		return SelectSpawnPoint ( client->ps.origin, origin, angles);
+	}
+
+	if (level.multiTrnGames[gameId].numPlayers != 2) {
+		return SelectSpawnPoint ( client->ps.origin, origin, angles);
+	}
+
+	opponentClientNum = level.multiTrnGames[gameId].clients[0];
+	if (&level.clients[opponentClientNum] == client) {
+		opponentClientNum = level.multiTrnGames[gameId].clients[1];
+	}
+
+	opponent = &level.clients[opponentClientNum];
+
+	if (opponent->pers.connected != CON_CONNECTED
+			|| g_entities[opponentClientNum].health <= 0) {
+		return SelectSpawnPoint ( client->ps.origin, origin, angles);
+	}
+
+	return SelectRandomFurthestSpawnPoint(opponent->ps.origin, origin, angles);
+
+}
+#endif // WITH_MULTITOURNAMENT
+
 /*
 ===========
 SelectTournamentSpawnPoint
@@ -392,7 +423,7 @@ gentity_t *SelectFarFromEnemyTeamSpawnpointArena ( int arenaNum, team_t myteam, 
 			for( j=0;j < level.numPlayingClients; j++ ) {
 				ent = &g_entities[level.sortedClients[j]];
 
-				if (!ent->inuse 
+				if (!G_InUse(ent)
 						|| ent->client->sess.sessionTeam == TEAM_SPECTATOR 
 						|| ent->client->ps.pm_type == PM_DEAD
 						|| ent->client->isEliminated
@@ -642,7 +673,7 @@ void CopyToBodyQue( gentity_t *ent ) {
 		// check if there is a kamikaze timer around for this owner
 		for (i = 0; i < MAX_GENTITIES; i++) {
 			e = &g_entities[i];
-			if (!e->inuse)
+			if (!G_InUse(e))
 				continue;
 			if (e->activator != ent)
 				continue;
@@ -1006,7 +1037,11 @@ void ClientRespawn( gentity_t *ent ) {
 	{
 		ent->client->isEliminated = qtrue; //must not be true in warmup
 		//Tried moving CopyToBodyQue
+#ifdef WITH_MULTITOURNAMENT
+	} else if (g_gametype.integer != GT_MULTITOURNAMENT) {
+#else
 	} else {
+#endif
                 //Must always be false in other gametypes
                 ent->client->isEliminated = qfalse;
         }
@@ -1041,6 +1076,13 @@ void ClientRespawn( gentity_t *ent ) {
 	if(G_IsElimGT() && ent->client->ps.pm_type == PM_SPECTATOR && ent->client->ps.stats[STAT_HEALTH] > 0) {
 		return;
 	}
+
+#ifdef WITH_MULTITOURNAMENT
+	if((g_gametype.integer==GT_MULTITOURNAMENT) 
+			&& ent->client->ps.pm_type == PM_SPECTATOR && ent->client->ps.stats[STAT_HEALTH] > 0) {
+		return;
+	}
+#endif
 
 	ClientSpawn(ent);
 
@@ -1994,6 +2036,10 @@ void ClientUserinfoChanged( int clientNum ) {
 	ent = g_entities + clientNum;
 	client = ent->client;
 
+#ifdef WITH_MULTITOURNAMENT
+	G_LinkGameId(ent->gameId);
+#endif
+
 	trap_GetUserinfo( clientNum, userinfo, sizeof( userinfo ) );
 
 	// check for malformed or illegal info strings
@@ -2314,17 +2360,31 @@ Sago: I am not happy with this exception
 	// send over a subset of the userinfo keys so other clients can
 	// print scoreboards, display models, and play custom sounds
 	if ( ent->r.svFlags & SVF_BOT ) {
-		s = va("n\\%s\\t\\%i\\model\\%s\\hmodel\\%s\\c1\\%s\\c2\\%s\\hc\\%i\\w\\%i\\l\\%i\\skill\\%s\\tt\\%d\\tl\\%d\\pc\\%d",
+		s = va("n\\%s\\t\\%i\\model\\%s\\hmodel\\%s\\c1\\%s\\c2\\%s\\hc\\%i\\w\\%i\\l\\%i\\skill\\%s\\tt\\%d\\tl\\%d\\pc\\%d"
+#ifdef WITH_MULTITOURNAMENT
+				"\\g\\%i"
+#endif
+				,
 			client->pers.netname, team, model, headModel, c1, c2, 
 			client->pers.maxHealth, client->sess.wins, client->sess.losses,
 			Info_ValueForKey( userinfo, "skill" ), teamTask, teamLeader,
 			client->sess.playerColorIdx
-		      );
+#ifdef WITH_MULTITOURNAMENT
+		     	,team == TEAM_FREE ? client->sess.gameId : 0
+#endif
+			);
 	} else {
-		s = va("n\\%s\\t\\%i\\model\\%s\\hmodel\\%s\\g_redteam\\%s\\g_blueteam\\%s\\c1\\%s\\c2\\%s\\hc\\%i\\w\\%i\\l\\%i\\tt\\%d\\tl\\%d\\pc\\%d",
+		s = va("n\\%s\\t\\%i\\model\\%s\\hmodel\\%s\\g_redteam\\%s\\g_blueteam\\%s\\c1\\%s\\c2\\%s\\hc\\%i\\w\\%i\\l\\%i\\tt\\%d\\tl\\%d\\pc\\%d"
+#ifdef WITH_MULTITOURNAMENT
+				"\\g\\%i"
+#endif
+				,
 			client->pers.netname, client->sess.sessionTeam, model, headModel, redTeam, blueTeam, c1, c2, 
 			client->pers.maxHealth, client->sess.wins, client->sess.losses, teamTask, teamLeader,
 			client->sess.playerColorIdx
+#ifdef WITH_MULTITOURNAMENT
+			,team == TEAM_FREE ? client->sess.gameId : 0
+#endif
 			);
 	}
 
@@ -2469,6 +2529,12 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 		G_InitSessionData( client, userinfo, firstTime, level.newSession, unnamedPlayerState );
 	}
 	G_ReadSessionData( client );
+#ifdef WITH_MULTITOURNAMENT
+	if (g_gametype.integer == GT_MULTITOURNAMENT) {
+		ent->gameId = client->sess.gameId;
+		G_UpdateMultiTrnGames();
+	}
+#endif
 
 	// this affects session data
 	G_ClientReduceSkilldata(client);
@@ -2821,6 +2887,10 @@ void ClientBegin( int clientNum ) {
 
 	ent = g_entities + clientNum;
 
+#ifdef WITH_MULTITOURNAMENT
+	G_LinkGameId(ent->gameId);
+#endif
+
 	client = level.clients + clientNum;
 
 	if ( ent->r.linked ) {
@@ -2837,6 +2907,13 @@ void ClientBegin( int clientNum ) {
 	client->pers.connected = CON_CONNECTED;
 	client->pers.enterTime = level.time;
 	client->pers.teamState.state = TEAM_BEGIN;
+
+#ifdef WITH_MULTITOURNAMENT
+	if (g_gametype.integer == GT_MULTITOURNAMENT) {
+		// reset scores when joining game w/o level restart
+		client->ps.persistant[PERS_SCORE] = 0;
+	}
+#endif
 
 	//Elimination:
 	client->pers.roundReached = 0; //We will spawn in next round
@@ -2916,7 +2993,11 @@ void ClientBegin( int clientNum ) {
 		tent = G_TempEntity( ent->client->ps.origin, EV_PLAYER_TELEPORT_IN );
 		tent->s.clientNum = ent->s.clientNum;
 
-		if ( g_gametype.integer != GT_TOURNAMENT && !level.shuffling_teams ) {
+		if ( g_gametype.integer != GT_TOURNAMENT
+#ifdef WITH_MULTITOURNAMENT
+				&& g_gametype.integer != GT_MULTITOURNAMENT
+#endif
+				&& !level.shuffling_teams ) {
 			trap_SendServerCommand( -1, va("print \"%s" S_COLOR_WHITE " entered the game%s\n\"", 
 						client->pers.netname,
 						(g_usesRatEngine.integer && g_mixedMode.integer && !client->pers.pure) ? " (baseoa client)" : "") );
@@ -2960,6 +3041,10 @@ void ClientBegin( int clientNum ) {
 	}
 
         TeamCvarSet();
+
+#ifdef WITH_MULTITOURNAMENT
+	G_UpdateMultiTrnGames();
+#endif
 
 	// count current clients and rank for scoreboard
 	CalculateRanks();
@@ -3124,11 +3209,31 @@ void ClientSpawn(gentity_t *ent) {
 			client->pers.livesLeft--;
 	}
 
+#ifdef WITH_MULTITOURNAMENT
+	//if (g_gametype.integer == GT_MULTITOURNAMENT && client->sess.sessionTeam == TEAM_FREE) {
+	//	int gameId = client->sess.gameId;
+	//	if (G_ValidGameId(gameId)) {
+	//		multiTrnGame_t *game = &level.multiTrnGames[gameId];
+	//		if (game->finishedTime) {
+	//			client->ps.pm_type = PM_SPECTATOR;
+	//			client->sess.spectatorState = SPECTATOR_FREE;
+	//			client->isEliminated = qtrue;
+	//			CalculateRanks();
+	//			return;
+	//		}
+	//	}
+	//}
+#endif
+
 	// find a spawn point
 	// do it before setting health back up, so farthest
 	// ranging doesn't count this client
 	if ((client->sess.sessionTeam == TEAM_SPECTATOR) 
-			|| ( (client->ps.pm_type == PM_SPECTATOR || client->isEliminated )  && G_IsElimTeamGT() ) ) {
+			|| ( (client->ps.pm_type == PM_SPECTATOR || client->isEliminated )  && (
+#ifdef WITH_MULTITOURNAMENT
+					g_gametype.integer == GT_MULTITOURNAMENT ||
+#endif
+				       	G_IsElimTeamGT()) ) ) {
 		if (g_ra3compat.integer && client->pers.arenaNum >= 0) {
 			spawnPoint = SelectSpectatorSpawnPointArena (
 					client->pers.arenaNum,
@@ -3190,6 +3295,21 @@ void ClientSpawn(gentity_t *ent) {
 							client->ps.origin, 
 							spawn_origin, spawn_angles);
 				}
+#ifdef WITH_MULTITOURNAMENT
+			} else if (g_gametype.integer == GT_MULTITOURNAMENT) {
+				CalculateRanks();
+				if (g_tournamentSpawnsystem.integer == 1) {
+					// select a spawnpoint away from the opponent
+					spawnPoint = SelectMultiTournamentSpawnPoint ( 
+							client,
+							spawn_origin, spawn_angles);
+				} else {
+					// random spawn
+					spawnPoint = SelectSpawnPoint ( 
+							client->ps.origin, 
+							spawn_origin, spawn_angles);
+				}
+#endif // WITH_MULTITOURNAMENT
 			} else {
 				if (g_ffaSpawnsystem.integer == 1) {
 					// don't spawn near existing origin if possible, but otherwise random
@@ -3474,7 +3594,11 @@ else
 	SetClientViewAngle( ent, spawn_angles );
 
 	if ( (ent->client->sess.sessionTeam == TEAM_SPECTATOR) || ((client->ps.pm_type == PM_SPECTATOR || client->isEliminated) && 
-		G_IsElimGT() ) ) {
+		(
+#ifdef WITH_MULTITOURNAMENT
+		 g_gametype.integer == GT_MULTITOURNAMENT ||
+#endif
+		 G_IsElimGT()) ) ) {
                 //Sago: Lets see if this fixes the bots only bug - loose all point on dead bug. (It didn't)
             /*if(G_IsElimGT()) {
                 G_KillBox( ent );
@@ -3506,7 +3630,11 @@ else
 	client->ps.torsoAnim = TORSO_STAND;
 	client->ps.legsAnim = LEGS_IDLE;
 
-	if ( level.intermissiontime ) {
+	if ( level.intermissiontime
+#ifdef WITH_MULTITOURNAMENT
+		       	|| G_MtrnIntermissionTimeClient(client)
+#endif
+			) {
 		MoveClientToIntermission( ent );
 	} else {
 		// fire the targets of the spawn point
@@ -3584,6 +3712,10 @@ void ClientDisconnect( int clientNum ) {
 	if ( !ent->client ) {
 		return;
 	}
+
+#ifdef WITH_MULTITOURNAMENT
+	G_LinkGameId(ent->gameId);
+#endif
 
         ClientLeaving( clientNum);
     //KK-OAX Admin
@@ -3679,7 +3811,11 @@ void ClientDisconnect( int clientNum ) {
 	ent->classname = "disconnected";
 	oldTeam = ent->client->sess.sessionTeam;
 	ent->client->pers.connected = CON_DISCONNECTED;
-	if (g_gametype.integer == GT_TOURNAMENT) {
+	if (g_gametype.integer == GT_TOURNAMENT
+#ifdef WITH_MULTITOURNAMENT
+			|| g_gametype.integer == GT_MULTITOURNAMENT
+#endif
+			) {
 		ent->client->ps.persistant[PERS_TEAM] = TEAM_SPECTATOR;
 		ent->client->sess.sessionTeam = TEAM_SPECTATOR;
 	} else {
@@ -3692,6 +3828,9 @@ void ClientDisconnect( int clientNum ) {
 	//trap_SetConfigstring( CS_PLAYERS + clientNum, va("t\\%i", ent->client->sess.sessionTeam));
 	trap_SetConfigstring( CS_PLAYERS + clientNum, "");
 
+#ifdef WITH_MULTITOURNAMENT
+	G_UpdateMultiTrnGames();
+#endif
 	CalculateRanks();
         CountVotes();
 

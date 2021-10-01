@@ -65,11 +65,19 @@ void AddScore( gentity_t *ent, vec3_t origin, int score ) {
 	}
 
         //No scoring during intermission
-        if ( level.intermissiontime ) {
+        if ( level.intermissiontime
+#ifdef WITH_MULTITOURNAMENT
+			|| G_MtrnIntermissionTime(level.currentGameId)
+#endif
+			) {
             return;
         }
 	// show score plum
-        if( level.numNonSpectatorClients<3 && score < 0 && (!G_IsTeamGametype())) {
+        if( level.numNonSpectatorClients<3 && score < 0 && !G_IsTeamGametype()
+#ifdef WITH_MULTITOURNAMENT
+			&& g_gametype.integer != GT_MULTITOURNAMENT
+#endif
+			) {
             for ( i = 0 ; i < level.maxclients ; i++ ) {
                 if ( level.clients[ i ].pers.connected != CON_CONNECTED )
                     continue; //Client was not connected
@@ -338,7 +346,7 @@ void GibEntity( gentity_t *self, int killer ) {
 		// check if there is a kamikaze timer around for this owner
 		for (i = 0; i < MAX_GENTITIES; i++) {
 			ent = &g_entities[i];
-			if (!ent->inuse)
+			if (!G_InUse(ent))
 				continue;
 			if (ent->activator != self)
 				continue;
@@ -866,7 +874,11 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 		return;
 	}
 
-	if ( level.intermissiontime ) {
+	if ( level.intermissiontime
+#ifdef WITH_MULTITOURNAMENT
+		       	|| G_MtrnIntermissionTime(level.currentGameId)
+#endif
+			) {
 		return;
 	}
 
@@ -1828,6 +1840,12 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 	if ( level.intermissionQueued ) {
 		return;
 	}
+
+#ifdef WITH_MULTITOURNAMENT
+	if (G_MtrnIntermissionQueued(level.currentGameId)) {
+		return;
+	}
+#endif
 
 	if (G_IsElimTeamGT()) {
 		// avoid doing damage w/ gaunt during elimination warmup

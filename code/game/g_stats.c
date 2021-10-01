@@ -193,7 +193,7 @@ void G_JSONExportPlayer(fileHandle_t f, gclient_t *cl) {
 	xfprintf(f, "}");
 }
 
-void G_JSONExport(fileHandle_t f, const char *exitreason) {
+void G_JSONExport(fileHandle_t f, const char *exitreason, int gameId) {
 	char mapname[MAX_QPATH];
 	char svname[MAX_INFO_VALUE];
 	int i;
@@ -207,6 +207,12 @@ void G_JSONExport(fileHandle_t f, const char *exitreason) {
 	json_timestamp(f, "time");
 	xfprintf(f, ",");
 	json_writeint(f, "gametype", g_gametype.integer);
+#ifdef WITH_MULTITOURNAMENT
+	if (g_gametype.integer == GT_MULTITOURNAMENT) {
+		xfprintf(f, ",");
+		json_writeint(f, "gameId", gameId);
+	}
+#endif
 	xfprintf(f, ",");
 	if (G_IsTeamGametype()) {
 		json_writebool(f, "team_gt", qtrue);
@@ -245,6 +251,12 @@ void G_JSONExport(fileHandle_t f, const char *exitreason) {
 			continue;
 		}
 
+#ifdef WITH_MULTITOURNAMENT
+		if (g_gametype.integer == GT_MULTITOURNAMENT && cl->sess.gameId != gameId) {
+			continue;
+		}
+#endif
+
 		if (comma) {
 			xfprintf(f, ",");
 		}
@@ -256,6 +268,41 @@ void G_JSONExport(fileHandle_t f, const char *exitreason) {
 
 	xfprintf(f, "}");
 }
+
+#ifdef WITH_MULTITOURNAMENT
+qboolean G_ShouldRecordMtrnGame(int gameId) {
+	int i;
+	multiTrnGame_t *game;
+
+	if (!G_ValidGameId(gameId)) {
+		return qfalse;
+	}
+       
+	game = &level.multiTrnGames[gameId];
+
+	if (!(game->gameFlags & MTRN_GFL_RUNNING)) {
+		return qfalse;
+	}
+	if (!(game->gameFlags & MTRN_GFL_STARTEDATBEGINNING)) {
+		return qfalse;
+	}
+	if (game->numPlayers != 2) {
+		return qfalse;
+	}
+
+	for (i = 0; i < game->numPlayers; ++i) {
+		gentity_t *player;
+		if (game->clients[i] < 0 || game->clients[i] >= MAX_CLIENTS) {
+			return qfalse;
+		}
+		player = &g_entities[game->clients[i]];
+		if (player->r.svFlags & SVF_BOT) {
+			return qfalse;
+		}
+	}
+	return qtrue;
+}
+#endif // WITH_MULTITOURNAMENT
 
 void G_WriteStatsJSON(const char *exitreason, int game_id) {
 	char fname[MAX_OSPATH];
@@ -270,6 +317,13 @@ void G_WriteStatsJSON(const char *exitreason, int game_id) {
 
 	if (G_IsTeamGametype()) {
 		humans = G_CountHumanPlayers(TEAM_RED) + G_CountHumanPlayers(TEAM_BLUE);
+#ifdef WITH_MULTITOURNAMENT
+	} else if (g_gametype.integer == GT_MULTITOURNAMENT) {
+		if (!G_ShouldRecordMtrnGame(game_id)) {
+			return;
+		}
+		humans = 2;
+#endif
 	} else {
 		humans = G_CountHumanPlayers(TEAM_FREE);
 	}
@@ -298,7 +352,7 @@ void G_WriteStatsJSON(const char *exitreason, int game_id) {
 		return;
 	}
 
-	G_JSONExport(f, exitreason);
+	G_JSONExport(f, exitreason, game_id);
 
 	trap_FS_FCloseFile(f);
 	len = trap_FS_FOpenFile( va("stats/%s.done", fname), &f, FS_WRITE );

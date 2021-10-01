@@ -432,11 +432,15 @@ Spawn an entity and fill in all of the level fields from
 level.spawnVars[], then call the class specfic spawn function
 ===================
 */
-void G_SpawnGEntityFromSpawnVars( void ) {
+int G_SpawnGEntityFromSpawnVars( void ) {
 	int			i;
 	gentity_t	*ent;
 	char		*s, *value, *gametypeName;
-	static char *gametypeNames[] = {"ffa", "tournament", "single", "team", "ctf", "oneflag", "obelisk", "harvester", "elimination", "ctf", "lms", "dd", "dom", "th"};
+	static char *gametypeNames[] = {"ffa", "tournament", "single", "team", "ctf", "oneflag", "obelisk", "harvester", "elimination", "ctf", "lms", "dd", "dom", "th"
+#ifdef WITH_MULTITOURNAMENT
+		, "tournament"
+#endif
+	};
 
 	// get the next free entity
 	ent = G_Spawn();
@@ -450,7 +454,7 @@ void G_SpawnGEntityFromSpawnVars( void ) {
 		G_SpawnInt( "notsingle", "0", &i );
 		if ( i ) {
 			G_FreeEntity( ent );
-			return;
+			return ENTITYNUM_NONE;
 		}
 	}
 	// check for "notteam" flag (GT_FFA, GT_TOURNAMENT, GT_SINGLE_PLAYER)
@@ -458,13 +462,13 @@ void G_SpawnGEntityFromSpawnVars( void ) {
 		G_SpawnInt( "notteam", "0", &i );
 		if ( i ) {
 			G_FreeEntity( ent );
-			return;
+			return ENTITYNUM_NONE;
 		}
 	} else {
 		G_SpawnInt( "notfree", "0", &i );
 		if ( i ) {
 			G_FreeEntity( ent );
-			return;
+			return ENTITYNUM_NONE;
 		}
 	}
 
@@ -472,13 +476,13 @@ void G_SpawnGEntityFromSpawnVars( void ) {
 	G_SpawnInt( "notta", "0", &i );
 	if ( i ) {
 		G_FreeEntity( ent );
-		return;
+		return ENTITYNUM_NONE;
 	}
 #else
 	G_SpawnInt( "notq3a", "0", &i );
 	if ( i ) {
 		G_FreeEntity( ent );
-		return;
+		return ENTITYNUM_NONE;
 	}
 #endif
 
@@ -489,7 +493,7 @@ void G_SpawnGEntityFromSpawnVars( void ) {
 			s = strstr( value, gametypeName );
 			if( s ) {
 				G_FreeEntity( ent );
-				return;
+				return ENTITYNUM_NONE;
 			}
 		}
 	}
@@ -501,7 +505,7 @@ void G_SpawnGEntityFromSpawnVars( void ) {
 			s = strstr( value, gametypeName );
 			if( !s ) {
 				G_FreeEntity( ent );
-				return;
+				return ENTITYNUM_NONE;
 			}
 		}
 	}
@@ -513,7 +517,10 @@ void G_SpawnGEntityFromSpawnVars( void ) {
 	// if we didn't get a classname, don't bother spawning anything
 	if ( !G_CallSpawn( ent ) ) {
 		G_FreeEntity( ent );
+		return ENTITYNUM_NONE;
 	}
+
+	return ent->s.number;
 }
 
 
@@ -746,6 +753,40 @@ void SP_worldspawn( void ) {
 
 }
 
+#ifdef WITH_MULTITOURNAMENT
+void G_MultiTrnSpawn(void) {
+	int gameId;
+	int entityNum;
+	gentity_t *ent;
+	for ( gameId = 0; gameId < level.multiTrnNumGames; ++gameId) {
+		G_LinkGameId(gameId);
+		entityNum = G_SpawnGEntityFromSpawnVars();
+		if (entityNum == ENTITYNUM_NONE) {
+			continue;
+		}
+		ent = &g_entities[entityNum];
+		if (strcmp(ent->classname, "target_location") == 0
+				|| strcmp(ent->classname, "info_player_deathmatch") == 0
+				|| strcmp(ent->classname, "info_player_start") == 0
+				|| strcmp(ent->classname, "info_player_intermission") == 0
+				|| strcmp(ent->classname, "team_CTF_redspawn") == 0
+				|| strcmp(ent->classname, "team_CTF_bluespawn") == 0
+				|| strcmp(ent->classname, "team_CTF_redplayer") == 0
+				|| strcmp(ent->classname, "team_CTF_blueplayer") == 0
+				|| strcmp(ent->classname, "info_player_dd") == 0
+				|| strcmp(ent->classname, "info_player_dd_red") == 0
+				|| strcmp(ent->classname, "info_player_dd_blue") == 0
+		   ) {
+			// all of these types only need one instance for all
+			// games
+			G_SetGameIDMask(ent, MTRN_GAMEID_ANY);
+			break;
+		}
+
+	}
+}
+#endif // WITH_MULTITOURNAMENT
+
 
 /*
 ==============
@@ -775,7 +816,15 @@ void G_SpawnEntitiesFromString( void ) {
 
 			// parse ents
 			while( G_ParseSpawnVarsFromString(&pbuf) ) {
-				G_SpawnGEntityFromSpawnVars();
+#ifdef WITH_MULTITOURNAMENT
+				if (g_gametype.integer == GT_MULTITOURNAMENT) {
+					G_MultiTrnSpawn();
+				} else {
+#endif
+					G_SpawnGEntityFromSpawnVars();
+#ifdef WITH_MULTITOURNAMENT
+				}
+#endif
 			}	
 			level.spawning = qfalse;
 			goto out;
@@ -792,7 +841,15 @@ void G_SpawnEntitiesFromString( void ) {
 
 	// parse ents
 	while( G_ParseSpawnVars() ) {
-		G_SpawnGEntityFromSpawnVars();
+#ifdef WITH_MULTITOURNAMENT
+		if (g_gametype.integer == GT_MULTITOURNAMENT) {
+			G_MultiTrnSpawn();
+		} else {
+#endif
+			G_SpawnGEntityFromSpawnVars();
+#ifdef WITH_MULTITOURNAMENT
+		}
+#endif
 	}	
 
 	level.spawning = qfalse;			// any future calls to G_Spawn*() will be errors

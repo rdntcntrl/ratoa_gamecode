@@ -907,6 +907,15 @@ void ClientIntermissionThink( gclient_t *client ) {
 	// swap and latch button actions
 	client->oldbuttons = client->buttons;
 	client->buttons = client->pers.cmd.buttons;
+
+#ifdef WITH_MULTITOURNAMENT
+	if (g_gametype.integer == GT_MULTITOURNAMENT && !level.intermissiontime) {
+		// only the intermission for one sub-game, don't allow
+		// readytoexit to be set
+		return;
+	}
+#endif
+
 	if ( level.time >= level.intermissiontime + 1000 && (client->buttons & ( BUTTON_ATTACK | BUTTON_USE_HOLDABLE ) & ( client->oldbuttons ^ client->buttons ) )) {
 		// this used to be an ^1 but once a player says ready, it should stick
 		client->readyToExit = 1;
@@ -1060,7 +1069,7 @@ static int StuckInOtherClient(gentity_t *ent) {
 		if ( ent2 == ent ) {
 			continue;
 		}
-		if ( !ent2->inuse ) {
+		if ( !G_InUse(ent2) ) {
 			continue;
 		}
 		if ( !ent2->client ) {
@@ -1136,8 +1145,20 @@ void SendPendingPredictableEvents( playerState_t *ps ) {
 		t->s.eFlags |= EF_PLAYER_EVENT;
 		t->s.otherEntityNum = ps->clientNum;
 		// send to everyone except the client who generated the event
-		t->r.svFlags |= SVF_NOTSINGLECLIENT;
-		t->r.singleClient = ps->clientNum;
+#ifdef WITH_MULTITOURNAMENT
+		if (g_gametype.integer == GT_MULTITOURNAMENT) {
+			// we have to handle this differently in
+			// multitournament since every entity has
+			// SVF_CLIENTMASK set
+			t->multiTrnClientExcludeMask = (1 << ps->clientNum);
+			t->r.singleClient &= ~(t->multiTrnClientExcludeMask);
+		} else {
+#endif
+			t->r.svFlags |= SVF_NOTSINGLECLIENT;
+			t->r.singleClient = ps->clientNum;
+#ifdef WITH_MULTITOURNAMENT
+		}
+#endif
 		// set back external event
 		ps->externalEvent = extEvent;
 	}
@@ -1161,15 +1182,20 @@ void ClientThink_real( gentity_t *ent ) {
 	int			msec;
 	usercmd_t	*ucmd;
 
+	client = ent->client;
+
 	if (level.timeout) {
-		ClientInactivityHeartBeat(ent->client);
+		ClientInactivityHeartBeat(client);
 		return;
 	}
-	if (level.intermissiontime) {
-		ClientInactivityHeartBeat(ent->client);
+	if (level.intermissiontime
+#ifdef WITH_MULTITOURNAMENT
+			|| G_MtrnIntermissionTimeClient(ent->client)
+#endif
+			) {
+		ClientInactivityHeartBeat(client);
 	}
 
-	client = ent->client;
 
 	// don't think if the client is not yet connected (and thus not yet spawned in)
 	if (client->pers.connected != CON_CONNECTED) {
@@ -1351,7 +1377,11 @@ void ClientThink_real( gentity_t *ent ) {
 	//
 	// check for exiting intermission
 	//
-	if ( level.intermissiontime ) {
+	if ( level.intermissiontime
+#ifdef WITH_MULTITOURNAMENT
+			|| G_MtrnIntermissionTimeClient(client)
+#endif
+			) {
 		ClientIntermissionThink( client );
 		return;
 	}
@@ -1629,6 +1659,10 @@ void ClientThink( int clientNum ) {
 	gentity_t *ent;
 
 	ent = g_entities + clientNum;
+#ifdef WITH_MULTITOURNAMENT
+	G_LinkGameId(ent->gameId);
+#endif
+
 	trap_GetUsercmd( clientNum, &ent->client->pers.cmd );
 
 	//Unlagged: commented out
@@ -1643,11 +1677,23 @@ void ClientThink( int clientNum ) {
 
 
 void G_RunClient( gentity_t *ent ) {
+#ifdef WITH_MULTITOURNAMENT
+	int oldGameId = level.currentGameId;
+#endif
 	if ( !(ent->r.svFlags & SVF_BOT) && !g_synchronousClients.integer ) {
 		return;
 	}
+
+#ifdef WITH_MULTITOURNAMENT
+	G_LinkGameId(ent->gameId);
+#endif
+
 	ent->client->pers.cmd.serverTime = level.time;
 	ClientThink_real( ent );
+
+#ifdef WITH_MULTITOURNAMENT
+	G_LinkGameId(oldGameId);
+#endif
 }
 
 
@@ -1802,6 +1848,12 @@ void ClientEndFrame( gentity_t *ent ) {
 	if ( level.intermissiontime ) {
 		return;
 	}
+
+#ifdef WITH_MULTITOURNAMENT
+	if (G_MtrnIntermissionTimeClient(ent->client)) {
+		return;
+	}
+#endif
 
 	// burn from lava, etc
 	P_WorldEffects (ent);

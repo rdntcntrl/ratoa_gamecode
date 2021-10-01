@@ -53,7 +53,7 @@ void UpdateTournamentInfo( void ) {
 	player = NULL;
 	for (i = 0; i < level.maxclients; i++ ) {
 		player = &g_entities[i];
-		if ( !player->inuse ) {
+		if ( !G_InUse(player) ) {
 			continue;
 		}
 		if ( !( player->r.svFlags & SVF_BOT ) ) {

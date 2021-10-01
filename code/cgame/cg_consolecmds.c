@@ -872,4 +872,6 @@ void CG_InitConsoleCommands( void ) {
 	trap_AddCommand ("pause");
 	trap_AddCommand ("unpause");
 	trap_AddCommand ("mv");
+	trap_AddCommand ("game");
+	trap_AddCommand ("specgame");
 }

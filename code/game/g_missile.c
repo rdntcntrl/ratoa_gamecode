@@ -97,7 +97,7 @@ void G_MissileRunDelag(gentity_t *ent, int stepmsec) {
 	// if we see the missile late due to lag & PRESTEP
 	// compute the flight since it was launched, 
 	// shifting clients back accordingly
-	if ( !ent->inuse 
+	if ( !G_InUse(ent)
 			|| ent->freeAfterEvent
 			|| ent->s.eType != ET_MISSILE
 			|| !ent->needsDelag ) {
@@ -108,7 +108,7 @@ void G_MissileRunDelag(gentity_t *ent, int stepmsec) {
 	lvlTimeSaved = level.time;
 	projectileDelagTime = level.previousTime - (DELAG_MAX_BACKTRACK/stepmsec) * stepmsec;
 	while (projectileDelagTime < prevTimeSaved) {
-		if ( !ent->inuse || ent->freeAfterEvent ) {
+		if ( !G_InUse(ent) || ent->freeAfterEvent ) {
 			// make sure we don't run missile again
 			// if it exploded already
 			break;
@@ -142,7 +142,7 @@ void G_ImmediateRunMissile(gentity_t *ent) {
 		G_MissileRunDelag(ent, stepmsec);
 
 	}
-	if ( !ent->inuse ) {
+	if ( !G_InUse(ent) ) {
 		return;
 	}
 
@@ -172,7 +172,7 @@ void G_ImmediateRunClientMissiles(gentity_t *client) {
 	}
 	for (i=0 ; i < level.num_entities ; ++i ) {
 		ent = &g_entities[i];
-		if ( !ent->inuse 
+		if ( !G_InUse(ent)
 				|| ent->freeAfterEvent
 				|| ent->s.eType != ET_MISSILE
 				|| ent->parent != client) {

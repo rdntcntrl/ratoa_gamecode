@@ -171,7 +171,7 @@ gentity_t *G_Find (gentity_t *from, int fieldofs, const char *match)
 
 	for ( ; from < &g_entities[level.num_entities] ; from++)
 	{
-		if (!from->inuse)
+		if (!G_InUse(from))
 			continue;
 		s = *(char **) ((byte *)from + fieldofs);
 		if (!s)
@@ -262,7 +262,7 @@ void G_UseTargets( gentity_t *ent, gentity_t *activator ) {
 				t->use (t, ent, activator);
 			}
 		}
-		if ( !ent->inuse ) {
+		if ( !G_InUse(ent) ) {
                         G_Printf("entity was removed while using targets\n");
 			return;
 		}
@@ -373,6 +373,16 @@ void G_InitGentity( gentity_t *e ) {
 	e->classname = "noclass";
 	e->s.number = e - g_entities;
 	e->r.ownerNum = ENTITYNUM_NONE;
+
+#ifdef WITH_MULTITOURNAMENT
+	if (g_gametype.integer == GT_MULTITOURNAMENT) {
+		if (!G_ValidGameId(level.currentGameId)) {
+			Com_Printf("^3Warning: creating entity %i with invalid gameId %i\n",
+					e->s.number, level.currentGameId);
+		}
+		G_SetGameIDMask(e, level.currentGameId);
+	}
+#endif
 }
 
 /*
@@ -695,3 +705,89 @@ int DebugLine(vec3_t start, vec3_t end, int color) {
 
 	return trap_DebugPolygonCreate(color, 4, points);
 }
+
+#ifndef WITH_MULTITOURNAMENT
+qboolean G_InUse(gentity_t *ent) {
+	return ent->inuse;
+}
+#else
+qboolean G_ValidGameId(int gameId) {
+	return (gameId >= 0 && gameId < level.multiTrnNumGames);
+}
+
+qboolean G_InUse(gentity_t *ent) {
+	return ent->inuse && (g_gametype.integer != GT_MULTITOURNAMENT 
+			|| level.currentGameId == ent->gameId 
+			|| ent->gameId == MTRN_GAMEID_ANY);
+}
+
+static qboolean G_IsInGame(gentity_t *ent, int gameId) {
+	return gameId == ent->gameId || ent->gameId == MTRN_GAMEID_ANY;
+}
+
+static void G_SetGameIDMask_nogtcheck(gentity_t *ent, int gameId) {
+	ent->gameId = gameId;
+	ent->r.svFlags |= SVF_CLIENTMASK;
+	if (!G_ValidGameId(gameId)) { 
+		ent->r.singleClient = 0;
+		return;
+	}
+	ent->r.singleClient = level.multiTrnGames[gameId].clientMask;
+	ent->r.singleClient &= ~(ent->multiTrnClientExcludeMask);
+}
+
+void G_SetGameIDMask(gentity_t *ent, int gameId) {
+	if (g_gametype.integer != GT_MULTITOURNAMENT) {
+		return;
+	}
+	G_SetGameIDMask_nogtcheck(ent, gameId);
+}
+
+
+void G_LinkGameId(int gameId) {
+	int i;
+	gentity_t *ent;
+
+	if (g_gametype.integer != GT_MULTITOURNAMENT) {
+		return;
+	}
+
+	if (!G_ValidGameId(gameId)) {
+		gameId = MTRN_GAMEID_ANY;
+	}
+
+	if (gameId == MTRN_GAMEID_ANY) {
+		for (i=0, ent = &g_entities[0]; i<level.num_entities ; i++, ent++) {
+			if (!ent->inuse) {
+				continue;
+			}
+			G_SetGameIDMask_nogtcheck(ent, ent->gameId);
+			if (G_IsInGame(ent, level.currentGameId)) {
+				ent->wasLinked = ent->r.linked;
+			}
+			if (!ent->r.linked && ent->wasLinked) {
+				trap_LinkEntity(ent);
+			}
+		}
+		level.currentGameId = MTRN_GAMEID_ANY;
+		return;
+	}
+	for (i=0, ent = &g_entities[0]; i<level.num_entities ; i++, ent++) {
+		if (!ent->inuse) {
+			continue;
+		}
+		G_SetGameIDMask_nogtcheck(ent, ent->gameId);
+		if (G_IsInGame(ent, level.currentGameId)) {
+			ent->wasLinked = ent->r.linked;
+		}
+		if (G_IsInGame(ent, gameId)) {
+			if (!ent->r.linked && ent->wasLinked) {
+				trap_LinkEntity(ent);
+			}
+		} else if (ent->r.linked) {
+			trap_UnlinkEntity(ent);
+		}
+	}
+	level.currentGameId = gameId;
+}
+#endif // WITH_MULTITOURNAMENT

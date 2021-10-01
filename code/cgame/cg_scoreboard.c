@@ -509,7 +509,11 @@ static void CG_RatDrawClientScore(int y, score_t *score, float *color, float fad
 	} else {
 		tcolor[0] = tcolor[2] = 0.5;
 		tcolor[1] = 1.0;
-		if (cgs.gametype == GT_TOURNAMENT) {
+		if (cgs.gametype == GT_TOURNAMENT
+#ifdef WITH_MULTITOURNAMENT
+				|| cgs.gametype == GT_MULTITOURNAMENT
+#endif
+				) {
 			Com_sprintf(string, sizeof (string), "%2i", ci->wins);
 		} else if (cgs.gametype == GT_CTF) {
 			Com_sprintf(string, sizeof (string), "%2i", score->captures);
@@ -520,14 +524,22 @@ static void CG_RatDrawClientScore(int y, score_t *score, float *color, float fad
 
 		tcolor[0] = tcolor[1] = tcolor[2] = 1.0;
 		if (cgs.gametype == GT_TOURNAMENT 
-				|| cgs.gametype == GT_CTF) {
+				|| cgs.gametype == GT_CTF 
+#ifdef WITH_MULTITOURNAMENT
+				|| cgs.gametype == GT_MULTITOURNAMENT
+#endif
+				) {
 			Com_sprintf(string, sizeof (string), "/");
 		} else {
 			Com_sprintf(string, sizeof (string), " ");
 		}
 		CG_DrawSmallScoreStringColor(RATSB_WL_X, ysmall, string, tcolor);
 
-		if (cgs.gametype == GT_TOURNAMENT) {
+		if (cgs.gametype == GT_TOURNAMENT
+#ifdef WITH_MULTITOURNAMENT
+				|| cgs.gametype == GT_MULTITOURNAMENT
+#endif
+				) {
 			tcolor[1] = tcolor[2] = 0.5;
 			tcolor[2] = 1.0;
 			Com_sprintf(string, sizeof (string), "%-2i", ci->losses);
@@ -647,7 +659,11 @@ static void CG_RatDrawClientScore(int y, score_t *score, float *color, float fad
 CG_RatTeamScoreboard
 =================
  */
+#ifdef WITH_MULTITOURNAMENT
+static int CG_RatTeamScoreboardGameId(int y, team_t team, float fade, int maxClients, int lineHeight, qboolean countOnly, int gameId) {
+#else
 static int CG_RatTeamScoreboard(int y, team_t team, float fade, int maxClients, int lineHeight, qboolean countOnly) {
+#endif
 	int i;
 	score_t *score;
 	float color[4];
@@ -670,6 +686,12 @@ static int CG_RatTeamScoreboard(int y, team_t team, float fade, int maxClients, 
 			continue;
 		}
 
+#ifdef WITH_MULTITOURNAMENT
+		if (gameId >= 0 && gameId != score->gameId) {
+			continue;
+		}
+#endif
+
 		if (!countOnly) {
 			if (cg.showScores && cg.predictedPlayerState.pm_type == PM_INTERMISSION && cg.stats_available) {
 				// score key is pressed during intermission and we have the data to display the stats board
@@ -684,6 +706,13 @@ static int CG_RatTeamScoreboard(int y, team_t team, float fade, int maxClients, 
 
 	return count;
 }
+
+#ifdef WITH_MULTITOURNAMENT
+static int CG_RatTeamScoreboard(int y, team_t team, float fade, int maxClients, int lineHeight, qboolean countOnly) {
+	return CG_RatTeamScoreboardGameId(y, team, fade, maxClients, lineHeight, countOnly, MTRN_GAMEID_ANY);
+}
+#endif
+
 
 
 /*
@@ -852,6 +881,10 @@ qboolean CG_DrawRatScoreboard(void) {
 		s = "Domination";
           } else if ( cgs.gametype == GT_TREASURE_HUNTER ) {
 		s = "Treasure Hunter";
+#ifdef WITH_MULTITOURNAMENT
+          } else if ( cgs.gametype == GT_MULTITOURNAMENT ) {
+		s = "Multitournament";
+#endif
 	} else {
 		s = "";
 	}
@@ -901,7 +934,11 @@ qboolean CG_DrawRatScoreboard(void) {
 		CG_DrawTinyScoreString(RATSB2_NAME_X, y, "Name", fade);
 		CG_DrawTinyScoreString(RATSB2_AWARDS_X, y, "Awards", fade);
 	} else {
-		if (cgs.gametype == GT_TOURNAMENT) {
+		if (cgs.gametype == GT_TOURNAMENT
+#ifdef WITH_MULTITOURNAMENT
+				|| cgs.gametype == GT_MULTITOURNAMENT
+#endif
+				) {
 			CG_DrawTinyScoreString(RATSB_WL_CENTER-1.5*SCORETINYCHAR_WIDTH, y, "W/L", fade);
 		} else if (cgs.gametype == GT_CTF) {
 			CG_DrawTinyScoreString(RATSB_WL_CENTER-1.5*SCORETINYCHAR_WIDTH, y, "C/R", fade);
@@ -962,6 +999,62 @@ qboolean CG_DrawRatScoreboard(void) {
 		if (n1) 
 			y += (n1 * lineHeight) + SCORECHAR_HEIGHT;
 
+#ifdef WITH_MULTITOURNAMENT
+	} else if (cgs.gametype == GT_MULTITOURNAMENT) {
+		int gameId;
+		int maxGameId = MTRN_GAMEID_ANY;
+		score_t *score;
+		for (i = 0; i < cg.numScores; i++) {
+			score = &cg.scores[i];
+			if (score->gameId > maxGameId) {
+				maxGameId = score->gameId;
+			}
+		}
+		n1 = 0;
+		for (gameId = 0; gameId <= maxGameId; ++gameId) {
+			int gapsAdded;
+			int num = CG_RatTeamScoreboardGameId(y, TEAM_FREE, fade, maxClients - n1, lineHeight, qtrue, gameId);
+			if (num) {
+				float   color[4];
+
+				color[0] = color[1] = color[2] = 0.0;
+				color[3] = fade * 0.33;
+				CG_FillRect( 2, y, SCREEN_WIDTH - 4, SCORETINYCHAR_HEIGHT + 2*lineHeight, color );
+				color[0] = color[1] = color[2] = 1.0;
+				color[3] = fade;
+				CG_DrawTinyScoreString(SCOREBOARD_X+3, y,
+					       	va("Game %i%s", gameId,
+						       	CG_GetMtrnGameFlags(gameId) & MTRN_CSFLAG_FINISHED ? " (finished)" : ""
+							),
+					       	fade);
+				y += SCORETINYCHAR_HEIGHT;
+
+				CG_RatTeamScoreboardGameId(y, TEAM_FREE, fade, maxClients - n1, lineHeight, qfalse, gameId);
+				y += (2 * lineHeight);
+				// spacing between games
+				y += 3;
+			}
+			if (num == 1) {
+				gapsAdded = 2;
+			} else if (num > 1) {
+				gapsAdded = 1;
+			} else {
+				gapsAdded = 0;
+			}
+			// if we add a gap between the games, that
+			// dcreases the space available to draw
+			// spectators;
+			num += gapsAdded;
+
+			n1 += num;
+		}
+		if (n1) {
+			// last gap before specs
+			y += SCORECHAR_HEIGHT;
+		}
+		n2 = CG_RatTeamScoreboard(y, TEAM_SPECTATOR, fade, maxClients - n1, lineHeight, qfalse);
+		y += (n2 * lineHeight) + SCORECHAR_HEIGHT;
+#endif // WITH_MULTITOURNAMENT
 	} else {
 		//
 		// free for all scoreboard
