@@ -1993,3 +1993,7 @@ movement_t BG_MovementFromString( const char *s )
 		return MOVEMENT_VQ3;
 	}
 }
+
+qboolean BG_IsTeamGametype(gametype_t gametype) {
+	return gametype >= GT_TEAM && gametype != GT_LMS;
+}

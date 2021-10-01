@@ -1483,8 +1483,7 @@ typedef struct {
 
 	int				levelStartTime;
 
-//Forced FFA
-	int			ffa_gt;
+	int			team_gt;
 
 //Elimination
 	int				roundStartTime;	
@@ -2045,6 +2044,7 @@ void CG_Cvar_PrintUserChanges( qboolean all );
 qboolean CG_SupportsOggVorbis(void);
 void CG_AutoRecordStart(void);
 void CG_AutoRecordStop(void);
+qboolean CG_IsTeamGametype(void);
 
 //
 // cg_view.c

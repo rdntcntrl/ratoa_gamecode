@@ -1729,7 +1729,7 @@ qboolean G_admin_teams( gentity_t *ent, int skiparg )
 	int diff;
 	int smallTeam, largeTeam;
 	int moved = 0;
-	if (g_gametype.integer >= GT_TEAM && g_ffa_gt!=1) {
+	if (G_IsTeamGametype()) {
 		countRed = TeamCount(-1,TEAM_RED, qfalse);
 		countBlue = TeamCount(-1,TEAM_BLUE, qfalse);
 
@@ -1787,7 +1787,7 @@ qboolean G_admin_time( gentity_t *ent, int skiparg )
 qboolean G_admin_showbalance( gentity_t *ent, int skiparg )
 {
 	double skilldiff;
-	if (g_gametype.integer < GT_TEAM || g_ffa_gt == 1) {
+	if (!G_IsTeamGametype()) {
 		ADMP("^3!showbalance:^7 not a team game\n");
 		return qfalse;
 	}
@@ -2794,7 +2794,7 @@ qboolean G_admin_swaprecent( gentity_t *ent, int skiparg )
   team_t teams[2];
   char *teamstrings[2];
 
-  if (g_gametype.integer < GT_TEAM || g_ffa_gt == 1) {
+  if (!G_IsTeamGametype()) {
 	  ADMP( "^3!swaprecent: ^7only works in team gametypes\n" );
 	  return qfalse;
   }
@@ -4520,7 +4520,7 @@ qboolean G_admin_balance( gentity_t *ent, int skiparg )
 
 	qboolean force = qfalse;
 	double skilldiff;
-	if (g_gametype.integer < GT_TEAM || g_ffa_gt == 1) {
+	if (!G_IsTeamGametype()) {
 		ADMP("^3!balance:^7 not a team game\n");
 		return qfalse;
 	}

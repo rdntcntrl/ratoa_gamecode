@@ -442,7 +442,7 @@ void G_ClientThawNow( gentity_t *ent, int thawedBy ) {
 				AwardMessage(thawingEnt, EAWARD_THAWBUDDY, ++(thawingEnt->client->pers.awardCounts[EAWARD_THAWBUDDY]));
 			}
 			// adding score for thawing makes no sense for GT_TEAM
-			if (g_gametype.integer > GT_TEAM && g_ffa_gt != 1) {
+			if (G_IsTeamGametype() && g_gametype.integer != GT_TEAM) {
 				AddScore( thawingEnt, ent->r.currentOrigin, 1 );
 			}
 		}
@@ -1093,7 +1093,7 @@ void G_CheckPingLocation(gentity_t *ent, usercmd_t *ucmd) {
 	if (!g_pingLocationAllowed.integer) {
 		return;
 	}
-	if (g_gametype.integer < GT_TEAM || (g_ffa_gt != 0)) {
+	if (!G_IsTeamGametype()) {
 		return;
 	}
 	if (ucmd->buttons & BUTTON_PING || ucmd->buttons & BUTTON_PINGWARN) {

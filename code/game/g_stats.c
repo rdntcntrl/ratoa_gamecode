@@ -208,7 +208,7 @@ void G_JSONExport(fileHandle_t f, const char *exitreason) {
 	xfprintf(f, ",");
 	json_writeint(f, "gametype", g_gametype.integer);
 	xfprintf(f, ",");
-	if (g_gametype.integer >= GT_TEAM && !g_ffa_gt) {
+	if (G_IsTeamGametype()) {
 		json_writebool(f, "team_gt", qtrue);
 		xfprintf(f, ",");
 		json_writeint(f, "score_red", level.teamScores[TEAM_RED]);
@@ -268,7 +268,7 @@ void G_WriteStatsJSON(const char *exitreason, int game_id) {
 		return;
 	}
 
-	if (g_gametype.integer >= GT_TEAM && !g_ffa_gt) {
+	if (G_IsTeamGametype()) {
 		humans = G_CountHumanPlayers(TEAM_RED) + G_CountHumanPlayers(TEAM_BLUE);
 	} else {
 		humans = G_CountHumanPlayers(TEAM_FREE);

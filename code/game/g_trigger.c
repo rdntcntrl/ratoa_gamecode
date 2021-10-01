@@ -268,7 +268,7 @@ gentity_t *G_PickTargetArena(int targetArena, gclient_t *client) {
 	vec3_t	spawn_origin, spawn_angles;
 	gentity_t *dest;
 
-	if (g_gametype.integer >= GT_TEAM && g_ffa_gt == 0) {
+	if (G_IsTeamGametype()) {
 		dest = SelectCTFSpawnPointArena ( 
 				client->sess.sessionTeam, 
 				client->pers.teamState.state, 

@@ -2188,7 +2188,7 @@ void ClientUserinfoChanged( int clientNum ) {
 	client->ps.stats[STAT_MAX_HEALTH] = client->pers.maxHealth;
 
 	// set model
-	if( g_gametype.integer >= GT_TEAM && g_ffa_gt==0) {
+	if(G_IsTeamGametype()) {
 		Q_strncpyz( model, Info_ValueForKey (userinfo, "team_model"), sizeof( model ) );
 		Q_strncpyz( headModel, Info_ValueForKey (userinfo, "team_headmodel"), sizeof( headModel ) );
 	} else {
@@ -2201,7 +2201,7 @@ void ClientUserinfoChanged( int clientNum ) {
 	// They are supposed to be used only with cg_{enemy,team}Model (if allowed)
 	if (Q_stristr(model, "bright") != NULL || Q_stristr(headModel, "bright") != NULL
 			|| Q_stristr(model, "/gray") != NULL || Q_stristr(headModel, "/gray") != NULL) {
-		if( g_gametype.integer >= GT_TEAM && g_ffa_gt==0) {
+		if(G_IsTeamGametype()) {
 			Info_SetValueForKey( userinfo, "team_model", "smarine" );
 			Info_SetValueForKey( userinfo, "team_headmodel", "smarine" );
 			Q_strncpyz( model, "smarine", sizeof( model ) );
@@ -2217,7 +2217,7 @@ void ClientUserinfoChanged( int clientNum ) {
 	//}
 
 	// bots set their team a few frames later
-	if (g_gametype.integer >= GT_TEAM && g_ffa_gt==0 && g_entities[clientNum].r.svFlags & SVF_BOT) {
+	if (G_IsTeamGametype() && g_entities[clientNum].r.svFlags & SVF_BOT) {
 		s = Info_ValueForKey( userinfo, "team" );
 		if ( !Q_stricmp( s, "red" ) || !Q_stricmp( s, "r" ) ) {
 			team = TEAM_RED;
@@ -2259,7 +2259,7 @@ Sago: I am not happy with this exception
 	}
 */
 
-	if (g_gametype.integer >= GT_TEAM && g_ffa_gt!=1) {
+	if (G_IsTeamGametype()) {
 		client->pers.teamInfo = qtrue;
 	} else {
 		s = Info_ValueForKey( userinfo, "teamoverlay" );
@@ -2285,7 +2285,7 @@ Sago: I am not happy with this exception
 	teamLeader = client->sess.teamLeader;
 
 	// colors
-        if( g_gametype.integer >= GT_TEAM && g_ffa_gt==0 && g_instantgib.integer) {
+        if( G_IsTeamGametype() && g_instantgib.integer) {
             switch(team) {
                 case TEAM_RED:
 		    Q_strncpyz(c1, "4", sizeof(c1));
@@ -2864,7 +2864,7 @@ void ClientBegin( int clientNum ) {
 	countFree = TeamCount(-1,TEAM_FREE, qtrue);
 	countRed = TeamCount(-1,TEAM_RED, qtrue);
 	countBlue = TeamCount(-1,TEAM_BLUE, qtrue);
-	if(g_gametype.integer < GT_TEAM || g_ffa_gt)
+	if(!G_IsTeamGametype())
 	{
 		if(countFree>level.teamSize)
 			level.teamSize=countFree;
@@ -3140,7 +3140,7 @@ void ClientSpawn(gentity_t *ent) {
 	} else if (g_gametype.integer == GT_DOUBLE_D) {
 		//Double Domination uses special spawn points:
 		spawnPoint = SelectDoubleDominationSpawnPoint (client->sess.sessionTeam, spawn_origin, spawn_angles);
-	} else if (g_gametype.integer >= GT_CTF && g_ffa_gt==0 && g_gametype.integer!= GT_DOMINATION) {
+	} else if (G_IsTeamGametype() && g_gametype.integer != GT_TEAM && g_gametype.integer != GT_DOMINATION) {
 		if (g_gametype.integer == GT_ELIMINATION) {
 			if (g_ra3compat.integer && client->pers.arenaNum >= 0) {
 				spawnPoint = SelectElimSpawnPointArena ( 

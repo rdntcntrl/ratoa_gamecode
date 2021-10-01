@@ -70,7 +70,7 @@ void AddScore( gentity_t *ent, vec3_t origin, int score ) {
             return;
         }
 	// show score plum
-        if( level.numNonSpectatorClients<3 && score < 0 && (g_gametype.integer<GT_TEAM || g_ffa_gt==1)) {
+        if( level.numNonSpectatorClients<3 && score < 0 && (!G_IsTeamGametype())) {
             for ( i = 0 ; i < level.maxclients ; i++ ) {
                 if ( level.clients[ i ].pers.connected != CON_CONNECTED )
                     continue; //Client was not connected
@@ -185,7 +185,7 @@ void TossClientCoins( gentity_t *self ) {
 		return;
 	}
 
-	if (g_gametype.integer >= GT_TEAM && !g_ffa_gt) { 
+	if (G_IsTeamGametype()) { 
 		if (self->client->sess.sessionTeam == TEAM_RED) {
 			item = BG_FindItem( "Red Coin" );
 		} else {
@@ -603,7 +603,7 @@ void G_CheckStrongmanAward(gentity_t *attacker, gentity_t *victim) {
 				client->pers.lastKilledByStrongMan = -1;
 			}
 
-			if (g_gametype.integer >= GT_TEAM && !g_ffa_gt) { 
+			if (G_IsTeamGametype()) { 
 				if (client->sess.sessionTeam == attacker->client->sess.sessionTeam)   {
 					continue;
 				}
@@ -977,7 +977,6 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 
 		if ( attacker == self || OnSameTeam (self, attacker ) ) {
 			if(g_gametype.integer != GT_TREASURE_HUNTER && g_gametype.integer!=GT_LMS && !((g_gametype.integer==GT_ELIMINATION || g_gametype.integer==GT_CTF_ELIMINATION) && level.time < level.roundStartTime))
-                            //if( (g_gametype.integer <GT_TEAM && g_ffa_gt!=1 && self->client->ps.persistant[PERS_SCORE]>0) || level.numNonSpectatorClients<3) //Cannot get negative scores by suicide
                                 AddScore( attacker, self->r.currentOrigin, -1 );
 		} else {
 			if(g_gametype.integer!=GT_LMS && g_gametype.integer != GT_TREASURE_HUNTER)
@@ -1745,8 +1744,7 @@ int G_WeaponForMOD(int mod) {
 void G_CheckDamageScore(gentity_t *attacker, gentity_t *victim, int giveDmg) {
 	int diff;
 
-	// makes no sense for GT_TEAM, hence <= instead of <
-	if (g_gametype.integer <= GT_TEAM || g_ffa_gt == 1) {
+	if (!G_IsTeamGametype() || g_gametype.integer == GT_TEAM) {
 		return;
 	}
 	

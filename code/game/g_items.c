@@ -67,7 +67,7 @@ void G_PlayDenied(gentity_t *ent, gentity_t *other) {
 
 		// if same team in team game, no sound
 		// cannot use OnSameTeam as it expects to g_entities, not clients
-		if ( g_gametype.integer >= GT_TEAM && g_ffa_gt==0 && other->client->sess.sessionTeam == client->sess.sessionTeam  ) {
+		if ( G_IsTeamGametype() && other->client->sess.sessionTeam == client->sess.sessionTeam  ) {
 			continue;
 		}
 
@@ -980,7 +980,7 @@ void ClearRegisteredItems( void ) {
 	}
 
 	if (g_coins.integer > 0) {
-		if (g_gametype.integer >= GT_TEAM && !g_ffa_gt) {
+		if (G_IsTeamGametype()) {
 			RegisterItem( BG_FindItem( "Red Coin" ) );
 			RegisterItem( BG_FindItem( "Blue Coin" ) );
 		} else {

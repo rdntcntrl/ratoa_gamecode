@@ -1214,6 +1214,7 @@ void G_CheckUnlockTeams(void);
 void G_EQPingSet(int maxEQPing, qboolean forceMax);
 void G_EQPingClientSet(gclient_t *client);
 void G_EQPingClientReset(gclient_t *client);
+qboolean G_IsTeamGametype(void);
 
 //
 // g_client.c
@@ -1543,8 +1544,6 @@ extern vmCvar_t		g_vampireMaxHealth;
 extern vmCvar_t		g_midAir;
 //new in elimination Beta3
 extern vmCvar_t		g_regen;
-//Free for all gametype
-extern int		g_ffa_gt; //0 = TEAM GAME, 1 = FFA, 2 = TEAM GAME without bases
 
 extern vmCvar_t		g_lms_lives;
 

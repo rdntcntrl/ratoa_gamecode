@@ -1423,7 +1423,7 @@ void CG_RegisterWeapon( int weaponNum ) {
 		weaponInfo->flashSound[0] = trap_S_RegisterSound( "sound/weapons/grenade/grenlf1a.wav", qfalse );
 		cgs.media.grenadeExplosionShader = trap_R_RegisterShader( "grenadeExplosion" );
 		cgs.media.grenadeBrightSkinShader = trap_R_RegisterShader( "models/ammo/grenadeBrightSkin" );
-		if (cgs.gametype >= GT_TEAM && cgs.ffa_gt != 1) {
+		if (CG_IsTeamGametype()) {
 			if (CG_AllowColoredProjectiles()) {
 				cgs.media.grenadeBrightSkinShaderWhite = trap_R_RegisterShader( "models/ammo/grenadeBrightSkinWhite" );
 			} else {

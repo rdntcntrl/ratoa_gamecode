@@ -795,7 +795,7 @@ static void CG_ParseSpecGroup ( void ) {
 static void CG_ParseQueueJoin ( void ) {
 	int myteam = cgs.clientinfo[cg.clientNum].team;
 	char *s_team = "";
-	if (cgs.gametype < GT_TEAM || cgs.ffa_gt == 1) {
+	if (!CG_IsTeamGametype()) {
 		return;
 	}
 	trap_S_StartLocalSound( cgs.media.queueJoinSound, CHAN_AUTO );
@@ -1004,11 +1004,7 @@ void CG_ParseServerinfo( void ) {
 
 	info = CG_ConfigString( CS_SERVERINFO );
 	cgs.gametype = atoi( Info_ValueForKey( info, "g_gametype" ) );
-	//By default do as normal:
-	cgs.ffa_gt = 0;
-	//See if ffa gametype
-	if(cgs.gametype == GT_LMS)	
-		cgs.ffa_gt = 1;
+	cgs.team_gt = BG_IsTeamGametype(cgs.gametype);
 	trap_Cvar_Set("g_gametype", va("%i", cgs.gametype));
 	cgs.dmflags = atoi( Info_ValueForKey( info, "dmflags" ) );
         cgs.videoflags = atoi( Info_ValueForKey( info, "videoflags" ) );
@@ -1084,7 +1080,7 @@ static void CG_ParseWarmup( void ) {
 
 	} else if ( warmup > 0 && cg.warmup <= 0 ) {
 #ifdef MISSIONPACK
-		if (cgs.gametype >= GT_CTF && cgs.gametype < GT_MAX_GAME_TYPE && !cgs.ffa_gt) {
+		if (CG_IsTeamGametype() && cgs.gametype != GT_TEAM && cgs.gametype < GT_MAX_GAME_TYPE) {
 			trap_S_StartLocalSound( cgs.media.countPrepareTeamSound, CHAN_ANNOUNCER );
 		} else
 #endif

@@ -681,7 +681,7 @@ void G_CheckMinimumPlayers( void ) {
             return; //If no AAS then don't even try
         }
 
-	if (g_gametype.integer >= GT_TEAM && g_ffa_gt!=1) {
+	if (G_IsTeamGametype()) {
 		if (minplayers >= g_maxclients.integer / 2) {
 			minplayers = (g_maxclients.integer / 2) -1;
 		}
@@ -943,7 +943,7 @@ static void G_AddBot( const char *name, float skill, const char *team, int delay
 
 	// initialize the bot settings
 	if( !team || !*team ) {
-		if( g_gametype.integer >= GT_TEAM && g_ffa_gt!=1) {
+		if(G_IsTeamGametype()) {
 			if( PickTeam(clientNum) == TEAM_RED) {
 				team = "red";
 			}

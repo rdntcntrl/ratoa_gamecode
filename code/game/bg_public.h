@@ -993,4 +993,6 @@ char *BG_MovementToString( movement_t movement );
 movement_t BG_MovementFromString( const char *s );
 const char *BG_EntityTypeToString(int eType);
 
+qboolean BG_IsTeamGametype(gametype_t gametype);
+
 #endif

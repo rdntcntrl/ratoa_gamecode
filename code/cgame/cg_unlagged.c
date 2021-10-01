@@ -720,7 +720,7 @@ void CG_PredictWeaponEffects( centity_t *cent ) {
 				VectorScale(forward, 700, pm->pos.trDelta);
 				SnapVector(pm->pos.trDelta);
 				pm->pos.trType = TR_GRAVITY;
-				if (cgs.gametype >= GT_TEAM && cgs.ffa_gt != 1) {
+				if (CG_IsTeamGametype()) {
 					if (CG_AllowColoredProjectiles()) {
 						bolt->customShader = cgs.media.grenadeBrightSkinShaderWhite;
 						CG_ProjectileColor(cg.snap->ps.persistant[PERS_TEAM], bolt->shaderRGBA);
