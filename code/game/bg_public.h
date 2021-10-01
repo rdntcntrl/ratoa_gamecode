@@ -230,6 +230,7 @@ typedef struct {
         int                     pmove_ratflags;
         // Selects between VQ3, CPM, and RM.
         movement_t              pmove_movement;
+        float                   pmove_slideSlowAccel;
 
 	// callbacks to test the world
 	// these will be different functions during game and cgame

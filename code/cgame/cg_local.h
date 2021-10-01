@@ -1590,6 +1590,7 @@ typedef struct {
     int		predictedMissileNudge;
     int		ratFlags;
     movement_t	movement;
+    float	slideSlowAccel;
     float	maxBrightshellAlpha;
     int		timeoutEnd;
     int		timeoutOvertime;
@@ -1710,6 +1711,7 @@ extern vmCvar_t                	cg_ratInitialized;
 extern vmCvar_t                	g_movement;
 extern vmCvar_t                	g_crouchSlide;
 extern vmCvar_t                	g_slideMode;
+extern vmCvar_t                	g_slideSlowAccel;
 extern vmCvar_t                	g_rampJump;
 extern vmCvar_t                	g_additiveJump;
 extern vmCvar_t                	g_swingGrapple;

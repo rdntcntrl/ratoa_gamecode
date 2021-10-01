@@ -730,7 +730,7 @@ void Cmd_Rules_f( gentity_t *ent ) {
 				g_rampJump.integer ? S_COLOR_GREEN "ON" : S_COLOR_RED "OFF",
 				g_smoothStairs.integer ? S_COLOR_GREEN "ON" : S_COLOR_RED "OFF",
 				g_crouchSlide.integer ? S_COLOR_GREEN "ON" : S_COLOR_RED "OFF",
-				g_slideMode.integer ? S_COLOR_GREEN "Go mode" : S_COLOR_RED "Pro mode",
+				g_slideMode.integer ? S_COLOR_BLUE "liberal" : S_COLOR_RED "conservative",
 				g_overbounce.integer ? S_COLOR_GREEN "ON" : S_COLOR_RED "OFF",
 				g_fastSwitch.integer ? S_COLOR_GREEN "ON" : S_COLOR_RED "OFF",
 				g_fastWeapons.integer ? S_COLOR_GREEN "ON" : S_COLOR_RED "OFF",

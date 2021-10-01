@@ -1061,6 +1061,9 @@ void CG_ParseServerinfo( void ) {
 		cgs.movement = MOVEMENT_VQ3;
 	}
 	trap_Cvar_Set("g_movement", va("%i", cgs.movement));
+	
+	cgs.slideSlowAccel = atof( Info_ValueForKey( info, "g_slideSlowAccel" ) );
+	trap_Cvar_Set("g_slideSlowAccel", va("%f", cgs.slideSlowAccel));
 
 	trap_Cvar_Set("g_rampJump", va("%i", (cgs.ratFlags & RAT_RAMPJUMP) ? 1 : 0));
 	trap_Cvar_Set("g_crouchSlide", va("%i", (cgs.ratFlags & RAT_CROUCHSLIDE) ? 1 : 0));

@@ -63,12 +63,12 @@ const float	pm_spectatorfriction = 5.0f;
 
 const int crouchGraceTime = 100;
 
-const int crouchTurn = 15;
-const int crouchGoAccel = 2;
-const int crouchAccel = -1;
-const int crouchWishspeed = 226;
-const int crouchGoSpeedCap = 600;
-const int crouchSpeedCap = 0;
+const float crouchTurn = 15;
+const float crouchGoAccel = 2;
+// const float crouchAccel = -0.5;
+const float crouchWishspeed = 226;
+const float crouchGoSpeedCap = 600;
+const float crouchSpeedCap = 0;
 
 int		c_pmove = 0;
 
@@ -1090,14 +1090,14 @@ static void PM_WalkMove( void ) {
 	}
 	PM_Accelerate (wishdir, wishspeed, accelerate);
 	if (pm->ps->stats[STAT_EXTFLAGS] & EXTFL_SLIDING) {
-		int crouchSpeedCap;
+		float crouchSpeedCap;
 		if (VectorLength(pm->ps->velocity) < vel) {
 			pm->ps->stats[STAT_EXTFLAGS] &= ~EXTFL_SLIDING;
 		}
 		
 		if (VectorLength(pm->ps->velocity) > vel && vel >= wishspeed) {
 			// Accelerate.
-			accelerate = (pm->pmove_ratflags & RAT_SLIDEMODE) ? crouchGoAccel : crouchAccel;
+			accelerate = (pm->pmove_ratflags & RAT_SLIDEMODE) ? crouchGoAccel : pm->pmove_slideSlowAccel;
 			VectorNormalize(pm->ps->velocity);
 			VectorScale(pm->ps->velocity, vel + accelerate * wishspeed * pml.frametime, pm->ps->velocity);
 		}
