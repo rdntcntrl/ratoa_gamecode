@@ -163,7 +163,11 @@ void TeamMain_MenuInit( void ) {
 	s_teammain.joingame.generic.callback = TeamMain_MenuEvent;
 	s_teammain.joingame.generic.x        = 320;
 	s_teammain.joingame.generic.y        = y;
-	if (gametype == GT_TOURNAMENT || gametype == GT_MULTITOURNAMENT) {
+	if (gametype == GT_TOURNAMENT
+#ifdef WITH_MULTITOURNAMENT
+			|| gametype == GT_MULTITOURNAMENT
+#endif
+			) {
 		s_teammain.joingame.string           = "JOIN GAME/QUEUE";
 	} else {
 		s_teammain.joingame.string           = "JOIN GAME";
@@ -212,7 +216,9 @@ void TeamMain_MenuInit( void ) {
 	case GT_FFA:
 	case GT_LMS:
 	case GT_TOURNAMENT:
+#ifdef WITH_MULTITOURNAMENT
 	case GT_MULTITOURNAMENT:
+#endif
 		s_teammain.joinred.generic.flags  |= QMF_GRAYED;
 		s_teammain.joinblue.generic.flags |= QMF_GRAYED;
 		break;
