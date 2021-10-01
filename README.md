@@ -9,7 +9,8 @@ It adds many new features and quality improvements, among them are:
 - delagged projectiles
 - improved local prediction of various game events as well as other anti-lag features
 - latency equalizer for maximum fairness (optional)
-- new gametypes: Extermination (Wipeout), FreezeTag, CoinFFA, CoinTDM, Treasure Hunter
+- new gametypes: Multitournament (multiple simultaneous duels), Extermination (Wipeout),
+  FreezeTag, CoinFFA, CoinTDM, Treasure Hunter
 - missiles can go through teleporters
 - grenades are pushed by jumppads
 - highly configurable brightskins or bright player outlines (can be disabled)
