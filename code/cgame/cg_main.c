@@ -1915,7 +1915,7 @@ static void CG_RegisterSounds( void ) {
 	// N_G: Another condition that makes no sense to me, see for
 	// yourself if you really meant this
 	// Sago: Makes perfect sense: Load team game stuff if the gametype is a teamgame and not an exception (like GT_LMS)
-	if ( ( ( cgs.gametype >= GT_TEAM ) && ( cgs.ffa_gt != 1 ) ) ||
+	if ( CG_IsTeamGametype() ||
 		cg_buildScript.integer ) {
 
 		cgs.media.captureAwardSound = trap_S_RegisterSound( "sound/teamplay/flagcapture_yourteam.wav", qtrue );
@@ -2406,7 +2406,7 @@ static void CG_RegisterGraphics( void ) {
 		cgs.media.thTokenRedISolidShader= trap_R_RegisterShaderNoMip("sprites/thTokenIndicatorRedSolid.tga");
 	}
         
-        if( ( cgs.gametype >= GT_TEAM ) && ( cgs.ffa_gt != 1 ) ) {
+        if(CG_IsTeamGametype()) {
                 cgs.media.redOverlay = trap_R_RegisterShader( "playeroverlays/playerSuit1_Red");
                 cgs.media.blueOverlay = trap_R_RegisterShader( "playeroverlays/playerSuit1_Blue");
         } else {
@@ -2485,7 +2485,7 @@ static void CG_RegisterGraphics( void ) {
 	//cgs.media.redKamikazeShader = trap_R_RegisterShader( "models/weaphits/kamikred" );
 	cgs.media.dustPuffShader = trap_R_RegisterShader("hasteSmokePuff" );
 
-	if ( ( ( cgs.gametype >= GT_TEAM ) && ( cgs.ffa_gt != 1 ) ) ||
+	if ( CG_IsTeamGametype() ||
 		cg_buildScript.integer ) {
 
 		//cgs.media.friendShader = trap_R_RegisterShader( "sprites/foe" );
@@ -3285,7 +3285,7 @@ void CG_SetScoreSelection(void *p) {
 		return;
 	}
 
-	if ( cgs.gametype >= GT_TEAM && cgs.ffa_gt!=1) {
+	if (CG_IsTeamGametype()) {
 		int feeder = FEEDER_REDTEAM_LIST;
 		i = red;
 		if (cg.scores[cg.selectedScore].team == TEAM_BLUE) {
@@ -3301,7 +3301,7 @@ void CG_SetScoreSelection(void *p) {
 // FIXME: might need to cache this info
 static clientInfo_t * CG_InfoFromScoreIndex(int index, int team, int *scoreIndex) {
 	int i, count;
-	if ( cgs.gametype >= GT_TEAM && cgs.ffa_gt!=1) {
+	if (CG_IsTeamGametype()) {
 		count = 0;
 		for (i = 0; i < cg.numScores; i++) {
 			if (cg.scores[i].team == team) {
@@ -3408,7 +3408,7 @@ static qhandle_t CG_FeederItemImage(float feederID, int index) {
 }
 
 static void CG_FeederSelection(float feederID, int index) {
-	if ( cgs.gametype >= GT_TEAM && cgs.ffa_gt!=1) {
+	if (CG_IsTeamGametype()) {
 		int i, count;
 		int team = (feederID == FEEDER_REDTEAM_LIST) ? TEAM_RED : TEAM_BLUE;
 		count = 0;
@@ -3982,4 +3982,8 @@ void CG_AutoRecordStop(void) {
 		trap_SendConsoleCommand("stoprecord\n");
 		cg.demoRecording = qfalse;
 	}
+}
+
+qboolean CG_IsTeamGametype(void) {
+	return cgs.team_gt;
 }

@@ -3272,7 +3272,7 @@ static float CG_DrawTeamOverlay( float y, qboolean right, qboolean upper ) {
 //	char		*s;
 //	int			w;	
 //
-//	if ( !(cg.snap->ps.pm_flags & PMF_FOLLOW) || ( ( cgs.elimflags & EF_NO_FREESPEC ) && (cgs.gametype == GT_ELIMINATION || cgs.gametype == GT_CTF_ELIMINATION ) ) ) {
+//	if ( !(cg.snap->ps.pm_flags & PMF_FOLLOW) || ( ( cgs.elimflags & EF_NO_FREESPEC ) && BG_IsElimTeamGT(cgs.gametype) ) ) {
 //		return y;
 //	}
 //
@@ -3373,7 +3373,7 @@ void CG_DrawEliminationStatus(void) {
 	float	w;
 	float color[4] = { 1.0, 1.0, 1.0, 1.0 };
 
-	if (cgs.gametype != GT_ELIMINATION && cgs.gametype != GT_CTF_ELIMINATION) {
+	if (!BG_IsElimTeamGT(cgs.gametype)) {
 		return;
 	}
 	
@@ -3485,7 +3485,7 @@ static void CG_DrawUpperRight(stereoFrame_t stereoFrame)
 
 	y = 0;
 
-	if ( cgs.gametype >= GT_TEAM && cgs.ffa_gt!=1 && cg_drawTeamOverlay.integer == 1 ) {
+	if ( CG_IsTeamGametype() && cg_drawTeamOverlay.integer == 1 ) {
 		y = CG_DrawTeamOverlay( y, qtrue, qtrue );
 	}
 	/*if ( cgs.gametype == GT_DOUBLE_D ) {
@@ -3510,7 +3510,7 @@ static void CG_DrawUpperRight(stereoFrame_t stereoFrame)
 	if (cg_drawFPS.integer == 1 && (stereoFrame == STEREO_CENTER || stereoFrame == STEREO_RIGHT)) {
 		y = CG_DrawFPS( y );
 	}
-	if (cgs.gametype==GT_ELIMINATION || cgs.gametype == GT_CTF_ELIMINATION || cgs.gametype==GT_LMS) {
+	if (BG_IsElimGT(cgs.gametype)) {
 		y = CG_DrawEliminationTimer( y );
 		/*if (cgs.clientinfo[ cg.clientNum ].isDead)
 			y = CG_DrawEliminationDeathMessage( y);*/
@@ -3582,7 +3582,7 @@ int CG_GetScoresMtrn(int scoreNum) {
 //	y1 = y;
 //
 //	// draw from the right side to left
-//	if ( cgs.gametype >= GT_TEAM && cgs.ffa_gt!=1) {
+//	if (CG_IsTeamGametype()) {
 //		x = 640;
 //		s = va( "%2i", s2 );
 //		w = CG_HeightToWidth(CG_DrawStrlen( s ) * BIGCHAR_WIDTH + 8);
@@ -3667,7 +3667,7 @@ int CG_GetScoresMtrn(int scoreNum) {
 //                
 //                
 //
-//		if ( cgs.gametype >= GT_CTF && cgs.ffa_gt==0) {
+//		if (CG_IsTeamGametype() && cgs.gametype != GT_TEAM) {
 //			v = cgs.capturelimit;
 //		} else {
 //			v = cgs.fraglimit;
@@ -3769,7 +3769,7 @@ static float CG_DrawScores( float y ) {
 	y1 = y;
 
 	// draw from the right side to left
-	if ( cgs.gametype >= GT_TEAM && cgs.ffa_gt!=1) {
+	if (CG_IsTeamGametype()) {
 		x = 640;
 		s = va( "%i", s2 );
 		w = CG_DrawScoreBox(x, y, TEAM_BLUE, s, cg.snap->ps.persistant[PERS_TEAM] == TEAM_BLUE);
@@ -3840,7 +3840,7 @@ static float CG_DrawScores( float y ) {
                 
                 
 
-		if ( cgs.gametype >= GT_CTF && cgs.ffa_gt==0) {
+		if (CG_IsTeamGametype() && cgs.gametype != GT_TEAM) {
 			v = cgs.capturelimit;
 		} else {
 			v = cgs.fraglimit;
@@ -4303,13 +4303,13 @@ static void CG_DrawLowerRight( void ) {
 
 	y = 480 - ICON_SIZE;
 
-	if ( cgs.gametype >= GT_TEAM && cgs.ffa_gt!=1 && cg_drawTeamOverlay.integer == 2 ) {
+	if ( CG_IsTeamGametype() && cg_drawTeamOverlay.integer == 2 ) {
 		y = CG_DrawTeamOverlay( y, qtrue, qfalse );
 	} 
 
 	y = CG_DrawScores( y );
 
-	if ( cgs.gametype >= GT_TEAM && cgs.ffa_gt!=1 && cg_drawTeamOverlay.integer == 4 ) {
+	if ( CG_IsTeamGametype() && cg_drawTeamOverlay.integer == 4 ) {
 		y = CG_DrawTeamOverlay( y, qtrue, qfalse );
 	} 
 
@@ -4393,7 +4393,7 @@ static void CG_DrawLowerLeft( void ) {
 
 	y = 480 - ICON_SIZE;
 
-	if ( cgs.gametype >= GT_TEAM && cgs.ffa_gt!=1 && cg_drawTeamOverlay.integer == 3 ) {
+	if ( CG_IsTeamGametype() && cg_drawTeamOverlay.integer == 3 ) {
 		y = CG_DrawTeamOverlay( y, qfalse, qfalse );
 	} 
 
@@ -4834,7 +4834,7 @@ static void CG_DrawQueue ( void ) {
 	int w;
 	float char_width, char_height;
 
-	if (cgs.gametype < GT_TEAM || cgs.ffa_gt == 1) {
+	if (!CG_IsTeamGametype()) {
 		return;
 	}
 
@@ -5963,7 +5963,7 @@ static void CG_DrawCrosshairNames( void ) {
 	CG_DrawStringExt( 320 -w / 2, cg_crosshairNamesY.integer, name, color, qfalse, qfalse,
 		       	char_width,
 		       	char_height, 0 );
-	if (cgs.gametype >= GT_TEAM && cgs.ffa_gt!=1 && cg_crosshairNamesHealth.integer) {
+	if (CG_IsTeamGametype() && cg_crosshairNamesHealth.integer) {
 		if (cgs.clientinfo[cg.crosshairClientNum].team == cg.snap->ps.persistant[PERS_TEAM]) {
 			int health = cgs.clientinfo[cg.crosshairClientNum].health;
 			int armor = cgs.clientinfo[cg.crosshairClientNum].armor;
@@ -6037,7 +6037,7 @@ static void CG_DrawSpectator(void) {
 		if ( cgs.gametype == GT_TOURNAMENT ) {
 			CG_DrawSmallScoreString(320 - (15 * SCORESMALLCHAR_WIDTH)/2, 460, "waiting to play", 1.0F);
 		}
-		else if ( cgs.gametype >= GT_TEAM && cgs.ffa_gt!=1) {
+		else if (CG_IsTeamGametype()) {
 			CG_DrawSmallScoreString(320 - (39 * SCORESMALLCHAR_WIDTH)/2, 460, "press ESC and use the JOIN menu to play", 1.0F);
 		}
 	}
@@ -6195,7 +6195,7 @@ static qboolean CG_DrawScoreboard( void ) {
 
 
 	if (menuScoreboard == NULL) {
-		if ( cgs.gametype >= GT_TEAM && cgs.ffa_gt!=1) {
+		if (CG_IsTeamGametype()) {
 			menuScoreboard = Menus_FindByName("teamscore_menu");
 		} else {
 			menuScoreboard = Menus_FindByName("score_menu");
@@ -6673,7 +6673,7 @@ static void CG_Draw2D(stereoFrame_t stereoFrame)
 		teamChatSizeY *= f;
 
 		if ( cg.snap->ps.pm_type == PM_INTERMISSION || cg_commonConsole.integer ||
-				((cgs.gametype == GT_ELIMINATION || cgs.gametype == GT_CTF_ELIMINATION) && cg.warmup != -1 && cg.time < cgs.roundStartTime)) {
+				(BG_IsElimTeamGT(cgs.gametype) && cg.warmup != -1 && cg.time < cgs.roundStartTime)) {
 			CG_DrawGenericConsole(&cgs.commonConsole, commonConsoleLines, cg_chatTime.integer, 
 					0, 0, 
 					chatSizeX,

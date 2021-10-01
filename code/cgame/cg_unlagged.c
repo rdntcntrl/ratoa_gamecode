@@ -720,7 +720,7 @@ void CG_PredictWeaponEffects( centity_t *cent ) {
 				VectorScale(forward, 700, pm->pos.trDelta);
 				SnapVector(pm->pos.trDelta);
 				pm->pos.trType = TR_GRAVITY;
-				if (cgs.gametype >= GT_TEAM && cgs.ffa_gt != 1) {
+				if (CG_IsTeamGametype()) {
 					if (CG_AllowColoredProjectiles()) {
 						bolt->customShader = cgs.media.grenadeBrightSkinShaderWhite;
 						CG_ProjectileColor(cg.snap->ps.persistant[PERS_TEAM], bolt->shaderRGBA);
@@ -767,7 +767,7 @@ predictedMissile_t *CG_BasePredictMissile( entityState_t *ent,  vec3_t muzzlePoi
 	VectorCopy(muzzlePoint, pm->pos.trBase);
 	pm->pos.trTime = cg.time-cgs.predictedMissileNudge-cg.cmdMsecDelta;
 
-	if ((cgs.gametype == GT_ELIMINATION || cgs.gametype == GT_CTF_ELIMINATION || cgs.gametype == GT_LMS)
+	if (BG_IsElimGT(cgs.gametype)
 			&& cg.warmup == 0 && cgs.roundStartTime 
 			&& (pm->pos.trTime + cgs.predictedMissileNudge) < cgs.roundStartTime) {
 		pm->pos.trTime = cgs.roundStartTime - cgs.predictedMissileNudge;

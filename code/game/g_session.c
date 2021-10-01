@@ -172,7 +172,7 @@ void G_InitSessionData( gclient_t *client, char *userinfo, qboolean firstTime,
 	}
 
 	// initial team determination
-	if ( g_gametype.integer >= GT_TEAM && g_ffa_gt!=1) {
+	if (G_IsTeamGametype()) {
 		if ( g_teamAutoJoin.integer ) {
 			sess->sessionTeam = PickTeam( -1 );
 			BroadcastTeamChange( client, -1 );

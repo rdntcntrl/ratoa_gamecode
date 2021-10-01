@@ -67,7 +67,7 @@ void G_PlayDenied(gentity_t *ent, gentity_t *other) {
 
 		// if same team in team game, no sound
 		// cannot use OnSameTeam as it expects to g_entities, not clients
-		if ( g_gametype.integer >= GT_TEAM && g_ffa_gt==0 && other->client->sess.sessionTeam == client->sess.sessionTeam  ) {
+		if ( G_IsTeamGametype() && other->client->sess.sessionTeam == client->sess.sessionTeam  ) {
 			continue;
 		}
 
@@ -823,7 +823,7 @@ void FinishSpawningItem( gentity_t *ent ) {
 
 	
 	// powerups don't spawn in for a while (but not in elimination)
-	if(g_gametype.integer != GT_ELIMINATION && g_gametype.integer != GT_CTF_ELIMINATION && g_gametype.integer != GT_LMS 
+	if(!G_IsElimGT()
                 && !g_instantgib.integer && !g_elimination_allgametypes.integer && !g_rockets.integer )
 	if ( ent->item->giType == IT_POWERUP ) {
 		float	respawn;
@@ -950,8 +950,7 @@ void ClearRegisteredItems( void ) {
 		// players always start with the base weapon
 		RegisterItem( BG_FindItemForWeapon( WP_MACHINEGUN ) );
 		RegisterItem( BG_FindItemForWeapon( WP_GAUNTLET ) );
-		if(g_gametype.integer == GT_ELIMINATION || g_gametype.integer == GT_CTF_ELIMINATION 
-                        || g_gametype.integer == GT_LMS || g_elimination_allgametypes.integer)
+		if(G_IsElimGT() || g_elimination_allgametypes.integer)
 		{
 			RegisterItem( BG_FindItemForWeapon( WP_SHOTGUN ) );
 			RegisterItem( BG_FindItemForWeapon( WP_GRENADE_LAUNCHER ) );
@@ -986,7 +985,7 @@ void ClearRegisteredItems( void ) {
 	}
 
 	if (g_coins.integer > 0) {
-		if (g_gametype.integer >= GT_TEAM && !g_ffa_gt) {
+		if (G_IsTeamGametype()) {
 			RegisterItem( BG_FindItem( "Red Coin" ) );
 			RegisterItem( BG_FindItem( "Blue Coin" ) );
 		} else {
@@ -1072,7 +1071,7 @@ void G_SpawnItem (gentity_t *ent, gitem_t *item) {
 	if((item->giType == IT_TEAM && (g_instantgib.integer || g_rockets.integer) ) || (!g_instantgib.integer && !g_rockets.integer) )
 	{
 		//Don't load pickups in Elimination (or maybe... gives warnings)
-		if (g_gametype.integer != GT_ELIMINATION && g_gametype.integer != GT_CTF_ELIMINATION && g_gametype.integer != GT_LMS)
+		if (!G_IsElimGT())
 			RegisterItem( item );
 		//Registrer flags anyway in CTF Elimination:
 		if (g_gametype.integer == GT_CTF_ELIMINATION && item->giType == IT_TEAM)

@@ -104,7 +104,7 @@ static void CG_ParseRatScores( void ) {
 	cgs.roundStartTime = atoi( CG_Argv( 4 ) );
 
 	//Update thing in lower-right corner
-	if(cgs.gametype == GT_ELIMINATION || cgs.gametype == GT_CTF_ELIMINATION)
+	if(BG_IsElimTeamGT(cgs.gametype))
 	{
 		cgs.scores1 = cg.teamScores[0];
 		cgs.scores2 = cg.teamScores[1];
@@ -201,7 +201,7 @@ static void CG_ParseRatScores1( void ) {
 	cg.teamQueueSystem = (qboolean)atoi( CG_Argv( 7 ) );
 
 	//Update thing in lower-right corner
-	if(cgs.gametype == GT_ELIMINATION || cgs.gametype == GT_CTF_ELIMINATION)
+	if(BG_IsElimTeamGT(cgs.gametype))
 	{
 		cgs.scores1 = cg.teamScores[0];
 		cgs.scores2 = cg.teamScores[1];
@@ -427,7 +427,7 @@ static void CG_ParseScores( void ) {
 	cgs.roundStartTime = atoi( CG_Argv( 4 ) );
 
 	//Update thing in lower-right corner
-	if(cgs.gametype == GT_ELIMINATION || cgs.gametype == GT_CTF_ELIMINATION)
+	if(BG_IsElimTeamGT(cgs.gametype))
 	{
 		cgs.scores1 = cg.teamScores[0];
 		cgs.scores2 = cg.teamScores[1];
@@ -495,7 +495,7 @@ CG_ParseElimination
 =================
 */
 static void CG_ParseElimination( void ) {
-	if(cgs.gametype == GT_ELIMINATION || cgs.gametype == GT_CTF_ELIMINATION)
+	if(BG_IsElimTeamGT(cgs.gametype))
 	{
 		cgs.scores1 = atoi( CG_Argv( 1 ) );
 		cgs.scores2 = atoi( CG_Argv( 2 ) );
@@ -802,7 +802,7 @@ static void CG_ParseSpecGroup ( void ) {
 static void CG_ParseQueueJoin ( void ) {
 	int myteam = cgs.clientinfo[cg.clientNum].team;
 	char *s_team = "";
-	if (cgs.gametype < GT_TEAM || cgs.ffa_gt == 1) {
+	if (!CG_IsTeamGametype()) {
 		return;
 	}
 	trap_S_StartLocalSound( cgs.media.queueJoinSound, CHAN_AUTO );
@@ -1011,16 +1011,7 @@ void CG_ParseServerinfo( void ) {
 
 	info = CG_ConfigString( CS_SERVERINFO );
 	cgs.gametype = atoi( Info_ValueForKey( info, "g_gametype" ) );
-	//By default do as normal:
-	cgs.ffa_gt = 0;
-	//See if ffa gametype
-	if(cgs.gametype == GT_LMS
-#ifdef WITH_MULTITOURNAMENT
-			|| cgs.gametype == GT_MULTITOURNAMENT
-#endif
-			) {
-		cgs.ffa_gt = 1;
-	}
+	cgs.team_gt = BG_IsTeamGametype(cgs.gametype);
 	trap_Cvar_Set("g_gametype", va("%i", cgs.gametype));
 	cgs.dmflags = atoi( Info_ValueForKey( info, "dmflags" ) );
         cgs.videoflags = atoi( Info_ValueForKey( info, "videoflags" ) );
@@ -1096,7 +1087,7 @@ static void CG_ParseWarmup( void ) {
 
 	} else if ( warmup > 0 && cg.warmup <= 0 ) {
 #ifdef MISSIONPACK
-		if (cgs.gametype >= GT_CTF && cgs.gametype < GT_MAX_GAME_TYPE && !cgs.ffa_gt) {
+		if (CG_IsTeamGametype() && cgs.gametype != GT_TEAM && cgs.gametype < GT_MAX_GAME_TYPE) {
 			trap_S_StartLocalSound( cgs.media.countPrepareTeamSound, CHAN_ANNOUNCER );
 		} else
 #endif

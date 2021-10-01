@@ -924,7 +924,7 @@ void CG_PingLocation( centity_t *cent ) {
 	int radiusFg = cg_pingLocationSize2.integer;
 	locationping_t locping;
 
-	if (cgs.gametype < GT_TEAM || cgs.ffa_gt == 1 ) {
+	if (!CG_IsTeamGametype()) {
 		return;
 	}
 

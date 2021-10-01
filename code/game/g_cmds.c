@@ -40,7 +40,7 @@ static int G_RatScoreboardIndicator( gclient_t *cl ) {
 static int ScoreboardEliminiated(gclient_t *client) {
 	if (g_gametype.integer == GT_LMS) {
 		return client->pers.livesLeft + (client->isEliminated?0:1);
-	} else if (g_gametype.integer == GT_ELIMINATION || g_gametype.integer == GT_CTF_ELIMINATION) {
+	} else if (G_IsElimTeamGT()) {
 		return (client->isEliminated || client->frozen) ? 1 : 0;
 	}
 	return 0;
@@ -204,14 +204,14 @@ void Ratscores1Message( gentity_t *ent ) {
 		stringlength += j;
 	}
 
-	if (g_gametype.integer >= GT_TEAM && g_ffa_gt != 1) {
+	if (G_IsTeamGametype()) {
 		teamsLocked = (level.RedTeamLocked && level.BlueTeamLocked) ? 1 : 0;
 	} else {
 		teamsLocked = level.FFALocked ? 1 : 0;
 	}
 	trap_SendServerCommand( ent-g_entities, va("%s %i %i %i %i %i %i %i%s", "ratscores1", send_statsboard ? 4 : 2, i, 
 		level.teamScores[TEAM_RED], level.teamScores[TEAM_BLUE], level.roundStartTime, teamsLocked,
-		(g_teamForceQueue.integer && g_gametype.integer >= GT_TEAM && g_ffa_gt != 1)? 1 : 0,
+		(g_teamForceQueue.integer && G_IsTeamGametype())? 1 : 0,
 		string ) );
 }
 
@@ -422,7 +422,7 @@ void G_SendSpawnpoints( gentity_t *ent ){
 
 	string[0] = '\0';
 
-	if( g_gametype.integer < GT_CTF || g_ffa_gt == 1) {
+	if(!G_IsTeamGametype() || g_gametype.integer == GT_TEAM) {
 		spot = NULL;
 		while(( spot = G_Find (spot, FOFS(classname), "info_player_deathmatch")) != NULL ) {
 			Com_sprintf( entry, sizeof(entry), "%i %i %i %i %i %i %i ", (int)spot->s.origin[0], (int)spot->s.origin[1], (int)spot->s.origin[2], 
@@ -1105,7 +1105,7 @@ void Cmd_Kill_f( gentity_t *ent ) {
 		return;
 	}
 	if (level.warmupTime ||
-		       	((g_gametype.integer == GT_ELIMINATION || g_gametype.integer == GT_CTF_ELIMINATION || g_gametype.integer == GT_LMS) 
+		       	(G_IsElimGT() 
 			 && (level.roundNumber != level.roundNumberStarted))) {
 		if (g_killDisable.integer & KILLCMD_WARMUP) {
 			trap_SendServerCommand( ent - g_entities, "print \"\\kill disabled during warmup.\n\"" );
@@ -1117,7 +1117,7 @@ void Cmd_Kill_f( gentity_t *ent ) {
 	}
 
 	if ( g_killSafety.integer && !level.warmupTime) {
-		if ((g_gametype.integer == GT_ELIMINATION || g_gametype.integer == GT_CTF_ELIMINATION || g_gametype.integer == GT_LMS) 
+		if (G_IsElimGT() 
 				&& ( 
 					  (level.roundNumber == level.roundNumberStarted && level.time < level.roundStartTime + g_killSafety.integer) 
 				   )) {
@@ -1302,7 +1302,7 @@ void SetTeam_Force( gentity_t *ent, char *s, gentity_t *by, qboolean tryforce ) 
 	} else if ( Q_strequal( s, "spectator" ) || Q_strequal( s, "s" ) ) {
 		team = TEAM_SPECTATOR;
 		specState = SPECTATOR_FREE;
-	} else if ((g_gametype.integer < GT_TEAM || g_ffa_gt == 1) 
+	} else if ((!G_IsTeamGametype()) 
 			&& (Q_strequal( s, "queue" ) || Q_strequal(s, "q")) ) {
 		team = TEAM_SPECTATOR;
 		specState = SPECTATOR_FREE;
@@ -1321,7 +1321,7 @@ void SetTeam_Force( gentity_t *ent, char *s, gentity_t *by, qboolean tryforce ) 
 			return;
 		}
 #endif
-	} else if ( g_gametype.integer >= GT_TEAM && g_ffa_gt!=1) {
+	} else if (G_IsTeamGametype()) {
 		// if running a team game, assign player to one of the teams
 		specState = SPECTATOR_NOT;
 		if ( Q_strequal( s, "red" ) || Q_strequal( s, "r" ) ) {
@@ -1489,7 +1489,7 @@ void SetTeam_Force( gentity_t *ent, char *s, gentity_t *by, qboolean tryforce ) 
 	// they go to the end of the line for tournements
 	oldGroup = client->sess.spectatorGroup;
         if(team == TEAM_SPECTATOR) {
-		if (g_gametype.integer >= GT_TEAM && g_ffa_gt != 1 
+		if (G_IsTeamGametype()
 				&& g_teamForceQueue.integer
 				&& oldTeam != TEAM_SPECTATOR
 				&& (specGroup == SPECTATORGROUP_QUEUED
@@ -1556,7 +1556,7 @@ to free floating spectator mode
 =================
 */
 void StopFollowing( gentity_t *ent ) {
-	if(g_gametype.integer<GT_ELIMINATION || g_gametype.integer>GT_LMS)
+	if(!G_IsElimGT())
 	{
 		//Shouldn't this already be the case?
 		ent->client->ps.persistant[ PERS_TEAM ] = TEAM_SPECTATOR;	
@@ -1700,7 +1700,7 @@ void Cmd_Follow_f( gentity_t *ent ) {
 		return;
 	}
 
-        if ( (g_gametype.integer == GT_ELIMINATION || g_gametype.integer == GT_CTF_ELIMINATION) && g_elimination_lockspectator.integer
+        if ( G_IsElimTeamGT() && g_elimination_lockspectator.integer
             &&  ((ent->client->sess.sessionTeam == TEAM_RED && level.clients[ i ].sess.sessionTeam == TEAM_BLUE) ||
                  (ent->client->sess.sessionTeam == TEAM_BLUE && level.clients[ i ].sess.sessionTeam == TEAM_RED) ) ) {
             return;
@@ -1806,7 +1806,7 @@ void Cmd_FollowCycle_f( gentity_t *ent ) {
 		}
 
                 //Stop players from spectating players on the enemy team in elimination modes.
-                if ( (g_gametype.integer == GT_ELIMINATION || g_gametype.integer == GT_CTF_ELIMINATION) && g_elimination_lockspectator.integer
+                if ( G_IsElimTeamGT() && g_elimination_lockspectator.integer
                     &&  ((ent->client->sess.sessionTeam == TEAM_RED && level.clients[ clientnum ].sess.sessionTeam == TEAM_BLUE) ||
                          (ent->client->sess.sessionTeam == TEAM_BLUE && level.clients[ clientnum ].sess.sessionTeam == TEAM_RED) ) ) {
                     continue;
@@ -1886,7 +1886,7 @@ void G_TimeoutModTimes(int delta) {
 		}
 	}
 
-	if (g_gametype.integer == GT_ELIMINATION || g_gametype.integer == GT_CTF_ELIMINATION || g_gametype.integer == GT_LMS) {
+	if (G_IsElimGT()) {
 		level.roundStartTime += delta;
 	}
 
@@ -1938,7 +1938,7 @@ void G_Timeout(gentity_t *caller) {
 				level.timeoutAdd/1000,
 				timeoutend_minutes(),
 				timeoutend_seconds()));
-	if (g_gametype.integer == GT_ELIMINATION || g_gametype.integer == GT_CTF_ELIMINATION || g_gametype.integer == GT_LMS) {
+	if (G_IsElimGT()) {
 		SendEliminationMessageToAllClients();
 	}
 }
@@ -1990,7 +1990,7 @@ void G_TimeinCommand(gentity_t *caller) {
 		trap_SendServerCommand(-1, va("timeout %i", level.timeoutEnd));
 	}
 
-	if (g_gametype.integer == GT_ELIMINATION || g_gametype.integer == GT_CTF_ELIMINATION || g_gametype.integer == GT_LMS) {
+	if (G_IsElimGT()) {
 		SendEliminationMessageToAllClients();
 		if (g_gametype.integer != GT_LMS) {
 			G_SendTeamPlayerCounts();
@@ -2638,13 +2638,13 @@ void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText ) 
 	if ((ent->r.svFlags & SVF_BOT) && trap_Cvar_VariableValue( "bot_nochat" )>1)
 	       	return;
 
-	//if ( (g_gametype.integer < GT_TEAM || g_ffa_gt == 1) && mode == SAY_TEAM &&
+	//if ( (!G_IsTeamGametype()) && mode == SAY_TEAM &&
 	//		!(g_gametype.integer == GT_TOURNAMENT && ent->client->sess.sessionTeam == TEAM_SPECTATOR)) {
 	//	mode = SAY_ALL;
 	//}
 	
 	// in FFA gamemodes, allow teamchat only for spectators
-	if ( (g_gametype.integer < GT_TEAM || g_ffa_gt == 1) && mode == SAY_TEAM &&
+	if ( !G_IsTeamGametype() && mode == SAY_TEAM &&
 			!(ent->client->sess.sessionTeam == TEAM_SPECTATOR)) {
 		mode = SAY_ALL;
 	}
@@ -2676,7 +2676,7 @@ void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText ) 
 		break;
 	case SAY_TELL:
 
-		if (target && g_gametype.integer >= GT_TEAM && g_ffa_gt != 1 &&
+		if (target && G_IsTeamGametype() &&
 			target->client->sess.sessionTeam == ent->client->sess.sessionTeam &&
 			Team_GetLocationMsg(ent, location, sizeof(location)))
 			Com_sprintf (name, sizeof(name), EC"[%s%c%c"EC"] (%s)"EC": ", ent->client->pers.netname, Q_COLOR_ESCAPE, COLOR_WHITE, location );
@@ -2837,7 +2837,7 @@ void G_Voice( gentity_t *ent, gentity_t *target, int mode, const char *id, qbool
 	int			j;
 	gentity_t	*other;
 
-	if ( (g_gametype.integer < GT_TEAM || g_ffa_gt==1 ) && mode == SAY_TEAM ) {
+	if ( !G_IsTeamGametype() && mode == SAY_TEAM ) {
 		mode = SAY_ALL;
 	}
 
@@ -2995,7 +2995,7 @@ static void Cmd_VoiceTaunt_f( gentity_t *ent ) {
 		}
 	}
 
-	if (g_gametype.integer >= GT_TEAM && g_ffa_gt!=1) {
+	if (G_IsTeamGametype()) {
 		// praise a team mate who just got a reward
 		for(i = 0; i < MAX_CLIENTS; i++) {
 			who = g_entities + i;
@@ -3761,7 +3761,7 @@ void Cmd_CallVote_f( gentity_t *ent ) {
                 }
 		Com_sprintf( level.voteDisplayString, sizeof( level.voteDisplayString ), "Kick %s?" , level.clients[i].pers.netname );
         } else if ( !Q_stricmp( arg1, "shuffle" ) ) {
-                if(g_gametype.integer<GT_TEAM || g_ffa_gt==1) { //Not a team game
+                if(!G_IsTeamGametype()) {
                     trap_SendServerCommand( ent-g_entities, "print \"Can only be used in team games.\n\"" );
                     return;
                 }
@@ -3769,7 +3769,7 @@ void Cmd_CallVote_f( gentity_t *ent ) {
                 Com_sprintf( level.voteString, sizeof( level.voteString ), "shuffle" );
 		Com_sprintf( level.voteDisplayString, sizeof( level.voteDisplayString ), "Shuffle teams and restart?" );
         } else if ( !Q_stricmp( arg1, "balance" ) ) {
-                if(g_gametype.integer<GT_TEAM || g_ffa_gt==1) { //Not a team game
+                if(!G_IsTeamGametype()) {
                     trap_SendServerCommand( ent-g_entities, "print \"Can only be used in team games.\n\"" );
                     return;
                 }

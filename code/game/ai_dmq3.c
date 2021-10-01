@@ -1739,7 +1739,10 @@ BotCheckItemPickup
 void BotCheckItemPickup(bot_state_t *bs, int *oldinventory) {
 	int offence, leader;
 
-	if (gametype <= GT_TEAM && g_ffa_gt==0)
+	// XXX: this was:
+	//if (gametype <= GT_TEAM && g_ffa_gt==0)
+	// I assume it ws meant to be:
+	if (!BG_IsTeamGametype(gametype) || g_gametype.integer == GT_TEAM)
 		return;
 
 	offence = -1;
@@ -2290,7 +2293,7 @@ TeamPlayIsOn
 ==================
 */
 int TeamPlayIsOn(void) {
-	return ( gametype >= GT_TEAM && g_ffa_gt!=1);
+	return BG_IsTeamGametype(gametype);
 }
 
 /*
@@ -2493,8 +2496,7 @@ int BotCanAndWantsToRocketJump(bot_state_t *bs) {
 	//if low on rockets
 	if (bs->inventory[INVENTORY_ROCKETS] < 3) return qfalse;
         //Sago: Special rule - always happy to rocket jump in elimination, eCTF end LMS if
-        if ( (g_gametype.integer==GT_ELIMINATION || g_gametype.integer==GT_CTF_ELIMINATION || g_gametype.integer==GT_LMS )
-                && g_elimination_selfdamage.integer==0) {
+        if ( G_IsElimGT() && g_elimination_selfdamage.integer==0) {
             return qtrue;
         }
 	//never rocket jump with the Quad
@@ -2883,7 +2885,7 @@ int BotSameTeam(bot_state_t *bs, int entnum) {
 		//BotAI_Print(PRT_ERROR, "BotSameTeam: client out of range\n");
 		return qfalse;
 	}
-	if ( gametype >= GT_TEAM && g_ffa_gt!=1) {
+	if ( BG_IsTeamGametype(gametype) ) {
                 /*Sago: I don't know why they decided to check the configstring instead of the real value.
                  For some reason bots sometimes gets a wrong config string when chaning gametypes.
                  Now we check the real value: */

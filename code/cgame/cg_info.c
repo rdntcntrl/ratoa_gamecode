@@ -308,16 +308,14 @@ void CG_DrawInformation( void ) {
 		y += PROP_HEIGHT;
 	}
 
-	if (cgs.gametype < GT_CTF || cgs.ffa_gt>0) {
+	if (!CG_IsTeamGametype() || cgs.gametype == GT_TEAM) {
 		value = atoi( Info_ValueForKey( info, "fraglimit" ) );
 		if ( value ) {
 			UI_DrawProportionalString( 320, y, va( "fraglimit %i", value ),
 				UI_CENTER|UI_SMALLFONT|UI_DROPSHADOW, colorBlue );
 			y += PROP_HEIGHT;
 		}
-	}
-
-	if (cgs.gametype >= GT_CTF && cgs.ffa_gt == 0) {
+	} else {
 		value = atoi( Info_ValueForKey( info, "capturelimit" ) );
 		if ( value ) {
 			UI_DrawProportionalString( 320, y, va( "capturelimit %i", value ),

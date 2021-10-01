@@ -1993,3 +1993,20 @@ movement_t BG_MovementFromString( const char *s )
 		return MOVEMENT_VQ3;
 	}
 }
+
+qboolean BG_IsTeamGametype(gametype_t gametype) {
+	return gametype >= GT_TEAM
+#ifdef WITH_MULTITOURNAMENT
+		&& gametype != GT_MULTITOURNAMENT
+#endif
+		&& gametype != GT_LMS
+		;
+}
+
+qboolean BG_IsElimTeamGT(gametype_t gametype) {
+	return gametype == GT_ELIMINATION || gametype == GT_CTF_ELIMINATION;
+}
+
+qboolean BG_IsElimGT(gametype_t gametype) {
+	return BG_IsElimTeamGT(gametype) || gametype == GT_LMS;
+}

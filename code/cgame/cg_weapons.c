@@ -1423,7 +1423,7 @@ void CG_RegisterWeapon( int weaponNum ) {
 		weaponInfo->flashSound[0] = trap_S_RegisterSound( "sound/weapons/grenade/grenlf1a.wav", qfalse );
 		cgs.media.grenadeExplosionShader = trap_R_RegisterShader( "grenadeExplosion" );
 		cgs.media.grenadeBrightSkinShader = trap_R_RegisterShader( "models/ammo/grenadeBrightSkin" );
-		if (cgs.gametype >= GT_TEAM && cgs.ffa_gt != 1) {
+		if (CG_IsTeamGametype()) {
 			if (CG_AllowColoredProjectiles()) {
 				cgs.media.grenadeBrightSkinShaderWhite = trap_R_RegisterShader( "models/ammo/grenadeBrightSkinWhite" );
 			} else {
@@ -4129,7 +4129,7 @@ void CG_FireWeapon( centity_t *cent ) {
 	int				c;
 	weaponInfo_t	*weap;
 
-	//if((cgs.gametype == GT_ELIMINATION || cgs.gametype == GT_CTF_ELIMINATION) && cgs.roundStartTime>cg.time && cg.warmup == 0)
+	//if(BG_IsElimTeamGT(cgs.gametype) && cgs.roundStartTime>cg.time && cg.warmup == 0)
 	//	return; //if we havn't started in ELIMINATION then do not fire
 
 	ent = &cent->currentState;

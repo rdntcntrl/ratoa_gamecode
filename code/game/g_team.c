@@ -238,7 +238,7 @@ qboolean OnSameTeam( gentity_t *ent1, gentity_t *ent2 ) {
 		return qfalse;
 	}
 
-	if ( g_gametype.integer < GT_TEAM || g_ffa_gt==1) {
+	if (!G_IsTeamGametype()) {
 		return qfalse;
 	}
 
@@ -2436,7 +2436,7 @@ gentity_t *SpawnObelisk( vec3_t origin, int team, int spawnflags) {
 void SP_team_redobelisk( gentity_t *ent ) {
 	gentity_t *obelisk;
 
-	if ( g_gametype.integer <= GT_TEAM || g_ffa_gt>0) {
+	if (!G_IsTeamGametype() || g_gametype.integer == GT_TEAM) {
 		G_FreeEntity(ent);
 		return;
 	}
@@ -2461,7 +2461,7 @@ void SP_team_redobelisk( gentity_t *ent ) {
 void SP_team_blueobelisk( gentity_t *ent ) {
 	gentity_t *obelisk;
 
-	if ( g_gametype.integer <= GT_TEAM || g_ffa_gt>0) {
+	if (!G_IsTeamGametype() || g_gametype.integer == GT_TEAM) {
 		G_FreeEntity(ent);
 		return;
 	}
@@ -2568,7 +2568,7 @@ void ShuffleTeams(void) {
     team_t newClientTeams[MAX_CLIENTS];
     qboolean takenClients[MAX_CLIENTS];
 
-    if ( g_gametype.integer < GT_TEAM || g_ffa_gt==1)
+    if (!G_IsTeamGametype())
         return; //Can only shuffle team games!
 
     memcpy(clients, level.sortedClients, sizeof(clients));
@@ -2676,7 +2676,7 @@ void G_BalanceAutoGameStart(void) {
 		return;
 	}
 
-	if ( g_gametype.integer < GT_TEAM || g_ffa_gt == 1) {
+	if (!G_IsTeamGametype()) {
 		return;
 	}
 
@@ -2705,7 +2705,7 @@ void G_SetBalanceNextGame(void) {
 	if (!g_balanceAutoGameStart.integer) {
 		return;
 	}
-	if ( g_gametype.integer < GT_TEAM || g_ffa_gt == 1) {
+	if (!G_IsTeamGametype()) {
 		return;
 	}
 
@@ -2836,7 +2836,7 @@ qboolean BalanceTeams(qboolean dryrun) {
     team_t nextTeam;
     int i, j;
 
-    if ( g_gametype.integer < GT_TEAM || g_ffa_gt==1)
+    if (!G_IsTeamGametype())
         return qfalse; //Can only balance team games!
 
     memcpy(clients, level.sortedClients, sizeof(clients));
