@@ -328,6 +328,11 @@ static void CG_Rules_f( void ) {
 	CG_Printf(" -Smooth/additive jump:  %s\n", CG_OnOffStr(cgs.ratFlags & RAT_ADDITIVEJUMP));
 	CG_Printf(" -Ramp jump:             %s\n", CG_OnOffStr(cgs.ratFlags & RAT_RAMPJUMP));
 	CG_Printf(" -Smooth stairs:         %s\n", CG_OnOffStr(cgs.ratFlags & RAT_SMOOTHSTAIRS));
+	CG_Printf(" -Crouch slide:          %s\n", (cgs.ratFlags & RAT_CROUCHSLIDE) ? 
+							((cgs.ratFlags & RAT_SLIDEMODE) ?
+								 S_COLOR_MAGENTA "liberal" :
+								 S_COLOR_CYAN "conservative"
+							) : S_COLOR_RED "OFF");
 	CG_Printf(" -Overbounce:            %s\n", CG_OnOffStr(!(cgs.ratFlags & RAT_NOOVERBOUNCE)));
 	CG_Printf(" -Fast weapon switch:    %s\n", CG_OnOffStr(cgs.ratFlags & RAT_FASTSWITCH));
 	CG_Printf(" -Fast weapons:          %s\n", CG_OnOffStr(cgs.ratFlags & RAT_FASTWEAPONS));

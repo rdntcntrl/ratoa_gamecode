@@ -253,6 +253,7 @@ typedef struct {
         int                     pmove_ratflags;
         // Selects between VQ3, CPM, and RM.
         movement_t              pmove_movement;
+        float                   pmove_slideSlowAccel;
 
 	// callbacks to test the world
 	// these will be different functions during game and cgame
@@ -283,6 +284,7 @@ typedef enum {
 	STAT_BOBCYCLEREM,				// used to store fractions of bobCycle for consistent, FPS-independent footsteps
 	STAT_OVERBOUNCE,					// Overbounce flag (only 1 bit, this could be integrated into another bitflag field if more STAT_ fields are required)
 	STAT_FROZENSTATE,				// used to store frozen/thawing state if g_freeze = 1
+	STAT_SLIDETIMEOUT,				// holds slide time left after releasing crouch
 	STAT_MOVEMENT_KEYS				// used to store key presses.
 } statIndex_t;
 
@@ -313,6 +315,7 @@ typedef enum {
 
 // stats[STAT_EXTFLAGS]
 #define EXTFL_ZOOMING 1
+#define EXTFL_SLIDING 2
 
 
 // stats[STAT_MOVEMENT_KEYS]
@@ -882,7 +885,7 @@ qboolean	BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const play
 #define RAT_PREDICTMISSILES 	(1 << 3)
 #define RAT_FASTSWITCH 		(1 << 4)
 #define RAT_FASTWEAPONS 	(1 << 5)
-// #define RAT_RATPHYSICS 		(1 << 6)
+// #define RAT_CROUCHSLIDE		(1 << 6)
 #define RAT_RAMPJUMP 		(1 << 7)
 #define RAT_ALLOWFORCEDMODELS 	(1 << 8)
 #define RAT_FRIENDSWALLHACK 	(1 << 9)
@@ -902,6 +905,8 @@ qboolean	BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const play
 #define RAT_SMOOTHSTAIRS	(1 << 23)
 #define RAT_NOOVERBOUNCE	(1 << 24)
 #define RAT_FREEZETAG		(1 << 25)
+#define RAT_CROUCHSLIDE		(1 << 26)
+#define RAT_SLIDEMODE		(1 << 27)
 
 #define MAX_RAT_SAY_TEXT 256
 

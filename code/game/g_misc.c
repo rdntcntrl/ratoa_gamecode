@@ -119,6 +119,9 @@ void TeleportPlayer( gentity_t *player, vec3_t origin, vec3_t angles ) {
 		// reset rampjump
 		player->client->ps.stats[STAT_JUMPTIME] = 0;
 	}
+	// Reset crouch slide.
+	player->client->ps.stats[STAT_EXTFLAGS] &= EXTFL_SLIDING;
+	player->client->ps.stats[STAT_SLIDETIMEOUT] = 0;
 
 
 	// kill anything at the destination
