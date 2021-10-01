@@ -91,6 +91,10 @@ ifndef GENERATE_DEPENDENCIES
 GENERATE_DEPENDENCIES=1
 endif
 
+ifndef WITH_MULTITOURNAMENT
+WITH_MULTITOURNAMENT=0
+endif
+
 ifndef USE_OPENAL
 USE_OPENAL=1
 endif
@@ -844,6 +848,11 @@ ifeq ($(BUILD_STANDALONE),1)
   BASE_CFLAGS += -DSTANDALONE
 endif
 
+ifeq ($(WITH_MULTITOURNAMENT),1)
+  BASE_CFLAGS += -DWITH_MULTITOURNAMENT
+  QVM_CFLAGS += -DWITH_MULTITOURNAMENT
+endif
+
 ifeq ($(GENERATE_DEPENDENCIES),1)
   DEPEND_CFLAGS = -MMD
 else
@@ -1155,37 +1164,37 @@ endef
 
 define DO_CGAME_Q3LCC
 $(echo_cmd) "CGAME_Q3LCC $<"
-$(Q)$(Q3LCC) -DCGAME -o $@ $<
+$(Q)$(Q3LCC) -DCGAME $(QVM_CFLAGS) -o $@ $<
 endef
 
 define DO_GAME_Q3LCC
 $(echo_cmd) "GAME_Q3LCC $<"
-$(Q)$(Q3LCC) -DQAGAME -o $@ $<
+$(Q)$(Q3LCC) -DQAGAME $(QVM_CFLAGS) -o $@ $<
 endef
 
 define DO_UI_Q3LCC
 $(echo_cmd) "UI_Q3LCC $<"
-$(Q)$(Q3LCC) -DUI -o $@ $<
+$(Q)$(Q3LCC) -DUI $(QVM_CFLAGS) -o $@ $<
 endef
 
 define DO_Q3LCC_MISSIONPACK
 $(echo_cmd) "Q3LCC_MISSIONPACK $<"
-$(Q)$(Q3LCC) -DMISSIONPACK -o $@ $<
+$(Q)$(Q3LCC) -DMISSIONPACK $(QVM_CFLAGS) -o $@ $<
 endef
 
 define DO_CGAME_Q3LCC_MISSIONPACK
 $(echo_cmd) "CGAME_Q3LCC_MISSIONPACK $<"
-$(Q)$(Q3LCC) -DMISSIONPACK -DCGAME -o $@ $<
+$(Q)$(Q3LCC) -DMISSIONPACK -DCGAME $(QVM_CFLAGS) -o $@ $<
 endef
 
 define DO_GAME_Q3LCC_MISSIONPACK
 $(echo_cmd) "GAME_Q3LCC_MISSIONPACK $<"
-$(Q)$(Q3LCC) -DMISSIONPACK -DQAGAME -o $@ $<
+$(Q)$(Q3LCC) -DMISSIONPACK -DQAGAME $(QVM_CFLAGS) -o $@ $<
 endef
 
 define DO_UI_Q3LCC_MISSIONPACK
 $(echo_cmd) "UI_Q3LCC_MISSIONPACK $<"
-$(Q)$(Q3LCC) -DMISSIONPACK -DUI -o $@ $<
+$(Q)$(Q3LCC) -DMISSIONPACK -DUI $(QVM_CFLAGS) -o $@ $<
 endef
 
 
