@@ -330,7 +330,6 @@ static void CG_Rules_f( void ) {
 	CG_Printf(" -Smooth stairs:         %s\n", CG_OnOffStr(cgs.ratFlags & RAT_SMOOTHSTAIRS));
 	CG_Printf(" -Crouch slide:          %s\n", CG_OnOffStr(cgs.ratFlags & RAT_CROUCHSLIDE));
 	CG_Printf(" -Crouch slide mode:     %s\n", (cgs.ratFlags & RAT_SLIDEMODE) ? "liberal" : "conservative");
-	CG_Printf(" -Smooth stairs:         %s\n", CG_OnOffStr(cgs.ratFlags & RAT_SMOOTHSTAIRS));
 	CG_Printf(" -Overbounce:            %s\n", CG_OnOffStr(!(cgs.ratFlags & RAT_NOOVERBOUNCE)));
 	CG_Printf(" -Fast weapon switch:    %s\n", CG_OnOffStr(cgs.ratFlags & RAT_FASTSWITCH));
 	CG_Printf(" -Fast weapons:          %s\n", CG_OnOffStr(cgs.ratFlags & RAT_FASTWEAPONS));
