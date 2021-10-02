@@ -1637,10 +1637,13 @@ static void PM_CheckDuck (void)
 			// try to stand up
 			pm->maxs[2] = 32;
 			pm->trace (&trace, pm->ps->origin, pm->mins, pm->maxs, pm->ps->origin, pm->ps->clientNum, pm->tracemask );
-			if (!trace.allsolid)
+			if (!trace.allsolid) {
 				pm->ps->pm_flags &= ~PMF_DUCKED;
-			// pm->ps->stats[STAT_EXTFLAGS] &= ~EXTFL_SLIDING;
-			pm->ps->stats[STAT_SLIDETIMEOUT] = crouchGraceTime;
+				if (pm->pmove_ratflags & RAT_CROUCHSLIDE) {
+					// pm->ps->stats[STAT_EXTFLAGS] &= ~EXTFL_SLIDING;
+					pm->ps->stats[STAT_SLIDETIMEOUT] = crouchGraceTime;
+				}
+			}
 		}
 	}
 
