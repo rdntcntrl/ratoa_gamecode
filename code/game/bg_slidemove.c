@@ -298,7 +298,24 @@ void PM_StepSlideMove( qboolean gravity ) {
 	}
 	if ( trace.fraction < 1.0 ) {
 		if (pm->pmove_ratflags & RAT_SMOOTHSTAIRS) {
-			PM_OneSidedClipVelocity( pm->ps->velocity, trace.plane.normal, pm->ps->velocity, OVERCLIP );
+			/*
+			Only clip double sided when...
+			    Rampjump is enabled.
+			    The player is alive.
+			    Jump is pressed, but not held.
+			    A ramp jump is about to occur.
+			*/
+			if ( (pm->pmove_ratflags & RAT_RAMPJUMP) &&
+			    !(pm->ps->pm_flags & PMF_RESPAWNED) &&
+			    !(pm->cmd.upmove < 10) &&
+			    !(pm->ps->pm_flags & PMF_JUMP_HELD) &&
+			    // I don't really need to check for this, but it should prevent interference with additive jump.
+			     (pm->ps->stats[STAT_JUMPTIME] > 0)) {
+				PM_ClipVelocity( pm->ps->velocity, trace.plane.normal, pm->ps->velocity, OVERCLIP );
+			}
+			else {
+				PM_OneSidedClipVelocity( pm->ps->velocity, trace.plane.normal, pm->ps->velocity, OVERCLIP );
+			}
 		} else {
 			PM_ClipVelocity( pm->ps->velocity, trace.plane.normal, pm->ps->velocity, OVERCLIP );
 		}
