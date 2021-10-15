@@ -214,6 +214,15 @@ void PM_OneSidedClipVelocity( vec3_t in, vec3_t normal, vec3_t out, float overbo
 	}
 }
 
+/*
+==================
+PM_HorizontalVectorLength
+==================
+*/
+static ID_INLINE vec_t PM_HorizontalVectorLength( const vec3_t v ) {
+	return (vec_t)sqrt (v[0]*v[0] + v[1]*v[1]);
+}
+
 
 /*
 ==================
@@ -864,7 +873,16 @@ static void PM_AirMove( void ) {
 	}
 	// end Xonotic Darkplaces Air Control
 	
-	if (pm->pmove_movement) {
+	switch (pm->pmove_movement) {
+	case MOVEMENT_RM:
+		if (((fmove == 0 && smove != 0) || (fmove != 0 && smove == 0)) &&
+		    (PM_HorizontalVectorLength(pm->ps->velocity) > wishspeed)) {
+			
+			wishspeed = PM_GetAirStrafeWishspeed(pm);
+			accel = PM_GetAirStrafeAccelerate(pm);
+		}
+		break;
+	default:
 		if (fmove == 0 && smove != 0) {
 			wishspeed = PM_GetAirStrafeWishspeed(pm);
 			accel = PM_GetAirStrafeAccelerate(pm);
