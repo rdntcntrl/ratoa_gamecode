@@ -297,7 +297,7 @@ void PM_StepSlideMove( qboolean gravity ) {
 		VectorCopy (trace.endpos, pm->ps->origin);
 	}
 	if ( trace.fraction < 1.0 ) {
-		if (pm->pmove_ratflags & RAT_SMOOTHSTAIRS) {
+		if (pm->pmove_ratflags & RAT_SMOOTHSTAIRS && pm->ps->pm_type != PM_SPECTATOR) {
 			/*
 			Only clip double sided when...
 			    Rampjump is enabled.
