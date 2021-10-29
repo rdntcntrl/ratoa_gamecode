@@ -3917,6 +3917,10 @@ void CG_AutoRecordStart(void) {
 	char *nowString;
 	char *p;
 
+	if (cg.demoPlayback) {
+		return;
+	}
+
 	if (!cg_autorecord.integer) {
 		return;
 	}
