@@ -1059,8 +1059,6 @@ void CG_ParseServerinfo( void ) {
 		cgs.movement = MOVEMENT_VQ3;
 	}
 	
-	cgs.slideSlowAccel = atof( Info_ValueForKey( info, "g_slideSlowAccel" ) );
-
 	cgs.maxBrightshellAlpha = atof( Info_ValueForKey( info, "g_maxBrightshellAlpha" ) );
 	// don't allow the server to set values that are too high / low
 	cgs.maxBrightshellAlpha = MAX(MIN(cgs.maxBrightshellAlpha, 0.8), 0.1);

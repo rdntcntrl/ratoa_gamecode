@@ -61,11 +61,12 @@ const float	pm_flightfriction = 3.0f;
 const float	pm_spectatorfriction = 5.0f;
 
 
-const int crouchGraceTime = 100;
+const int crouchGraceTime = 300;
+const int crouchGoGraceTime = 400;
 
 const float crouchTurn = 15;
 const float crouchGoAccel = 2;
-// const float crouchAccel = -0.5;
+const float crouchAccel = -0.5;
 const float crouchWishspeed = 226;
 const float crouchGoSpeedCap = 600;
 const float crouchSpeedCap = 0;
@@ -1096,21 +1097,24 @@ static void PM_WalkMove( void ) {
 	}
 	PM_Accelerate (wishdir, wishspeed, accelerate);
 	if (pm->ps->stats[STAT_EXTFLAGS] & EXTFL_SLIDING) {
-		float crouchSpeedCap;
+		float speedCap;
 		if (VectorLength(pm->ps->velocity) < vel) {
 			pm->ps->stats[STAT_EXTFLAGS] &= ~EXTFL_SLIDING;
 		}
 		
-		if (VectorLength(pm->ps->velocity) > vel && vel >= wishspeed) {
+		if ((VectorLength(pm->ps->velocity) > vel && vel >= wishspeed) || (pm->pmove_ratflags & RAT_SLIDEMODE)) {
 			// Accelerate.
-			accelerate = (pm->pmove_ratflags & RAT_SLIDEMODE) ? crouchGoAccel : pm->pmove_slideSlowAccel;
+			accelerate = (pm->pmove_ratflags & RAT_SLIDEMODE) ? ((float) pm->ps->stats[STAT_SLIDETIMEOUT] / crouchGoGraceTime) * crouchGoAccel : crouchAccel;
+			if ((pm->pmove_ratflags & RAT_SLIDEMODE) && !(VectorLength(pm->ps->velocity) > vel && vel >= wishspeed) && (accelerate > 0)) {
+				accelerate = 0;
+			}
 			VectorNormalize(pm->ps->velocity);
 			VectorScale(pm->ps->velocity, vel + accelerate * wishspeed * pml.frametime, pm->ps->velocity);
 		}
 		
 		// Cap speed.
-		crouchSpeedCap = (pm->pmove_ratflags & RAT_SLIDEMODE) ? crouchGoSpeedCap : crouchSpeedCap;
-		if (crouchSpeedCap && VectorLength(pm->ps->velocity) > vel && vel >= crouchSpeedCap) {
+		speedCap = (pm->pmove_ratflags & RAT_SLIDEMODE) ? crouchGoSpeedCap : crouchSpeedCap;
+		if (speedCap && VectorLength(pm->ps->velocity) > vel && vel >= speedCap) {
 			VectorNormalize(pm->ps->velocity);
 			VectorScale(pm->ps->velocity, vel, pm->ps->velocity);
 		}
@@ -1301,6 +1305,9 @@ static void PM_CrashLand( void ) {
 		delta *= 2;
 		if (pm->pmove_ratflags & RAT_CROUCHSLIDE) {
 			pm->ps->stats[STAT_EXTFLAGS] |= EXTFL_SLIDING;
+			if (pm->pmove_ratflags & RAT_SLIDEMODE) {
+				pm->ps->stats[STAT_SLIDETIMEOUT] = (pm->pmove_ratflags & RAT_SLIDEMODE) ? crouchGoGraceTime : crouchGraceTime;
+			}
 		}
 	}
 
@@ -2364,9 +2371,12 @@ void PmoveSingle (pmove_t *pmove) {
 		pm->ps->stats[STAT_JUMPTIME] -= pml.msec;
 	}
 
-	if (pm->ps->stats[STAT_SLIDETIMEOUT] > 0) {
+	if ((pm->pmove_ratflags & RAT_SLIDEMODE) && (VectorLength(pm->ps->velocity) < crouchWishspeed)) {
+		pm->ps->stats[STAT_EXTFLAGS] &= ~EXTFL_SLIDING;
+	}
+	if (pm->ps->stats[STAT_SLIDETIMEOUT] > ((pm->pmove_ratflags & RAT_SLIDEMODE) && (pm->ps->pm_flags & PMF_DUCKED) ? MIN_QINT/2 : 0)) {
 		pm->ps->stats[STAT_SLIDETIMEOUT] -= pml.msec;
-		if (pm->ps->stats[STAT_SLIDETIMEOUT] <= 0) {
+		if (pm->ps->stats[STAT_SLIDETIMEOUT] <= 0 && !((pm->pmove_ratflags & RAT_SLIDEMODE) && (pm->ps->pm_flags & PMF_DUCKED))) {
 			pm->ps->stats[STAT_EXTFLAGS] &= ~EXTFL_SLIDING;
 			pm->ps->stats[STAT_SLIDETIMEOUT] = 0;
 		}

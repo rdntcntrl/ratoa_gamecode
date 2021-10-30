@@ -245,7 +245,6 @@ vmCvar_t        g_newShotgun;
 vmCvar_t        g_movement;
 vmCvar_t        g_crouchSlide;
 vmCvar_t        g_slideMode;
-vmCvar_t        g_slideSlowAccel;
 vmCvar_t        g_rampJump;
 vmCvar_t        g_additiveJump;
 vmCvar_t        g_fastSwim;
@@ -637,7 +636,6 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_movement,   "g_movement", "0", CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qtrue },
 	{ &g_crouchSlide,   "g_crouchSlide", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_slideMode,   "g_slideMode", "0", CVAR_ARCHIVE, 0, qtrue },
-	{ &g_slideSlowAccel,   "g_slideSlowAccel", "-0.5", CVAR_SERVERINFO, 0, qtrue },
 	{ &g_rampJump,     "g_rampJump", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_additiveJump,     "g_additiveJump", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_fastSwim,   "g_fastSwim", "1", CVAR_ARCHIVE, 0, qtrue },
