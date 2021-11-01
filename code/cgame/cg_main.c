@@ -660,7 +660,7 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_ratRailRadius, "cg_ratRailRadius", "0.5", CVAR_ARCHIVE},
 	{ &cg_ratLg, "cg_ratLg", "3", CVAR_ARCHIVE|CVAR_LATCH},
 	{ &cg_ratLgImpact, "cg_ratLgImpact", "1", CVAR_ARCHIVE},
-	{ &cg_lgSound, "cg_lgSound", "1", CVAR_ARCHIVE|CVAR_LATCH},
+	{ &cg_lgSound, "cg_lgSound", "2", CVAR_ARCHIVE|CVAR_LATCH},
 	{ &cg_consoleStyle, "cg_consoleStyle", "2", CVAR_ARCHIVE},
 	{ &cg_noBubbleTrail, "cg_noBubbleTrail", "1", CVAR_ARCHIVE},
 	{ &cg_specShowZoom, "cg_specShowZoom", "1", CVAR_ARCHIVE},
@@ -947,7 +947,7 @@ void CG_SetEngineCvars( void ) {
 }
 
 
-#define LATEST_RATINITIALIZED 30
+#define LATEST_RATINITIALIZED 31
 
 int CG_MigrateOldCrosshair(int old) {
 	switch (old) {
@@ -1399,6 +1399,12 @@ void CG_RatOldCfgUpdate(void) {
 		}
 
 		CG_Cvar_SetAndUpdate( "cg_ratInitialized", "30" );
+	}
+
+	if (cg_ratInitialized.integer < 31) {
+		CG_Cvar_ResetToDefault("cg_lgSound");
+
+		CG_Cvar_SetAndUpdate( "cg_ratInitialized", "31" );
 	}
 }
 
