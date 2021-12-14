@@ -1725,6 +1725,7 @@ static void PM_Footsteps( void ) {
 		else {
 			PM_ContinueLegsAnim( LEGS_WALKCR );
 		}
+		footstep = qtrue;
 		// ducked characters never play footsteps
 	/*
 	} else 	if ( pm->ps->pm_flags & PMF_BACKWARDS_RUN ) {
@@ -2371,6 +2372,8 @@ void PmoveSingle (pmove_t *pmove) {
 		pm->ps->stats[STAT_JUMPTIME] -= pml.msec;
 	}
 
+	// This highly complex piece of code determines when to decrement the slide
+	// timer. The slide is sometimes killed here as well.
 	if ((pm->pmove_ratflags & RAT_SLIDEMODE) && (VectorLength(pm->ps->velocity) < crouchWishspeed)) {
 		pm->ps->stats[STAT_EXTFLAGS] &= ~EXTFL_SLIDING;
 	}
