@@ -191,6 +191,8 @@ endif
 # version info
 VERSION=1.36
 
+RATMOD_VERSION=$(shell LANG=C git describe --tags --abbrev --dirty)
+
 USE_SVN=
 ifeq ($(wildcard .svn),.svn)
   SVN_REV=$(shell LANG=C svnversion .)
@@ -860,6 +862,9 @@ else
 endif
 
 BASE_CFLAGS += -DPRODUCT_VERSION=\\\"$(VERSION)\\\"
+
+BASE_CFLAGS += -DRATMOD_VERSION=\\\"$(RATMOD_VERSION)\\\"
+QVM_CFLAGS += -DRATMOD_VERSION=\"$(RATMOD_VERSION)\"
 
 ifeq ($(V),1)
 echo_cmd=@:
