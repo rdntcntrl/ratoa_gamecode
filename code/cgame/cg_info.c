@@ -176,12 +176,14 @@ void CG_DrawInformation( void ) {
 
 	color[0] = color[1] = color[2] = 0.0;
 	color[3] = 0.6;
-	CG_FillRect( 0, 450, 640, 30, color);
+	CG_FillRect( 0, 450, 640, 40, color);
 			
 	CG_DrawScoreString(10, 465-SCORECHAR_HEIGHT/2, S_COLOR_YELLOW "RAT" S_COLOR_BLACK "mod"
 			"   ---<(((" S_COLOR_YELLOW ":" S_COLOR_BLACK ">", 1.0, 0);
-	s = S_COLOR_YELLOW "By the rats. For the rats.";
-	CG_DrawScoreString(630-CG_DrawStrlen(s)*SCORECHAR_WIDTH, 465-SCORECHAR_HEIGHT/2, s, 1.0, 0);
+	s = S_COLOR_YELLOW "By the rats, for the rats";
+	CG_DrawTinyScoreString(635-CG_DrawStrlen(s)*SCORETINYCHAR_WIDTH, 465-1-SCORETINYCHAR_HEIGHT, s, 1.0);
+	s = S_COLOR_CYAN "https://ratmod.github.io";
+	CG_DrawTinyScoreString(635-CG_DrawStrlen(s)*SCORETINYCHAR_WIDTH, 465+1, s, 1.0);
 
 	// the first 150 rows are reserved for the client connection
 	// screen to write into

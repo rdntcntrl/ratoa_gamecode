@@ -6022,6 +6022,7 @@ CG_DrawSpectator
 =================
 */
 static void CG_DrawSpectator(void) {
+	char *s = NULL;
 	if (cg.scoreBoardShowing) {
 		return;
 	}
@@ -6029,18 +6030,16 @@ static void CG_DrawSpectator(void) {
 		cg.spectatorHelpDrawTime = cg.time;
 	}
 	CG_DrawBigString(320 - 9 * 8, 440, "SPECTATOR", 1.0F);
-	if (cg.time <= cg.spectatorHelpDrawTime + 40000) {
-		char *s = va("Try %s\\help%s and %s\\doc%s for game configuration docs",
-				S_COLOR_GREEN, S_COLOR_WHITE, S_COLOR_GREEN, S_COLOR_WHITE);
-		CG_DrawSmallScoreString(320 - (CG_DrawStrlen(s)*SCORESMALLCHAR_WIDTH)/2, 460, s, 1.0F);
+	
+	if (cgs.gametype == GT_TOURNAMENT) {
+		s = "waiting to play";
 	} else {
-		if ( cgs.gametype == GT_TOURNAMENT ) {
-			CG_DrawSmallScoreString(320 - (15 * SCORESMALLCHAR_WIDTH)/2, 460, "waiting to play", 1.0F);
-		}
-		else if (CG_IsTeamGametype()) {
-			CG_DrawSmallScoreString(320 - (39 * SCORESMALLCHAR_WIDTH)/2, 460, "press ESC and use the JOIN menu to play", 1.0F);
-		}
+		s = S_COLOR_GREEN "ESC" S_COLOR_WHITE "->" S_COLOR_GREEN "JOIN" S_COLOR_WHITE " to play.";
 	}
+	CG_DrawTinyScoreString(320 - (CG_DrawStrlen(s)*SCORETINYCHAR_WIDTH)/2, 458, s, 1.0F);
+	s = "Help: " S_COLOR_GREEN "\\help" S_COLOR_WHITE " or " S_COLOR_GREEN "\\doc" S_COLOR_WHITE " or visit "
+	       	S_COLOR_CYAN "https://ratmod.github.io";
+	CG_DrawTinyScoreString(320 - (CG_DrawStrlen(s)*SCORETINYCHAR_WIDTH)/2, 468, s, 1.0F);
 }
 
 /*
