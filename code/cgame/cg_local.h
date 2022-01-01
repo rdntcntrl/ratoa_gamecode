@@ -1755,6 +1755,7 @@ extern vmCvar_t			cg_ratRailRadius;
 extern vmCvar_t			cg_ratLg;
 extern vmCvar_t			cg_ratLgImpact;
 extern vmCvar_t			cg_lgSound;
+extern vmCvar_t			cg_rgSound;
 extern vmCvar_t			cg_consoleStyle;
 extern vmCvar_t			cg_delagProjectileTrail;
 extern vmCvar_t			cg_noBubbleTrail;
@@ -2249,6 +2250,7 @@ void CG_NextWeapon_f( void );
 void CG_PrevWeapon_f( void );
 void CG_Weapon_f( void );
 
+sfxHandle_t CG_RegisterRailFireSound(void);
 void CG_RegisterWeapon( int weaponNum );
 void CG_RegisterItemVisuals( int itemNum );
 

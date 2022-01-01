@@ -1215,6 +1215,15 @@ const char *CG_GetMachinegunModel(gitem_t *item) {
 	return item->world_model[0];
 }
 
+sfxHandle_t CG_RegisterRailFireSound(void) {
+#define NUM_RG_SOUNDPACKS 2
+	int soundIdx = (((unsigned int)(cg_rgSound.integer - 1)) % NUM_RG_SOUNDPACKS) + 1;
+	if (cgs.ratFlags & RAT_FASTWEAPONS) {
+		return trap_S_RegisterSound( va("sound/weapons/railgun/railgf%ua-1250.wav", soundIdx), qfalse );
+	}
+	return trap_S_RegisterSound( va("sound/weapons/railgun/railgf%ua.wav", soundIdx), qfalse );
+}
+
 
 /*
 =================
@@ -1459,7 +1468,7 @@ void CG_RegisterWeapon( int weaponNum ) {
 	case WP_RAILGUN:
 		weaponInfo->readySound = trap_S_RegisterSound( "sound/weapons/railgun/rg_hum.wav", qfalse );
 		MAKERGB( weaponInfo->flashDlightColor, 1, 0.5f, 0 );
-		weaponInfo->flashSound[0] = trap_S_RegisterSound( "sound/weapons/railgun/railgf1a.wav", qfalse );
+		weaponInfo->flashSound[0] = CG_RegisterRailFireSound();
 		cgs.media.railExplosionShader = trap_R_RegisterShader( "railExplosion" );
 		cgs.media.railRingsShader = trap_R_RegisterShader( "railDisc" );
 		cgs.media.railCoreShader = trap_R_RegisterShader( "railCore" );
