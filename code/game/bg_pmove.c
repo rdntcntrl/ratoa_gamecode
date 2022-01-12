@@ -1725,7 +1725,7 @@ static void PM_Footsteps( void ) {
 		else {
 			PM_ContinueLegsAnim( LEGS_WALKCR );
 		}
-		footstep = qtrue;
+		footstep = pm->ps->stats[STAT_EXTFLAGS] & EXTFL_SLIDING;
 		// ducked characters never play footsteps
 	/*
 	} else 	if ( pm->ps->pm_flags & PMF_BACKWARDS_RUN ) {
