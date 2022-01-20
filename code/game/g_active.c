@@ -1514,6 +1514,8 @@ void ClientThink_real( gentity_t *ent ) {
         pm.pmove_flags = g_dmflags.integer;
         pm.pmove_ratflags = g_ratFlags.integer;
         pm.pmove_movement = g_movement.integer;
+	
+	pm.grapplePullSpeed = g_grapplePullSpeed.integer;
 
 	VectorCopy( client->ps.origin, client->oldOrigin );
 
@@ -1558,8 +1560,32 @@ void ClientThink_real( gentity_t *ent ) {
 	//		ent->r.maxs[2]);
 	SendPendingPredictableEvents( &ent->client->ps );
 
-	if ( !( ent->client->ps.eFlags & EF_FIRING ) ) {
-		client->fireHeld = qfalse;		// for grapple
+	if (!(g_offhandGrapple.integer)){
+		if ( !( ent->client->ps.eFlags & EF_FIRING ) ) {
+			client->fireHeld = qfalse;		// for grapple
+		}
+		// release the offhand grappling hook if someone is still using it, otherwise the player will be stuck
+		if(ent->client->hookhasbeenfired){
+			ent->client->fireHeld = qfalse;
+			ent->client->hookhasbeenfired = qfalse;
+			if(client->hook){
+				Weapon_HookFree(client->hook);
+			}
+		}
+	} else {
+		if((pm.cmd.buttons & BUTTON_AFFIRMATIVE) && ent->client->ps.pm_type != PM_DEAD && !ent->client->hookhasbeenfired){
+			Weapon_GrapplingHook_Fire( ent );
+			ent->client->hookhasbeenfired = qtrue;
+		}
+		if(!(pm.cmd.buttons & BUTTON_AFFIRMATIVE) && ent->client->ps.pm_type != PM_DEAD && ent->client->hookhasbeenfired && ent->client->fireHeld){
+			ent->client->fireHeld = qfalse;
+			ent->client->hookhasbeenfired = qfalse;
+		} else if ( (!ent->client->hookhasbeenfired) && !( ent->client->ps.eFlags & EF_FIRING ) ) {
+			client->fireHeld = qfalse;		// in case the player also has a regular grappling hook available and still uses it
+		}
+		if(client->hook && client->fireHeld == qfalse){
+			Weapon_HookFree(client->hook);
+		}       
 	}
 
 	// use the snapped origin for linking so it matches client predicted versions

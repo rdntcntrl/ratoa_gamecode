@@ -606,6 +606,8 @@ struct gclient_s {
 	qboolean	fireHeld;			// used for hook
 	gentity_t	*hook;				// grapple hook if out
 
+	qboolean	hookhasbeenfired;		// for the offhand grapple
+
 	int			switchTeamTime;		// time the player switched teams
 
 	// timeResidual is used to handle events that happen every second
@@ -1595,6 +1597,9 @@ extern  vmCvar_t        g_elimination_lockspectator;
 
 extern vmCvar_t		g_grapple;
 extern vmCvar_t		g_swingGrapple;
+extern vmCvar_t		g_offhandGrapple;
+extern vmCvar_t		g_grappleSpeed;
+extern vmCvar_t		g_grapplePullSpeed;
 
 extern vmCvar_t		g_rockets;
 

@@ -3560,7 +3560,7 @@ else
 		client->ps.stats[STAT_WEAPONS] = ( 1 << WP_ROCKET_LAUNCHER );
 		client->ps.ammo[WP_ROCKET_LAUNCHER] = 999;
 	}
-	if (g_grapple.integer) {
+	if ( (g_grapple.integer) && (!g_offhandGrapple.integer) ) {
 		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_GRAPPLING_HOOK );
 	}
 
