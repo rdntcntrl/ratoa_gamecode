@@ -1580,12 +1580,13 @@ void ClientThink_real( gentity_t *ent ) {
 		if(!(pm.cmd.buttons & BUTTON_AFFIRMATIVE) && ent->client->ps.pm_type != PM_DEAD && ent->client->hookhasbeenfired && ent->client->fireHeld){
 			ent->client->fireHeld = qfalse;
 			ent->client->hookhasbeenfired = qfalse;
+			// Weapon_HookFree is invoked from here to allow the player to fire after switching weapons while being continuously hooked using a regular grappling hook
+			if(client->hook){
+				Weapon_HookFree(client->hook);
+			}       
 		} else if ( (!ent->client->hookhasbeenfired) && !( ent->client->ps.eFlags & EF_FIRING ) ) {
 			client->fireHeld = qfalse;		// in case the player also has a regular grappling hook available and still uses it
 		}
-		if(client->hook && client->fireHeld == qfalse){
-			Weapon_HookFree(client->hook);
-		}       
 	}
 
 	// use the snapped origin for linking so it matches client predicted versions
