@@ -1619,6 +1619,8 @@ typedef struct {
     int		timeoutEnd;
     int		timeoutOvertime;
     char	sv_hostname[MAX_QPATH];
+
+    int		grapplePullSpeed;
 } cgs_t;
 
 //==============================================================================

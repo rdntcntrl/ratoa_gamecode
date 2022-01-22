@@ -1515,7 +1515,7 @@ void ClientThink_real( gentity_t *ent ) {
         pm.pmove_ratflags = g_ratFlags.integer;
         pm.pmove_movement = g_movement.integer;
 	
-	pm.grapplePullSpeed = g_grapplePullSpeed.integer;
+	pm.pmove_grapplePullSpeed = g_grapplePullSpeed.integer;
 
 	VectorCopy( client->ps.origin, client->oldOrigin );
 

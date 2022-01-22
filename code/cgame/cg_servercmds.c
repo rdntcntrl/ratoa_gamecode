@@ -1253,6 +1253,8 @@ void CG_ParseServerinfo( void ) {
 
 	cgs.startWhenReady = atoi( Info_ValueForKey( info, "g_startWhenReady" ) );
 
+	cgs.grapplePullSpeed = atoi( Info_ValueForKey( info, "g_grapplePullSpeed" ) );
+
         //Copy allowed votes directly to the client:
         trap_Cvar_Set("cg_voteflags",Info_ValueForKey( info, "voteflags" ) );
 }

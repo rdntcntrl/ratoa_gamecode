@@ -349,6 +349,7 @@ static void CG_Rules_f( void ) {
 	CG_Printf(" -Rocket speed:          %i\n", cgs.rocketSpeed);
 	CG_Printf(" -Shotgun type:          %s\n", cgs.ratFlags & RAT_NEWSHOTGUN ? "rat" : "classic");
 	CG_Printf(" -Grapple type:          %s\n", cgs.ratFlags & RAT_SWINGGRAPPLE ? "swinging" : "classic");
+	CG_Printf(" -Grapple pull speed:    %i\n", cgs.grapplePullSpeed);
 	trap_SendClientCommand("srules");
 }
 

@@ -796,7 +796,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_grapple, "g_grapple", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_offhandGrapple, "g_offhandGrapple", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_grappleSpeed, "g_grappleSpeed", "800", CVAR_ARCHIVE, 0, qtrue },
-	{ &g_grapplePullSpeed, "g_grapplePullSpeed", "800", CVAR_ARCHIVE, 0, qtrue },	
+	{ &g_grapplePullSpeed, "g_grapplePullSpeed", "800", CVAR_SERVERINFO | CVAR_ARCHIVE, 0, qtrue },	
 
 	//nexuiz style rocket arena
 	{ &g_rockets, "g_rockets", "0", CVAR_SERVERINFO | CVAR_LATCH | CVAR_NORESTART, 0, qfalse },
