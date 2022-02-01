@@ -1691,6 +1691,7 @@ static void CG_LightningBolt( centity_t *cent, vec3_t origin ) {
 		// always shoot straight forward from our current position
 		AngleVectors( cg.predictedPlayerState.viewangles, forward, NULL, NULL );
 		VectorCopy( cg.predictedPlayerState.origin, muzzlePoint );
+		muzzlePoint[2] += cg.predictedPlayerState.viewheight;
 	}
 	else
 //unlagged - attack prediction #1
@@ -1730,15 +1731,24 @@ static void CG_LightningBolt( centity_t *cent, vec3_t origin ) {
 //		VectorCopy(cg.refdef.vieworg, muzzlePoint );
 		// *this* is the correct origin for true lightning
 		VectorCopy(cg.predictedPlayerState.origin, muzzlePoint );
+		muzzlePoint[2] += cg.predictedPlayerState.viewheight;
 //unlagged - true lightning
 	} else {
 		// !CPMA
 		AngleVectors( cent->lerpAngles, forward, NULL, NULL );
 		VectorCopy(cent->lerpOrigin, muzzlePoint );
+		if (cent->currentState.number == cg.predictedPlayerState.clientNum) {
+			muzzlePoint[2] += cg.predictedPlayerState.viewheight;
+		} else {
+			int anim;
+			anim = cent->currentState.legsAnim & ~ANIM_TOGGLEBIT;
+			if ( anim == LEGS_WALKCR || anim == LEGS_IDLECR ) {
+				muzzlePoint[2] += CROUCH_VIEWHEIGHT;
+			} else {
+				muzzlePoint[2] += DEFAULT_VIEWHEIGHT;
+			}
+		}
 	}
-
-	// FIXME: crouch
-	muzzlePoint[2] += DEFAULT_VIEWHEIGHT;
 
 	VectorMA( muzzlePoint, 14, forward, muzzlePoint );
 
