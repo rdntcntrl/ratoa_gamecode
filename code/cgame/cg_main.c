@@ -664,7 +664,7 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_ratLg, "cg_ratLg", "3", CVAR_ARCHIVE|CVAR_LATCH},
 	{ &cg_ratLgImpact, "cg_ratLgImpact", "1", CVAR_ARCHIVE},
 	{ &cg_lgSound, "cg_lgSound", "2", CVAR_ARCHIVE|CVAR_LATCH},
-	{ &cg_rgSound, "cg_rgSound", "1", CVAR_ARCHIVE|CVAR_LATCH},
+	{ &cg_rgSound, "cg_rgSound", "2", CVAR_ARCHIVE|CVAR_LATCH},
 	{ &cg_consoleStyle, "cg_consoleStyle", "2", CVAR_ARCHIVE},
 	{ &cg_noBubbleTrail, "cg_noBubbleTrail", "1", CVAR_ARCHIVE},
 	{ &cg_specShowZoom, "cg_specShowZoom", "1", CVAR_ARCHIVE},
@@ -880,8 +880,8 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_weaponBarStyle, "cg_weaponBarStyle", "14", CVAR_ARCHIVE},
         //{ &cg_weaponOrder,"cg_weaponOrder", "/1/2/4/3/6/7/8/9/5/", CVAR_ARCHIVE},
         { &cg_weaponOrder,"cg_weaponOrder", "/1/2/4/3/7/6/8/5/13/11/9/", CVAR_ARCHIVE},
-        {&cg_chatBeep, "cg_chatBeep", "1", CVAR_ARCHIVE },
-        {&cg_teamChatBeep, "cg_teamChatBeep", "1", CVAR_ARCHIVE },
+        {&cg_chatBeep, "cg_chatBeep", "2", CVAR_ARCHIVE },
+        {&cg_teamChatBeep, "cg_teamChatBeep", "2", CVAR_ARCHIVE },
 
         {&cg_ui_clientCommand, "cg_ui_clientCommand", "", CVAR_ROM }
 };
@@ -951,7 +951,7 @@ void CG_SetEngineCvars( void ) {
 }
 
 
-#define LATEST_RATINITIALIZED 31
+#define LATEST_RATINITIALIZED 32
 
 int CG_MigrateOldCrosshair(int old) {
 	switch (old) {
@@ -1409,6 +1409,14 @@ void CG_RatOldCfgUpdate(void) {
 		CG_Cvar_ResetToDefault("cg_lgSound");
 
 		CG_Cvar_SetAndUpdate( "cg_ratInitialized", "31" );
+	}
+
+	if (cg_ratInitialized.integer < 32) {
+		CG_Cvar_ResetToDefault("cg_rgSound");
+		CG_Cvar_ResetToDefault("cg_chatBeep");
+		CG_Cvar_ResetToDefault("cg_teamChatBeep");
+
+		CG_Cvar_SetAndUpdate( "cg_ratInitialized", "32" );
 	}
 }
 
