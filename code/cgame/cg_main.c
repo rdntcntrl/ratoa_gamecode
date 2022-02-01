@@ -784,7 +784,7 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_itemFadeTime ,           "cg_itemFadeTime", "3000", CVAR_CHEAT},
 
 	{ &cg_pingLocationTime,          "cg_pingLocationTime", "1000", CVAR_ARCHIVE},
-	{ &cg_pingLocationTime2,         "cg_pingLocationTime2", "2000", CVAR_ARCHIVE},
+	{ &cg_pingLocationTime2,         "cg_pingLocationTime2", "3500", CVAR_ARCHIVE},
 	{ &cg_pingLocationSize,          "cg_pingLocationSize", "70", CVAR_ARCHIVE},
 	{ &cg_pingLocationSize2,         "cg_pingLocationSize2", "30", CVAR_ARCHIVE},
 	{ &cg_pingLocation,           	 "cg_pingLocation", "3", CVAR_LATCH | CVAR_ARCHIVE},
@@ -954,7 +954,7 @@ void CG_SetEngineCvars( void ) {
 }
 
 
-#define LATEST_RATINITIALIZED 32
+#define LATEST_RATINITIALIZED 33
 
 int CG_MigrateOldCrosshair(int old) {
 	switch (old) {
@@ -1420,6 +1420,14 @@ void CG_RatOldCfgUpdate(void) {
 		CG_Cvar_ResetToDefault("cg_teamChatBeep");
 
 		CG_Cvar_SetAndUpdate( "cg_ratInitialized", "32" );
+	}
+
+	if (cg_ratInitialized.integer < 33) {
+		if (cg_pingLocationTime2.integer == 2000) {
+			CG_Cvar_ResetToDefault("cg_pingLocationTime2");
+		}
+
+		CG_Cvar_SetAndUpdate( "cg_ratInitialized", "33" );
 	}
 }
 
