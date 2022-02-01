@@ -481,7 +481,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_dedicated, "dedicated", "0", 0, 0, qfalse  },
 
 	{ &g_speed, "g_speed", "320", 0, 0, qtrue  },
-	{ &g_spectatorSpeed, "g_spectatorSpeed", "400", CVAR_ARCHIVE, 0, qfalse  },
+	{ &g_spectatorSpeed, "g_spectatorSpeed", "650", CVAR_ARCHIVE, 0, qfalse  },
 	{ &g_gravity, "g_gravity", "800", 0, 0, qtrue  },
 	{ &g_gravityModifier, "g_gravityModifier", "0.940", 0, 0, qtrue  },
 	{ &g_gravityJumppadFix, "g_gravityJumppadFix", "1", CVAR_ARCHIVE, 0, qfalse  },
@@ -614,7 +614,7 @@ static cvarTable_t		gameCvarTable[] = {
         { &g_multiTournamentEndgameRePair, "g_multiTournamentEndgameRePair", "1", CVAR_ARCHIVE, 0, qfalse },
 #endif
 
-        { &g_enableGreenArmor, "g_enableGreenArmor", "0", CVAR_ARCHIVE, 0, qfalse },
+        { &g_enableGreenArmor, "g_enableGreenArmor", "1", CVAR_ARCHIVE, 0, qfalse },
 
         { &g_readSpawnVarFiles, "g_readSpawnVarFiles", "0", CVAR_ARCHIVE, 0, qfalse },
 
