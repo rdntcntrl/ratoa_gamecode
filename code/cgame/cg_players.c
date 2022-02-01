@@ -3641,6 +3641,7 @@ void CG_Player( centity_t *cent ) {
 
 	// add powerups floating behind the player
 	CG_PlayerPowerups( cent, &torso );
+	CG_AddBoundingBox( cent );
 }
 
 

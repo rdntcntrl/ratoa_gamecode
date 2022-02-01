@@ -856,7 +856,7 @@ CG_AddBoundingBox
 Draws a bounding box around a player.  Called from CG_Player.
 =================
 */
-/*void CG_AddBoundingBox( centity_t *cent ) {
+void CG_AddBoundingBox( centity_t *cent ) {
 	polyVert_t verts[4];
 	clientInfo_t *ci;
 	int i;
@@ -1011,7 +1011,7 @@ Draws a bounding box around a player.  Called from CG_Player.
 	VectorCopy( corners[4], verts[2].xyz );
 	VectorCopy( corners[5], verts[3].xyz );
 	trap_R_AddPolyToScene( bboxShader_nocull, 4, verts );
-}*/
+}
 
 /*
 ================
