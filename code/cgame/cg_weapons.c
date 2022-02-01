@@ -4345,7 +4345,6 @@ void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin, vec3_t dir, im
 //#endif
 	case WP_LIGHTNING:
 		// no explosion at LG impact, it is added with the beam
-		Com_Printf("lightning impact\n");
 		r = rand() & 3;
 		if ( r < 2 ) {
 			sfx = cgs.media.sfx_lghit2;
