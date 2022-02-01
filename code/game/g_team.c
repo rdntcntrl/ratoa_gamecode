@@ -2734,7 +2734,7 @@ int G_ClientPlaytime(gclient_t *cl) {
  * Reduces the influence the skill data from previous games has
  * This causes changes in skill to be reflected sooner
  */
-#define PLAYERSKILL_REDUCTION 0.5
+#define PLAYERSKILL_REDUCTION 0.85
 void G_ClientReduceSkilldata(gclient_t *cl) {
 	cl->sess.skillScore *= PLAYERSKILL_REDUCTION;
 	cl->sess.skillPlaytime *= PLAYERSKILL_REDUCTION;
