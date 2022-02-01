@@ -250,6 +250,10 @@ static void CG_ScoresDown_f( void ) {
 		// is within two seconds
 		cg.showScores = qtrue;
 	}
+
+	if (cg.predictedPlayerState.pm_type == PM_INTERMISSION) {
+		cg.showScoreboardNum++;
+	}
 }
 
 static void CG_ScoresUp_f( void ) {

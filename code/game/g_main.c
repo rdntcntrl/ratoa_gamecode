@@ -687,7 +687,7 @@ static cvarTable_t		gameCvarTable[] = {
         { &g_mixedMode, "g_mixedMode", "0", CVAR_ARCHIVE, 0, qfalse },
         { &g_broadcastClients, "g_broadcastClients", "0", 0, 0, qfalse },
         { &g_useExtendedScores, "g_useExtendedScores", "1", CVAR_ARCHIVE, 0, qfalse },
-        { &g_statsboard, "g_statsboard", "1", CVAR_ARCHIVE, 0, qfalse },
+        { &g_statsboard, "g_statsboard", "2", CVAR_ARCHIVE, 0, qfalse },
         { &g_exportStats, "g_exportStats", "0", CVAR_ARCHIVE, 0, qfalse },
         { &g_ratFlags, "g_ratFlags", "0", CVAR_SERVERINFO, 0, qfalse },
         { &g_maxBrightShellAlpha, "g_maxBrightShellAlpha", "0.5", CVAR_SERVERINFO, 0, qfalse },

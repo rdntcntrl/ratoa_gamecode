@@ -103,6 +103,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 //#define RATSB_NAME_LENGTH	(25)
 #define RATSB_NAME_LENGTH	(24)
 #define RATSB2_NAME_LENGTH	(16)
+#define RATSB3_NAME_LENGTH	(16)
 
 #define RATSB_WINS_WIDTH       (2 * SCORESMALLCHAR_WIDTH)
 #define RATSB_WL_WIDTH         (1 * SCORESMALLCHAR_WIDTH)
@@ -138,6 +139,20 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define RATSB2_AWARDS_WIDTH     (RATSB2_AWARDS_NUM * (RATSB2_AWARD_HEIGHT + TINYCHAR_WIDTH*3))
 
 #define RATSB2_AWARD_HEIGHT	(SCORECHAR_HEIGHT)
+
+#define RATSB3_NAME_X           (RATSCOREBOARD_X+10)
+#define RATSB3_NAME_WIDTH     	(RATSB3_NAME_LENGTH * SCORECHAR_WIDTH)
+#define RATSB3_MEGA_X           (RATSB3_NAME_X      + RATSB3_NAME_WIDTH      + 1 * SCORESMALLCHAR_WIDTH)
+#define RATSB3_RA_X             (RATSB3_MEGA_X      + RATSB3_MEGA_WIDTH      + 1 * SCORESMALLCHAR_WIDTH)
+#define RATSB3_YA_X             (RATSB3_RA_X        + RATSB3_RA_WIDTH        + 1 * SCORESMALLCHAR_WIDTH)
+
+#define RATSB3_MEGA_WIDTH       (3 * SCORESMALLCHAR_WIDTH)
+#define RATSB3_RA_WIDTH         (3 * SCORESMALLCHAR_WIDTH)
+#define RATSB3_YA_WIDTH         (3 * SCORESMALLCHAR_WIDTH)
+
+#define RATSB3_MEGA_CENTER     (RATSB3_MEGA_X + RATSB3_MEGA_WIDTH/2)
+#define RATSB3_RA_CENTER       (RATSB3_RA_X + RATSB3_RA_WIDTH/2)
+#define RATSB3_YA_CENTER       (RATSB3_YA_X + RATSB3_YA_WIDTH/2)
 
 #define RATSB_MAP_Y (RATSB_HEADER - 20)
 #define RATSB_MAP_X (RATSB_PING_X + RATSB_PING_WIDTH)
@@ -387,6 +402,36 @@ static void CG_RatDrawClientMedals(int y, score_t *score, float *color, float fa
 	x = CG_RatDrawClientAward(y, x, score->eaward_counts[EAWARD_FULLSG], cgs.media.eaward_medals[EAWARD_FULLSG]);
 	x = CG_RatDrawClientAward(y, x, score->excellentCount, cgs.media.medalExcellent);
 	x = CG_RatDrawClientAward(y, x, score->impressiveCount, cgs.media.medalImpressive);
+
+}
+
+static void CG_RatDrawClientStats(int y, score_t *score, float *color, float fade) {
+	char string[1024];
+	clientInfo_t *ci;
+	//int x;
+	//int ysmall = y + (SCORECHAR_HEIGHT - SCORESMALLCHAR_HEIGHT);
+	//int yaward = y + (SCORECHAR_HEIGHT - RATSB2_AWARD_HEIGHT);
+	//int ytiny = y + (SCORECHAR_HEIGHT - SCORETINYCHAR_HEIGHT);
+
+	if (score->client < 0 || score->client >= cgs.maxclients) {
+		Com_Printf("Bad score->client: %i\n", score->client);
+		return;
+	}
+
+	ci = &cgs.clientinfo[score->client];
+
+	CG_RatHighlightScore(RATSB3_NAME_X, y, score, fade);
+
+	Com_sprintf(string, sizeof (string), "%s", ci->name);
+	CG_DrawScoreString(RATSB3_NAME_X, y, string, fade, RATSB3_NAME_LENGTH);
+
+	if (ci->team == TEAM_SPECTATOR) {
+		return;
+	}
+
+ 	CG_DrawSmallScoreString(RATSB3_MEGA_X, y, va(S_COLOR_CYAN "%3i", score->mega_healths), fade);
+ 	CG_DrawSmallScoreString(RATSB3_RA_X, y, va(S_COLOR_RED "%3i", score->red_armors), fade);
+ 	CG_DrawSmallScoreString(RATSB3_YA_X, y, va(S_COLOR_YELLOW "%3i", score->yellow_armors), fade);
 
 }
 
@@ -655,6 +700,28 @@ static void CG_RatDrawClientScore(int y, score_t *score, float *color, float fad
 }
 
 /*
+ * Select which scoreboard to show
+ */
+static int ShowScoreboardNum(void) {
+	int available_num = 1;
+	if (cg.predictedPlayerState.pm_type != PM_INTERMISSION) {
+		// regular scoreboard
+		return 0;
+	}
+
+	if (cg.stats_available && cg.medals_available) {
+		available_num = 3;
+	} else if (cg.medals_available) {
+		available_num = 2;
+	}
+
+	// cg.showScoreboardNum increases each time the player presses the
+	// scoreboard key (TAB) during intermission
+	return cg.showScoreboardNum % available_num;
+
+}
+
+/*
 =================
 CG_RatTeamScoreboard
 =================
@@ -693,11 +760,16 @@ static int CG_RatTeamScoreboard(int y, team_t team, float fade, int maxClients, 
 #endif
 
 		if (!countOnly) {
-			if (cg.showScores && cg.predictedPlayerState.pm_type == PM_INTERMISSION && cg.medals_available) {
-				// score key is pressed during intermission and we have the data to display the medals board
+			switch (ShowScoreboardNum()) {
+			case 1:
 				CG_RatDrawClientMedals(y + lineHeight * count, score, color, fade);
-			} else {
+				break;
+			case 2:
+				CG_RatDrawClientStats(y + lineHeight * count, score, color, fade);
+				break;
+			default:
 				CG_RatDrawClientScore(y + lineHeight * count, score, color, fade, lineHeight == RATSB_NORMAL_HEIGHT);
+				break;
 			}
 		}
 
@@ -929,10 +1001,17 @@ qboolean CG_DrawRatScoreboard(void) {
 	// scoreboard
 	y = RATSB_HEADER;
 
-	if (cg.showScores && cg.predictedPlayerState.pm_type == PM_INTERMISSION && cg.medals_available) {
+	if (ShowScoreboardNum() == 1) {
 		// show medals board instead of normal scoreboard
 		CG_DrawTinyScoreString(RATSB2_NAME_X, y, "Name", fade);
 		CG_DrawTinyScoreString(RATSB2_AWARDS_X, y, "Awards", fade);
+
+	} else if (ShowScoreboardNum() == 2) {
+		// show stats board instead of normal scoreboard
+		CG_DrawTinyScoreString(RATSB3_NAME_X, y, "Name", fade);
+		CG_DrawTinyScoreString(RATSB3_MEGA_CENTER - 1.5 * SCORETINYCHAR_WIDTH, y, "MHs", fade);
+		CG_DrawTinyScoreString(RATSB3_RA_CENTER - 1.5 * SCORETINYCHAR_WIDTH, y, "RAs", fade);
+		CG_DrawTinyScoreString(RATSB3_YA_CENTER - 1.5 * SCORETINYCHAR_WIDTH, y, "YAs", fade);
 	} else {
 		if (cgs.gametype == GT_TOURNAMENT
 #ifdef WITH_MULTITOURNAMENT

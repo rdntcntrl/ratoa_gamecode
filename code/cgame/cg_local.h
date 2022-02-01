@@ -417,6 +417,9 @@ typedef struct {
 	int			topweapon2;
 	int			topweapon3;
 	int			ratclient;
+	int			yellow_armors;
+	int			red_armors;
+	int			mega_healths;
 #ifdef WITH_MULTITOURNAMENT
 	int			gameId;
 #endif
@@ -688,6 +691,7 @@ typedef struct {
 	int			scoresRequestTime;
 	int			numScores;
 	qboolean		medals_available;
+	qboolean		stats_available;
 	int			selectedScore;
 	int			teamScores[2];
 	score_t		scores[MAX_CLIENTS];
@@ -696,7 +700,7 @@ typedef struct {
 	int		received_ratscores;
 	score_t		scores_buf[MAX_CLIENTS];
 	qboolean	showScores;
-	qboolean	showStats;
+	int		showScoreboardNum;
 	qboolean	scoreBoardShowing;
 	int			scoreFadeTime;
 

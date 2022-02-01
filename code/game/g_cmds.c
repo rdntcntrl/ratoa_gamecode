@@ -140,7 +140,7 @@ void DeathmatchScoreboardMessage( gentity_t *ent, qboolean advanced ) {
 		string ) );
 }
 
-void Ratscores1Message( gentity_t *ent ) {
+void Ratscores1Message( gentity_t *ent, int max_ratscores ) {
 	char		entry[2048];
 	char		string[4096];
 	int		stringlength;
@@ -148,7 +148,6 @@ void Ratscores1Message( gentity_t *ent ) {
 	gclient_t	*cl;
 	int		numSorted, scoreFlags, accuracy, perfect;
 	int teamsLocked = 0;
-	qboolean send_statsboard = (g_statsboard.integer && level.intermissiontime);
 
 	string[0] = 0;
 	stringlength = 0;
@@ -209,7 +208,7 @@ void Ratscores1Message( gentity_t *ent ) {
 	} else {
 		teamsLocked = level.FFALocked ? 1 : 0;
 	}
-	trap_SendServerCommand( ent-g_entities, va("%s %i %i %i %i %i %i %i%s", "ratscores1", send_statsboard ? 4 : 2, i, 
+	trap_SendServerCommand( ent-g_entities, va("%s %i %i %i %i %i %i %i%s", "ratscores1", max_ratscores, i, 
 		level.teamScores[TEAM_RED], level.teamScores[TEAM_BLUE], level.roundStartTime, teamsLocked,
 		(g_teamForceQueue.integer && G_IsTeamGametype())? 1 : 0,
 		string ) );
@@ -356,12 +355,60 @@ void Ratscores4Message( gentity_t *ent ) {
 		string ) );
 }
 
+void Ratscores5Message( gentity_t *ent ) {
+	char		entry[2048];
+	char		string[4096];
+	int		stringlength;
+	int		i, j;
+	gclient_t	*cl;
+	int		numSorted;
+
+	string[0] = 0;
+	stringlength = 0;
+
+	numSorted = level.numConnectedClients;
+	
+	for (i=0 ; i < numSorted ; i++) {
+		cl = &level.clients[level.sortedClients[i]];
+
+		Com_sprintf (entry, sizeof(entry),
+				" %i %i %i",
+				cl->pers.items_collected[ITEM_INDEX(BG_FindItem("Armor"))],
+				cl->pers.items_collected[ITEM_INDEX(BG_FindItem("Heavy Armor"))],
+				cl->pers.items_collected[ITEM_INDEX(BG_FindItem("Mega Health"))]
+			    );
+
+		j = strlen(entry);
+		if (stringlength + j > 1024)
+			break;
+		strcpy (string + stringlength, entry);
+		stringlength += j;
+	}
+
+
+	trap_SendServerCommand( ent-g_entities, va("%s %i%s", "ratscores5", i, 
+		string ) );
+}
+
+
+
 void DeathmatchScoreboardMessageSplit( gentity_t *ent ) {
-	Ratscores1Message(ent);
+	int max_ratscores = 2;
+	if (level.intermissiontime) {
+		if (g_statsboard.integer >= 2) {
+			max_ratscores = 5;
+		} else if (g_statsboard.integer) {
+			max_ratscores = 4;
+		}
+	}
+	Ratscores1Message(ent, max_ratscores);
 	Ratscores2Message(ent);
-	if (g_statsboard.integer && level.intermissiontime) {
+	if (max_ratscores >= 3) {
 		Ratscores3Message(ent);
 		Ratscores4Message(ent);
+	}
+	if (max_ratscores >= 5) {
+		Ratscores5Message(ent);
 	}
 }
 

@@ -166,7 +166,8 @@ static void CG_CheckScoreUpdate(void) {
 	// TODO: switching pointers would be more efficient
 	memcpy( cg.scores, cg.scores_buf, sizeof(cg.scores));
 	cg.numScores = cg.numScores_buf;
-	cg.medals_available = (cg.received_ratscores == 4);
+	cg.medals_available = (cg.received_ratscores >= 4);
+	cg.stats_available = (cg.received_ratscores == 5);
 
 	CG_PurgeScoreBuf();
 }
@@ -183,7 +184,7 @@ static void CG_ParseRatScores1( void ) {
 
 	// defines whether we have to wait for medals as well (ratscores3)
 	cg.ratscores_expected = atoi( CG_Argv( 1 ) );
-	if (cg.ratscores_expected != 2 && cg.ratscores_expected != 4) {
+	if (cg.ratscores_expected != 2 && cg.ratscores_expected != 4 && cg.ratscores_expected != 5) {
 		cg.ratscores_expected = 2;
 	}
 
@@ -401,6 +402,36 @@ static void CG_ParseRatScores4( void ) {
 		cg.scores_buf[i].eaward_counts[EAWARD_TWITCHRAIL]= atoi(CG_Argv(i * NUM_RAT4_DATA + FIRST_RAT4_DATA + 12));
 		cg.scores_buf[i].eaward_counts[EAWARD_RAT]= atoi(CG_Argv(i * NUM_RAT4_DATA + FIRST_RAT4_DATA + 13));
 		cg.scores_buf[i].eaward_counts[EAWARD_THAWBUDDY]= atoi(CG_Argv(i * NUM_RAT4_DATA + FIRST_RAT4_DATA + 14));
+	}
+
+	CG_CheckScoreUpdate();
+}
+
+static void CG_ParseRatScores5( void ) {
+	int		i;
+	int numScores;
+
+	if (cg.ratscores_expected < 5 || cg.received_ratscores >= 5) {
+		return;
+	}
+	cg.received_ratscores++;
+
+	numScores = atoi( CG_Argv( 1 ) );
+	if ( numScores > MAX_CLIENTS ) {
+		numScores = MAX_CLIENTS;
+	}
+
+	if (cg.numScores_buf != numScores) {
+		CG_PurgeScoreBuf();
+		return;
+	}
+#define NUM_RAT5_DATA 3
+#define FIRST_RAT5_DATA 1
+
+	for ( i = 0 ; i < numScores ; i++ ) {
+		cg.scores_buf[i].yellow_armors = atoi(CG_Argv(i * NUM_RAT5_DATA + FIRST_RAT5_DATA + 1));
+		cg.scores_buf[i].red_armors = atoi(CG_Argv(i * NUM_RAT5_DATA + FIRST_RAT5_DATA + 2));
+		cg.scores_buf[i].mega_healths = atoi(CG_Argv(i * NUM_RAT5_DATA + FIRST_RAT5_DATA + 3));
 	}
 
 	CG_CheckScoreUpdate();
@@ -2186,6 +2217,11 @@ static void CG_ServerCommand( void ) {
 
 	if ( !strcmp( cmd, "ratscores4" ) ) {
 		CG_ParseRatScores4();
+		return;
+	}
+
+	if ( !strcmp( cmd, "ratscores5" ) ) {
+		CG_ParseRatScores5();
 		return;
 	}
 
