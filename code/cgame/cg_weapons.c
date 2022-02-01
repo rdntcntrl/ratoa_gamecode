@@ -1216,7 +1216,7 @@ const char *CG_GetMachinegunModel(gitem_t *item) {
 }
 
 sfxHandle_t CG_RegisterRailFireSound(void) {
-#define NUM_RG_SOUNDPACKS 2
+#define NUM_RG_SOUNDPACKS 4
 	int soundIdx = (((unsigned int)(cg_rgSound.integer - 1)) % NUM_RG_SOUNDPACKS) + 1;
 	if (cgs.ratFlags & RAT_FASTWEAPONS) {
 		return trap_S_RegisterSound( va("sound/weapons/railgun/railgf%ua-1250.wav", soundIdx), qfalse );
