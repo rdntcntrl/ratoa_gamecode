@@ -4172,9 +4172,13 @@ void CG_FireWeapon( centity_t *cent ) {
 		if (ent->eType != ET_PLAYER && ent->clientNum >= 0 && ent->clientNum < MAX_CLIENTS) {
 			centity_t *playerCEnt = &cg_entities[ent->clientNum];
 			if (!playerCEnt->currentValid || playerCEnt->pe.lightningFiring) {
+				// make sure the impact sounds still get played
+				CG_PredictWeaponEffects(cent);
 				return;
 			}
 		} else if ( cent->pe.lightningFiring ) {
+			// make sure the impact sounds still get played
+			CG_PredictWeaponEffects(cent);
 			return;
 		}
 	}
@@ -4341,6 +4345,7 @@ void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin, vec3_t dir, im
 //#endif
 	case WP_LIGHTNING:
 		// no explosion at LG impact, it is added with the beam
+		Com_Printf("lightning impact\n");
 		r = rand() & 3;
 		if ( r < 2 ) {
 			sfx = cgs.media.sfx_lghit2;
@@ -4649,6 +4654,10 @@ CG_MissileHitPlayer
 */
 void CG_MissileHitPlayer( int weapon, vec3_t origin, vec3_t dir, int entityNum, 
 	       predictedMissileStatus_t *missileStatus) {
+	if (weapon == WP_LIGHTNING) {
+		CG_MissileHitWall( weapon, 0, origin, dir, IMPACTSOUND_FLESH, missileStatus );
+		return;
+	}
 // LEILEI ENHANCEMENT
 	if (cg_leiEnhancement.integer) {
 		CG_SmokePuff( origin, dir, 22, 1, 1, 1, 1.0f, 900, cg.time, 0, 0,  cgs.media.lbldShader1 );

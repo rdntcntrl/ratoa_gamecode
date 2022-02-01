@@ -536,6 +536,23 @@ void CG_PredictWeaponEffects( centity_t *cent ) {
 			}
 		}
 	}
+	else if ( ent->weapon == WP_LIGHTNING ) {
+		if ( cg_delag.integer & 1 || cg_delag.integer & 8 ) {
+			// This only predicts the impact sounds. The actual beam is drawn by CG_LightningBolt()
+			trace_t trace;
+			vec3_t endPoint;
+
+			VectorMA( muzzlePoint, LIGHTNING_RANGE, forward, endPoint );
+			CG_Trace( &trace, muzzlePoint, vec3_origin, vec3_origin, endPoint, cg.predictedPlayerState.clientNum, MASK_SHOT );
+			if (trace.fraction < 1.0) {
+				if (trace.entityNum < MAX_CLIENTS) {
+					CG_MissileHitPlayer(WP_LIGHTNING, trace.endpos, trace.plane.normal, trace.entityNum, NULL);
+				} else if (!(trace.surfaceFlags & SURF_NOIMPACT)) {
+					CG_MissileHitWall(WP_LIGHTNING, 0, trace.endpos, trace.plane.normal, IMPACTSOUND_DEFAULT, NULL);
+				}
+			}
+		}
+	}
 	// was it a shotgun attack?
 	else if ( ent->weapon == WP_SHOTGUN ) {
 		// do we have it on for the shotgun?

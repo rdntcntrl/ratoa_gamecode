@@ -1088,6 +1088,9 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 					MF_EXPLOSIONCONFIRMED | MF_EXPLODED | MF_HITPLAYER,
 					position, es->otherEntityNum);
 			break;
+		} else if (es->weapon == WP_LIGHTNING && es->clientNum == cg.predictedPlayerState.clientNum &&
+				cgs.delagHitscan && (cg_delag.integer & 1 || cg_delag.integer & 8)) {
+			break;
 		}
 		ByteToDir( es->eventParm, dir );
 		CG_MissileHitPlayer( es->weapon, position, dir, es->otherEntityNum,
@@ -1105,6 +1108,9 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 			CG_UpdateMissileStatus(&cent->missileStatus,
 					MF_EXPLOSIONCONFIRMED | MF_EXPLODED | MF_HITWALL,
 					position, ENTITYNUM_WORLD);
+			break;
+		} else if (es->weapon == WP_LIGHTNING && es->clientNum == cg.predictedPlayerState.clientNum &&
+				cgs.delagHitscan && (cg_delag.integer & 1 || cg_delag.integer & 8)) {
 			break;
 		}
 		ByteToDir( es->eventParm, dir );
