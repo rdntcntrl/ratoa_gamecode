@@ -687,7 +687,7 @@ typedef struct {
 	// scoreboard
 	int			scoresRequestTime;
 	int			numScores;
-	qboolean		stats_available;
+	qboolean		medals_available;
 	int			selectedScore;
 	int			teamScores[2];
 	score_t		scores[MAX_CLIENTS];

@@ -316,7 +316,7 @@ static int CG_RatDrawClientAward(int y, int x, int count, qhandle_t hShader) {
 	return x;
 }
 
-static void CG_RatDrawClientStats(int y, score_t *score, float *color, float fade) {
+static void CG_RatDrawClientMedals(int y, score_t *score, float *color, float fade) {
 	char string[1024];
 	clientInfo_t *ci;
 	int x;
@@ -693,9 +693,9 @@ static int CG_RatTeamScoreboard(int y, team_t team, float fade, int maxClients, 
 #endif
 
 		if (!countOnly) {
-			if (cg.showScores && cg.predictedPlayerState.pm_type == PM_INTERMISSION && cg.stats_available) {
-				// score key is pressed during intermission and we have the data to display the stats board
-				CG_RatDrawClientStats(y + lineHeight * count, score, color, fade);
+			if (cg.showScores && cg.predictedPlayerState.pm_type == PM_INTERMISSION && cg.medals_available) {
+				// score key is pressed during intermission and we have the data to display the medals board
+				CG_RatDrawClientMedals(y + lineHeight * count, score, color, fade);
 			} else {
 				CG_RatDrawClientScore(y + lineHeight * count, score, color, fade, lineHeight == RATSB_NORMAL_HEIGHT);
 			}
@@ -929,8 +929,8 @@ qboolean CG_DrawRatScoreboard(void) {
 	// scoreboard
 	y = RATSB_HEADER;
 
-	if (cg.showScores && cg.predictedPlayerState.pm_type == PM_INTERMISSION && cg.stats_available) {
-		// show stats board instead of normal scoreboard
+	if (cg.showScores && cg.predictedPlayerState.pm_type == PM_INTERMISSION && cg.medals_available) {
+		// show medals board instead of normal scoreboard
 		CG_DrawTinyScoreString(RATSB2_NAME_X, y, "Name", fade);
 		CG_DrawTinyScoreString(RATSB2_AWARDS_X, y, "Awards", fade);
 	} else {

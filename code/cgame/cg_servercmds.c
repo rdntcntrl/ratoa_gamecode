@@ -166,7 +166,7 @@ static void CG_CheckScoreUpdate(void) {
 	// TODO: switching pointers would be more efficient
 	memcpy( cg.scores, cg.scores_buf, sizeof(cg.scores));
 	cg.numScores = cg.numScores_buf;
-	cg.stats_available = (cg.received_ratscores == 4);
+	cg.medals_available = (cg.received_ratscores == 4);
 
 	CG_PurgeScoreBuf();
 }
@@ -181,7 +181,7 @@ static void CG_ParseRatScores1( void ) {
 	int		i, powerups;
 	int numScores;
 
-	// defines whether we have to wait for stats as well (ratscores3)
+	// defines whether we have to wait for medals as well (ratscores3)
 	cg.ratscores_expected = atoi( CG_Argv( 1 ) );
 	if (cg.ratscores_expected != 2 && cg.ratscores_expected != 4) {
 		cg.ratscores_expected = 2;
