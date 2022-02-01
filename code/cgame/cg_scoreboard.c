@@ -251,7 +251,7 @@ qboolean CG_DrawRatAccboard( void ) {
                         if( cg.accuracys[counter-WP_MACHINEGUN][0] > 0 ) {
 				CG_DrawTinyScoreStringColor(x + RAT_ACCITEM_SIZE + SCORETINYCHAR_WIDTH/2.0,
 					       	RAT_ACCBOARD_YPOS - RAT_ACCITEM_SIZE/2.0 - SCORETINYCHAR_HEIGHT/2.0,
-						va("%i%s",(int)(((float)cg.accuracys[counter-WP_MACHINEGUN][1]*100)/((float)(cg.accuracys[counter-WP_MACHINEGUN][0]))),"%"),
+						va("%i%s",(int)round(((float)cg.accuracys[counter-WP_MACHINEGUN][1]*100)/((float)(cg.accuracys[counter-WP_MACHINEGUN][0]))),"%"),
 					       	colorWhite);
 			} else {
 				CG_DrawTinyScoreStringColor(x + RAT_ACCITEM_SIZE + SCORETINYCHAR_WIDTH/2.0,

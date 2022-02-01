@@ -937,6 +937,7 @@ void SendReadymask(int clientnum);
 void G_SendSpawnpoints(gentity_t *ent);
 qboolean G_TournamentSpecMuted(void);
 void AccMessage( gentity_t *ent );
+void DuelStatsMessageForPlayers(gentity_t *p1, gentity_t *p2);
 void AwardMessage(gentity_t *ent, extAward_t award, int count);
 qboolean SendNextmapVoteCommand( void );
 int G_GametypeBitsCurrent( void );

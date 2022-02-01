@@ -517,7 +517,164 @@ static void CG_ParseAccuracy( void ) {
 	}
 
 }
+typedef struct {
+	int clientnum;
+	int greenarmor;
+	int yellowarmor;
+	int redarmor;
+	int megahealth;
+	int dmgGiven;
+	int dmgTaken;
+	int damage[WP_NUM_WEAPONS];
+	int accuracy[WP_NUM_WEAPONS][2];
+} duelstats_t;
 
+static duelstats_t CG_ParseDuelStatPlayer(int startarg) {
+	duelstats_t st;
+	int i, j;
+
+	memset(&st, 0, sizeof(st));
+
+	st.clientnum = atoi( CG_Argv( startarg + 1 ) );
+	if (st.clientnum < 0 || st.clientnum >= MAX_CLIENTS) {
+		st.clientnum = 0;
+		CG_Error("Invalid client num in duelstats");
+	}
+	st.greenarmor = atoi(CG_Argv(startarg + 2));
+	st.yellowarmor = atoi(CG_Argv(startarg + 3));
+	st.redarmor = atoi(CG_Argv(startarg + 4));
+	st.megahealth = atoi(CG_Argv(startarg + 5));
+	st.dmgGiven = atoi(CG_Argv(startarg + 6));
+	st.dmgTaken = atoi(CG_Argv(startarg + 7));
+
+	j = startarg + 8;
+	for (i = WP_GAUNTLET; i < WP_NUM_WEAPONS; ++i) {
+		if (i == WP_GRAPPLING_HOOK) {
+			continue;
+		}
+		st.damage[i] = atoi(CG_Argv(j));
+		j++;
+	}
+
+	for (i = WP_MACHINEGUN; i < WP_NUM_WEAPONS; ++i) {
+		if (i == WP_GRAPPLING_HOOK) {
+			continue;
+		}
+		st.accuracy[i][0] = atoi(CG_Argv(j));
+		j++;
+		st.accuracy[i][1] = atoi(CG_Argv(j));
+		j++;
+	}
+	return st;
+}
+
+static void CG_PrintDuelStatsWeapon( const char *wpname, int weap, duelstats_t *st1, duelstats_t *st2 ) {
+	if (!cg_weapons[weap].registered) {
+		return;
+	}
+	CG_Printf(
+		"%-5s:"
+		" %3i%%"
+		" %6i/%-6i"
+		" %6i"
+		" ||"
+		" %6i"
+		" %6i/%-6i"
+		" %3i%%"
+		"\n"
+		,
+		wpname,
+		st1->accuracy[weap][0] > 0 ? round((float)(100*st1->accuracy[weap][1])/(float)(st1->accuracy[weap][0])) : 0,
+		st1->accuracy[weap][1], st1->accuracy[weap][0],
+		st1->damage[weap],
+		st2->damage[weap],
+		st2->accuracy[weap][1], st2->accuracy[weap][0],
+		st2->accuracy[weap][0] > 0 ? round((float)(100*st2->accuracy[weap][1])/(float)(st2->accuracy[weap][0])) : 0
+		);
+
+}
+
+static void CG_PrintDuelStats(duelstats_t st1, duelstats_t st2) {
+	CG_Printf(
+		"%*s"
+		S_COLOR_WHITE " || "
+		"%s\n", 
+		32-CG_DrawStrlen(cgs.clientinfo[st1.clientnum].name) + strlen(cgs.clientinfo[st1.clientnum].name),
+		cgs.clientinfo[st1.clientnum].name,
+		cgs.clientinfo[st2.clientnum].name );
+	CG_Printf("Weapon  Acc     Hits      Damage || Damage     Hits       Acc\n");
+	CG_PrintDuelStatsWeapon("Gaunt", WP_GAUNTLET, &st1, &st2);
+	CG_PrintDuelStatsWeapon("MG", WP_MACHINEGUN, &st1, &st2);
+	CG_PrintDuelStatsWeapon("SG", WP_SHOTGUN, &st1, &st2);
+	CG_PrintDuelStatsWeapon("GL", WP_GRENADE_LAUNCHER, &st1, &st2);
+	CG_PrintDuelStatsWeapon("RL", WP_ROCKET_LAUNCHER, &st1, &st2);
+	CG_PrintDuelStatsWeapon("LG", WP_LIGHTNING, &st1, &st2);
+	CG_PrintDuelStatsWeapon("RG", WP_RAILGUN, &st1, &st2);
+	CG_PrintDuelStatsWeapon("PG", WP_PLASMAGUN, &st1, &st2);
+	CG_PrintDuelStatsWeapon("BFG", WP_BFG, &st1, &st2);
+	CG_PrintDuelStatsWeapon("NG", WP_NAILGUN, &st1, &st2);
+	CG_PrintDuelStatsWeapon("PL", WP_PROX_LAUNCHER, &st1, &st2);
+	CG_PrintDuelStatsWeapon("CG", WP_CHAINGUN, &st1, &st2);
+	CG_Printf(
+		"Items:  "
+		S_COLOR_GREEN    " %3iGA"
+		S_COLOR_YELLOW   " %3iYA"
+		S_COLOR_RED      " %3iRA"
+		S_COLOR_CYAN     " %3iMH"
+		S_COLOR_WHITE " ||"
+		S_COLOR_CYAN     " %3iMH"
+		S_COLOR_RED      " %3iRA"
+		S_COLOR_YELLOW   " %3iYA"
+		S_COLOR_GREEN    " %3iGA"
+		"\n"
+		,
+		st1.greenarmor,
+		st1.yellowarmor,
+		st1.redarmor,
+		st1.megahealth,
+		st2.megahealth,
+		st2.redarmor,
+		st2.yellowarmor,
+		st2.greenarmor);
+
+	CG_Printf(
+		"Damage Given:"
+		S_COLOR_GREEN    " %18i"
+		S_COLOR_WHITE " ||"
+		S_COLOR_GREEN    " %i"
+		"\n"
+		,
+		st1.dmgGiven,
+		st2.dmgGiven);
+	CG_Printf(
+		"Damage Taken:"
+		S_COLOR_RED    " %18i"
+		S_COLOR_WHITE " ||"
+		S_COLOR_RED    " %i"
+		"\n"
+		,
+		st1.dmgTaken,
+		st2.dmgTaken);
+
+
+}
+
+static void CG_ParseDuelStats( void ) {
+	duelstats_t st1, st2;
+
+	if (!cg_printDuelStats.integer) {
+		return;
+	}
+
+	st1 = CG_ParseDuelStatPlayer(0);
+	st2 = CG_ParseDuelStatPlayer(41);
+
+	if (st1.clientnum == cg.predictedPlayerState.clientNum) {
+		CG_PrintDuelStats(st1, st2);
+	} else {
+		CG_PrintDuelStats(st2, st1);
+	}
+}
 
 /*
 =================
@@ -2222,6 +2379,11 @@ static void CG_ServerCommand( void ) {
 
 	if ( !strcmp( cmd, "ratscores5" ) ) {
 		CG_ParseRatScores5();
+		return;
+	}
+
+	if ( !strcmp( cmd, "duelstats" ) ) {
+		CG_ParseDuelStats();
 		return;
 	}
 

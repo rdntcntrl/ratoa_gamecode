@@ -334,6 +334,7 @@ vmCvar_t        g_mixedMode;
 vmCvar_t        g_broadcastClients;
 vmCvar_t        g_useExtendedScores;
 vmCvar_t        g_statsboard;
+vmCvar_t        g_duelStats;
 vmCvar_t        g_exportStats;
 vmCvar_t        g_predictMissiles;
 vmCvar_t        g_ratFlags;
@@ -688,6 +689,7 @@ static cvarTable_t		gameCvarTable[] = {
         { &g_broadcastClients, "g_broadcastClients", "0", 0, 0, qfalse },
         { &g_useExtendedScores, "g_useExtendedScores", "1", CVAR_ARCHIVE, 0, qfalse },
         { &g_statsboard, "g_statsboard", "2", CVAR_ARCHIVE, 0, qfalse },
+        { &g_duelStats, "g_duelStats", "1", CVAR_ARCHIVE, 0, qfalse },
         { &g_exportStats, "g_exportStats", "0", CVAR_ARCHIVE, 0, qfalse },
         { &g_ratFlags, "g_ratFlags", "0", CVAR_SERVERINFO, 0, qfalse },
         { &g_maxBrightShellAlpha, "g_maxBrightShellAlpha", "0.5", CVAR_SERVERINFO, 0, qfalse },
@@ -2991,6 +2993,37 @@ char *G_MultiTrnScoreString(int scoreId) {
 }
 #endif // WITH_MULTITOURNAMENT
 
+
+static void SendDuelStatsMessages( void ) {
+	if (!g_duelStats.integer) {
+	}
+	if (g_gametype.integer == GT_TOURNAMENT) {
+		if (level.numPlayingClients != 2) {
+			return;
+		}
+		DuelStatsMessageForPlayers(
+				&g_entities[level.sortedClients[0]],
+				&g_entities[level.sortedClients[1]]
+				);
+	} 
+#ifdef WITH_MULTITOURNAMENT
+	else if (g_gametype.integer == GT_MULTITOURNAMENT) {
+		int gameId;
+		for (gameId = 0; gameId < MULTITRN_MAX_GAMES; ++gameId) {
+			multiTrnGame_t *game = &level.multiTrnGames[gameId];
+			if (game->numPlayers != 2) {
+				continue;
+			}
+			DuelStatsMessageForPlayers(
+					&g_entities[game->clients[0]],
+					&g_entities[game->clients[1]]
+					);
+		}
+	}
+#endif
+
+}
+
 /*
 ============
 CalculateRanks
@@ -3480,6 +3513,8 @@ void BeginIntermission( void ) {
 #endif
 	// send the current scoring to all clients
 	SendScoreboardMessageToAllClients();
+
+	SendDuelStatsMessages();
 
 }
 

@@ -215,6 +215,7 @@ vmCvar_t 	cg_ratScoreboard;
 vmCvar_t 	cg_ratScoreboardAccuracy;
 vmCvar_t 	cg_ratStatusbar;
 vmCvar_t 	cg_ratStatusbarOldNumbers;
+vmCvar_t 	cg_printDuelStats;
 vmCvar_t	cg_ratPlasmaTrail;
 vmCvar_t	cg_ratPlasmaTrailAlpha;
 vmCvar_t	cg_ratPlasmaTrailStep;
@@ -646,6 +647,8 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_ratScoreboardAccuracy, "cg_ratScoreboardAccuracy", "1", 0},
 	{ &cg_ratStatusbar, "cg_ratStatusbar", "4", CVAR_ARCHIVE},
 	{ &cg_ratStatusbarOldNumbers, "cg_ratStatusbarOldNumbers", "0", CVAR_ARCHIVE},
+
+	{ &cg_printDuelStats, "cg_printDuelStats", "0", 0},
 
 	{ &cg_ratPlasmaTrail, "cg_ratPlasmaTrail", "0", CVAR_ARCHIVE},
 	{ &cg_ratPlasmaTrailAlpha, "cg_ratPlasmaTrailAlpha", "0.1", CVAR_ARCHIVE},

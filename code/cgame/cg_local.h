@@ -1743,6 +1743,7 @@ extern vmCvar_t                	cg_ratScoreboard;
 extern vmCvar_t                	cg_ratScoreboardAccuracy;
 extern vmCvar_t                	cg_ratStatusbar;
 extern vmCvar_t                	cg_ratStatusbarOldNumbers;
+extern vmCvar_t                	cg_printDuelStats;
 extern vmCvar_t			cg_ratPlasmaTrail;
 extern vmCvar_t			cg_ratPlasmaTrailAlpha;
 extern vmCvar_t			cg_ratPlasmaTrailStep;

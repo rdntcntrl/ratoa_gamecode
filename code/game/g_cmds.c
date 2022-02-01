@@ -426,6 +426,86 @@ void DeathmatchScoreboardMessageAuto(gentity_t *ent) {
 }
 
 
+void DuelStatsMessageForPlayers(gentity_t *p1, gentity_t *p2) {
+	char		entry[2048];
+	char		string[4096];
+	int		stringlength;
+	int		i, j;
+	gentity_t 	*players[2];
+	gentity_t 	*ent;
+	gclient_t 	*cl;
+	char *cmd;
+
+
+	string[0] = 0;
+	stringlength = 0;
+
+	players[0] = p1;
+	players[1] = p2;
+	for (i=0 ; i < 2 ; i++) {
+		ent = players[i];
+		cl = ent->client;
+
+		Com_sprintf (entry, sizeof(entry),
+				" %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i",
+				(int)(ent-g_entities),
+				cl->pers.items_collected[ITEM_INDEX(BG_FindItem("Light Armor"))],
+				cl->pers.items_collected[ITEM_INDEX(BG_FindItem("Armor"))],
+				cl->pers.items_collected[ITEM_INDEX(BG_FindItem("Heavy Armor"))],
+				cl->pers.items_collected[ITEM_INDEX(BG_FindItem("Mega Health"))],
+				cl->pers.dmgGiven,
+				cl->pers.dmgTaken,
+				cl->pers.damage[WP_GAUNTLET],
+				cl->pers.damage[WP_MACHINEGUN],
+				cl->pers.damage[WP_SHOTGUN],
+				cl->pers.damage[WP_GRENADE_LAUNCHER],
+				cl->pers.damage[WP_ROCKET_LAUNCHER],
+				cl->pers.damage[WP_LIGHTNING],
+				cl->pers.damage[WP_RAILGUN],
+				cl->pers.damage[WP_PLASMAGUN],
+				cl->pers.damage[WP_BFG],
+				cl->pers.damage[WP_NAILGUN],
+				cl->pers.damage[WP_PROX_LAUNCHER],
+				cl->pers.damage[WP_CHAINGUN],
+				cl->accuracy[WP_MACHINEGUN][0],
+				cl->accuracy[WP_MACHINEGUN][1],
+				cl->accuracy[WP_SHOTGUN][0],
+				cl->accuracy[WP_SHOTGUN][1],
+				cl->accuracy[WP_GRENADE_LAUNCHER][0],
+				cl->accuracy[WP_GRENADE_LAUNCHER][1],
+				cl->accuracy[WP_ROCKET_LAUNCHER][0],
+				cl->accuracy[WP_ROCKET_LAUNCHER][1],
+				cl->accuracy[WP_LIGHTNING][0],
+				cl->accuracy[WP_LIGHTNING][1],
+				cl->accuracy[WP_RAILGUN][0],
+				cl->accuracy[WP_RAILGUN][1],
+				cl->accuracy[WP_PLASMAGUN][0],
+				cl->accuracy[WP_PLASMAGUN][1],
+				cl->accuracy[WP_BFG][0],
+				cl->accuracy[WP_BFG][1],
+				cl->accuracy[WP_NAILGUN][0],
+				cl->accuracy[WP_NAILGUN][1],
+				cl->accuracy[WP_PROX_LAUNCHER][0],
+				cl->accuracy[WP_PROX_LAUNCHER][1],
+				cl->accuracy[WP_CHAINGUN][0],
+				cl->accuracy[WP_CHAINGUN][1]
+			    );
+
+		j = strlen(entry);
+		if (stringlength + j > 1024)
+			return;
+		strcpy (string + stringlength, entry);
+		stringlength += j;
+	}
+
+
+	cmd = va("duelstats%s", string);
+
+	trap_SendServerCommand( p1-g_entities, cmd);
+	trap_SendServerCommand( p2-g_entities, cmd);
+}
+
+
 /*
 ==================
 AccMessage
