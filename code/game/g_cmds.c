@@ -3894,7 +3894,13 @@ void Cmd_CallVote_f( gentity_t *ent ) {
                 }
 
                 Com_sprintf( level.voteString, sizeof( level.voteString ), "shuffle" );
-		Com_sprintf( level.voteDisplayString, sizeof( level.voteDisplayString ), "Shuffle teams and restart?" );
+		if (g_balanceAutoGameStart.integer) {
+			float skilldiff = TeamSkillDiff();
+			Com_sprintf( level.voteDisplayString, sizeof( level.voteDisplayString ),
+					va("Shuffle teams and restart? bal = %s%0.2f" S_COLOR_WHITE, skilldiff > 0 ? S_COLOR_BLUE : S_COLOR_RED, fabs(skilldiff)) );
+		} else {
+			Com_sprintf( level.voteDisplayString, sizeof( level.voteDisplayString ), "Shuffle teams and restart?" );
+		}
         } else if ( !Q_stricmp( arg1, "balance" ) ) {
                 if(!G_IsTeamGametype()) {
                     trap_SendServerCommand( ent-g_entities, "print \"Can only be used in team games.\n\"" );
