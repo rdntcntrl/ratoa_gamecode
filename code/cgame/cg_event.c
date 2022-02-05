@@ -28,6 +28,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #ifdef MISSIONPACK // bk001205
 #include "../../ui/menudef.h"
 #endif
+
+qboolean offhandGrappleRegistered = qfalse;
+
 //==========================================================================
 
 /*
@@ -990,6 +993,13 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 	case EV_USE_ITEM14:
 		DEBUGNAME("EV_USE_ITEM14");
 		CG_UseItem( cent );
+		break;
+	case EV_OFFHAND_GRAPPLE:
+		DEBUGNAME("EV_OFFHAND_GRAPPLE");
+		if ( !offhandGrappleRegistered ) {
+			CG_RegisterWeapon( WP_GRAPPLING_HOOK );
+			offhandGrappleRegistered = qtrue;
+		}
 		break;
 
 	//=================================================================

@@ -737,6 +737,7 @@ void Weapon_GrapplingHook_Fire (gentity_t *ent)
 	if ( g_offhandGrapple.integer && ent->client->hookhasbeenfired ) {
 		AngleVectors (ent->client->ps.viewangles, forward, right, up);
 		CalcMuzzlePoint ( ent, forward, right, up, muzzle );
+		G_AddEvent( ent, EV_OFFHAND_GRAPPLE, 0 );
 	}
 	if (!ent->client->fireHeld && !ent->client->hook)
 		fire_grapple (ent, muzzle, forward);

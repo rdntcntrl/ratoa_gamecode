@@ -1573,13 +1573,13 @@ void ClientThink_real( gentity_t *ent ) {
 			}
 		}
 	} else {
-		if ( (pm.cmd.buttons & BUTTON_AFFIRMATIVE) && !ent->client->hookhasbeenfired && !ent->client->fireHeld && ent->client->ps.pm_type != PM_DEAD ) {
+		if ( (pm.cmd.buttons & BUTTON_HOOK) && !ent->client->hookhasbeenfired && !ent->client->fireHeld && ent->client->ps.pm_type != PM_DEAD ) {
 			if(client->hook){
 				Weapon_HookFree(client->hook);	// in case the player is already hooked with a regular grapple
 			}
 			ent->client->hookhasbeenfired = qtrue;
 			Weapon_GrapplingHook_Fire( ent );
-		} else if ( !(pm.cmd.buttons & BUTTON_AFFIRMATIVE) && ent->client->hookhasbeenfired && ent->client->fireHeld && ent->client->ps.pm_type != PM_DEAD ) {
+		} else if ( !(pm.cmd.buttons & BUTTON_HOOK) && ent->client->hookhasbeenfired && ent->client->fireHeld && ent->client->ps.pm_type != PM_DEAD ) {
 			ent->client->fireHeld = qfalse;
 			ent->client->hookhasbeenfired = qfalse;
 			// Weapon_HookFree is invoked from here to allow the player to fire after switching weapons while being continuously hooked using a regular grappling hook

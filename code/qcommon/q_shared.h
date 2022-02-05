@@ -1147,6 +1147,8 @@ typedef struct playerState_s {
 #define	BUTTON_PING			4096			// ping the map to signal other players
 #define	BUTTON_PINGWARN			8192			// ping the map to warn other players
 
+#define BUTTON_HOOK			16384		// button14
+
 #define	MOVE_RUN			120			// if forwardmove or rightmove are >= MOVE_RUN,
 										// then BUTTON_WALKING should be set
 
