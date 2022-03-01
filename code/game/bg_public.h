@@ -612,7 +612,8 @@ typedef enum {
 	EV_MISSILE_TELEPORT,
 	EV_PING_LOCATION,
 	EV_COIN_BOUNCE,
-	EV_FREEZE
+	EV_FREEZE,
+	EV_FOOTSLIDE, // for crouch slide
 } entity_event_t;
 
 

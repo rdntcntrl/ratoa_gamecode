@@ -1718,15 +1718,20 @@ static void PM_Footsteps( void ) {
 	footstep = qfalse;
 
 	if ( pm->ps->pm_flags & PMF_DUCKED ) {
-		bobmove = 0.5;	// ducked characters bob much faster
-		if ( pm->ps->pm_flags & PMF_BACKWARDS_RUN ) {
-			PM_ContinueLegsAnim( LEGS_BACKCR );
+		if (pm->ps->stats[STAT_EXTFLAGS] & EXTFL_SLIDING) {
+			footstep = qtrue;
+			bobmove = 0.3f;
+			PM_ContinueLegsAnim( LEGS_IDLECR );
+		} else {
+			bobmove = 0.5;	// ducked characters bob much faster
+			if ( pm->ps->pm_flags & PMF_BACKWARDS_RUN ) {
+				PM_ContinueLegsAnim( LEGS_BACKCR );
+			}
+			else {
+				PM_ContinueLegsAnim( LEGS_WALKCR );
+			}
+			// ducked characters never play footsteps
 		}
-		else {
-			PM_ContinueLegsAnim( LEGS_WALKCR );
-		}
-		footstep = pm->ps->stats[STAT_EXTFLAGS] & EXTFL_SLIDING;
-		// ducked characters never play footsteps
 	/*
 	} else 	if ( pm->ps->pm_flags & PMF_BACKWARDS_RUN ) {
 		if ( !( pm->cmd.buttons & BUTTON_WALKING ) ) {
@@ -1786,7 +1791,11 @@ static void PM_Footsteps( void ) {
 		if ( pm->waterlevel == 0 ) {
 			// on ground will only play sounds if running
 			if ( footstep && !pm->noFootsteps ) {
-				PM_AddEvent( PM_FootstepForSurface() );
+				if (pm->ps->stats[STAT_EXTFLAGS] & EXTFL_SLIDING) {
+					PM_AddEvent( EV_FOOTSLIDE );
+				} else {
+					PM_AddEvent( PM_FootstepForSurface() );
+				}
 			}
 		} else if ( pm->waterlevel == 1 ) {
 			// splashing

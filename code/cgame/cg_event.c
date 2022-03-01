@@ -694,6 +694,13 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 				cgs.media.footsteps[ FOOTSTEP_SPLASH ][rand()&3] );
 		}
 		break;
+	case EV_FOOTSLIDE:
+		DEBUGNAME("EV_FOOTSLIDE");
+		if (cg_footsteps.integer) {
+			trap_S_StartSound (NULL, es->number, CHAN_BODY, 
+				cgs.media.footsteps[ FOOTSTEP_SLIDE ][rand()&3] );
+		}
+		break;
 	case EV_SWIM:
 		DEBUGNAME("EV_SWIM");
 		if (cg_footsteps.integer) {
