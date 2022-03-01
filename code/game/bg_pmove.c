@@ -1726,7 +1726,7 @@ static void PM_Footsteps( void ) {
 	if ( pm->ps->pm_flags & PMF_DUCKED ) {
 		if (pm->ps->stats[STAT_EXTFLAGS] & EXTFL_SLIDING) {
 			footstep = qtrue;
-			bobmove = 0.2f; // sliding characters bob very slowly
+			bobmove = 0.4f;
 			PM_ContinueLegsAnim( LEGS_IDLECR );
 		} else {
 			bobmove = 0.5;	// ducked characters bob much faster
