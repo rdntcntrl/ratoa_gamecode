@@ -1308,6 +1308,9 @@ static void PM_CrashLand( void ) {
 			if (pm->pmove_ratflags & RAT_SLIDEMODE) {
 				pm->ps->stats[STAT_SLIDETIMEOUT] = (pm->pmove_ratflags & RAT_SLIDEMODE) ? crouchGoGraceTime : crouchGraceTime;
 			}
+			// play slide sound immediately
+			pm->ps->bobCycle = 63;
+			pm->ps->stats[STAT_BOBCYCLEREM] = 999;
 		}
 	}
 
@@ -1347,6 +1350,9 @@ static void PM_CrashLand( void ) {
 		}
 	}
 
+	if (pm->ps->stats[STAT_EXTFLAGS] & EXTFL_SLIDING) {
+		return;
+	}
 	// start footstep cycle over
 	pm->ps->bobCycle = 0;
 	pm->ps->stats[STAT_BOBCYCLEREM] = 0;
@@ -1720,7 +1726,7 @@ static void PM_Footsteps( void ) {
 	if ( pm->ps->pm_flags & PMF_DUCKED ) {
 		if (pm->ps->stats[STAT_EXTFLAGS] & EXTFL_SLIDING) {
 			footstep = qtrue;
-			bobmove = 0.3f;
+			bobmove = 0.2f; // sliding characters bob very slowly
 			PM_ContinueLegsAnim( LEGS_IDLECR );
 		} else {
 			bobmove = 0.5;	// ducked characters bob much faster
