@@ -660,6 +660,13 @@ void CG_PingLocationWarnUp_f( void ) {
 	trap_SendConsoleCommand("-button13\n");
 }
 
+void CG_GrappleDown_f( void ) { 
+	trap_SendConsoleCommand("+button14\n");
+}
+void CG_GrappleUp_f( void ) { 
+	trap_SendConsoleCommand("-button14\n");
+}
+
 /*
  * Sends a client command to the server
  * This is used by the UI since it doesn't have the necessary interface to send
@@ -739,6 +746,8 @@ static consoleCommand_t	commands[] = {
 	{ "-ping", CG_PingLocationUp_f },
 	{ "+pingWarn", CG_PingLocationWarnDown_f },
 	{ "-pingWarn", CG_PingLocationWarnUp_f },
+	{ "+grapple", CG_GrappleDown_f },
+	{ "-grapple", CG_GrappleUp_f },
 	{ "sizeup", CG_SizeUp_f },
 	{ "sizedown", CG_SizeDown_f },
 	{ "weapnext", CG_NextWeapon_f },
