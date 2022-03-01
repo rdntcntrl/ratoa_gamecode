@@ -648,7 +648,7 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_ratStatusbar, "cg_ratStatusbar", "4", CVAR_ARCHIVE},
 	{ &cg_ratStatusbarOldNumbers, "cg_ratStatusbarOldNumbers", "0", CVAR_ARCHIVE},
 
-	{ &cg_printDuelStats, "cg_printDuelStats", "0", 0},
+	{ &cg_printDuelStats, "cg_printDuelStats", "1", CVAR_ARCHIVE},
 
 	{ &cg_ratPlasmaTrail, "cg_ratPlasmaTrail", "0", CVAR_ARCHIVE},
 	{ &cg_ratPlasmaTrailAlpha, "cg_ratPlasmaTrailAlpha", "0.1", CVAR_ARCHIVE},
