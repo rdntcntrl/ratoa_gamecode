@@ -1697,8 +1697,7 @@ const char *eventnames[] = {
 	"EV_MISSILE_TELEPORT",
 	"EV_PING_LOCATION",
 	"EV_COIN_BOUNCE",
-	"EV_FREEZE",
-	"EV_OFFHAND_GRAPPLE"
+	"EV_FREEZE"
 
 };
 

@@ -31,6 +31,8 @@ static	vec3_t	muzzle;
 
 #define NUM_NAILSHOTS 15
 
+void CalcMuzzlePointOrigin ( gentity_t *ent, vec3_t origin, vec3_t forward, vec3_t right, vec3_t up, vec3_t muzzlePoint );
+
 /*
 ================
 G_BounceProjectile
@@ -736,8 +738,7 @@ void Weapon_GrapplingHook_Fire (gentity_t *ent)
 {
 	if ( g_offhandGrapple.integer && ent->client->hookhasbeenfired ) {
 		AngleVectors (ent->client->ps.viewangles, forward, right, up);
-		CalcMuzzlePoint ( ent, forward, right, up, muzzle );
-		G_AddEvent( ent, EV_OFFHAND_GRAPPLE, 0 );
+		CalcMuzzlePointOrigin ( ent, ent->client->oldOrigin, forward, right, up, muzzle );
 	}
 	if (!ent->client->fireHeld && !ent->client->hook)
 		fire_grapple (ent, muzzle, forward);

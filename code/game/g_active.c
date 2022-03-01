@@ -1560,7 +1560,7 @@ void ClientThink_real( gentity_t *ent ) {
 	//		ent->r.maxs[2]);
 	SendPendingPredictableEvents( &ent->client->ps );
 
-	if (!(g_offhandGrapple.integer)){
+	if (!g_offhandGrapple.integer) {
 		if ( !( ent->client->ps.eFlags & EF_FIRING ) ) {
 			client->fireHeld = qfalse;		// for grapple
 		}
@@ -1572,7 +1572,7 @@ void ClientThink_real( gentity_t *ent ) {
 				Weapon_HookFree(client->hook);
 			}
 		}
-	} else {
+	} else if (client->ps.stats[STAT_WEAPONS] & ( 1 << WP_GRAPPLING_HOOK )) {
 		if ( (pm.cmd.buttons & BUTTON_HOOK) && !ent->client->hookhasbeenfired && !ent->client->fireHeld && ent->client->ps.pm_type != PM_DEAD ) {
 			if(client->hook){
 				Weapon_HookFree(client->hook);	// in case the player is already hooked with a regular grapple
