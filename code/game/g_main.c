@@ -1695,6 +1695,10 @@ void G_UpdateRatFlags( void ) {
 		rflags |= RAT_SLIDEMODE;
 	}
 
+	if (g_offhandGrapple.integer == 1) {
+		rflags |= RAT_OFFHANDGRAPPLE;
+	}
+
 	// XXX --> also update code where this is called!
 
 	trap_Cvar_Set("g_ratFlags",va("%i",rflags));
@@ -1799,6 +1803,7 @@ void G_UpdateCvars( void ) {
 						|| cv->vmCvar == &g_freeze
 						|| cv->vmCvar == &g_crouchSlide
 						|| cv->vmCvar == &g_slideMode
+						|| cv->vmCvar == &g_offhandGrapple
 						) {
 					updateRatFlags = qtrue;
 				}
