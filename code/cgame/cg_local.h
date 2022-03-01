@@ -144,10 +144,11 @@ typedef enum {
 	FOOTSTEP_ENERGY,
 	FOOTSTEP_METAL,
 	FOOTSTEP_SPLASH,
-	FOOTSTEP_SLIDE, // for crouch slide
 
 	FOOTSTEP_TOTAL
 } footstep_t;
+
+#define CROUCHSLIDE_SOUNDS 4
 
 typedef enum {
 	IMPACTSOUND_DEFAULT,
@@ -206,6 +207,9 @@ typedef struct {
 	float			barrelAngle;
 	int				barrelTime;
 	qboolean		barrelSpinning;
+
+	// for crouchslide sound
+	int 			crouchSlideSndCounter;	
 } playerEntity_t;
 
 //=================================================
@@ -1220,6 +1224,7 @@ typedef struct {
 	sfxHandle_t	useNothingSound;
 	sfxHandle_t	wearOffSound;
 	sfxHandle_t	footsteps[FOOTSTEP_TOTAL][4];
+	sfxHandle_t	crouchslideSounds[CROUCHSLIDE_SOUNDS];
 	sfxHandle_t	sfx_lghit1;
 	sfxHandle_t	sfx_lghit2;
 	sfxHandle_t	sfx_lghit3;

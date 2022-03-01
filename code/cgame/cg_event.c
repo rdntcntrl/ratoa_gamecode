@@ -698,7 +698,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 		DEBUGNAME("EV_FOOTSLIDE");
 		if (cg_footsteps.integer) {
 			trap_S_StartSound (NULL, es->number, CHAN_BODY, 
-				cgs.media.footsteps[ FOOTSTEP_SLIDE ][rand()&3] );
+				cgs.media.crouchslideSounds[cent->pe.crouchSlideSndCounter++ % CROUCHSLIDE_SOUNDS] );
 		}
 		break;
 	case EV_SWIM:

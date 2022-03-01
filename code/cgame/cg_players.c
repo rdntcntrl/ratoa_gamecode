@@ -3679,6 +3679,8 @@ void CG_ResetPlayerEntity( centity_t *cent ) {
 	cent->pe.torso.pitchAngle = cent->rawAngles[PITCH];
 	cent->pe.torso.pitching = qfalse;
 
+	cent->pe.crouchSlideSndCounter = rand() % CROUCHSLIDE_SOUNDS;
+
 	if ( cg_debugPosition.integer ) {
 		CG_Printf("%i ResetPlayerEntity yaw=%i\n", cent->currentState.number, cent->pe.torso.yawAngle );
 	}
