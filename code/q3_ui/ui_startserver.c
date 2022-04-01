@@ -951,6 +951,9 @@ static void ServerOptions_Start( void ) {
 	}
 
 	trap_Cvar_SetValue( "sv_maxclients", Com_Clamp( 0, 12, maxclients ) );
+	// sv_floodprotect is primitive and may block important user commands (including chats)
+	// we rely on g_flood* instead
+	trap_Cvar_SetValue( "sv_floodprotect", 0 );
 //	trap_Cvar_SetValue( "dedicated", Com_Clamp( 0, 2, dedicated ) );
 	trap_Cvar_SetValue ("timelimit", Com_Clamp( 0, timelimit, timelimit ) );
 	trap_Cvar_SetValue ("fraglimit", Com_Clamp( 0, fraglimit, fraglimit ) );
