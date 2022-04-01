@@ -2070,6 +2070,7 @@ void CG_Cvar_ResetToDefault( const char *var_name );
 void CG_Cvar_Update( const char *var_name );
 void CG_Cvar_PrintUserChanges( qboolean all );
 qboolean CG_SupportsOggVorbis(void);
+qboolean CG_BrokenEngine(void);
 void CG_AutoRecordStart(void);
 void CG_AutoRecordStop(void);
 qboolean CG_IsTeamGametype(void);

@@ -6590,6 +6590,35 @@ void CG_DrawTimedMenus( void ) {
 #endif
 
 void CG_DrawEngineSupport(void) {
+	if (CG_BrokenEngine()) {
+		const char *s = "WARNING: Using an unsupported/broken engine.";
+		float char_h = 14;
+		float char_w = CG_HeightToWidth(7);
+		float color[4] = { 1.0, 1.0, 0.0, 1.0 };
+		int y = SCREEN_HEIGHT/2 - char_h * 5;
+
+		CG_DrawStringExt( SCREEN_WIDTH * 0.5 - (CG_DrawStrlen(s) * char_w)/2.0,
+			       	y,
+			       	s,
+			       	color,
+			       	qtrue,
+			       	qtrue,
+			       	char_w,
+				char_h,
+				0);
+		s = "Some features may not work properly.";
+		y += char_h*1.5;
+		CG_DrawStringExt( SCREEN_WIDTH * 0.5 - (CG_DrawStrlen(s) * char_w)/2.0,
+			       	y,
+			       	s,
+			       	color,
+			       	qtrue,
+			       	qtrue,
+			       	char_w,
+				char_h,
+				0);
+		return;
+	}
 	if (!CG_SupportsOggVorbis()) {
 		static int drawEngineMessageTime = 0;
 		const char *s = "WARNING: Engine lacks Ogg Vorbis support, some sounds might not play!";

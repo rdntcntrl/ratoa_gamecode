@@ -3947,6 +3947,24 @@ void CG_FairCvars() {
     do_vid_restart = qtrue;
 }
 
+
+qboolean CG_BrokenEngine(void) {
+	static int broken_engine = -1;
+	
+	if (broken_engine == -1) {
+		char version[5];
+		trap_Cvar_VariableStringBuffer("version", version, sizeof(version));
+		if (Q_stricmp("yuoa", version) == 0) {
+			// this engine doesn't properly honor cg.refdef.fov_x/fov_y
+			broken_engine = 1;
+		} else {
+			broken_engine = 0;
+		}
+	}
+	return (qboolean)broken_engine;
+}
+
+
 void CG_AutoRecordStart(void) {
 	char demoName[MAX_OSPATH];
 	char serverName[MAX_OSPATH];
