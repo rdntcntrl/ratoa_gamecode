@@ -1763,6 +1763,7 @@ extern  vmCvar_t        g_pingLocationRadius;
 extern  vmCvar_t        g_pingLocationFov;
 
 extern  vmCvar_t        g_tauntAllowed;
+extern  vmCvar_t        g_tauntForceOn;
 extern  vmCvar_t        g_tauntTime;
 extern  vmCvar_t        g_tauntAfterDeathTime;
 

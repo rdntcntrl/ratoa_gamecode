@@ -2108,7 +2108,7 @@ void CG_VoiceChat( int mode ) {
 	color = atoi(CG_Argv(3));
 	cmd = CG_Argv(4);
 
-	if (cg_noTaunt.integer != 0) {
+	if (cg_taunts.integer != 0) {
 		if (!strcmp(cmd, VOICECHAT_KILLINSULT)  || !strcmp(cmd, VOICECHAT_TAUNT) || \
 			!strcmp(cmd, VOICECHAT_DEATHINSULT) || !strcmp(cmd, VOICECHAT_KILLGAUNTLET) || \
 			!strcmp(cmd, VOICECHAT_PRAISE)) {
@@ -2193,6 +2193,10 @@ void CG_LoadTaunts(void) {
 
 void CG_PlayTaunt(int clientNum, const char *id) {
 	int i;
+
+	if (!(cg_taunts.integer || cgs.ratFlags & RAT_FORCETAUNTS)) {
+		return;
+	}
 
 	for (i = 0; i < tauntList.numTaunts; ++i) {
 		if (!Q_stricmp(tauntList.taunts[i].id, id)) {

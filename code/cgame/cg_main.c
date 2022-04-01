@@ -380,7 +380,7 @@ vmCvar_t	cg_timescaleFadeSpeed;
 vmCvar_t	cg_timescale;
 vmCvar_t	cg_smallFont;
 vmCvar_t	cg_bigFont;
-vmCvar_t	cg_noTaunt;
+vmCvar_t	cg_taunts;
 vmCvar_t	cg_noProjectileTrail;
 vmCvar_t	cg_oldRail;
 vmCvar_t	cg_oldRocket;
@@ -811,7 +811,7 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &pmove_fixed, "pmove_fixed", "0", CVAR_SYSTEMINFO},
 	{ &pmove_msec, "pmove_msec", "11", CVAR_SYSTEMINFO},
         { &pmove_float, "pmove_float", "1", CVAR_SYSTEMINFO},
-	{ &cg_noTaunt, "cg_noTaunt", "0", CVAR_ARCHIVE},
+	{ &cg_taunts, "cg_taunts", "1", CVAR_ARCHIVE},
 	{ &cg_noProjectileTrail, "cg_noProjectileTrail", "0", CVAR_ARCHIVE},
 	{ &cg_smallFont, "ui_smallFont", "0.25", CVAR_ARCHIVE},
 	{ &cg_bigFont, "ui_bigFont", "0.4", CVAR_ARCHIVE},
@@ -953,7 +953,7 @@ void CG_SetEngineCvars( void ) {
 }
 
 
-#define LATEST_RATINITIALIZED 34
+#define LATEST_RATINITIALIZED 35
 
 int CG_MigrateOldCrosshair(int old) {
 	switch (old) {
@@ -1443,6 +1443,12 @@ void CG_RatOldCfgUpdate(void) {
 		}
 
 		CG_Cvar_SetAndUpdate( "cg_ratInitialized", "34" );
+	}
+
+	if (cg_ratInitialized.integer < 35) {
+		trap_SendConsoleCommand("unset cg_noTaunt\n");
+
+		CG_Cvar_SetAndUpdate( "cg_ratInitialized", "35" );
 	}
 }
 

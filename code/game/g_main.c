@@ -349,6 +349,7 @@ vmCvar_t        g_pingLocationRadius;
 vmCvar_t        g_pingLocationFov;
 
 vmCvar_t        g_tauntAllowed;
+vmCvar_t        g_tauntForceOn;
 vmCvar_t        g_tauntTime;
 vmCvar_t        g_tauntAfterDeathTime;
 
@@ -703,6 +704,7 @@ static cvarTable_t		gameCvarTable[] = {
         { &g_pingLocationFov, "g_pingLocationFov", "15", CVAR_ARCHIVE, 0, qfalse },
 
         { &g_tauntAllowed, "g_tauntAllowed", "1", CVAR_ARCHIVE, 0, qfalse },
+        { &g_tauntForceOn, "g_tauntForceOn", "0", CVAR_ARCHIVE, 0, qfalse },
         { &g_tauntTime, "g_tauntTime", "5000", CVAR_ARCHIVE, 0, qfalse },
         { &g_tauntAfterDeathTime, "g_tauntAfterDeathTime", "1500", CVAR_ARCHIVE, 0, qfalse },
 
@@ -1689,6 +1691,10 @@ void G_UpdateRatFlags( void ) {
 		rflags |= RAT_SLIDEMODE;
 	}
 
+	if (g_tauntForceOn.integer) {
+		rflags |= RAT_FORCETAUNTS;
+	}
+
 	// XXX --> also update code where this is called!
 
 	trap_Cvar_Set("g_ratFlags",va("%i",rflags));
@@ -1793,6 +1799,7 @@ void G_UpdateCvars( void ) {
 						|| cv->vmCvar == &g_freeze
 						|| cv->vmCvar == &g_crouchSlide
 						|| cv->vmCvar == &g_slideMode
+						|| cv->vmCvar == &g_tauntForceOn
 						) {
 					updateRatFlags = qtrue;
 				}

@@ -847,6 +847,7 @@ void Cmd_SRules_f( gentity_t *ent ) {
 				" -Lightning gun damage:  %i" S_COLOR_WHITE "\n"
 				" -Railgun damage:        %i" S_COLOR_WHITE "\n"
 				" -Gauntlet damage:       %i" S_COLOR_WHITE "\n"
+				" -Taunts:                %s" S_COLOR_WHITE "\n"
 				"\"", 
 				g_pushGrenades.integer ? S_COLOR_GREEN "ON" : S_COLOR_RED "OFF",
 				g_teleMissiles.integer ? S_COLOR_GREEN "ON" : S_COLOR_RED "OFF",
@@ -854,7 +855,10 @@ void Cmd_SRules_f( gentity_t *ent ) {
 				(g_gametype.integer == GT_TEAM ? g_mgTeamDamage.integer : g_mgDamage.integer),
 				g_lgDamage.integer,
 				g_railgunDamage.integer,
-				g_gauntDamage.integer
+				g_gauntDamage.integer,
+				g_tauntAllowed.integer ?
+					(g_tauntForceOn.integer ? S_COLOR_GREEN "ON (forced)" : S_COLOR_GREEN "ON (optional)")
+					: S_COLOR_RED "OFF"
 
 				));
 }

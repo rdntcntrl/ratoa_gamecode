@@ -905,6 +905,7 @@ qboolean	BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const play
 #define RAT_FREEZETAG		(1 << 25)
 #define RAT_CROUCHSLIDE		(1 << 26)
 #define RAT_SLIDEMODE		(1 << 27)
+#define RAT_FORCETAUNTS		(1 << 28)
 
 #define MAX_RAT_SAY_TEXT 256
 
