@@ -1746,7 +1746,7 @@ void G_PingLocation( gentity_t *ent, locationping_t pingtype ) {
 	ping->r.svFlags |= (SVF_CLIENTMASK | SVF_BROADCAST);
 	ping->r.singleClient = G_TeamClientMask(ent->client->sess.sessionTeam);
 
-	Com_Printf("Ping by client %i, type = %i\n", ent->s.number, ping->s.generic1);
+	G_LogPrintf("Ping by client %i, type = %i\n", ent->s.number, ping->s.generic1);
 
 	trap_LinkEntity( ping );
 }
