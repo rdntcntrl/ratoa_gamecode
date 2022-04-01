@@ -352,6 +352,11 @@ static void CG_Rules_f( void ) {
 	trap_SendClientCommand("srules");
 }
 
+static void CG_RatVersion_f( void ) {
+	CG_Printf("CGAME version: %s\n", RATMOD_VERSION);
+	trap_SendClientCommand("ratversion");
+}
+
 
 #ifdef MISSIONPACK
 extern menuDef_t *menuScoreboard;
@@ -791,7 +796,8 @@ static consoleCommand_t	commands[] = {
         { "cg_ui_SendClientCommand", CG_UI_SendClientCommand },
         { "resetcfg", CG_ResetCfg_f },
         { "hud", CG_HUD_f },
-        { "rules", CG_Rules_f }
+        { "rules", CG_Rules_f },
+        { "ratversion", CG_RatVersion_f }
 };
 
 
@@ -878,4 +884,5 @@ void CG_InitConsoleCommands( void ) {
 	trap_AddCommand ("mv");
 	trap_AddCommand ("game");
 	trap_AddCommand ("specgame");
+	trap_AddCommand ("ratversion");
 }

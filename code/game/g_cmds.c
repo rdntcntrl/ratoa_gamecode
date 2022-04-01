@@ -1313,6 +1313,10 @@ void Cmd_Motd_f( gentity_t *ent ) {
 	motd_chat(ent);
 }
 
+void Cmd_RatVersion_f( gentity_t *ent ) {
+	trap_SendServerCommand( ent - g_entities, va("print \" GAME version: %s\n\"", RATMOD_VERSION));
+}
+
 /*
 =================
 BroadCastTeamChange
@@ -4427,7 +4431,8 @@ commands_t cmds[ ] =
   { "motd", 0, Cmd_Motd_f },
   { "help", 0, Cmd_Motd_f },
   { "nextmapvote", CMD_INTERMISSION|CMD_FLOODLIMITED, Cmd_NextmapVote_f },
-  { "arena", 0, Cmd_Arena_f }
+  { "arena", 0, Cmd_Arena_f },
+  { "ratversion", 0, Cmd_RatVersion_f }
 #ifdef WITH_MULTITOURNAMENT
   ,
   { "game", 0, Cmd_Game_f },
