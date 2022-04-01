@@ -833,6 +833,11 @@ void CG_HudBorderMarker ( vec3_t origin, float alpha, float radius, qhandle_t sh
 	float hfov_y = cg.refdef.fov_y * M_PI/360;
 	float hfov_x = cg.refdef.fov_x * M_PI/360;
 
+	if (CG_BrokenEngine()) {
+		// no point in trying to do this if the engine messes with the FOV
+		return;
+	}
+
 	VectorSubtract(origin, cg.refdef.vieworg, dir);
 
 	front = DotProduct (dir, cg.refdef.viewaxis[0] );
