@@ -83,6 +83,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #define ITEMDROP_FLAG 1
 #define ITEMDROP_WEAPON 2
+#define ITEMDROP_POWERUP 4
 
 #define KILLCMD_GAME	1
 #define KILLCMD_WARMUP	2

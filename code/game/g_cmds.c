@@ -2389,6 +2389,49 @@ gentity_t *DropFlag( gentity_t *ent ) {
 	return Drop_ItemNonRandom(ent, BG_FindItemForPowerup( item ), 0 );
 }
 
+gentity_t *DropPowerup( gentity_t *ent ) {
+	int powerup;
+	gclient_t *cl;
+	gitem_t *gitem;
+	gentity_t *dropped;
+	int seconds;
+
+	if (!(g_itemDrop.integer & ITEMDROP_POWERUP)) {
+		return NULL;
+	}
+
+	if (ent->client->ps.pm_type == PM_DEAD) {
+		return NULL;
+	}
+
+	cl = ent->client;
+
+	if (PW_FLIGHT < PW_QUAD) {
+		G_Printf(S_COLOR_YELLOW "Warning: DropPowerup() failed, invalid item order");
+		return NULL;
+	}
+	for (powerup = PW_QUAD; powerup <= PW_FLIGHT; powerup++) {
+		if (cl->ps.powerups[powerup]) {
+			gitem = BG_FindItemForPowerup( powerup );
+			if (!gitem || gitem->giType != IT_POWERUP) {
+				continue;
+			}
+			seconds = (cl->ps.powerups[powerup] - level.time)/1000;
+			cl->ps.powerups[powerup] = 0;
+			if (seconds <= 0) {
+				// don't drop powerups that have no time left
+				// (this would give whoever picks it up the full duration again)
+				return NULL;
+			}
+			dropped = Drop_ItemNonRandom(ent, gitem, 0 );
+			dropped->count = seconds;
+			return dropped;
+		}
+	}
+
+	return NULL;
+}
+
 gentity_t *DropWeapon( gentity_t *ent ) {
 	int weapon;
 	int ammo;
@@ -2445,13 +2488,14 @@ void Cmd_Drop_f( gentity_t *ent ) {
 			|| ent->client->isEliminated) {
 		return;
 	}
-	if (g_itemDrop.integer & ITEMDROP_FLAG && 
-				(ent->client->ps.powerups[PW_REDFLAG] 
-				 || ent->client->ps.powerups[PW_BLUEFLAG]
-				 || ent->client->ps.powerups[PW_NEUTRALFLAG]
-				)) {
+	if (g_itemDrop.integer & ITEMDROP_FLAG) {
 		item = DropFlag(ent);
-	} else if (g_itemDrop.integer & ITEMDROP_WEAPON
+	} 
+	if (!item && g_itemDrop.integer & ITEMDROP_POWERUP) {
+		item = DropPowerup(ent);
+	}
+
+	if (!item && g_itemDrop.integer & ITEMDROP_WEAPON
 			&& !(g_instantgib.integer 
 				|| g_rockets.integer 
 				|| g_gametype.integer == GT_CTF_ELIMINATION 
