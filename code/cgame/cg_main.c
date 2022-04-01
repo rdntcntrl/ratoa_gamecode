@@ -571,7 +571,7 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_forceModel, "cg_forceModel", "0", CVAR_ARCHIVE  },
 	{ &cg_predictItems, "cg_predictItems", "1", CVAR_ARCHIVE },
 	// TODO: CVAR_ARCHIVE
-	{ &cg_predictItemsNearPlayers, "cg_predictItemsNearPlayers", "0", 0 },
+	{ &cg_predictItemsNearPlayers, "cg_predictItemsNearPlayers", "0", CVAR_ARCHIVE },
 #ifdef MISSIONPACK
 	{ &cg_deferPlayers, "cg_deferPlayers", "0", CVAR_ARCHIVE },
 #else
@@ -635,16 +635,15 @@ static cvarTable_t cvarTable[] = { // bk001129
 	// RAT ===================
 	{ &cg_ratInitialized, "cg_ratInitialized", "0", CVAR_ARCHIVE},
 
-	// TODO: make CVAR_ARCHIVE
-	{ &cg_predictTeleport, "cg_predictTeleport", "1", 0},
-	{ &cg_predictWeapons, "cg_predictWeapons", "1", 0},
-	{ &cg_predictExplosions, "cg_predictExplosions", "1", 0},
-	{ &cg_predictPlayerExplosions, "cg_predictPlayerExplosions", "0", 0},
+	{ &cg_predictTeleport, "cg_predictTeleport", "1", CVAR_ARCHIVE},
+	{ &cg_predictWeapons, "cg_predictWeapons", "1", CVAR_ARCHIVE},
+	{ &cg_predictExplosions, "cg_predictExplosions", "1", CVAR_ARCHIVE},
+	{ &cg_predictPlayerExplosions, "cg_predictPlayerExplosions", "0", CVAR_ARCHIVE},
 
 	{ &cg_ratPredictMissiles, "cg_ratPredictMissiles", "1", CVAR_ARCHIVE},
-	{ &cg_delagProjectileTrail, "cg_delagProjectileTrail", "1", 0},
+	{ &cg_delagProjectileTrail, "cg_delagProjectileTrail", "1", CVAR_ARCHIVE},
 	{ &cg_ratScoreboard, "cg_ratScoreboard", "1", CVAR_ARCHIVE},
-	{ &cg_ratScoreboardAccuracy, "cg_ratScoreboardAccuracy", "1", 0},
+	{ &cg_ratScoreboardAccuracy, "cg_ratScoreboardAccuracy", "1", CVAR_ARCHIVE},
 	{ &cg_ratStatusbar, "cg_ratStatusbar", "4", CVAR_ARCHIVE},
 	{ &cg_ratStatusbarOldNumbers, "cg_ratStatusbarOldNumbers", "0", CVAR_ARCHIVE},
 
@@ -715,9 +714,9 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_speedScale ,     "cg_speedScale", "0.6", CVAR_ARCHIVE},
 	{ &cg_pickupScale ,     "cg_pickupScale", "0.75", CVAR_ARCHIVE},
 
-	{ &cg_chatTime ,    "cg_chatTime", "10000", CVAR_ARCHIVE},
-	{ &cg_consoleTime , "cg_consoleTime", "10000", CVAR_ARCHIVE},
-	{ &cg_teamChatTime, "cg_teamChatTime", "10000", CVAR_ARCHIVE  },
+	{ &cg_chatTime ,    "cg_chatTime", "15000", CVAR_ARCHIVE},
+	{ &cg_consoleTime , "cg_consoleTime", "15000", CVAR_ARCHIVE},
+	{ &cg_teamChatTime, "cg_teamChatTime", "15000", CVAR_ARCHIVE  },
 
 	{ &cg_teamChatY, "cg_teamChatY", "350", CVAR_ARCHIVE  },
 
@@ -954,7 +953,7 @@ void CG_SetEngineCvars( void ) {
 }
 
 
-#define LATEST_RATINITIALIZED 33
+#define LATEST_RATINITIALIZED 34
 
 int CG_MigrateOldCrosshair(int old) {
 	switch (old) {
@@ -1428,6 +1427,22 @@ void CG_RatOldCfgUpdate(void) {
 		}
 
 		CG_Cvar_SetAndUpdate( "cg_ratInitialized", "33" );
+	}
+
+	if (cg_ratInitialized.integer < 34) {
+		if (cg_chatTime.integer == 10000) {
+			CG_Cvar_ResetToDefault("cg_chatTime");
+		}
+		
+		if (cg_consoleTime.integer == 10000) {
+			CG_Cvar_ResetToDefault("cg_consoleTime");
+		}
+
+		if (cg_teamChatTime.integer == 10000) {
+			CG_Cvar_ResetToDefault("cg_teamChatTime");
+		}
+
+		CG_Cvar_SetAndUpdate( "cg_ratInitialized", "34" );
 	}
 }
 
