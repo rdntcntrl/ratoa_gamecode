@@ -1922,6 +1922,9 @@ static void CG_RegisterSounds( void ) {
 #ifdef MISSIONPACK
 	CG_LoadVoiceChats();
 #endif
+	if (!CG_SupportsOggVorbis()) {
+		CG_Error( "CG_RegisterSounds(): Engine does not support Ogg Vorbis.");
+	}
 
 	CG_GetAnnouncer(cg_announcer.string, announcer, sizeof(announcer),
 			format, sizeof(format));
