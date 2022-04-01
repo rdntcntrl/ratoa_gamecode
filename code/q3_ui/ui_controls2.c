@@ -116,17 +116,21 @@ typedef struct
 #define ID_CHAT3		36
 #define ID_CHAT4		37
 #define ID_VOIP_TALK		38
+#define ID_PING 39
+#define ID_PINGWARN 40
+#define ID_READY 41
+#define ID_DROP 42
 
 // all others
-#define ID_FREELOOK		39
-#define ID_INVERTMOUSE	40
-#define ID_ALWAYSRUN	41
-#define ID_AUTOSWITCH	42
-#define ID_MOUSESPEED	43
-#define ID_JOYENABLE	44
-#define ID_JOYTHRESHOLD	45
-#define ID_SMOOTHMOUSE	46
-#define ID_VOIP_TEAMONLY 47
+#define ID_FREELOOK	80
+#define ID_INVERTMOUSE	81
+#define ID_ALWAYSRUN	82
+#define ID_AUTOSWITCH	83
+#define ID_MOUSESPEED	84
+#define ID_JOYENABLE	85
+#define ID_JOYTHRESHOLD	86
+#define ID_SMOOTHMOUSE	87
+#define ID_VOIP_TEAMONLY 88
 
 
 
@@ -204,6 +208,7 @@ typedef struct
 	menuaction_s		attack;
 	menuaction_s		prevweapon;
 	menuaction_s		nextweapon;
+	menuaction_s		drop;
 	menuaction_s		lookup;
 	menuaction_s		lookdown;
 	menuaction_s		mouselook;
@@ -224,8 +229,11 @@ typedef struct
 	menuaction_s		chat2;
 	menuaction_s		chat3;
 	menuaction_s		chat4;
+	menuaction_s		ping;
+	menuaction_s		ping_warn;
         menuaction_s		voip_talk;
         menuradiobutton_s	voip_teamonly;
+	menuaction_s		ready;
 	menuradiobutton_s	joyenable;
 	menuslider_s		joythreshold;
 	int					section;
@@ -300,6 +308,10 @@ static bind_t g_bindings[] =
 	{"messagemode3", 	"chat - target",	ID_CHAT3,		ANIM_CHAT,		-1,				-1,		-1, -1},
 	{"messagemode4", 	"chat - attacker",	ID_CHAT4,		ANIM_CHAT,		-1,				-1,		-1, -1},
         {"+voiprecord", 	"voice chat",           ID_VOIP_TALK,		ANIM_CHAT,		'q',				-1,		-1, -1},
+	{"+ping", 		"ping location",	ID_PING,		ANIM_CHAT,		'v',				-1,		-1, -1},
+        {"+pingWarn", 		"warn about location",  ID_PINGWARN,		ANIM_CHAT,		'b',				-1,		-1, -1},
+        {"ready", 		"ready",            	ID_READY,		ANIM_IDLE,		K_F3,				-1,		-1, -1},
+	{"drop", 		"drop powerup/weapon",		ID_DROP,	ANIM_IDLE,		'n',			-1,		-1, -1},
 	{(char*)NULL,		(char*)NULL,		0,				0,				-1,				-1,		-1,	-1},
 };
 
@@ -337,6 +349,7 @@ static menucommon_s *g_weapons_controls[] = {
 	(menucommon_s *)&s_controls.attack,           
 	(menucommon_s *)&s_controls.nextweapon,
 	(menucommon_s *)&s_controls.prevweapon,
+	(menucommon_s *)&s_controls.drop,
 	(menucommon_s *)&s_controls.autoswitch,    
 	(menucommon_s *)&s_controls.chainsaw,         
 	(menucommon_s *)&s_controls.machinegun,
@@ -379,6 +392,9 @@ static menucommon_s *g_misc_controls[] = {
 	(menucommon_s *)&s_controls.chat4,
         (menucommon_s *)&s_controls.voip_talk,
         (menucommon_s *)&s_controls.voip_teamonly,
+	(menucommon_s *)&s_controls.ping,
+	(menucommon_s *)&s_controls.ping_warn,
+	(menucommon_s *)&s_controls.ready,
 	NULL,
 };
 
@@ -1499,6 +1515,12 @@ static void Controls_MenuInit( void )
 	s_controls.nextweapon.generic.ownerdraw = Controls_DrawKeyBinding;
 	s_controls.nextweapon.generic.id        = ID_WEAPNEXT;
 
+	s_controls.drop.generic.type	    = MTYPE_ACTION;
+	s_controls.drop.generic.flags     = QMF_LEFT_JUSTIFY|QMF_PULSEIFFOCUS|QMF_GRAYED|QMF_HIDDEN;
+	s_controls.drop.generic.callback  = Controls_ActionEvent;
+	s_controls.drop.generic.ownerdraw = Controls_DrawKeyBinding;
+	s_controls.drop.generic.id        = ID_DROP;
+
 	s_controls.lookup.generic.type	    = MTYPE_ACTION;
 	s_controls.lookup.generic.flags     = QMF_LEFT_JUSTIFY|QMF_PULSEIFFOCUS|QMF_GRAYED|QMF_HIDDEN;
 	s_controls.lookup.generic.callback  = Controls_ActionEvent;
@@ -1636,6 +1658,24 @@ static void Controls_MenuInit( void )
 	s_controls.voip_teamonly.generic.callback  = Controls_MenuEvent;
 	s_controls.voip_teamonly.generic.statusbar = Controls_StatusBar;
 
+	s_controls.ping.generic.type	   = MTYPE_ACTION;
+	s_controls.ping.generic.flags     = QMF_LEFT_JUSTIFY|QMF_PULSEIFFOCUS|QMF_GRAYED|QMF_HIDDEN;
+	s_controls.ping.generic.callback  = Controls_ActionEvent;
+	s_controls.ping.generic.ownerdraw = Controls_DrawKeyBinding;
+	s_controls.ping.generic.id        = ID_PING;
+
+	s_controls.ping_warn.generic.type	   = MTYPE_ACTION;
+	s_controls.ping_warn.generic.flags     = QMF_LEFT_JUSTIFY|QMF_PULSEIFFOCUS|QMF_GRAYED|QMF_HIDDEN;
+	s_controls.ping_warn.generic.callback  = Controls_ActionEvent;
+	s_controls.ping_warn.generic.ownerdraw = Controls_DrawKeyBinding;
+	s_controls.ping_warn.generic.id        = ID_PINGWARN;
+
+	s_controls.ready.generic.type	   = MTYPE_ACTION;
+	s_controls.ready.generic.flags     = QMF_LEFT_JUSTIFY|QMF_PULSEIFFOCUS|QMF_GRAYED|QMF_HIDDEN;
+	s_controls.ready.generic.callback  = Controls_ActionEvent;
+	s_controls.ready.generic.ownerdraw = Controls_DrawKeyBinding;
+	s_controls.ready.generic.id        = ID_READY;
+
 	s_controls.joyenable.generic.type      = MTYPE_RADIOBUTTON;
 	s_controls.joyenable.generic.flags	   = QMF_SMALLFONT;
 	s_controls.joyenable.generic.x	       = SCREEN_WIDTH/2;
@@ -1700,6 +1740,7 @@ static void Controls_MenuInit( void )
 	Menu_AddItem( &s_controls.menu, &s_controls.attack );
 	Menu_AddItem( &s_controls.menu, &s_controls.nextweapon );
 	Menu_AddItem( &s_controls.menu, &s_controls.prevweapon );
+	Menu_AddItem( &s_controls.menu, &s_controls.drop );
 	Menu_AddItem( &s_controls.menu, &s_controls.autoswitch );
 	Menu_AddItem( &s_controls.menu, &s_controls.chainsaw );
 	Menu_AddItem( &s_controls.menu, &s_controls.machinegun );
@@ -1724,6 +1765,9 @@ static void Controls_MenuInit( void )
 	Menu_AddItem( &s_controls.menu, &s_controls.chat4 );
         Menu_AddItem( &s_controls.menu, &s_controls.voip_talk );
         Menu_AddItem( &s_controls.menu, &s_controls.voip_teamonly );
+	Menu_AddItem( &s_controls.menu, &s_controls.ping );
+	Menu_AddItem( &s_controls.menu, &s_controls.ping_warn );
+	Menu_AddItem( &s_controls.menu, &s_controls.ready );
 
 	Menu_AddItem( &s_controls.menu, &s_controls.back );
 
