@@ -345,7 +345,50 @@ SHOTGUN
 #define	DEFAULT_SHOTGUN_DAMAGE	10
 #define	NEW_SHOTGUN_DAMAGE	9
 
-qboolean ShotgunPellet( vec3_t start, vec3_t end, gentity_t *ent ) {
+struct hitShotgunTargets_s {
+	gentity_t *targets[MAX_SHOTGUN_COUNT];
+};
+
+static void UpdateShotgunHits(struct hitShotgunTargets_s *list, gentity_t *hittarg) {
+	int i;
+	if (!g_damagePlums.integer || !list || !hittarg) {
+		return;
+	}
+	for (i = 0; i < MAX_SHOTGUN_COUNT; i++) {
+		if (!list->targets[i]) {
+			list->targets[i] = hittarg;
+			if (hittarg->client) {
+				hittarg->client->shotgunDamagePlumDmg = 0;
+			}
+			return;
+		}
+		if (list->targets[i] == hittarg) {
+			return;
+		}
+	}
+}
+
+static void ShotgunDamagePlums(struct hitShotgunTargets_s *list, gentity_t *attacker) {
+	int i;
+	gentity_t *targ;
+
+	if (!g_damagePlums.integer) {
+		return;
+	}
+
+	for (i = 0; i < MAX_SHOTGUN_COUNT; i++) {
+		if (!list->targets[i]) {
+			return;
+		}
+		targ = list->targets[i];
+		if (targ != attacker && targ->client && targ->client->shotgunDamagePlumDmg > 0) {
+			DamagePlum(attacker, targ, MOD_SHOTGUN, targ->client->shotgunDamagePlumDmg);
+		}
+	}
+}
+
+
+qboolean ShotgunPellet( vec3_t start, vec3_t end, gentity_t *ent, struct hitShotgunTargets_s *hitTargets) {
 	trace_t		tr;
 	int			damage, i, passent;
 	gentity_t	*traceEnt;
@@ -384,6 +427,8 @@ qboolean ShotgunPellet( vec3_t start, vec3_t end, gentity_t *ent ) {
 				if( LogAccuracyHit( traceEnt, ent ) ) {
 					logaccuracyhit = qtrue;
 				}
+				// has to run before damage is applied
+				UpdateShotgunHits(hitTargets, traceEnt);
 				G_Damage( traceEnt, ent, ent, forward, tr.endpos,
 					damage, 0, MOD_SHOTGUN);
 				if (logaccuracyhit) {
@@ -405,6 +450,9 @@ void ShotgunPattern( vec3_t origin, vec3_t origin2, int seed, gentity_t *ent ) {
 	//int			oldScore;
 	qboolean	hitClient = qfalse;
 	qboolean	hitAll = qtrue;
+	struct hitShotgunTargets_s hitTargets;
+
+	memset(&hitTargets, 0, sizeof(hitTargets));
 
 //unlagged - attack prediction #2
 	// use this for testing
@@ -426,7 +474,7 @@ void ShotgunPattern( vec3_t origin, vec3_t origin2, int seed, gentity_t *ent ) {
 
 	// generate the "random" spread pattern
 	if (g_newShotgun.integer) {
-		for ( i = 0 ; i < 12 ; i++ ) {
+		for ( i = 0 ; i < NEW_SHOTGUN_COUNT ; i++ ) {
 			int randomness = 100;
 			// creates a pentagon inside a hexagon, with one pellet in the center
 			if (i < 5) {
@@ -448,7 +496,7 @@ void ShotgunPattern( vec3_t origin, vec3_t origin2, int seed, gentity_t *ent ) {
 			VectorMA( origin, 8192 * 16, forward, end);
 			VectorMA (end, r, right, end);
 			VectorMA (end, u, up, end);
-			if( ShotgunPellet( origin, end, ent ) ) {
+			if( ShotgunPellet( origin, end, ent, &hitTargets ) ) {
 				hitClient = qtrue;
 				ent->client->consecutive_hits++;
 			} else {
@@ -462,7 +510,7 @@ void ShotgunPattern( vec3_t origin, vec3_t origin2, int seed, gentity_t *ent ) {
 			VectorMA( origin, 8192 * 16, forward, end);
 			VectorMA (end, r, right, end);
 			VectorMA (end, u, up, end);
-			if( ShotgunPellet( origin, end, ent ) ) {
+			if( ShotgunPellet( origin, end, ent, &hitTargets ) ) {
 				hitClient = qtrue;
 				ent->client->consecutive_hits++;
 			} else {
@@ -480,6 +528,8 @@ void ShotgunPattern( vec3_t origin, vec3_t origin2, int seed, gentity_t *ent ) {
 	} else {
 		AwardMessage(ent, EAWARD_FULLSG, ++(ent->client->pers.awardCounts[EAWARD_FULLSG]));
 	}
+
+	ShotgunDamagePlums(&hitTargets, ent);
 
 //unlagged - backward reconciliation #2
 	// put them back

@@ -419,6 +419,8 @@ typedef struct {
 	// this is not completely reliable
 	int			pure;
 
+	int			damagePlums;
+
 //unlagged - client options
 //unlagged - lag simulation #2
 /*	int			latentSnaps;
@@ -689,6 +691,9 @@ struct gclient_s {
 
 	// to prevent switching back and forth too fast
 	int	lastSpecatorSwitchTime;
+
+	// tracks damage taken from individual shotgun pellets for damage plums
+	int	shotgunDamagePlumDmg;
 };
 
 
@@ -1065,6 +1070,7 @@ void G_CheckKamikazeAward(gentity_t *attacker, int killsBefore, int deathsBefore
 void G_StoreViewVectorHistory ( gclient_t *client );
 void GibEntity( gentity_t *self, int killer );
 void G_SetRespawntime( gentity_t *self, int notBefore );
+void DamagePlum( gentity_t *ent, gentity_t *target, int mod, int damage );
 
 // damage flags
 #define DAMAGE_RADIUS				0x00000001	// damage was indirect
@@ -1485,6 +1491,7 @@ extern	vmCvar_t	g_gravityModifier;
 extern	vmCvar_t	g_gravityJumppadFix;
 extern  vmCvar_t        g_damageScore;
 extern  vmCvar_t        g_damageModifier;
+extern  vmCvar_t        g_damagePlums;
 extern	vmCvar_t	g_speed;
 extern	vmCvar_t	g_spectatorSpeed;
 extern	vmCvar_t	g_knockback;
