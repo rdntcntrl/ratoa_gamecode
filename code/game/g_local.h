@@ -419,6 +419,8 @@ typedef struct {
 	// this is not completely reliable
 	int			pure;
 
+	int			damagePlums;
+
 //unlagged - client options
 //unlagged - lag simulation #2
 /*	int			latentSnaps;
@@ -1068,7 +1070,7 @@ void G_CheckKamikazeAward(gentity_t *attacker, int killsBefore, int deathsBefore
 void G_StoreViewVectorHistory ( gclient_t *client );
 void GibEntity( gentity_t *self, int killer );
 void G_SetRespawntime( gentity_t *self, int notBefore );
-void DamagePlum( gentity_t *ent, gentity_t *target, int damage );
+void DamagePlum( gentity_t *ent, gentity_t *target, int mod, int damage );
 
 // damage flags
 #define DAMAGE_RADIUS				0x00000001	// damage was indirect

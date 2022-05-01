@@ -382,7 +382,7 @@ static void ShotgunDamagePlums(struct hitShotgunTargets_s *list, gentity_t *atta
 		}
 		targ = list->targets[i];
 		if (targ != attacker && targ->client && targ->client->shotgunDamagePlumDmg > 0) {
-			DamagePlum(attacker, targ, targ->client->shotgunDamagePlumDmg);
+			DamagePlum(attacker, targ, MOD_SHOTGUN, targ->client->shotgunDamagePlumDmg);
 		}
 	}
 }

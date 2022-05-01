@@ -2084,6 +2084,13 @@ void ClientUserinfoChanged( int clientNum ) {
 		client->pers.delag = atoi( s );
 	}
 
+	s = Info_ValueForKey( userinfo, "cg_damagePlums" );
+	if ( !atoi( s ) ) {
+		client->pers.damagePlums = 0;
+	} else {
+		client->pers.damagePlums = atoi( s );
+	}
+
 	// see if the player is nudging his shots
 	//s = Info_ValueForKey( userinfo, "cg_cmdTimeNudge" );
 	//client->pers.cmdTimeNudge = atoi( s );
