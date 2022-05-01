@@ -727,6 +727,14 @@ static qboolean G_IsInGame(gentity_t *ent, int gameId) {
 
 static void G_SetGameIDMask_nogtcheck(gentity_t *ent, int gameId) {
 	ent->gameId = gameId;
+	if (ent->r.svFlags & SVF_SINGLECLIENT) {
+		// SVF_SINGLECLIENT conflicts with SVF_CLIENTMASK (both use //
+		// ent->r.singleClient)
+		// Also, we don't need to bother with the mask if the entity is
+		// only sent to a specific client anyway
+		ent->r.svFlags &= ~SVF_CLIENTMASK;
+		return;
+	}
 	ent->r.svFlags |= SVF_CLIENTMASK;
 	if (!G_ValidGameId(gameId)) { 
 		ent->r.singleClient = 0;
