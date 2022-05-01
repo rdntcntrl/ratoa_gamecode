@@ -1154,6 +1154,7 @@ void CG_AddDamagePlum( localEntity_t *le ) {
 	vec3_t		origin, delta, dir, vec, up = {0, 0, 1};
 	float		c, len;
 	int			i, damage, digits[10], numdigits, negative;
+	float deltaTime;
 
 	re = &le->refEntity;
 
@@ -1186,7 +1187,12 @@ void CG_AddDamagePlum( localEntity_t *le ) {
 
 	re->radius = NUMBER_SIZE / 2;
 
-	BG_EvaluateTrajectory( &le->pos, cg.time, origin );
+	deltaTime = (cg.time - le->startTime) * 0.001;
+	VectorCopy(le->pos.trBase, origin);
+	origin[2] += deltaTime * 350;
+	// like TR_GRAVITY, but with different gravity
+	origin[2] -= 0.5 * 650 * deltaTime * deltaTime;
+
 	//VectorCopy(le->pos.trBase, origin);
 	//origin[2] += 110 - c * 100;
 

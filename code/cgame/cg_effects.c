@@ -515,13 +515,6 @@ void CG_DamagePlum( int client, vec3_t org, int damage ) {
 	//CG_Printf( "Plum origin %i %i %i -- %i\n", (int)org[0], (int)org[1], (int)org[2], (int)Distance(org, lastPos));
 	VectorCopy(org, lastPos);
 
-	le->pos.trDelta[0] = 0;
-	le->pos.trDelta[1] = 0;
-	le->pos.trDelta[2] = 450;
-	le->pos.trTime = cg.time;
-	le->pos.trType = TR_GRAVITY;
-
-
 	re = &le->refEntity;
 
 	re->reType = RT_SPRITE;
