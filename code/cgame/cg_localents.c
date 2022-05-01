@@ -1070,11 +1070,13 @@ CG_AddScorePlum
 */
 #define NUMBER_SIZE		8
 
+#define MAX_PLUM_DIGITS	10
+
 void CG_AddScorePlum( localEntity_t *le ) {
 	refEntity_t	*re;
 	vec3_t		origin, delta, dir, vec, up = {0, 0, 1};
 	float		c, len;
-	int			i, score, digits[10], numdigits, negative;
+	int			i, score, digits[MAX_PLUM_DIGITS], numdigits, negative;
 
 	re = &le->refEntity;
 
@@ -1132,7 +1134,7 @@ void CG_AddScorePlum( localEntity_t *le ) {
 		score = -score;
 	}
 
-	for (numdigits = 0; !(numdigits && !score); numdigits++) {
+	for (numdigits = 0; !(numdigits && !score) && numdigits < MAX_PLUM_DIGITS - 1; numdigits++) {
 		digits[numdigits] = score % 10;
 		score = score / 10;
 	}
@@ -1153,7 +1155,7 @@ void CG_AddDamagePlum( localEntity_t *le ) {
 	refEntity_t	*re;
 	vec3_t		origin, dir, vec, up = {0, 0, 1};
 	float		c;
-	int			i, damage, digits[10], numdigits, negative;
+	int			i, damage, digits[MAX_PLUM_DIGITS], numdigits, negative;
 	float deltaTime;
 	float size;
 
@@ -1210,7 +1212,7 @@ void CG_AddDamagePlum( localEntity_t *le ) {
 		damage = -damage;
 	}
 
-	for (numdigits = 0; !(numdigits && !damage); numdigits++) {
+	for (numdigits = 0; !(numdigits && !damage) && numdigits < MAX_PLUM_DIGITS-1; numdigits++) {
 		digits[numdigits] = damage % 10;
 		damage = damage / 10;
 	}
