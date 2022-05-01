@@ -34,4 +34,31 @@ It adds many new features and quality improvements, among them are:
 - numerous bugfixes and quality improvements
 - ...and much more!
 
-# [User Docs](https://ratmod.github.io)
+# Documentation
+
+See the [documentation for players](https://ratmod.github.io).
+
+## Running a server
+
+Generally, the OpenArena documentation on how to run a server applies.
+Check out additional settings in ratmod using `\cvarlist g_*` from the server console.
+
+# Building
+
+If you want to build ratmod from source, you should check out
+the [ratarena_release repository](https://github.com/rdntcntrl/ratarena_release), which can be used to compile the gamecode and assets in a reproducible manner.
+
+For developers, you can build the QVM + native code from this repository using:
+
+```sh
+make WITH_MULTITOURNAMENT=1 BUILD_GAME_QVM=1 BUILD_STANDALONE=1 BUILD_GAME_SO=1 BUILD_MISSIONPACK=0
+```
+
+# Donate
+
+If you enjoy RatArena/Ratmod, please consider supporting the project by donating to one of the following cryptocurrency addresses:
+
+Bitcoin (BTC): bc1q70e95n73l24r7j0phr79ejkpzhrqmqgch3atdf
+
+Monero (XMR): 83bfSYwMRhUGeRkPkpM3W8SWYv194ud1aUeu5rRJNmXYGNjZTF4zTKCJ9ydgABVAa7NQQD2hLvjiQFGNJVvDSGZhRKaLx5t
+
