@@ -1198,9 +1198,9 @@ void CG_AddDamagePlum( localEntity_t *le ) {
 	VectorNormalize(dir);
 	VectorMA(cg.refdef.vieworg, -8, dir, origin);
 
-	origin[2] += deltaTime * 6;
+	VectorMA(origin, deltaTime, le->pos.trDelta, origin);
 	// like TR_GRAVITY, but with different gravity
-	origin[2] -= 0.5 * 9 * deltaTime * deltaTime;
+	origin[2] -= 0.5 * 12 * deltaTime * deltaTime;
 
 
 	size = cg_damagePlumSize.value * 0.03;
