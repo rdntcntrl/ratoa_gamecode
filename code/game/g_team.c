@@ -2742,7 +2742,7 @@ void G_ClientReduceSkilldata(gclient_t *cl) {
 
 double G_ClientSkill(gclient_t *cl) {
 	double playtime = cl->sess.skillPlaytime;
-	if (playtime <= 0) {
+	if (playtime <= 0 || cl->sess.skillScore <= 0) {
 		return 0.0f;
 	}
 	return (double)cl->sess.skillScore/playtime;
