@@ -1149,6 +1149,85 @@ void CG_AddScorePlum( localEntity_t *le ) {
 	}
 }
 
+void CG_AddDamagePlum( localEntity_t *le ) {
+	refEntity_t	*re;
+	vec3_t		origin, delta, dir, vec, up = {0, 0, 1};
+	float		c, len;
+	int			i, damage, digits[10], numdigits, negative;
+
+	re = &le->refEntity;
+
+	c = ( le->endTime - cg.time ) * le->lifeRate;
+
+	damage = le->radius;
+	if (damage < 10) {
+		re->shaderRGBA[0] = 0xff;
+		re->shaderRGBA[1] = 0xff;
+		re->shaderRGBA[2] = 0xff;
+	}  else if (damage < 30) {
+		re->shaderRGBA[0] = 0xff;
+		re->shaderRGBA[1] = 0xff;
+		re->shaderRGBA[2] = 0x50;
+	}  else if (damage < 50) {
+		re->shaderRGBA[0] = 0xff;
+		re->shaderRGBA[1] = 0xb2;
+		re->shaderRGBA[2] = 0x50;
+	} else {
+		re->shaderRGBA[0] = 0xff;
+		re->shaderRGBA[1] = 0x50;
+		re->shaderRGBA[2] = 0x50;
+	}
+
+
+	if (c < 0.25)
+		re->shaderRGBA[3] = 0xff * 4 * c;
+	else
+		re->shaderRGBA[3] = 0xff;
+
+	re->radius = NUMBER_SIZE / 2;
+
+	BG_EvaluateTrajectory( &le->pos, cg.time, origin );
+	//VectorCopy(le->pos.trBase, origin);
+	//origin[2] += 110 - c * 100;
+
+	VectorSubtract(cg.refdef.vieworg, origin, dir);
+	CrossProduct(dir, up, vec);
+	VectorNormalize(vec);
+
+	//VectorMA(origin, -10 + 20 * sin(c * 2 * M_PI), vec, origin);
+
+	// if the view would be "inside" the sprite, kill the sprite
+	// so it doesn't add too much overdraw
+	VectorSubtract( origin, cg.refdef.vieworg, delta );
+	len = VectorLength( delta );
+	if ( len < 20 ) {
+		CG_FreeLocalEntity( le );
+		return;
+	}
+
+	negative = qfalse;
+	if (damage < 0) {
+		negative = qtrue;
+		damage = -damage;
+	}
+
+	for (numdigits = 0; !(numdigits && !damage); numdigits++) {
+		digits[numdigits] = damage % 10;
+		damage = damage / 10;
+	}
+
+	if (negative) {
+		digits[numdigits] = 10;
+		numdigits++;
+	}
+
+	for (i = 0; i < numdigits; i++) {
+		VectorMA(origin, (float) (((float) numdigits / 2) - i) * NUMBER_SIZE, vec, re->origin);
+		re->customShader = cgs.media.numberShaders[digits[numdigits-1-i]];
+		trap_R_AddRefEntityToScene( re );
+	}
+}
+
 
 
 
@@ -1219,6 +1298,10 @@ void CG_AddLocalEntities( void ) {
 
 		case LE_LOCATIONPING:		// location pings
 			CG_AddLocationPing( le );
+			break;
+
+		case LE_DAMAGEPLUM:
+			CG_AddDamagePlum( le );
 			break;
 
 		case LE_SCOREPLUM:

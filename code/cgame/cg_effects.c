@@ -485,6 +485,52 @@ void CG_ScorePlum( int client, vec3_t org, int score ) {
 	AnglesToAxis( angles, re->axis );
 }
 
+void CG_DamagePlum( int client, vec3_t org, int damage ) {
+	localEntity_t	*le;
+	refEntity_t		*re;
+	vec3_t			angles;
+	static vec3_t lastPos;
+
+	// only visualize for the client that scored
+	if (client != cg.predictedPlayerState.clientNum || cg_scorePlum.integer == 0) {
+		return;
+	}
+
+	le = CG_AllocLocalEntity();
+	le->leFlags = 0;
+	le->leType = LE_DAMAGEPLUM;
+	le->startTime = cg.time;
+	le->endTime = cg.time + 1000;
+	le->lifeRate = 1.0 / ( le->endTime - le->startTime );
+
+	
+	le->color[0] = le->color[1] = le->color[2] = le->color[3] = 1.0;
+	le->radius = damage;
+	
+	VectorCopy( org, le->pos.trBase );
+	if (org[2] >= lastPos[2] - 20 && org[2] <= lastPos[2] + 20) {
+		le->pos.trBase[2] -= 20;
+	}
+
+	//CG_Printf( "Plum origin %i %i %i -- %i\n", (int)org[0], (int)org[1], (int)org[2], (int)Distance(org, lastPos));
+	VectorCopy(org, lastPos);
+
+	le->pos.trDelta[0] = 0;
+	le->pos.trDelta[1] = 0;
+	le->pos.trDelta[2] = 450;
+	le->pos.trTime = cg.time;
+	le->pos.trType = TR_GRAVITY;
+
+
+	re = &le->refEntity;
+
+	re->reType = RT_SPRITE;
+	re->radius = 11;
+
+	VectorClear(angles);
+	AnglesToAxis( angles, re->axis );
+}
+
 
 /*
 ====================

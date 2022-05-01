@@ -4840,7 +4840,7 @@ void CG_ShotgunPattern( vec3_t origin, vec3_t origin2, int seed, int otherEntNum
 
 	// generate the "random" spread pattern
 	if (cgs.ratFlags & RAT_NEWSHOTGUN) { 
-		for ( i = 0 ; i < 12 ; i++ ) {
+		for ( i = 0 ; i < NEW_SHOTGUN_COUNT ; i++ ) {
                         int randomness = 100;
                         // creates a pentagon inside a hexagon, with one pellet in the center
                         if (i < 5) {

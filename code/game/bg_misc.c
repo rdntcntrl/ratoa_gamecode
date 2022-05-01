@@ -1698,7 +1698,8 @@ const char *eventnames[] = {
 	"EV_PING_LOCATION",
 	"EV_COIN_BOUNCE",
 	"EV_FREEZE",
-	"EV_FOOTSLIDE"
+	"EV_FOOTSLIDE",
+	"EV_DAMAGEPLUM"
 
 };
 

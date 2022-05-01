@@ -65,6 +65,7 @@ vmCvar_t	g_gravityModifier;
 vmCvar_t	g_gravityJumppadFix;
 vmCvar_t        g_damageScore;
 vmCvar_t        g_damageModifier;
+vmCvar_t        g_damagePlums;
 vmCvar_t	g_cheats;
 vmCvar_t	g_knockback;
 vmCvar_t	g_quadfactor;
@@ -490,6 +491,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_gravityJumppadFix, "g_gravityJumppadFix", "1", CVAR_ARCHIVE, 0, qfalse  },
         { &g_damageScore, "g_damageScore", "0", CVAR_ARCHIVE, 0, qfalse },
         { &g_damageModifier, "g_damageModifier", "0", 0, 0, qtrue },
+        { &g_damagePlums, "g_damagePlums", "1", CVAR_ARCHIVE, 0, qfalse },
 	{ &g_knockback, "g_knockback", "1000", 0, 0, qtrue  },
 	{ &g_quadfactor, "g_quadfactor", "3", 0, 0, qtrue  },
 	{ &g_weaponRespawn, "g_weaponrespawn", "5", 0, 0, qtrue  },

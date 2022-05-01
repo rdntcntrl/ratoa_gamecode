@@ -41,6 +41,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #define DEFAULT_SHOTGUN_SPREAD	700
 #define DEFAULT_SHOTGUN_COUNT	11
+#define NEW_SHOTGUN_COUNT	12
+#define MAX_SHOTGUN_COUNT	NEW_SHOTGUN_COUNT
 
 #define	ITEM_RADIUS			15		// item sizes are needed for client side pickup detection
 
@@ -614,6 +616,7 @@ typedef enum {
 	EV_COIN_BOUNCE,
 	EV_FREEZE,
 	EV_FOOTSLIDE, // for crouch slide
+	EV_DAMAGEPLUM,
 } entity_event_t;
 
 
