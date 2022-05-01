@@ -518,6 +518,7 @@ void CG_DamagePlum( int client, vec3_t org, int damage ) {
 	re = &le->refEntity;
 
 	re->reType = RT_SPRITE;
+	re->renderfx = RF_FIRST_PERSON;
 	re->radius = 11;
 
 	VectorClear(angles);

@@ -42,8 +42,12 @@ void ScorePlum( gentity_t *ent, vec3_t origin, int score ) {
 	plum->s.time = score;
 }
 
-void DamagePlum( gentity_t *ent, vec3_t origin, int damage ) {
+void DamagePlum( gentity_t *ent, gentity_t *target, int damage ) {
 	gentity_t *plum;
+	vec3_t origin;
+
+	VectorCopy(target->r.currentOrigin, origin);
+	origin[2] += 2 * target->r.maxs[2];
 
 	plum = G_TempEntity( origin, EV_DAMAGEPLUM );
 	// only send this temp entity to a single client
@@ -2165,7 +2169,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		if (mod == MOD_SHOTGUN) {
 			targ->client->shotgunDamagePlumDmg += damage;
 		} else {
-			DamagePlum(attacker, targ->r.currentOrigin, damage);
+			DamagePlum(attacker, targ, damage);
 		}
 	}
 
