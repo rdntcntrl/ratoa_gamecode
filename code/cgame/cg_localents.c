@@ -1145,7 +1145,7 @@ void CG_AddScorePlum( localEntity_t *le ) {
 	}
 
 	for (i = 0; i < numdigits; i++) {
-		VectorMA(origin, (float) (((float) numdigits / 2) - i) * NUMBER_SIZE, vec, re->origin);
+		VectorMA(origin, ((float)numdigits / 2.0 - 0.5 - (float) i) * NUMBER_SIZE, vec, re->origin);
 		re->customShader = cgs.media.numberShaders[digits[numdigits-1-i]];
 		trap_R_AddRefEntityToScene( re );
 	}
@@ -1223,7 +1223,7 @@ void CG_AddDamagePlum( localEntity_t *le ) {
 	}
 
 	for (i = 0; i < numdigits; i++) {
-		VectorMA(origin, (float) (((float) numdigits / 2) - i) * size, vec, re->origin);
+		VectorMA(origin, ((float)numdigits / 2.0 - 0.5 - (float) i) * size, vec, re->origin);
 		re->customShader = cgs.media.numberShaders[digits[numdigits-1-i]];
 		trap_R_AddRefEntityToScene( re );
 	}
