@@ -506,6 +506,11 @@ typedef struct {
     int	queueJoinTime; // time at which the queue was joined
 
     qboolean registeredName;
+
+    // used to estimate the client's fps
+    int fps_nframes;
+    int fps_time;
+    int fps_last;
 } clientPersistant_t;
 
 // for twitchrail award

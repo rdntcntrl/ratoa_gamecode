@@ -527,6 +527,7 @@ struct
   { "status", qfalse, Svcmd_Status_f },
   { "eject", qfalse, Svcmd_EjectClient_f },
   { "dumpuser", qfalse, Svcmd_DumpUser_f },
+  { "gdumpuser", qfalse, Svcmd_DumpUser_f },
   // don't handle communication commands unless dedicated
   { "cp", qtrue, Svcmd_CenterPrint_f },
   { "say_team", qtrue, Svcmd_TeamMessage_f },
