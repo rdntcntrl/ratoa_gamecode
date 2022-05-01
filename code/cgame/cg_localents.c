@@ -1201,7 +1201,7 @@ void CG_AddDamagePlum( localEntity_t *le ) {
 	origin[2] -= 0.5 * 9 * deltaTime * deltaTime;
 
 
-	size = NUMBER_SIZE * 0.03;
+	size = cg_damagePlumSize.value * 0.03;
 	re->radius = size / 2;
 
 	negative = qfalse;

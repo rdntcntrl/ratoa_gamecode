@@ -203,6 +203,7 @@ vmCvar_t	cg_noVoiceText;
 vmCvar_t	cg_hudFiles;
 vmCvar_t 	cg_scorePlum;
 vmCvar_t 	cg_damagePlums;
+vmCvar_t 	cg_damagePlumSize;
 
 vmCvar_t 	cg_ratInitialized;
 
@@ -633,6 +634,7 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_timescale, "timescale", "1", 0},
 	{ &cg_scorePlum, "cg_scorePlums", "1", CVAR_USERINFO | CVAR_ARCHIVE},
 	{ &cg_damagePlums, "cg_damagePlums", "1", CVAR_ARCHIVE},
+	{ &cg_damagePlumSize, "cg_damagePlumSize", "8.0", CVAR_ARCHIVE},
 
 	// RAT ===================
 	{ &cg_ratInitialized, "cg_ratInitialized", "0", CVAR_ARCHIVE},
