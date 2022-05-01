@@ -1523,6 +1523,7 @@ extern	vmCvar_t	g_balancePlaytime;
 extern	vmCvar_t	g_teamAutoJoin;
 extern	vmCvar_t	g_teamForceBalance;
 extern	vmCvar_t	g_teamForceQueue;
+extern	vmCvar_t	g_teamAntiWinJoin;
 extern	vmCvar_t	g_teamBalance;
 extern	vmCvar_t	g_teamBalanceDelay;
 extern	vmCvar_t	g_banIPs;

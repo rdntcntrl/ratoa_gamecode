@@ -1503,7 +1503,6 @@ void SetTeam_Force( gentity_t *ent, char *s, gentity_t *by, qboolean tryforce ) 
 					specGroup = SPECTATORGROUP_QUEUED;
 					client->pers.queueJoinTime = level.time;
 				}
-				
 			} else if ( g_teamForceBalance.integer  ) {
 
 				// We allow a spread of two
@@ -1519,6 +1518,20 @@ void SetTeam_Force( gentity_t *ent, char *s, gentity_t *by, qboolean tryforce ) 
 				}
 
 				// It's ok, the team we are switching to has less or same number of players
+			}
+
+			if ( !g_teamForceQueue.integer && g_teamAntiWinJoin.integer  ) {
+				int otherTeam = team == TEAM_BLUE ? TEAM_RED : TEAM_BLUE;
+				// only allow joining the winning team if it has fewer players
+				if ( counts[team] >= counts[otherTeam]
+						&& counts[team] > 0
+						&& level.teamScores[team] > level.teamScores[otherTeam] ) {
+					trap_SendServerCommand( ent - g_entities, 
+							va("cp \"%s%s" S_COLOR_WHITE " team is leading,\nplease join the other team instead.\n\"",
+								TeamColorString(team),
+							       	TeamName(team)) );
+					return; // ignore the request
+				}
 			}
 		}
 	} else {

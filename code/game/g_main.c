@@ -101,6 +101,7 @@ vmCvar_t	g_balancePlaytime;
 vmCvar_t	g_teamAutoJoin;
 vmCvar_t	g_teamForceBalance;
 vmCvar_t	g_teamForceQueue;
+vmCvar_t	g_teamAntiWinJoin;
 vmCvar_t	g_teamBalance;
 vmCvar_t	g_teamBalanceDelay;
 vmCvar_t	g_banIPs;
@@ -459,6 +460,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_teamAutoJoin, "g_teamAutoJoin", "0", CVAR_ARCHIVE  },
 	{ &g_teamForceBalance, "g_teamForceBalance", "0", CVAR_ARCHIVE  },
 	{ &g_teamForceQueue, "g_teamForceQueue", "0", CVAR_ARCHIVE, 0, qtrue  },
+	{ &g_teamAntiWinJoin, "g_teamAntiWinJoin", "0", CVAR_ARCHIVE, 0, qtrue  },
 	{ &g_teamBalance, "g_teamBalance", "1", CVAR_ARCHIVE, 0, qfalse  },
 	{ &g_teamBalanceDelay, "g_teamBalanceDelay", "30", CVAR_ARCHIVE, 0, qfalse  },
 
