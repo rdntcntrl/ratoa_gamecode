@@ -2161,7 +2161,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 			attacker->health = g_vampireMaxHealth.integer;
 	}
 
-	if ( g_damagePlums.integer && damage > 0 && targ->client && targ != attacker ) {
+	if ( g_damagePlums.integer && damage > 0 && targ->client && targ != attacker && targ->health > 0) {
 		if (mod == MOD_SHOTGUN) {
 			targ->client->shotgunDamagePlumDmg += damage;
 		} else {
