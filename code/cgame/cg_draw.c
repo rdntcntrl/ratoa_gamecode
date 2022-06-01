@@ -3472,6 +3472,50 @@ void CG_DrawTreasureHunterStatus(void) {
 	x -= w;
 }
 
+#define PUSHNOTIFY_TIME 1000
+#define PUSHNOTIFY_CHARS 7
+void CG_DrawPushNotify(void) {
+	const char	*pusherInfo;
+	char		pusherName[32];
+	int y = 264;
+	int t;
+	float color[4] = { 1.0, 1.0, 1.0, 1.0 };
+	float char_width = CG_HeightToWidth(MEDIUMCHAR_WIDTH);
+	float char_height = MEDIUMCHAR_HEIGHT;
+	int drawlen;
+
+	if (!cg_pushNotifications.integer ||
+			cgs.pushNotifyTime <= 0 || cgs.pushNotifyTime + PUSHNOTIFY_TIME < cg.time) {
+		return;
+	}
+	
+
+	pusherInfo = CG_ConfigString( CS_PLAYERS + cgs.pushNotifyClientNum );
+	if ( !pusherInfo) {
+		return;
+	}
+	Q_strncpyz( pusherName, Info_ValueForKey( pusherInfo, "n" ), sizeof(pusherName) - 2);
+	Q_strcat( pusherName, sizeof(pusherName), S_COLOR_WHITE );
+
+	t = PUSHNOTIFY_TIME - cg.time + cgs.pushNotifyTime;
+	if (t < 100) {
+		color[3] = (float)(t)/100.0;
+	}
+
+	drawlen = CG_DrawStrlen(pusherName);
+	if (drawlen > PUSHNOTIFY_CHARS) {
+		drawlen = PUSHNOTIFY_CHARS;
+	}
+	CG_DrawStringExtFloat( SCREEN_WIDTH - drawlen * char_width - CG_HeightToWidth(2),
+		       	y,
+			pusherName,
+		       	color, qfalse, qtrue,
+			char_width,
+			char_height,
+		       	PUSHNOTIFY_CHARS );
+
+}
+
 
 /*
 =====================
@@ -6860,6 +6904,7 @@ static void CG_Draw2D(stereoFrame_t stereoFrame)
 	if ( !cg.scoreBoardShowing) {
 		CG_DrawEliminationStatus();
 		CG_DrawTreasureHunterStatus();
+		CG_DrawPushNotify();
                 CG_DrawCenterDDString();
                 CG_DrawCenter1FctfString();
 		CG_DrawCenterString();

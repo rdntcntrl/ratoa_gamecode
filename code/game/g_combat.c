@@ -84,6 +84,42 @@ void DamagePlum( gentity_t *ent, gentity_t *target, int mod, int damage ) {
 	plum->s.time = damage;
 }
 
+void PushNotify(gentity_t *targ, gentity_t *pusher, int mod, int knockback) {
+	gentity_t *ent;
+	gclient_t *cl;
+
+	if (!g_pushNotifications.integer ||
+			targ == pusher || !OnSameTeam(targ, pusher) || !targ->client) {
+		return;
+	}
+
+	cl = targ->client;
+	if (cl->teamKnockbackTime == level.time && cl->teamKnockbackClientNum == pusher->s.number) {
+		cl->teamKnockback += knockback;
+	} else if (cl->teamKnockbackClientNum == -1 && cl->teamKnockbackTime + 250 > level.time) {
+		// prevent flooding with notifications
+		return;
+	} else {
+		cl->teamKnockbackTime = level.time;
+		cl->teamKnockbackClientNum = pusher->s.number;
+		cl->teamKnockback = knockback;
+	}
+
+	if (cl->teamKnockback < 30) {
+		return;
+	}
+
+	// prevent another notification for a while
+	cl->teamKnockbackClientNum = -1;
+
+	ent = G_TempEntity( targ->r.currentOrigin, EV_PUSHNOTIFY );
+	ent->s.eventParm = mod;
+	ent->s.otherEntityNum = targ->s.number;
+	ent->s.otherEntityNum2 = pusher->s.number;
+	ent->r.svFlags |= SVF_SINGLECLIENT;
+	ent->r.singleClient = targ->s.number;
+}
+
 /*
 ============
 AddScore
@@ -2027,6 +2063,8 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
                     targ->client->lastSentFlying = attacker->s.number;
                     targ->client->lastSentFlyingTime = level.time;
                 }
+
+		PushNotify(targ, attacker, mod, knockback);
 	}
 
 	// check for completely getting out of the damage

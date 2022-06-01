@@ -694,6 +694,11 @@ struct gclient_s {
 
 	// tracks damage taken from individual shotgun pellets for damage plums
 	int	shotgunDamagePlumDmg;
+	
+	// for push notification
+	int	teamKnockback;
+	int	teamKnockbackTime;
+	int	teamKnockbackClientNum;
 };
 
 
@@ -1492,6 +1497,7 @@ extern	vmCvar_t	g_gravityJumppadFix;
 extern  vmCvar_t        g_damageScore;
 extern  vmCvar_t        g_damageModifier;
 extern  vmCvar_t        g_damagePlums;
+extern  vmCvar_t        g_pushNotifications;
 extern	vmCvar_t	g_speed;
 extern	vmCvar_t	g_spectatorSpeed;
 extern	vmCvar_t	g_knockback;

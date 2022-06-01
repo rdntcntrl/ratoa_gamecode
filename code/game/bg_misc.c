@@ -1699,7 +1699,8 @@ const char *eventnames[] = {
 	"EV_COIN_BOUNCE",
 	"EV_FREEZE",
 	"EV_FOOTSLIDE",
-	"EV_DAMAGEPLUM"
+	"EV_DAMAGEPLUM",
+	"EV_PUSHNOTIFY"
 
 };
 

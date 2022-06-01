@@ -380,6 +380,19 @@ static void CG_Obituary( entityState_t *ent ) {
 		 );
 }
 
+static void CG_PushNotify( entityState_t *ent ) {
+	int		pusher;
+
+	pusher = ent->otherEntityNum2;
+
+	if ( pusher < 0 || pusher >= MAX_CLIENTS ) {
+		CG_Error( "CG_PushNotify: attacker out of range" );
+	}
+
+	cgs.pushNotifyTime = cg.time;
+	cgs.pushNotifyClientNum = pusher;
+}
+
 //==========================================================================
 
 /*
@@ -1433,6 +1446,11 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 	case EV_OBITUARY:
 		DEBUGNAME("EV_OBITUARY");
 		CG_Obituary( es );
+		break;
+
+	case EV_PUSHNOTIFY:
+		DEBUGNAME("EV_PUSHNOTIFY");
+		CG_PushNotify( es );
 		break;
 
 	//

@@ -617,6 +617,7 @@ typedef enum {
 	EV_FREEZE,
 	EV_FOOTSLIDE, // for crouch slide
 	EV_DAMAGEPLUM,
+	EV_PUSHNOTIFY,
 } entity_event_t;
 
 
