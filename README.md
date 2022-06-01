@@ -43,6 +43,31 @@ See the [documentation for players](https://ratmod.github.io).
 Generally, the OpenArena documentation on how to run a server applies.
 Check out additional settings in ratmod using `\cvarlist g_*` from the server console.
 
+Some important/recommended settings are (incomplete list):
+
+```
+set sv_pure 1 // pure server, only allow clients to load pk3s also loaded on the server
+set sv_fps 40 // ratmod is intended to be used with 40 server frames per second.
+set pmove_float 1 // floating-point physics
+set pmove_fixed 0
+
+// sv_floodprotect may cause issues (chats not going through etc)
+// you should use the g_flood* settings to limit flooding instead
+set sv_floodProtect 0 
+
+// enable hitscan delag
+set g_delagHitscan 1
+set g_lagLightning 0
+
+// recommended:
+set sv_timeout 60 // quick timeout
+set sv_maxping 0 // may cause problems if set to any other value
+set com_ansiColor 1 // colored console
+set videoflags 0 // allow clients to use things like vertex light, picmip etc
+```
+
+Many of the mod settings listed are defaults already, but may have different defaults in OA itself. Be careful not to mix up configs from different games.
+
 # Building
 
 If you want to build ratmod from source, you should check out
