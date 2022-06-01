@@ -946,8 +946,10 @@ void G_ApplyMissileNudge (gentity_t *self, gentity_t *bolt) {
 			} else {
 				prestep = MISSILE_PRESTEP_TIME;
 			}
-			bolt->s.pos.trTime = level.roundStartTime-prestep;
-			bolt->launchTime = level.roundStartTime-prestep;
+			if (bolt->launchTime < level.roundStartTime-prestep) {
+				bolt->s.pos.trTime = level.roundStartTime-prestep;
+				bolt->launchTime = level.roundStartTime-prestep;
+			}
 
 		}
 	}
