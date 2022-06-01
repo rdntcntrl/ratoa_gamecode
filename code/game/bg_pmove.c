@@ -763,7 +763,7 @@ static void PM_CPM_Aircontrol(pmove_t *pm, vec3_t wishdir, vec_t wishspeed)
 {
 	vec_t zspeed, speed, dot, k;
 
-#if 0
+#if 1
 	// this doesn't play well with analog input
 	if(pm->cmd.forwardmove == 0 || pm->cmd.rightmove != 0)
 		return;
