@@ -1621,6 +1621,7 @@ extern vmCvar_t		g_rockets;
 extern vmCvar_t		g_coins;
 extern vmCvar_t		g_coinsDefault;
 extern vmCvar_t		g_coinsFrag;
+extern vmCvar_t		g_coinTime;
 
 //new in elimination Beta2
 extern vmCvar_t		g_instantgib;

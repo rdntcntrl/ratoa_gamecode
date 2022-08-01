@@ -193,6 +193,7 @@ vmCvar_t	g_midAir;
 vmCvar_t	g_coins;
 vmCvar_t	g_coinsFrag;
 vmCvar_t	g_coinsDefault;
+vmCvar_t	g_coinTime;
 
 //Regen
 vmCvar_t	g_regen;
@@ -815,6 +816,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_coins, "g_coins", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_coinsDefault, "g_coinsDefault", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_coinsFrag, "g_coinsFrag", "1", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_coinTime, "g_coinTime", "30", CVAR_ARCHIVE, 0, qfalse },
 
         { &g_catchup, "g_catchup", "0", CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue},
 

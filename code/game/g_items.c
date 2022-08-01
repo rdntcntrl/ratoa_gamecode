@@ -687,6 +687,9 @@ gentity_t *LaunchItem( gitem_t *item, vec3_t origin, vec3_t velocity ) {
 		dropped->think = Team_DroppedFlagThink;
 		dropped->nextthink = level.time + 30000;
 		Team_CheckDroppedItem( dropped );
+	} else if (item->giType == IT_COIN) {
+		dropped->think = G_FreeEntity;
+		dropped->nextthink = level.time + g_coinTime.integer * 1000;
 	} else { // auto-remove after 30 seconds
 		dropped->think = G_FreeEntity;
 		dropped->nextthink = level.time + 30000;
