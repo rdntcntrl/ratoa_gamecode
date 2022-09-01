@@ -4575,15 +4575,29 @@ void CG_ConsoleUpdateIdx(console_t *console, int chatHeight) {
 	}
 }
 
+int CG_ConsoleCountCurrentLines(console_t *console, int maxlines, int time) {
+	int i;
+	int count;
 
-static void CG_DrawGenericConsole( console_t *console, int maxlines, int time, int x, int y, float sizeX, float sizeY ) {
+	CG_ConsoleUpdateIdx(console, maxlines);
+
+	count = 0;
+	for (i = console->displayIdx; i < console->insertIdx ; ++i) {
+		if (console->msgTimes[i % CONSOLE_MAXHEIGHT] + time < cg.time) {
+			continue;
+		}
+		count++;
+
+	}
+	return count;
+}
+
+
+static void CG_DrawGenericConsole( console_t *console, int maxlines, int time,
+	       	int x, int y, float sizeX, float sizeY, qboolean background) {
 	int i, j;
 	vec4_t	hcolor;
 	int	chatHeight;
-
-	if (!cg_newConsole.integer) {
-		return;
-	}
 
 	chatHeight = CG_GetChatHeight(maxlines);
 
@@ -4591,6 +4605,21 @@ static void CG_DrawGenericConsole( console_t *console, int maxlines, int time, i
 		return; // disabled
 
 	CG_ConsoleUpdateIdx(console, chatHeight);
+	if (background) {
+		int currentLines = CG_ConsoleCountCurrentLines(console, maxlines, time);
+		if (currentLines > 0) {
+			float yborder = 5;
+			float xborder = CG_HeightToWidth(yborder);
+			float width = 1 + xborder*2 + CONSOLE_WIDTH*sizeX;
+			float height = yborder * 2 + currentLines * sizeY;
+			hcolor[0] = hcolor[1] = hcolor[2] = 0.0f;
+			hcolor[3] = 0.8;
+			CG_FillRect(x-xborder, y-yborder, width, height, hcolor);
+			hcolor[1] = hcolor[2] = 1.0f;
+			hcolor[3] = 1.0f;
+			CG_DrawCorners( x-xborder, y-yborder, width, height, 10, 1, hcolor);
+		}
+	}
 
 	hcolor[0] = hcolor[1] = hcolor[2] = hcolor[3] = 1.0f;
 
@@ -6687,6 +6716,92 @@ void CG_DrawEngineSupport(void) {
 	}
 }
 
+#define HELPMOTDOVERLAY_SECONDS 40
+#define HELPMOTDOVERLAY_LINES CONSOLE_MAXHEIGHT
+static void CG_DrawHelpMotdOverlay(void) {
+	float sizeY = CG_ConsoleAdjustSizeY(10);
+	float sizeX = CG_ConsoleAdjustSizeX(5);
+	int lines = CG_GetChatHeight(HELPMOTDOVERLAY_LINES);
+	float xoffset = SCREEN_WIDTH - (3 + CONSOLE_WIDTH) * sizeX;
+	float yoffset = (SCREEN_HEIGHT - HELPMOTDOVERLAY_LINES * sizeY)/2.0;
+
+	CG_DrawGenericConsole(&cgs.helpMotdConsole, lines, HELPMOTDOVERLAY_SECONDS * 1000, 
+			xoffset,
+			yoffset, 
+			sizeX,
+			sizeY,
+			qtrue
+			);
+
+}
+
+static void CG_DrawConsoles(void) {
+	float consoleSizeY = CG_ConsoleAdjustSizeY(cg_consoleSizeY.value);
+	float consoleSizeX = CG_ConsoleAdjustSizeX(cg_consoleSizeX.value);
+	float chatSizeY = CG_ConsoleAdjustSizeY(cg_chatSizeY.value);
+	float chatSizeX = CG_ConsoleAdjustSizeX(cg_chatSizeX.value);
+	float teamChatSizeY = CG_ConsoleAdjustSizeY(cg_teamChatSizeY.value);
+	float teamChatSizeX = CG_ConsoleAdjustSizeX(cg_teamChatSizeX.value);
+
+	int consoleLines = CG_GetChatHeight(cg_consoleLines.integer);
+	int commonConsoleLines = CG_GetChatHeight(cg_commonConsoleLines.integer);
+	int chatLines = CG_GetChatHeight(cg_chatLines.integer);
+	int teamChatLines = CG_GetChatHeight(cg_teamChatLines.integer);
+
+	int lowestChatPos = CG_ConsoleChatPositionY(consoleSizeY, chatSizeY) + chatLines * chatSizeY;
+	float f;
+
+	if (lowestChatPos > RATSB_HEADER-2) {
+		f = (RATSB_HEADER-2.0)/lowestChatPos;
+		consoleSizeX *= f;
+		consoleSizeY *= f;
+		chatSizeX *= f;
+		chatSizeY *= f;
+		teamChatSizeX *= f;
+		teamChatSizeY *= f;
+	}
+	f = cg_fontScale.value;
+	consoleSizeX *= f;
+	consoleSizeY *= f;
+	chatSizeX *= f;
+	chatSizeY *= f;
+	teamChatSizeX *= f;
+	teamChatSizeY *= f;
+
+	if ( cg.snap->ps.pm_type == PM_INTERMISSION || cg_commonConsole.integer ||
+			(BG_IsElimTeamGT(cgs.gametype) && cg.warmup != -1 && cg.time < cgs.roundStartTime)) {
+		CG_DrawGenericConsole(&cgs.commonConsole, commonConsoleLines, cg_chatTime.integer, 
+				0, 0, 
+				chatSizeX,
+				chatSizeY,
+				qfalse
+				);
+	} else {
+		CG_DrawGenericConsole(&cgs.console, consoleLines, cg_consoleTime.integer, 
+				0, 0, 
+				consoleSizeX,
+				consoleSizeY,
+				qfalse
+				);
+		CG_DrawGenericConsole(&cgs.chat, chatLines, cg_chatTime.integer, 
+				0, 
+				CG_ConsoleChatPositionY(consoleSizeY, chatSizeY),
+				chatSizeX,
+				chatSizeY,
+				qfalse
+				);
+
+		CG_DrawGenericConsole(&cgs.teamChat, teamChatLines, cg_teamChatTime.integer, 
+				0, 
+				cg_teamChatY.integer - teamChatLines*teamChatSizeY,
+				teamChatSizeX,
+				teamChatSizeY,
+				qfalse
+				);
+	}
+
+}
+
 
 /*
 =================
@@ -6712,67 +6827,7 @@ static void CG_Draw2D(stereoFrame_t stereoFrame)
 	CG_DrawEngineSupport();
 
 	if (cg_newConsole.integer) {
-		float consoleSizeY = CG_ConsoleAdjustSizeY(cg_consoleSizeY.value);
-		float consoleSizeX = CG_ConsoleAdjustSizeX(cg_consoleSizeX.value);
-		float chatSizeY = CG_ConsoleAdjustSizeY(cg_chatSizeY.value);
-		float chatSizeX = CG_ConsoleAdjustSizeX(cg_chatSizeX.value);
-		float teamChatSizeY = CG_ConsoleAdjustSizeY(cg_teamChatSizeY.value);
-		float teamChatSizeX = CG_ConsoleAdjustSizeX(cg_teamChatSizeX.value);
-
-		int consoleLines = CG_GetChatHeight(cg_consoleLines.integer);
-		int commonConsoleLines = CG_GetChatHeight(cg_commonConsoleLines.integer);
-		int chatLines = CG_GetChatHeight(cg_chatLines.integer);
-		int teamChatLines = CG_GetChatHeight(cg_teamChatLines.integer);
-
-		int lowestChatPos = CG_ConsoleChatPositionY(consoleSizeY, chatSizeY) + chatLines * chatSizeY;
-		float f;
-
-		if (lowestChatPos > RATSB_HEADER-2) {
-			f = (RATSB_HEADER-2.0)/lowestChatPos;
-			consoleSizeX *= f;
-			consoleSizeY *= f;
-			chatSizeX *= f;
-			chatSizeY *= f;
-			teamChatSizeX *= f;
-			teamChatSizeY *= f;
-		}
-		f = cg_fontScale.value;
-		consoleSizeX *= f;
-		consoleSizeY *= f;
-		chatSizeX *= f;
-		chatSizeY *= f;
-		teamChatSizeX *= f;
-		teamChatSizeY *= f;
-
-		if ( cg.snap->ps.pm_type == PM_INTERMISSION || cg_commonConsole.integer ||
-				(BG_IsElimTeamGT(cgs.gametype) && cg.warmup != -1 && cg.time < cgs.roundStartTime)) {
-			CG_DrawGenericConsole(&cgs.commonConsole, commonConsoleLines, cg_chatTime.integer, 
-					0, 0, 
-					chatSizeX,
-					chatSizeY
-					);
-		} else {
-			CG_DrawGenericConsole(&cgs.console, consoleLines, cg_consoleTime.integer, 
-					0, 0, 
-					consoleSizeX,
-					consoleSizeY
-					);
-			CG_DrawGenericConsole(&cgs.chat, chatLines, cg_chatTime.integer, 
-					0, 
-					CG_ConsoleChatPositionY(consoleSizeY, chatSizeY),
-					chatSizeX,
-					chatSizeY
-					);
-
-			CG_DrawGenericConsole(&cgs.teamChat, teamChatLines, cg_teamChatTime.integer, 
-					0, 
-					cg_teamChatY.integer - teamChatLines*teamChatSizeY,
-					teamChatSizeX,
-					teamChatSizeY
-				       	);
-		}
-
-
+		CG_DrawConsoles();
 	}
 
 	if ( cg.snap->ps.pm_type == PM_INTERMISSION ) {
@@ -6917,6 +6972,12 @@ static void CG_Draw2D(stereoFrame_t stereoFrame)
 	}
 
         cg.accBoardShowing = CG_DrawAccboard();
+
+	if ( cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR) {
+		if (cg_helpMotdOverlay.integer) {
+			CG_DrawHelpMotdOverlay();
+		}
+	}
 
 	CG_DrawMessagePromptBackground();
 }

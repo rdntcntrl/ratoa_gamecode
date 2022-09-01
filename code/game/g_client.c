@@ -2615,6 +2615,7 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 	return NULL;
 }
 
+#define HELPMOTD_COLOR_S S_COLOR_CYAN
 void send_motd_help(gentity_t *ent, const char *filename, qboolean ismotd)
 {
 	char message[4096];
@@ -2645,15 +2646,15 @@ void send_motd_help(gentity_t *ent, const char *filename, qboolean ismotd)
 
 	if (!(g_usesRatVM.integer > 0 || G_MixedClientHasRatVM(ent->client))) {
 		if (ismotd) {
-			strcpy (chatCmd, "print \"^4>^7 ");
+			strcpy (chatCmd, "print \"" HELPMOTD_COLOR_S "> ");
 		} else {
-			strcpy (chatCmd, "print \"^5>^7 ");
+			strcpy (chatCmd, "print \"" HELPMOTD_COLOR_S "> ");
 		}
 	} else {
 		if (ismotd) {
-			strcpy (chatCmd, "motdprint \"");
+			strcpy (chatCmd, "motdprint \"" HELPMOTD_COLOR_S);
 		} else {
-			strcpy (chatCmd, "helpprint \"");
+			strcpy (chatCmd, "helpprint \"" HELPMOTD_COLOR_S);
 		}
 	}
 	cmdLen = strlen(chatCmd);

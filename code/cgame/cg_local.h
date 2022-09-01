@@ -1434,7 +1434,7 @@ typedef struct {
 
 } cgMedia_t;
 
-#define CONSOLE_MAXHEIGHT 16
+#define CONSOLE_MAXHEIGHT 40
 #define CONSOLE_WIDTH 80
 typedef struct {
 	char	msgs[CONSOLE_MAXHEIGHT][CONSOLE_WIDTH*3+1];
@@ -1575,6 +1575,7 @@ typedef struct {
 	console_t console;
 	console_t chat;
 	console_t teamChat;
+	console_t helpMotdConsole;
 
 	// teamchat width is *3 because of embedded color codes
 	char			teamChatMsgs[TEAMCHAT_HEIGHT][TEAMCHAT_WIDTH*3+1];
@@ -1820,6 +1821,8 @@ extern vmCvar_t			cg_newConsole;
 extern vmCvar_t			cg_chatTime;
 extern vmCvar_t			cg_consoleTime;
 
+extern vmCvar_t			cg_helpMotdOverlay;
+
 extern vmCvar_t			cg_fontScale;
 extern vmCvar_t			cg_fontShadow;
 
@@ -2047,6 +2050,7 @@ void CG_RecoverMissile(centity_t *missile);
 const char *CG_ConfigString( int index );
 const char *CG_Argv( int arg );
 
+void QDECL CG_PrintfHelpMotd(const char *msg, ... );
 void QDECL CG_PrintfChat( qboolean team, const char *msg, ... );
 void QDECL CG_Printf( const char *msg, ... );
 void QDECL CG_Error( const char *msg, ... ) __attribute__((noreturn));
