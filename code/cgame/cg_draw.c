@@ -6765,6 +6765,14 @@ static void CG_ShowHelpMotdOverlay(void) {
 	if (!(cgs.helpMotdState & HELPMOTDSTATE_SHOWN)) {
 		CG_ConsoleShowAgain(&cgs.helpMotdConsole);
 		cgs.helpMotdState |= HELPMOTDSTATE_SHOWN;
+	} else {
+		// hide overlay as soon the player presses certain buttons
+		usercmd_t latestCmd;
+		int cmdNum = trap_GetCurrentCmdNumber();
+		trap_GetUserCmd( cmdNum, &latestCmd );
+		if (latestCmd.buttons & (BUTTON_ATTACK | BUTTON_USE_HOLDABLE)) {
+			cgs.helpMotdState |= HELPMOTDSTATE_HIDDEN;
+		}
 	}
 	CG_DrawHelpMotdOverlay();
 }
