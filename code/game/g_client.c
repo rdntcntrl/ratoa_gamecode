@@ -2658,8 +2658,8 @@ void send_motd_help(gentity_t *ent, const char *filename, qboolean ismotd)
 	}
 	cmdLen = strlen(chatCmd);
 	line = message;
-	while (*line != '\0' && (p = strchr(line, '\n'))) {
-		if (p == NULL) {
+	while (*line != '\0') {
+		if ((p = strchr(line, '\n')) == NULL) {
 			p = line + strlen(line);
 		}
 		copyLen = p-line;
