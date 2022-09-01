@@ -2683,7 +2683,7 @@ void send_motd_help_clear(gentity_t *ent) {
 		return;
 	} else {
 		trap_SendServerCommand(ent - g_entities, 
-				va("helpmotdclear \"" HELPMOTD_COLOR_S "%s\"",
+				va("helpmotdclear \"" HELPMOTD_COLOR_S "%s" S_COLOR_WHITE "\"",
 					g_helpMotdWelcomePrefix.string));
 	}
 }
