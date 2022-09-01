@@ -105,6 +105,11 @@ g_admin_cmd_t g_admin_cmds[ ] =
 		""
 	},
 
+    {"frag", "", G_admin_frag, ADMF_SLAP,
+        "Frag the selected player",
+        "[^3name|slot#] [reason]"
+    },
+
     {"handicap", "", G_admin_handicap, ADMF_HANDICAP,
         "sets a handicap for a player",
         "[^3name|slot#] [handicap]"
@@ -123,6 +128,7 @@ g_admin_cmd_t g_admin_cmds[ ] =
       "kick a player with an optional reason",
       "[^3name|slot#^7] (^5reason^7)"
     },
+
     
     {"listadmins", "", G_admin_listadmins, ADMF_LISTADMINS,
       "display a list of all server admins and their levels",
@@ -2736,7 +2742,6 @@ qboolean G_admin_swap( gentity_t *ent, int skiparg )
 
   G_SayArgv( 1 + skiparg, names[0], sizeof( names[0] ) );
   G_SayArgv( 2 + skiparg, names[1], sizeof( names[1] ) );
-  Com_Printf("name1 = %s, name2 = %s\n", names[0], names[1]);
   if( G_SayArgc() < 3 + skiparg )
   {
     ADMP( "^3!swap: ^7usage: !swap [name] [name]\n" );
@@ -4181,6 +4186,148 @@ qboolean G_admin_slap( gentity_t *ent, int skiparg )
 		(ent?ent->client->pers.netname:"^3SERVER CONSOLE"),
 		(*reason) ? " because:\n" : "",
 		(*reason) ? reason : ""));	
+	return qtrue;
+}
+
+static void admin_railtrail(vec3_t to, vec3_t from, gentity_t *attacker) {
+	gentity_t *tent;
+
+	tent = G_TempEntity( to, EV_RAILTRAIL );
+
+	// set player number for custom colors on the railtrail
+	if (attacker) {
+		tent->s.clientNum = attacker->s.clientNum;
+	} else {
+		tent->s.clientNum = 63;
+	}
+
+	VectorCopy( from, tent->s.origin2);
+	// no explosion:
+	//tent->s.eventParm = 255;
+}
+
+static void admin_railtrail_dir(vec3_t target, vec3_t dir, vec_t dist, gentity_t *attacker) {
+	vec3_t from;
+
+	VectorNormalize(dir);
+	VectorMA(target, dist, dir, from);
+	admin_railtrail(target, from, attacker);
+}
+
+static void admin_star_railtrails(gentity_t *attacker, gentity_t *victim) {
+	vec3_t dir;
+	vec_t dist = 100;
+
+	VectorSet(dir,  1,  0,  0);
+	admin_railtrail_dir(victim->r.currentOrigin, dir, dist, attacker);
+	VectorSet(dir, -1,  0,  0);
+	admin_railtrail_dir(victim->r.currentOrigin, dir, dist, attacker);
+	VectorSet(dir,  0,  1,  0);
+	admin_railtrail_dir(victim->r.currentOrigin, dir, dist, attacker);
+	VectorSet(dir,  0, -1,  0);
+	admin_railtrail_dir(victim->r.currentOrigin, dir, dist, attacker);
+	VectorSet(dir,  0,  0,  1);
+	admin_railtrail_dir(victim->r.currentOrigin, dir, dist, attacker);
+	VectorSet(dir,  0,  0, -1);
+	admin_railtrail_dir(victim->r.currentOrigin, dir, dist, attacker);
+
+	VectorSet(dir, 0.5, 0.5, 0);
+	admin_railtrail_dir(victim->r.currentOrigin, dir, dist, attacker);
+	VectorSet(dir, -0.5, 0.5, 0);
+	admin_railtrail_dir(victim->r.currentOrigin, dir, dist, attacker);
+	VectorSet(dir, 0.5, -0.5, 0);
+	admin_railtrail_dir(victim->r.currentOrigin, dir, dist, attacker);
+	VectorSet(dir, -0.5, -0.5, 0);
+	admin_railtrail_dir(victim->r.currentOrigin, dir, dist, attacker);
+
+	VectorSet(dir, 0.5, 0, 0.5);
+	admin_railtrail_dir(victim->r.currentOrigin, dir, dist, attacker);
+	VectorSet(dir, -0.5, 0, 0.5);
+	admin_railtrail_dir(victim->r.currentOrigin, dir, dist, attacker);
+	VectorSet(dir, 0.5, 0, -0.5);
+	admin_railtrail_dir(victim->r.currentOrigin, dir, dist, attacker);
+	VectorSet(dir, -0.5, 0, -0.5);
+	admin_railtrail_dir(victim->r.currentOrigin, dir, dist, attacker);
+
+	VectorSet(dir, 0, 0.5, 0.5);
+	admin_railtrail_dir(victim->r.currentOrigin, dir, dist, attacker);
+	VectorSet(dir, 0, -0.5, 0.5);
+	admin_railtrail_dir(victim->r.currentOrigin, dir, dist, attacker);
+	VectorSet(dir, 0, 0.5, -0.5);
+	admin_railtrail_dir(victim->r.currentOrigin, dir, dist, attacker);
+	VectorSet(dir, 0, -0.5, -0.5);
+	admin_railtrail_dir(victim->r.currentOrigin, dir, dist, attacker);
+}
+
+qboolean G_admin_frag( gentity_t *ent, int skiparg )
+{
+	int pids[MAX_CLIENTS], found;
+	char name[MAX_NAME_LENGTH], err[MAX_STRING_CHARS];
+	char *reason;
+	gentity_t *vic;
+
+	//KK-Too many Parameters Check removed.  It'll truncate the reason message.
+
+	if(G_SayArgc() < 1+skiparg) 
+	{
+		ADMP("^3!frag usage: ^7!frag [name|slot#] [reason]");
+		return qfalse;
+	}
+
+	G_SayArgv(1+skiparg, name, sizeof(name));
+
+	reason = G_SayConcatArgs(2+skiparg);
+
+	if((found = G_ClientNumbersFromString(name, pids, MAX_CLIENTS)) != 1) {
+		G_MatchOnePlayer(pids, found, err, sizeof(err));
+		ADMP(va("^3!frag: ^7%s", err));
+		return qfalse;
+	}
+
+	vic = &g_entities[pids[0]];
+	if(!admin_higher(ent, vic)) {
+		ADMP("^3!frag: ^7sorry, but your intended victim has a higher admin level than you do\n");
+		return qfalse;
+	}
+
+	if(!(vic->client->sess.sessionTeam == TEAM_RED ||
+				vic->client->sess.sessionTeam == TEAM_BLUE ||
+				vic->client->sess.sessionTeam == TEAM_FREE )) {
+		ADMP("^3!frag: ^7player must be in the game!\n");
+		return qfalse;
+	}
+	//Player Not Alive
+	if( vic->health < 1 )
+	{
+		//Is Their Body Alive?
+		if(vic->s.eType != ET_INVISIBLE)
+		{
+			//Make 'em a Bloody mess
+			G_Damage(vic, NULL, NULL, NULL, NULL, 500, 0, MOD_UNKNOWN);
+		}
+		//Force Their Butt to Respawn
+		ClientSpawn( vic );
+		if (vic->health < 1) {
+			ADMP("^3!frag: ^7couldn't respawn player!\n");
+			return qfalse;
+		}
+	}
+	admin_star_railtrails(ent, vic);
+	G_Damage(vic, NULL, NULL, NULL, NULL, 100000, DAMAGE_NO_PROTECTION, MOD_UNKNOWN);
+	if (vic->health > 0) {
+		ent->flags &= ~FL_GODMODE;
+		vic->health = -999;
+		ent->client->ps.stats[STAT_HEALTH] = ent->health = -999;
+		player_die(vic, vic, vic, 100000, MOD_UNKNOWN);
+	}
+
+	//Print it to everybody
+	AP(va("chat \"^3!frag: ^7%s ^7was fragged\" -1", vic->client->pers.netname));
+	//CenterPrint it to the Person Being Fraggged
+	CPx(pids[0], va("cp \"%s ^7god-fragged you%s%s\"", 
+				(ent?ent->client->pers.netname:"^3SERVER CONSOLE"),
+				(*reason) ? " because:\n" : "",
+				(*reason) ? reason : ""));	
 	return qtrue;
 }
 
