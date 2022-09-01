@@ -2559,8 +2559,8 @@ static void CG_ServerCommand( void ) {
         if ( !strcmp( cmd, "helpmotdclear" ) ) {
 		CG_ClearGenericConsole(&cgs.helpMotdConsole);
 		if (cgs.sv_hostname[0]) {
-			CG_Printf( "^5>^7 %s%s", CG_Argv(1), cgs.sv_hostname );
-			CG_PrintfHelpMotd( "%s%s", CG_Argv(1), cgs.sv_hostname );
+			CG_Printf( "^5>^7 %s%s\n", CG_Argv(1), cgs.sv_hostname );
+			CG_PrintfHelpMotd( "%s%s\n", CG_Argv(1), cgs.sv_hostname );
 		}
 		cgs.helpMotdState = HELPMOTDSTATE_RECEIVED;
 		return;
