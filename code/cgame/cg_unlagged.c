@@ -717,7 +717,7 @@ void CG_PredictWeaponEffects( centity_t *cent ) {
 
 		switch (ent->weapon) {
 			case WP_PLASMAGUN:
-				VectorScale(forward, 2000, pm->pos.trDelta);
+				VectorScale(forward, PLASMA_VELOCITY, pm->pos.trDelta);
 				SnapVector(pm->pos.trDelta);
 				pm->pos.trType = TR_LINEAR;
 				bolt->reType = RT_SPRITE;
@@ -734,7 +734,7 @@ void CG_PredictWeaponEffects( centity_t *cent ) {
 			case WP_GRENADE_LAUNCHER:
 				forward[2] += 0.2f;
 				VectorNormalize( forward );
-				VectorScale(forward, 700, pm->pos.trDelta);
+				VectorScale(forward, GRENADE_VELOCITY, pm->pos.trDelta);
 				SnapVector(pm->pos.trDelta);
 				pm->pos.trType = TR_GRAVITY;
 				if (CG_IsTeamGametype()) {
@@ -752,13 +752,13 @@ void CG_PredictWeaponEffects( centity_t *cent ) {
 
 				break;
 			case WP_BFG:
-				VectorScale(forward, 2000, pm->pos.trDelta);
+				VectorScale(forward, BFG_VELOCITY, pm->pos.trDelta);
 				SnapVector(pm->pos.trDelta);
 				pm->pos.trType = TR_LINEAR;
 				break;
 			case WP_PROX_LAUNCHER:
 				forward[2] += 0.2f;
-				VectorScale(forward, 700, pm->pos.trDelta);
+				VectorScale(forward, PROXMINE_VELOCITY, pm->pos.trDelta);
 				SnapVector(pm->pos.trDelta);
 				pm->pos.trType = TR_GRAVITY;
 				break;
@@ -831,8 +831,6 @@ void CG_FinishPredictMissileModel( entityState_t *ent, predictedMissile_t *pm ) 
 	bolt->renderfx = cg_weapons[ent->weapon].missileRenderfx | RF_NOSHADOW;
 }
 
-#define NAILGUN_SPREAD 500
-#define NUM_NAILSHOTS 15
 void CG_PredictNailgunMissile( entityState_t *ent, vec3_t muzzlePoint, vec3_t forward, vec3_t right, vec3_t up ) {
 	predictedMissile_t	*pm;
 	int i;
@@ -853,7 +851,7 @@ void CG_PredictNailgunMissile( entityState_t *ent, vec3_t muzzlePoint, vec3_t fo
 		VectorSubtract( end, muzzlePoint, dir );
 		VectorNormalize( dir );
 
-		scale = 555 + Q_random(&seed) * 1800;
+		scale = NAIL_BASE_VELOCITY + Q_random(&seed) * NAIL_RND_VELOCITY;
 		VectorScale( dir, scale, pm->pos.trDelta );
 		SnapVector( pm->pos.trDelta );
 

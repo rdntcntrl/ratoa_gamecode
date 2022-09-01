@@ -29,8 +29,6 @@ static	float	s_quadFactor;
 static	vec3_t	forward, right, up;
 static	vec3_t	muzzle;
 
-#define NUM_NAILSHOTS 15
-
 /*
 ================
 G_BounceProjectile

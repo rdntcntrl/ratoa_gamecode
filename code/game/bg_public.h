@@ -924,6 +924,18 @@ typedef enum {
 	TH_SEEK,
 } treasurehunter_t;
 
+// projectile speeds (needed client-side for prediction)
+#define PLASMA_VELOCITY 2000
+#define BFG_VELOCITY 2000
+#define GRENADE_VELOCITY 700
+#define PROXMINE_VELOCITY 700
+
+#define NUM_NAILSHOTS 15
+#define NAILGUN_SPREAD 500
+#define NAIL_BASE_VELOCITY 555
+#define NAIL_RND_VELOCITY 1800
+
+
 // content masks
 #define	MASK_ALL				(-1)
 #define	MASK_SOLID				(CONTENTS_SOLID)
