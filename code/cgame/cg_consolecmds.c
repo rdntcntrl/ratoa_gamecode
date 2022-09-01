@@ -885,4 +885,6 @@ void CG_InitConsoleCommands( void ) {
 	trap_AddCommand ("game");
 	trap_AddCommand ("specgame");
 	trap_AddCommand ("ratversion");
+	trap_AddCommand ("help");
+	trap_AddCommand ("motd");
 }
