@@ -2619,13 +2619,15 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 void send_motd_help(gentity_t *ent, const char *filename, qboolean ismotd)
 {
 	char message[4096];
+	char chatCmd[1024];
+	char linebuf[256];
 	fileHandle_t file;
 	int fileLen;
 	int cmdLen;
-	char chatCmd[256];
 	char *p;
 	char *line;
-	int copyLen;
+	qboolean stop;
+	qboolean haslines;
 
 	fileLen = trap_FS_FOpenFile(filename, &file, FS_READ);
 	if (!file) {
@@ -2651,29 +2653,41 @@ void send_motd_help(gentity_t *ent, const char *filename, qboolean ismotd)
 		strcpy (chatCmd, "print \"" HELPMOTD_COLOR_S );
 	} else {
 		if (ismotd) {
-			strcpy (chatCmd, "motdprint \"" HELPMOTD_COLOR_S);
+			strcpy (chatCmd, "motdprint \"" );
 		} else {
-			strcpy (chatCmd, "helpprint \"" HELPMOTD_COLOR_S);
+			strcpy (chatCmd, "helpprint \"" );
 		}
 	}
 	cmdLen = strlen(chatCmd);
 	line = message;
-	while (*line != '\0') {
-		if ((p = strchr(line, '\n')) == NULL) {
-			p = line + strlen(line);
+	stop = qfalse;
+	haslines = qfalse;
+	while (!stop && *line != '\0') {
+		if ((p = strchr(line, '\n')) != NULL) {
+			*p = '\0';
+		} else {
+			Q_strncpyz(linebuf, line, sizeof(linebuf));
+			stop = qtrue;
 		}
-		copyLen = p-line;
-		if (cmdLen + copyLen > sizeof(chatCmd) - 3) {
-			copyLen = sizeof(chatCmd) - 3 - cmdLen;
+		Com_sprintf(linebuf, sizeof(linebuf), HELPMOTD_COLOR_S "%s\n", line);
+		if (haslines && strlen(chatCmd) + strlen(linebuf) + 3 > sizeof(chatCmd)) {
+			// line would overflow buffer, so complete current
+			// print command and send it
+			Q_strcat(chatCmd, sizeof(chatCmd), "\"");
+			trap_SendServerCommand(ent - g_entities, chatCmd);
+			// reset the chat string for the next command
+			chatCmd[cmdLen] = '\0';
+			haslines = qfalse;
 		}
-		strncpy(chatCmd+cmdLen, line, copyLen);
-		chatCmd[cmdLen + copyLen] = '\n';
-		chatCmd[cmdLen + copyLen+1] = '"';
-		chatCmd[cmdLen + copyLen+2] = '\0';
-		trap_SendServerCommand(ent - g_entities, chatCmd);
-		if (*p == '\0')
-			break;
+		// if the current line is still too long, this will simply truncate it
+		Q_strcat(chatCmd, sizeof(chatCmd)-3, linebuf);
+		haslines = qtrue;
 		line = p+1;
+	};
+	if (haslines) {
+		// print last command and send it
+		Q_strcat(chatCmd, sizeof(chatCmd), "\"");
+		trap_SendServerCommand(ent - g_entities, chatCmd);
 	}
 }
 
