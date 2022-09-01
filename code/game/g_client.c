@@ -2641,8 +2641,11 @@ void send_motd_help(gentity_t *ent, const char *filename, qboolean ismotd)
 	while((p = strchr(message, '\r'))) //Remove carrier return. 0x0D
 		memmove(p, p + 1, fileLen - (p - message));
 
-	while((p = strchr(message, '"'))) //Remove '"'
-		memmove(p, p + 1, fileLen - (p - message));
+	//while((p = strchr(message, '"'))) //Remove '"'
+	//	memmove(p, p + 1, fileLen - (p - message));
+
+	while((p = strchr(message, '"'))) // Replace " with '
+		*p = '\'';
 
 	if (!(g_usesRatVM.integer > 0 || G_MixedClientHasRatVM(ent->client))) {
 		strcpy (chatCmd, "print \"" HELPMOTD_COLOR_S );
