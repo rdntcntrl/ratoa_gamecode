@@ -274,7 +274,6 @@ vmCvar_t	cg_quadHue;
 vmCvar_t	cg_drawSpawnpoints;
 vmCvar_t	cg_newFont;
 vmCvar_t	cg_newConsole;
-vmCvar_t	cg_helpMotdOverlay;
 vmCvar_t	cg_chatTime;
 vmCvar_t 	cg_teamChatTime;
 vmCvar_t	cg_consoleTime;
@@ -730,8 +729,6 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_newFont ,     "cg_newFont", "1", CVAR_ARCHIVE},
 
 	{ &cg_newConsole ,  "cg_newConsole", "1", CVAR_ARCHIVE},
-
-	{ &cg_helpMotdOverlay ,  "cg_helpMotdOverlay", "0", 0},
 
 	{ &cg_consoleSizeX , "cg_consoleSizeX", "4.5", 0},
 	{ &cg_consoleSizeY , "cg_consoleSizeY", "9", 0},

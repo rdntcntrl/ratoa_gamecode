@@ -6749,9 +6749,6 @@ static void CG_DrawHelpMotdOverlay(void) {
 }
 
 static void CG_ShowHelpMotdOverlay(void) {
-	if (!cg_helpMotdOverlay.integer) {
-		return;
-	}
 	if (cgs.helpMotdState & HELPMOTDSTATE_HIDDEN
 			|| !(cgs.helpMotdState & HELPMOTDSTATE_RECEIVED)) {
 		return;
