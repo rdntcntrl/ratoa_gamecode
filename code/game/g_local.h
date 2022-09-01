@@ -318,6 +318,9 @@ typedef enum {
 	UNNAMEDSTATE_WASRENAMED
 } unnamedRenameState_t;
 
+// sessionFlags
+#define SESSFL_SENTHELPANDMOTD 1
+
 // client data that stays across multiple levels or tournament restarts
 // this is achieved by writing all the data to cvar strings at game shutdown
 // time and reading them back at connection time.  Anything added here
@@ -340,6 +343,9 @@ typedef struct {
 	// to compute "skill" metric for balancing
 	int    skillPlaytime; // play time, over multiple games
 	float  skillScore; // score, over multiple games
+
+	// extra status flags that need to persist across multiple games
+	int sessionFlags;
 
 #ifdef WITH_MULTITOURNAMENT
 	// GT_MULTITOURNAMENT:
@@ -958,6 +964,7 @@ void AwardMessage(gentity_t *ent, extAward_t award, int count);
 qboolean SendNextmapVoteCommand( void );
 int G_GametypeBitsCurrent( void );
 void G_UnmuteClientNum(int clientNum);
+void SendMotdAndHelpOnce(gentity_t *ent);
 
 
 // KK-OAX Added these in a seperate file to keep g_cmds.c familiar. 

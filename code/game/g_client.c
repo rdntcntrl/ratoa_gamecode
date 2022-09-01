@@ -3014,24 +3014,9 @@ void ClientBegin( int clientNum ) {
 			//			(g_usesRatEngine.integer && g_mixedMode.integer && !client->pers.pure) ? " (baseoa client)" : "") );
 		}
 	}
-        
-        //motd ( ent );
-	//if (g_doWarmup.integer) {
-	//	if (level.warmupTime != 0) {
-	//		motd_chat ( ent );
-	//	}
-	//} else {
-	//	motd_chat ( ent );
-	//}
-        //motd ( ent );
-	if (oldConnected != CON_CONNECTED && !(ent->r.svFlags & SVF_BOT)) {
-		if (level.time >= level.startTime + 10000) {
-			// don't print msg on map_restart and such
-			if (trap_Cvar_VariableIntegerValue("sv_demoState") != 2 ) {
-				send_help ( ent );
-				send_motd ( ent );
-			}
-		}
+         // this is to ensure we never cause command overflows
+	if (oldConnected != CON_CONNECTED && level.time >= level.startTime + 20000) {
+			SendMotdAndHelpOnce(ent);
 	}
 	trap_SendServerCommand(ent - g_entities, "cp \"\"");
 

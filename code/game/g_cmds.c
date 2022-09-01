@@ -1314,9 +1314,21 @@ Cmd_Motd_f
 =================
 */
 void Cmd_Motd_f( gentity_t *ent ) {
-	// this wills end both g_helpFile and g_motdFile, for simplicity
+	// this will send both g_helpFile and g_motdFile, for simplicity
 	send_help(ent);
 	send_motd(ent);
+	ent->client->sess.sessionFlags |= SESSFL_SENTHELPANDMOTD;
+}
+
+void SendMotdAndHelpOnce(gentity_t *ent) {
+	if ((ent->r.svFlags & SVF_BOT) 
+			|| ent->client->sess.sessionFlags & SESSFL_SENTHELPANDMOTD
+			|| trap_Cvar_VariableIntegerValue("sv_demoState") == 2
+			) {
+		return;
+	}
+
+	Cmd_Motd_f(ent);
 }
 
 void Cmd_RatVersion_f( gentity_t *ent ) {
@@ -1688,6 +1700,10 @@ void SetTeam_Force( gentity_t *ent, char *s, gentity_t *by, qboolean tryforce ) 
 		G_UpdateMultiTrnGames();
 	}
 #endif
+
+	if (client->sess.sessionTeam == TEAM_SPECTATOR && oldTeam != TEAM_SPECTATOR) {
+		SendMotdAndHelpOnce(ent);
+	}
 
 	BroadcastTeamChange( client, oldTeam );
 

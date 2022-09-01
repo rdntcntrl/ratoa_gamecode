@@ -44,7 +44,7 @@ void G_WriteClientSessionData( gclient_t *client ) {
 	const char	*s;
 	const char	*var;
 
-	s = va("%i %i %i %i %i %i %i %i %i %i %i %i %i %i %f"
+	s = va("%i %i %i %i %i %i %i %i %i %i %i %i %i %i %f %i"
 #ifdef WITH_MULTITOURNAMENT
 			" %i"
 #endif
@@ -63,7 +63,8 @@ void G_WriteClientSessionData( gclient_t *client ) {
 		client->sess.unnamedPlayerState,
 		client->sess.playerColorIdx,
 		client->sess.skillPlaytime,
-		client->sess.skillScore
+		client->sess.skillScore,
+		client->sess.sessionFlags
 #ifdef WITH_MULTITOURNAMENT
 		,client->sess.gameId
 #endif
@@ -101,7 +102,7 @@ void G_ReadSessionData( gclient_t *client ) {
 	var = va( "session%i", (int)(client - level.clients) );
 	trap_Cvar_VariableStringBuffer( var, s, sizeof(s) );
 
-	sscanf( s, "%i %i %i %i %i %i %i %i %i %i %i %i %i %i %f"
+	sscanf( s, "%i %i %i %i %i %i %i %i %i %i %i %i %i %i %f %i"
 #ifdef WITH_MULTITOURNAMENT
 			" %i"
 #endif
@@ -120,7 +121,8 @@ void G_ReadSessionData( gclient_t *client ) {
 		&unnamedPlayerState,
 		&playerColorIdx,
 		&skillPlaytime,
-		&skillScore
+		&skillScore,
+		&client->sess.sessionFlags
 #ifdef WITH_MULTITOURNAMENT
 		,&client->sess.gameId
 #endif
