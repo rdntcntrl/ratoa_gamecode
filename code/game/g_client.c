@@ -2645,11 +2645,7 @@ void send_motd_help(gentity_t *ent, const char *filename, qboolean ismotd)
 		memmove(p, p + 1, fileLen - (p - message));
 
 	if (!(g_usesRatVM.integer > 0 || G_MixedClientHasRatVM(ent->client))) {
-		if (ismotd) {
-			strcpy (chatCmd, "print \"" HELPMOTD_COLOR_S "> ");
-		} else {
-			strcpy (chatCmd, "print \"" HELPMOTD_COLOR_S "> ");
-		}
+		strcpy (chatCmd, "print \"" HELPMOTD_COLOR_S );
 	} else {
 		if (ismotd) {
 			strcpy (chatCmd, "motdprint \"" HELPMOTD_COLOR_S);
