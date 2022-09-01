@@ -4575,6 +4575,15 @@ void CG_ConsoleUpdateIdx(console_t *console, int chatHeight) {
 	}
 }
 
+// sets the message times to NOW so the contents are displayed again
+void CG_ConsoleShowAgain(console_t *console) {
+	int i;
+	for (i = console->displayIdx; i < console->insertIdx ; ++i) {
+		console->msgTimes[i % CONSOLE_MAXHEIGHT] = cg.time;
+	}
+
+}
+
 int CG_ConsoleCountCurrentLines(console_t *console, int maxlines, int time) {
 	int i;
 	int count;
@@ -6735,6 +6744,28 @@ static void CG_DrawHelpMotdOverlay(void) {
 
 }
 
+static void CG_ShowHelpMotdOverlay(void) {
+	if (!cg_helpMotdOverlay.integer) {
+		return;
+	}
+	if (cgs.helpMotdState & HELPMOTDSTATE_HIDDEN
+			|| !(cgs.helpMotdState & HELPMOTDSTATE_RECEIVED)) {
+		return;
+	}
+	if (cg.scoreBoardShowing || cg.accBoardShowing) {
+		if (cgs.helpMotdState & HELPMOTDSTATE_SHOWN) {
+			cgs.helpMotdState |= HELPMOTDSTATE_HIDDEN;
+		}
+		return;
+	}
+	if (!(cgs.helpMotdState & HELPMOTDSTATE_SHOWN)) {
+		CG_ConsoleShowAgain(&cgs.helpMotdConsole);
+		cgs.helpMotdState |= HELPMOTDSTATE_SHOWN;
+	}
+	CG_DrawHelpMotdOverlay();
+}
+
+
 static void CG_DrawConsoles(void) {
 	float consoleSizeY = CG_ConsoleAdjustSizeY(cg_consoleSizeY.value);
 	float consoleSizeX = CG_ConsoleAdjustSizeX(cg_consoleSizeX.value);
@@ -6974,9 +7005,7 @@ static void CG_Draw2D(stereoFrame_t stereoFrame)
         cg.accBoardShowing = CG_DrawAccboard();
 
 	if ( cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR) {
-		if (cg_helpMotdOverlay.integer) {
-			CG_DrawHelpMotdOverlay();
-		}
+		CG_ShowHelpMotdOverlay();
 	}
 
 	CG_DrawMessagePromptBackground();

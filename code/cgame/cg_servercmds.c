@@ -2559,12 +2559,14 @@ static void CG_ServerCommand( void ) {
         if ( !strcmp( cmd, "helpprint" ) ) {
 		CG_Printf( "^5>^7 %s", CG_Argv(1) );
 		CG_PrintfHelpMotd( "%s", CG_Argv(1) );
+		cgs.helpMotdState = HELPMOTDSTATE_RECEIVED;
 		return;
 	}
 
         if ( !strcmp( cmd, "motdprint" ) ) {
 		CG_Printf( "^5>^7 %s", CG_Argv(1) );
 		CG_PrintfHelpMotd( "%s", CG_Argv(1) );
+		cgs.helpMotdState = HELPMOTDSTATE_RECEIVED;
 		return;
 	}
 

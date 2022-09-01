@@ -1454,6 +1454,10 @@ typedef struct {
 #define MODELCOLOR_BLUE 2
 #define MODELCOLOR_NUM 3
 
+#define HELPMOTDSTATE_RECEIVED 1
+#define HELPMOTDSTATE_SHOWN    2
+#define HELPMOTDSTATE_HIDDEN   4
+
 // The client game static (cgs) structure hold everything
 // loaded or calculated from the gamestate.  It will NOT
 // be cleared when a tournement restart is done, allowing
@@ -1576,6 +1580,8 @@ typedef struct {
 	console_t chat;
 	console_t teamChat;
 	console_t helpMotdConsole;
+
+	int helpMotdState;
 
 	// teamchat width is *3 because of embedded color codes
 	char			teamChatMsgs[TEAMCHAT_HEIGHT][TEAMCHAT_WIDTH*3+1];
