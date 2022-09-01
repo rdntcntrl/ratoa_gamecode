@@ -1827,6 +1827,8 @@ extern vmCvar_t			cg_newConsole;
 extern vmCvar_t			cg_chatTime;
 extern vmCvar_t			cg_consoleTime;
 
+extern vmCvar_t			cg_helpMotdSeconds;
+
 extern vmCvar_t			cg_fontScale;
 extern vmCvar_t			cg_fontShadow;
 

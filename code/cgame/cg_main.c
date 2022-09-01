@@ -277,6 +277,7 @@ vmCvar_t	cg_newConsole;
 vmCvar_t	cg_chatTime;
 vmCvar_t 	cg_teamChatTime;
 vmCvar_t	cg_consoleTime;
+vmCvar_t	cg_helpMotdSeconds;
 
 vmCvar_t 	cg_teamChatY;
 
@@ -723,6 +724,8 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_chatTime ,    "cg_chatTime", "15000", CVAR_ARCHIVE},
 	{ &cg_consoleTime , "cg_consoleTime", "15000", CVAR_ARCHIVE},
 	{ &cg_teamChatTime, "cg_teamChatTime", "15000", CVAR_ARCHIVE  },
+
+	{ &cg_helpMotdSeconds , "cg_helpMotdSeconds", "120", CVAR_ARCHIVE},
 
 	{ &cg_teamChatY, "cg_teamChatY", "350", CVAR_ARCHIVE  },
 
@@ -1638,6 +1641,9 @@ void CG_UpdateCvars( void ) {
 				Com_sprintf( cv->vmCvar->string, MAX_CVAR_VALUE_STRING, "%s", cv->defaultString);
 				trap_Cvar_Set( cv->cvarName, cv->vmCvar->string );
 			}
+		}
+                else if ( cv->vmCvar == &cg_helpMotdSeconds ) {
+			CG_Cvar_ClampInt( cv->cvarName, cv->vmCvar, 10, 99999 );
 		}
 		trap_Cvar_Update( cv->vmCvar );
 	}

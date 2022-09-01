@@ -6729,7 +6729,6 @@ void CG_DrawEngineSupport(void) {
 	}
 }
 
-#define HELPMOTDOVERLAY_SECONDS 40
 #define HELPMOTDOVERLAY_LINES CONSOLE_MAXHEIGHT
 static void CG_DrawHelpMotdOverlay(void) {
 	float sizeY = CG_ConsoleAdjustSizeY(10);
@@ -6738,7 +6737,7 @@ static void CG_DrawHelpMotdOverlay(void) {
 	float xoffset = SCREEN_WIDTH - (3 + CONSOLE_WIDTH) * sizeX;
 	float yoffset = (SCREEN_HEIGHT - HELPMOTDOVERLAY_LINES * sizeY)/2.0;
 
-	CG_DrawGenericConsole(&cgs.helpMotdConsole, lines, HELPMOTDOVERLAY_SECONDS * 1000, 
+	CG_DrawGenericConsole(&cgs.helpMotdConsole, lines, cg_helpMotdSeconds.integer * 1000, 
 			xoffset,
 			yoffset, 
 			sizeX,
