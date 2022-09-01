@@ -2678,6 +2678,16 @@ void send_motd_help(gentity_t *ent, const char *filename, qboolean ismotd)
 	}
 }
 
+void send_motd_help_clear(gentity_t *ent) {
+	if (!(g_usesRatVM.integer > 0 || G_MixedClientHasRatVM(ent->client))) {
+		return;
+	} else {
+		trap_SendServerCommand(ent - g_entities, 
+				va("helpmotdclear \"" HELPMOTD_COLOR_S "%s\"",
+					g_helpMotdWelcomePrefix.string));
+	}
+}
+
 void send_help(gentity_t *ent)
 {
 	send_motd_help(ent, g_helpfile.string, qfalse);

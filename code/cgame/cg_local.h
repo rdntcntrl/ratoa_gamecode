@@ -2199,6 +2199,7 @@ qboolean CG_YourTeamHasFlag( void );
 qboolean CG_OtherTeamHasFlag( void );
 qhandle_t CG_StatusHandle(int task);
 void CG_AddToGenericConsole( const char *str, console_t *console );
+void CG_ClearGenericConsole(console_t *console);
 int CG_Reward2Time(int idx);
 void CG_ResetStatusbar(void);
 void CG_Ratstatusbar4RegisterShaders(void);

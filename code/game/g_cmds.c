@@ -1314,6 +1314,7 @@ Cmd_Motd_f
 =================
 */
 void Cmd_Motd_f( gentity_t *ent ) {
+	send_motd_help_clear(ent);
 	// this will send both g_helpFile and g_motdFile, for simplicity
 	send_help(ent);
 	send_motd(ent);

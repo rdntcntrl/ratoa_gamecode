@@ -4575,6 +4575,10 @@ void CG_ConsoleUpdateIdx(console_t *console, int chatHeight) {
 	}
 }
 
+void CG_ClearGenericConsole(console_t *console) {
+	memset(console, 0, sizeof(console_t));
+}
+
 // sets the message times to NOW so the contents are displayed again
 void CG_ConsoleShowAgain(console_t *console) {
 	int i;

@@ -82,6 +82,7 @@ vmCvar_t	g_weaponTeamRespawn;
 vmCvar_t	g_motd;
 vmCvar_t        g_motdfile;
 vmCvar_t        g_helpfile;
+vmCvar_t        g_helpMotdWelcomePrefix;
 vmCvar_t        g_votemaps;
 vmCvar_t        g_recommendedMapsFile;
 vmCvar_t        g_votecustom;
@@ -512,6 +513,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_motd, "g_motd", "", 0, 0, qfalse },
 	{ &g_motdfile, "g_motdfile", "motd.cfg", 0, 0, qfalse },
 	{ &g_helpfile, "g_helpfile", "help.cfg", 0, 0, qfalse },
+	{ &g_helpMotdWelcomePrefix, "g_helpMotdWelcomePrefix", "Welcome to ", 0, 0, qfalse },
 	{ &g_blood, "com_blood", "1", 0, 0, qfalse },
 
 	{ &g_podiumDist, "g_podiumDist", "80", 0, 0, qfalse },
