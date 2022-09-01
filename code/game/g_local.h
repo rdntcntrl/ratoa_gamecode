@@ -1191,7 +1191,8 @@ void player_die (gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 void AddScore( gentity_t *ent, vec3_t origin, int score );
 void CalculateRanks( void );
 qboolean SpotWouldTelefrag( gentity_t *spot );
-void motd_chat (gentity_t *ent);
+void send_motd (gentity_t *ent);
+void send_help (gentity_t *ent);
 void G_UpdateTopWeapons(gclient_t *client);
 qboolean G_MixedClientHasRatVM(gclient_t *client);
 void G_UnnamedPlayerRename(gentity_t *ent);
@@ -1514,6 +1515,7 @@ extern	vmCvar_t	g_weaponTeamRespawn;
 extern	vmCvar_t	g_synchronousClients;
 extern	vmCvar_t	g_motd;
 extern	vmCvar_t	g_motdfile;
+extern	vmCvar_t	g_helpfile;
 extern  vmCvar_t        g_votemaps;
 extern  vmCvar_t        g_recommendedMapsFile;
 extern  vmCvar_t        g_votecustom;

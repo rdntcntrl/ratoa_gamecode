@@ -2556,6 +2556,16 @@ static void CG_ServerCommand( void ) {
 		return;
 	}
 
+        if ( !strcmp( cmd, "helpprint" ) ) {
+		CG_Printf( "^5>^7 %s", CG_Argv(1) );
+		return;
+	}
+
+        if ( !strcmp( cmd, "motdprint" ) ) {
+		CG_Printf( "^4>^7 %s", CG_Argv(1) );
+		return;
+	}
+
 
         if ( !strcmp( cmd, "customvotes" ) ) {
 		CG_ParseCustomVotes();

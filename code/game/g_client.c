@@ -2615,82 +2615,78 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 	return NULL;
 }
 
-void motd_chat (gentity_t *ent)
+void send_motd_help(gentity_t *ent, const char *filename, qboolean ismotd)
 {
-	char motd[4096];
-	fileHandle_t motdFile;
+	char message[4096];
+	fileHandle_t file;
 	int fileLen;
 	int cmdLen;
 	char chatCmd[256];
+	char *p;
+	char *line;
+	int copyLen;
 
-	fileLen = trap_FS_FOpenFile(g_motdfile.string, &motdFile, FS_READ);
-	if(motdFile)
-	{
-		char *p;
-		char *line;
-		int copyLen;
+	fileLen = trap_FS_FOpenFile(filename, &file, FS_READ);
+	if (!file) {
+		return;
+	}
 
-		if(fileLen > sizeof(motd) - 1)
-			fileLen = sizeof(motd) - 1;
-		trap_FS_Read(motd, fileLen, motdFile);
-		motd[fileLen] = 0;
-		trap_FS_FCloseFile(motdFile);
+	if(fileLen > sizeof(message) - 1)
+		fileLen = sizeof(message) - 1;
+	trap_FS_Read(message, fileLen, file);
+	message[fileLen] = 0;
+	trap_FS_FCloseFile(file);
 
-		while((p = strchr(motd, '\r'))) //Remove carrier return. 0x0D
-			memmove(p, p + 1, fileLen - (p - motd));
+	while((p = strchr(message, '\r'))) //Remove carrier return. 0x0D
+		memmove(p, p + 1, fileLen - (p - message));
 
-		while((p = strchr(motd, '"'))) //Remove '"'
-			memmove(p, p + 1, fileLen - (p - motd));
+	while((p = strchr(message, '"'))) //Remove '"'
+		memmove(p, p + 1, fileLen - (p - message));
 
-		strcpy (chatCmd, "print \"^5>^7 ");
-		cmdLen = strlen(chatCmd);
-		line = motd;
-		while (*line != '\0' && (p = strchr(line, '\n'))) {
-			if (p == NULL) {
-				p = line + strlen(line);
-			}
-			copyLen = p-line;
-			if (cmdLen + copyLen > sizeof(chatCmd) - 3) {
-				copyLen = sizeof(chatCmd) - 3 - cmdLen;
-			}
-			strncpy(chatCmd+cmdLen, line, copyLen);
-			chatCmd[cmdLen + copyLen] = '\n';
-			chatCmd[cmdLen + copyLen+1] = '"';
-			chatCmd[cmdLen + copyLen+2] = '\0';
-			trap_SendServerCommand(ent - g_entities, chatCmd);
-			if (*p == '\0')
-				break;
-			line = p+1;
+	if (!(g_usesRatVM.integer > 0 || G_MixedClientHasRatVM(ent->client))) {
+		if (ismotd) {
+			strcpy (chatCmd, "print \"^4>^7 ");
+		} else {
+			strcpy (chatCmd, "print \"^5>^7 ");
+		}
+	} else {
+		if (ismotd) {
+			strcpy (chatCmd, "motdprint \"");
+		} else {
+			strcpy (chatCmd, "helpprint \"");
 		}
 	}
-}
-
-void motd (gentity_t *ent)
-{
-	char motd[1024];
-	fileHandle_t motdFile;
-	int motdLen;
-	int fileLen;
-
-	strcpy (motd, "cp \"");
-	fileLen = trap_FS_FOpenFile(g_motdfile.string, &motdFile, FS_READ);
-	if(motdFile)
-	{
-		char * p;
-
-		motdLen = strlen(motd);
-		if((motdLen + fileLen) > (sizeof(motd) - 2))
-			fileLen = (sizeof(motd) - 2 - motdLen);
-		trap_FS_Read(motd + motdLen, fileLen, motdFile);
-		motd[motdLen + fileLen] = '"';
-		motd[motdLen + fileLen + 1] = 0;
-		trap_FS_FCloseFile(motdFile);
-
-		while((p = strchr(motd, '\r'))) //Remove carrier return. 0x0D
-		memmove(p, p + 1, motdLen + fileLen - (p - motd));
+	cmdLen = strlen(chatCmd);
+	line = message;
+	while (*line != '\0' && (p = strchr(line, '\n'))) {
+		if (p == NULL) {
+			p = line + strlen(line);
+		}
+		copyLen = p-line;
+		if (cmdLen + copyLen > sizeof(chatCmd) - 3) {
+			copyLen = sizeof(chatCmd) - 3 - cmdLen;
+		}
+		strncpy(chatCmd+cmdLen, line, copyLen);
+		chatCmd[cmdLen + copyLen] = '\n';
+		chatCmd[cmdLen + copyLen+1] = '"';
+		chatCmd[cmdLen + copyLen+2] = '\0';
+		trap_SendServerCommand(ent - g_entities, chatCmd);
+		if (*p == '\0')
+			break;
+		line = p+1;
 	}
-	trap_SendServerCommand(ent - g_entities, motd);
 }
+
+void send_help(gentity_t *ent)
+{
+	send_motd_help(ent, g_helpfile.string, qfalse);
+}
+
+void send_motd(gentity_t *ent)
+{
+	send_motd_help(ent, g_motdfile.string, qtrue);
+}
+
 
 qboolean G_ReadNameFile(char *fname, char *buffer, int size) {
 	fileHandle_t	file;
@@ -3032,7 +3028,8 @@ void ClientBegin( int clientNum ) {
 		if (level.time >= level.startTime + 10000) {
 			// don't print msg on map_restart and such
 			if (trap_Cvar_VariableIntegerValue("sv_demoState") != 2 ) {
-				motd_chat ( ent );
+				send_help ( ent );
+				send_motd ( ent );
 			}
 		}
 	}

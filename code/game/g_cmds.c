@@ -1314,7 +1314,9 @@ Cmd_Motd_f
 =================
 */
 void Cmd_Motd_f( gentity_t *ent ) {
-	motd_chat(ent);
+	// this wills end both g_helpFile and g_motdFile, for simplicity
+	send_help(ent);
+	send_motd(ent);
 }
 
 void Cmd_RatVersion_f( gentity_t *ent ) {
