@@ -6736,16 +6736,19 @@ static void CG_DrawHelpMotdOverlay(void) {
 	int lines = CG_GetChatHeight(HELPMOTDOVERLAY_LINES);
 	float xoffset;
 	float yoffset;
+	// maximum height
 	float height = HELPMOTDOVERLAY_LINES * sizeY;
+	int numLines = CG_ConsoleCountCurrentLines(&cgs.helpMotdConsole, lines, cg.time);
 
 	// scale down in case it doesn't fit vertically
 	if (height > SCREEN_HEIGHT - 10) {
 		float f = (SCREEN_HEIGHT - 10) / height;
 		sizeY *= f;
 		sizeX *= f;
-		height *= f;
 	}
 
+	// this is now the actual height (based on the # of lines actually in the buffer)
+	height = numLines * sizeY;
 	yoffset = (SCREEN_HEIGHT - height)/2.0;
 	xoffset = SCREEN_WIDTH - (3 + CONSOLE_WIDTH) * sizeX;
 
