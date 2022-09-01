@@ -1531,6 +1531,7 @@ extern	vmCvar_t	g_allowVote;
 extern	vmCvar_t	g_balanceNextgameNeedsBalance;
 extern	vmCvar_t	g_balanceAutoGameStart;
 extern	vmCvar_t	g_balanceAutoGameStartTime;
+extern	vmCvar_t	g_balanceAutoGameStartScoreRatio;
 extern	vmCvar_t	g_balanceSkillThres;
 extern	vmCvar_t	g_balancePlaytime;
 extern	vmCvar_t	g_teamAutoJoin;

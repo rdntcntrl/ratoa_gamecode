@@ -98,6 +98,7 @@ vmCvar_t	g_allowVote;
 vmCvar_t	g_balanceNextgameNeedsBalance;
 vmCvar_t	g_balanceAutoGameStart;
 vmCvar_t	g_balanceAutoGameStartTime;
+vmCvar_t	g_balanceAutoGameStartScoreRatio;
 vmCvar_t	g_balanceSkillThres;
 vmCvar_t	g_balancePlaytime;
 vmCvar_t	g_teamAutoJoin;
@@ -458,6 +459,7 @@ static cvarTable_t		gameCvarTable[] = {
         { &g_balanceNextgameNeedsBalance, "g_balanceNextgameNeedsBalance", "0", 0, 0, qfalse },
 	{ &g_balanceAutoGameStart, "g_balanceAutoGameStart", "0", CVAR_ARCHIVE  },
 	{ &g_balanceAutoGameStartTime, "g_balanceAutoGameStartTime", "15", CVAR_ARCHIVE  },
+	{ &g_balanceAutoGameStartScoreRatio, "g_balanceAutoGameStartScoreRatio", "2.0", CVAR_ARCHIVE  },
 	{ &g_balanceSkillThres, "g_balanceSkillThres", "0.1", CVAR_ARCHIVE  },
 	{ &g_balancePlaytime, "g_balancePlaytime", "120", CVAR_ARCHIVE  },
 	{ &g_teamAutoJoin, "g_teamAutoJoin", "0", CVAR_ARCHIVE  },

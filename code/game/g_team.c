@@ -2721,7 +2721,8 @@ void G_SetBalanceNextGame(void) {
 		return;
 	}
 
-	G_SetNeedsBalance(lowScore == 0 || (float)highScore/(float)lowScore >= 2.0);
+	G_SetNeedsBalance(lowScore == 0 
+			|| (float)highScore/(float)lowScore >= g_balanceAutoGameStartScoreRatio.value);
 }
 
 int G_ClientPlaytime(gclient_t *cl) {
