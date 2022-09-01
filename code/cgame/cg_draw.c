@@ -6734,8 +6734,20 @@ static void CG_DrawHelpMotdOverlay(void) {
 	float sizeY = CG_ConsoleAdjustSizeY(10);
 	float sizeX = CG_ConsoleAdjustSizeX(5);
 	int lines = CG_GetChatHeight(HELPMOTDOVERLAY_LINES);
-	float xoffset = SCREEN_WIDTH - (3 + CONSOLE_WIDTH) * sizeX;
-	float yoffset = (SCREEN_HEIGHT - HELPMOTDOVERLAY_LINES * sizeY)/2.0;
+	float xoffset;
+	float yoffset;
+	float height = HELPMOTDOVERLAY_LINES * sizeY;
+
+	// scale down in case it doesn't fit vertically
+	if (height > SCREEN_HEIGHT - 10) {
+		float f = (SCREEN_HEIGHT - 10) / height;
+		sizeY *= f;
+		sizeX *= f;
+		height *= f;
+	}
+
+	yoffset = (SCREEN_HEIGHT - height)/2.0;
+	xoffset = SCREEN_WIDTH - (3 + CONSOLE_WIDTH) * sizeX;
 
 	CG_DrawGenericConsole(&cgs.helpMotdConsole, lines, cg_helpMotdSeconds.integer * 1000, 
 			xoffset,
