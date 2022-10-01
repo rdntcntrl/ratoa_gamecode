@@ -828,6 +828,10 @@ typedef struct {
 	int elimBlueRespawnDelay;		
 	int elimRedRespawnDelay;		
 
+	team_t elimRoundPrediction;
+	int elimRoundNumPredictions;
+	int elimRoundNumCorrectlyPredicted;
+
 	//Added for Double Domination
 	//Points get status: TEAM_FREE for not taking, TEAM_RED/TEAM_BLUE for taken and TEAM_NONE for not spawned yet
 	int pointStatusA;			//Status of the RED (A) domination point
@@ -1342,6 +1346,7 @@ void ShuffleTeams(void);
 void G_ClientReduceSkilldata(gclient_t *cl);
 double G_ClientSkill(gclient_t *cl);
 qboolean CanBalance(void);
+int BalanceNumUnknownPlayers(void);
 double TeamSkillDiff(void);
 qboolean BalanceTeams(qboolean dryrun);
 void G_SetNeedsBalance(qboolean balanceNeeded);
@@ -1545,6 +1550,7 @@ extern	vmCvar_t	g_balanceAutoGameStartTime;
 extern	vmCvar_t	g_balanceAutoGameStartScoreRatio;
 extern	vmCvar_t	g_balanceSkillThres;
 extern	vmCvar_t	g_balancePlaytime;
+extern	vmCvar_t	g_balancePrintRoundPrediction;
 extern	vmCvar_t	g_teamAutoJoin;
 extern	vmCvar_t	g_teamForceBalance;
 extern	vmCvar_t	g_teamForceQueue;

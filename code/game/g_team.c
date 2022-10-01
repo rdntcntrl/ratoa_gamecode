@@ -2778,6 +2778,22 @@ int QDECL SortBySkill( const void *a, const void *b ) {
 	return 0;
 }
 
+int BalanceNumUnknownPlayers(void) {
+	int i;
+	int nunknown = 0;
+
+	for (i = 0; i < level.numPlayingClients; ++i) {
+		gentity_t *ent = &g_entities[level.sortedClients[i]];
+		if (ent->r.svFlags & SVF_BOT) {
+			continue;
+		}
+		if (ent->client->sess.skillPlaytime < g_balancePlaytime.integer*1000) {
+			nunknown++;
+		}
+	}
+	return nunknown;
+}
+
 qboolean CanBalance(void) {
 	int i;
 	int nabove = 0;

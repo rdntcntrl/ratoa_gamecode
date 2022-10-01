@@ -103,6 +103,7 @@ vmCvar_t	g_balanceAutoGameStartTime;
 vmCvar_t	g_balanceAutoGameStartScoreRatio;
 vmCvar_t	g_balanceSkillThres;
 vmCvar_t	g_balancePlaytime;
+vmCvar_t	g_balancePrintRoundPrediction;
 vmCvar_t	g_teamAutoJoin;
 vmCvar_t	g_teamForceBalance;
 vmCvar_t	g_teamForceQueue;
@@ -464,6 +465,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_balanceAutoGameStartScoreRatio, "g_balanceAutoGameStartScoreRatio", "2.0", CVAR_ARCHIVE  },
 	{ &g_balanceSkillThres, "g_balanceSkillThres", "0.1", CVAR_ARCHIVE  },
 	{ &g_balancePlaytime, "g_balancePlaytime", "120", CVAR_ARCHIVE  },
+	{ &g_balancePrintRoundPrediction, "g_balancePrintRoundPrediction", "0", CVAR_ARCHIVE  },
 	{ &g_teamAutoJoin, "g_teamAutoJoin", "0", CVAR_ARCHIVE  },
 	{ &g_teamForceBalance, "g_teamForceBalance", "0", CVAR_ARCHIVE  },
 	{ &g_teamForceQueue, "g_teamForceQueue", "0", CVAR_ARCHIVE, 0, qtrue  },
@@ -884,6 +886,7 @@ void G_RunFrame( int levelTime );
 void G_ShutdownGame( int restart );
 void CheckExitRules( void );
 
+void PrintElimRoundPredictionAccuracy(void);
 
 /*
 ================
@@ -4293,12 +4296,18 @@ void CheckExitRules( void ) {
 
 		if ( level.teamScores[TEAM_RED] >= g_capturelimit.integer ) {
 			trap_SendServerCommand( -1, "print \"Red hit the capturelimit.\n\"" );
+			if (G_IsElimTeamGT()) {
+				PrintElimRoundPredictionAccuracy();
+			}
 			LogExit( "Capturelimit hit." );
 			return;
 		}
 
 		if ( level.teamScores[TEAM_BLUE] >= g_capturelimit.integer ) {
 			trap_SendServerCommand( -1, "print \"Blue hit the capturelimit.\n\"" );
+			if (G_IsElimTeamGT()) {
+				PrintElimRoundPredictionAccuracy();
+			}
 			LogExit( "Capturelimit hit." );
 			return;
 		}
@@ -4407,6 +4416,84 @@ void PrintElimRoundStats(void) {
 	}
 }
 
+void PrintElimRoundPrediction(void) {
+	double skilldiff;
+	int redCount, blueCount;
+	int numUnknowns;
+	char *predictedWinner;
+
+	level.elimRoundPrediction = TEAM_FREE;
+
+	if (!g_balancePrintRoundPrediction.integer) {
+		return;
+	}
+
+	// don't predict bot games
+	redCount = TeamCount(-1, TEAM_RED, qfalse);
+	if (redCount != TeamCount(-1, TEAM_RED, qtrue)) {
+		return;
+	}
+	blueCount = TeamCount(-1, TEAM_BLUE, qfalse);
+	if (blueCount != TeamCount(-1, TEAM_BLUE, qtrue)) {
+		return;
+	}
+
+	numUnknowns = BalanceNumUnknownPlayers();
+	if (numUnknowns > 2) {
+		//trap_SendServerCommand(-1, "print \"Predicting winner: too many unknowns!\n\"");
+		return;
+	}
+	skilldiff = TeamSkillDiff();
+	if (fabs(skilldiff) < g_balanceSkillThres.value) {
+		trap_SendServerCommand(-1, "print \"Predicting winner: looks fairly balanced!\n\"");
+		return;
+	}
+
+	if (skilldiff > 0) {
+		predictedWinner = S_COLOR_BLUE "Blue";
+		level.elimRoundPrediction = TEAM_BLUE;
+	} else {
+		predictedWinner = S_COLOR_RED "Red";
+		level.elimRoundPrediction = TEAM_RED;
+	}
+	trap_SendServerCommand(-1, va("print \"Predicted winner: %s (advantage = %0.3f)\n\"",
+				predictedWinner,
+				fabs(skilldiff)
+				));
+}
+
+void ElimRoundPredictionEnd(team_t winner) {
+	if (!g_balancePrintRoundPrediction.integer) {
+		return;
+	}
+
+	if (level.elimRoundPrediction == TEAM_FREE) {
+		// didn't predict anything
+		return;
+	}
+
+	level.elimRoundNumPredictions++;
+	if (level.elimRoundPrediction == winner) {
+		level.elimRoundNumCorrectlyPredicted++;
+	}
+}
+
+void PrintElimRoundPredictionAccuracy(void) {
+	if (!g_balancePrintRoundPrediction.integer) {
+		return;
+	}
+
+	if (level.elimRoundNumPredictions == 0) {
+		return;
+	}
+
+	trap_SendServerCommand(-1, va("print \"Predicted %i of %i rounds correctly, accuracy = %li'/.\n\"",
+				level.elimRoundNumCorrectlyPredicted,
+				level.elimRoundNumPredictions,
+				(long)round(100*(double)level.elimRoundNumCorrectlyPredicted/(double)level.elimRoundNumPredictions)
+				));
+}
+
 
 //the elimination start function
 void StartEliminationRound(void) {
@@ -4447,6 +4534,8 @@ void StartEliminationRound(void) {
 	G_SendTeamPlayerCounts();
 
 	ResetElimRoundStats();
+
+	PrintElimRoundPrediction();
 }
 
 //things to do at end of round:
@@ -4706,6 +4795,7 @@ void CheckElimination(void) {
 				//Blue team has been eliminated!
 				trap_SendServerCommand( -1, "print \"Blue Team eliminated!\n\"");
 				AddTeamScore(level.intermission_origin,TEAM_RED,1);
+				ElimRoundPredictionEnd(TEAM_RED);
 				if(g_gametype.integer == GT_ELIMINATION) {
 					G_LogPrintf( "ELIMINATION: %i %i %i: %s wins round %i by eleminating the enemy team!\n", level.roundNumber, TEAM_RED, 1, TeamName(TEAM_RED), level.roundNumber );
 				} else {
@@ -4717,6 +4807,7 @@ void CheckElimination(void) {
 				//Red team eliminated!
 				trap_SendServerCommand( -1, "print \"Red Team eliminated!\n\"");
 				AddTeamScore(level.intermission_origin,TEAM_BLUE,1);
+				ElimRoundPredictionEnd(TEAM_BLUE);
 				if(g_gametype.integer == GT_ELIMINATION) {
 					G_LogPrintf( "ELIMINATION: %i %i %i: %s wins round %i by eleminating the enemy team!\n", level.roundNumber, TEAM_BLUE, 1, TeamName(TEAM_BLUE), level.roundNumber );
 				} else {
@@ -4738,11 +4829,13 @@ void CheckElimination(void) {
 					if ( (level.eliminationSides+level.roundNumber)%2 == 0 ) { //Red was attacking
 						trap_SendServerCommand( -1, "print \"Blue team defended the base\n\"");
 						AddTeamScore(level.intermission_origin,TEAM_BLUE,1);
+						ElimRoundPredictionEnd(TEAM_BLUE);
                                                 G_LogPrintf( "CTF_ELIMINATION: %i %i %i %i: %s wins round %i by defending the flag!\n", level.roundNumber, -1, TEAM_BLUE, 5, TeamName(TEAM_BLUE), level.roundNumber );
 					}
 					else {
 						trap_SendServerCommand( -1, "print \"Red team defended the base\n\"");
 						AddTeamScore(level.intermission_origin,TEAM_RED,1);
+						ElimRoundPredictionEnd(TEAM_RED);
                                                 G_LogPrintf( "CTF_ELIMINATION: %i %i %i %i: %s wins round %i by defending the flag!\n", level.roundNumber, -1, TEAM_RED, 5, TeamName(TEAM_RED), level.roundNumber );
 					}
 				}
@@ -4751,6 +4844,7 @@ void CheckElimination(void) {
 					//Red team has higher procentage survivors
 					trap_SendServerCommand( -1, "print \"Red team has most survivers!\n\"");
 					AddTeamScore(level.intermission_origin,TEAM_RED,1);
+					ElimRoundPredictionEnd(TEAM_RED);
                                         if(g_gametype.integer == GT_ELIMINATION) {
                                             G_LogPrintf( "ELIMINATION: %i %i %i: %s wins round %i due to more survivors!\n", level.roundNumber, TEAM_RED, 2, TeamName(TEAM_RED), level.roundNumber );
                                         } else {
@@ -4762,6 +4856,7 @@ void CheckElimination(void) {
 					//Blue team has higher procentage survivors
 					trap_SendServerCommand( -1, "print \"Blue team has most survivers!\n\"");
 					AddTeamScore(level.intermission_origin,TEAM_BLUE,1);	
+					ElimRoundPredictionEnd(TEAM_BLUE);
                                         if(g_gametype.integer == GT_ELIMINATION) {
                                             G_LogPrintf( "ELIMINATION: %i %i %i: %s wins round %i due to more survivors!\n", level.roundNumber, TEAM_BLUE, 2, TeamName(TEAM_BLUE), level.roundNumber );
                                         } else {
@@ -4773,6 +4868,7 @@ void CheckElimination(void) {
 					//Red team has more health
 					trap_SendServerCommand( -1, "print \"Red team has more health left!\n\"");
 					AddTeamScore(level.intermission_origin,TEAM_RED,1);
+					ElimRoundPredictionEnd(TEAM_RED);
                                         if(g_gametype.integer == GT_ELIMINATION) {
                                             G_LogPrintf( "ELIMINATION: %i %i %i: %s wins round %i due to more health left!\n", level.roundNumber, TEAM_RED, 3, TeamName(TEAM_RED), level.roundNumber );
                                         } else {
@@ -4784,6 +4880,7 @@ void CheckElimination(void) {
 					//Blue team has more health
 					trap_SendServerCommand( -1, "print \"Blue team has more health left!\n\"");
 					AddTeamScore(level.intermission_origin,TEAM_BLUE,1);
+					ElimRoundPredictionEnd(TEAM_BLUE);
                                         if(g_gametype.integer == GT_ELIMINATION) {
                                             G_LogPrintf( "ELIMINATION: %i %i %i: %s wins round %i due to more health left!\n", level.roundNumber, TEAM_BLUE, 3, TeamName(TEAM_BLUE), level.roundNumber );
                                         } else {
