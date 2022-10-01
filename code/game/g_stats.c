@@ -67,11 +67,7 @@ void G_JSONExportAward(fileHandle_t f, const char *name, int count, qboolean *co
 		xfprintf(f, ",");
 	}
 	*comma = qtrue;
-	xfprintf(f, "{");
-	json_writestring(f, "name", name);
-	xfprintf(f, ",");
-	json_writeint(f, "count", count);
-	xfprintf(f, "}");
+	json_writeint(f, name, count);
 
 }
 
@@ -108,7 +104,7 @@ void G_JSONExportPlayer(fileHandle_t f, gclient_t *cl) {
 	json_writeint(f, "flag_recoveries", cl->pers.teamState.flagrecovery);
 
 	xfprintf(f, ",");
-	xfprintf(f, "\"weapons\":[");
+	xfprintf(f, "\"weapons\":{");
 	comma = qfalse;
 	for (i = 0; i < WP_NUM_WEAPONS; ++i) {
 		if (cl->accuracy[i][0] <= 0) {
@@ -118,9 +114,7 @@ void G_JSONExportPlayer(fileHandle_t f, gclient_t *cl) {
 			xfprintf(f, ",");
 		}
 		comma = qtrue;
-		xfprintf(f, "{");
-		json_writeint(f, "weapon", i);
-		xfprintf(f, ",");
+		xfprintf(f, "\"%i\": {", i);
 		json_writeint(f, "shots", cl->accuracy[i][0]);
 		xfprintf(f, ",");
 		json_writeint(f, "hits", cl->accuracy[i][1]);
@@ -128,10 +122,10 @@ void G_JSONExportPlayer(fileHandle_t f, gclient_t *cl) {
 		json_writeint(f, "damage", cl->pers.damage[i]);
 		xfprintf(f, "}");
 	}
-	xfprintf(f, "]");
+	xfprintf(f, "}");
 
 	xfprintf(f, ",");
-	xfprintf(f, "\"awards\":[");
+	xfprintf(f, "\"awards\":{");
 	comma = qfalse;
 	G_JSONExportAward(f, "impressive", cl->ps.persistant[PERS_IMPRESSIVE_COUNT], &comma);
 	G_JSONExportAward(f, "excellent", cl->ps.persistant[PERS_EXCELLENT_COUNT], &comma);
@@ -169,7 +163,7 @@ void G_JSONExportPlayer(fileHandle_t f, gclient_t *cl) {
 	G_JSONExportAward(f, "twitchrail", cl->pers.awardCounts[EAWARD_TWITCHRAIL], &comma);
 	G_JSONExportAward(f, "rat", cl->pers.awardCounts[EAWARD_RAT], &comma);
 	G_JSONExportAward(f, "thawbuddy", cl->pers.awardCounts[EAWARD_THAWBUDDY], &comma);
-	xfprintf(f, "]");
+	xfprintf(f, "}");
 
 	xfprintf(f, ",");
 	xfprintf(f, "\"items\":{");
