@@ -3671,8 +3671,6 @@ void G_PrintVoteCommands(gentity_t *ent) {
 		strcat(buffer, " map <mapname>\n");
 	if(allowedVote("g_gametype"))
 		strcat(buffer, " g_gametype <n>\n");
-	if(allowedVote("kick"))
-		strcat(buffer, " kick <player>\n");
 	if(allowedVote("clientkick"))
 		strcat(buffer, " clientkick <clientnum>\n");
 	if(allowedVote("g_doWarmup"))
@@ -3757,7 +3755,6 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 	} else if ( !Q_stricmp( arg1, "nextmap" ) ) {
 	} else if ( !Q_stricmp( arg1, "map" ) ) {
 	} else if ( !Q_stricmp( arg1, "g_gametype" ) ) {
-	} else if ( !Q_stricmp( arg1, "kick" ) ) {
 	} else if ( !Q_stricmp( arg1, "clientkick" ) ) {
 	} else if ( !Q_stricmp( arg1, "g_doWarmup" ) ) {
 	} else if ( !Q_stricmp( arg1, "timelimit" ) ) {
@@ -4012,24 +4009,6 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 
                 Com_sprintf( level.voteString, sizeof( level.voteString ), "balance" );
 		Com_sprintf( level.voteDisplayString, sizeof( level.voteDisplayString ), "Balance teams and restart?" );
-        } else if ( !Q_stricmp( arg1, "kick" ) ) {
-                i = 0;
- 		while( !(g_entities+i) || !((g_entities+i)->client) || Q_stricmp(arg2,(g_entities+i)->client->pers.netname)) {
-                    //Not client i, try next
-                    i++;
-                    if(i>=MAX_CLIENTS){ //Only numbers <128 is clients
-                        trap_SendServerCommand( ent-g_entities, "print \"Cannot find the playername. Try clientkick instead.\n\"" );
-                        return;
-                    }
-                }
-                level.voteKickClient = i;
-                if(g_voteBan.integer<1) {
-                    Com_sprintf( level.voteString, sizeof( level.voteString ), "clientkick_game \"%d\"", i );
-                } else {
-                    Com_sprintf( level.voteString, sizeof( level.voteString ), "!ban \"%d\" \"%dm\" \"Banned by public vote\"", i, g_voteBan.integer );
-                    level.voteKickType = 1; //ban
-                }
-		Com_sprintf( level.voteDisplayString, sizeof( level.voteDisplayString ), "Kick %s?" , level.clients[i].pers.netname );
 	} else if ( !Q_stricmp( arg1, "arena" ) ) {
 		int wishArena = atoi(arg2);
 
