@@ -79,6 +79,8 @@ void G_JSONExportPlayer(fileHandle_t f, gclient_t *cl) {
 	xfprintf(f, "{");
 	json_writestring(f, "name", cl->pers.netname);
 	xfprintf(f, ",");
+	json_writeint(f, "trackconsent", cl->pers.trackConsent == qtrue ? 1 : 0);
+	xfprintf(f, ",");
 	json_writeint(f, "team", cl->sess.sessionTeam);
 	xfprintf(f, ",");
 	json_writeint(f, "score", cl->ps.persistant[PERS_SCORE]);
