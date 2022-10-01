@@ -1723,7 +1723,7 @@ to free floating spectator mode
 =================
 */
 void StopFollowing( gentity_t *ent ) {
-	if(!G_IsElimGT())
+	if(!G_IsElimGT() || ent->client->sess.sessionTeam == TEAM_SPECTATOR)
 	{
 		//Shouldn't this already be the case?
 		ent->client->ps.persistant[ PERS_TEAM ] = TEAM_SPECTATOR;	
