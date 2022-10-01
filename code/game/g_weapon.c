@@ -121,6 +121,13 @@ qboolean CheckGauntletAttack( gentity_t *ent ) {
 		damage = 500; //High damage in instant gib (normally enough to gib)
 	else
 		damage = g_gauntDamage.integer * s_quadFactor;
+
+	if (LogAccuracyHit(traceEnt, ent)) {
+		// gaunt doesn't have "shots", so the accuracy will always be 100%
+		// but we record this anyway so we get the # of hits for the stats export
+		ent->client->accuracy[WP_GAUNTLET][0]++;
+		ent->client->accuracy[WP_GAUNTLET][1]++;
+	}
 	G_Damage( traceEnt, ent, ent, forward, tr.endpos,
 		damage, 0, MOD_GAUNTLET );
 
