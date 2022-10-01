@@ -2687,9 +2687,25 @@ void G_BalanceAutoGameStart(void) {
 		return;
 	}
 
-	if (!CanBalance() || fabs(TeamSkillDiff()) < g_balanceSkillThres.value
-			|| !BalanceTeams(qtrue)) {
-		trap_SendServerCommand ( -1, "cp \"^5Unable to balance teams!\"");
+	if (!CanBalance()) {
+		int unknowns = BalanceNumUnknownPlayers();
+		if (unknowns > 0) {
+			trap_SendServerCommand ( -1, va("cp \"^5Unable to balance teams!\n"
+					"(%i unknown players)\"",
+					unknowns)
+					);
+		} else {
+			trap_SendServerCommand ( -1, "cp \"^5Nothing to balance!\"");
+		}
+		return;
+	}
+
+	if (fabs(TeamSkillDiff()) < g_balanceSkillThres.value) {
+		trap_SendServerCommand ( -1, "cp \"^5Looks quite balanced already!\"");
+		return;
+	}
+	if (!BalanceTeams(qtrue)) {
+		trap_SendServerCommand ( -1, "cp \"^5Can't balance teams any better, sorry!\"");
 		return;
 	}
 
