@@ -730,26 +730,26 @@ static float PM_GetAirStrafeWishspeed(pmove_t *pm) {
 }
 
 
-/*
-==================
-PM_IsMoveInDirection
-
-Copied with edits from cl_input.c from Xonotic's Darkplaces engine, which is
-covered under the GPLv2+ license.
-==================
-*/
-static vec_t PM_IsMoveInDirection(vec_t forward, vec_t side, vec_t angle)
-{
-	if(forward == 0 && side == 0)
-		return 0; // avoid division by zero
-	angle -= RAD2DEG(atan2(side, forward));
-	angle = (AngleMod(angle + 180) - 180) / 45;
-	if(angle >  1)
-		return 0;
-	if(angle < -1)
-		return 0;
-	return 1 - fabs(angle);
-}
+///*
+//==================
+//PM_IsMoveInDirection
+//
+//Copied with edits from cl_input.c from Xonotic's Darkplaces engine, which is
+//covered under the GPLv2+ license.
+//==================
+//*/
+//static vec_t PM_IsMoveInDirection(vec_t forward, vec_t side, vec_t angle)
+//{
+//	if(forward == 0 && side == 0)
+//		return 0; // avoid division by zero
+//	angle -= RAD2DEG(atan2(side, forward));
+//	angle = (AngleMod(angle + 180) - 180) / 45;
+//	if(angle >  1)
+//		return 0;
+//	if(angle < -1)
+//		return 0;
+//	return 1 - fabs(angle);
+//}
 
 /*
 ==================
