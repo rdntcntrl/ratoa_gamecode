@@ -831,6 +831,8 @@ typedef struct {
 	team_t elimRoundPrediction;
 	int elimRoundNumPredictions;
 	int elimRoundNumCorrectlyPredicted;
+	int elimRoundNumBalanced;
+	int elimRoundNumUnknown;
 
 	//Added for Double Domination
 	//Points get status: TEAM_FREE for not taking, TEAM_RED/TEAM_BLUE for taken and TEAM_NONE for not spawned yet

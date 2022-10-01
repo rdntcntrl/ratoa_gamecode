@@ -4421,6 +4421,7 @@ void PrintElimRoundPrediction(void) {
 	int redCount, blueCount;
 	int numUnknowns;
 	char *predictedWinner;
+	team_t prediction;
 
 	level.elimRoundPrediction = TEAM_FREE;
 
@@ -4431,31 +4432,43 @@ void PrintElimRoundPrediction(void) {
 	// don't predict bot games
 	redCount = TeamCount(-1, TEAM_RED, qfalse);
 	if (redCount != TeamCount(-1, TEAM_RED, qtrue)) {
+		level.elimRoundNumUnknown++;
 		return;
 	}
 	blueCount = TeamCount(-1, TEAM_BLUE, qfalse);
 	if (blueCount != TeamCount(-1, TEAM_BLUE, qtrue)) {
+		level.elimRoundNumUnknown++;
 		return;
 	}
 
 	numUnknowns = BalanceNumUnknownPlayers();
 	if (numUnknowns > 2) {
-		//trap_SendServerCommand(-1, "print \"Predicting winner: too many unknowns!\n\"");
+		trap_SendServerCommand(-1, "print \"Predicting winner: too many unknowns!\n\"");
+		level.elimRoundNumUnknown++;
 		return;
 	}
 	skilldiff = TeamSkillDiff();
+	if (skilldiff > 0) {
+		predictedWinner = S_COLOR_BLUE "Blue";
+		prediction = TEAM_BLUE;
+	} else {
+		predictedWinner = S_COLOR_RED "Red";
+		prediction = TEAM_RED;
+	}
 	if (fabs(skilldiff) < g_balanceSkillThres.value) {
-		trap_SendServerCommand(-1, "print \"Predicting winner: looks fairly balanced!\n\"");
+		if (fabs(skilldiff) >= 0.001) {
+			trap_SendServerCommand(-1, va("print \"Predicting winner: balanced, slightly favoring %s (advantage = %0.3f)\n\"",
+						predictedWinner,
+						fabs(skilldiff)
+						));
+		} else {
+			trap_SendServerCommand(-1, va("print \"Predicting winner: balanced\n\""));
+		}
+		level.elimRoundNumBalanced++;
 		return;
 	}
 
-	if (skilldiff > 0) {
-		predictedWinner = S_COLOR_BLUE "Blue";
-		level.elimRoundPrediction = TEAM_BLUE;
-	} else {
-		predictedWinner = S_COLOR_RED "Red";
-		level.elimRoundPrediction = TEAM_RED;
-	}
+	level.elimRoundPrediction = prediction;
 	trap_SendServerCommand(-1, va("print \"Predicted winner: %s (advantage = %0.3f)\n\"",
 				predictedWinner,
 				fabs(skilldiff)
@@ -4468,7 +4481,7 @@ void ElimRoundPredictionEnd(team_t winner) {
 	}
 
 	if (level.elimRoundPrediction == TEAM_FREE) {
-		// didn't predict anything
+		// didn't predict anything with confidence
 		return;
 	}
 
@@ -4483,15 +4496,21 @@ void PrintElimRoundPredictionAccuracy(void) {
 		return;
 	}
 
-	if (level.elimRoundNumPredictions == 0) {
-		return;
+	trap_SendServerCommand(-1, va("print \"Round balance report: %i balanced, %i unbalanced, %i unknown\n\"",
+				level.elimRoundNumBalanced,
+				level.elimRoundNumPredictions,
+				level.elimRoundNumUnknown
+				));
+
+	if (level.elimRoundNumPredictions > 0) {
+		trap_SendServerCommand(-1, va("print \"Predicted %i of %i unbalanced rounds correctly, accuracy = %li'/.\n\"",
+					level.elimRoundNumCorrectlyPredicted,
+					level.elimRoundNumPredictions,
+					(long)round(100*(double)level.elimRoundNumCorrectlyPredicted
+						/(double)level.elimRoundNumPredictions)
+					));
 	}
 
-	trap_SendServerCommand(-1, va("print \"Predicted %i of %i rounds correctly, accuracy = %li'/.\n\"",
-				level.elimRoundNumCorrectlyPredicted,
-				level.elimRoundNumPredictions,
-				(long)round(100*(double)level.elimRoundNumCorrectlyPredicted/(double)level.elimRoundNumPredictions)
-				));
 }
 
 
