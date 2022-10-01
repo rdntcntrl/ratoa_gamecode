@@ -4442,8 +4442,9 @@ void PrintElimRoundPrediction(void) {
 	}
 
 	numUnknowns = BalanceNumUnknownPlayers();
-	if (numUnknowns > 2) {
-		trap_SendServerCommand(-1, "print \"Predicting winner: too many unknowns!\n\"");
+	if (numUnknowns > 0) {
+		trap_SendServerCommand(-1, va("print \"Predicting winner: too many unknowns (%i)!\n\"",
+				numUnknowns));
 		level.elimRoundNumUnknown++;
 		return;
 	}
