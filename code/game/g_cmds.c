@@ -3959,10 +3959,15 @@ void Cmd_CallVote_f( gentity_t *ent ) {
         } else if ( !Q_stricmp( arg1, "clientkick" ) ) {
                 i = atoi(arg2);
 
-                if(i>=MAX_CLIENTS) { //Only numbers <128 is clients
+                if(i < 0 || i >= MAX_CLIENTS) {
                     trap_SendServerCommand( ent-g_entities, "print \"Cannot kick that number.\n\"" );
                     return;
                 }
+		if (level.clients[i].pers.connected == CON_DISCONNECTED) {
+                    trap_SendServerCommand( ent-g_entities, va("print \"Client %i not connected.\n\"", i) );
+                    return;
+		}
+
                 level.voteKickClient = i;
                 if(g_voteBan.integer<1) {
                     Com_sprintf( level.voteString, sizeof( level.voteString ), "clientkick_game \"%d\"", i );

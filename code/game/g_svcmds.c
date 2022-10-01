@@ -414,6 +414,11 @@ void	ClientKick_f( void ) {
 
         idnum = atoi( str );
 
+	if (idnum < 0 || idnum >= MAX_CLIENTS) {
+		G_Printf("invalid client number %i\n", idnum);
+		return;
+	}
+
         //Local client
         if( !strcmp( level.clients[idnum].pers.ip, "localhost" ) ) {
             G_Printf("Kick failed - local player\n");
