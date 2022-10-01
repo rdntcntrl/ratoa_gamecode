@@ -84,6 +84,7 @@ vmCvar_t bot_testrchat;
 vmCvar_t bot_challenge;
 vmCvar_t bot_predictobstacles;
 vmCvar_t g_spSkill;
+vmCvar_t bot_wigglefactor;
 
 extern vmCvar_t bot_developer;
 
@@ -2830,10 +2831,11 @@ bot_moveresult_t BotAttackMove(bot_state_t *bs, int tfl) {
 	//if the strafe direction should be changed
 	if (bs->attackstrafe_time > strafechange_time) {
 		//some magic number :)
-		if (random() > 0.935) {
+		if (random() > 0.935 * (1.0 - bot_wigglefactor.value)) {
 			//flip the strafe direction
 			bs->flags ^= BFL_STRAFERIGHT;
 			bs->attackstrafe_time = 0;
+		} else {
 		}
 	}
 	//
@@ -5501,6 +5503,7 @@ void BotSetupDeathmatchAI(void) {
 	trap_Cvar_Register(&bot_nochat, "bot_nochat", "0", 0);
 	trap_Cvar_Register(&bot_testrchat, "bot_testrchat", "0", 0);
 	trap_Cvar_Register(&bot_challenge, "bot_challenge", "0", 0);
+	trap_Cvar_Register(&bot_wigglefactor, "bot_wigglefactor", "0.0", 0);
 	trap_Cvar_Register(&bot_predictobstacles, "bot_predictobstacles", "1", 0);
 	trap_Cvar_Register(&g_spSkill, "g_spSkill", "2", 0);
 	//
