@@ -2781,7 +2781,6 @@ int QDECL SortBySkill( const void *a, const void *b ) {
 qboolean CanBalance(void) {
 	int i;
 	int nabove = 0;
-	int nbelow = 0;
 
 	for (i = 0; i < level.numPlayingClients; ++i) {
 		gentity_t *ent = &g_entities[level.sortedClients[i]];
@@ -2789,12 +2788,13 @@ qboolean CanBalance(void) {
 			continue;
 		}
 		if (ent->client->sess.skillPlaytime < g_balancePlaytime.integer*1000) {
-			nbelow++;
+			// refuse to balance if we have ANY unknowns
+			return qfalse;
 		} else {
 			nabove++;
 		}
 	}
-	return nabove > nbelow && nabove + nbelow >= 4;
+	return nabove >= 4;
 }
 
 double TeamSkillDiff(void) {

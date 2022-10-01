@@ -3992,7 +3992,7 @@ void Cmd_CallVote_f( gentity_t *ent ) {
                 }
 
 		if (!CanBalance()) {
-                    trap_SendServerCommand( ent-g_entities, "print \"Not enough data to balance. Try again later.\n\"" );
+                    trap_SendServerCommand( ent-g_entities, "print \"Too many unknown players to balance. Try again later.\n\"" );
                     return;
 		}
 
