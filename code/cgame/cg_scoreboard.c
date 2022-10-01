@@ -890,9 +890,25 @@ qboolean CG_DrawRatScoreboard(void) {
 		CG_DrawScoreString(x, y, s, fade, 0);
 
 		if (cg.teamScores[0] >= cg.teamScores[1]) {
-			s = va("%ivs%i", redCount, blueCount);
+			char *scolor;
+			if (redCount == blueCount) {
+				scolor = S_COLOR_GREEN;
+			} else if (redCount > blueCount && cg.teamScores[0] > cg.teamScores[1]) {
+				scolor = S_COLOR_RED;
+			} else {
+				scolor = S_COLOR_YELLOW;
+			}
+			s = va("%s%ivs%i", scolor, redCount, blueCount);
 		} else {
-			s = va("%ivs%i", blueCount, redCount);
+			char *scolor;
+			if (redCount == blueCount) {
+				scolor = S_COLOR_GREEN;
+			} else if (blueCount > redCount && cg.teamScores[1] > cg.teamScores[0]) {
+				scolor = S_COLOR_RED;
+			} else {
+				scolor = S_COLOR_YELLOW;
+			}
+			s = va("%s%ivs%i", scolor, blueCount, redCount);
 		}
 		w = CG_DrawStrlen(s) * SCORESMALLCHAR_WIDTH;
 		x = (SCREEN_WIDTH - w) / 2;
