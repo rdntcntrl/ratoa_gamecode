@@ -3318,7 +3318,7 @@ static void Cmd_Mute_f( gentity_t *ent ){
 	p = ConcatArgs( 1 );
 	if (Q_stricmp(p, "all") == 0) {
 		if (mute) {
-			client->sess.mutemask1 = client->sess.mutemask2 = 0xffffffff;
+			client->sess.mutemask1 = client->sess.mutemask2 = (int)0xffffffff;
 		} else {
 			client->sess.mutemask1 = client->sess.mutemask2 = 0;
 		}
