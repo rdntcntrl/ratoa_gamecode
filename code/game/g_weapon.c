@@ -211,6 +211,7 @@ void Bullet_Fire (gentity_t *ent, float spread, int damage ) {
 	gentity_t	*tent;
 	gentity_t	*traceEnt;
 	int			i, passent;
+	qboolean logaccuracyhit = qfalse;
 
 //unlagged - attack prediction #2
 	// we have to use something now that the client knows in advance
@@ -237,6 +238,7 @@ void Bullet_Fire (gentity_t *ent, float spread, int damage ) {
 
 	passent = ent->s.number;
 	for (i = 0; i < 10; i++) {
+		logaccuracyhit = qfalse;
 
 //unlagged - backward reconciliation #2
 		// backward-reconcile the other clients
@@ -270,6 +272,7 @@ void Bullet_Fire (gentity_t *ent, float spread, int damage ) {
 //unlagged - attack prediction #2
 			if( LogAccuracyHit( traceEnt, ent ) ) {
 				ent->client->accuracy_hits++;
+				logaccuracyhit = qtrue;
 			}
 		} else {
 			tent = G_TempEntity( tr.endpos, EV_BULLET_HIT_WALL );
@@ -301,13 +304,17 @@ void Bullet_Fire (gentity_t *ent, float spread, int damage ) {
                             {
                                 G_Damage( traceEnt, ent, ent, forward, tr.endpos,
 					damage, 0, MOD_CHAINGUN);
-                                ent->client->accuracy[WP_CHAINGUN][1]++;
+				if (logaccuracyhit) {
+					ent->client->accuracy[WP_CHAINGUN][1]++;
+				}
                             }
                             else
                             {
 				G_Damage( traceEnt, ent, ent, forward, tr.endpos,
 					damage, 0, MOD_MACHINEGUN);
-                                ent->client->accuracy[WP_MACHINEGUN][1]++;
+				if (logaccuracyhit) {
+					ent->client->accuracy[WP_MACHINEGUN][1]++;
+				}
                             }
 			}
 		}
