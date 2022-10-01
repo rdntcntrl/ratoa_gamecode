@@ -3120,7 +3120,7 @@ qboolean G_admin_listplayers( gentity_t *ent, int skiparg )
       }
     }
 
-    ADMBP( va( "%2i %s%s^7 %-2i %3.2f %s^7 (*%s) ^1%1s^7 %s^7 %s%s^7%s\n",
+    ADMBP( va( "%2i %s%s^7 %-2i %4.1f %s^7 (*%s) ^1%1s^7 %s^7 %s%s^7%s\n",
               i,
               c,
               t,
