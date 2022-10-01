@@ -3954,6 +3954,12 @@ void Cmd_CallVote_f( gentity_t *ent ) {
                     Com_sprintf( level.voteDisplayString, sizeof( level.voteDisplayString ), "Disable warmup?" );
                 }
         } else if ( !Q_stricmp( arg1, "clientkick" ) ) {
+		for( c = arg2; *c; ++c) {
+			if (!isdigit(*c)) {
+				trap_SendServerCommand( ent-g_entities, "print \"Invalid client number.\n\"" );
+				return;
+			}
+		}
                 i = atoi(arg2);
 
                 if(i < 0 || i >= MAX_CLIENTS) {
