@@ -3038,10 +3038,6 @@ void ClientBegin( int clientNum ) {
 			//			(g_usesRatEngine.integer && g_mixedMode.integer && !client->pers.pure) ? " (baseoa client)" : "") );
 		}
 	}
-         // this is to ensure we never cause command overflows
-	if (oldConnected != CON_CONNECTED && level.time >= level.startTime + 20000) {
-			SendMotdAndHelpOnce(ent);
-	}
 	trap_SendServerCommand(ent - g_entities, "cp \"\"");
 
         

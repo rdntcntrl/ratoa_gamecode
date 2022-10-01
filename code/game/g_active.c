@@ -1796,6 +1796,13 @@ void ClientEndFrame( gentity_t *ent ) {
 	int frames;
 //unlagged - smooth clients #1
 
+	// send help / motd message to the client once per session
+	//
+	// delay is to ensure we don't cause command overflows
+	if (level.time >= level.startTime + 2000) {
+		SendMotdAndHelpOnce(ent);
+	}
+
 	// thaw out frozen players (g_freeze)
 	if (g_freeze.integer) {
 		G_ClientThaw(ent);
@@ -1936,6 +1943,7 @@ void ClientEndFrame( gentity_t *ent ) {
 			(!G_IsElimGT() || level.roundNumber == level.roundNumberStarted)) {
 		ent->client->sess.skillPlaytime += level.time - level.previousTime;
 	}
+
 }
 
 
