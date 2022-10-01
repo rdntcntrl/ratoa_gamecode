@@ -3472,7 +3472,6 @@ void CG_DrawTreasureHunterStatus(void) {
 	x -= w;
 }
 
-#define PUSHNOTIFY_TIME 1000
 #define PUSHNOTIFY_CHARS 7
 void CG_DrawPushNotify(void) {
 	const char	*pusherInfo;
@@ -3485,7 +3484,8 @@ void CG_DrawPushNotify(void) {
 	int drawlen;
 
 	if (!cg_pushNotifications.integer ||
-			cgs.pushNotifyTime <= 0 || cgs.pushNotifyTime + PUSHNOTIFY_TIME < cg.time) {
+			cgs.pushNotifyTime <= 0 
+			|| cgs.pushNotifyTime + cg_pushNotificationTime.integer < cg.time) {
 		return;
 	}
 	
@@ -3497,7 +3497,7 @@ void CG_DrawPushNotify(void) {
 	Q_strncpyz( pusherName, Info_ValueForKey( pusherInfo, "n" ), sizeof(pusherName) - 2);
 	Q_strcat( pusherName, sizeof(pusherName), S_COLOR_WHITE );
 
-	t = PUSHNOTIFY_TIME - cg.time + cgs.pushNotifyTime;
+	t = cg_pushNotificationTime.integer - cg.time + cgs.pushNotifyTime;
 	if (t < 100) {
 		color[3] = (float)(t)/100.0;
 	}

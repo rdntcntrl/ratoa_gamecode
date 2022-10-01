@@ -1751,6 +1751,7 @@ extern  vmCvar_t		cg_scorePlum;
 extern  vmCvar_t		cg_damagePlums;
 extern  vmCvar_t		cg_damagePlumSize;
 extern  vmCvar_t		cg_pushNotifications;
+extern  vmCvar_t		cg_pushNotificationTime;
 
 extern vmCvar_t                	cg_ratInitialized;
 

@@ -205,6 +205,7 @@ vmCvar_t 	cg_scorePlum;
 vmCvar_t 	cg_damagePlums;
 vmCvar_t 	cg_damagePlumSize;
 vmCvar_t 	cg_pushNotifications;
+vmCvar_t 	cg_pushNotificationTime;
 
 vmCvar_t 	cg_ratInitialized;
 
@@ -638,6 +639,7 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_damagePlums, "cg_damagePlums", "1", CVAR_USERINFO | CVAR_ARCHIVE},
 	{ &cg_damagePlumSize, "cg_damagePlumSize", "8.0", CVAR_ARCHIVE},
 	{ &cg_pushNotifications, "cg_pushNotifications", "1", CVAR_ARCHIVE},
+	{ &cg_pushNotificationTime, "cg_pushNotificationTime", "5000", CVAR_ARCHIVE},
 
 	// RAT ===================
 	{ &cg_ratInitialized, "cg_ratInitialized", "0", CVAR_ARCHIVE},
