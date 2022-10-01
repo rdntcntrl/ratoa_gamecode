@@ -1514,6 +1514,7 @@ extern  vmCvar_t        g_damageScore;
 extern  vmCvar_t        g_damageModifier;
 extern  vmCvar_t        g_damagePlums;
 extern  vmCvar_t        g_pushNotifications;
+extern  vmCvar_t        g_pushNotificationsKnockback;
 extern	vmCvar_t	g_speed;
 extern	vmCvar_t	g_spectatorSpeed;
 extern	vmCvar_t	g_knockback;

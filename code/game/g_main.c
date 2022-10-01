@@ -67,6 +67,7 @@ vmCvar_t        g_damageScore;
 vmCvar_t        g_damageModifier;
 vmCvar_t        g_damagePlums;
 vmCvar_t        g_pushNotifications;
+vmCvar_t        g_pushNotificationsKnockback;
 vmCvar_t	g_cheats;
 vmCvar_t	g_knockback;
 vmCvar_t	g_quadfactor;
@@ -501,6 +502,7 @@ static cvarTable_t		gameCvarTable[] = {
         { &g_damageModifier, "g_damageModifier", "0", 0, 0, qtrue },
         { &g_damagePlums, "g_damagePlums", "1", CVAR_ARCHIVE, 0, qfalse },
         { &g_pushNotifications, "g_pushNotifications", "1", CVAR_ARCHIVE, 0, qfalse },
+        { &g_pushNotificationsKnockback, "g_pushNotificationsKnockback", "30", CVAR_ARCHIVE, 0, qfalse },
 	{ &g_knockback, "g_knockback", "1000", 0, 0, qtrue  },
 	{ &g_quadfactor, "g_quadfactor", "3", 0, 0, qtrue  },
 	{ &g_weaponRespawn, "g_weaponrespawn", "5", 0, 0, qtrue  },

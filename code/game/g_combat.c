@@ -105,7 +105,7 @@ void PushNotify(gentity_t *targ, gentity_t *pusher, int mod, int knockback) {
 		cl->teamKnockback = knockback;
 	}
 
-	if (cl->teamKnockback < 30) {
+	if (cl->teamKnockback < g_pushNotificationsKnockback.integer) {
 		return;
 	}
 
