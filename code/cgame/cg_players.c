@@ -2686,7 +2686,7 @@ void CG_AddRefEntityWithPowerups( refEntity_t *ent, entityState_t *state, int te
 			} else if ((cgs.ratFlags & RAT_BRIGHTOUTLINE) && cg_brightOutline.integer) {
 				if (cg_brightOutline.integer == 1 || cg_brightOutline.integer == 2) {
 					ent->customShader = cgs.media.brightShellFlat;
-					ent->shaderRGBA[3] = 0xff * 0.125;
+					ent->shaderRGBA[3] = (byte)(0xff * 0.125);
 					trap_R_AddRefEntityToScene( ent );
 
 					ent->customShader = (useBlendBrightshell || cg_brightOutline.integer == 2) ?
@@ -3003,6 +3003,11 @@ void CG_PlayerGetColors(clientInfo_t *ci, qboolean isDead, int bodyPart, byte *o
 		color[0] = ci->color2[0];
 		color[1] = ci->color2[1];
 		color[2] = ci->color2[2];
+		if (isDead) {
+			color[0] *= 0.3;
+			color[1] *= 0.3;
+			color[2] *= 0.3;
+		}
 		CG_FloatColorToRGBA(color, outColor);
 		return;
 	}
