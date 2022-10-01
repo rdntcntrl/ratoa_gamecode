@@ -2908,7 +2908,6 @@ void ClientBegin( int clientNum ) {
 	int			flags;
 	int		countRed, countBlue, countFree;
         char		userinfo[MAX_INFO_STRING];
-	clientConnected_t oldConnected;
 
         trap_GetUserinfo( clientNum, userinfo, sizeof( userinfo ) );
 
@@ -2930,7 +2929,6 @@ void ClientBegin( int clientNum ) {
 
 	G_DestroyFrozenPlayer(ent);
 
-	oldConnected = client->pers.connected;
 	client->pers.connected = CON_CONNECTED;
 	client->pers.enterTime = level.time;
 	client->pers.teamState.state = TEAM_BEGIN;
