@@ -77,6 +77,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define INVENTORY_POINTRED			51
 #define INVENTORY_POINTBLUE			52
 
+#define INVENTORY_COIN			53
+
 //enemy stuff
 #define ENEMY_HORIZONTAL_DIST		200
 #define ENEMY_HEIGHT				201
@@ -165,6 +167,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define MODELINDEX_POINTWHITE			58
 #define MODELINDEX_POINTRED			59
 #define MODELINDEX_POINTBLUE			60
+#define MODELINDEX_ARMORJACKET			61
+#define MODELINDEX_COINGOLD			62
+#define MODELINDEX_COINSILVER			63
+#define MODELINDEX_COINBRONZE			64
+#define MODELINDEX_COINBLUE			65
+#define MODELINDEX_COINRED			66
 
 
 
