@@ -3042,7 +3042,7 @@ qboolean G_admin_listplayers( gentity_t *ent, int skiparg )
   char n3[ MAX_NAME_LENGTH ] = {""};
   char lname[ MAX_NAME_LENGTH ];
   char guid_stub[ 9 ];
-  char muted[ 2 ];
+  char muted[ 3 ];
   int l;
   qboolean show_guid;
   qboolean show_muted;
@@ -3094,9 +3094,14 @@ qboolean G_admin_listplayers( gentity_t *ent, int skiparg )
     guid_stub[ j ] = '\0';
 
     muted[ 0 ] = '\0';
-    if( show_muted && p->sess.muted )
-    {
-      Q_strncpyz( muted, "M", sizeof( muted ) );
+    if (show_muted) {
+	    if (p->sess.muted & CLMUTE_SHADOWMUTED) {
+		    Q_strncpyz( muted, "SM", sizeof( muted ) );
+	    } else if (p->sess.muted & CLMUTE_MUTED) {
+		    Q_strncpyz( muted, "M", sizeof( muted ) );
+	    } else if( p->sess.muted & CLMUTE_VOTEMUTED) {
+		    Q_strncpyz( muted, "VM", sizeof( muted ) );
+	    }
     }
     //Put DisOriented Junk Here!!!
 
@@ -3138,7 +3143,7 @@ qboolean G_admin_listplayers( gentity_t *ent, int skiparg )
       }
     }
 
-    ADMBP( va( "%2i %s%s^7 %-2i %4.1f %s^7 (*%s) ^1%1s^7 %s^7 %s%s^7%s\n",
+    ADMBP( va( "%2i %s%s^7 %-2i %4.1f %s^7 (*%s) ^1%2s^7 %s^7 %s%s^7%s\n",
               i,
               c,
               t,
