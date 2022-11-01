@@ -3732,7 +3732,7 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 		trap_SendServerCommand( ent-g_entities, "print \"A vote is already in progress.\n\"" );
 		return;
 	}
-	if ( ent->client->pers.voteCount >= g_maxvotes.integer ) {
+	if ( ent->client->pers.voteCount >= g_maxvotes.integer && !G_admin_permission(ent, ADMF_NOCENSORFLOOD)) {
 		trap_SendServerCommand( ent-g_entities, "print \"You have called the maximum number of votes.\n\"" );
 		return;
 	}
@@ -4168,7 +4168,7 @@ void Cmd_CallTeamVote_f( gentity_t *ent ) {
 		trap_SendServerCommand( ent-g_entities, "print \"A team vote is already in progress.\n\"" );
 		return;
 	}
-	if ( ent->client->pers.teamVoteCount >= g_maxvotes.integer ) {
+	if ( ent->client->pers.teamVoteCount >= g_maxvotes.integer && !G_admin_permission(ent, ADMF_NOCENSORFLOOD)) {
 		trap_SendServerCommand( ent-g_entities, "print \"You have called the maximum number of team votes.\n\"" );
 		return;
 	}
