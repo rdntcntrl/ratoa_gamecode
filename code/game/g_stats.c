@@ -106,7 +106,7 @@ void G_JSONExportPlayer(fileHandle_t f, gclient_t *cl) {
 	xfprintf(f, ",");
 	xfprintf(f, "\"weapons\":{");
 	comma = qfalse;
-	for (i = 0; i < WP_NUM_WEAPONS; ++i) {
+	for (i = WP_GAUNTLET; i < WP_NUM_WEAPONS; ++i) {
 		if (cl->accuracy[i][0] <= 0) {
 			continue;
 		}
