@@ -935,6 +935,12 @@ void G_SetRespawntime( gentity_t *self, int notBefore ) {
 	}
 }
 
+static void G_RecordKillForMod(gclient_t *attacker, int mod) {
+	int weapon = G_WeaponForMOD(mod);
+	attacker->pers.kills_per_weapon[weapon]++;
+}
+
+
 /*
 ==================
 player_die
@@ -1010,9 +1016,11 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 					attacker->client->pers.elimRoundKills += 1;
 					if (level.roundNumber == level.roundNumberStarted) {
 						attacker->client->pers.kills += 1;
+						G_RecordKillForMod(attacker->client, meansOfDeath);
 					}
 				} else {
 					attacker->client->pers.kills += 1;
+					G_RecordKillForMod(attacker->client, meansOfDeath);
 				}
 			}
 		} else {
@@ -1827,7 +1835,7 @@ int G_WeaponForMOD(int mod) {
 		case MOD_CHAINGUN:
 			return WP_CHAINGUN;
 	}
-	return -1;
+	return WP_NONE;
 }
 
 /*
@@ -2293,17 +2301,13 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 					if (level.roundNumber == level.roundNumberStarted) {
 						G_CheckDamageScore(attacker, targ, dmgTaken);
 						attacker->client->pers.dmgGiven += dmgTaken;
-						if (weapon != -1) {
-							attacker->client->pers.damage[weapon] += dmgTaken;
-						}
+						attacker->client->pers.damage[weapon] += dmgTaken;
 						G_RecordDamageGivenHistory(attacker, mod, damage, targ);
 					}
 				} else {
 					G_CheckDamageScore(attacker, targ, dmgTaken);
 					attacker->client->pers.dmgGiven += dmgTaken;
-					if (weapon != -1) {
-						attacker->client->pers.damage[weapon] += dmgTaken;
-					}
+					attacker->client->pers.damage[weapon] += dmgTaken;
 					G_RecordDamageGivenHistory(attacker, mod, damage, targ);
 				}
 				attacker->client->lastDmgGivenEntityNum = targ->s.number;

@@ -117,6 +117,8 @@ void G_JSONExportPlayer(fileHandle_t f, gclient_t *cl) {
 		}
 		comma = qtrue;
 		xfprintf(f, "\"%i\": {", i);
+		json_writeint(f, "kills", cl->pers.kills_per_weapon[i]);
+		xfprintf(f, ",");
 		json_writeint(f, "shots", cl->accuracy[i][0]);
 		xfprintf(f, ",");
 		json_writeint(f, "hits", cl->accuracy[i][1]);
