@@ -1870,6 +1870,7 @@ Q3UIOBJ_ = \
   $(B)/baseq3/ui/ui_firstconnect.o \
   $(B)/baseq3/ui/ui_gameinfo.o \
   $(B)/baseq3/ui/ui_ingame.o \
+  $(B)/baseq3/ui/ui_trackconsent.o \
   $(B)/baseq3/ui/ui_loadconfig.o \
   $(B)/baseq3/ui/ui_menu.o \
   $(B)/baseq3/ui/ui_mfield.o \

@@ -158,6 +158,7 @@ extern vmCvar_t	ui_nextmapvote_votes;
 
 //extern vmCvar_t	ui_cdkey;
 //extern vmCvar_t	ui_cdkeychecked;
+extern vmCvar_t	ui_trackConsentConfigured;
 extern vmCvar_t ui_setupchecked;
 
 //new in beta 23:
@@ -417,11 +418,18 @@ extern void InGame_Cache( void );
 extern void UI_InGameMenu(void);
 
 //
+// ui_trackconsent.c
+//
+extern void UI_TrackConsentMenu(void);
+
+//
 // ui_confirm.c
 //
 extern void ConfirmMenu_Cache( void );
 extern void UI_ConfirmMenu( const char *question, void (*draw)( void ), void (*action)( qboolean result ) );
 extern void UI_ConfirmMenu_Style( const char *question, int style, void (*draw)( void ), void (*action)( qboolean result ) );
+void UI_ConfirmMenu_Style2( const char *questionLine1, const char *questionLine2, qboolean bgshade,
+	       	int style, void (*draw)( void ), void (*action)( qboolean result ) );
 extern void UI_Message( const char **lines );
 
 //

@@ -45,7 +45,9 @@ typedef struct {
 	menutext_s		yes;
 
 	int				slashX;
-	const char *	question;
+	const char *	questionLine1;
+	const char *	questionLine2;
+	qboolean 	bgshade;
 	void			(*draw)( void );
 	void			(*action)( qboolean result );
 	
@@ -143,8 +145,13 @@ ConfirmMenu_Draw
 =================
 */
 static void ConfirmMenu_Draw( void ) {
+	if (s_confirm.bgshade) {
+		vec4_t	bg = {0.0, 0.0, 0.0, 0.9};
+		UI_FillRect( 0, 0, 640, 480, bg );
+	}
 	UI_DrawNamedPic( 142, 118, 359, 256, ART_CONFIRM_FRAME );
-	UI_DrawProportionalString( 320, 204, s_confirm.question, s_confirm.style, color_red );
+	UI_DrawProportionalString( 320, 204, s_confirm.questionLine1, s_confirm.style, color_red );
+	UI_DrawProportionalString( 320, 230, s_confirm.questionLine2, s_confirm.style, color_red );
 	UI_DrawProportionalString( s_confirm.slashX, 265, "/", UI_LEFT|UI_INVERSE, color_red );
 
 	Menu_Draw( &s_confirm.menu );
@@ -164,13 +171,8 @@ void ConfirmMenu_Cache( void ) {
 	trap_R_RegisterShaderNoMip( ART_CONFIRM_FRAME );
 }
 
-
-/*
-=================
-UI_ConfirmMenu_Stlye
-=================
-*/
-void UI_ConfirmMenu_Style( const char *question, int style, void (*draw)( void ), void (*action)( qboolean result ) ) {
+void UI_ConfirmMenu_Style2( const char *questionLine1, const char *questionLine2, qboolean bgshade,
+	       	int style, void (*draw)( void ), void (*action)( qboolean result ) ) {
 	uiClientState_t	cstate;
 	int	n1, n2, n3;
 	int	l1, l2, l3;
@@ -188,7 +190,9 @@ void UI_ConfirmMenu_Style( const char *question, int style, void (*draw)( void )
 	l3 = l2 + n3;
 	s_confirm.slashX = l2;
 
-	s_confirm.question = question;
+	s_confirm.questionLine1 = questionLine1;
+	s_confirm.questionLine2 = questionLine2;
+	s_confirm.bgshade = bgshade;
 	s_confirm.draw = draw;
 	s_confirm.action = action;
 	s_confirm.style = style;
@@ -231,6 +235,15 @@ void UI_ConfirmMenu_Style( const char *question, int style, void (*draw)( void )
 	UI_PushMenu( &s_confirm.menu );
 
 	Menu_SetCursorToItem( &s_confirm.menu, &s_confirm.no );
+}
+
+/*
+=================
+UI_ConfirmMenu_Stlye
+=================
+*/
+void UI_ConfirmMenu_Style( const char *question, int style, void (*draw)( void ), void (*action)( qboolean result ) ) {
+	UI_ConfirmMenu_Style2(question, "", qfalse, style, draw, action);
 }
 
 /*

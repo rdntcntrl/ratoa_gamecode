@@ -224,6 +224,7 @@ static void FirstConnect_Event( void* ptr, int event )
                         FirstConnect_SaveChanges();
                         UI_PopMenu();
                         trap_Cvar_SetValue( "ui_setupchecked", 1 );
+                        trap_Cvar_SetValue( "ui_trackConsentConfigured", 1 );
                         UI_ArenaServersMenu();
 			break;
 

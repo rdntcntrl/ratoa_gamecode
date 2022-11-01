@@ -203,6 +203,8 @@ vmCvar_t	ui_server32;
 
 //vmCvar_t	ui_cdkeychecked;
 
+vmCvar_t	ui_trackConsentConfigured;
+
 //new in beta 23:
 vmCvar_t        ui_browserOnlyHumans;
 
@@ -334,6 +336,8 @@ static cvarTable_t		cvarTable[] = {
 
 	//{ &ui_cdkeychecked, "ui_cdkeychecked", "0", CVAR_ROM },
         
+	{ &ui_trackConsentConfigured, "ui_trackConsentConfigured", "0", CVAR_ARCHIVE },
+	
         //new in beta 23:
         { &ui_browserOnlyHumans, "ui_browserOnlyHumans", "0", CVAR_ARCHIVE },
 

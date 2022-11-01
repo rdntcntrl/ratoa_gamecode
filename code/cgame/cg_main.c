@@ -1480,6 +1480,14 @@ void CG_RatInitDefaults(void)  {
 	}
 }
 
+void CG_CheckTrackConsent(void)  {
+	if ((int)CG_Cvar_Get("ui_trackConsentConfigured") != 0) {
+		return;
+	}
+	// ask the player to set cg_trackConsent if it wsn't configured already.
+	trap_SendConsoleCommand("ui_trackconsentmenu\n");
+}
+
 /*																																			
 ===================
 CG_ForceModelChange
@@ -3790,6 +3798,8 @@ void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum ) {
 	CG_ParseForcedColors();
 
 	CG_RatRemapShaders();
+
+	CG_CheckTrackConsent();
 }
 
 /*
