@@ -6195,8 +6195,6 @@ void G_RunFrame( int levelTime ) {
 
 	// get any cvar changes
 	G_UpdateCvars();
-	
-	G_UpdateRatFlags();
 
 	G_UpdateActionCamera();
 
