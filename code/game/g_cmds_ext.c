@@ -269,6 +269,30 @@ int G_ClientNumbersFromString( char *s, int *plist, int max )
   return found;
 }
 
+static int G_FloodLimitedImpl(gentity_t *ent, int floodMinTime, int floodMaxDemerits, int *floodDemerits, int *floodTime ) {
+  int deltatime, ms;
+
+  if( floodMinTime <= 0 )
+    return 0;
+
+  // handles !ent
+  if( G_admin_permission( ent, ADMF_NOCENSORFLOOD ) )
+    return 0;
+
+  deltatime = level.realtime - *floodTime;
+
+  *floodDemerits += floodMinTime - deltatime;
+  if( *floodDemerits < 0 )
+    *floodDemerits = 0;
+  *floodTime = level.realtime;
+
+  ms = *floodDemerits - floodMaxDemerits;
+  if( ms <= 0 )
+    return 0;
+  trap_SendServerCommand( ent - g_entities, va( "print \"You are flooding: please wait %d second%s before trying again\n",
+                          ( ms + 999 ) / 1000, ( ms > 1000 ) ? "s" : "" ) );
+  return ms;
+}
 
 /*
 ==================
@@ -279,30 +303,30 @@ Print them a warning message if they are over the limit
 Return is time in msec until the user can speak again
 ==================
 */
+// for team chats, pings & general stuff
 int G_FloodLimited( gentity_t *ent )
 {
-  int deltatime, ms;
+	if (!ent || !ent->client) {
+		return 0;
+	}
+	return G_FloodLimitedImpl(ent,
+		       	g_floodMinTime.integer,
+		       	g_floodMaxDemerits.integer,
+			&ent->client->pers.floodDemerits,
+			&ent->client->pers.floodTime);
+}
 
-  if( g_floodMinTime.integer <= 0 )
-    return 0;
-
-  // handles !ent
-  if( G_admin_permission( ent, ADMF_NOCENSORFLOOD ) )
-    return 0;
-
-  deltatime = level.realtime - ent->client->pers.floodTime;
-
-  ent->client->pers.floodDemerits += g_floodMinTime.integer - deltatime;
-  if( ent->client->pers.floodDemerits < 0 )
-    ent->client->pers.floodDemerits = 0;
-  ent->client->pers.floodTime = level.realtime;
-
-  ms = ent->client->pers.floodDemerits - g_floodMaxDemerits.integer;
-  if( ms <= 0 )
-    return 0;
-  trap_SendServerCommand( ent - g_entities, va( "print \"You are flooding: please wait %d second%s before trying again\n",
-                          ( ms + 999 ) / 1000, ( ms > 1000 ) ? "s" : "" ) );
-  return ms;
+// for global chats, tell and other global annoyances
+int G_FloodChatLimited( gentity_t *ent )
+{
+	if (!ent || !ent->client) {
+		return 0;
+	}
+	return G_FloodLimitedImpl(ent,
+			g_floodChatMinTime.integer,
+		       	g_floodChatMaxDemerits.integer,
+			&ent->client->pers.floodChatDemerits,
+			&ent->client->pers.floodChatTime);
 }
 
 //KK-Private Messaging Not implemented. 

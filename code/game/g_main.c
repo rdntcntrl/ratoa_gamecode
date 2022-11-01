@@ -401,6 +401,8 @@ vmCvar_t        g_spreeDiv;
 //Command/Chat spamming/flooding
 vmCvar_t        g_floodMaxDemerits;
 vmCvar_t        g_floodMinTime;
+vmCvar_t        g_floodChatMaxDemerits;
+vmCvar_t        g_floodChatMinTime;
 vmCvar_t        g_floodLimitUserinfo;
 
 //Admin
@@ -847,7 +849,11 @@ static cvarTable_t		gameCvarTable[] = {
         
         //Used for command/chat flooding
         { &g_floodMaxDemerits, "g_floodMaxDemerits", "5000", CVAR_ARCHIVE, 0, qfalse  },
-        { &g_floodMinTime, "g_floodMinTime", "2000", CVAR_ARCHIVE, 0, qfalse  },
+        { &g_floodMinTime, "g_floodMinTime", "750", CVAR_ARCHIVE, 0, qfalse  },
+	// for global stuff (e.g. chat, but not teamchat or pings)
+        { &g_floodChatMaxDemerits, "g_floodChatMaxDemerits", "1500", CVAR_ARCHIVE, 0, qfalse  },
+        { &g_floodChatMinTime, "g_floodChatMinTime", "1000", CVAR_ARCHIVE, 0, qfalse  },
+
         { &g_floodLimitUserinfo, "g_floodLimitUserinfo", "0", CVAR_ARCHIVE, 0, qfalse  },
         
         //Admin

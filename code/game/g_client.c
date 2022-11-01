@@ -2420,7 +2420,7 @@ void ClientUserinfoChangedLimited( int clientNum ) {
 	gentity_t *ent = g_entities + clientNum;
 	if (g_floodLimitUserinfo.integer 
 			&& ent->client->pers.connected == CON_CONNECTED 
-			&& G_FloodLimited(ent)) {
+			&& G_FloodChatLimited(ent)) {
 		return;
 	}
 	ClientUserinfoChanged(clientNum);

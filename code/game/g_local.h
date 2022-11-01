@@ -457,6 +457,8 @@ typedef struct {
 // flood protection
     int         floodDemerits;
     int         floodTime;
+    int         floodChatDemerits;
+    int         floodChatTime;
  
 //Used To Track Name Changes
     int         nameChangeTime;
@@ -988,6 +990,7 @@ void        G_MatchOnePlayer( int *plist, int num, char *err, int len );
 void        G_SanitiseString( char *in, char *out, int len );
 int         G_ClientNumbersFromString( char *s, int *plist, int max );
 int         G_FloodLimited( gentity_t *ent );
+int 	    G_FloodChatLimited( gentity_t *ent );
 //void QDECL G_AdminMessage( const char *prefix, const char *fmt, ... ) 
 // ^^ Do Not Need to Declare--Just for Documentation of where it is.
 void        Cmd_AdminMessage_f( gentity_t *ent );
@@ -1854,6 +1857,8 @@ extern  vmCvar_t    g_spreeDiv; // Interval of a "streak" that form the spree tr
 //KK-OAX Command/Chat Flooding/Spamming
 extern  vmCvar_t    g_floodMaxDemerits;
 extern  vmCvar_t    g_floodMinTime;
+extern  vmCvar_t    g_floodChatMaxDemerits;
+extern  vmCvar_t    g_floodChatMinTime;
 extern  vmCvar_t    g_floodLimitUserinfo;
 //KK-OAX Admin
 extern  vmCvar_t    g_admin;

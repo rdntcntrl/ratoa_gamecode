@@ -2869,11 +2869,15 @@ void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText ) 
 	switch ( mode ) {
 	default:
 	case SAY_ALL:
+		if (G_FloodChatLimited(ent)) {
+			return;
+		}
 		G_LogPrintf( "say: %s: %s\n", ent->client->pers.netname, chatText );
 		Com_sprintf (name, sizeof(name), "%s%c%c"EC": ", ent->client->pers.netname, Q_COLOR_ESCAPE, COLOR_WHITE );
 		color = COLOR_GREEN;
 		break;
 	case SAY_TEAM:
+		// team chat is already flood limited in ClientCommand()
 		G_LogPrintf( "sayteam: %s: %s\n", ent->client->pers.netname, chatText );
 		//if (Team_GetLocationMsg(ent, location, sizeof(location)))
 		//	Com_sprintf (name, sizeof(name), EC"(%s%c%c"EC") (%s)"EC": ", 
@@ -2886,6 +2890,9 @@ void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText ) 
 		color = COLOR_CYAN;
 		break;
 	case SAY_TELL:
+		if (G_FloodChatLimited(ent)) {
+			return;
+		}
 
 		if (target && G_IsTeamGametype() &&
 			target->client->sess.sessionTeam == ent->client->sess.sessionTeam &&
@@ -4566,7 +4573,7 @@ void ClientCommand( int clientNum )
         return;
 
     // additional flood-limited commands
-    if ( cmds[i].cmdFlags & CMD_FLOODLIMITED && G_FloodLimited( ent )) {
+    if ( cmds[i].cmdFlags & CMD_FLOODLIMITED && G_FloodChatLimited( ent )) {
 	    return;
     }
     
