@@ -3030,6 +3030,7 @@ char *G_MultiTrnScoreString(int scoreId) {
 
 static void SendDuelStatsMessages( void ) {
 	if (!g_duelStats.integer) {
+		return;
 	}
 	if (g_gametype.integer == GT_TOURNAMENT) {
 		if (level.numPlayingClients != 2) {
@@ -3040,22 +3041,6 @@ static void SendDuelStatsMessages( void ) {
 				&g_entities[level.sortedClients[1]]
 				);
 	} 
-#ifdef WITH_MULTITOURNAMENT
-	else if (g_gametype.integer == GT_MULTITOURNAMENT) {
-		int gameId;
-		for (gameId = 0; gameId < MULTITRN_MAX_GAMES; ++gameId) {
-			multiTrnGame_t *game = &level.multiTrnGames[gameId];
-			if (game->numPlayers != 2) {
-				continue;
-			}
-			DuelStatsMessageForPlayers(
-					&g_entities[game->clients[0]],
-					&g_entities[game->clients[1]]
-					);
-		}
-	}
-#endif
-
 }
 
 /*
@@ -3383,6 +3368,20 @@ void MoveClientToIntermission( gentity_t *ent ) {
 }
 
 #ifdef WITH_MULTITOURNAMENT
+
+static void G_MultitrnSendDuelStats(multiTrnGame_t *game) {
+	if (!g_duelStats.integer) {
+		return;
+	}
+	if (game->numPlayers != 2) {
+		return;
+	}
+	DuelStatsMessageForPlayers(
+			&g_entities[game->clients[0]],
+			&g_entities[game->clients[1]]
+			);
+}
+
 void G_MultitrnIntermission(multiTrnGame_t *game) {
 	int i;
 	gentity_t *ent;
@@ -3427,6 +3426,8 @@ void G_MultitrnIntermission(multiTrnGame_t *game) {
 	}
 	G_LinkGameId(oldGameId);
 	G_UpdateMultiTrnFlags();
+
+	G_MultitrnSendDuelStats(game);
 }
 #endif // WITH_MULTITOURNAMENT
 
