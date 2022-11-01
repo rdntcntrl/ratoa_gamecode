@@ -115,7 +115,9 @@ void CG_Mapvote_f( void ) {
 
 	if (n > 1) {
 		trap_Cvar_Set("ui_mapvote_filter", ConcatArgs(1));
-	} 
+	}  else {
+		trap_Cvar_Set("ui_mapvote_filter", "");
+	}
 	if (trap_Key_GetCatcher() & KEYCATCH_CONSOLE) {
 		trap_SendConsoleCommand("toggleconsole\n");
 	}
