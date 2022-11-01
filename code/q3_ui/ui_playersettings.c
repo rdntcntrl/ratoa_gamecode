@@ -38,6 +38,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #define MAX_NAMELENGTH	20
 
+#define BASE_XOFFSET 192
+
 static qhandle_t whiteShader;
 
 
@@ -419,11 +421,11 @@ static void PlayerSettings_MenuInit( void ) {
 	s_playersettings.name.generic.ownerdraw		= PlayerSettings_DrawName;
 	s_playersettings.name.field.widthInChars	= MAX_NAMELENGTH;
 	s_playersettings.name.field.maxchars		= MAX_NAMELENGTH;
-	s_playersettings.name.generic.x				= 192;
+	s_playersettings.name.generic.x				= BASE_XOFFSET;
 	s_playersettings.name.generic.y				= y;
-	s_playersettings.name.generic.left			= 192 - 8;
+	s_playersettings.name.generic.left			= BASE_XOFFSET - 8;
 	s_playersettings.name.generic.top			= y - 8;
-	s_playersettings.name.generic.right			= 192 + 200;
+	s_playersettings.name.generic.right			= BASE_XOFFSET + 200;
 	s_playersettings.name.generic.bottom		= y + 2 * PROP_HEIGHT;
 
 	y += 3 * PROP_HEIGHT;
@@ -431,11 +433,11 @@ static void PlayerSettings_MenuInit( void ) {
 	s_playersettings.handicap.generic.flags		= QMF_NODEFAULTINIT;
 	s_playersettings.handicap.generic.id		= ID_HANDICAP;
 	s_playersettings.handicap.generic.ownerdraw	= PlayerSettings_DrawHandicap;
-	s_playersettings.handicap.generic.x			= 192;
+	s_playersettings.handicap.generic.x			= BASE_XOFFSET;
 	s_playersettings.handicap.generic.y			= y;
-	s_playersettings.handicap.generic.left		= 192 - 8;
+	s_playersettings.handicap.generic.left		= BASE_XOFFSET - 8;
 	s_playersettings.handicap.generic.top		= y - 8;
-	s_playersettings.handicap.generic.right		= 192 + 200;
+	s_playersettings.handicap.generic.right		= BASE_XOFFSET + 200;
 	s_playersettings.handicap.generic.bottom	= y + 2 * PROP_HEIGHT;
         s_playersettings.handicap.generic.statusbar     = PlayerSettings_StatusBar;
 	s_playersettings.handicap.numitems			= 20;
@@ -445,7 +447,7 @@ static void PlayerSettings_MenuInit( void ) {
 	s_playersettings.effects.generic.name		= "Color 1";
 	s_playersettings.effects.generic.flags		= QMF_PULSEIFFOCUS|QMF_SMALLFONT;
 	s_playersettings.effects.generic.id		= ID_EFFECTS;
-	s_playersettings.effects.generic.x		= 256;
+	s_playersettings.effects.generic.x		= BASE_XOFFSET+64;
 	s_playersettings.effects.generic.y		= y;
 	s_playersettings.effects.minvalue		= 0.0f;
 	s_playersettings.effects.maxvalue		= 360.0f;
@@ -455,7 +457,7 @@ static void PlayerSettings_MenuInit( void ) {
 	s_playersettings.effects2.generic.name		= "Color 2";
 	s_playersettings.effects2.generic.flags		= QMF_PULSEIFFOCUS|QMF_SMALLFONT;
 	s_playersettings.effects2.generic.id		= ID_EFFECTS2;
-	s_playersettings.effects2.generic.x		= 256;
+	s_playersettings.effects2.generic.x		= BASE_XOFFSET+64;
 	s_playersettings.effects2.generic.y		= y;
 	s_playersettings.effects2.minvalue		= 0.0f;
 	s_playersettings.effects2.maxvalue		= 360.0f;
