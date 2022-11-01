@@ -803,6 +803,7 @@ typedef struct {
 										// frag can be watched.  Disable future
 										// kills during this delay
 	int			intermissiontime;		// time the intermission was started
+	qboolean	recordGame; // true if the stats for this game should be exported (false on things like !nextmap)
 	char		*changemap;
 	qboolean	readyToExit;			// at least one client wants to exit
 	int			exitTime;

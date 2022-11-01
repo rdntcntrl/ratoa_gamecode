@@ -3428,6 +3428,7 @@ void G_MultitrnIntermission(multiTrnGame_t *game) {
 	G_UpdateMultiTrnFlags();
 
 	G_MultitrnSendDuelStats(game);
+	G_WriteStatsJSON("", game - level.multiTrnGames);
 }
 #endif // WITH_MULTITOURNAMENT
 
@@ -3550,6 +3551,16 @@ void BeginIntermission( void ) {
 	SendScoreboardMessageToAllClients();
 
 	SendDuelStatsMessages();
+
+	if (level.recordGame) {
+#ifdef WITH_MULTITOURNAMENT
+		if (g_gametype.integer != GT_MULTITOURNAMENT) {
+#endif
+			G_WriteStatsJSON("", 0);
+#ifdef WITH_MULTITOURNAMENT
+		}
+#endif
+	}
 
 }
 
@@ -3748,7 +3759,6 @@ void LogMtrnExit( const char *string, int gameId) {
 				ping, game->clients[i],
 				cl->pers.netname );
 	}
-	G_WriteStatsJSON(string, gameId);
 }
 #endif // WITH_MULTITOURNAMENT
 
@@ -3769,6 +3779,7 @@ void LogExit( const char *string, qboolean recordGame) {
 	G_LogPrintf( "Exit: %s\n", string );
 
 	level.intermissionQueued = level.time;
+	level.recordGame = recordGame;
 
 	// this will keep the clients from playing any voice sounds
 	// that will get cut off when the queued intermission starts
@@ -3819,16 +3830,6 @@ void LogExit( const char *string, qboolean recordGame) {
 		trap_SendConsoleCommand( EXEC_APPEND, (won) ? "spWin\n" : "spLose\n" );
 	}
 #endif
-
-	if (recordGame) {
-#ifdef WITH_MULTITOURNAMENT
-		if (g_gametype.integer != GT_MULTITOURNAMENT) {
-#endif
-			G_WriteStatsJSON(string, 0);
-#ifdef WITH_MULTITOURNAMENT
-		}
-#endif
-	}
 
 }
 
