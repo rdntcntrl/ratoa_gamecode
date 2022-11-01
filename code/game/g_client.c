@@ -2136,7 +2136,8 @@ void ClientUserinfoChanged( int clientNum ) {
     {
         if( client->pers.nameChangeTime 
 			&& ( level.time - client->pers.nameChangeTime ) <= ( g_minNameChangePeriod.value * 1000 )
-	 		&& !client->pers.forceRename )
+	 		&& !client->pers.forceRename
+	 		&& !G_admin_permission(ent, ADMF_NOCENSORFLOOD) )
         {
             trap_SendServerCommand( ent - g_entities, va(
             "print \"Name change spam protection (g_minNameChangePeriod = %d)\n\"",
