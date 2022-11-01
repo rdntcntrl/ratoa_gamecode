@@ -1152,12 +1152,16 @@ qboolean G_admin_ban_check( char *userinfo, char *reason, int rlen )
 static void G_admin_apply_playerhook(gentity_t *player, g_admin_playerhook_t *hook) {
 	int clientNum = player - g_entities;
 	if (Q_stricmp(hook->action, "mute") == 0) {
-		player->client->sess.muted = CLMUTE_MUTED;
+		player->client->sess.muted |= CLMUTE_MUTED;
 		G_Printf( "^2Player %i was automatically muted by playerhook\n", clientNum );
 		return;
 	} else if (Q_stricmp(hook->action, "shadowmute") == 0) {
-		player->client->sess.muted = CLMUTE_SHADOWMUTED;
+		player->client->sess.muted |= CLMUTE_SHADOWMUTED;
 		G_Printf( "^2Player %i was automatically shadow-muted by playerhook\n", clientNum );
+		return;
+	} else if (Q_stricmp(hook->action, "votemute") == 0) {
+		player->client->sess.muted |= CLMUTE_VOTEMUTED;
+		G_Printf( "^2Player %i was automatically vote-muted by playerhook\n", clientNum );
 		return;
 	} else if (Q_stricmp(hook->action, "rename") == 0) {
 		char userinfo[ MAX_INFO_STRING ];
@@ -4542,10 +4546,12 @@ qboolean G_admin_playerhook( gentity_t *ent, int skiparg )
 	  Q_strncpyz( action, "mute", sizeof(action) );
   } else if( !Q_stricmp( action, "shadowmute" ) ) {
 	  Q_strncpyz( action, "shadowmute", sizeof(action) );
+  } else if( !Q_stricmp( action, "votemute" ) ) {
+	  Q_strncpyz( action, "votemute", sizeof(action) );
   } else if( !Q_stricmp( action, "rename" ) ) {
 	  Q_strncpyz( action, "rename", sizeof(action) );
   } else {
-	  ADMP( "^3!playerhook: ^7invalid action, available actions: mute, shadowmute, rename\n");
+	  ADMP( "^3!playerhook: ^7invalid action, available actions: mute, shadowmute, votemute, rename\n");
 	  return qfalse;
   }
 
