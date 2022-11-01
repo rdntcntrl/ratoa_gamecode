@@ -1795,14 +1795,13 @@ void G_CheckImmortality(gentity_t *ent) {
 }
 
 int G_WeaponForMOD(int mod) {
-	// XXX: not necessarily complete
 	switch (mod) {
-		case MOD_SHOTGUN:
-			return WP_SHOTGUN;
 		case MOD_GAUNTLET:
 			return WP_GAUNTLET;
 		case MOD_MACHINEGUN:
 			return WP_MACHINEGUN;
+		case MOD_SHOTGUN:
+			return WP_SHOTGUN;
 		case MOD_GRENADE:
 		case MOD_GRENADE_SPLASH:
 			return WP_GRENADE_LAUNCHER;
@@ -1812,19 +1811,21 @@ int G_WeaponForMOD(int mod) {
 		case MOD_PLASMA:
 		case MOD_PLASMA_SPLASH:
 			return WP_PLASMAGUN;
-		case MOD_RAILGUN:
-			return WP_RAILGUN;
 		case MOD_LIGHTNING:
 			return WP_LIGHTNING;
+		case MOD_RAILGUN:
+			return WP_RAILGUN;
 		case MOD_BFG:
 		case MOD_BFG_SPLASH:
 			return WP_BFG;
+		case MOD_GRAPPLE:
+			return WP_GRAPPLING_HOOK;
 		case MOD_NAIL:
 			return WP_NAILGUN;
-		case MOD_CHAINGUN:
-			return WP_CHAINGUN;
 		case MOD_PROXIMITY_MINE:
 			return WP_PROX_LAUNCHER;
+		case MOD_CHAINGUN:
+			return WP_CHAINGUN;
 	}
 	return -1;
 }
