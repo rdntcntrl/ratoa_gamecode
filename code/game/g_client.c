@@ -3878,7 +3878,11 @@ void G_UpdateTopWeapons(gclient_t *client) {
 	int i;
 	for (i = 0; i < WP_NUM_WEAPONS; ++i) {
 		client->pers.topweapons[i][0] = i;
-		client->pers.topweapons[i][1] = client->pers.damage[i];
+		if (i == WP_NONE) {
+			client->pers.topweapons[i][1] = 0;
+		} else {
+			client->pers.topweapons[i][1] = client->pers.damage[i];
+		}
 	}
 	qsort( client->pers.topweapons, WP_NUM_WEAPONS,
 		sizeof(client->pers.topweapons[0]), SortWPDamages );
