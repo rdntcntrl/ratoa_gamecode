@@ -3740,7 +3740,7 @@ qboolean G_admin_nextmap( gentity_t *ent, int skiparg )
     ( ent ) ? ent->client->pers.netname : "console" ) );
   //level.lastWin = TEAM_NONE;
   //trap_SetConfigstring( CS_WINNER, "NextMap" );
-  LogExit( "nextmap was called by admin" );
+  LogExit( "nextmap was called by admin", qfalse);
   return qtrue;
 }
 

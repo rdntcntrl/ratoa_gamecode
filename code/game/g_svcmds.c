@@ -443,12 +443,12 @@ void VoteNextmap_f ( void ) {
 	}
 	if (!level.nextMapVoteManual) {
 		level.nextMapVoteManual = 1;
-		LogExit("Nextmapvote queued");
+		LogExit("Nextmapvote queued", qfalse);
 	}
 }
 
 void Intermission_f ( void ) {
-    LogExit("Intermission queued by server console");
+    LogExit("Intermission queued by server console", qfalse);
 }
 
 void NoBots_f ( void ) {

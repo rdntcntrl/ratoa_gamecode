@@ -3752,7 +3752,7 @@ LogExit
 Append information about this game to the log file
 ================
 */
-void LogExit( const char *string ) {
+void LogExit( const char *string, qboolean recordGame) {
 	int				i, numSorted;
 	gclient_t		*cl;
 #ifdef MISSIONPACK
@@ -3812,19 +3812,21 @@ void LogExit( const char *string ) {
 	}
 #endif
 
+	if (recordGame) {
 #ifdef WITH_MULTITOURNAMENT
-	if (g_gametype.integer == GT_MULTITOURNAMENT) {
-		int gameId;
-		for (gameId = 0; gameId < level.multiTrnNumGames; ++gameId) {
-			G_WriteStatsJSON(string, gameId);
-		}
+		if (g_gametype.integer == GT_MULTITOURNAMENT) {
+			int gameId;
+			for (gameId = 0; gameId < level.multiTrnNumGames; ++gameId) {
+				G_WriteStatsJSON(string, gameId);
+			}
 
-	} else {
+		} else {
 #endif
-		G_WriteStatsJSON(string, 0);
+			G_WriteStatsJSON(string, 0);
 #ifdef WITH_MULTITOURNAMENT
-	}
+		}
 #endif
+	}
 
 }
 
@@ -4227,20 +4229,20 @@ void CheckExitRules( void ) {
 						));
 			} else {
 				trap_SendServerCommand( -1, "print \"Timelimit hit.\n\"");
-				LogExit( "Timelimit hit." );
+				LogExit( "Timelimit hit.", qtrue);
 			}
 			return;
 		}
 	}
 
 	if (g_gametype.integer == GT_TOURNAMENT && level.tournamentForfeited) {
-		LogExit("Match ended due to forfeit!");
+		LogExit("Match ended due to forfeit!", qtrue);
 		return;
 	}
 #ifdef WITH_MULTITOURNAMENT
 	if (g_gametype.integer == GT_MULTITOURNAMENT) {
 		if (level.tournamentForfeited) {
-			LogExit("All matches ended due to forfeit!\n");
+			LogExit("All matches ended due to forfeit!\n", qtrue);
 			return;
 		}
 
@@ -4249,7 +4251,7 @@ void CheckExitRules( void ) {
 		}
 
 		if (!level.warmupTime && G_MultiTrnFinished()) {
-			LogExit("All matches ended!\n");
+			LogExit("All matches ended!\n", qtrue);
 			return;
 		}
 	}
@@ -4268,13 +4270,13 @@ void CheckExitRules( void ) {
 	   ) {
 		if ( level.teamScores[TEAM_RED] >= g_fraglimit.integer ) {
 			trap_SendServerCommand( -1, "print \"Red hit the fraglimit.\n\"" );
-			LogExit( "Fraglimit hit." );
+			LogExit( "Fraglimit hit.", qtrue);
 			return;
 		}
 
 		if ( level.teamScores[TEAM_BLUE] >= g_fraglimit.integer ) {
 			trap_SendServerCommand( -1, "print \"Blue hit the fraglimit.\n\"" );
-			LogExit( "Fraglimit hit." );
+			LogExit( "Fraglimit hit.", qtrue);
 			return;
 		}
 
@@ -4288,7 +4290,7 @@ void CheckExitRules( void ) {
 			}
 
 			if ( cl->ps.persistant[PERS_SCORE] >= g_fraglimit.integer ) {
-				LogExit( "Fraglimit hit." );
+				LogExit( "Fraglimit hit.", qtrue);
 				trap_SendServerCommand( -1, va("print \"%s" S_COLOR_WHITE " hit the fraglimit.\n\"",
 					cl->pers.netname ) );
 				return;
@@ -4303,7 +4305,7 @@ void CheckExitRules( void ) {
 			if (G_IsElimTeamGT()) {
 				PrintElimRoundPredictionAccuracy();
 			}
-			LogExit( "Capturelimit hit." );
+			LogExit( "Capturelimit hit.", qtrue);
 			return;
 		}
 
@@ -4312,7 +4314,7 @@ void CheckExitRules( void ) {
 			if (G_IsElimTeamGT()) {
 				PrintElimRoundPredictionAccuracy();
 			}
-			LogExit( "Capturelimit hit." );
+			LogExit( "Capturelimit hit.", qtrue);
 			return;
 		}
 	}
@@ -4321,7 +4323,7 @@ void CheckExitRules( void ) {
 		if (level.th_round == level.th_roundFinished && 
 				level.th_roundFinished >= (g_treasureRounds.integer ? g_treasureRounds.integer : 1)) {
 			trap_SendServerCommand( -1, "print \"Reached the round limit.\n\"" );
-			LogExit( "Roundlimit hit." );
+			LogExit( "Roundlimit hit.", qtrue);
 			return;
 		}
 	}

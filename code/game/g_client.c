@@ -203,7 +203,7 @@ gentity_t *CreateEmergencySpawnpoint( void ) {
 	VectorSet( spot->s.angles, 0, 0, 0);
 
 	//Com_Printf(S_COLOR_YELLOW "Exiting level due to missing spawn point.\n");
-	LogExit("Exiting the level due to missing spawn point");
+	LogExit("Exiting the level due to missing spawn point", qfalse);
 
 	return spot;
 }

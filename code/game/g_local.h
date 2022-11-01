@@ -1291,7 +1291,7 @@ void SendYourTeamMessageToTeam( team_t team );
 void QDECL G_Printf( const char *fmt, ... );
 void QDECL G_Error( const char *fmt, ... ) __attribute__((noreturn));
 //KK-OAX Made Accessible for g_admin.c
-void LogExit( const char *string ); 
+void LogExit( const char *string, qboolean recordGame);
 void CheckTeamVote( int team );
 void G_PingEqualizerReset(void);
 void G_LockTeams(void);
