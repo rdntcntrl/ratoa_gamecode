@@ -1099,7 +1099,7 @@ qboolean UI_ConsoleCommand( int realTime ) {
 	}
 
         if ( Q_stricmp (cmd, "ui_trackconsentmenu") == 0 ) {
-		UI_TrackConsentMenu();
+		UI_TrackConsentMenu(UI_TrackConsentAction);
 		return qtrue;
 	}
 

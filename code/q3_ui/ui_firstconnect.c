@@ -199,6 +199,10 @@ static void FirstConnect_StatusBar_Download( void* ptr ) {
 		UI_DrawString( 320, 440, "Auto download missing maps and mods", UI_CENTER|UI_SMALLFONT, colorWhite );
 }
 
+static void FirstConnect_StatusBar_TrackConsent( void* ptr ) {
+		UI_DrawString( 320, 440, "Permit servers to track your stats.", UI_CENTER|UI_SMALLFONT, colorWhite );
+}
+
 /*
 =================
 FirstConnect_SaveChanges
@@ -207,6 +211,11 @@ FirstConnect_SaveChanges
 static void FirstConnect_SaveChanges( void ) {
 	// name
 	trap_Cvar_Set( "name", s_firstconnect.name.field.buffer );
+}
+
+static void TrackConsentActionFirstConnect( qboolean result ) {
+	UI_TrackConsentAction(result);
+	s_firstconnect.trackconsent.curvalue = result;
 }
 
 /*
@@ -259,7 +268,13 @@ static void FirstConnect_Event( void* ptr, int event )
                         break;
 
                 case ID_TRACKCONSENT:
-                        trap_Cvar_SetValue( "cg_trackConsent", s_firstconnect.trackconsent.curvalue );
+			if ( s_firstconnect.trackconsent.curvalue ) {
+				if (trap_Cvar_VariableValue( "cg_trackConsent" ) != 1) {
+					UI_TrackConsentMenu(TrackConsentActionFirstConnect);
+				}
+			} else {
+				trap_Cvar_SetValue( "cg_trackConsent", 0);
+			}
                         break;
 
                 case ID_DELAGHITSCAN:
@@ -415,7 +430,7 @@ void FirstConnect_MenuInit( void )
 	s_firstconnect.trackconsent.generic.id       = ID_TRACKCONSENT;
 	s_firstconnect.trackconsent.generic.x	       = 320;
 	s_firstconnect.trackconsent.generic.y	       = y;
-        s_firstconnect.trackconsent.generic.statusbar  = FirstConnect_StatusBar_Download;
+        s_firstconnect.trackconsent.generic.statusbar  = FirstConnect_StatusBar_TrackConsent;
 
         s_firstconnect.info.generic.type	 = MTYPE_TEXT;
 	s_firstconnect.info.generic.x     = 320;

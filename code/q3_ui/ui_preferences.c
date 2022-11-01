@@ -134,6 +134,11 @@ static void Preferences_SetMenuItems( void ) {
         s_preferences.teamchatbeep.curvalue     = trap_Cvar_VariableValue( "cg_teamChatBeep" ) != 0;
 }
 
+static void TrackConsentActionPreferences( qboolean result ) {
+	UI_TrackConsentAction(result);
+	s_preferences.trackconsent.curvalue = result;
+}
+
 static void Preferences_Event( void* ptr, int notification ) {
 	if( notification != QM_ACTIVATED ) {
 		return;
@@ -224,7 +229,13 @@ static void Preferences_Event( void* ptr, int notification ) {
 		break;
 
 	case ID_TRACKCONSENT:
-		trap_Cvar_SetValue( "cg_trackConsent", s_preferences.trackconsent.curvalue );
+		if ( s_preferences.trackconsent.curvalue ) {
+			if (trap_Cvar_VariableValue( "cg_trackConsent" ) != 1) {
+				UI_TrackConsentMenu(TrackConsentActionPreferences);
+			}
+		} else {
+			trap_Cvar_SetValue( "cg_trackConsent", 0);
+		}
 		break;
                
         case ID_DELAGHITSCAN:

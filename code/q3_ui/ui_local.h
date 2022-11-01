@@ -420,7 +420,8 @@ extern void UI_InGameMenu(void);
 //
 // ui_trackconsent.c
 //
-extern void UI_TrackConsentMenu(void);
+extern void UI_TrackConsentMenu( void (*action)( qboolean result ) );
+extern void UI_TrackConsentAction( qboolean result );
 
 //
 // ui_confirm.c
