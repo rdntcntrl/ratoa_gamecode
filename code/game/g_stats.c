@@ -200,6 +200,8 @@ void G_JSONExport(fileHandle_t f, const char *exitreason, int gameId) {
 	trap_Cvar_VariableStringBuffer( "sv_hostname", svname, sizeof( svname ) );
 	json_writestring(f, "servername", svname);
 	xfprintf(f, ",");
+	json_writestring(f, "serverid", g_exportStatsServerId.string);
+	xfprintf(f, ",");
 	json_timestamp(f, "time");
 	xfprintf(f, ",");
 	json_writeint(f, "gametype", g_gametype.integer);
@@ -328,7 +330,8 @@ void G_WriteStatsJSON(const char *exitreason, int game_id) {
 	}
 
 	trap_RealTime(&now);
-	Com_sprintf(fname, sizeof(fname), "%04i-%02i-%02i-%02i-%02i-%02i_%i.json",
+	Com_sprintf(fname, sizeof(fname), "%s_%04i-%02i-%02i-%02i-%02i-%02i_%i.json",
+				g_exportStatsServerId.string,
 				1900+now.tm_year,
 				1+now.tm_mon,
 			       	now.tm_mday,

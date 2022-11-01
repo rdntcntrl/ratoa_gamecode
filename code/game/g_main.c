@@ -345,6 +345,7 @@ vmCvar_t        g_useExtendedScores;
 vmCvar_t        g_statsboard;
 vmCvar_t        g_duelStats;
 vmCvar_t        g_exportStats;
+vmCvar_t        g_exportStatsServerId;
 vmCvar_t        g_predictMissiles;
 vmCvar_t        g_ratFlags;
 vmCvar_t        g_maxBrightShellAlpha;
@@ -709,6 +710,7 @@ static cvarTable_t		gameCvarTable[] = {
         { &g_statsboard, "g_statsboard", "2", CVAR_ARCHIVE, 0, qfalse },
         { &g_duelStats, "g_duelStats", "1", CVAR_ARCHIVE, 0, qfalse },
         { &g_exportStats, "g_exportStats", "0", CVAR_ARCHIVE, 0, qfalse },
+        { &g_exportStatsServerId, "g_exportStatsServerId", "demo-server", CVAR_ARCHIVE, 0, qfalse },
         { &g_ratFlags, "g_ratFlags", "0", CVAR_SERVERINFO, 0, qfalse },
         { &g_maxBrightShellAlpha, "g_maxBrightShellAlpha", "0.5", CVAR_SERVERINFO, 0, qfalse },
         { &g_allowDuplicateGuid, "g_allowDuplicateGuid", "0", 0, 0, qfalse },
