@@ -25,6 +25,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "g_local.h"
 #include "challenges.h"
 
+static int G_WeaponForMOD(int mod);
 /*
 ============
 ScorePlum
@@ -1802,7 +1803,7 @@ void G_CheckImmortality(gentity_t *ent) {
 	AwardMessage(ent, EAWARD_IMMORTALITY, ++(ent->client->pers.awardCounts[EAWARD_IMMORTALITY]));
 }
 
-int G_WeaponForMOD(int mod) {
+static int G_WeaponForMOD(int mod) {
 	switch (mod) {
 		case MOD_GAUNTLET:
 			return WP_GAUNTLET;
