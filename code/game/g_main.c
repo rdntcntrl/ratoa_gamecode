@@ -3741,6 +3741,7 @@ void LogMtrnExit( const char *string, int gameId) {
 				ping, game->clients[i],
 				cl->pers.netname );
 	}
+	G_WriteStatsJSON(string, gameId);
 }
 #endif // WITH_MULTITOURNAMENT
 
@@ -3814,13 +3815,7 @@ void LogExit( const char *string, qboolean recordGame) {
 
 	if (recordGame) {
 #ifdef WITH_MULTITOURNAMENT
-		if (g_gametype.integer == GT_MULTITOURNAMENT) {
-			int gameId;
-			for (gameId = 0; gameId < level.multiTrnNumGames; ++gameId) {
-				G_WriteStatsJSON(string, gameId);
-			}
-
-		} else {
+		if (g_gametype.integer != GT_MULTITOURNAMENT) {
 #endif
 			G_WriteStatsJSON(string, 0);
 #ifdef WITH_MULTITOURNAMENT
