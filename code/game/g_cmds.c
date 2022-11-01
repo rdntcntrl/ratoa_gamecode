@@ -3740,6 +3740,10 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 		trap_SendServerCommand( ent-g_entities, "print \"Not allowed to call a vote as spectator.\n\"" );
 		return;
 	}
+	if (ent->client->sess.muted & CLMUTE_VOTEMUTED) {
+		trap_SendServerCommand( ent-g_entities, "print \"You are not allowed to call votes.\n\"" );
+		return;
+	}
 
 	// make sure it is a valid command to vote on
 	trap_Argv( 1, arg1, sizeof( arg1 ) );

@@ -114,6 +114,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define ADMF_TOURNEYLOCK     'L'
 #define ADMF_TOURNEYUNLOCK   ADMF_TOURNEYLOCK
 #define ADMF_MUTE            'm'
+#define ADMF_VOTEMUTE        ADMF_MUTE
 #define ADMF_MUTESPEC        ADMF_MUTE
 #define ADMF_UNMUTESPEC      ADMF_MUTESPEC
 #define ADMF_MAP             'M'
