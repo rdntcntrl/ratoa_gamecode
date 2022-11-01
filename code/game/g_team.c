@@ -167,6 +167,18 @@ void AddTeamScore(vec3_t origin, int team, int score) {
 		return;
 	}
 
+        //No scoring during intermission
+        if ( level.intermissionQueued
+			|| level.intermissiontime
+#ifdef WITH_MULTITOURNAMENT
+			|| G_MtrnIntermissionQueued(level.currentGameId)
+			|| G_MtrnIntermissionTime(level.currentGameId)
+#endif
+			) {
+            return;
+        }
+
+
 	if ( g_gametype.integer != GT_DOMINATION ) {
 		//te = G_TempEntity(origin, EV_GLOBAL_TEAM_SOUND );
 		//te->r.svFlags |= SVF_BROADCAST;

@@ -144,8 +144,10 @@ void AddScore( gentity_t *ent, vec3_t origin, int score ) {
 	}
 
         //No scoring during intermission
-        if ( level.intermissiontime
+        if ( level.intermissionQueued
+			|| level.intermissiontime
 #ifdef WITH_MULTITOURNAMENT
+			|| G_MtrnIntermissionQueued(level.currentGameId)
 			|| G_MtrnIntermissionTime(level.currentGameId)
 #endif
 			) {
