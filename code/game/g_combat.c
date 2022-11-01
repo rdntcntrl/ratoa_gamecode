@@ -1068,9 +1068,6 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 			if(g_gametype.integer != GT_TREASURE_HUNTER && g_gametype.integer!=GT_LMS && !(G_IsElimTeamGT() && level.time < level.roundStartTime))
                                 AddScore( attacker, self->r.currentOrigin, -1 );
 		} else {
-			if(g_gametype.integer!=GT_LMS && g_gametype.integer != GT_TREASURE_HUNTER)
-				AddScore( attacker, self->r.currentOrigin, 1 );
-
 			if( meansOfDeath == MOD_GAUNTLET ) {
 				
 				// Attack gets a challenge complete:
@@ -1098,6 +1095,11 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 			} else {
 				attacker->client->gauntSpree = 0;
 			}
+
+			if(g_gametype.integer!=GT_LMS && g_gametype.integer != GT_TREASURE_HUNTER) {
+				AddScore( attacker, self->r.currentOrigin, 1 );
+			}
+
 
                         //If neither attacker or taget is bots and not the same
                         if(!(attacker->r.svFlags & SVF_BOT) && !(self->r.svFlags & SVF_BOT) && self!=attacker)
