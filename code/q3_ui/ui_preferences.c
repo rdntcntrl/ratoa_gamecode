@@ -60,6 +60,7 @@ GAME OPTIONS MENU
 #define ID_CROSSHAIRHEALTH      144
 #define ID_CHATBEEP             145
 #define ID_TEAMCHATBEEP         146
+#define ID_TRACKCONSENT		147
 
 #define	NUM_CROSSHAIRS			64
 
@@ -91,6 +92,7 @@ typedef struct {
 	menulist_s			drawteamoverlay;
         menuradiobutton_s	delaghitscan;
 	menuradiobutton_s	allowdownload;
+	menuradiobutton_s	trackconsent;
         menuradiobutton_s       chatbeep;
         menuradiobutton_s       teamchatbeep;
 	menubitmap_s		back;
@@ -126,6 +128,7 @@ static void Preferences_SetMenuItems( void ) {
 	s_preferences.forcemodel.curvalue		= trap_Cvar_VariableValue( "cg_forcemodel" ) != 0;
 	s_preferences.drawteamoverlay.curvalue	= Com_Clamp( 0, 3, trap_Cvar_VariableValue( "cg_drawTeamOverlay" ) );
 	s_preferences.allowdownload.curvalue	= trap_Cvar_VariableValue( "cl_allowDownload" ) != 0;
+	s_preferences.trackconsent.curvalue	= trap_Cvar_VariableValue( "cg_trackConsent" ) == 1;
         s_preferences.delaghitscan.curvalue	= trap_Cvar_VariableValue( "cg_delag" ) != 0;
         s_preferences.chatbeep.curvalue         = trap_Cvar_VariableValue( "cg_chatBeep" ) != 0;
         s_preferences.teamchatbeep.curvalue     = trap_Cvar_VariableValue( "cg_teamChatBeep" ) != 0;
@@ -218,6 +221,10 @@ static void Preferences_Event( void* ptr, int notification ) {
 	case ID_ALLOWDOWNLOAD:
 		trap_Cvar_SetValue( "cl_allowDownload", s_preferences.allowdownload.curvalue );
 		trap_Cvar_SetValue( "sv_allowDownload", s_preferences.allowdownload.curvalue );
+		break;
+
+	case ID_TRACKCONSENT:
+		trap_Cvar_SetValue( "cg_trackConsent", s_preferences.trackconsent.curvalue );
 		break;
                
         case ID_DELAGHITSCAN:
@@ -502,6 +509,15 @@ static void Preferences_MenuInit( void ) {
 	s_preferences.allowdownload.generic.id       = ID_ALLOWDOWNLOAD;
 	s_preferences.allowdownload.generic.x	       = PREFERENCES_X_POS;
 	s_preferences.allowdownload.generic.y	       = y;
+
+	y += BIGCHAR_HEIGHT+2;
+	s_preferences.trackconsent.generic.type     = MTYPE_RADIOBUTTON;
+	s_preferences.trackconsent.generic.name	   = "Track me on Ratstats:";
+	s_preferences.trackconsent.generic.flags	   = QMF_PULSEIFFOCUS|QMF_SMALLFONT;
+	s_preferences.trackconsent.generic.callback = Preferences_Event;
+	s_preferences.trackconsent.generic.id       = ID_TRACKCONSENT;
+	s_preferences.trackconsent.generic.x	       = PREFERENCES_X_POS;
+	s_preferences.trackconsent.generic.y	       = y;
         
         y += BIGCHAR_HEIGHT+2;
 	s_preferences.chatbeep.generic.type     = MTYPE_RADIOBUTTON;
@@ -554,6 +570,7 @@ static void Preferences_MenuInit( void ) {
 	Menu_AddItem( &s_preferences.menu, &s_preferences.drawteamoverlay );
         Menu_AddItem( &s_preferences.menu, &s_preferences.delaghitscan );
 	Menu_AddItem( &s_preferences.menu, &s_preferences.allowdownload );
+	Menu_AddItem( &s_preferences.menu, &s_preferences.trackconsent );
         Menu_AddItem( &s_preferences.menu, &s_preferences.teamchatbeep );
         Menu_AddItem( &s_preferences.menu, &s_preferences.chatbeep );
 
