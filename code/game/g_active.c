@@ -1108,7 +1108,7 @@ void G_CheckPingLocation(gentity_t *ent, usercmd_t *ucmd) {
 	if (ucmd->buttons & BUTTON_PING || ucmd->buttons & BUTTON_PINGWARN) {
 		if (!ent->client->pingHeld) {
 			ent->client->pingHeld = qtrue;
-			if (!G_FloodLimited( ent ) && !ent->client->sess.muted ) {
+			if (!G_FloodLimited( ent ) && !(ent->client->sess.muted & CLMUTE_MUTED)) {
 				G_PingLocation(ent, (ucmd->buttons & BUTTON_PINGWARN) ? LOCPING_WARN : LOCPING_PING);
 			}
 		}
