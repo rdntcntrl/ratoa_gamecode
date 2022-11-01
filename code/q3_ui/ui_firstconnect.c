@@ -40,6 +40,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define ID_RATE                 11
 #define ID_DELAGHITSCAN		12
 #define ID_ALLOWDOWNLOAD	13
+#define ID_TRACKCONSENT		14
 
 #define ID_GO                   100
 #define ID_BACK                 101
@@ -86,6 +87,7 @@ typedef struct
         //Optional options
         menuradiobutton_s	delaghitscan;
 	menuradiobutton_s	allowdownload;
+	menuradiobutton_s	trackconsent;
 } firstconnect_t;
 
 static firstconnect_t	s_firstconnect;
@@ -255,6 +257,10 @@ static void FirstConnect_Event( void* ptr, int event )
                         trap_Cvar_SetValue( "sv_allowDownload", s_firstconnect.allowdownload.curvalue );
                         break;
 
+                case ID_TRACKCONSENT:
+                        trap_Cvar_SetValue( "cg_trackConsent", s_firstconnect.trackconsent.curvalue );
+                        break;
+
                 case ID_DELAGHITSCAN:
                         trap_Cvar_SetValue( "g_delagHitscan", s_firstconnect.delaghitscan.curvalue );
                         trap_Cvar_SetValue( "cg_delag", s_firstconnect.delaghitscan.curvalue );
@@ -290,6 +296,7 @@ static void FirstConnect_SetMenuItems( void ) {
 	}
 
         s_firstconnect.allowdownload.curvalue	= trap_Cvar_VariableValue( "cl_allowDownload" ) != 0;
+        s_firstconnect.trackconsent.curvalue	= trap_Cvar_VariableValue( "cg_trackConsent" ) == 1;
         s_firstconnect.delaghitscan.curvalue	= trap_Cvar_VariableValue( "cg_delag" ) != 0;
 }
 
@@ -399,6 +406,16 @@ void FirstConnect_MenuInit( void )
 	s_firstconnect.allowdownload.generic.y	       = y;
         s_firstconnect.allowdownload.generic.statusbar  = FirstConnect_StatusBar_Download;
 
+	y += BIGCHAR_HEIGHT+2;
+	s_firstconnect.trackconsent.generic.type     = MTYPE_RADIOBUTTON;
+	s_firstconnect.trackconsent.generic.name	   = "Track me on Ratstats:";
+	s_firstconnect.trackconsent.generic.flags	   = QMF_PULSEIFFOCUS|QMF_SMALLFONT;
+	s_firstconnect.trackconsent.generic.callback = FirstConnect_Event;
+	s_firstconnect.trackconsent.generic.id       = ID_TRACKCONSENT;
+	s_firstconnect.trackconsent.generic.x	       = 320;
+	s_firstconnect.trackconsent.generic.y	       = y;
+        s_firstconnect.trackconsent.generic.statusbar  = FirstConnect_StatusBar_Download;
+
         s_firstconnect.info.generic.type	 = MTYPE_TEXT;
 	s_firstconnect.info.generic.x     = 320;
 	s_firstconnect.info.generic.y     = 400;
@@ -424,6 +441,7 @@ void FirstConnect_MenuInit( void )
 
         Menu_AddItem( &s_firstconnect.menu, &s_firstconnect.delaghitscan );
         Menu_AddItem( &s_firstconnect.menu, &s_firstconnect.allowdownload );
+        Menu_AddItem( &s_firstconnect.menu, &s_firstconnect.trackconsent );
 
         Menu_AddItem( &s_firstconnect.menu, &s_firstconnect.info );
         Menu_AddItem( &s_firstconnect.menu, &s_firstconnect.info2 );
