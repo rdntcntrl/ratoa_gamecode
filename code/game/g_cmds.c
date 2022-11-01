@@ -4126,6 +4126,11 @@ void Cmd_Vote_f( gentity_t *ent ) {
 		return;
 	}
 
+	if ( ent->client->sess.muted & (CLMUTE_VOTEMUTED | CLMUTE_MUTED)) {
+		trap_SendServerCommand( ent-g_entities, "print \"Not allowed to vote.\n\"" );
+	       	return;
+	}
+
 	trap_SendServerCommand( ent-g_entities, "print \"Vote cast.\n\"" );
 
 	ent->client->ps.eFlags |= EF_VOTED;

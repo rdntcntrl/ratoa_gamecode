@@ -812,6 +812,9 @@ void CountVotes( void ) {
             if ( g_entities[i].r.svFlags & SVF_BOT )
                 continue; //Is a bot
 
+            if ( level.clients[ i ].sess.muted & (CLMUTE_MUTED | CLMUTE_VOTEMUTED) )
+                continue; // Client is muted and cannot vote
+
             //The client can vote
             level.numVotingClients++;
 
