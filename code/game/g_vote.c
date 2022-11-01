@@ -643,13 +643,6 @@ out:
 }
 
 
-void G_SendVoteResult(qboolean passed) {
-	if (!g_usesRatVM.integer) {
-		return;
-	}
-	trap_SendServerCommand( -1, va("vresult %s", passed ? "p" : "f"));
-}
-
 void G_SetVoteExecTime(void) {
 	level.voteExecuteTime = level.realtime + 3000;
 	// make sure vote gets executed if it passed just at the end of a warmup
@@ -685,6 +678,24 @@ void G_SaveRejectedVote(void) {
 	level.lastFailedVoteCount++;
 }
 
+static void G_SendVoteResult(qboolean passed) {
+	if (!g_usesRatVM.integer) {
+		return;
+	}
+	trap_SendServerCommand( -1, va("vresult %s", passed ? "p" : "f"));
+}
+
+static void G_VoteResult(qboolean passed) {
+	if (level.voteClient >= 0 && level.voteClient < MAX_CLIENTS) {
+		if (!passed) {
+			level.clients[level.voteClient].pers.failedVoteCount++;
+		} else {
+			level.clients[level.voteClient].pers.failedVoteCount = 0;
+		}
+	}
+	G_SendVoteResult(passed);
+}
+
 /*
 ==================
 CheckVote
@@ -703,36 +714,35 @@ void CheckVote( void ) {
                 //Let pass if there was at least twice as many for as against
                 if ( level.voteYes > level.voteNo*2 ) {
                     trap_SendServerCommand( -1, "print \"Vote passed. At least 2 of 3 voted yes\n\"" );
-		    G_SendVoteResult(qtrue);
+		    G_VoteResult(qtrue);
 		    G_SetVoteExecTime();
                 } else {
                     //Let pass if there is more yes than no and at least 2 yes votes and at least 30% yes of all on the server
                     if ( level.voteYes > level.voteNo && level.voteYes >= 2 && (level.voteYes*10)>(level.numVotingClients*3) ) {
                         trap_SendServerCommand( -1, "print \"Vote passed. More yes than no.\n\"" );
-			G_SendVoteResult(qtrue);
+			G_VoteResult(qtrue);
 			G_SetVoteExecTime();
                     } else {
                         trap_SendServerCommand( -1, "print \"Vote failed.\n\"" );
-		    	G_SendVoteResult(qfalse);
+		    	G_VoteResult(qfalse);
 		    }
                 }
 	    } else if (level.votePassRatio > 0) {
                 trap_SendServerCommand( -1, va("print \"Vote failed (requires %i percent of the votes to pass).\n\"", (int)(level.votePassRatio*100)));
-		G_SendVoteResult(qfalse);
-		G_SendVoteResult(qfalse);
+		G_VoteResult(qfalse);
             } else {
                 trap_SendServerCommand( -1, "print \"Vote failed.\n\"" );
-		G_SendVoteResult(qfalse);
+		G_VoteResult(qfalse);
             }
 	} else if (level.votePassRatio > 0) {
 		if ((float)level.voteYes/level.numVotingClients > level.votePassRatio) {
 			trap_SendServerCommand( -1, "print \"Vote passed.\n\"" );
-		    	G_SendVoteResult(qtrue);
+		    	G_VoteResult(qtrue);
 			G_SetVoteExecTime();
 		} else if ((float)level.voteNo/level.numVotingClients >= 1.0-level.votePassRatio) {
 			// same behavior as a timeout
 			trap_SendServerCommand( -1, va("print \"Vote failed (requires %i percent of the votes to pass).\n\"", (int)(level.votePassRatio*100)));
-		    	G_SendVoteResult(qfalse);
+		    	G_VoteResult(qfalse);
 
 			// vote was actively rejected, prevent same client from calling it again immediately
 			G_SaveRejectedVote();
@@ -745,12 +755,12 @@ void CheckVote( void ) {
 		if ( level.voteYes > (level.numVotingClients)/2 ) {
 			// execute the command, then remove the vote
 			trap_SendServerCommand( -1, "print \"Vote passed.\n\"" );
-		    	G_SendVoteResult(qtrue);
+		    	G_VoteResult(qtrue);
 			G_SetVoteExecTime();
 		} else if ( level.voteNo >= (level.numVotingClients)/2 ) {
 			// same behavior as a timeout
 			trap_SendServerCommand( -1, "print \"Vote failed.\n\"" );
-		    	G_SendVoteResult(qfalse);
+		    	G_VoteResult(qfalse);
 
 			// vote was actively rejected, prevent same client from calling it again immediately
 			G_SaveRejectedVote();
@@ -832,6 +842,10 @@ void CountVotes( void ) {
 void ClientLeaving(int clientNumber) {
     if(clientNumber == level.voteKickClient) {
             ForceFail();
+    }
+    // if this client called a vote
+    if (clientNumber == level.voteClient) {
+	    level.voteClient = -1;
     }
 }
 

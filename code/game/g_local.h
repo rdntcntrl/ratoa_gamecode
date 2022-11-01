@@ -408,8 +408,8 @@ typedef struct {
 	int			maxHealth;			// for handicapping
 	int			enterTime;			// level.time the client entered the game
 	playerTeamState_t teamState;	// status in teamplay games
-	int			voteCount;			// to prevent people from constantly calling votes
-	int			teamVoteCount;		// to prevent people from constantly calling votes
+	int		failedVoteCount;			// to prevent people from constantly calling votes
+	int		teamVoteCount;		// to prevent people from constantly calling votes
 	qboolean	teamInfo;			// send team overlay updates?
 	//elimination:
 	int		roundReached;			//Only spawn if we are new to this round
@@ -780,6 +780,7 @@ typedef struct {
 	char		lastFailedVote[MAX_STRING_CHARS]; // old votestring to detect repeated votes
 	int		lastFailedVoteTime; 		 
 	int		lastFailedVoteCount; 		 
+	int		voteClient; // client calling the vote
 
 	// team voting state
 	char		teamVoteString[2][MAX_STRING_CHARS];
@@ -1435,7 +1436,6 @@ int allowedVote(char *commandStr);
 void CheckVote( void );
 void CountVotes( void );
 void ClientLeaving(int clientNumber);
-void G_SendVoteResult(qboolean passed);
 void G_ResetRejectedVote(void);
 qboolean G_CheckRejectedVote(void);
 int VotePrintCustomVotes (gentity_t *ent);
