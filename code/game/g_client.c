@@ -2091,6 +2091,13 @@ void ClientUserinfoChanged( int clientNum ) {
 		client->pers.damagePlums = atoi( s );
 	}
 
+	s = Info_ValueForKey( userinfo, "cg_trackConsent" );
+	if ( atoi( s ) == 1) {
+		client->pers.trackConsent = qtrue;
+	} else {
+		client->pers.trackConsent = qfalse;
+	}
+
 	// see if the player is nudging his shots
 	//s = Info_ValueForKey( userinfo, "cg_cmdTimeNudge" );
 	//client->pers.cmdTimeNudge = atoi( s );

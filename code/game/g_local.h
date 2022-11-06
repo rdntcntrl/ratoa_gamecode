@@ -519,6 +519,8 @@ typedef struct {
     int fps_nframes;
     int fps_time;
     int fps_last;
+
+    qboolean trackConsent;
 } clientPersistant_t;
 
 // for twitchrail award
