@@ -1481,6 +1481,9 @@ void CG_RatInitDefaults(void)  {
 }
 
 void CG_CheckTrackConsent(void)  {
+	if ( !((int)CG_Cvar_Get("cg_voteflags") & VF_trackconsent) ) {
+		return;
+	}
 	if ((int)CG_Cvar_Get("ui_trackConsentConfigured") != 0) {
 		return;
 	}

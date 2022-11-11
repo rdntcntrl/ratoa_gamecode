@@ -866,7 +866,7 @@ qboolean	BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const play
 
 //g_voteflags->integer
 //Autoparsed from allowedvote
-//List: "/map_restart/nextmap/map/g_gametype/kick/clientkick/g_doWarmup/timelimit/fraglimit/custom/shuffle/"
+//List: "/map_restart/nextmap/map/g_gametype/kick/clientkick/g_doWarmup/timelimit/fraglimit/custom/shuffle/trackconsent/"
 #define VF_map_restart  1
 #define VF_nextmap      2
 #define VF_map          4
@@ -878,6 +878,7 @@ qboolean	BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const play
 #define VF_fraglimit    128
 #define VF_custom       256
 #define VF_shuffle      512
+#define VF_trackconsent 1024
 
 //g_ratFlags->integer
 // autoparsed from various ratmod cvars
