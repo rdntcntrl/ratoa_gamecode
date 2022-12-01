@@ -962,13 +962,13 @@ void CG_SetEngineCvars( void ) {
  	if ((int)CG_Cvar_Get("cl_maxpackets") < 125) {
 		trap_Cvar_Set( "cl_maxpackets", "125" );
 	}
- 	if ((int)CG_Cvar_Get("rate") < 25000) {
-		trap_Cvar_Set( "rate", "25000" );
+ 	if ((int)CG_Cvar_Get("rate") < RECOMMENDED_RATE) {
+		trap_Cvar_Set( "rate", va("%i", RECOMMENDED_RATE) );
 	}
 }
 
 
-#define LATEST_RATINITIALIZED 35
+#define LATEST_RATINITIALIZED 36
 
 int CG_MigrateOldCrosshair(int old) {
 	switch (old) {
@@ -1464,6 +1464,12 @@ void CG_RatOldCfgUpdate(void) {
 		trap_SendConsoleCommand("unset cg_noTaunt\n");
 
 		CG_Cvar_SetAndUpdate( "cg_ratInitialized", "35" );
+	}
+
+	if (cg_ratInitialized.integer < 36) {
+		CG_SetEngineCvars();
+
+		CG_Cvar_SetAndUpdate( "cg_ratInitialized", "36" );
 	}
 }
 

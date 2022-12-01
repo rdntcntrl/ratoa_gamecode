@@ -1334,5 +1334,6 @@ typedef enum _flag_status {
 #define CDKEY_LEN 16
 #define CDCHKSUM_LEN 2
 
+#define RECOMMENDED_RATE 100000
 
 #endif	// __Q_SHARED_H

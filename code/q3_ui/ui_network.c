@@ -116,7 +116,7 @@ static void UI_NetworkOptionsMenu_Event( void* ptr, int event ) {
 			trap_Cvar_SetValue( "rate", 5000 );
 		}
 		else if( networkOptionsInfo.rate.curvalue == 4 ) {
-			trap_Cvar_SetValue( "rate", 25000 );
+			trap_Cvar_SetValue( "rate", RECOMMENDED_RATE );
 		}
 		break;
 
