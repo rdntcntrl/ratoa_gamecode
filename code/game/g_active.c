@@ -956,7 +956,8 @@ void ClientEvents( gentity_t *ent, int oldEventSequence ) {
 			if ( ent->s.eType != ET_PLAYER ) {
 				break;		// not in the player model
 			}
-			if ( g_dmflags.integer & DF_NO_FALLING ) {
+			if ( g_dmflags.integer & DF_NO_FALLING 
+					|| (G_IsElimGT() && !g_elimination_selfdamage.integer)) {
 				break;
 			}
 			if ( event == EV_FALL_FAR ) {
