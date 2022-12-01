@@ -484,7 +484,7 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 		return;
 
 	//Cannot touch flag/items before round starts
-	if(G_IsElimGT() && level.roundNumber != level.roundNumberStarted)
+	if(G_IsElimGT() && level.roundNumber != level.roundNumberStarted && level.warmupTime == 0)
 		return;
 
 	//Cannot take ctf elimination oneway
