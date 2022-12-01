@@ -350,6 +350,11 @@ static void CG_TouchItem( centity_t *cent ) {
 
 	//if(cgs.gametype == GT_ELIMINATION || cgs.gametype == GT_LMS)
 	//	return; //No weapon pickup in elimination
+	
+	// items can only be picked up during the round
+	if (BG_IsElimGT(cgs.gametype) && cgs.roundStartTime > cg.time && cg.warmup == 0) {
+		return;
+	}
 
 	//normally we can
 	//canBePicked = qtrue;

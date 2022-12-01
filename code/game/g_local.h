@@ -1627,7 +1627,7 @@ extern	vmCvar_t	g_elimination_roundtime;
 extern	vmCvar_t	g_elimination_warmup;
 extern	vmCvar_t	g_elimination_activewarmup;
 extern  vmCvar_t        g_elimination_allgametypes;
-extern  vmCvar_t        g_elimination_spawn_allgametypes;
+extern  vmCvar_t        g_elimination_spawnitems;
 extern	vmCvar_t	g_elimination_machinegun;
 extern	vmCvar_t	g_elimination_shotgun;
 extern	vmCvar_t	g_elimination_grenade;

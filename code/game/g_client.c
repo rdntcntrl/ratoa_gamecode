@@ -3466,7 +3466,7 @@ void ClientSpawn(gentity_t *ent) {
 
 	client->ps.clientNum = index;
 
-if(!G_IsElimGT() && !g_elimination_allgametypes.integer && !g_elimination_spawn_allgametypes.integer)
+if(!G_IsElimGT() && !g_elimination_allgametypes.integer)
 {
 	client->ps.stats[STAT_WEAPONS] = ( 1 << WP_MACHINEGUN );
 	if ( g_gametype.integer == GT_TEAM ) {
