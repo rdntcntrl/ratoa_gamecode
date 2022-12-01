@@ -210,7 +210,7 @@ void TossClientItems( gentity_t *self ) {
 	weapon = self->s.weapon;
 
 	//Never drop in elimination or last man standing mode!
-	if( g_gametype.integer == GT_ELIMINATION || g_gametype.integer == GT_LMS)
+	if( (g_gametype.integer == GT_ELIMINATION || g_gametype.integer == GT_LMS) && !g_elimination_spawnitems.integer)
 		return;
 
 	// make a special check to see if they are changing to a new
@@ -226,7 +226,8 @@ void TossClientItems( gentity_t *self ) {
 		}
 	}
 
-	if (g_instantgib.integer || g_rockets.integer || g_gametype.integer == GT_CTF_ELIMINATION || g_elimination_allgametypes.integer){
+	if (g_instantgib.integer || g_rockets.integer ||
+		       	((g_gametype.integer == GT_CTF_ELIMINATION || g_elimination_allgametypes.integer) && !g_elimination_spawnitems.integer )){
 	//Nothing!	
 	}
 	else
