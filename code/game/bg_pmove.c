@@ -441,7 +441,7 @@ static qboolean PM_CheckJump( void ) {
 
 	pm->ps->groundEntityNum = ENTITYNUM_NONE;
 
-	if ( (pm->pmove_ratflags & (RAT_RAMPJUMP | RAT_ADDITIVEJUMP)) && (pm->ps->velocity[2] >= 0) ) {
+	if ( (pm->pmove_ratflags & (RAT_RAMPJUMP | RAT_ADDITIVEJUMP)) && ((pm->ps->velocity[2] >= 0)) ) {
 		pm->ps->velocity[2] += JUMP_VELOCITY;
 	} else {
 		pm->ps->velocity[2] = JUMP_VELOCITY;
@@ -810,7 +810,6 @@ static void PM_AirMove( void ) {
 	float		scale;
 	usercmd_t	cmd;
 	float		accel = PM_GetAirAccelerate(pm);
-	float		zspeed;
 	vec3_t		curdir;
 	float		dot;
 
@@ -887,8 +886,6 @@ static void PM_AirMove( void ) {
 	}
 	// end Xonotic Darkplaces Air Control
 
-	zspeed = pm->ps->velocity[2];
-
 	// we may have a ground plane that is very steep, even
 	// though we don't have a groundentity
 	// slide along the steep plane
@@ -908,17 +905,6 @@ static void PM_AirMove( void ) {
 #endif
 
 	PM_StepSlideMove ( qtrue );
-
-	// Did we collide with the ground? No? Set the overbounce flag.
-	// zspeed and pm->ps->velocity[2] are both negative in a fall.
-	// If they are both positive, the result shouldn't matter.
-	/* The above is a lie. Collisions with ramps can still happen when vertical
-	velocity is slightly positve. */
-	if ( zspeed < pm->ps->velocity[2] ) {
-		pm->ps->stats[STAT_OVERBOUNCE] = 0;
-	} else {
-		pm->ps->stats[STAT_OVERBOUNCE] = 1;
-	}
 }
 
 /*
@@ -998,15 +984,12 @@ static void PM_WalkMove( void ) {
 	}
 
 
-	if ( PM_CheckJump () || 
-			( (pm->pmove_ratflags & RAT_NOOVERBOUNCE) 
-			  && pm->ps->stats[STAT_OVERBOUNCE] == 1 ) ) {
+	if ( PM_CheckJump () ) {
 		// jumped away
 		if ( pm->waterlevel > 1 ) {
 			PM_WaterMove();
 		} else {
 			PM_AirMove();
-			pm->ps->stats[STAT_OVERBOUNCE] = 0;
 		}
 		return;
 	}
@@ -2376,6 +2359,9 @@ void PmoveSingle (pmove_t *pmove) {
 
 	// set groundentity
 	PM_GroundTrace();
+	if (pml.groundPlane && (pm->pmove_ratflags & RAT_NOOVERBOUNCE)) {
+		PM_OneSidedClipVelocity(pm->ps->velocity, pml.groundTrace.plane.normal, pm->ps->velocity, OVERCLIP);
+	}
 
 	if ( pm->ps->pm_type == PM_DEAD ) {
 		PM_DeadMove ();
