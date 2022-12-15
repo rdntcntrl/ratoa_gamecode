@@ -996,15 +996,15 @@ static void PM_WalkMove( void ) {
 
 	PM_Friction ();
 	
-	if (!pm->cmd.forwardmove && !pm->cmd.rightmove) {
-		pm->ps->stats[STAT_EXTFLAGS] &= ~EXTFL_SLIDING;
-	}
-
 	fmove = pm->cmd.forwardmove;
 	smove = pm->cmd.rightmove;
 
 	cmd = pm->cmd;
 	
+	if ((!cmd.forwardmove && !cmd.rightmove) || ( pml.groundTrace.surfaceFlags & SURF_SLICK )) {
+		pm->ps->stats[STAT_EXTFLAGS] &= ~EXTFL_SLIDING;
+	}
+
 	if (pm->ps->stats[STAT_EXTFLAGS] & EXTFL_SLIDING) {
 		cmd.upmove = 0;
 	}
