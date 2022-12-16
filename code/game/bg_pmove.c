@@ -1001,7 +1001,7 @@ static void PM_WalkMove( void ) {
 
 	cmd = pm->cmd;
 	
-	if ((!cmd.forwardmove && !cmd.rightmove) || ( pml.groundTrace.surfaceFlags & SURF_SLICK )) {
+	if (!cmd.forwardmove && !cmd.rightmove) {
 		pm->ps->stats[STAT_EXTFLAGS] &= ~EXTFL_SLIDING;
 	}
 
@@ -1284,7 +1284,7 @@ static void PM_CrashLand( void ) {
 	delta = delta*delta * 0.0001;
 
 	// ducking while falling doubles damage
-	if ( pm->ps->pm_flags & PMF_DUCKED ) {
+	if ( (pm->ps->pm_flags & PMF_DUCKED) && !( pml.groundTrace.surfaceFlags & SURF_SLICK ) ) {
 		delta *= 2;
 		if (pm->pmove_ratflags & RAT_CROUCHSLIDE) {
 			pm->ps->stats[STAT_EXTFLAGS] |= EXTFL_SLIDING;
