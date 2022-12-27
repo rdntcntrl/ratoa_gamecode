@@ -3147,6 +3147,7 @@ void ClientSpawn(gentity_t *ent) {
 	int		eventSequence;
 	char	userinfo[MAX_INFO_STRING];
 	qboolean respawn_inplace;
+	int		r;
 
 	index = ent - g_entities;
 	client = ent->client;
@@ -3289,7 +3290,9 @@ void ClientSpawn(gentity_t *ent) {
 			}
 		}
 	} else {
+		r = 0;
 		do {
+			r++;
 			// the first spawn should be at a good looking spot
 			if ( !client->pers.initialSpawn ) {
 				client->pers.initialSpawn = qtrue;
@@ -3359,7 +3362,10 @@ void ClientSpawn(gentity_t *ent) {
 
 			break;
 
-		} while ( 1 );
+		} while ( r < MAX_SPAWN_POINTS );
+		if ( r >= MAX_SPAWN_POINTS ) {
+			Com_Printf( S_COLOR_YELLOW "WARNING: Spawn point found after %i runs\n", r );
+		}
 	}
 	client->pers.teamState.state = TEAM_ACTIVE;
 
