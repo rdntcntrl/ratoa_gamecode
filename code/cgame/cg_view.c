@@ -319,6 +319,7 @@ static void CG_OffsetFirstPersonView( void ) {
 	float			f;
 	vec3_t			predictedVelocity;
 	int				timeDelta;
+	vec_t			groundViewLevel;
 	
 	if ( cg.snap->ps.pm_type == PM_INTERMISSION ) {
 		return;
@@ -392,8 +393,15 @@ static void CG_OffsetFirstPersonView( void ) {
 
 //===================================
 
+	groundViewLevel = vieworg[2] + MINS_Z + 6;
+	
 	// add view height
 	vieworg[2] += cg.predictedPlayerState.viewheight;
+
+	if (vieworg[2] < groundViewLevel) {
+		// server wanted this low a height...
+		groundViewLevel = vieworg[2];
+	}
 
 	// smooth out duck height changes
 	timeDelta = cg.time - cg.duckTime;
@@ -426,6 +434,11 @@ static void CG_OffsetFirstPersonView( void ) {
 
 	// add step offset
 	CG_StepOffset();
+
+	if (vieworg[2] < groundViewLevel) {
+		// make sure we don't look through the ground
+		vieworg[2] = groundViewLevel;
+	}
 
 	// add kick offset
 
