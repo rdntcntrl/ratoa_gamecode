@@ -520,7 +520,7 @@ ProximityMine_Player
 ================
 */
 static void ProximityMine_Player( gentity_t *mine, gentity_t *player ) {
-	if( mine->s.eFlags & EF_NODRAW ) {
+	if( mine->s.eFlags & EF_NODRAW || !player->client) {
 		return;
 	}
 
@@ -673,7 +673,7 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 		}
 
 		// if it's a player, stick it on to them (flag them and remove this entity)
-		if( other->s.eType == ET_PLAYER && other->health > 0 ) {
+		if( other->s.eType == ET_PLAYER && other->health > 0 && !G_IsFrozenPlayerRemnant(other) ) {
 			ProximityMine_Player( ent, other );
 			return;
 		}
