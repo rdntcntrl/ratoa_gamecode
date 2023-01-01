@@ -1487,6 +1487,10 @@ void CG_RatInitDefaults(void)  {
 }
 
 void CG_CheckTrackConsent(void)  {
+	if (cgs.localServer) {
+		// do not display popup if we're just playing locally
+		return;
+	}
 	if ((int)CG_Cvar_Get("ui_trackConsentConfigured") != 0) {
 		return;
 	}
