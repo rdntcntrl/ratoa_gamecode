@@ -3362,9 +3362,9 @@ void ClientSpawn(gentity_t *ent) {
 
 			break;
 
-		} while ( r < MAX_SPAWN_POINTS );
-		if ( r >= MAX_SPAWN_POINTS ) {
-			Com_Printf( S_COLOR_YELLOW "WARNING: Spawn point found after %i runs\n", r );
+		} while ( r < MAX_SPAWN_POINTS * 2 );
+		if ( r >= MAX_SPAWN_POINTS * 2) {
+			Com_Error( ERR_DROP, "No spawn point found after %i runs\n", r );
 		}
 	}
 	client->pers.teamState.state = TEAM_ACTIVE;
