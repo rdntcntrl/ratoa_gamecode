@@ -276,6 +276,7 @@ gentity_t *G_PickTargetArena(int targetArena, gclient_t *client) {
 				spawn_origin, spawn_angles);
 	} else {
 		dest = SelectRandomDeathmatchSpawnPointArena(
+				NULL,
 				targetArena);
 	}
 
