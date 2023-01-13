@@ -303,6 +303,18 @@ static void CG_StepOffset( void ) {
 	}
 }
 
+/* Limit the maximum amount the player's view can be lowered. This prevents seeing through stairs when crouching and
+   crash landing. */
+static void CG_BoundOffset(vec_t *zVieworg, vec_t originalZVieworg) {
+	vec_t difference = *zVieworg - originalZVieworg;
+	// Not exact, but good enough.
+	const vec_t maxDownwardOffset = -32;
+	// View will only move down.
+	if (difference < maxDownwardOffset) {
+		*zVieworg = originalZVieworg + maxDownwardOffset;
+	}
+}
+
 /*
 ===============
 CG_OffsetFirstPersonView
@@ -319,6 +331,7 @@ static void CG_OffsetFirstPersonView( void ) {
 	float			f;
 	vec3_t			predictedVelocity;
 	int				timeDelta;
+	vec_t			originalZVieworg;
 	
 	if ( cg.snap->ps.pm_type == PM_INTERMISSION ) {
 		return;
@@ -395,6 +408,8 @@ static void CG_OffsetFirstPersonView( void ) {
 	// add view height
 	origin[2] += cg.predictedPlayerState.viewheight;
 
+	originalZVieworg = cg.refdef.vieworg[2];
+
 	// smooth out duck height changes
 	timeDelta = cg.time - cg.duckTime;
 	if ( timeDelta < DUCK_TIME) {
@@ -426,6 +441,10 @@ static void CG_OffsetFirstPersonView( void ) {
 
 	// add step offset
 	CG_StepOffset();
+
+	/* Crouch offset is applied later, but that seems to be fine since the constant duck amount is accounted for in this
+	   function. */
+	CG_BoundOffset(&cg.refdef.vieworg[2], originalZVieworg);
 
 	// add kick offset
 
