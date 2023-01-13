@@ -310,7 +310,7 @@ CG_OffsetFirstPersonView
 ===============
 */
 static void CG_OffsetFirstPersonView( void ) {
-	float			*origin;
+	float			*vieworg;
 	float			*angles;
 	float			bob;
 	float			ratio;
@@ -324,7 +324,7 @@ static void CG_OffsetFirstPersonView( void ) {
 		return;
 	}
 
-	origin = cg.refdef.vieworg;
+	vieworg = cg.refdef.vieworg;
 	angles = cg.refdefViewAngles;
 
 	// if dead, fix the angle and don't add any kick
@@ -332,7 +332,7 @@ static void CG_OffsetFirstPersonView( void ) {
 		angles[ROLL] = 40;
 		angles[PITCH] = -15;
 		angles[YAW] = cg.snap->ps.stats[STAT_DEAD_YAW];
-		origin[2] += cg.predictedPlayerState.viewheight;
+		vieworg[2] += cg.predictedPlayerState.viewheight;
 		return;
 	}
 
@@ -393,12 +393,12 @@ static void CG_OffsetFirstPersonView( void ) {
 //===================================
 
 	// add view height
-	origin[2] += cg.predictedPlayerState.viewheight;
+	vieworg[2] += cg.predictedPlayerState.viewheight;
 
 	// smooth out duck height changes
 	timeDelta = cg.time - cg.duckTime;
 	if ( timeDelta < DUCK_TIME) {
-		cg.refdef.vieworg[2] -= cg.duckChange 
+		vieworg[2] -= cg.duckChange
 			* (DUCK_TIME - timeDelta) / DUCK_TIME;
 	}
 
@@ -409,7 +409,7 @@ static void CG_OffsetFirstPersonView( void ) {
 			bob = 6;
 		}
 
-		origin[2] += bob;
+		vieworg[2] += bob;
 	}
 
 
@@ -417,11 +417,11 @@ static void CG_OffsetFirstPersonView( void ) {
 	delta = cg.time - cg.landTime;
 	if ( delta < LAND_DEFLECT_TIME ) {
 		f = delta / LAND_DEFLECT_TIME;
-		cg.refdef.vieworg[2] += cg.landChange * f;
+		vieworg[2] += cg.landChange * f;
 	} else if ( delta < LAND_DEFLECT_TIME + LAND_RETURN_TIME ) {
 		delta -= LAND_DEFLECT_TIME;
 		f = 1.0 - ( delta / LAND_RETURN_TIME );
-		cg.refdef.vieworg[2] += cg.landChange * f;
+		vieworg[2] += cg.landChange * f;
 	}
 
 	// add step offset
@@ -429,7 +429,7 @@ static void CG_OffsetFirstPersonView( void ) {
 
 	// add kick offset
 
-	VectorAdd (origin, cg.kick_origin, origin);
+	VectorAdd (vieworg, cg.kick_origin, vieworg);
 
 	// pivot the eye based on a neck length
 #if 0
@@ -437,10 +437,10 @@ static void CG_OffsetFirstPersonView( void ) {
 #define	NECK_LENGTH		8
 	vec3_t			forward, up;
  
-	cg.refdef.vieworg[2] -= NECK_LENGTH;
+	vieworg[2] -= NECK_LENGTH;
 	AngleVectors( cg.refdefViewAngles, forward, NULL, up );
-	VectorMA( cg.refdef.vieworg, 3, forward, cg.refdef.vieworg );
-	VectorMA( cg.refdef.vieworg, NECK_LENGTH, up, cg.refdef.vieworg );
+	VectorMA( vieworg, 3, forward, vieworg );
+	VectorMA( vieworg, NECK_LENGTH, up, vieworg );
 	}
 #endif
 }
