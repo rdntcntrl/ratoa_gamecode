@@ -1985,6 +1985,8 @@ static void CG_RegisterSounds( void ) {
 	const char	*soundName;
  	char announcer[32];
 	char format[16];
+	const char *fallbackAnnouncer = "treb/";
+	const char *fallbackFormat = "ogg";
 
 	// voice commands
 #ifdef MISSIONPACK
@@ -1996,6 +1998,10 @@ static void CG_RegisterSounds( void ) {
 
 	CG_GetAnnouncer(cg_announcer.string, announcer, sizeof(announcer),
 			format, sizeof(format));
+	if (strlen(announcer) > 0) {
+		fallbackAnnouncer = announcer;
+		fallbackFormat = format;
+	}
 
 	cgs.media.oneMinuteSound = trap_S_RegisterSound( va("sound/%sfeedback/1_minute.%s", announcer, format), qtrue );
 	cgs.media.fiveMinuteSound = trap_S_RegisterSound( va("sound/%sfeedback/5_minute.%s", announcer, format), qtrue );
@@ -2053,9 +2059,10 @@ static void CG_RegisterSounds( void ) {
 		}
 
 		if ( cgs.gametype == GT_ELIMINATION ) {
-			//cgs.media.oneLeftSound = trap_S_RegisterSound( "sound/treb/ratmod/extermination/rat_race.ogg", qtrue );
-			cgs.media.oneFriendLeftSound = trap_S_RegisterSound( "sound/treb/ratmod/extermination/last_man.ogg", qtrue );
-			cgs.media.oneEnemyLeftSound = trap_S_RegisterSound( "sound/treb/ratmod/extermination/the_chase_is_on.ogg", qtrue );
+			cgs.media.oneFriendLeftSound = trap_S_RegisterSound( va("sound/%sratmod/extermination/last_man.%s",
+						fallbackAnnouncer, fallbackFormat), qtrue );
+			cgs.media.oneEnemyLeftSound = trap_S_RegisterSound( va("sound/%sratmod/extermination/the_chase_is_on.%s",
+					       fallbackAnnouncer, fallbackFormat), qtrue );
 			cgs.media.elimPlayerRespawnSound = trap_S_RegisterSound( "sound/treb/ratmod/extermination/spawn.ogg", qtrue );
 		}
 
@@ -2338,12 +2345,12 @@ static void CG_RegisterSounds( void ) {
 	cgs.media.hgrenb1aSound = trap_S_RegisterSound("sound/weapons/grenade/hgrenb1a.wav", qfalse);
 	cgs.media.hgrenb2aSound = trap_S_RegisterSound("sound/weapons/grenade/hgrenb2a.wav", qfalse);
 
-	cgs.media.announceQuad = trap_S_RegisterSound("sound/treb/ratmod/powerups/quad_damage.ogg", qtrue);
-	cgs.media.announceBattlesuit = trap_S_RegisterSound("sound/treb/ratmod/powerups/battlesuit.ogg", qtrue);
-	cgs.media.announceHaste = trap_S_RegisterSound("sound/treb/ratmod/powerups/haste.ogg", qtrue);
-	cgs.media.announceInvis = trap_S_RegisterSound("sound/treb/ratmod/powerups/invisibility.ogg", qtrue);
-	cgs.media.announceRegen = trap_S_RegisterSound("sound/treb/ratmod/powerups/regeneration.ogg", qtrue);
-	cgs.media.announceFlight = trap_S_RegisterSound("sound/treb/ratmod/powerups/flight.ogg", qtrue);
+	cgs.media.announceQuad = trap_S_RegisterSound( va("sound/%sratmod/powerups/quad_damage.%s", fallbackAnnouncer, fallbackFormat), qtrue);
+	cgs.media.announceBattlesuit = trap_S_RegisterSound(va("sound/%sratmod/powerups/battlesuit.%s", fallbackAnnouncer, fallbackFormat), qtrue);
+	cgs.media.announceHaste = trap_S_RegisterSound(va("sound/%sratmod/powerups/haste.%s", fallbackAnnouncer, fallbackFormat), qtrue);
+	cgs.media.announceInvis = trap_S_RegisterSound(va("sound/%sratmod/powerups/invisibility.%s", fallbackAnnouncer, fallbackFormat), qtrue);
+	cgs.media.announceRegen = trap_S_RegisterSound(va("sound/%sratmod/powerups/regeneration.%s", fallbackAnnouncer, fallbackFormat), qtrue);
+	cgs.media.announceFlight = trap_S_RegisterSound(va("sound/%sratmod/powerups/flight.%s", fallbackAnnouncer, fallbackFormat), qtrue);
 
 	cgs.media.coinbounceSound = trap_S_RegisterSound("sound/ratoa/coin/coin-hit-b.ogg", qfalse);
 	cgs.media.freezeSound = trap_S_RegisterSound("sound/player/freeze.ogg", qfalse);
