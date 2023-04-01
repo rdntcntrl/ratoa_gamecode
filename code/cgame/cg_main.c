@@ -34,11 +34,13 @@ int enemyTeamModelModificationCounts = -1;
 int mySoundModificationCount = -1;
 int teamSoundModificationCount = -1;
 int enemySoundModificationCount = -1;
+int announcerModificationCount = -1;
 int forceColorModificationCounts = -1;
 int ratStatusbarModificationCount = -1;
 int hudMovementKeysModificationCount = -1;
 qboolean hudMovementKeysRegistered = qfalse;
 
+static void CG_RegisterSounds(void);
 static void CG_RegisterMovementKeysShaders(void);
 static void CG_RegisterNumbers(void);
 void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum );
@@ -708,7 +710,7 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_friendFloatHealth, "cg_friendFloatHealth", "1", CVAR_ARCHIVE},
 	{ &cg_friendFloatHealthSize, "cg_friendFloatHealthSize", "8", CVAR_ARCHIVE},
 	{ &cg_radar, "cg_radar", "1", CVAR_ARCHIVE},
-	{ &cg_announcer, "cg_announcer", "treb", CVAR_ARCHIVE|CVAR_LATCH},
+	{ &cg_announcer, "cg_announcer", "treb", CVAR_ARCHIVE},
 	{ &cg_announcerNewAwards, "cg_announcerNewAwards", "", CVAR_ARCHIVE|CVAR_LATCH},
 	{ &cg_soundBufferDelay, "cg_soundBufferDelay", "750", 0},
 	{ &cg_powerupBlink, "cg_powerupBlink", "0", CVAR_ARCHIVE},
@@ -1705,6 +1707,11 @@ void CG_UpdateCvars( void ) {
 		mySoundModificationCount = cg_mySound.modificationCount;
 		teamSoundModificationCount = cg_teamSound.modificationCount;
 		enemySoundModificationCount = cg_enemySound.modificationCount;
+	}
+
+	if (announcerModificationCount != cg_announcer.modificationCount) {
+		CG_RegisterSounds();
+		announcerModificationCount = cg_announcer.modificationCount;
 	}
 
 	i = cg_teamHueBlue.modificationCount
