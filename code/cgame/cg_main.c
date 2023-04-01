@@ -2039,6 +2039,10 @@ static void CG_RegisterSounds( void ) {
 
 		cgs.media.redScoredSound = trap_S_RegisterSound( va("sound/%steamplay/voc_red_scores.%s", announcer, format), qtrue );
 		cgs.media.blueScoredSound = trap_S_RegisterSound( va("sound/%steamplay/voc_blue_scores.%s", announcer, format), qtrue );
+		
+		// fallbackAnnouncer because the cg_announcer "" does not have these:
+		cgs.media.redWinsSound = trap_S_RegisterSound( va("sound/%sratmod/extras/redwins_extra.%s", fallbackAnnouncer, fallbackFormat), qtrue );
+		cgs.media.blueWinsSound = trap_S_RegisterSound( va("sound/%sratmod/extras/bluewins_extra.%s", fallbackAnnouncer, fallbackFormat), qtrue );
 
 		cgs.media.captureYourTeamSound = trap_S_RegisterSound( "sound/teamplay/flagcapture_yourteam.wav", qtrue );
 		cgs.media.captureOpponentSound = trap_S_RegisterSound( "sound/teamplay/flagcapture_opponent.wav", qtrue );

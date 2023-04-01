@@ -1384,6 +1384,12 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 				case GTS_BLUETEAM_TOOK_LEAD:
 					CG_AddBufferedSound(cgs.media.blueLeadsSound);
 					break;
+				case GTS_RED_WINS:
+					CG_AddBufferedSound(cgs.media.redWinsSound);
+					break;
+				case GTS_BLUE_WINS:
+					CG_AddBufferedSound(cgs.media.blueWinsSound);
+					break;
 				case GTS_TEAMS_ARE_TIED:
 					CG_AddBufferedSound( cgs.media.teamsTiedSound );
 					break;

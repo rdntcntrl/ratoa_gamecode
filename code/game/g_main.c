@@ -4122,6 +4122,26 @@ qboolean G_MultiTrnFinished(void) {
 }
 #endif
 
+
+static void TeamWins(team_t team) {
+	gentity_t *sound;
+	sound = G_TempEntity( level.intermission_origin , EV_GLOBAL_TEAM_SOUND);
+	sound->s.eventParm = team == TEAM_RED ? GTS_RED_WINS : GTS_BLUE_WINS;
+	sound->r.svFlags |= SVF_BROADCAST;
+}
+
+static void TeamWinsDetermine(void) {
+	if (!G_IsTeamGametype()) {
+		return;
+	}
+
+	if (level.teamScores[TEAM_RED] > level.teamScores[TEAM_BLUE]) {
+		TeamWins(TEAM_RED);
+	} else if (level.teamScores[TEAM_RED] < level.teamScores[TEAM_BLUE]) {
+		TeamWins(TEAM_BLUE);
+	}
+}
+
 /*
 =================
 CheckExitRules
@@ -4255,6 +4275,7 @@ void CheckExitRules( void ) {
 						));
 			} else {
 				trap_SendServerCommand( -1, "print \"Timelimit hit.\n\"");
+				TeamWinsDetermine();
 				LogExit( "Timelimit hit.", qtrue);
 			}
 			return;
@@ -4296,12 +4317,14 @@ void CheckExitRules( void ) {
 	   ) {
 		if ( level.teamScores[TEAM_RED] >= g_fraglimit.integer ) {
 			trap_SendServerCommand( -1, "print \"Red hit the fraglimit.\n\"" );
+			TeamWins(TEAM_RED);
 			LogExit( "Fraglimit hit.", qtrue);
 			return;
 		}
 
 		if ( level.teamScores[TEAM_BLUE] >= g_fraglimit.integer ) {
 			trap_SendServerCommand( -1, "print \"Blue hit the fraglimit.\n\"" );
+			TeamWins(TEAM_BLUE);
 			LogExit( "Fraglimit hit.", qtrue);
 			return;
 		}
@@ -4329,6 +4352,7 @@ void CheckExitRules( void ) {
 
 		if ( level.teamScores[TEAM_RED] >= g_capturelimit.integer ) {
 			trap_SendServerCommand( -1, "print \"Red hit the capturelimit.\n\"" );
+			TeamWins(TEAM_RED);
 			if (G_IsElimTeamGT()) {
 				PrintElimRoundPredictionAccuracy();
 			}
@@ -4338,6 +4362,7 @@ void CheckExitRules( void ) {
 
 		if ( level.teamScores[TEAM_BLUE] >= g_capturelimit.integer ) {
 			trap_SendServerCommand( -1, "print \"Blue hit the capturelimit.\n\"" );
+			TeamWins(TEAM_BLUE);
 			if (G_IsElimTeamGT()) {
 				PrintElimRoundPredictionAccuracy();
 			}
