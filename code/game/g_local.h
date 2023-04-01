@@ -1098,6 +1098,7 @@ void G_StoreViewVectorHistory ( gclient_t *client );
 void GibEntity( gentity_t *self, int killer );
 void G_SetRespawntime( gentity_t *self, int notBefore );
 void DamagePlum( gentity_t *ent, gentity_t *target, int mod, int damage );
+qboolean G_LastFragHadStyle(gclient_t *client);
 
 // damage flags
 #define DAMAGE_RADIUS				0x00000001	// damage was indirect
@@ -1509,6 +1510,7 @@ extern	vmCvar_t	g_fraglimit;
 extern	vmCvar_t	g_timelimit;
 extern	vmCvar_t	g_capturelimit;
 extern	vmCvar_t	g_overtime;
+extern	vmCvar_t	g_awardStylePoints;
 extern	vmCvar_t	g_friendlyFire;
 extern	vmCvar_t	g_friendlyFireReflect;
 extern	vmCvar_t	g_friendlyFireReflectFactor;

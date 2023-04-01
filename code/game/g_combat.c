@@ -2513,3 +2513,10 @@ qboolean G_RadiusDamage ( vec3_t origin, gentity_t *inflictor, gentity_t *attack
 
 	return hitClient;
 }
+
+qboolean G_LastFragHadStyle(gclient_t *client) {
+	return (client->lastDmgGivenMOD == MOD_GAUNTLET
+			|| client->lastDmgGivenMOD == MOD_TELEFRAG
+			|| client->lastDmgGivenMOD == MOD_CRUSH
+			|| client->lastDmgGivenMOD == MOD_JUICED);
+}

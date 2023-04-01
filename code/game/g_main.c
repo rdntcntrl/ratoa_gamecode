@@ -49,6 +49,7 @@ vmCvar_t	g_fraglimit;
 vmCvar_t	g_timelimit;
 vmCvar_t	g_capturelimit;
 vmCvar_t	g_overtime;
+vmCvar_t	g_awardStylePoints;
 vmCvar_t	g_friendlyFire;
 vmCvar_t	g_friendlyFireReflect;
 vmCvar_t	g_friendlyFireReflectFactor;
@@ -456,6 +457,8 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_capturelimit, "capturelimit", "8", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue },
 
 	{ &g_overtime, "g_overtime", "0", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue },
+
+	{ &g_awardStylePoints, "g_awardStylePoints", "0", CVAR_ARCHIVE | CVAR_NORESTART, 0, qfalse },
 
 	{ &g_synchronousClients, "g_synchronousClients", "0", CVAR_SYSTEMINFO, 0, qfalse  },
 
@@ -3328,6 +3331,13 @@ void SendYourTeamMessageToTeam( team_t team ) {
 }
 
 
+const char *FraglimitStyle(gclient_t *winner) {
+	if (g_awardStylePoints.integer && G_LastFragHadStyle(winner)) {
+		return " with style";
+	}
+	return "";
+}
+
 /*
 ========================
 MoveClientToIntermission
@@ -4170,8 +4180,9 @@ void CheckExitRules( void ) {
 				for (i = 0; i < 2; ++i) {
 					gclient_t *cl = &level.clients[game->clients[i]];
 					if (cl->ps.persistant[PERS_SCORE] >= g_fraglimit.integer ) {
-						trap_SendServerCommand( -1, va("print \"Game %i: %s" S_COLOR_WHITE " hit the fraglimit.\n\"",
-									gameId, cl->pers.netname ) );
+						trap_SendServerCommand( -1, va("print \"Game %i: %s" S_COLOR_WHITE " hit the fraglimit%s.\n\"",
+									gameId, cl->pers.netname,
+								       	FraglimitStyle(cl)) );
 						LogMtrnExit("Fraglimit hit", gameId);
 					}
 				}
@@ -4294,8 +4305,9 @@ void CheckExitRules( void ) {
 
 			if ( cl->ps.persistant[PERS_SCORE] >= g_fraglimit.integer ) {
 				LogExit( "Fraglimit hit.", qtrue);
-				trap_SendServerCommand( -1, va("print \"%s" S_COLOR_WHITE " hit the fraglimit.\n\"",
-					cl->pers.netname ) );
+				trap_SendServerCommand( -1, va("print \"%s" S_COLOR_WHITE " hit the fraglimit%s.\n\"",
+					cl->pers.netname,
+					FraglimitStyle(cl)));
 				return;
 			}
 		}
