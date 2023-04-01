@@ -41,7 +41,9 @@ static int ScoreboardEliminiated(gclient_t *client) {
 	if (g_gametype.integer == GT_LMS) {
 		return client->pers.livesLeft + (client->isEliminated?0:1);
 	} else if (G_IsElimTeamGT()) {
-		return (client->isEliminated || client->frozen) ? 1 : 0;
+		return (client->isEliminated || client->frozen
+				|| (client->ps.pm_type == PM_DEAD && client->sess.sessionTeam != TEAM_SPECTATOR)
+				) ? 1 : 0;
 	}
 	return 0;
 }
