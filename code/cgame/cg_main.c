@@ -712,7 +712,7 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_radar, "cg_radar", "1", CVAR_ARCHIVE},
 	{ &cg_announcer, "cg_announcer", "treb", CVAR_ARCHIVE},
 	{ &cg_announcerNewAwards, "cg_announcerNewAwards", "", CVAR_ARCHIVE|CVAR_LATCH},
-	{ &cg_soundBufferDelay, "cg_soundBufferDelay", "750", 0},
+	{ &cg_soundBufferDelay, "cg_soundBufferDelay", "900", 0},
 	{ &cg_powerupBlink, "cg_powerupBlink", "0", CVAR_ARCHIVE},
 	{ &cg_quadStyle, "cg_quadStyle", "0", CVAR_ARCHIVE},
 	{ &cg_quadAlpha, "cg_quadAlpha", "1.0", CVAR_ARCHIVE},
