@@ -1419,6 +1419,19 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 			}
 			break;
 		}
+	case EV_GLOBAL_PRELOADED_SOUND:	
+		{
+			DEBUGNAME("EV_GLOBAL_PRELOADED_SOUND");
+			switch( es->eventParm ) {
+				case GPS_WONMATCH:
+					CG_AddBufferedSound( cgs.media.wonMatchSound );
+					break;
+				case GPS_LOSTMATCH:
+					CG_AddBufferedSound( cgs.media.lostMatchSound );
+					break;
+			}
+			break;
+		}
 
 	case EV_PAIN:
 		// local player sounds are triggered in CG_CheckLocalSounds,

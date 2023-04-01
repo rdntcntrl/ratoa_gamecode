@@ -1380,6 +1380,10 @@ typedef struct {
 
 	sfxHandle_t elimPlayerRespawnSound;
 
+	// Global preloaded sounds
+	sfxHandle_t wonMatchSound;
+	sfxHandle_t lostMatchSound;
+
 	// tournament sounds
 	sfxHandle_t	count3Sound;
 	sfxHandle_t	count2Sound;

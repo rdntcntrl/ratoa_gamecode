@@ -2787,6 +2787,13 @@ void RemoveTournamentWinner( void ) {
 	SetTeam( &g_entities[ clientNum ], "q" );
 }
 
+void SendMatchOutcomeSound(int clientNum, qboolean won) {
+	gentity_t *sound = G_TempEntity( level.intermission_origin , EV_GLOBAL_PRELOADED_SOUND);
+	sound->s.eventParm = won ? GPS_WONMATCH : GPS_LOSTMATCH;
+	sound->r.svFlags |= SVF_BROADCAST | SVF_SINGLECLIENT;
+	sound->r.singleClient = clientNum;
+}
+
 
 #ifdef WITH_MULTITOURNAMENT
 void AdjustMultiTournamentScores( multiTrnGame_t *game ) {
@@ -2799,6 +2806,7 @@ void AdjustMultiTournamentScores( multiTrnGame_t *game ) {
 		cl1 = &level.clients[game->clients[0]];
 		cl1->sess.wins++;
 		ClientUserinfoChanged( cl1 - level.clients );
+		SendMatchOutcomeSound( cl1 - level.clients, qtrue);
 		return;
 	}
 
@@ -2814,8 +2822,10 @@ void AdjustMultiTournamentScores( multiTrnGame_t *game ) {
 
 	cl1->sess.wins++;
 	ClientUserinfoChanged( cl1 - level.clients );
+	SendMatchOutcomeSound( cl1 - level.clients, qtrue);
 	cl2->sess.losses++;
 	ClientUserinfoChanged( cl2 - level.clients );
+	SendMatchOutcomeSound( cl2 - level.clients, qfalse);
 
 
 }
@@ -2834,6 +2844,7 @@ void AdjustTournamentScores( void ) {
 			&& level.clients[ clientNum ].sess.sessionTeam == TEAM_FREE) {
 		level.clients[ clientNum ].sess.wins++;
 		ClientUserinfoChanged( clientNum );
+		SendMatchOutcomeSound( clientNum, qtrue);
 	}
 
 	clientNum = level.sortedClients[1];
@@ -2841,6 +2852,7 @@ void AdjustTournamentScores( void ) {
 			&& level.clients[ clientNum ].sess.sessionTeam == TEAM_FREE) {
 		level.clients[ clientNum ].sess.losses++;
 		ClientUserinfoChanged( clientNum );
+		SendMatchOutcomeSound( clientNum, qfalse);
 	}
 
 }

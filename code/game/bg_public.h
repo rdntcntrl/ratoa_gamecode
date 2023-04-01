@@ -618,6 +618,7 @@ typedef enum {
 	EV_FOOTSLIDE, // for crouch slide
 	EV_DAMAGEPLUM,
 	EV_PUSHNOTIFY,
+	EV_GLOBAL_PRELOADED_SOUND,
 } entity_event_t;
 
 
@@ -644,6 +645,11 @@ typedef enum {
 	GTS_PLAYER_RESPAWNED_BLUE,
 	GTS_PLAYER_RESPAWNED_RED
 } global_team_sound_t;
+
+typedef enum {
+	GPS_WONMATCH,
+	GPS_LOSTMATCH
+} global_preloaded_sound_t;
 
 // animations
 typedef enum {

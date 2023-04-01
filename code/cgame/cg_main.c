@@ -2090,6 +2090,15 @@ static void CG_RegisterSounds( void ) {
 		}
 	}
 
+	if ( cgs.gametype == GT_TOURNAMENT
+#ifdef WITH_MULTITOURNAMENT
+			|| cgs.gametype == GT_MULTITOURNAMENT
+#endif
+			|| cg_buildScript.integer) {
+		cgs.media.wonMatchSound = trap_S_RegisterSound( va("sound/%sfeedback/voc_youwin.%s", announcer, format), qtrue );
+		cgs.media.lostMatchSound = trap_S_RegisterSound( va("sound/%sfeedback/voc_youlose.%s", announcer, format), qtrue );
+	}
+
 	cgs.media.tracerSound = trap_S_RegisterSound( "sound/weapons/machinegun/buletby1.wav", qfalse );
 	cgs.media.selectSound = trap_S_RegisterSound( "sound/weapons/change.wav", qfalse );
 	cgs.media.wearOffSound = trap_S_RegisterSound( "sound/items/wearoff.wav", qfalse );
