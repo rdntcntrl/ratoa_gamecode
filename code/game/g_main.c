@@ -341,6 +341,7 @@ vmCvar_t        g_itemPickup;
 vmCvar_t        g_itemDrop;
 vmCvar_t        g_usesRatVM;
 vmCvar_t        g_usesRatEngine;
+vmCvar_t        g_usesRatEngineEqping;
 vmCvar_t        g_mixedMode;
 vmCvar_t        g_broadcastClients;
 vmCvar_t        g_useExtendedScores;
@@ -710,6 +711,7 @@ static cvarTable_t		gameCvarTable[] = {
         { &g_itemDrop, "g_itemDrop", "0", CVAR_ARCHIVE , 0, qtrue },
         { &g_usesRatVM, "g_usesRatVM", "1", 0, 0, qfalse },
         { &g_usesRatEngine, "g_usesRatEngine", "0", CVAR_ROM | CVAR_INIT, 0, qfalse },
+        { &g_usesRatEngineEqping, "g_usesRatEngineEqping", "0", 0, 0, qfalse }, // manually set this to 1 if engine has eqping
         { &g_mixedMode, "g_mixedMode", "0", CVAR_ARCHIVE, 0, qfalse },
         { &g_broadcastClients, "g_broadcastClients", "0", 0, 0, qfalse },
         { &g_useExtendedScores, "g_useExtendedScores", "1", CVAR_ARCHIVE, 0, qfalse },
@@ -1207,7 +1209,7 @@ void G_RemapTeamShaders( void ) {
 }
 
 void G_EQPingReset(void) {
-	if (!g_usesRatEngine.integer) {
+	if (!g_usesRatEngine.integer || !g_usesRatEngineEqping.integer) {
 		return;
 	}
 	trap_RAT_EQPing_Reset();
@@ -1233,7 +1235,9 @@ int G_MaxPlayingClientPing(void) {
 }
 
 void G_EQPingClientReset(gclient_t *client) {
-	if (!g_usesRatEngine.integer || !trap_Cvar_VariableIntegerValue("sv_eqping")) {
+	if (!g_usesRatEngine.integer
+			|| !trap_Cvar_VariableIntegerValue("sv_eqping")
+			|| !g_usesRatEngineEqping.integer) {
 		return;
 	}
 
@@ -1244,7 +1248,7 @@ void G_EQPingClientReset(gclient_t *client) {
 }
 
 void G_EQPingClientSet(gclient_t *client) {
-	if (!g_usesRatEngine.integer) {
+	if (!g_usesRatEngine.integer || !g_usesRatEngineEqping.integer) {
 		return;
 	}
 	if (client->pers.realPing < level.eqPing) {
@@ -1271,6 +1275,7 @@ void G_EQPingUpdate(void) {
 	gclient_t *cl;
 
 	if (!g_usesRatEngine.integer 
+			|| !g_usesRatEngineEqping.integer
 			|| !trap_Cvar_VariableIntegerValue("sv_eqping")
 			|| level.eqPing == 0
 			|| g_eqpingAuto.integer) {
@@ -1302,7 +1307,7 @@ void G_EQPingSet(int maxEQPing, qboolean forceMax) {
 		return;
 	}
 
-	if (!g_usesRatEngine.integer) {
+	if (!g_usesRatEngine.integer || !g_usesRatEngineEqping.integer) {
 		return;
 	}
 	// g_eqping 500 -> automatically equalize ping to a max of 500 (only for tournament)
@@ -1339,6 +1344,7 @@ void G_EQPingAutoAdjust(void) {
 	gclient_t *cl;
 
 	if (!g_usesRatEngine.integer 
+			|| !g_usesRatEngineEqping.integer
 			|| !trap_Cvar_VariableIntegerValue("sv_eqping")
 			|| level.eqPing == 0
 			|| !g_eqpingAuto.integer
@@ -1370,6 +1376,7 @@ void G_EQPingAutoTourney(void) {
 	gclient_t *c1 = NULL;
 	gclient_t *c2 = NULL;
 	if (!g_usesRatEngine.integer
+			|| !g_usesRatEngineEqping.integer
 			|| g_gametype.integer != GT_TOURNAMENT
 			|| !g_eqpingAutoTourney.integer
 			|| g_eqpingMax.integer <= 0) {
