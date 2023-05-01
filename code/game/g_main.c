@@ -2517,7 +2517,7 @@ void CheckTeamBalance( void ) {
 			// as soon as we're in active warmup
 			if(level.roundNumber > level.roundNumberStarted && level.time > level.roundStartTime - 1000 * g_elimination_activewarmup.integer) {
 				trap_SendServerCommand( -1, 
-						va("cp \"%s" S_COLOR_YELLOW" has more players, balancing now!\n",
+						va("cp \"%s" S_COLOR_YELLOW" has more players, fixing now!\n",
 							largeTeam == TEAM_RED ? S_COLOR_RED "Red" : S_COLOR_BLUE "Blue"));
 				level.teamBalanceTime = level.roundStartTime - 2000;
 				if (level.teamBalanceTime - level.time > 4000) {
@@ -2532,14 +2532,14 @@ void CheckTeamBalance( void ) {
 				// if the imbalance is only 1 or two, announce who is going to be queued/switched
 				trap_SendServerCommand( -1, 
 						va("print \"" S_COLOR_CYAN "Server: " S_COLOR_WHITE "%s"
-							S_COLOR_WHITE " will be %s for balance!\n",
+							S_COLOR_WHITE " will be %s to fix teams!\n",
 							player->client->pers.netname,
 							abs(balance) == 2 ? "switched" : "queued"
 							)
 						  );
 			} 
 			trap_SendServerCommand( -1, 
-					va("cp \"%s" S_COLOR_YELLOW" has more players, balancing in "
+					va("cp \"%s" S_COLOR_YELLOW" has more players, fixing teams in "
 						S_COLOR_RED "%is" S_COLOR_YELLOW"!\n",
 						largeTeam == TEAM_RED ? S_COLOR_RED "Red" : S_COLOR_BLUE "Blue",
 						g_teamBalanceDelay.integer
@@ -2550,13 +2550,13 @@ void CheckTeamBalance( void ) {
 	if (!G_IsElimTeamGT()
 			&& level.teamBalanceTime - level.time == 5000 && g_teamBalanceDelay.integer >= 15) {
 		trap_SendServerCommand( -1, 
-				va("cp \"" S_COLOR_YELLOW "Balancing in " S_COLOR_RED "5s" S_COLOR_YELLOW"!\n"));
+				va("cp \"" S_COLOR_YELLOW "Fixing teams in " S_COLOR_RED "5s" S_COLOR_YELLOW"!\n"));
 	}
 	if (level.teamBalanceTime > level.time) {
 		return;
 	} else if (level.teamBalanceTime > INT_MIN) {
 		trap_SendServerCommand( -1, 
-				va("print \"" S_COLOR_CYAN "Server: " S_COLOR_RED "Balancing teams!\n"));
+				va("print \"" S_COLOR_CYAN "Server: " S_COLOR_RED "Fixing teams!\n"));
 		// make sure we only print this message once:
 		level.teamBalanceTime = INT_MIN;
 	}
@@ -5159,7 +5159,7 @@ void G_CheckBalanceAuto(void) {
 
 	if (g_balanceNextgameNeedsBalance.integer 
 			&& G_IsWithinFrameAt(g_balanceAutoGameStartTime.integer * 1000 - 5000)) {
-		trap_SendServerCommand ( -1, "cp \"^5Balancing teams in 5s!\nJoin spec now if you don't want to play!\"");
+		trap_SendServerCommand ( -1, "cp \"^5Auto-Balancing teams in 5s!\nJoin spec now if you don't want to play!\"");
 	}
 
 	if (level.time < g_balanceAutoGameStartTime.integer * 1000) {
