@@ -835,6 +835,8 @@ typedef struct {
 	int eliminationSides;			//Random, change red/blue bases
 	int elimBlueRespawnDelay;		
 	int elimRedRespawnDelay;		
+	int elimRoundWeaponsRemaining;		// remaining weapons that can still be assigned in a round
+	int elimRoundWeapons;			// weapons for this round
 
 	team_t elimRoundPrediction;
 	int elimRoundNumPredictions;
@@ -1630,6 +1632,7 @@ extern	vmCvar_t	g_elimination_warmup;
 extern	vmCvar_t	g_elimination_activewarmup;
 extern  vmCvar_t        g_elimination_allgametypes;
 extern  vmCvar_t        g_elimination_spawnitems;
+extern  vmCvar_t        g_elimination_roundweapons;
 extern	vmCvar_t	g_elimination_machinegun;
 extern	vmCvar_t	g_elimination_shotgun;
 extern	vmCvar_t	g_elimination_grenade;

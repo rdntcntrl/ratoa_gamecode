@@ -171,6 +171,7 @@ vmCvar_t	g_elimination_warmup;
 vmCvar_t	g_elimination_activewarmup;
 vmCvar_t        g_elimination_allgametypes;
 vmCvar_t        g_elimination_spawnitems;
+vmCvar_t        g_elimination_roundweapons;
 vmCvar_t	g_elimination_machinegun;
 vmCvar_t	g_elimination_shotgun;
 vmCvar_t	g_elimination_grenade;
@@ -790,6 +791,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_elimination_activewarmup, "elimination_activewarmup", "5", CVAR_ARCHIVE | CVAR_NORESTART , 0, qtrue },
         { &g_elimination_allgametypes, "g_elimination", "0", CVAR_LATCH | CVAR_NORESTART, 0, qfalse },
         { &g_elimination_spawnitems, "elimination_spawnitems", "0", CVAR_LATCH | CVAR_NORESTART, 0, qfalse },
+	{ &g_elimination_roundweapons, "elimination_roundweapons", "0", CVAR_ARCHIVE| CVAR_NORESTART, 0, qtrue },
 
 	{ &g_elimination_machinegun, "elimination_machinegun", "500", CVAR_ARCHIVE| CVAR_NORESTART, 0, qtrue },
 	{ &g_elimination_shotgun, "elimination_shotgun", "500", CVAR_ARCHIVE| CVAR_NORESTART, 0, qtrue },
@@ -900,6 +902,7 @@ void G_ShutdownGame( int restart );
 void CheckExitRules( void );
 
 void PrintElimRoundPredictionAccuracy(void);
+void AssignElimRoundWeapons(void);
 
 /*
 ================
@@ -2035,6 +2038,7 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 	level.roundStartTime = level.time+g_elimination_warmup.integer*1000;
 	level.roundRespawned = qfalse;
 	level.eliminationSides = rand()%2; //0 or 1
+	AssignElimRoundWeapons();
 
 	//Challenges:
 	level.teamSize = 0;
@@ -4577,6 +4581,107 @@ void PrintElimRoundPredictionAccuracy(void) {
 
 }
 
+int ElimCountRoundWeaponsRem(void) {
+	int i;
+	int sum = 0;
+	for (i = WP_NONE; i < WP_NUM_WEAPONS; i++) {
+		if (level.elimRoundWeaponsRemaining & ( 1 << i)) {
+			sum++;
+		}
+	}
+	return sum;
+}
+
+static void ResetElimRoundWeaponsRemaining(void) {
+	if (g_elimination_machinegun.integer > 0) {
+		level.elimRoundWeaponsRemaining |= ( 1 << WP_MACHINEGUN );
+	}
+	if (g_elimination_shotgun.integer > 0) {
+		level.elimRoundWeaponsRemaining |= ( 1 << WP_SHOTGUN );
+	}
+	if (g_elimination_grenade.integer > 0) {	
+		level.elimRoundWeaponsRemaining |= ( 1 << WP_GRENADE_LAUNCHER );
+	}
+	if (g_elimination_rocket.integer > 0) {
+		level.elimRoundWeaponsRemaining |= ( 1 << WP_ROCKET_LAUNCHER );
+	}
+	if (g_elimination_lightning.integer > 0) {
+		level.elimRoundWeaponsRemaining |= ( 1 << WP_LIGHTNING );
+	}
+	if (g_elimination_railgun.integer > 0) {
+		level.elimRoundWeaponsRemaining |= ( 1 << WP_RAILGUN );
+	}
+	if (g_elimination_plasmagun.integer > 0) {
+		level.elimRoundWeaponsRemaining |= ( 1 << WP_PLASMAGUN );
+	}
+	if (g_elimination_bfg.integer > 0) {
+		level.elimRoundWeaponsRemaining |= ( 1 << WP_BFG );
+	}
+	if (g_elimination_nail.integer > 0) {
+		level.elimRoundWeaponsRemaining |= ( 1 << WP_NAILGUN );
+	}
+	if (g_elimination_mine.integer > 0) {
+		level.elimRoundWeaponsRemaining |= ( 1 << WP_PROX_LAUNCHER );
+	}
+	if (g_elimination_chain.integer > 0) {
+		level.elimRoundWeaponsRemaining |= ( 1 << WP_CHAINGUN );
+	}
+}
+
+void AssignElimRoundWeapons(void) {
+	int i, j;
+	int rem;
+	int sel;
+	int k;
+	int reset;
+
+	if (!G_IsElimGT() || g_elimination_roundweapons.integer < 1) {
+		return;
+	}
+
+	if (level.roundNumber < 2) {
+		// make sure we always start at the beginning if it's still the first round
+		level.elimRoundWeaponsRemaining = 0;
+	}
+
+	level.elimRoundWeapons = 0;
+	reset = 0;
+	for (i = 0; i < g_elimination_roundweapons.integer; i++) {
+		rem = ElimCountRoundWeaponsRem();
+		if (rem < 1) {
+			reset = level.elimRoundWeapons;
+			ResetElimRoundWeaponsRemaining();
+			rem = ElimCountRoundWeaponsRem();
+			if (rem < 1 || rem < g_elimination_roundweapons.integer) {
+				// didn't set any weapons
+				break;
+			}
+			// temporarily mask the ones we already set, so we select only new weapons
+			level.elimRoundWeaponsRemaining &= ~reset;
+
+			rem = ElimCountRoundWeaponsRem();
+			if (rem < 1) {
+				level.elimRoundWeaponsRemaining |= reset;
+				break;
+			}
+		}
+		sel = rand() % rem;
+		k = 0;
+		for (j = WP_NONE; j < WP_NUM_WEAPONS; j++) {
+			if (level.elimRoundWeaponsRemaining & (1 << j)) {
+				if (k == sel) {
+					level.elimRoundWeapons |= (1 << j);
+					level.elimRoundWeaponsRemaining &= ~(1 << j);
+					break;
+				}
+				k++;
+			}
+		}
+	}
+	// reset weaps we masked earlier
+	level.elimRoundWeaponsRemaining |= reset;
+}
+
 
 //the elimination start function
 void StartEliminationRound(void) {
@@ -4789,6 +4894,7 @@ void CheckLMS(void) {
 		if(level.roundNumber != level.roundNumberStarted && level.time>level.roundStartTime-1000*g_elimination_activewarmup.integer && !level.roundRespawned)
 		{
 			level.roundRespawned = qtrue;
+			AssignElimRoundWeapons();
 			RespawnAll();
 			DisableWeapons();
 			SendEliminationMessageToAllClients();
@@ -5000,6 +5106,7 @@ void CheckElimination(void) {
 		if(level.roundNumber!=level.roundNumberStarted && level.time>level.roundStartTime-1000*g_elimination_activewarmup.integer && !level.roundRespawned)
 		{
 			level.roundRespawned = qtrue;
+			AssignElimRoundWeapons();
 			RespawnAllElim();
 			SendEliminationMessageToAllClients();
 		}

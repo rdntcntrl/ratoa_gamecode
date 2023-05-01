@@ -2926,6 +2926,14 @@ void G_UnnamedPlayerRename(gentity_t *ent) {
 	}
 }
 
+qboolean ElimRoundWeaponAllowed(weapon_t weap) {
+	if (!G_IsElimGT() || g_elimination_roundweapons.integer < 1
+			|| level.warmupTime != 0) {
+		return qtrue;
+	}
+	return level.elimRoundWeapons & ( 1 << weap);
+}
+
 /*
 ===========
 ClientBegin
@@ -3508,50 +3516,50 @@ else
 	client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_GAUNTLET );
 	client->ps.ammo[WP_GAUNTLET] = -1;
 	client->ps.ammo[WP_GRAPPLING_HOOK] = -1;
-	if (g_elimination_machinegun.integer > 0) {
+	if (g_elimination_machinegun.integer > 0 && ElimRoundWeaponAllowed(WP_MACHINEGUN)) {
 		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_MACHINEGUN );
 		client->ps.ammo[WP_MACHINEGUN] = g_elimination_machinegun.integer;
 	}
-	if (g_elimination_shotgun.integer > 0) {
+	if (g_elimination_shotgun.integer > 0 && ElimRoundWeaponAllowed(WP_SHOTGUN)) {
 		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_SHOTGUN );
 		client->ps.ammo[WP_SHOTGUN] = g_elimination_shotgun.integer;
 	}
-	if (g_elimination_grenade.integer > 0) {	
+	if (g_elimination_grenade.integer > 0 && ElimRoundWeaponAllowed(WP_GRENADE_LAUNCHER)) {	
 		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_GRENADE_LAUNCHER );
 		client->ps.ammo[WP_GRENADE_LAUNCHER] = g_elimination_grenade.integer;
 	}
-	if (g_elimination_rocket.integer > 0) {
+	if (g_elimination_rocket.integer > 0 && ElimRoundWeaponAllowed(WP_ROCKET_LAUNCHER)) {
 		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_ROCKET_LAUNCHER );
 		client->ps.ammo[WP_ROCKET_LAUNCHER] = g_elimination_rocket.integer;
 	}
-	if (g_elimination_lightning.integer > 0) {
+	if (g_elimination_lightning.integer > 0 && ElimRoundWeaponAllowed(WP_LIGHTNING)) {
 		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_LIGHTNING );
 		client->ps.ammo[WP_LIGHTNING] = g_elimination_lightning.integer;
 	}
-	if (g_elimination_railgun.integer > 0) {
+	if (g_elimination_railgun.integer > 0 && ElimRoundWeaponAllowed(WP_RAILGUN)) {
 		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_RAILGUN );
 		client->ps.ammo[WP_RAILGUN] = g_elimination_railgun.integer;
 	}
-	if (g_elimination_plasmagun.integer > 0) {
+	if (g_elimination_plasmagun.integer > 0 && ElimRoundWeaponAllowed(WP_PLASMAGUN)) {
 		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_PLASMAGUN );
 		client->ps.ammo[WP_PLASMAGUN] = g_elimination_plasmagun.integer;
 	}
-	if (g_elimination_bfg.integer > 0) {
+	if (g_elimination_bfg.integer > 0 && ElimRoundWeaponAllowed(WP_BFG)) {
 		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_BFG );
 		client->ps.ammo[WP_BFG] = g_elimination_bfg.integer;
 	}
         if (g_elimination_grapple.integer) {
 		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_GRAPPLING_HOOK );
 	}
-	if (g_elimination_nail.integer > 0) {
+	if (g_elimination_nail.integer > 0 && ElimRoundWeaponAllowed(WP_NAILGUN)) {
 		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_NAILGUN );
 		client->ps.ammo[WP_NAILGUN] = g_elimination_nail.integer;
 	}
-	if (g_elimination_mine.integer > 0) {
+	if (g_elimination_mine.integer > 0 && ElimRoundWeaponAllowed(WP_PROX_LAUNCHER)) {
 		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_PROX_LAUNCHER );
 		client->ps.ammo[WP_PROX_LAUNCHER] = g_elimination_mine.integer;
 	}
-	if (g_elimination_chain.integer > 0) {
+	if (g_elimination_chain.integer > 0 && ElimRoundWeaponAllowed(WP_CHAINGUN)) {
 		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_CHAINGUN );
 		client->ps.ammo[WP_CHAINGUN] = g_elimination_chain.integer;
 	}
