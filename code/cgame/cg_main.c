@@ -4006,7 +4006,7 @@ void CG_FairCvars() {
 	    value = atoi(rendererinfos);
 	    if(value != 0) {
 		    trap_Cvar_Set("r_drawFlat","0");
-		    // store picmip value
+		    // store drawwflat value
 		    trap_Cvar_Set("cg_backupDrawflat",va("%i", value));
 		    vid_restart_required = qtrue;
 	    }
@@ -4015,7 +4015,7 @@ void CG_FairCvars() {
 	    value = atoi(rendererinfos);
 	    if(value != 0) {
 		    trap_Cvar_Set("r_lightmap","0");
-		    // store picmip value
+		    // store lightmap value
 		    trap_Cvar_Set("cg_backupLightmap",va("%i", value));
 		    vid_restart_required = qtrue;
 	    }
@@ -4027,13 +4027,13 @@ void CG_FairCvars() {
 		    vid_restart_required = qtrue;
 	    }
 	    if (cg_backupDrawflat.integer > 0) {
-		    // restore old value the user set for r_picmip before lock was enabled
+		    // restore old value the user set for r_drawwFlat before lock was enabled
 		    trap_Cvar_Set("r_drawFlat",va("%i", cg_backupDrawflat.integer));
 		    trap_Cvar_Set("cg_backupDrawflat","-1");
 		    vid_restart_required = qtrue;
 	    }
 	    if (cg_backupLightmap.integer > 0) {
-		    // restore old value the user set for r_picmip before lock was enabled
+		    // restore old value the user set for r_lightmap before lock was enabled
 		    trap_Cvar_Set("r_lightmap",va("%i", cg_backupLightmap.integer));
 		    trap_Cvar_Set("cg_backupLightmap","-1");
 		    vid_restart_required = qtrue;
