@@ -3906,7 +3906,7 @@ static qboolean do_vid_restart = qfalse;
 
 void CG_FairCvars() {
     qboolean vid_restart_required = qfalse;
-    char rendererinfos[128];
+    char rendererinfos[MAX_CVAR_VALUE_STRING];
 
     if(cgs.gametype == GT_SINGLE_PLAYER) {
         trap_Cvar_VariableStringBuffer("r_vertexlight",rendererinfos,sizeof(rendererinfos) );
