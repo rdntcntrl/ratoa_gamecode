@@ -4041,18 +4041,18 @@ void CG_FairCvars() {
     }
 
     if(cgs.videoflags & VF_LOCK_MAPGREYSCALE) {
-	    int value = 0;
+	    float value = 0;
 	    trap_Cvar_VariableStringBuffer("r_mapGreyScale",rendererinfos,sizeof(rendererinfos) );
-	    value = atoi(rendererinfos);
+	    value = atof(rendererinfos);
 	    if(value != 0) {
 		    trap_Cvar_Set("r_mapGreyScale","0");
-		    trap_Cvar_Set("cg_backupMapGreyscale",va("%i", value));
+		    trap_Cvar_Set("cg_backupMapGreyscale",va("%f", value));
 		    vid_restart_required = qtrue;
 	    }
     } else {
-	    if (cg_backupMapGreyscale.integer > 0) {
+	    if (cg_backupMapGreyscale.value > 0) {
 		    // restore old value the user set for r_mapGreyscale before lock was enabled
-		    trap_Cvar_Set("r_mapGreyScale",va("%i", cg_backupMapGreyscale.integer));
+		    trap_Cvar_Set("r_mapGreyScale",va("%f", cg_backupMapGreyscale.value));
 		    trap_Cvar_Set("cg_backupMapGreyscale","-1");
 		    vid_restart_required = qtrue;
 	    }
