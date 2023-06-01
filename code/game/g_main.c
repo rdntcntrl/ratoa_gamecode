@@ -426,6 +426,7 @@ vmCvar_t        g_maxNameChanges;
 
 vmCvar_t        g_allowDuplicateNames;
 
+vmCvar_t        g_unnamedPlayersRejectConnect;
 vmCvar_t        g_unnamedPlayersAllowed;
 vmCvar_t        g_unnamedRenameAdjlist;
 vmCvar_t        g_unnamedRenameNounlist;
@@ -882,6 +883,7 @@ static cvarTable_t		gameCvarTable[] = {
 
         { &g_allowDuplicateNames, "g_allowDuplicateNames", "0", CVAR_ARCHIVE, 0, qfalse},
 
+        { &g_unnamedPlayersRejectConnect, "g_unnamedPlayersRejectConnect", "0", CVAR_ARCHIVE, 0, qfalse},
         { &g_unnamedPlayersAllowed, "g_unnamedPlayersAllowed", "1", CVAR_ARCHIVE, 0, qfalse},
         { &g_unnamedRenameAdjlist, "g_unnamedRenameAdjlist", "ratname-adjectives.txt", CVAR_ARCHIVE, 0, qfalse},
         { &g_unnamedRenameNounlist, "g_unnamedRenameNounlist", "ratname-nouns.txt", CVAR_ARCHIVE, 0, qfalse},

@@ -2511,6 +2511,14 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
  	    return va( "%s", reason );
  	}
 
+    	if (g_unnamedPlayersRejectConnect.integer) {
+		value = Info_ValueForKey (userinfo, "name");
+		if (strcmp("UnnamedPlayer", value)== 0) {
+			G_Printf("Player with IP: %s was rejected due to being UnnamedPlayer.\n", client->pers.ip);
+			return "Please set a name first.";
+		}
+	}
+
  	 
   //KK-OAX
   // we don't check GUID or password for bots and local client
