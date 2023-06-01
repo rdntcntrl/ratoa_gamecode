@@ -4038,6 +4038,12 @@ void CG_FairCvars() {
 	    }
     }
 
+    trap_Cvar_VariableStringBuffer("r_mapGreyScale",rendererinfos,sizeof(rendererinfos) );
+    if (atoi(rendererinfos)) {
+	    trap_Cvar_Set("r_mapGreyScale","0");
+	    vid_restart_required = qtrue;
+    }
+
     if(vid_restart_required && do_vid_restart)
         trap_SendConsoleCommand("vid_restart\n");
 
