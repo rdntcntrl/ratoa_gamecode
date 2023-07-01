@@ -3985,6 +3985,13 @@ void Cmd_CallVote_f( gentity_t *ent ) {
                     return;
 		}
 
+		if (g_voteKickProtectAdmins.integer > 0
+				&& level.clients[i].pers.adminLevel >= g_voteKickProtectAdmins.integer
+				&& level.clients[i].pers.registeredName) {
+                    trap_SendServerCommand( ent-g_entities, va("print \"Not allowed to kick admins.\n\"", i) );
+                    return;
+		}
+
                 level.voteKickClient = i;
                 if(g_voteBan.integer<1) {
                     Com_sprintf( level.voteString, sizeof( level.voteString ), "clientkick_game \"%d\"", i );
