@@ -3988,7 +3988,7 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 		if (g_voteKickProtectAdmins.integer > 0
 				&& level.clients[i].pers.adminLevel >= g_voteKickProtectAdmins.integer
 				&& level.clients[i].pers.registeredName) {
-                    trap_SendServerCommand( ent-g_entities, va("print \"Not allowed to kick admins.\n\"", i) );
+                    trap_SendServerCommand( ent-g_entities, va("print \"Not allowed to kick admins.\n\"") );
                     return;
 		}
 
