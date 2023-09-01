@@ -2371,19 +2371,22 @@ static float CG_DrawSpeedMeter( float y ) {
 		speed = sqrt(vel[0] * vel[0] + vel[1] * vel[1]);
 	}
 
-	s = va( "%iu/s", speed );
-
-	w = CG_DrawStrlen( s ) * char_width;
 
 	color[0] = color[1] = color[2] = 1.0;
 	color[3] = cg_speedAlpha.value;
 
 	if (cg_drawSpeed.integer == 1) {
+		s = va( "%iu/s", speed );
+		w = CG_DrawStrlen( s ) * char_width;
+
 		/* top left-hand corner of screen */
 		//CG_DrawBigString( 635 - w, y + 2, s, 1.0F);
 		CG_DrawStringExt( 635 -w, y + 2, s, color, qfalse, qtrue, char_width, char_height, 0 );
 		return y + char_height + 4;
 	} else {
+		s = va( "%i", speed );
+		w = CG_DrawStrlen( s ) * char_width;
+
 		/* center of screen */
 		//CG_DrawBigString( 320 - w / 2, 300, s, 1.0F);
 		CG_DrawStringExt( 320 - w / 2, 300, s, color, qfalse, qtrue, char_width, char_height, 0 );
