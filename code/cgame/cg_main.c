@@ -507,8 +507,19 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_drawGun, "cg_drawGun", "1", CVAR_ARCHIVE },
 	{ &cg_zoomFov, "cg_zoomfov", "30", CVAR_ARCHIVE },
 	{ &cg_zoomFovTmp, "cg_zoomfovTmp", "0", 0 },
-	{ &cg_fov, "cg_fov", "90", CVAR_ARCHIVE },
+
+	// default cg_fov without Hor+ scaling was 90
+	// With Hor+, cg_fov sets the vertical FOV instead of the horizontal one
+	// The defaults were inteneded to work for non-widescreen monitors at the time
+	//
+	// For a 4:3 (common CRT) screen, cg_fov 90 without Hor+ would have resulted in a vertical FOV of about 74
+	// For a 5:4 (common LCD) screen, the vertical FOV would have been about 77
+	//
+	// These new defaults result in about the same FOV on 5:4 or 4:3 screens 
+	// while providing a much better horizontal FOV on widescreens
+	{ &cg_fov, "cg_fov", "77", CVAR_ARCHIVE },
 	{ &cg_horplus, "cg_horplus", "1", CVAR_ARCHIVE },
+
 	{ &cg_viewsize, "cg_viewsize", "100", CVAR_ARCHIVE },
 	{ &cg_shadows, "cg_shadows", "1", CVAR_ARCHIVE  },
 	{ &cg_gibs, "cg_gibs", "1", CVAR_ARCHIVE  },
@@ -972,7 +983,7 @@ void CG_SetEngineCvars( void ) {
 }
 
 
-#define LATEST_RATINITIALIZED 37
+#define LATEST_RATINITIALIZED 38
 
 int CG_MigrateOldCrosshair(int old) {
 	switch (old) {
@@ -1483,6 +1494,13 @@ void CG_RatOldCfgUpdate(void) {
 		}
 
 		CG_Cvar_SetAndUpdate( "cg_ratInitialized", "37" );
+	}
+	if (cg_ratInitialized.integer < 38) {
+		if (cg_horplus.integer && cg_fov.integer == 90) {
+			CG_Cvar_ResetToDefault("cg_fov");
+		}
+
+		CG_Cvar_SetAndUpdate( "cg_ratInitialized", "38" );
 	}
 }
 
