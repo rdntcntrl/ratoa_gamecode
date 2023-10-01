@@ -511,7 +511,7 @@ Fixed fov at intermissions, otherwise account for fov variable and zooms.
 */
 #define	WAVE_AMPLITUDE	1
 #define	WAVE_FREQUENCY	0.4
-#define MAX_FOV_X 145
+#define MAX_FOV_X 145 // very high FOVs can allow one's view to clip through walls
 #define MAX_BASICLOCK_FOV 140
 
 static int CG_CalcFovImpl( float fov, float zoomFov ) {
