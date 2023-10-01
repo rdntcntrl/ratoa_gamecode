@@ -1482,9 +1482,9 @@ static void CG_DrawRatStatusBar4( void ) {
 	}
 
 	if (vflipped) {
-		bigchar_height = CG_HeightToWidth(RSB5_BIGCHAR_HEIGHT);
+		bigchar_height = RSB5_BIGCHAR_HEIGHT;
 	} else { 
-		bigchar_height = CG_HeightToWidth(RSB4_BIGCHAR_HEIGHT);
+		bigchar_height = RSB4_BIGCHAR_HEIGHT;
 	}
 	bigchar_width = CG_HeightToWidth(bigchar_height);
 
