@@ -536,7 +536,7 @@ static int CG_CalcFovImpl( float fov, float zoomFov ) {
 			if ( fov_x < 1 ) {
 				fov_x = 1;
 			} else if ( fov_x > MAX_FOV_X ) {
-				Com_Printf("limiting fov to 145!\n");
+				//Com_Printf("limiting fov to 145!\n");
 				fov_x = MAX_FOV_X;
 			}
                         if( (cgs.videoflags & VF_LOCK_CVARS_BASIC) && fov_x>MAX_BASICLOCK_FOV )
