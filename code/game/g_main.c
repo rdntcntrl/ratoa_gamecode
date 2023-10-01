@@ -4404,6 +4404,7 @@ void ResetElimRoundStats(void) {
 		client->pers.elimRoundDmgTaken = 0;
 		client->pers.elimRoundKills = 0;
 		client->pers.elimRoundDeaths = 0;
+		client->pers.elimRoundTeamKnockback = 0;
 		client->pers.lastKilledByStrongMan = -1;
 	}
 }
@@ -4438,7 +4439,13 @@ void PrintElimRoundStats(void) {
 	int maxDGClient = -1;
 	int minDT = INT_MAX;
 	int minDTClient = -1;
+	int maxTeamKnockRed = -1;
+	int maxTeamKnockBlue = -1;
+	int maxTeamKnockRedClient = -1;
+	int maxTeamKnockBlueClient = -1;
 	int i;
+	char redMate[MAX_NETNAME + 32] = "";
+	char blueMate[MAX_NETNAME + 32] = "";
 
 	if (!g_usesRatVM.integer) {
 		return;
@@ -4470,6 +4477,14 @@ void PrintElimRoundStats(void) {
 			minDTClient = i;
 		}
 
+		if (client->sess.sessionTeam == TEAM_RED && client->pers.elimRoundTeamKnockback > maxTeamKnockRed) {
+			maxTeamKnockRed = client->pers.elimRoundTeamKnockback;
+			maxTeamKnockRedClient = i;
+		} else if (client->sess.sessionTeam == TEAM_BLUE && client->pers.elimRoundTeamKnockback > maxTeamKnockBlue) {
+			maxTeamKnockBlue = client->pers.elimRoundTeamKnockback;
+			maxTeamKnockBlueClient = i;
+		}
+
 	}
 
 	if (maxKillsClient != -1) {
@@ -4486,6 +4501,25 @@ void PrintElimRoundStats(void) {
 		trap_SendServerCommand(-1, va("print\"Most Damage Given: %s " S_COLOR_RED "%i\n\"", 
 					level.clients[maxDGClient].pers.netname,
 					maxDG));
+	}
+	if ((maxTeamKnockRedClient != -1 && maxTeamKnockRed > 0) ||
+			(maxTeamKnockBlueClient != -1 && maxTeamKnockBlue > 0)) {
+		if (maxTeamKnockBlueClient != -1 && maxTeamKnockBlue > 0) {
+			Com_sprintf(blueMate, sizeof(blueMate),
+					"%s" S_COLOR_WHITE "(" S_COLOR_RED "%i" S_COLOR_WHITE ")",
+					level.clients[maxTeamKnockBlueClient].pers.netname,
+					maxTeamKnockBlue);
+		}
+		if (maxTeamKnockRedClient != -1 && maxTeamKnockRed > 0) {
+			Com_sprintf(redMate, sizeof(redMate),
+					"%s" S_COLOR_WHITE "(" S_COLOR_RED "%i" S_COLOR_WHITE ")",
+					level.clients[maxTeamKnockRedClient].pers.netname,
+					maxTeamKnockRed);
+		}
+		trap_SendServerCommand(-1, va("print\"Most Annoying Mates: %s%s%s\n\"", 
+					blueMate,
+					strlen(blueMate) && strlen(redMate) ? ", " : "",
+				       	redMate));
 	}
 }
 

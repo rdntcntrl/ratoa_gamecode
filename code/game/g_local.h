@@ -481,6 +481,7 @@ typedef struct {
     int		elimRoundDmgTaken;
     int		elimRoundKills;
     int		elimRoundDeaths;
+    int		elimRoundTeamKnockback;
 
     // quad whore detection
     int quadTime;

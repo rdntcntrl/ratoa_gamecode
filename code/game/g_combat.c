@@ -89,8 +89,15 @@ void PushNotify(gentity_t *targ, gentity_t *pusher, int mod, int knockback) {
 	gentity_t *ent;
 	gclient_t *cl;
 
-	if (!g_pushNotifications.integer ||
-			targ == pusher || !OnSameTeam(targ, pusher) || !targ->client) {
+	if (targ == pusher || !OnSameTeam(targ, pusher) || !targ->client) {
+		return;
+	}
+
+	if (pusher->client) {
+		pusher->client->pers.elimRoundTeamKnockback += knockback;
+	}
+
+	if (!g_pushNotifications.integer) {
 		return;
 	}
 
