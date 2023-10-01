@@ -507,8 +507,8 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_drawGun, "cg_drawGun", "1", CVAR_ARCHIVE },
 	{ &cg_zoomFov, "cg_zoomfov", "30", CVAR_ARCHIVE },
 	{ &cg_zoomFovTmp, "cg_zoomfovTmp", "0", 0 },
-	{ &cg_fov, "cg_fov", "100", CVAR_ARCHIVE },
-	{ &cg_horplus, "cg_horplus", "0", CVAR_ARCHIVE },
+	{ &cg_fov, "cg_fov", "90", CVAR_ARCHIVE },
+	{ &cg_horplus, "cg_horplus", "1", CVAR_ARCHIVE },
 	{ &cg_viewsize, "cg_viewsize", "100", CVAR_ARCHIVE },
 	{ &cg_shadows, "cg_shadows", "1", CVAR_ARCHIVE  },
 	{ &cg_gibs, "cg_gibs", "1", CVAR_ARCHIVE  },
@@ -972,7 +972,7 @@ void CG_SetEngineCvars( void ) {
 }
 
 
-#define LATEST_RATINITIALIZED 36
+#define LATEST_RATINITIALIZED 37
 
 int CG_MigrateOldCrosshair(int old) {
 	switch (old) {
@@ -1474,6 +1474,15 @@ void CG_RatOldCfgUpdate(void) {
 		CG_SetEngineCvars();
 
 		CG_Cvar_SetAndUpdate( "cg_ratInitialized", "36" );
+	}
+
+	if (cg_ratInitialized.integer < 37) {
+		if (cg_fov.integer == 90 || cg_fov.integer == 100) {
+			CG_Cvar_ResetToDefault("cg_horplus");
+			CG_Cvar_ResetToDefault("cg_fov");
+		}
+
+		CG_Cvar_SetAndUpdate( "cg_ratInitialized", "37" );
 	}
 }
 
