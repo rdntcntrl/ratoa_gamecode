@@ -4488,7 +4488,7 @@ void PrintElimRoundStats(void) {
 	}
 
 	if (maxKillsClient != -1) {
-		trap_SendServerCommand(-1, va("print \"Most kills: %s " S_COLOR_RED "%i\n\"", 
+		trap_SendServerCommand(-1, va("print \"Most Frags: %s " S_COLOR_RED "%i\n\"", 
 					level.clients[maxKillsClient].pers.netname,
 					maxKills));
 	}
