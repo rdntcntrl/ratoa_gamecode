@@ -918,23 +918,23 @@ int CG_ProjectileNudgeTimeshift(centity_t *cent) {
 			// extrapolate one server frame's worth - this will correct for tiny
 			// visual inconsistencies introduced by backward-reconciling all players
 			// one server frame before running projectiles
-			return 1000 / sv_fps.integer;
+			return 1000 / cgs.sv_fps;
 		}
 		else if (cg.snap && cg.snap->ps.pm_flags & PMF_FOLLOW) {
 			// while spectating, don't nudge since we're getting the
 			// same delayed view for player and missile
-			return 1000 / sv_fps.integer;
+			return 1000 / cgs.sv_fps;
 		}
 		// if it's not, and it's not a grenade launcher
 		else if ( cent->currentState.weapon != WP_GRENADE_LAUNCHER ) {
 			// extrapolate based on cg_projectileNudge
 			switch (cg_projectileNudgeAuto.integer) {
 				case 1:
-					return cent->projectileNudge + 1000 / sv_fps.integer;
+					return cent->projectileNudge + 1000 / cgs.sv_fps;
 				case 2:
-					return cent->projectileNudge/2.0 + 1000 / sv_fps.integer;
+					return cent->projectileNudge/2.0 + 1000 / cgs.sv_fps;
 				default:
-					return cg_projectileNudge.integer + 1000 / sv_fps.integer;
+					return cg_projectileNudge.integer + 1000 / cgs.sv_fps;
 					
 			}
 		}
@@ -990,7 +990,7 @@ static void CG_CalcEntityLerpPositions( centity_t *cent ) {
 			cent->currentState.clientNum != cg.predictedPlayerState.clientNum ) {
 		cent->currentState.pos.trType = TR_LINEAR_STOP;
 		cent->currentState.pos.trTime = cg.snap->serverTime;
-		cent->currentState.pos.trDuration = 1000 / sv_fps.integer;
+		cent->currentState.pos.trDuration = 1000 / cgs.sv_fps;
 	}
 //unlagged - timenudge extrapolation
 

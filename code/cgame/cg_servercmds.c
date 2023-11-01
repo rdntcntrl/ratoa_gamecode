@@ -1198,6 +1198,7 @@ void CG_ParseServerinfo( void ) {
 	char	*mapname;
 
 	info = CG_ConfigString( CS_SERVERINFO );
+	cgs.sv_fps = MAX(1, atoi( Info_ValueForKey( info, "sv_fps" ) ));
 	cgs.gametype = atoi( Info_ValueForKey( info, "g_gametype" ) );
 	cgs.team_gt = BG_IsTeamGametype(cgs.gametype);
 	trap_Cvar_Set("g_gametype", va("%i", cgs.gametype));

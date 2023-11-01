@@ -423,7 +423,6 @@ vmCvar_t	cg_delag;
 //vmCvar_t	cg_debugDelag;
 //vmCvar_t	cg_drawBBox;
 vmCvar_t	cg_cmdTimeNudge;
-vmCvar_t	sv_fps;
 vmCvar_t	cg_projectileNudge;
 vmCvar_t	cg_projectileNudgeAuto;
 vmCvar_t	cg_optimizePrediction;
@@ -859,7 +858,6 @@ static cvarTable_t cvarTable[] = { // bk001129
 //	{ &cg_drawBBox, "cg_drawBBox", "0", CVAR_CHEAT },
 	{ &cg_cmdTimeNudge, "cg_cmdTimeNudge", "0", CVAR_ARCHIVE | CVAR_USERINFO },
 	// this will be automagically copied from the server
-	{ &sv_fps, "sv_fps", "20", CVAR_SYSTEMINFO | CVAR_ROM },
 	{ &cg_projectileNudge, "cg_projectileNudge", "0", CVAR_CHEAT },
 	{ &cg_projectileNudgeAuto, "cg_projectileNudgeAuto", "0", CVAR_ARCHIVE },
 	{ &cg_optimizePrediction, "cg_optimizePrediction", "1", CVAR_ARCHIVE },
@@ -971,8 +969,8 @@ void CG_RatRemapShaders(void) {
  * Set good defaults for a number of important engine cvars
  */
 void CG_SetEngineCvars( void ) {
- 	if ((int)CG_Cvar_Get("snaps") < 40) {
-		trap_Cvar_Set( "snaps", "40" );
+ 	if ((int)CG_Cvar_Get("snaps") < DEFAULT_SV_FPS) {
+		trap_Cvar_Set( "snaps", STRINGIFY(DEFAULT_SV_FPS) );
 	}
  	if ((int)CG_Cvar_Get("cl_maxpackets") < 125) {
 		trap_Cvar_Set( "cl_maxpackets", "125" );
@@ -1676,12 +1674,6 @@ void CG_UpdateCvars( void ) {
 		}
                 else if ( cv->vmCvar == &com_maxfps ) {
 			CG_Cvar_ClampInt( cv->cvarName, cv->vmCvar, 0, 500 );
-		}
-                else if ( cv->vmCvar == &sv_fps ) {
-			if (cv->vmCvar->integer < 1) {
-				Com_sprintf( cv->vmCvar->string, MAX_CVAR_VALUE_STRING, "1");
-				trap_Cvar_Set( cv->cvarName, cv->vmCvar->string );
-			}
 		}
                 else if ( cv->vmCvar == &cg_gun_z ) {
 			CG_Cvar_ClampInt( cv->cvarName, cv->vmCvar, -8, 0 );
@@ -3755,6 +3747,8 @@ void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum ) {
 	memset( cg_items, 0, sizeof(cg_items) );
 
 	cg.clientNum = clientNum;
+
+	cgs.sv_fps = DEFAULT_SV_FPS;
 
 	cgs.processedSnapshotNum = serverMessageNum;
 	cgs.serverCommandSequence = serverCommandSequence;

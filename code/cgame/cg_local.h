@@ -1479,8 +1479,9 @@ typedef struct {
 	int				processedSnapshotNum;// the number of snapshots cgame has requested
 
 	qboolean		localServer;		// detected on startup by checking sv_running
-
+							//
 	// parsed from serverinfo
+	int			sv_fps;
 	gametype_t		gametype;
 	int				dmflags;
         int                             videoflags;
@@ -1970,7 +1971,6 @@ extern	vmCvar_t		cg_delag;
 //extern	vmCvar_t		cg_debugDelag;
 //extern	vmCvar_t		cg_drawBBox;
 extern	vmCvar_t		cg_cmdTimeNudge;
-extern	vmCvar_t		sv_fps;
 extern	vmCvar_t		cg_projectileNudge;
 extern	vmCvar_t		cg_projectileNudgeAuto;
 extern	vmCvar_t		cg_optimizePrediction;
