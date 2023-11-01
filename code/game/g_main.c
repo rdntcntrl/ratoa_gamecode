@@ -602,7 +602,7 @@ static cvarTable_t		gameCvarTable[] = {
         { &g_lagLightning, "g_lagLightning", "0", CVAR_ARCHIVE, 0, qtrue },
 //unlagged - server options
         { &g_ambientSound, "g_ambientSound", "1", CVAR_ARCHIVE, 0, qfalse },
-        { &g_rocketSpeed, "g_rocketSpeed", "900", CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qtrue },
+        { &g_rocketSpeed, "g_rocketSpeed", "1000", CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qtrue },
 	// TODO: CVAR_ARCHIVE
         { &g_maxExtrapolatedFrames, "g_maxExtrapolatedFrames", "2", 0 , 0, qfalse },
 
