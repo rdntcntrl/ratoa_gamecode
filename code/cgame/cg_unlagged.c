@@ -45,7 +45,10 @@ predictedMissile_t	*cg_freePMissiles;		// single linked list
 
 // how much longer than the player's roundtrip time  a predicted missile will
 // stay alive awaiting confirmation from the server
-#define PMISSILE_WINDOWTIME 30
+// if the player's firing command arrives right after the start of the frame,
+// the missile will be included in the next snapshot (1000/sv_fps later), so it
+// should be at least that long
+#define PMISSILE_WINDOWTIME(fps) (1.5*1000/fps)
 
 /*
 ===================
@@ -176,8 +179,8 @@ void CG_RemovePredictedMissile( centity_t *missile) {
 			continue;
 		}
 
-		if (missile->currentState.pos.trTime - PMISSILE_WINDOWTIME > pm->pos.trTime
-				|| missile->currentState.pos.trTime + PMISSILE_WINDOWTIME < pm->pos.trTime) {
+		if (missile->currentState.pos.trTime - PMISSILE_WINDOWTIME(cgs.sv_fps) > pm->pos.trTime
+				|| missile->currentState.pos.trTime + PMISSILE_WINDOWTIME(cgs.sv_fps) < pm->pos.trTime) {
 			continue;
 		}
 
@@ -773,7 +776,7 @@ void CG_PredictWeaponEffects( centity_t *cent ) {
 predictedMissile_t *CG_BasePredictMissile( entityState_t *ent,  vec3_t muzzlePoint ) {
 	predictedMissile_t	*pm;
 	refEntity_t	*bolt;
-	int lifetime = CG_ReliablePing() + PMISSILE_WINDOWTIME;
+	int lifetime = CG_ReliablePing() + PMISSILE_WINDOWTIME(cgs.sv_fps);
 
 	pm = CG_AllocPMissile();
 	pm->removeTime = cg.time + lifetime;
