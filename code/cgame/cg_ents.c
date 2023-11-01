@@ -925,17 +925,8 @@ int CG_ProjectileNudgeTimeshift(centity_t *cent) {
 			// same delayed view for player and missile
 			return 1000 / cgs.sv_fps;
 		}
-		else if (cent->currentState.weapon == WP_GRENADE_LAUNCHER) {
-			// don't nudge GL because we can't locally predict the way it bounces (for now)
-			// we still shift it by 1 frame, to avoid moving it
-			// backwards when it bounces (or is fired by a bot).
-			// This would happen in that
-			// case because trTime > cg.time as the missiles are
-			// added from nextSnap (see early transitioning in CG_AddPacketEntities()).
-			return 1000 / cgs.sv_fps;
-		}
 		// if it's not, and it's not a grenade launcher
-		else {
+		else if ( cent->currentState.weapon != WP_GRENADE_LAUNCHER ) {
 			// extrapolate based on cg_projectileNudge
 			switch (cg_projectileNudgeAuto.integer) {
 				case 1:
@@ -947,7 +938,7 @@ int CG_ProjectileNudgeTimeshift(centity_t *cent) {
 					
 			}
 		}
-		return 1000 / cgs.sv_fps;
+		return 0;
 }
 
 /*
