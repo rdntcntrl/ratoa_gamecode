@@ -785,7 +785,8 @@ predictedMissile_t *CG_BasePredictMissile( entityState_t *ent,  vec3_t muzzlePoi
 	bolt = &pm->refEntity;
 
 	VectorCopy(muzzlePoint, pm->pos.trBase);
-	pm->pos.trTime = cg.time-cgs.predictedMissileNudge-cg.cmdMsecDelta;
+	// oldTime is our attackTime
+	pm->pos.trTime = cg.oldTime-cgs.predictedMissileNudge;
 
 	if (BG_IsElimGT(cgs.gametype)
 			&& cg.warmup == 0 && cgs.roundStartTime 

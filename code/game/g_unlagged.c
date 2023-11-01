@@ -372,6 +372,21 @@ void G_UndoTimeShiftFor( gentity_t *ent ) {
 }
 
 
+void G_PrintDelagMaxTimeshift(void) {
+	int max_shift;
+	if (!(g_delagHitscan.integer || g_delagMissiles.integer)) {
+		return;
+	}
+	max_shift = NUM_CLIENT_HISTORY * 1000/sv_fps.integer;
+	Com_Printf("Delag: max timeshift is %ims\n", max_shift);
+	if (max_shift < DELAG_MAX_BACKTRACK) {
+		Com_Printf(S_COLOR_YELLOW "WARNING: max timeshift %i is not large enough for g_delagMissileMaxLatency %i at sv_fps %i\n",
+				max_shift,
+				g_delagMissileMaxLatency.integer,
+				sv_fps.integer);
+	}
+}
+
 /*
 ===========================
 G_PredictPlayerClipVelocity
