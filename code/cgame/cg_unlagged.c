@@ -777,6 +777,7 @@ predictedMissile_t *CG_BasePredictMissile( entityState_t *ent,  vec3_t muzzlePoi
 	predictedMissile_t	*pm;
 	refEntity_t	*bolt;
 	int lifetime = CG_ReliablePing() + PMISSILE_WINDOWTIME(cgs.sv_fps);
+	int newTrTime, diff;
 
 	pm = CG_AllocPMissile();
 	pm->removeTime = cg.time + lifetime;
@@ -785,7 +786,10 @@ predictedMissile_t *CG_BasePredictMissile( entityState_t *ent,  vec3_t muzzlePoi
 	bolt = &pm->refEntity;
 
 	VectorCopy(muzzlePoint, pm->pos.trBase);
+	newTrTime = cg.oldTime-cgs.predictedMissileNudge;
 	pm->pos.trTime = cg.time-cgs.predictedMissileNudge-cg.cmdMsecDelta;
+	diff = pm->pos.trTime - newTrTime;
+	Com_Printf("Diff (old-new) = %i\n", diff);
 
 	if (BG_IsElimGT(cgs.gametype)
 			&& cg.warmup == 0 && cgs.roundStartTime 
