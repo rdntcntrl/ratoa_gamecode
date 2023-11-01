@@ -238,7 +238,7 @@ static void Main_MenuDraw( void ) {
 	}
 
 		UI_DrawProportionalString( 320, 372, "", UI_CENTER|UI_SMALLFONT, color );
-		UI_DrawString( 320, 386, "RatArena(c) 2017-2021 Ratmod Team", UI_CENTER|UI_SMALLFONT, color );
+		UI_DrawString( 320, 386, "RatArena(c) 2017-2023 Ratmod Team", UI_CENTER|UI_SMALLFONT, color );
 		UI_DrawString( 320, 400, "based on OpenArena(c) 2005-2012 OpenArena Team", UI_CENTER|UI_SMALLFONT, color );
 		UI_DrawString( 320, 414, "Ratmod/OpenArena comes with ABSOLUTELY NO WARRANTY; this is free software", UI_CENTER|UI_SMALLFONT, color );
 		UI_DrawString( 320, 428, "and you are welcome to redistribute it under certain conditions;", UI_CENTER|UI_SMALLFONT, color );
