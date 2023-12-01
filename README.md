@@ -68,6 +68,15 @@ set videoflags 0 // allow clients to use things like vertex light, picmip etc
 
 Many of the mod settings listed are defaults already, but may have different defaults in OA itself. Be careful not to mix up configs from different games.
 
+# Download
+
+Ratmod releases are built automatically by Github Actions.
+The latest releases of the mod be [downloaded from github.com](https://github.com/rdntcntrl/ratarena_release/releases).
+
+## Installation
+
+Simply put the `z-ratmod-v*.pk3` file into `~/.openarena/rat` (or `%APPDATA%\OpenArena\rat` on Windows) and you should be able to load the mod from the OA main menu. You can also launch directly into the mod with `openarena +set fs_game rat` from the command line (or adjust your desktop shortcut accordingly).
+
 # Building
 
 If you want to build ratmod from source, you should check out
