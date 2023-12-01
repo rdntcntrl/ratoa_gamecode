@@ -73,6 +73,8 @@ Many of the mod settings listed are defaults already, but may have different def
 If you want to build ratmod from source, you should check out
 the [ratarena_release repository](https://github.com/rdntcntrl/ratarena_release), which can be used to compile the gamecode and assets in a reproducible manner.
 
+**Note:** Building Ratmod is only tested on Linux. It *might* work on BSDs, but will likely fail on Windows.
+
 For developers, you can build the QVM + native code from this repository using:
 
 ```sh
