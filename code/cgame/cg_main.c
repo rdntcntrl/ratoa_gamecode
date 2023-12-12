@@ -981,7 +981,7 @@ void CG_SetEngineCvars( void ) {
 }
 
 
-#define LATEST_RATINITIALIZED 38
+#define LATEST_RATINITIALIZED 39
 
 int CG_MigrateOldCrosshair(int old) {
 	switch (old) {
@@ -1499,6 +1499,14 @@ void CG_RatOldCfgUpdate(void) {
 		}
 
 		CG_Cvar_SetAndUpdate( "cg_ratInitialized", "38" );
+	}
+
+	if (cg_ratInitialized.integer < 39) {
+		if ((int)CG_Cvar_Get("snaps") <= 0) {
+			CG_SetEngineCvars();
+		}
+
+		CG_Cvar_SetAndUpdate( "cg_ratInitialized", "39" );
 	}
 }
 

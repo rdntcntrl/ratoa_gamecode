@@ -63,7 +63,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #define DEFAULT_SV_FPS		40
 
-#define STRINGIFY(a) #a
+#define STRINGIFY_HELPER(a) #a
+#define STRINGIFY(a) STRINGIFY_HELPER(a)
 
 //
 // config strings are a general means of communicating variable length strings
