@@ -1165,7 +1165,7 @@ typedef struct {
 	// weapon effect models
 	qhandle_t	bulletFlashModel;
 	qhandle_t	ringFlashModel;
-	qhandle_t	plasmaFlashModel;
+	qhandle_t	plasmaExplosionModel;
 	qhandle_t	dishFlashModel;
 	qhandle_t	lightningExplosionModel;
 
