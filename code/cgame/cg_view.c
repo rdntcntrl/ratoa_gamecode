@@ -605,16 +605,15 @@ static int CG_CalcFovImpl( float fov, float zoomFov ) {
 			cg.zoomSensitivity = 1;
 		} else {
 			cg.zoomSensitivity = cg.refdef.fov_y / 75.0;
-			if (cg_ratZoomSensitivityMode.integer && cg_ratZoomSensitivity.value) {
-				switch (cg_ratZoomSensitivityMode.integer) {
-				default:
+			switch (cg_zoomSensitivityMode.integer) {
 				case 1: // simple multiplier
-					cg.zoomSensitivity = cg.zoomSensitivity * cg_ratZoomSensitivity.value;
+					cg.zoomSensitivity *= cg_zoomSensitivity.value;
 					break;
 				case 2: // multiplier that ignores the zoomfov
-					cg.zoomSensitivity = cg_ratZoomSensitivity.value;
+					cg.zoomSensitivity = cg_zoomSensitivity.value;
 					break;
-				}
+				default:
+					break;
 			}
 		}
 	}
