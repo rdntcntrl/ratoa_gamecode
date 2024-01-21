@@ -1411,7 +1411,16 @@ void CG_RegisterWeapon( int weaponNum ) {
 		MAKERGB( weaponInfo->flashDlightColor, 1, 0.75f, 0 );
 
 		weaponInfo->flashSound[0] = trap_S_RegisterSound( "sound/weapons/rocket/rocklf1a.wav", qfalse );
-		cgs.media.rocketExplosionShader = trap_R_RegisterShader( "rocketExplosion" );
+		switch (cg_ratRocketExplosion.integer) {
+			case 2:
+				// less fiery version
+				cgs.media.rocketExplosionShader = trap_R_RegisterShader( "rocketExplosion2" );
+				break;
+			case 1:
+			default:
+				cgs.media.rocketExplosionShader = trap_R_RegisterShader( "rocketExplosion" );
+				break;
+		} 
 		break;
 
 //#ifdef MISSIONPACK
@@ -1464,6 +1473,16 @@ void CG_RegisterWeapon( int weaponNum ) {
 		weaponInfo->missileSound = trap_S_RegisterSound( "sound/weapons/plasma/lasfly.wav", qfalse );
 		MAKERGB( weaponInfo->flashDlightColor, 0.6f, 0.6f, 1.0f );
 		weaponInfo->flashSound[0] = trap_S_RegisterSound( "sound/weapons/plasma/hyprbf1a.wav", qfalse );
+		switch (cg_ratPlasmaExplosion.integer) {
+			case 2:
+				cgs.media.plasmaExplosionModel = trap_R_RegisterModel("models/weaphits/plasma_explosion.md3");
+				break;
+			case 1:
+			default:
+				// same as used for RG
+				cgs.media.plasmaExplosionModel = trap_R_RegisterModel("models/weaphits/ring02.md3");
+				break;
+		}
 		cgs.media.plasmaExplosionShader = trap_R_RegisterShader( "plasmaExplosion" );
 		cgs.media.railRingsShader = trap_R_RegisterShader( "railDisc" );
 		break;
@@ -1472,6 +1491,7 @@ void CG_RegisterWeapon( int weaponNum ) {
 		weaponInfo->readySound = trap_S_RegisterSound( "sound/weapons/railgun/rg_hum.wav", qfalse );
 		MAKERGB( weaponInfo->flashDlightColor, 1, 0.5f, 0 );
 		weaponInfo->flashSound[0] = CG_RegisterRailFireSound();
+		cgs.media.ringFlashModel = trap_R_RegisterModel("models/weaphits/ring02.md3");
 		cgs.media.railExplosionShader = trap_R_RegisterShader( "railExplosion" );
 		cgs.media.railRingsShader = trap_R_RegisterShader( "railDisc" );
 		cgs.media.railCoreShader = trap_R_RegisterShader( "railCore" );
@@ -4483,7 +4503,7 @@ void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin, vec3_t dir, im
 		radius = 24;
 		break;
 	case WP_PLASMAGUN:
-		mod = cgs.media.ringFlashModel;
+		mod = cgs.media.plasmaExplosionModel;
 		shader = cgs.media.plasmaExplosionShader;
 		sfx = cgs.media.sfx_plasmaexp;
 		mark = cgs.media.energyMarkShader;

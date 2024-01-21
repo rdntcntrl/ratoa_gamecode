@@ -228,12 +228,14 @@ vmCvar_t	cg_ratPlasmaTrail;
 vmCvar_t	cg_ratPlasmaTrailAlpha;
 vmCvar_t	cg_ratPlasmaTrailStep;
 vmCvar_t	cg_ratPlasmaTrailTime;
+vmCvar_t	cg_ratPlasmaExplosion;
 vmCvar_t	cg_rocketStyle;
 vmCvar_t	cg_ratRocketTrail;
 vmCvar_t	cg_ratRocketTrailAlpha;
 vmCvar_t	cg_ratRocketTrailRadius;
 vmCvar_t	cg_ratRocketTrailStep;
 vmCvar_t	cg_ratRocketTrailTime;
+vmCvar_t	cg_ratRocketExplosion;
 vmCvar_t	cg_ratRail;
 vmCvar_t	cg_ratRailBeefy;
 vmCvar_t	cg_ratRailRadius;
@@ -682,6 +684,7 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_ratPlasmaTrailAlpha, "cg_ratPlasmaTrailAlpha", "0.1", CVAR_ARCHIVE},
 	{ &cg_ratPlasmaTrailStep, "cg_ratPlasmaTrailStep", "12", CVAR_ARCHIVE},
 	{ &cg_ratPlasmaTrailTime, "cg_ratPlasmaTrailTime", "500", CVAR_ARCHIVE},
+	{ &cg_ratPlasmaExplosion, "cg_ratPlasmaExplosion", "1", CVAR_ARCHIVE | CVAR_LATCH},
 	//
 	{ &cg_rocketStyle, "cg_rocketStyle", "2", CVAR_ARCHIVE | CVAR_LATCH },
 	{ &cg_ratRocketTrail, "cg_ratRocketTrail", "1", CVAR_ARCHIVE},
@@ -689,6 +692,7 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_ratRocketTrailRadius, "cg_ratRocketTrailRadius", "6", CVAR_ARCHIVE},
 	{ &cg_ratRocketTrailStep, "cg_ratRocketTrailStep", "20", CVAR_ARCHIVE},
 	{ &cg_ratRocketTrailTime, "cg_ratRocketTrailTime", "0.5", CVAR_ARCHIVE},
+	{ &cg_ratRocketExplosion, "cg_ratRocketExplosion", "1", CVAR_ARCHIVE | CVAR_LATCH},
 	{ &cg_ratRail, "cg_ratRail", "3", CVAR_ARCHIVE | CVAR_LATCH},
 	{ &cg_ratRailBeefy, "cg_ratRailBeefy", "0", CVAR_ARCHIVE},
 	{ &cg_ratRailRadius, "cg_ratRailRadius", "0.5", CVAR_ARCHIVE},
@@ -2760,7 +2764,6 @@ static void CG_RegisterGraphics( void ) {
 	cgs.media.bloodExplosionShader = trap_R_RegisterShader( "bloodExplosion" );
 
 	cgs.media.bulletFlashModel = trap_R_RegisterModel("models/weaphits/bullet.md3");
-	cgs.media.ringFlashModel = trap_R_RegisterModel("models/weaphits/ring02.md3");
 	cgs.media.dishFlashModel = trap_R_RegisterModel("models/weaphits/boom01.md3");
 #ifdef MISSIONPACK
 	cgs.media.teleportEffectModel = trap_R_RegisterModel( "models/powerups/pop.md3" );
