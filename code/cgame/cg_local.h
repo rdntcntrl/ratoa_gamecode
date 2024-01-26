@@ -1784,6 +1784,7 @@ extern vmCvar_t			cg_ratRocketTrailAlpha;
 extern vmCvar_t			cg_ratRocketTrailRadius;
 extern vmCvar_t			cg_ratRocketTrailStep;
 extern vmCvar_t			cg_ratRocketTrailTime;
+extern vmCvar_t			cg_ratRocketExplosion;
 extern vmCvar_t			cg_ratRail;
 extern vmCvar_t			cg_ratRailBeefy;
 extern vmCvar_t			cg_ratRailRadius;

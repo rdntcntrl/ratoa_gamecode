@@ -1411,7 +1411,17 @@ void CG_RegisterWeapon( int weaponNum ) {
 		MAKERGB( weaponInfo->flashDlightColor, 1, 0.75f, 0 );
 
 		weaponInfo->flashSound[0] = trap_S_RegisterSound( "sound/weapons/rocket/rocklf1a.wav", qfalse );
-		cgs.media.rocketExplosionShader = trap_R_RegisterShader( "rocketExplosion" );
+		switch (cg_ratRocketExplosion.integer) {
+			case 1:
+				cgs.media.rocketExplosionShader = trap_R_RegisterShader( "rocketExplosion1" );
+				break;
+			case 2:
+				cgs.media.rocketExplosionShader = trap_R_RegisterShader( "rocketExplosion2" );
+				break;
+			default:
+				cgs.media.rocketExplosionShader = trap_R_RegisterShader( "rocketExplosion1" );
+				break;
+		} 
 		break;
 
 //#ifdef MISSIONPACK
