@@ -1412,14 +1412,12 @@ void CG_RegisterWeapon( int weaponNum ) {
 
 		weaponInfo->flashSound[0] = trap_S_RegisterSound( "sound/weapons/rocket/rocklf1a.wav", qfalse );
 		switch (cg_ratRocketExplosion.integer) {
-			case 1:
-				cgs.media.rocketExplosionShader = trap_R_RegisterShader( "rocketExplosion1" );
-				break;
 			case 2:
 				cgs.media.rocketExplosionShader = trap_R_RegisterShader( "rocketExplosion2" );
 				break;
+			case 1:
 			default:
-				cgs.media.rocketExplosionShader = trap_R_RegisterShader( "rocketExplosion1" );
+				cgs.media.rocketExplosionShader = trap_R_RegisterShader( "rocketExplosion" );
 				break;
 		} 
 		break;
