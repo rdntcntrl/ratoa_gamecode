@@ -2340,6 +2340,9 @@ static void CG_RegisterSounds( void ) {
 		Com_sprintf (name, sizeof(name), "sound/player/footsteps/clank%i.wav", i+1);
 		cgs.media.footsteps[FOOTSTEP_METAL][i] = trap_S_RegisterSound (name, qfalse);
 
+		Com_sprintf (name, sizeof(name), "sound/player/footsteps/boot3.wav");
+		cgs.media.footsteps[FOOTSTEP_SIMPLE][i] = trap_S_RegisterSound (name, qfalse);
+
 	}
 	for (i=0 ; i<CROUCHSLIDE_SOUNDS ; i++) {
 		Com_sprintf (name, sizeof(name), "sound/player/footsteps/slide%i.wav", i+1);

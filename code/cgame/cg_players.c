@@ -201,6 +201,8 @@ static qboolean	CG_ParseAnimationFile( const char *filename, clientInfo_t *ci ) 
 				ci->footsteps = FOOTSTEP_MECH;
 			} else if ( !Q_stricmp( token, "energy" ) ) {
 				ci->footsteps = FOOTSTEP_ENERGY;
+			} else if ( !Q_stricmp( token, "simple" ) ) {
+				ci->footsteps = FOOTSTEP_SIMPLE;
 			} else {
 				CG_Printf( "Bad footsteps parm in %s: %s\n", filename, token );
 			}

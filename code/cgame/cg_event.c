@@ -624,6 +624,7 @@ footstep_t CG_Footsteps(clientInfo_t *ci) {
 			case FOOTSTEP_FLESH:
 			case FOOTSTEP_MECH:
 			case FOOTSTEP_ENERGY:
+			case FOOTSTEP_SIMPLE:
 				return footsteps;
 			default:
 				break;
