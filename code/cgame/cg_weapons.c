@@ -1291,18 +1291,15 @@ void CG_RegisterWeapon( int weaponNum ) {
 		weaponInfo->ammoModel = trap_R_RegisterModel( ammo->world_model[0] );
 	}
 
-	Q_strncpyz( path, worldmodel, MAX_QPATH );
-	COM_StripExtension(path, path, sizeof(path));
+	COM_StripExtension(worldmodel, path, sizeof(path));
 	strcat( path, "_flash.md3" );
 	weaponInfo->flashModel = trap_R_RegisterModel( path );
 
-	Q_strncpyz( path, worldmodel, MAX_QPATH );
-	COM_StripExtension(path, path, sizeof(path));
+	COM_StripExtension(worldmodel, path, sizeof(path));
 	strcat( path, "_barrel.md3" );
 	weaponInfo->barrelModel = trap_R_RegisterModel( path );
 
-	Q_strncpyz( path, worldmodel, MAX_QPATH );
-	COM_StripExtension(path, path, sizeof(path));
+	COM_StripExtension(worldmodel, path, sizeof(path));
 	strcat( path, "_hand.md3" );
 	weaponInfo->handsModel = trap_R_RegisterModel( path );
 
