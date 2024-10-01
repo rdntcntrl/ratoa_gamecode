@@ -2013,3 +2013,42 @@ qboolean BG_IsElimTeamGT(gametype_t gametype) {
 qboolean BG_IsElimGT(gametype_t gametype) {
 	return BG_IsElimTeamGT(gametype) || gametype == GT_LMS;
 }
+
+const char *BG_EAwardToString(extAward_t award) {
+	switch (award) {
+	case EAWARD_FRAGS: return "frags";
+	case EAWARD_ACCURACY: return "accuracy";
+	case EAWARD_TELEFRAG: return "telefrag";
+	case EAWARD_TELEMISSILE_FRAG: return "telemissile_frag";
+	case EAWARD_ROCKETSNIPER: return "bullseye";
+	case EAWARD_FULLSG: return "fullsg";
+	case EAWARD_IMMORTALITY: return "immortality";
+	case EAWARD_AIRROCKET: return "airrocket";
+	case EAWARD_AIRGRENADE: return "airgrenade";
+	case EAWARD_ROCKETRAIL: return "rocketrail";
+	case EAWARD_LGRAIL: return "lgrail";
+	case EAWARD_RAILTWO: return "railtwo";
+	case EAWARD_DEADHAND: return "deadhand";
+	case EAWARD_SHOWSTOPPER: return "showstopper";
+	case EAWARD_AMBUSH: return "ambush";
+	case EAWARD_KAMIKAZE: return "kamikaze";
+	case EAWARD_STRONGMAN: return "strongman";
+	case EAWARD_HERO: return "hero";
+	case EAWARD_BUTCHER: return "butcher";
+	case EAWARD_KILLINGSPREE: return "killingspree";
+	case EAWARD_RAMPAGE: return "rampage";
+	case EAWARD_MASSACRE: return "massacre";
+	case EAWARD_UNSTOPPABLE: return "unstoppable";
+	case EAWARD_GRIMREAPER: return "grimreaper";
+	case EAWARD_REVENGE: return "revenge";
+	case EAWARD_BERSERKER: return "berserker";
+	case EAWARD_VAPORIZED: return "vaporized";
+	case EAWARD_TWITCHRAIL: return "twitchrail";
+	case EAWARD_RAT: return "rat";
+	case EAWARD_THAWBUDDY: return "thawbuddy";
+	// shutup gcc:
+	case EAWARD_NUM_AWARDS:
+		break;
+	}
+	return "unknown";
+}

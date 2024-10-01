@@ -439,7 +439,7 @@ void G_ClientThawNow( gentity_t *ent, int thawedBy ) {
 
 			if (G_IsElimTeamGT()
 					&& level.roundNumber == level.roundNumberStarted) {
-				AwardMessage(thawingEnt, EAWARD_THAWBUDDY, ++(thawingEnt->client->pers.awardCounts[EAWARD_THAWBUDDY]));
+				G_AwardEAward(thawingEnt, EAWARD_THAWBUDDY);
 			}
 			// adding score for thawing makes no sense for GT_TEAM
 			if (G_IsTeamGametype() && g_gametype.integer != GT_TEAM) {

@@ -342,19 +342,19 @@ static void G_Spreeaward( gentity_t *ent, int level) {
 	}
 	switch (level) {
 		case 1:
-			AwardMessage(ent, EAWARD_KILLINGSPREE, ++(ent->client->pers.awardCounts[EAWARD_KILLINGSPREE]));
+			G_AwardEAward(ent, EAWARD_KILLINGSPREE);
 			break;
 		case 2:
-			AwardMessage(ent, EAWARD_RAMPAGE, ++(ent->client->pers.awardCounts[EAWARD_RAMPAGE]));
+			G_AwardEAward(ent, EAWARD_RAMPAGE);
 			break;
 		case 3:
-			AwardMessage(ent, EAWARD_MASSACRE, ++(ent->client->pers.awardCounts[EAWARD_MASSACRE]));
+			G_AwardEAward(ent, EAWARD_MASSACRE);
 			break;
 		case 4:
-			AwardMessage(ent, EAWARD_UNSTOPPABLE, ++(ent->client->pers.awardCounts[EAWARD_UNSTOPPABLE]));
+			G_AwardEAward(ent, EAWARD_UNSTOPPABLE);
 			break;
 		default:
-			AwardMessage(ent, EAWARD_GRIMREAPER, ++(ent->client->pers.awardCounts[EAWARD_GRIMREAPER]));
+			G_AwardEAward(ent, EAWARD_GRIMREAPER);
 			break;
 	}
 }

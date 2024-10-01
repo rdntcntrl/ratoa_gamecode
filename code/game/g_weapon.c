@@ -538,7 +538,7 @@ void ShotgunPattern( vec3_t origin, vec3_t origin2, int seed, gentity_t *ent ) {
 		// make sure we don't get the EAWARD_ACCURACY if we didn't hit all pellets
 		ent->client->consecutive_hits = 0;
 	} else {
-		AwardMessage(ent, EAWARD_FULLSG, ++(ent->client->pers.awardCounts[EAWARD_FULLSG]));
+		G_AwardEAward(ent, EAWARD_FULLSG);
 	}
 
 	ShotgunDamagePlums(&hitTargets, ent);
@@ -1030,7 +1030,7 @@ void G_CheckAccuracyAward( gentity_t *ent, int old_accuracy_hits) {
 	if (ent->client->consecutive_hits >= requiredhits) {
 		ent->client->consecutive_hits = 0;
 		// all hits, give an award
-		AwardMessage(ent, EAWARD_ACCURACY, ++(ent->client->pers.awardCounts[EAWARD_ACCURACY]));
+		G_AwardEAward(ent, EAWARD_ACCURACY);
 	}
 }
 

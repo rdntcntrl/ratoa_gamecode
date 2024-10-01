@@ -470,7 +470,7 @@ void body_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int d
 	if (meansOfDeath == MOD_GAUNTLET && attacker && attacker->client) {
 		if (++attacker->client->pers.gauntCorpseGibCount >= BUTCHER_GIBCOUNT) {
 			attacker->client->pers.gauntCorpseGibCount -= BUTCHER_GIBCOUNT;
-			AwardMessage(attacker, EAWARD_BUTCHER, ++(attacker->client->pers.awardCounts[EAWARD_BUTCHER]));
+			G_AwardEAward(attacker, EAWARD_BUTCHER);
 		}
 	}
 
@@ -628,7 +628,7 @@ void rampage_notify(gentity_t *attacker) {
 		return;
 	}
 
-	attacker->client->pers.awardCounts[EAWARD_FRAGS]++;
+	G_AwardEAward(attacker, EAWARD_FRAGS);
 
 	if (!g_usesRatVM.integer && !G_MixedClientHasRatVM(attacker->client)) {
 		int soundIndex;
@@ -644,7 +644,6 @@ void rampage_notify(gentity_t *attacker) {
 		return;
 	}
 
-	AwardMessage(attacker, EAWARD_FRAGS, attacker->client->pers.awardCounts[EAWARD_FRAGS]);
 }
 
 void G_CheckKamikazeAward(gentity_t *attacker, int killsBefore, int deathsBefore) {
@@ -654,7 +653,7 @@ void G_CheckKamikazeAward(gentity_t *attacker, int killsBefore, int deathsBefore
 	if (attacker->client->pers.kills <= killsBefore || attacker->client->pers.deaths <= deathsBefore) {
 		return;
 	}
-	AwardMessage(attacker, EAWARD_KAMIKAZE, ++(attacker->client->pers.awardCounts[EAWARD_KAMIKAZE]));
+	G_AwardEAward(attacker, EAWARD_KAMIKAZE);
 }
 
 void G_CheckStrongmanAward(gentity_t *attacker, gentity_t *victim) {
@@ -726,7 +725,7 @@ void G_CheckStrongmanAward(gentity_t *attacker, gentity_t *victim) {
 			break;
 		}
 		if (numKilled == numEnemies && numEnemies >= 3) {
-			AwardMessage(attacker, EAWARD_STRONGMAN, ++(attacker->client->pers.awardCounts[EAWARD_STRONGMAN]));
+			G_AwardEAward(attacker, EAWARD_STRONGMAN);
 			reset = qtrue;
 		}  else {
 			break;
@@ -780,7 +779,7 @@ void G_CheckAmbushAward(gentity_t *victim, gentity_t *inflictor, gentity_t *atta
 			)
 		       	&& (!inflictor || !inflictor->missileTeleported)
 			&& meansOfDeath != MOD_TELEFRAG) {
-		AwardMessage(attacker, EAWARD_AMBUSH, ++(attacker->client->pers.awardCounts[EAWARD_AMBUSH]));
+		G_AwardEAward(attacker, EAWARD_AMBUSH);
 	}
 }
 
@@ -819,7 +818,7 @@ void G_CheckVaporizedAward(gentity_t *attacker, gentity_t *victim) {
 		if (totalPlasmaDamage > awardDamage) {
 			// did more than 100 plasma damage to the target within the last 800ms
 			// (this was more effective than two perfect consecutive hits with RL)
-			AwardMessage(attacker, EAWARD_VAPORIZED, ++(attacker->client->pers.awardCounts[EAWARD_VAPORIZED]));
+			G_AwardEAward(attacker, EAWARD_VAPORIZED);
 			break;
 		} 
 		i = (i + DAMAGE_HISTORY - 1 ) % DAMAGE_HISTORY;
@@ -838,7 +837,7 @@ void G_CheckDeathEAwards(gentity_t *victim, gentity_t *inflictor, gentity_t *att
 			(1 << PW_INVIS) |
 			(1 << PW_REGEN) |
 			(1 << PW_FLIGHT))) {
-		AwardMessage(attacker, EAWARD_SHOWSTOPPER, ++(attacker->client->pers.awardCounts[EAWARD_SHOWSTOPPER]));
+		G_AwardEAward(attacker, EAWARD_SHOWSTOPPER);
 	}
 
 
@@ -850,7 +849,7 @@ void G_CheckDeathEAwards(gentity_t *victim, gentity_t *inflictor, gentity_t *att
 		case MOD_TELEFRAG:
 			if (!G_IsElimTeamGT() 
 					|| level.roundNumber == level.roundNumberStarted) {
-				AwardMessage(attacker, EAWARD_TELEFRAG, ++(attacker->client->pers.awardCounts[EAWARD_TELEFRAG]));
+				G_AwardEAward(attacker, EAWARD_TELEFRAG);
 			}
 			break;
 		case MOD_ROCKET:
@@ -866,12 +865,12 @@ void G_CheckDeathEAwards(gentity_t *victim, gentity_t *inflictor, gentity_t *att
 					&& attacker->client->pers.lastKilledBy >= 0 && attacker->client->pers.lastKilledBy < MAX_CLIENTS
 					&& attacker->client->pers.lastKilledBy != attacker->s.number
 					&& attacker->client->pers.lastKilledBy == victim->s.number) {
-				AwardMessage(attacker, EAWARD_DEADHAND, ++(attacker->client->pers.awardCounts[EAWARD_DEADHAND]));
+				G_AwardEAward(attacker, EAWARD_DEADHAND);
 			}
 			if (!inflictor || !inflictor->missileTeleported) {
 				break;
 			}
-			AwardMessage(attacker, EAWARD_TELEMISSILE_FRAG, ++(attacker->client->pers.awardCounts[EAWARD_TELEMISSILE_FRAG]));
+			G_AwardEAward(attacker, EAWARD_TELEMISSILE_FRAG);
 			break;
 	}
 
@@ -885,14 +884,14 @@ void G_CheckDeathEAwards(gentity_t *victim, gentity_t *inflictor, gentity_t *att
 			&& !attacker->client->pers.gotRevenge
 			) {
 		attacker->client->pers.gotRevenge = qtrue;
-		AwardMessage(attacker, EAWARD_REVENGE, ++(attacker->client->pers.awardCounts[EAWARD_REVENGE]));
+		G_AwardEAward(attacker, EAWARD_REVENGE);
 
 	}
 
 	if (attacker->client->ps.stats[STAT_HEALTH] <= 30) {
 		if (++attacker->client->ratFragCounter >= 3) {
 			attacker->client->ratFragCounter = 0;
-			AwardMessage(attacker, EAWARD_RAT, ++(attacker->client->pers.awardCounts[EAWARD_RAT]));
+			G_AwardEAward(attacker, EAWARD_RAT);
 		}
 	} else {
 		attacker->client->ratFragCounter = 0;
@@ -1106,10 +1105,10 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 				self->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_GAUNTLETREWARD;
 
 				if (attacker->client->ps.powerups[PW_INVIS]) {
-					AwardMessage(attacker, EAWARD_AMBUSH, ++(attacker->client->pers.awardCounts[EAWARD_AMBUSH]));
+					G_AwardEAward(attacker, EAWARD_AMBUSH);
 				}
 				if ((++(attacker->client->gauntSpree)) % 3 == 0 ) {
-					AwardMessage(attacker, EAWARD_BERSERKER, ++(attacker->client->pers.awardCounts[EAWARD_BERSERKER]));
+					G_AwardEAward(attacker, EAWARD_BERSERKER);
 				}
 			} else {
 				attacker->client->gauntSpree = 0;
@@ -1642,7 +1641,7 @@ void G_CheckRocketSniper(gentity_t *victim, gentity_t *inflictor, gentity_t *att
 		return;
 	}
 	
-	AwardMessage(attacker, EAWARD_ROCKETSNIPER, ++(attacker->client->pers.awardCounts[EAWARD_ROCKETSNIPER]));
+	G_AwardEAward(attacker, EAWARD_ROCKETSNIPER);
 }
 
 void G_CheckAirrocket(gentity_t *victim, gentity_t *inflictor, gentity_t *attacker, int meansOfDeath) {
@@ -1682,7 +1681,7 @@ void G_CheckAirrocket(gentity_t *victim, gentity_t *inflictor, gentity_t *attack
 	}
 
 	award = meansOfDeath == MOD_ROCKET ? EAWARD_AIRROCKET : EAWARD_AIRGRENADE;
-	AwardMessage(attacker, award, ++(attacker->client->pers.awardCounts[award]));
+	G_AwardEAward(attacker, award);
 }
 
 void G_CheckRailtwo(gentity_t *victim, gentity_t *attacker, int meansOfDeath, int lastDmgGivenTime, int lastDmgGivenMOD, int lastDmgGivenEntityNum) {
@@ -1704,7 +1703,7 @@ void G_CheckRailtwo(gentity_t *victim, gentity_t *attacker, int meansOfDeath, in
 		return;
 	}
 
-	AwardMessage(attacker, EAWARD_RAILTWO, ++(attacker->client->pers.awardCounts[EAWARD_RAILTWO]));
+	G_AwardEAward(attacker, EAWARD_RAILTWO);
 }
 
 //#define ROCKETRAIL_TIME 1350
@@ -1730,12 +1729,12 @@ void G_CheckComboAwards(gentity_t *victim, gentity_t *attacker, int mod, int las
 		if (elapsed > ROCKETRAIL_TIME || victim->client->lastGroundTime + elapsed > level.time) {
 			return;
 		}
-		AwardMessage(attacker, EAWARD_ROCKETRAIL, ++(attacker->client->pers.awardCounts[EAWARD_ROCKETRAIL]));
+		G_AwardEAward(attacker, EAWARD_ROCKETRAIL);
 	} else if (lastDmgGivenMOD == MOD_LIGHTNING) {
 		if (level.time - lastDmgGivenTime > LGRAIL_TIME) {
 			return;
 		}
-		AwardMessage(attacker, EAWARD_LGRAIL, ++(attacker->client->pers.awardCounts[EAWARD_LGRAIL]));
+		G_AwardEAward(attacker, EAWARD_LGRAIL);
 	}
 
 }
@@ -1791,7 +1790,7 @@ void G_CheckTwitchRail(gentity_t *attacker, gentity_t *victim, int mod) {
 		angle = acos(DotProduct(forward, cl->viewvector_history[idx]));
 		//Com_Printf("angle %i = %f\n", idx, (float) angle * 180.0/M_PI);
 		if (angle * 180.0/M_PI > TWITCHRAIL_ANGLE) {
-			AwardMessage(attacker, EAWARD_TWITCHRAIL, ++(attacker->client->pers.awardCounts[EAWARD_TWITCHRAIL]));
+			G_AwardEAward(attacker, EAWARD_TWITCHRAIL);
 			return;
 		}
 		idx = (idx + 1) % VIEWVECTOR_HISTORY;
@@ -1810,7 +1809,7 @@ void G_CheckImmortality(gentity_t *ent) {
 		return;
 	}
 	ent->client->dmgTakenImmortality -= IMMORTALITY_DAMAGE;
-	AwardMessage(ent, EAWARD_IMMORTALITY, ++(ent->client->pers.awardCounts[EAWARD_IMMORTALITY]));
+	G_AwardEAward(ent, EAWARD_IMMORTALITY);
 }
 
 static int G_WeaponForMOD(int mod) {

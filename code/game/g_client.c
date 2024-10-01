@@ -3925,6 +3925,19 @@ void G_UpdateTopWeapons(gclient_t *client) {
 		sizeof(client->pers.topweapons[0]), SortWPDamages );
 }
 
+void G_AwardEAward(gentity_t *player, extAward_t award) {
+	int count;
+
+	if (!player->client) {
+		return;
+	}
+
+	count = ++(player->client->pers.awardCounts[award]);
+	G_LogPrintf("Award: %i %i: %s gained the %s award\n", player->client->ps.clientNum, 6+award, player->client->pers.netname, BG_EAwardToString(award));
+	AwardMessage(player, award, count);
+}
+
+
 qboolean G_MixedClientHasRatVM(gclient_t *client) {
 	return (g_usesRatEngine.integer && g_mixedMode.integer && client->pers.pure);
 }

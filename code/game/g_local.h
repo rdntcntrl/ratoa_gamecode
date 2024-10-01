@@ -1231,6 +1231,7 @@ void G_UpdateFrozenPlayer( gentity_t *player );
 qboolean G_IsFrozenPlayerFinalized ( gentity_t *player );
 void G_RunFrozenPlayer( gentity_t *frozen );
 qboolean G_IsFrozenPlayerRemnant( gentity_t *ent );
+void G_AwardEAward(gentity_t *player, extAward_t award);
 
 //
 // g_svcmds.c

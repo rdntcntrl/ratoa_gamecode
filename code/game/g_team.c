@@ -1361,7 +1361,7 @@ void Team_CheckHeroAward(gentity_t *capturePlayer) {
 
 	// don't award if we're the only one in the team
 	if (teamClients > 1) {
-		AwardMessage(capturePlayer, EAWARD_HERO, ++(capturePlayer->client->pers.awardCounts[EAWARD_HERO]));
+		G_AwardEAward(capturePlayer, EAWARD_HERO);
 	}
 
 }

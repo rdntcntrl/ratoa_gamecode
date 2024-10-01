@@ -354,6 +354,8 @@ typedef enum {
 #define EF_TEAMVOTED		0x00080000		// already cast a team vote
 
 // Additional awards (not visible to other players)
+// if you extend this, make sure to adjust JSON export as well
+// as well as BG_EAwardToString()
 typedef enum {
 	EAWARD_FRAGS,
 	EAWARD_ACCURACY,
@@ -1047,6 +1049,8 @@ const char *BG_EntityTypeToString(int eType);
 qboolean BG_IsTeamGametype(gametype_t gametype);
 qboolean BG_IsElimTeamGT(gametype_t gametype);
 qboolean BG_IsElimGT(gametype_t gametype);
+
+const char *BG_EAwardToString(extAward_t award);
 
 
 #endif
