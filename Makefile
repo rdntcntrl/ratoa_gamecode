@@ -192,6 +192,9 @@ endif
 VERSION=1.36
 
 RATMOD_VERSION=$(shell LANG=C git describe --tags --abbrev --dirty)
+ifeq ($(strip $(RATMOD_VERSION)),)
+  RATMOD_VERSION="UNKNOWN_VERSION"
+endif
 
 USE_SVN=
 ifeq ($(wildcard .svn),.svn)
